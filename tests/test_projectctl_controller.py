@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import importlib
+import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
@@ -239,6 +242,78 @@ def test_goal_accepts_and_runs_the_same_feature_after_publication(
     assert started.contract.argv == ("./labctl", "verify", "--output", "json")
     assert passed.status == "passed"
     assert passed.attempt_count == 1
+
+
+def test_generated_projectctl_rejects_draft_feature_before_execution_or_goal_state(
+    tmp_path: Path,
+) -> None:
+    feature = tmp_path / "Wiki" / "features" / "draft-sentinel.md"
+    feature.parent.mkdir(parents=True)
+    feature.write_text(
+        """---
+type: feature
+slug: draft-sentinel
+title: Draft sentinel
+draft: true
+verification:
+  command:
+    - ./draft-sentinel.sh
+---
+
+# Draft sentinel
+
+## User behavior
+
+A maintainer cannot use an unpublished contract as evidence.
+
+## Expected path
+
+Draft contract to fail-closed controller boundary.
+""",
+        encoding="utf-8",
+    )
+    sentinel = tmp_path / "draft-sentinel.sh"
+    sentinel.write_text("#!/bin/sh\ntouch draft-ran\n", encoding="utf-8")
+    sentinel.chmod(0o700)
+    executable = REPOSITORY_ROOT / ".pstack" / "bin" / "projectctl"
+    environment = os.environ.copy()
+    environment["PYTHONDONTWRITEBYTECODE"] = "1"
+
+    commands = (
+        ("feature", "verify", "draft-sentinel"),
+        (
+            "goal",
+            "start",
+            "Do not trust unpublished evidence",
+            "--feature",
+            "draft-sentinel",
+        ),
+    )
+    for command in commands:
+        result = subprocess.run(
+            [
+                str(executable),
+                *command,
+                "--root",
+                str(tmp_path),
+                "--output",
+                "json",
+            ],
+            cwd=REPOSITORY_ROOT,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=180,
+        )
+        assert result.returncode == 2, (result.stdout, result.stderr)
+        payload = json.loads(result.stdout)
+        assert payload["ok"] is False
+        assert payload["error_type"] == "FeatureMapError"
+        assert "still a draft" in payload["error"]
+
+    assert not (tmp_path / "draft-ran").exists()
+    assert not (tmp_path / ".pstack" / "state" / "goal.json").exists()
 
 
 @pytest.mark.parametrize(

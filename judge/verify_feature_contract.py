@@ -389,6 +389,7 @@ def _valid_payload(payload: object) -> bool:
         return False
     export_id = business["export_id"]
     s3_result = business["s3_result"]
+    api_idempotency = business["api_idempotency"]
     duplicate = business["worker_duplicate_delivery"]
     dlq = business["dlq"]
     expected_body = {"tenant": "tenant-a", "export_id": export_id}
@@ -397,7 +398,25 @@ def _valid_payload(payload: object) -> bool:
         or not EXPORT_RE.fullmatch(export_id)
         or business["terminal_status"] != "COMPLETE"
         or business["tenant_key_partition_separation"] is not True
-        or business["api_idempotency"] is not True
+        or not _exact_dict(
+            api_idempotency,
+            {
+                "duplicate_marker",
+                "duplicate_status",
+                "same_export_id",
+                "row_idempotency_matches",
+                "enqueue_confirmed",
+                "attempts",
+            },
+        )
+        or not isinstance(api_idempotency, dict)
+        or api_idempotency["duplicate_marker"] is not True
+        or api_idempotency["duplicate_status"] not in ("QUEUED", "COMPLETE")
+        or api_idempotency["same_export_id"] is not True
+        or api_idempotency["row_idempotency_matches"] is not True
+        or api_idempotency["enqueue_confirmed"] is not True
+        or type(api_idempotency["attempts"]) is not int
+        or api_idempotency["attempts"] != 1
         or not _exact_dict(s3_result, {"key", "content_type", "body", "etag"})
         or not isinstance(s3_result, dict)
         or s3_result["key"] != f"exports/tenant-a/{export_id}.json"

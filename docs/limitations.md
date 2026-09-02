@@ -6,7 +6,8 @@ Kiro 2.21.0 exposes custom-Power installation through the Powers UI rather than 
 powers` command. The combined repository structurally validates the Agent Plugins manifest and
 executes the Power-local setup/idempotence/doctor path in a fresh project, but the automated
 campaign did not drive the graphical import click path. The selected-profile workflow itself was
-then exercised in a real Kiro v3 terminal session.
+then exercised in a real Kiro v3 terminal session. Until Kiro exposes a corresponding CLI command,
+an end user must still complete and confirm the graphical Power import manually.
 
 PK-Stack adds a current-session skill and deterministic repository state; it does not add a native
 Kiro CLI v3 `/goal` command or runtime scheduler. Prompt and skill instructions guide the model,
@@ -19,11 +20,17 @@ search and `knowledge validate --require-okn` require the canonical `okn` execut
 absent, `doctor` reports a warning and PK-Stack remains in feature-map-only knowledge mode.
 
 The real selected-profile Kiro campaign is retained as a bounded committed chronology plus an
-owner-only externally hashed raw transcript. BSD `script` did not echo its own launch argv, so the
-exact command and single user-launched process remain harness metadata; the transcript proves the
-V3 UI, selected profile/model/effort, actions, and normal session end. This local evidence does not
-replace clean independent Fable review or the final Grok sweep. Those council results and private
-publication remain unclaimed until their evidence exists.
+owner-only externally hashed raw transcript. Its 12-line client-log projection contains Kiro's
+internal `ACP session/new`, `ACP session/prompt`, `ACPEventAdapter`, and
+`autonomyMode: "Autopilot"` labels. Those are internal protocol/controller terms, not evidence that
+the user launched an ACP-first workflow; the custom `pstack` profile still applied its tool policy
+and ask-gated permissions. The projection does not contain discrete source-write or deploy-command
+records, so those claims rely on the hashed raw transcript, stored goal, and byte-level source
+audit. BSD `script` did not echo its own launch argv, so the exact command and single user-launched
+process remain harness metadata; the transcript proves the V3 UI, selected
+profile/model/effort, actions, and normal session end. This local evidence does not replace clean
+independent Fable review or the final Grok sweep. Those council results and private publication
+remain unclaimed until their evidence exists.
 
 ## Floci is a Docker-backed ECS subset, not Fargate
 
@@ -41,7 +48,7 @@ local compatibility path rather than cloud-network evidence.
 
 ## Effective container security
 
-In the fresh `live-final-902` run on 2026-09-02, API and worker definitions requested
+In the historical `live-final-902` run on 2026-09-02, API and worker definitions requested
 `user: 65532:65532`, `readonlyRootFilesystem: true`, Linux `CapDrop: [ALL]`, and
 `dockerSecurityOptions: [no-new-privileges]`. Floci 2.0.1 accepted those fields but launched both
 Docker containers with:
@@ -76,8 +83,11 @@ host or run untrusted workloads on the network.
 
 Observed Floci 2.0.1 behavior returns exact ownership tags for ECS services but has omitted task
 tags from `DescribeTasks(include=TAGS)` and `ListTagsForResource`, even when create and update
-requests use `propagateTags=SERVICE`. It has also dropped requested task-definition Docker labels.
-Any returned mismatch fails closed, but absence is not treated as positive ownership evidence.
+requests use `propagateTags=SERVICE`. Registration requests also include PK-Stack Docker labels,
+but Floci's later `DescribeTaskDefinition` projection has omitted those requested fields. That is
+distinct from the live Docker containers' Floci-native labels, which are inspected directly. Any
+returned mismatch fails closed, but an absent API-projected field is not invented as positive
+ownership evidence.
 
 The compatibility chain instead requires exact service tags, task ARN and family, active
 task-definition revision, Floci native container name and `io.floci.resource-id`, image reference
@@ -106,7 +116,23 @@ Before creating that claim, `up` inspects the exact content-addressed Floci depe
 needed, performs a quiet ten-minute-bounded pull of that same digest. Compose then runs with
 `--pull never`. An interrupted preflight can leave shared immutable Docker cache layers, but it
 cannot leave a claimed Compose container or network. After the claim, any failed startup remains
-normal manifest-backed recovery work.
+normal manifest-backed recovery work. The automatic missing-image branch intentionally recognizes
+one exact Docker daemon diagnostic and otherwise fails closed. If a Docker version or locale emits
+a different missing-image message, pull the same pinned reference manually and rerun `up`:
+
+```sh
+docker image pull \
+  floci/floci:2.0.1@sha256:4e451c39c7bb88e3cd4f87e8fc0c25d5b47695a51185d521e2241fa00486e8eb
+```
+
+Do not replace the digest with a mutable tag.
+
+A completed deployment generation binds its source digest and observed Docker image ID in the
+append-only journal. If that image is deleted outside `labctl`, rebuilding identical source may
+produce a different image ID and the same-digest generation correctly refuses adoption. External
+image deletion is outside the recovery guarantee. Use a genuine new source digest and deployment
+when the live state is otherwise sound; if deployment cannot safely continue, complete the
+supported teardown and start a new run. Do not edit the journal to accept a replacement image.
 
 `--teardown-unreachable-emulator` is an explicit discard of an unreachable emulator's
 ephemeral AWS-shaped state and cannot prove resource-by-resource deletion. It requires a typed

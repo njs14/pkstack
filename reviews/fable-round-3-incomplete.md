@@ -19,6 +19,6 @@ returned the required `# Verdict` through `# Acceptance decision` report. Partia
 tool activity are not findings, remediation instructions, or acceptance evidence. No repository
 write was available to the reviewer and this run changed no candidate file.
 
-Result: **no verdict**. Round 4 must be a fresh review of the later exact commit that includes the
-bounded Kiro campaign evidence and naming/status sweep. It must satisfy
-`reviews/fable-review-prompt.md`; this incomplete attempt will not be resumed or overwritten.
+Result: **no verdict**. This incomplete attempt was not resumed or overwritten. Round 4 later
+reviewed combined commit `ced867c4814ef722441215bd4d33ac30769868ec`; its independent
+request-changes result is retained separately in `reviews/fable-round-4.md`.

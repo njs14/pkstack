@@ -85,8 +85,7 @@ def _events(
             image_id=image_id,
             family=state.api_family,
             task_definition_arn=(
-                "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-                f"{state.api_family}:{revision}"
+                f"arn:aws:ecs:us-east-1:000000000000:task-definition/{state.api_family}:{revision}"
             ),
         ),
         ArtifactEvent(
@@ -228,9 +227,7 @@ def test_state_rejects_noncanonical_claim_identity(claim_id: str) -> None:
         ("docker_socket", "unix:///" + "a" * 4090),
     ],
 )
-def test_state_rejects_incomplete_or_unsafe_docker_identity(
-    field: str, value: str
-) -> None:
+def test_state_rejects_incomplete_or_unsafe_docker_identity(field: str, value: str) -> None:
     with pytest.raises(SafetyError, match="Docker"):
         RunState.create("ci-bad-docker", **{field: value})
 
@@ -243,10 +240,7 @@ def test_state_rejects_incomplete_or_unsafe_docker_identity(
         ("worker_image_id", "sha256:" + "b" * 64),
         (
             "api_task_definition_arn",
-            (
-                "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-                "pklab-ci-partial-pointer-api:1"
-            ),
+            ("arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-ci-partial-pointer-api:1"),
         ),
         (
             "worker_task_definition_arn",
@@ -257,9 +251,7 @@ def test_state_rejects_incomplete_or_unsafe_docker_identity(
         ),
     ],
 )
-def test_active_deployment_pointer_rejects_every_partial_shape(
-    field: str, value: str
-) -> None:
+def test_active_deployment_pointer_rejects_every_partial_shape(field: str, value: str) -> None:
     with pytest.raises(SafetyError, match="entirely empty or complete"):
         RunState.create("ci-partial-pointer", **{field: value})
 
@@ -441,16 +433,12 @@ def test_legacy_schema_v2_teardown_can_transition_and_resume_strictly(tmp_path: 
     legacy = load_state(tmp_path)
     assert legacy == state
     transitioned = transition_teardown_to_discard(tmp_path, legacy)
-    resumed = complete_teardown_phase(
-        tmp_path, transitioned, DISCARD_TEARDOWN_PHASES[0]
-    )
+    resumed = complete_teardown_phase(tmp_path, transitioned, DISCARD_TEARDOWN_PHASES[0])
     assert load_state(tmp_path) == resumed
     assert resumed.teardown is not None
     assert resumed.teardown.completed_phases == DISCARD_TEARDOWN_PHASES[:1]
     assert resumed.teardown.transition is not None
-    assert resumed.teardown.transition.from_completed_phases == (
-        REACHABLE_TEARDOWN_PHASES[0],
-    )
+    assert resumed.teardown.transition.from_completed_phases == (REACHABLE_TEARDOWN_PHASES[0],)
 
     smuggled = resumed.to_dict()
     assert isinstance(smuggled["teardown"], dict)
@@ -489,9 +477,7 @@ def test_reachable_to_discard_transition_preserves_plan_and_maps_completed_prefi
     assert teardown.plan.ledger_sha256 == reachable.ledger_sha256
     assert teardown.plan_sha256 == teardown_plan_hash(teardown.plan)
     assert teardown.completed_phases == tuple(
-        phase
-        for phase in reachable.phases[:completed_count]
-        if phase in DISCARD_TEARDOWN_PHASES
+        phase for phase in reachable.phases[:completed_count] if phase in DISCARD_TEARDOWN_PHASES
     )
     assert teardown.transition is not None
     assert teardown.transition.from_aws_mode == "reachable"

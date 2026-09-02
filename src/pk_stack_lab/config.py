@@ -693,11 +693,7 @@ def _validate_active_deployment(state: RunState) -> None:
     ):
         raise SafetyError("active deployment identity contains invalid immutable values")
 
-    expected_keys = {
-        (kind, role)
-        for kind in ARTIFACT_KINDS
-        for role in ("api", "worker")
-    }
+    expected_keys = {(kind, role) for kind in ARTIFACT_KINDS for role in ("api", "worker")}
     by_operation: dict[str, list[ArtifactEvent]] = {}
     for event in state.artifact_ledger:
         by_operation.setdefault(event.operation_id, []).append(event)
@@ -710,8 +706,7 @@ def _validate_active_deployment(state: RunState) -> None:
         if any(event.source_digest != state.source_digest for event in events):
             continue
         if any(
-            keyed[(kind, role)].image_ref
-            != f"{state.prefix}-{role}:{state.source_digest[:24]}"
+            keyed[(kind, role)].image_ref != f"{state.prefix}-{role}:{state.source_digest[:24]}"
             for kind in ARTIFACT_KINDS
             for role in ("api", "worker")
         ):
@@ -837,9 +832,7 @@ def _validate_teardown(state: RunState) -> None:
         state.artifact_ledger
     ):
         raise SafetyError("teardown plan is not frozen at the artifact-ledger head")
-    if plan.compose_sha256 != state.compose_sha256 or not _HEX_64.fullmatch(
-        plan.compose_sha256
-    ):
+    if plan.compose_sha256 != state.compose_sha256 or not _HEX_64.fullmatch(plan.compose_sha256):
         raise SafetyError("teardown plan does not bind the claimed Compose definition")
     if plan.aws_mode == "reachable":
         expected_phases = REACHABLE_TEARDOWN_PHASES
@@ -879,9 +872,7 @@ def _validate_teardown(state: RunState) -> None:
         ):
             raise SafetyError("teardown transition prior phases are not an ordered prefix")
         carried_prefix = tuple(
-            phase
-            for phase in transition.from_completed_phases
-            if phase in DISCARD_TEARDOWN_PHASES
+            phase for phase in transition.from_completed_phases if phase in DISCARD_TEARDOWN_PHASES
         )
         if teardown.completed_phases[: len(carried_prefix)] != carried_prefix:
             raise SafetyError("teardown transition did not preserve its completed local prefix")
@@ -1151,9 +1142,7 @@ def load_state(root: Path) -> RunState:
     return state
 
 
-def _remove_orphaned_state_temporaries(
-    directory: int, *, allowed_entries: frozenset[str]
-) -> None:
+def _remove_orphaned_state_temporaries(directory: int, *, allowed_entries: frozenset[str]) -> None:
     """Remove only proven remnants of this module's atomic state writer.
 
     A SIGKILL can occur after the temporary file is durable but before
@@ -1267,9 +1256,7 @@ def remove_state_manifest(root: Path) -> None:
     """Remove only the direct regular manifest after successful lifecycle cleanup."""
     directory = _open_state_directory(root, create=False)
     try:
-        _remove_orphaned_state_temporaries(
-            directory, allowed_entries=frozenset({"run.json"})
-        )
+        _remove_orphaned_state_temporaries(directory, allowed_entries=frozenset({"run.json"}))
         info = os.stat("run.json", dir_fd=directory, follow_symlinks=False)
         if (
             not stat.S_ISREG(info.st_mode)

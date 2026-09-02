@@ -130,17 +130,61 @@ Fable's low-severity round-2 findings were also evaluated before the next live p
   execution or goal-state creation; the canonical source and generated controller tests cover
   draft rejection and published acceptance.
 
-The exact-source `live-council-902` campaign subsequently passed two deployments, the complete
-business verifier, the owner-controlled external judge, all eight normal teardown phases, and a
-full foreign-image noninterference comparison. Exact identifiers and commands are in
-`docs/validation-report.md`.
+The pre-combination `live-council-902` campaign subsequently passed two deployments, the
+then-current business verifier, the owner-controlled external judge, all eight normal teardown
+phases, and a full foreign-image noninterference comparison. It ran on the `d9b1e0d` source line,
+so it is historical evidence rather than exact-tree proof for the later combined candidate. Exact
+identifiers and commands are in `docs/validation-report.md`.
+
+## Fable round 4 criteria
+
+Fable 5.1 reviewed commit `ced867c4814ef722441215bd4d33ac30769868ec` at max effort and
+returned `REQUEST CHANGES` with two material findings. The normalized report is
+`reviews/fable-round-4.md`.
+
+- `FBL-028` — Make `api_idempotency` an observed contract rather than an asserted summary:
+  require the duplicate response marker/status/original ID and bind the completed row to the exact
+  idempotency key, one attempt, and confirmed enqueue. Add the named command-level negative paths,
+  prove failure precedes post-business reproof, and pass both the live verifier and external judge.
+  Local disposition: implementation and named negative/consumer regressions pass; **open** until
+  the fresh live verifier and frozen external judge pass.
+- `FBL-029` — Bind final live evidence to the exact remediated combined commit. Run a fresh
+  `doctor -> up -> deploy -> deploy -> verify -> evidence -> down` lifecycle with the
+  owner-controlled external judge, two retained generations, explicit source identity, complete
+  cleanup, and foreign-image noninterference. Local disposition: **open**; `live-council-902` and
+  `kiro-v3-accept-902` remain honest earlier-source evidence and are not substituted for this gate.
+
+Fable's low-severity round-4 findings are retained as explicit hardening work:
+
+- `FBL-030` — add root generated-controller subprocess regressions for both draft rejection paths.
+  Local disposition: implemented; the real generated wrapper rejects both paths with structured
+  `FeatureMapError` output before the sentinel executes or goal state exists.
+- `FBL-031` — disclose the committed Kiro log's internal ACP/Autopilot labels and the absence of
+  discrete write/deploy records in that bounded projection. Local disposition: documentation
+  clarified; no stronger committed source-log projection is claimed, so the raw-typescript and
+  missing-PID limitations remain advisory evidence boundaries.
+- `FBL-032` — reject any extra task-container network and emit the observed network identity.
+  Local disposition: implemented; the exact observed network set must equal the singleton lab
+  network, the observed key is emitted, and an extra-network regression fails closed.
+- `FBL-033` — pass one real successful command-verifier payload through the judge, including a
+  maximum-length run ID and the 8,192-byte bound. Local disposition: implemented; the successful
+  command-level harness payload crosses the real judge consumer and its newline-terminated UTF-8
+  serialization remains within the judge's bound.
+- `FBL-034` — correct historical/current evidence language and Docker-label ambiguity; keep the
+  not-yet-created private repository explicit; align or document the nested build-backend policy.
+  Local disposition: documentation clarified and the canonical Power now pins Hatchling 1.32.0;
+  private publication remains pending and must not be claimed early.
+- `FBL-035` — document the manual exact-digest Floci image-pull fallback while retaining the
+  automatic preflight's fail-closed diagnostic match. Local disposition: documented.
+- `FBL-036` — document that externally deleting a journaled completed-generation image is outside
+  same-digest recovery and requires a new source digest/deployment or teardown/new run. Local
+  disposition: documented.
 
 ## Remaining acceptance sequence
 
-1. Commit the canonical Power package, draft boundary remediation, sanitized Kiro evidence, and
-   status/naming consistency sweep.
-2. Run complete Fable round 4 on that exact immutable commit.
-3. Convert every material finding into a criterion, remediate, and repeat Fable.
+1. Commit the remediated candidate and close FBL-028/FBL-029 with a fresh exact-commit
+   Floci/judge run.
+3. Repeat Fable on that immutable commit until no material finding remains.
 4. Run Grok 4.6 `xhigh` on the Fable-accepted commit.
 5. Return any material Grok-driven change to Fable before release.
 6. Create and verify the private GitHub repository.

@@ -29,9 +29,7 @@ def test_power_package_has_current_agent_plugins_manifest() -> None:
     assert payload["name"] == "pk-stack"
     assert payload["version"] == "0.1.0"
     assert payload["author"]["name"]
-    assert {"PK-Stack", "Poteto Kiro", "verified goal", "Kiro CLI"} <= set(
-        payload["keywords"]
-    )
+    assert {"PK-Stack", "Poteto Kiro", "verified goal", "Kiro CLI"} <= set(payload["keywords"])
     assert (POWER_ROOT / "skills" / "setup-pstack" / "SKILL.md").is_file()
     assert (POWER_ROOT / "skills" / "setup-pstack" / "scripts" / "setup_pstack.py").is_file()
 

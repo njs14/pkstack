@@ -240,9 +240,7 @@ def _run(
                         stdout.extend(chunk)
                         if len(stdout) > MAX_READ:
                             _kill_process_group(process)
-                            raise LabError(
-                                f"command output exceeded {MAX_READ} bytes: {args[0]}"
-                            )
+                            raise LabError(f"command output exceeded {MAX_READ} bytes: {args[0]}")
                     else:
                         available = MAX_READ - len(stderr_prefix)
                         if available > 0:
@@ -306,9 +304,7 @@ def _kill_process_group(process: subprocess.Popen[bytes]) -> None:
             pass
 
 
-def _decode_command_bytes(
-    value: bytes, command: str, *, prefix_truncated: bool = False
-) -> str:
+def _decode_command_bytes(value: bytes, command: str, *, prefix_truncated: bool = False) -> str:
     """Strictly decode complete output, or the complete characters in a bounded prefix."""
     decoder = codecs.getincrementaldecoder("utf-8")(errors="strict")
     try:
@@ -625,8 +621,7 @@ def _ensure_floci_image() -> str:
         return _inspect_floci_image()
     except LabError as exc:
         expected_missing = (
-            "command failed (docker): Error response from daemon: "
-            f"No such image: {FLOCI_IMAGE}"
+            f"command failed (docker): Error response from daemon: No such image: {FLOCI_IMAGE}"
         )
         if str(exc) != expected_missing:
             raise
@@ -871,11 +866,7 @@ def _assert_aws_targets_absent(state: RunState) -> None:
                 sort="ASC",
                 maxResults=100,
             )
-            exact = [
-                arn
-                for arn in arns
-                if f"task-definition/{family}:" in str(arn)
-            ]
+            exact = [arn for arn in arns if f"task-definition/{family}:" in str(arn)]
             if exact:
                 raise LabError(f"startup collision: ECS task-definition family exists: {family}")
 
@@ -1308,9 +1299,7 @@ def _ensure_operation_image_pair(
         if not exists:
             continue
         target = ImageTarget(image_refs[role], expected_image_id, digest)
-        _validate_image_target(
-            state, target, operation_id=operation_id, require_present=True
-        )
+        _validate_image_target(state, target, operation_id=operation_id, require_present=True)
         ids[role] = _run(
             ["docker", "image", "inspect", "--format", "{{.Id}}", image_refs[role]]
         ).strip()
@@ -1499,9 +1488,7 @@ def command_deploy(_: argparse.Namespace) -> dict[str, Any]:
         (candidate.worker_service, worker_arn),
     ):
         existing = _ecs_described_items(
-            ecs.describe_services(
-                cluster=candidate.cluster, services=[name], include=["TAGS"]
-            ),
+            ecs.describe_services(cluster=candidate.cluster, services=[name], include=["TAGS"]),
             "services",
             label="deployment ECS service inventory",
             allow_missing=True,
@@ -1562,9 +1549,7 @@ def _service_tasks(state: RunState) -> tuple[dict[str, Any], dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
     for role, service in (("api", state.api_service), ("worker", state.worker_service)):
         services = _ecs_described_items(
-            ecs.describe_services(
-                cluster=state.cluster, services=[service], include=["TAGS"]
-            ),
+            ecs.describe_services(cluster=state.cluster, services=[service], include=["TAGS"]),
             "services",
             label=f"{role} ECS service proof",
             allow_missing=True,
@@ -1734,8 +1719,9 @@ def _task_container_evidence(
     networks = _docker_json(
         ["docker", "container", "inspect", "--format", "{{json .NetworkSettings.Networks}}", name]
     )
-    if not isinstance(networks, dict) or NETWORK not in networks:
-        raise LabError("real ECS task container is not on the dedicated lab network")
+    if not isinstance(networks, dict) or set(networks) != {NETWORK}:
+        raise LabError("real ECS task container is not exclusively on the dedicated lab network")
+    observed_network = next(iter(networks))
     image = _run(["docker", "container", "inspect", "--format", "{{.Config.Image}}", name]).strip()
     expected_image = str(task.get("containers", [{}])[0].get("image", ""))
     if not image or image != expected_image:
@@ -1809,7 +1795,7 @@ def _task_container_evidence(
         "role": role,
         "image": image,
         "image_id": image_id,
-        "network": NETWORK,
+        "network": observed_network,
         "security": {
             "user": user,
             "non_root": True,
@@ -1961,7 +1947,11 @@ def command_verify(_: argparse.Namespace) -> dict[str, Any]:
         body={"tenant": tenant},
         headers={"Idempotency-Key": idem},
     )
-    if status != 202 or created.get("status") not in {"QUEUED", "COMPLETE"}:
+    if (
+        status != 202
+        or created.get("tenant") != tenant
+        or created.get("status") not in ("QUEUED", "COMPLETE")
+    ):
         raise LabError("deployed API did not accept the export")
     export_id = created.get("id")
     if not isinstance(export_id, str):
@@ -1976,7 +1966,16 @@ def command_verify(_: argparse.Namespace) -> dict[str, Any]:
         body={"tenant": tenant},
         headers={"Idempotency-Key": idem},
     )
-    if duplicate_status != 202 or duplicate.get("id") != export_id:
+    duplicate_marker = duplicate.get("duplicate") is True
+    duplicate_status_value = duplicate.get("status")
+    duplicate_same_export = duplicate.get("id") == export_id
+    if (
+        duplicate_status != 202
+        or duplicate.get("tenant") != tenant
+        or not duplicate_same_export
+        or not duplicate_marker
+        or duplicate_status_value not in ("QUEUED", "COMPLETE")
+    ):
         raise LabError("API idempotency did not preserve the original export")
     final: dict[str, Any] | None = None
     for _ in range(30):
@@ -2000,9 +1999,18 @@ def command_verify(_: argparse.Namespace) -> dict[str, Any]:
     )
     ddb = client("dynamodb")
     key = {"pk": {"S": f"TENANT#{tenant}"}, "sk": {"S": export_id}}
-    before = ddb.get_item(TableName=state.table, Key=key).get("Item", {})
-    if before.get("attempts", {}).get("N") != "1":
+    before = ddb.get_item(TableName=state.table, Key=key, ConsistentRead=True).get("Item", {})
+    row_idempotency_matches = before.get("idempotency", {}).get("S") == idem
+    if not row_idempotency_matches:
+        raise LabError("terminal export row did not preserve the request idempotency key")
+    row_attempts = before.get("attempts", {}).get("N")
+    if row_attempts != "1":
         raise LabError("happy-path worker attempts were not exactly one")
+    enqueue_confirmed = before.get("enqueue_confirmed", {}).get("BOOL") is True
+    if not enqueue_confirmed:
+        raise LabError("terminal export row did not preserve durable enqueue confirmation")
+    if before.get("status", {}).get("S") != "COMPLETE":
+        raise LabError("terminal export row did not preserve terminal status")
     sqs = client("sqs")
     queue_url = sqs.get_queue_url(QueueName=state.queue)["QueueUrl"]
     sqs.send_message(
@@ -2010,12 +2018,15 @@ def command_verify(_: argparse.Namespace) -> dict[str, Any]:
     )
     duplicate_noop = False
     for _ in range(16):
-        current = ddb.get_item(TableName=state.table, Key=key).get("Item", {})
+        current = ddb.get_item(TableName=state.table, Key=key, ConsistentRead=True).get("Item", {})
         _, current_etag = _verify_result_object(
             s3, state, tenant=tenant, export_id=export_id, object_key=final["object_key"]
         )
         if (
-            current.get("attempts", {}).get("N") == "1"
+            current.get("idempotency", {}).get("S") == idem
+            and current.get("status", {}).get("S") == "COMPLETE"
+            and current.get("enqueue_confirmed", {}).get("BOOL") is True
+            and current.get("attempts", {}).get("N") == "1"
             and current.get("duplicate_deliveries", {}).get("N") == "1"
             and current_etag == original_etag
         ):
@@ -2069,7 +2080,14 @@ def command_verify(_: argparse.Namespace) -> dict[str, Any]:
                 "etag": original_etag,
             },
             "tenant_key_partition_separation": True,
-            "api_idempotency": True,
+            "api_idempotency": {
+                "duplicate_marker": duplicate_marker,
+                "duplicate_status": duplicate_status_value,
+                "same_export_id": duplicate_same_export,
+                "row_idempotency_matches": row_idempotency_matches,
+                "enqueue_confirmed": enqueue_confirmed,
+                "attempts": int(row_attempts),
+            },
             "worker_duplicate_delivery": {
                 "attempts": 1,
                 "s3_identity_unchanged": True,
@@ -2112,6 +2130,7 @@ def command_evidence(_: argparse.Namespace) -> dict[str, Any]:
         "endpoint": HOST_ENDPOINT,
         "task_endpoint": TASK_ENDPOINT,
         "region": REGION,
+        "source_digest": state.source_digest,
         "docker_socket": socket_endpoint,
         "docker": {
             "server_version": _run(
@@ -2547,9 +2566,7 @@ def _validate_task_container_claim(state: RunState, name: str, labels: dict[str,
     image_ref = _run(
         ["docker", "container", "inspect", "--format", "{{.Config.Image}}", name]
     ).strip()
-    image_id = _run(
-        ["docker", "container", "inspect", "--format", "{{.Image}}", name]
-    ).strip()
+    image_id = _run(["docker", "container", "inspect", "--format", "{{.Image}}", name]).strip()
     if (
         match is None
         or len(observed) != 1
@@ -2563,8 +2580,7 @@ def _validate_task_container_claim(state: RunState, name: str, labels: dict[str,
         or labels.get("pk-stack-lab.project") != PROJECT
         or labels.get("pk-stack-lab.run") != state.run_id
         or labels.get("pk-stack-lab.claim") != state.claim_id
-        or labels.get("pk-stack-lab.source-digest")
-        != environment.get("PK_STACK_LAB_SOURCE_DIGEST")
+        or labels.get("pk-stack-lab.source-digest") != environment.get("PK_STACK_LAB_SOURCE_DIGEST")
         or environment.get("PK_STACK_LAB_CLAIM") != state.claim_id
         or environment.get("PK_STACK_LAB_RUN") != state.run_id
         or environment.get("PK_STACK_LAB_ROLE") != role
@@ -2576,9 +2592,7 @@ def _validate_task_container_claim(state: RunState, name: str, labels: dict[str,
         raise LabError("Docker task target lacks exact current-claim identity")
 
 
-def _validate_claim_task_container_names(
-    state: RunState, names: list[str]
-) -> tuple[str, ...]:
+def _validate_claim_task_container_names(state: RunState, names: list[str]) -> tuple[str, ...]:
     """Validate an already-complete daemon-wide Floci task inventory."""
     current: list[str] = []
     for raw_name in names:
@@ -2677,9 +2691,7 @@ def _reachable_aws_targets(state: RunState) -> tuple[RunState, AwsTeardownTarget
     if clusters:
         for role, name in (("api", state.api_service), ("worker", state.worker_service)):
             found = _ecs_described_items(
-                ecs.describe_services(
-                    cluster=state.cluster, services=[name], include=["TAGS"]
-                ),
+                ecs.describe_services(cluster=state.cluster, services=[name], include=["TAGS"]),
                 "services",
                 label="teardown ECS service inventory",
                 allow_missing=True,
@@ -2701,9 +2713,7 @@ def _reachable_aws_targets(state: RunState) -> tuple[RunState, AwsTeardownTarget
                     if not isinstance(arn, str):
                         raise LabError("teardown inventory returned a malformed ECS task ARN")
                     described = _ecs_described_items(
-                        ecs.describe_tasks(
-                            cluster=state.cluster, tasks=[arn], include=["TAGS"]
-                        ),
+                        ecs.describe_tasks(cluster=state.cluster, tasks=[arn], include=["TAGS"]),
                         "tasks",
                         label="teardown ECS task inventory",
                         allow_missing=False,
@@ -2854,8 +2864,7 @@ def _stale_image_tags(state: RunState, *, source_digest: str | None = None) -> l
     suffix = digest[:24]
     tags = [f"{state.prefix}-api:{suffix}", f"{state.prefix}-worker:{suffix}"]
     if any(
-        not re.fullmatch(r"pklab-[a-z0-9-]{1,32}-(?:api|worker):[0-9a-f]{24}", tag)
-        for tag in tags
+        not re.fullmatch(r"pklab-[a-z0-9-]{1,32}-(?:api|worker):[0-9a-f]{24}", tag) for tag in tags
     ):
         raise LabError("refusing unsafe local image cleanup name")
     return tags
@@ -2864,9 +2873,7 @@ def _stale_image_tags(state: RunState, *, source_digest: str | None = None) -> l
 def _service_target(ecs: Any, state: RunState, target: NamedArnTarget) -> dict[str, Any] | None:
     try:
         values = _ecs_described_items(
-            ecs.describe_services(
-                cluster=state.cluster, services=[target.name], include=["TAGS"]
-            ),
+            ecs.describe_services(cluster=state.cluster, services=[target.name], include=["TAGS"]),
             "services",
             label="ECS service teardown postcondition",
             allow_missing=True,

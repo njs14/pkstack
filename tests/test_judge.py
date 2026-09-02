@@ -130,7 +130,14 @@ def _payload(*, mismatch: bool = False, missing: bool = False) -> dict[str, obje
                 "body": {"tenant": "tenant-a", "export_id": export_id},
                 "etag": '"concrete-etag"',
             },
-            "api_idempotency": True,
+            "api_idempotency": {
+                "duplicate_marker": True,
+                "duplicate_status": "QUEUED",
+                "same_export_id": True,
+                "row_idempotency_matches": True,
+                "enqueue_confirmed": True,
+                "attempts": 1,
+            },
             "tenant_key_partition_separation": True,
             "worker_duplicate_delivery": {
                 "attempts": 1,
@@ -169,14 +176,8 @@ def _complete_resource_projection_state() -> RunState:
         "api": f"{base.prefix}-api:{digest[:24]}",
         "worker": f"{base.prefix}-worker:{digest[:24]}",
     }
-    api_arn = (
-        "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-        f"{base.api_family}:1"
-    )
-    worker_arn = (
-        "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-        f"{base.worker_family}:1"
-    )
+    api_arn = f"arn:aws:ecs:us-east-1:000000000000:task-definition/{base.api_family}:1"
+    worker_arn = f"arn:aws:ecs:us-east-1:000000000000:task-definition/{base.worker_family}:1"
     ledger = (
         ArtifactEvent(1, "image_planned", operation_id, "api", digest, refs["api"]),
         ArtifactEvent(2, "image_planned", operation_id, "worker", digest, refs["worker"]),
@@ -282,9 +283,7 @@ def _repo(
     return repo, manifest_path, external_judge, contract
 
 
-def _judge_command(
-    repo: Path, manifest: Path, external_judge: Path, contract: str
-) -> list[str]:
+def _judge_command(repo: Path, manifest: Path, external_judge: Path, contract: str) -> list[str]:
     return [
         "python3",
         str(external_judge),
@@ -309,6 +308,8 @@ def _judge_command(
         "empty-labels",
         "fake-security",
         "fake-s3",
+        "fake-api-idempotency",
+        "fake-api-attempts-bool",
         "no-reproof",
     ],
 )
@@ -324,6 +325,10 @@ def test_judge_schema_matrix(tmp_path: Path, kind: str) -> None:
         value["task_proof"]["containers"][0]["security"]["non_root"] = False
     if isinstance(value, dict) and kind == "fake-s3":
         value["business"]["s3_result"]["body"] = {"tenant": "wrong"}
+    if isinstance(value, dict) and kind == "fake-api-idempotency":
+        value["business"]["api_idempotency"]["duplicate_marker"] = False
+    if isinstance(value, dict) and kind == "fake-api-attempts-bool":
+        value["business"]["api_idempotency"]["attempts"] = True
     if isinstance(value, dict) and kind == "no-reproof":
         value["task_proof"]["post_business_reproof"] = False
     output = "not-json" if kind == "malformed" else json.dumps(value)
@@ -374,11 +379,7 @@ def test_judge_rejects_protected_mutation_before_verifier(tmp_path: Path) -> Non
 def test_judge_kills_verifier_as_soon_as_output_violates_bound(
     tmp_path: Path, stream: str, expected: str
 ) -> None:
-    write = (
-        "sys.stdout.write('x' * 8193)"
-        if stream == "stdout"
-        else "sys.stderr.write('x')"
-    )
+    write = "sys.stdout.write('x' * 8193)" if stream == "stdout" else "sys.stderr.write('x')"
     source = (
         "#!/usr/bin/env python3\n"
         "import sys\n"
@@ -387,9 +388,7 @@ def test_judge_kills_verifier_as_soon_as_output_violates_bound(
         f"sys.{stream}.flush()\n"
         "time.sleep(60)\n"
     )
-    repo, manifest, external_judge, contract = _repo(
-        tmp_path, "", labctl_source=source
-    )
+    repo, manifest, external_judge, contract = _repo(tmp_path, "", labctl_source=source)
 
     result = subprocess.run(
         _judge_command(repo, manifest, external_judge, contract),

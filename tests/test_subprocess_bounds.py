@@ -25,11 +25,7 @@ def test_run_kills_child_as_soon_as_stdout_exceeds_byte_limit() -> None:
 
 
 def test_run_drains_and_discards_huge_stderr_on_success() -> None:
-    source = (
-        "import os\n"
-        "for _ in range(64): os.write(2, b'e' * 65536)\n"
-        "os.write(1, b'ok\\n')\n"
-    )
+    source = "import os\nfor _ in range(64): os.write(2, b'e' * 65536)\nos.write(1, b'ok\\n')\n"
 
     assert _python(source) == "ok\n"
 

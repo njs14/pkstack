@@ -98,9 +98,17 @@ records and corroborates them against the stored goal, Kiro history, and reposit
 
 The semantic shell allowlist was limited to controller status/list/show/start/verify and the one
 public `labctl deploy`. No executed raw Docker, Compose, AWS, HTTP/curl, Git-write, goal-clear,
-goal-resume, `/spawn`, nested Kiro, or ACP launch/command event exists. Kiro's implementation log
-uses the name `ACPEventAdapter` for its internal UI event adapter; that is not an ACP execution
-path selected by the user or harness.
+goal-resume, `/spawn`, nested Kiro, or user-selected ACP launch/command event exists. The committed
+client-log projection does contain Kiro's literal internal labels `ACP session/new`,
+`ACP session/prompt`, `ACPEventAdapter`, and `autonomyMode: "Autopilot"`. The first three identify
+Kiro's internal client/event protocol. `Autopilot` is the agent-controller scheduling label; it did
+not replace the custom `pstack` profile's tool policy or its ask-gated write and shell permissions.
+None of those labels means the user or harness chose ACP as the execution path.
+
+The 12 retained client-log lines do not include a discrete source-write record or the text of the
+deploy command. Those actions are instead bounded by the owner-only hashed terminal typescript,
+the exact goal history, the sole working-tree delta, the restored runtime hash, and the final
+tracked-file manifest. The JSONL projection must not be used alone to prove them.
 
 ## Stored-state and source audit
 
@@ -143,7 +151,10 @@ root = Path("/path/to/candidate")
 environment = dict(os.environ)
 environment["GIT_OPTIONAL_LOCKS"] = "0"
 raw = subprocess.run(
-    ["git", "ls-files", "-z"], cwd=root, env=environment, check=True,
+    ["git", "ls-files", "-z"],
+    cwd=root,
+    env=environment,
+    check=True,
     stdout=subprocess.PIPE,
 ).stdout
 manifest = []
@@ -156,12 +167,19 @@ for relative_path in (item.decode("utf-8") for item in raw.split(b"\0") if item)
         kind, data = "file", target.read_bytes()
     else:
         kind, data = "unsafe", b""
-    manifest.append([
-        relative_path, kind, stat.S_IMODE(info.st_mode), len(data),
-        hashlib.sha256(data).hexdigest(),
-    ])
+    manifest.append(
+        [
+            relative_path,
+            kind,
+            stat.S_IMODE(info.st_mode),
+            len(data),
+            hashlib.sha256(data).hexdigest(),
+        ]
+    )
 encoded = json.dumps(
-    manifest, separators=(",", ":"), ensure_ascii=False,
+    manifest,
+    separators=(",", ":"),
+    ensure_ascii=False,
 ).encode("utf-8")
 print(hashlib.sha256(encoded).hexdigest())
 ```
@@ -210,7 +228,8 @@ pre-existing foreign image inventory was unchanged, including `pklab-ci-003` thr
   `857ae8c61b062c082c93187d51ef97fcec70b963ed4cad5797ffb18089d26a5f`. These are exact source-log
   lines 21, 29, 58, 76, 80, 82, 96, 102, 209, 210, 353, and 358: one session creation, CLI
   version, selected profile, prompt/execution, selected model/tool policy, skill activation, native
-  subagent, successful execution, and drained model queue.
+  subagent, successful execution, and drained model queue. They include the internal ACP and
+  Autopilot labels described above, but not discrete write/deploy records.
 
 These raw files remain outside Git because terminal and client logs can contain local environment
 or account metadata. The terminal transcript contains redraw duplication, so naïve substring

@@ -71,9 +71,11 @@ operation ID, and source digest. Cleanup and verification join those values with
 - exact application image reference and image ID; and
 - the selected Docker daemon, dedicated network, non-root user, and empty mount list.
 
-Floci 2.0.1 has omitted propagated ECS task tags and requested task-definition Docker labels in
-observed runs. Returned mismatches still fail closed, but absent fields are not invented as proof;
-the environment-bound identity chain above is the compatibility seam.
+Floci 2.0.1 has omitted propagated ECS task tags in observed runs. Registration requests include
+PK-Stack Docker labels, but Floci's subsequent `DescribeTaskDefinition` projection has omitted
+those requested fields; that is separate from the Floci-native labels inspected on the live Docker
+containers. Returned mismatches still fail closed, but absent API-projected fields are not invented
+as proof; the environment-bound identity chain above is the compatibility seam.
 
 ## State schema v2 and deployment activation
 

@@ -48,6 +48,10 @@ defects. Verify claims against implementation and tests. Do not reward volume or
   coherent and tested. Do not confuse configuration validation with a real Kiro workflow run.
 - A feature marked `draft: true` must be rejected before `feature verify` executes its command and
   before `goal start --feature` creates state; one shared source rule must govern both paths.
+- API idempotency evidence must come from the duplicate request path itself, not merely from a
+  deterministic export ID. The second POST must prove the original ID, terminal-or-queued status,
+  and an explicit duplicate marker; the completed DynamoDB row must retain the exact idempotency
+  key, exactly one worker attempt, and confirmed enqueue.
 
 ## Review method
 
@@ -71,9 +75,10 @@ attention to:
     Kiro/Floci claims;
 13. whether tests actually drive the risky branches rather than merely assert strings or mocks.
 
-Re-evaluate `FBL-001` through `FBL-008` directly against source and executable evidence. Do not
-trust the acceptance ledger's status labels or a prior reviewer disposition. Reuse the original ID
-when a prior finding recurs; allocate new findings after the highest existing FBL number.
+Re-evaluate `FBL-001` through `FBL-008`, `FBL-021`, and round-4 findings `FBL-028` through
+`FBL-036` directly against source and executable evidence. Do not trust the acceptance ledger's
+status labels or a prior reviewer disposition. Reuse the original ID when a prior finding recurs;
+allocate new findings after the highest existing FBL number.
 
 In particular, verify all of the following rather than inferring them from prose:
 
@@ -92,7 +97,20 @@ In particular, verify all of the following rather than inferring them from prose
 - cluster-wide service/task and exact claim-bound task-container absence precedes data deletion,
   including on resumed teardown when the outer Floci container is already absent;
 - a fresh final-tree live lifecycle proves two deployment generations, bounded external judging,
-  cleanup of every frozen task/task-definition/image reference, and preservation of foreign images;
+  explicit final source identity, cleanup of every frozen task/task-definition/image reference,
+  and preservation of foreign images; older live or Kiro evidence must remain separately labeled
+  when later executable or package bytes are absent from that run;
+- the second API POST must have the same export ID, status `QUEUED` or `COMPLETE`, and literal
+  `duplicate: true`; after terminal completion the row must carry the submitted idempotency key,
+  `attempts == 1`, and confirmed enqueue. Seeded missing-marker, row-key mismatch, and enqueue
+  negatives must fail before post-business identity reproof, and the external judge must consume
+  the strengthened producer schema;
+- generated-controller root subprocess tests independently prove both draft feature execution and
+  draft feature-backed goal creation fail before side effects, rather than relying only on the
+  canonical package's unit tests;
+- task-container evidence rejects extra Docker networks and reports observed rather than constant
+  network identity; one successful command-verifier payload crosses the judge consumer at the
+  maximum legal run-ID length without exceeding the 8,192-byte output bound;
 - the committed bounded selected-profile transcript projection, externally hashed raw terminal
   record, stored goal, and launcher metadata jointly evidence one ordinary interactive `kiro-cli
   chat --v3 --agent pstack --model gpt-5.6-sol --effort max` session: the stored first attempt

@@ -19,12 +19,14 @@ accept the combined release.
   review of the new commit.
 
 The retained sequence includes `fable-round-1.md` and `fable-round-2.md`, both request-changes
-records, followed by `fable-round-3-incomplete.md`, which has no verdict or acceptance value. The
-selected-profile workflow evidence is in `kiro-v3-campaign.md` with a bounded JSON projection in
+records, followed by `fable-round-3-incomplete.md`, which has no verdict or acceptance value.
+`fable-round-4.md` records the review of combined commit `ced867c`; it returned request changes with
+two material findings, so no Fable-accepted release exists yet. The selected-profile workflow
+evidence is in `kiro-v3-campaign.md` with a bounded JSON projection in
 `kiro-v3-campaign.json`, the exact persisted goal in `kiro-v3-campaign-goal.json`, and the exact
 Kiro input history in `kiro-v3-campaign-history.txt`. Twelve exact non-secret Kiro log records are
-in `kiro-v3-campaign-session.jsonl`. Round 4 must review the exact commit containing those records;
-none of the earlier rounds is presented as final acceptance.
+in `kiro-v3-campaign-session.jsonl`; their internal ACP/Autopilot terminology and narrower
+write/deploy evidence boundary are disclosed in the campaign record.
 
 Committed review Markdown is normalized output plus execution metadata. Raw model output is kept
 outside the repository only when a report explicitly names its location and SHA-256; otherwise it

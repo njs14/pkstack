@@ -2,11 +2,11 @@
 
 This report separates deterministic local checks, controller proof, the live Docker-backed Floci
 campaign, Kiro-session evidence, and model-council acceptance. A pass at one boundary is not
-reported as a pass at another. The current snapshot is candidate-complete through a fresh
-exact-source Floci campaign, external judge, and locally passed selected-profile Kiro campaign.
-That Kiro evidence still requires a complete independent Fable disposition before release. The
-older `live-final-902` evidence remains below as historical context and is not substituted for the
-current runs.
+reported as a pass at another. Fable round 4 reviewed combined commit `ced867c` and found two
+material gaps: the API-idempotency oracle was incomplete, and the live evidence was not bound to
+that combined tree. The `live-council-902` and selected-profile Kiro campaigns ran on the earlier
+`d9b1e0d` source line. They remain useful historical lifecycle and current-session evidence, but
+neither is substituted for the required fresh proof of the remediated final tree.
 
 ## Bootstrap and controller provenance
 
@@ -110,9 +110,9 @@ four `kiro-cli agent validate` commands, the 39-pass/zero-fail generated-control
 and knowledge validation, shell syntax, JSON parsing, and `labctl doctor` also exited zero. The
 single controller warning remains the disclosed optional absence of canonical `okn`.
 
-## Fresh current-source live Floci campaign: `live-council-902`
+## Historical pre-combination live Floci campaign: `live-council-902`
 
-The consolidated round-2 candidate used only the public control surface:
+The consolidated round-2 `d9b1e0d` candidate used only the public control surface:
 
 ```sh
 ./labctl up --run-id live-council-902 --acknowledge-docker-socket --output json
@@ -144,12 +144,18 @@ The 16-event append-only ledger retained both operations. The restored API task 
 delivery consumed as a no-op with attempts still 1 and unchanged S3 identity, both container
 identities before business mutation, and post-business deployment reproof.
 
+This run's verifier treated the repeated deterministic export ID as sufficient API-idempotency
+evidence. Fable round 4 correctly found that it did not require the runtime's explicit duplicate
+marker or bind the completed row to the submitted idempotency key and confirmed enqueue. The run
+therefore does not close `FBL-028`, even though its other observed predicates remain historical
+evidence.
+
 Docker 29.7.2 and Compose 5.5.0 ran both application containers as `65532:65532` without mounts
 on `pk-stack-lab-net`. The task definitions requested read-only root filesystems, `CapDrop: ALL`,
 and `no-new-privileges`; Floci 2.0.1 again did not propagate those three settings to Docker. The
 evidence reports this emulator limitation explicitly.
 
-### Current external judge
+### Historical external judge
 
 The judge controls were frozen before the temporary marker and the candidate bytes were restored
 before invocation. The owner-controlled files are outside Git under
@@ -179,7 +185,7 @@ It exited zero without stderr:
 All 14 protected hashes matched both before and after the judge, and the executable source closure
 remained exactly the five declared Python files with no bytecode or import-time customization.
 
-### Current teardown and noninterference
+### Historical teardown and noninterference
 
 ```sh
 ./labctl down --output json
@@ -228,7 +234,10 @@ permitted `runtime.py` edit through its file tool, and ran one `./labctl deploy 
 
 The repaired deployment reached API/worker revision 2 with candidate source digest
 `10e7e74db272a52be501983cb3a9254647937e89c3682042aadb7f15892ceded`. Attempt 2 exited 0 and
-proved tenant partition separation, the complete business contract, and post-business identity.
+proved tenant partition separation, the then-current verifier contract, and post-business identity.
+Its API-idempotency predicate has the same later-discovered `FBL-028` limitation as
+`live-council-902`; the Kiro campaign proves the fail-repair-pass workflow, not the strengthened
+final business contract.
 Final goal state was `passed`, 2 of 4. There was no third verification, contract change, goal
 replacement/resume, `/spawn`, nested Kiro, native `/goal` claim, or user-selected ACP execution
 path. The one source write restored runtime SHA-256
@@ -364,8 +373,10 @@ Fable 5.1 round 1 reviewed commit `0b000d359b99f34ee5001088548ca872322e734a`; ro
 commit `2fcacc054fd62e55a8d57107d35b73e3d1d1582c`. Both ran at max effort and returned material
 findings. Round 3 inspected immutable commit `d9b1e0d` read-only at max effort but reached the
 five-hour account rate limit before returning the required report. It has **no verdict, no
-acceptance value, and no finding disposition**. Round 4 must inspect the exact commit containing
-the completed Kiro campaign evidence.
+acceptance value, and no finding disposition**. Round 4 reviewed immutable combined commit
+`ced867c4814ef722441215bd4d33ac30769868ec` and returned `REQUEST CHANGES` with open material
+findings `FBL-028` and `FBL-029`; see `reviews/fable-round-4.md`. A later Fable round must inspect
+the exact remediated commit and its fresh live evidence before acceptance.
 
 The optional Archify status flow, `npx skills use tt-a1i/archify@archify --agent codex`, reached its
 interactive trust TUI under `TERM=dumb` and was not activated; it produced no authoritative

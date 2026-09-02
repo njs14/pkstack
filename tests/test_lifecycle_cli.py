@@ -176,18 +176,22 @@ def test_resumed_outer_teardown_refuses_unbound_compose_before_execution(
     monkeypatch.setattr(
         cli,
         "_exact_docker_object_exists",
-        lambda kind, name: (kind, name)
-        in {
-            ("container", plan.docker.outer_container),
-            ("network", plan.docker.network),
-        },
+        lambda kind, name: (
+            (kind, name)
+            in {
+                ("container", plan.docker.outer_container),
+                ("network", plan.docker.network),
+            }
+        ),
     )
     monkeypatch.setattr(cli, "_inspect_labels", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(cli, "_remove_frozen_task_containers", lambda *_args: None)
     monkeypatch.setattr(cli, "_aws_postcondition", lambda *_args: None)
     monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(cli, "compose_digest", lambda _root: "b" * 64)
-    monkeypatch.setattr(cli, "_compose", lambda *args, **kwargs: compose_calls.append((*args, kwargs)))
+    monkeypatch.setattr(
+        cli, "_compose", lambda *args, **kwargs: compose_calls.append((*args, kwargs))
+    )
 
     with pytest.raises(cli.LabError, match="frozen teardown plan"):
         cli._phase_docker_outer_absent(state, plan, "unix:///test/docker.sock")
@@ -644,7 +648,9 @@ def test_resumed_down_rejects_foreign_task_before_any_phase_mutation(
     monkeypatch.setattr(cli, "_bind_daemon", lambda _: "unix:///test/docker.sock")
     monkeypatch.setattr(cli, "_inspect_labels", inspect)
     monkeypatch.setattr(cli, "_run", lambda *_args, **_kwargs: task_name + "\n")
-    monkeypatch.setattr(cli, "_container_environment", lambda _name: {"PK_STACK_LAB_CLAIM": "f" * 32})
+    monkeypatch.setattr(
+        cli, "_container_environment", lambda _name: {"PK_STACK_LAB_CLAIM": "f" * 32}
+    )
     monkeypatch.setattr(
         cli,
         "_execute_teardown_phase",
@@ -652,9 +658,7 @@ def test_resumed_down_rejects_foreign_task_before_any_phase_mutation(
     )
 
     with pytest.raises(cli.LabError, match="foreign Floci ECS task"):
-        cli.command_down(
-            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=False)
-        )
+        cli.command_down(SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=False))
 
     assert reached == []
     assert load_state(tmp_path) == state
@@ -833,9 +837,7 @@ def test_discard_refuses_responding_or_malformed_health_endpoint_without_mutatio
     monkeypatch.setattr(cli, "_execute_teardown_phase", forbidden)
 
     with pytest.raises(cli.LabError, match="without proving transport unreachability"):
-        cli.command_down(
-            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True)
-        )
+        cli.command_down(SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True))
 
     assert load_state(tmp_path) == state
 
@@ -858,8 +860,8 @@ def test_down_transitions_frozen_reachable_plan_without_reinventory_or_aws(
         assert persisted.teardown is not None
         assert persisted.teardown.transition is not None
         assert persisted.teardown.transition.from_plan_sha256 == state.teardown.plan_sha256
-        assert persisted.teardown.transition.from_completed_phases == (
-            REACHABLE_TEARDOWN_PHASES[:2]
+        assert (
+            persisted.teardown.transition.from_completed_phases == (REACHABLE_TEARDOWN_PHASES[:2])
         )
         assert plan.aws == reachable.aws
         assert plan.docker == reachable.docker
@@ -883,9 +885,7 @@ def test_down_transitions_frozen_reachable_plan_without_reinventory_or_aws(
     monkeypatch.setattr(cli, "_execute_teardown_phase", execute)
 
     with pytest.raises(InjectedCrash, match="post-transition"):
-        cli.command_down(
-            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True)
-        )
+        cli.command_down(SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True))
 
     persisted = load_state(tmp_path)
     assert persisted.teardown is not None
@@ -911,9 +911,7 @@ def test_down_refuses_frozen_reachable_transition_while_floci_is_reachable(
     monkeypatch.setattr(cli, "_execute_teardown_phase", forbidden)
 
     with pytest.raises(cli.LabError, match="endpoint responded; refuse control-plane discard"):
-        cli.command_down(
-            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True)
-        )
+        cli.command_down(SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True))
 
     assert load_state(tmp_path) == state
 
@@ -948,9 +946,7 @@ def test_transitioned_discard_crash_retries_canonical_suffix_without_health_or_a
     monkeypatch.setattr(cli, "_execute_teardown_phase", first_execute)
 
     with pytest.raises(InjectedCrash, match="discard phase"):
-        cli.command_down(
-            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True)
-        )
+        cli.command_down(SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True))
 
     interrupted = load_state(tmp_path)
     assert interrupted.teardown is not None
@@ -1198,9 +1194,7 @@ def test_later_local_phases_refuse_reappeared_outer_boundary(
     monkeypatch.setattr(
         cli,
         "_validate_image_target",
-        lambda *_args: (_ for _ in ()).throw(
-            AssertionError("image mutation preceded outer proof")
-        ),
+        lambda *_args: (_ for _ in ()).throw(AssertionError("image mutation preceded outer proof")),
     )
 
     with pytest.raises(cli.LabError, match="outer prerequisite regressed"):
@@ -1235,9 +1229,7 @@ def test_fully_checkpointed_resume_rechecks_local_state_before_manifest_unlink(
 
 
 @pytest.mark.parametrize("kind", ["service", "task"])
-def test_compute_postcondition_is_cluster_wide(
-    monkeypatch: pytest.MonkeyPatch, kind: str
-) -> None:
+def test_compute_postcondition_is_cluster_wide(monkeypatch: pytest.MonkeyPatch, kind: str) -> None:
     state = RunState.create(f"ci-cluster-wide-{kind}")
     base = _teardown_plan(state)
     cluster_arn = f"arn:aws:ecs:us-east-1:000000000000:cluster/{state.cluster}"
@@ -1453,8 +1445,7 @@ def test_untagged_bucket_create_gap_is_durable_and_down_retry_is_exact(
             return {
                 "Table": {
                     "TableArn": (
-                        "arn:aws:dynamodb:us-east-1:000000000000:table/"
-                        f"{captured_state.table}"
+                        f"arn:aws:dynamodb:us-east-1:000000000000:table/{captured_state.table}"
                     )
                 }
             }
@@ -1862,10 +1853,7 @@ def test_definition_cluster_phase_retries_after_each_mutation_and_converges(
     monkeypatch: pytest.MonkeyPatch, crash_after: str
 ) -> None:
     state = RunState.create(f"ci-definitions-{crash_after.replace('_', '-')}")
-    definition_arn = (
-        "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-        f"{state.api_family}:1"
-    )
+    definition_arn = f"arn:aws:ecs:us-east-1:000000000000:task-definition/{state.api_family}:1"
     cluster_arn = f"arn:aws:ecs:us-east-1:000000000000:cluster/{state.cluster}"
     base = _teardown_plan(state)
     plan = replace(
@@ -1985,7 +1973,9 @@ def test_docker_outer_phase_retries_after_compose_down_and_converges(
         nonlocal aws_checks
         aws_checks += 1
 
-    monkeypatch.setattr(cli, "_exact_docker_object_exists", lambda kind, name: (kind, name) in present)
+    monkeypatch.setattr(
+        cli, "_exact_docker_object_exists", lambda kind, name: (kind, name) in present
+    )
     monkeypatch.setattr(cli, "_inspect_labels", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(cli, "_remove_frozen_task_containers", lambda *_args: None)
     monkeypatch.setattr(cli, "_task_container_postcondition", lambda *_args: True)
@@ -2137,9 +2127,7 @@ def test_fully_checkpointed_down_fails_closed_on_unknown_state_entry(
     monkeypatch.setattr(cli, "_image_ref_exists", lambda _ref: False)
 
     with pytest.raises(cli.SafetyError, match="unexpected runtime artifact"):
-        cli.command_down(
-            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=False)
-        )
+        cli.command_down(SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=False))
 
     assert unknown.read_text(encoding="utf-8") == "preserve me"
     assert load_state(tmp_path) == state

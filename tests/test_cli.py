@@ -1,4 +1,5 @@
 import copy
+import importlib.util
 import json
 import os
 import re
@@ -48,13 +49,9 @@ def _complete_deployment_state(
         "api": f"{base.prefix}-api:{digest[:24]}",
         "worker": f"{base.prefix}-worker:{digest[:24]}",
     }
-    api_arn = (
-        "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-        f"{base.api_family}:{revision}"
-    )
+    api_arn = f"arn:aws:ecs:us-east-1:000000000000:task-definition/{base.api_family}:{revision}"
     worker_arn = (
-        "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-        f"{base.worker_family}:{revision}"
+        f"arn:aws:ecs:us-east-1:000000000000:task-definition/{base.worker_family}:{revision}"
     )
     ledger = (
         ArtifactEvent(1, "image_planned", operation_id, "api", digest, refs["api"]),
@@ -357,7 +354,8 @@ def test_floci_image_preflight_never_pulls_after_a_nonmissing_inspect_failure(
 
 @pytest.mark.parametrize("mutation", ["wrong-digest", "bad-id", "extra-field"])
 def test_floci_image_inspection_rejects_nonexact_identity(
-    monkeypatch: pytest.MonkeyPatch, mutation: str,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
 ) -> None:
     repository_and_tag, manifest_digest = cli.FLOCI_IMAGE.rsplit("@", 1)
     repository = repository_and_tag.rsplit(":", 1)[0]
@@ -378,7 +376,8 @@ def test_floci_image_inspection_rejects_nonexact_identity(
 
 
 def test_up_resolves_floci_before_claim_and_forbids_compose_pull(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     events: list[tuple[str, tuple[str, ...]]] = []
     monkeypatch.setattr(cli, "ROOT", tmp_path)
@@ -418,7 +417,8 @@ def test_up_resolves_floci_before_claim_and_forbids_compose_pull(
 
 
 def test_failed_floci_image_preflight_never_creates_a_run_claim(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(cli, "ROOT", tmp_path)
     monkeypatch.setattr(cli, "compose_digest", lambda _root: "a" * 64)
@@ -488,8 +488,7 @@ def test_deploy_create_service_requests_service_tag_propagation(
             return {
                 "taskDefinition": {
                     "taskDefinitionArn": (
-                        "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-                        f"{kwargs['family']}:1"
+                        f"arn:aws:ecs:us-east-1:000000000000:task-definition/{kwargs['family']}:1"
                     )
                 }
             }
@@ -553,8 +552,7 @@ def test_deploy_repeat_update_requests_service_tag_propagation(
             return {
                 "taskDefinition": {
                     "taskDefinitionArn": (
-                        "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-                        f"{kwargs['family']}:1"
+                        f"arn:aws:ecs:us-east-1:000000000000:task-definition/{kwargs['family']}:1"
                     )
                 }
             }
@@ -951,9 +949,7 @@ def test_command_up_never_provisions_after_collision_inventory_failure(
     monkeypatch.setattr(cli, "_provision", lambda _state: reached.append("provision"))
 
     with pytest.raises(cli.LabError, match=f"startup collision: {collision}"):
-        cli.command_up(
-            SimpleNamespace(run_id=f"ci-{collision}", acknowledge_docker_socket=True)
-        )
+        cli.command_up(SimpleNamespace(run_id=f"ci-{collision}", acknowledge_docker_socket=True))
     assert reached == []
 
 
@@ -971,9 +967,7 @@ def test_untagged_or_foreign_bucket_without_exact_intent_fails_closed(
         def get_bucket_tagging(self, **request: object) -> dict[str, object]:
             assert request == {"Bucket": state.bucket}
             if tag_mode == "absent":
-                raise ClientError(
-                    {"Error": {"Code": "NoSuchTagSet"}}, "GetBucketTagging"
-                )
+                raise ClientError({"Error": {"Code": "NoSuchTagSet"}}, "GetBucketTagging")
             return {
                 "TagSet": [
                     {"Key": "pk-stack-lab:managed", "Value": "false"},
@@ -1001,10 +995,11 @@ def test_task_container_evidence_requires_exact_resource_id_and_network(
         "io.floci.resource-id": task_id,
     }
     monkeypatch.setattr(cli, "_inspect_labels", lambda *args, **kwargs: labels)
+    networks = {cli.NETWORK: {}}
     monkeypatch.setattr(
         cli,
         "_docker_json",
-        lambda args, **kwargs: [] if ".Mounts" in args[4] else {cli.NETWORK: {}},
+        lambda args, **kwargs: [] if ".Mounts" in args[4] else networks,
     )
     monkeypatch.setattr(
         cli,
@@ -1019,6 +1014,10 @@ def test_task_container_evidence_requires_exact_resource_id_and_network(
     assert evidence["network"] == cli.NETWORK
     labels["io.floci.resource-id"] = "b" * 32
     with pytest.raises(cli.LabError, match="exact Floci ECS task"):
+        cli._task_container_evidence(task, "api")
+    labels["io.floci.resource-id"] = task_id
+    networks["foreign-network"] = {}
+    with pytest.raises(cli.LabError, match="exclusively on the dedicated lab network"):
         cli._task_container_evidence(task, "api")
 
 
@@ -1146,7 +1145,9 @@ def test_verify_proves_both_containers_before_docker_exec_or_aws_mutation(
     monkeypatch.setattr(cli, "source_digest", lambda root: state.source_digest)
     monkeypatch.setattr(cli, "_service_tasks", lambda value: (api, worker))
 
-    def prove_container(task: dict[str, object], role: str, proof_state: RunState) -> dict[str, str]:
+    def prove_container(
+        task: dict[str, object], role: str, proof_state: RunState
+    ) -> dict[str, str]:
         assert proof_state is state
         calls.append(f"container-{role}")
         return {"name": cli._task_container_name(task, role), "role": role}
@@ -1342,32 +1343,75 @@ def test_result_object_returns_exact_body_and_identity() -> None:
 
 
 def _install_command_verify_business_harness(
-    monkeypatch: pytest.MonkeyPatch, *, failure: str
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    failure: str | None,
+    run_id: str = "ci-001",
 ) -> dict[str, list[str]]:
     """Drive command_verify deterministically up to one selected contract failure."""
     assert failure in {
         "tenant-b-visible",
         "duplicate-post-id",
+        "duplicate-post-no-marker",
+        "duplicate-post-bad-status",
+        "row-idempotency-mismatch",
+        "row-enqueue-unconfirmed",
         "duplicate-never-one",
         "changed-etag",
         "dlq-marker-absent",
+        None,
     }
-    state = _complete_deployment_state()
+    state = _complete_deployment_state(run_id)
     export_id = "e-" + "a" * 16
     other_export_id = "e-" + "b" * 16
     object_key = f"exports/tenant-a/{export_id}.json"
     body = json.dumps(
         {"tenant": "tenant-a", "export_id": export_id}, separators=(",", ":")
     ).encode()
-    api_task = {
-        "taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/{state.cluster}/" + "e" * 32
-    }
+    api_task = {"taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/{state.cluster}/" + "e" * 32}
     worker_task = {
         "taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/{state.cluster}/" + "f" * 32
     }
+
+    def container(task: dict[str, object], role: str, task_id: str) -> dict[str, object]:
+        return {
+            "name": cli._task_container_name(task, role),
+            "role": role,
+            "image": f"{state.prefix}-{role}:{state.source_digest[:24]}",
+            "image_id": state.api_image_id if role == "api" else state.worker_image_id,
+            "network": cli.NETWORK,
+            "security": {
+                "user": "65532:65532",
+                "non_root": True,
+                "mounts": [],
+                "requested": {
+                    "readonly_root_filesystem": True,
+                    "cap_drop_all": True,
+                    "no_new_privileges": True,
+                },
+                "effective": {
+                    "readonly_root_filesystem": False,
+                    "cap_drop_all": False,
+                    "no_new_privileges": False,
+                },
+                "emulator_limitations": [
+                    "readonly_root_filesystem",
+                    "cap_drop_all",
+                    "no_new_privileges",
+                ],
+            },
+            "labels": {
+                "floci": "true",
+                "floci_emulator": "floci-aws",
+                "io.floci": "aws",
+                "io.floci.service": "ecs",
+                "io.floci.resource-id": task_id,
+            },
+        }
+
     containers = [
-        {"name": cli._task_container_name(api_task, "api"), "role": "api"},
-        {"name": cli._task_container_name(worker_task, "worker"), "role": "worker"},
+        container(api_task, "api", "e" * 32),
+        container(worker_task, "worker", "f" * 32),
     ]
     api_requests: list[str] = []
     ddb_reads: list[str] = []
@@ -1385,18 +1429,33 @@ def _install_command_verify_business_harness(
         *,
         method: str,
         path: str,
+        body: dict[str, object] | None = None,
+        headers: dict[str, str] | None = None,
         **_: object,
     ) -> tuple[int, dict[str, object]]:
         assert task is api_task
         assert container is containers[0]
         api_requests.append(f"{method} {path}")
         if method == "POST" and path == "/exports":
+            assert body == {"tenant": "tenant-a"}
+            assert headers == {"Idempotency-Key": "verify-" + "1" * 16}
             post_count = api_requests.count("POST /exports")
             if post_count == 1:
-                return 202, {"status": "QUEUED", "id": export_id}
+                return 202, {
+                    "status": "QUEUED",
+                    "id": export_id,
+                    "tenant": "tenant-a",
+                }
             if post_count == 2:
                 returned_id = other_export_id if failure == "duplicate-post-id" else export_id
-                return 202, {"status": "QUEUED", "id": returned_id}
+                duplicate = {
+                    "status": (["BROKEN"] if failure == "duplicate-post-bad-status" else "QUEUED"),
+                    "id": returned_id,
+                    "tenant": "tenant-a",
+                }
+                if failure != "duplicate-post-no-marker":
+                    duplicate["duplicate"] = True
+                return 202, duplicate
         if method == "GET" and path == f"/exports?tenant=tenant-a&id={export_id}":
             return 200, {"status": "COMPLETE", "object_key": object_key}
         if method == "GET" and path == f"/exports?tenant=tenant-b&id={export_id}":
@@ -1423,8 +1482,18 @@ def _install_command_verify_business_harness(
     class Ddb:
         def get_item(self, **request: object) -> dict[str, object]:
             assert request["TableName"] == state.table
+            assert request["ConsistentRead"] is True
             ddb_reads.append("read")
-            item: dict[str, object] = {"attempts": {"N": "1"}}
+            item: dict[str, object] = {
+                "attempts": {"N": "1"},
+                "idempotency": {
+                    "S": "wrong-key"
+                    if failure == "row-idempotency-mismatch"
+                    else "verify-" + "1" * 16
+                },
+                "enqueue_confirmed": {"BOOL": failure != "row-enqueue-unconfirmed"},
+                "status": {"S": "COMPLETE"},
+            }
             if len(ddb_reads) > 1:
                 duplicate_count = "0" if failure == "duplicate-never-one" else "1"
                 item["duplicate_deliveries"] = {"N": duplicate_count}
@@ -1484,6 +1553,7 @@ def _install_command_verify_business_harness(
         "etags": etags,
         "dlq_receives": dlq_receives,
         "reproofs": reproofs,
+        "sent_bodies": sent_bodies,
     }
 
 
@@ -1504,6 +1574,44 @@ def test_verify_rejects_duplicate_post_id_mismatch_before_post_business_reproof(
     with pytest.raises(cli.LabError, match="API idempotency did not preserve"):
         cli.command_verify(SimpleNamespace())
     assert trace["api_requests"] == ["POST /exports", "POST /exports"]
+    assert trace["reproofs"] == []
+
+
+@pytest.mark.parametrize(
+    "failure",
+    ["duplicate-post-no-marker", "duplicate-post-bad-status"],
+)
+def test_verify_rejects_unproven_duplicate_response_before_post_business_reproof(
+    monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    trace = _install_command_verify_business_harness(monkeypatch, failure=failure)
+    with pytest.raises(cli.LabError, match="API idempotency did not preserve"):
+        cli.command_verify(SimpleNamespace())
+    assert trace["api_requests"] == ["POST /exports", "POST /exports"]
+    assert trace["reproofs"] == []
+
+
+@pytest.mark.parametrize(
+    ("failure", "message"),
+    [
+        (
+            "row-idempotency-mismatch",
+            "terminal export row did not preserve the request idempotency key",
+        ),
+        (
+            "row-enqueue-unconfirmed",
+            "terminal export row did not preserve durable enqueue confirmation",
+        ),
+    ],
+)
+def test_verify_rejects_terminal_row_idempotency_drift_before_post_business_reproof(
+    monkeypatch: pytest.MonkeyPatch, failure: str, message: str
+) -> None:
+    trace = _install_command_verify_business_harness(monkeypatch, failure=failure)
+    with pytest.raises(cli.LabError, match=message):
+        cli.command_verify(SimpleNamespace())
+    assert trace["ddb_reads"] == ["read"]
+    assert trace["sent_bodies"] == []
     assert trace["reproofs"] == []
 
 
@@ -1536,6 +1644,27 @@ def test_verify_rejects_missing_current_dlq_marker_before_post_business_reproof(
         cli.command_verify(SimpleNamespace())
     assert len(trace["dlq_receives"]) == 24
     assert trace["reproofs"] == []
+
+
+def test_successful_verify_payload_is_bounded_and_accepted_by_the_external_judge(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    max_run_id = "r" * 32
+    trace = _install_command_verify_business_harness(monkeypatch, failure=None, run_id=max_run_id)
+
+    payload = cli.command_verify(SimpleNamespace())
+    encoded = (json.dumps(payload, sort_keys=True) + "\n").encode("utf-8")
+    spec = importlib.util.spec_from_file_location(
+        "pk_stack_success_payload_judge", Path("judge/verify_feature_contract.py")
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    assert len(max_run_id) == 32
+    assert len(encoded) <= module.MAX_OUTPUT
+    assert module._valid_payload(payload) is True
+    assert trace["reproofs"] == ["reproof"]
 
 
 def test_post_business_reproof_rejects_manifest_drift(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -1583,8 +1712,7 @@ def test_current_claim_task_inventory_is_bound_to_exact_labels(
                 image_id="sha256:" + "e" * 64,
                 family=state.api_family,
                 task_definition_arn=(
-                    "arn:aws:ecs:us-east-1:000000000000:task-definition/"
-                    f"{state.api_family}:1"
+                    f"arn:aws:ecs:us-east-1:000000000000:task-definition/{state.api_family}:1"
                 ),
             ),
         ),
@@ -1655,7 +1783,8 @@ def test_verified_resource_evidence_is_fixed_size_across_ledger_growth() -> None
 
 
 def test_frozen_image_cleanup_removes_only_plan_refs(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     state = RunState.create("ci-001")
     digest = "a" * 64
@@ -1722,9 +1851,7 @@ def test_stale_image_recovery_is_dry_run_first_and_exactly_scoped(
             return ""
         if args[:3] == ["docker", "image", "ls"]:
             reference = next(
-                value.removeprefix("reference=")
-                for value in args
-                if value.startswith("reference=")
+                value.removeprefix("reference=") for value in args if value.startswith("reference=")
             )
             return reference + "\n" if reference in present else ""
         if args[:3] == ["docker", "image", "inspect"]:
@@ -1775,9 +1902,7 @@ def test_stale_image_recovery_rejects_label_mismatch_before_mutation(
             return ""
         if args[:3] == ["docker", "image", "ls"]:
             reference = next(
-                value.removeprefix("reference=")
-                for value in args
-                if value.startswith("reference=")
+                value.removeprefix("reference=") for value in args if value.startswith("reference=")
             )
             return reference + "\n"
         if args[:3] == ["docker", "image", "inspect"]:
@@ -1869,9 +1994,7 @@ def test_stale_image_recovery_retries_after_first_tag_removal(
             return ""
         if args[:3] == ["docker", "image", "ls"]:
             reference = next(
-                value.removeprefix("reference=")
-                for value in args
-                if value.startswith("reference=")
+                value.removeprefix("reference=") for value in args if value.startswith("reference=")
             )
             return reference + "\n" if reference in present else ""
         if args[:3] == ["docker", "image", "inspect"]:
@@ -2104,9 +2227,7 @@ def test_down_data_directory_failure_retains_manifest_and_returns_json(
         cli,
         "_execute_teardown_phase",
         lambda current, frozen, phase, socket: (
-            cli._phase_floci_data_absent(current, frozen)
-            if phase == "floci_data_absent"
-            else None
+            cli._phase_floci_data_absent(current, frozen) if phase == "floci_data_absent" else None
         ),
     )
     with pytest.raises(SystemExit) as stopped:
