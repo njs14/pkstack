@@ -26,6 +26,7 @@ services:
       pk-stack-lab.managed: "true"
       pk-stack-lab.project: pk-stack-lab
       pk-stack-lab.component: floci
+      pk-stack-lab.claim: ${PK_STACK_LAB_CLAIM:?labctl must supply the run claim}
       pk-stack-lab.version: "2.0.1"
       pk-stack-lab.source: compose
 
@@ -35,4 +36,5 @@ networks:
     labels:
       pk-stack-lab.managed: "true"
       pk-stack-lab.component: network
+      pk-stack-lab.claim: ${PK_STACK_LAB_CLAIM:?labctl must supply the run claim}
       pk-stack-lab.source: compose

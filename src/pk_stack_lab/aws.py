@@ -30,5 +30,5 @@ def client(service: str, *, endpoint: str = HOST_ENDPOINT) -> Any:
     ).client(
         service,
         endpoint_url=endpoint,
-        config=Config(retries={"max_attempts": 2, "mode": "standard"}),
+        config=Config(retries={"max_attempts": 2, "mode": "standard"}, proxies={}),
     )

@@ -9,6 +9,13 @@ stale source/image/task proof, idempotency races, incomplete cleanup, test holes
 inflated claims, and Kiro v3/Floci compatibility mistakes. Confirm that PK-Stack means Poteto Kiro,
 normal usage is `kiro-cli --v3`, ACP is not the default, and the docs never claim native v3 `/goal`.
 
+Run this sweep only after Fable has accepted the exact same commit. Pay special attention to
+state-schema-v2 versus the bounded external judge, mutable `.venv` or added-source bypasses,
+hard exits inside destructive phase bodies, safe atomic-state temporary recovery,
+Compose-down-before-checkpoint resume, foreign task containers before resumed teardown, image-tag
+no-clobber behavior, cluster-wide compute absence, repeat-generation cleanup, and whether the
+committed single-session Kiro evidence actually proves fail-before-edit then repair/pass.
+
 Report only evidence-backed findings. For each, give stable ID `GRK-###`, severity, exact file/line,
 failure mode, and acceptance test. Finish with `SWEEP_MATERIAL: <integer>`, counting BLOCKER/HIGH/
 MEDIUM findings. If there are no findings, say so explicitly.

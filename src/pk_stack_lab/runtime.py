@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import secrets
+import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -14,6 +15,8 @@ from botocore.exceptions import ClientError
 
 from .aws import client
 from .config import runtime_env
+
+PROCESSING_LEASE_SECONDS = 6
 
 
 def _env(name: str) -> str:
@@ -35,6 +38,94 @@ def _error_code(exc: ClientError) -> str:
     """Return the structured service code; never infer it from exception prose."""
     code = exc.response.get("Error", {}).get("Code")
     return code if isinstance(code, str) else ""
+
+
+def _claim_job(
+    ddb: object,
+    *,
+    table: str,
+    key: dict[str, dict[str, str]],
+    token: str,
+    now: int | None = None,
+) -> bool:
+    """Atomically claim queued work or recover an expired processing lease."""
+    claimed_at = int(time.time()) if now is None else now
+    try:
+        ddb.update_item(
+            TableName=table,
+            Key=key,
+            UpdateExpression=(
+                "SET #s = :processing, processing_token = :token, "
+                "processing_lease_until = :lease ADD attempts :one"
+            ),
+            ConditionExpression=(
+                "#s = :queued OR (#s = :processing AND "
+                "(attribute_not_exists(processing_lease_until) OR "
+                "processing_lease_until < :now))"
+            ),
+            ExpressionAttributeNames={"#s": "status"},
+            ExpressionAttributeValues={
+                ":queued": {"S": "QUEUED"},
+                ":processing": {"S": "PROCESSING"},
+                ":token": {"S": token},
+                ":now": {"N": str(claimed_at)},
+                ":lease": {"N": str(claimed_at + PROCESSING_LEASE_SECONDS)},
+                ":one": {"N": "1"},
+            },
+        )
+    except ClientError as exc:
+        if _error_code(exc) == "ConditionalCheckFailedException":
+            return False
+        raise
+    return True
+
+
+def _complete_job(
+    ddb: object,
+    *,
+    table: str,
+    key: dict[str, dict[str, str]],
+    token: str,
+    object_key: str,
+) -> None:
+    """Complete only the still-current lease owner."""
+    ddb.update_item(
+        TableName=table,
+        Key=key,
+        UpdateExpression=(
+            "SET #s = :done, object_key = :key REMOVE processing_token, processing_lease_until"
+        ),
+        ConditionExpression="#s = :processing AND processing_token = :token",
+        ExpressionAttributeNames={"#s": "status"},
+        ExpressionAttributeValues={
+            ":processing": {"S": "PROCESSING"},
+            ":token": {"S": token},
+            ":done": {"S": "COMPLETE"},
+            ":key": {"S": object_key},
+        },
+    )
+
+
+def _release_job(
+    ddb: object,
+    *,
+    table: str,
+    key: dict[str, dict[str, str]],
+    token: str,
+) -> None:
+    """Return only the current lease owner's failed attempt to the queue state."""
+    ddb.update_item(
+        TableName=table,
+        Key=key,
+        UpdateExpression=("SET #s = :queued REMOVE processing_token, processing_lease_until"),
+        ConditionExpression="#s = :processing AND processing_token = :token",
+        ExpressionAttributeNames={"#s": "status"},
+        ExpressionAttributeValues={
+            ":processing": {"S": "PROCESSING"},
+            ":queued": {"S": "QUEUED"},
+            ":token": {"S": token},
+        },
+    )
 
 
 class ExportHandler(BaseHTTPRequestHandler):
@@ -165,7 +256,8 @@ class ExportHandler(BaseHTTPRequestHandler):
                 HTTPStatus.SERVICE_UNAVAILABLE, {"error": "export state temporarily unavailable"}
             )
             return
-        if status == "QUEUED":
+        enqueue_confirmed = item.get("enqueue_confirmed", {}).get("BOOL") is True
+        if status == "QUEUED" and not enqueue_confirmed:
             try:
                 _sqs(endpoint).send_message(
                     QueueUrl=_env("PK_STACK_LAB_QUEUE_URL"),
@@ -173,9 +265,23 @@ class ExportHandler(BaseHTTPRequestHandler):
                         {"tenant": tenant, "id": export_id}, separators=(",", ":")
                     ),
                 )
+                ddb.update_item(
+                    TableName=table,
+                    Key={"pk": {"S": f"TENANT#{tenant}"}, "sk": {"S": export_id}},
+                    UpdateExpression="SET enqueue_confirmed = :confirmed",
+                    ConditionExpression="idempotency = :idem AND #s = :queued",
+                    ExpressionAttributeNames={"#s": "status"},
+                    ExpressionAttributeValues={
+                        ":confirmed": {"BOOL": True},
+                        ":idem": {"S": idem},
+                        ":queued": {"S": "QUEUED"},
+                    },
+                )
             except ClientError:
                 # The durable QUEUED row is intentionally retained.  A retry
-                # with the same key republished the same logical export ID.
+                # with the same key republishes the same logical export ID if
+                # publication was not durably confirmed. Duplicate delivery is
+                # safe because the worker claim is fenced.
                 self._reply(
                     HTTPStatus.SERVICE_UNAVAILABLE,
                     {"error": "export enqueue temporarily unavailable"},
@@ -234,22 +340,10 @@ def worker() -> None:
                     continue
                 token = secrets.token_hex(16)
                 try:
-                    ddb.update_item(
-                        TableName=table,
-                        Key=key,
-                        UpdateExpression="SET #s = :processing, processing_token = :token ADD attempts :one",
-                        ConditionExpression="#s = :queued",
-                        ExpressionAttributeNames={"#s": "status"},
-                        ExpressionAttributeValues={
-                            ":queued": {"S": "QUEUED"},
-                            ":processing": {"S": "PROCESSING"},
-                            ":token": {"S": token},
-                            ":one": {"N": "1"},
-                        },
-                    )
-                except ClientError as exc:
-                    if _error_code(exc) != "ConditionalCheckFailedException":
-                        continue
+                    claimed = _claim_job(ddb, table=table, key=key, token=token)
+                except ClientError:
+                    continue
+                if not claimed:
                     # A competing delivery owns PROCESSING.  It is deliberately
                     # not acknowledged: only a terminal winner can consume it.
                     latest = ddb.get_item(TableName=table, Key=key).get("Item", {})
@@ -267,18 +361,12 @@ def worker() -> None:
                     ).encode(),
                     ContentType="application/json",
                 )
-                ddb.update_item(
-                    TableName=table,
-                    Key=key,
-                    UpdateExpression="SET #s = :done, object_key = :key REMOVE processing_token",
-                    ConditionExpression="#s = :processing AND processing_token = :token",
-                    ExpressionAttributeNames={"#s": "status"},
-                    ExpressionAttributeValues={
-                        ":processing": {"S": "PROCESSING"},
-                        ":token": {"S": token},
-                        ":done": {"S": "COMPLETE"},
-                        ":key": {"S": object_key},
-                    },
+                _complete_job(
+                    ddb,
+                    table=table,
+                    key=key,
+                    token=token,
+                    object_key=object_key,
                 )
                 sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"])
             except (ClientError, KeyError, TypeError, ValueError, json.JSONDecodeError):
@@ -288,18 +376,7 @@ def worker() -> None:
                 # reset because its conditional token no longer exists.
                 try:
                     if key is not None and token is not None:
-                        ddb.update_item(
-                            TableName=table,
-                            Key=key,
-                            UpdateExpression="SET #s = :queued REMOVE processing_token",
-                            ConditionExpression="#s = :processing AND processing_token = :token",
-                            ExpressionAttributeNames={"#s": "status"},
-                            ExpressionAttributeValues={
-                                ":processing": {"S": "PROCESSING"},
-                                ":queued": {"S": "QUEUED"},
-                                ":token": {"S": token},
-                            },
-                        )
+                        _release_job(ddb, table=table, key=key, token=token)
                 except ClientError:
                     pass
                 continue

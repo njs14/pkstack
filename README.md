@@ -1,17 +1,46 @@
-# PK-Stack Floci ECS integration lab
+# PK-Stack (Poteto Kiro)
 
-This repository is a production-shaped local integration lab for a two-service document
-export path. The API accepts a tenant-scoped export request and writes a DynamoDB job plus
-an SQS message. The worker consumes the message, writes a JSON result to S3, and records a
-terminal DynamoDB state. A redrive policy provides bounded retries and a DLQ.
+PK-Stack is a Kiro CLI v3 workflow layer for doing implementation work in the user's current
+interactive session and proving completion with repository-owned checks. Kiro owns execution and
+orchestration; PK-Stack owns workflow semantics; the repo-local `projectctl` owns deterministic
+project operations and verification; OKF is the optional interface for broader project knowledge.
 
-It uses real Docker-backed ECS through exactly
+This repository is also PK-Stack's realistic acceptance fixture: a two-service document-export
+application running through Floci's Docker-backed ECS subset. The API writes a tenant-keyed
+DynamoDB job and SQS message. The worker writes a JSON result to S3 and records terminal state;
+bounded retries end at a DLQ. It uses real Docker task containers through
 `floci/floci:2.0.1@sha256:4e451c39c7bb88e3cd4f87e8fc0c25d5b47695a51185d521e2241fa00486e8eb`.
-It does not use a mock ECS implementation or Kubernetes.
+It does not use Kubernetes, a mock ECS implementation, AWS Fargate, or a real AWS account.
 
-## Quick start
+`PK-Stack` and `Poteto Kiro` are the user-facing names. The lowercase `pstack` agent name and
+`.pstack/` directory are stable compatibility identifiers used by Kiro and existing workspaces.
 
-`uv sync --locked --no-config` is required once. Then run the full lifecycle, in order:
+## Use PK-Stack in Kiro v3
+
+Start an ordinary interactive v3 session with the generated Poteto Kiro profile:
+
+```sh
+kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max
+```
+
+Then invoke the workspace skill in that same session:
+
+```text
+/verified-goal Repair the document-export tenant-key partition-separation regression.
+```
+
+`/verified-goal` is a PK-Stack skill, not a native Kiro `/goal` command. It keeps the agent in the
+current v3 session while `.pstack/bin/projectctl` stores a bounded objective, its exact executable
+acceptance contract, attempts, and results. ACP is not the default path. Native v3 skills, custom
+agents, sub-agents, permissions, hooks, steering, `/spec`, and `/knowledge` remain available where
+they fit.
+
+See [usage](docs/usage.md) for Power setup, an exact before/after comparison, direct `projectctl`
+commands, and recovery procedures.
+
+## Run the Floci acceptance fixture
+
+Prerequisites are macOS on ARM64, `uv`, and a running Docker daemon. The lifecycle is:
 
 ```sh
 ./labctl doctor --output json
@@ -23,34 +52,38 @@ It does not use a mock ECS implementation or Kubernetes.
 ./labctl down --output json
 ```
 
-Every JSON-mode failure is one bounded JSON object and has a nonzero exit status. `up`
-creates a fresh run identifier unless `--run-id` is supplied. It only starts the outer
-Floci Compose control plane and provisions run-owned SQS, DLQ, DynamoDB, S3, and ECS
-cluster resources. `deploy` builds a `linux/arm64` image, registers task-definition
-revisions, creates the API and worker ECS services, and waits for both.
+`up` creates a fresh run identifier unless `--run-id` is supplied. It starts the pinned Floci
+control plane and provisions run-owned SQS, DLQ, DynamoDB, S3, and ECS cluster resources. `deploy`
+builds an immutable `linux/arm64` image, registers API and worker task-definition revisions, and
+activates a generation only after both services stabilize. A later `deploy` is a supported repeat
+deployment; failed candidates remain in the artifact ledger while the prior stabilized generation
+remains the recorded active identity. Verification then requires the checkout's build inputs to
+match that active source digest.
 
 The host endpoint is exactly `http://127.0.0.1:4566`; task endpoints are exactly
-`http://floci:4566` on `pk-stack-lab-net`. Client construction rejects every other host
-endpoint, including default AWS endpoints, credential-bearing URLs, paths, queries, and
-fragments. All SDK clients have an explicit endpoint, fixed `us-east-1` region, and local
-dummy credentials. No credentials are printed.
+`http://floci:4566` on `pk-stack-lab-net`. SDK construction rejects every other endpoint,
+including default AWS endpoints and credential-bearing URLs. Clients use fixed `us-east-1` and
+dummy local credentials. No real cloud credentials are needed or printed.
 
-## Safety and cleanup
+## Safety boundary
 
-`labctl doctor` resolves the active Docker context socket rather than assuming
-`/var/run/docker.sock`. The discovered socket is only mounted into Floci at that container
-path. `up` requires an explicit acknowledgement because access to that socket is
-root-equivalent control of the selected Docker daemon. API/worker ECS definitions have no
-socket mount. Docker Compose owns the deterministic network; per-run infrastructure uses an
-opaque claim ID plus exact ownership tags and local state stores the manifest, the selected
-context/socket/daemon identity, and immutable deployment identity. `down` stops only the two
-exact services, confirms their tasks exit, validates
-every resource's tags before deleting it, removes the Floci Compose service, then independently
-checks for task containers, the Floci container, and the named network leak.
+The active Docker context socket is mounted only into Floci, at `/var/run/docker.sock`. `up`
+requires `--acknowledge-docker-socket` because that mount grants root-equivalent control of the
+selected Docker daemon. Application task definitions have no Docker socket or host mounts.
 
-The loopback emulator is unauthenticated for the lifetime of a run. Use a disposable Docker
-daemon and do not expose port 4566 beyond the local machine.
+All lifecycle commands take an owner-only non-blocking lock. State schema v2 stores the exact
+Docker daemon claim, the original Compose-definition digest, an append-only planned/observed
+artifact ledger, the last stabilized deployment, and a hash-bound teardown plan with durable phase
+checkpoints. Cleanup validates exact
+AWS tags plus task, task-definition, image, container-environment, claim, network, and daemon
+identity before mutation. It removes only the frozen target set and unlinks the state manifest
+last.
 
-See [architecture](docs/architecture.md), [usage](docs/usage.md),
-[test strategy](docs/test-strategy.md), [limitations](docs/limitations.md), and the
-[validation report](docs/validation-report.md).
+The emulator is unauthenticated while running. Port 4566 is bound to loopback, but the Docker
+network is not an egress-isolation boundary. Use a disposable Docker daemon and read the
+[limitations](docs/limitations.md) before treating the lab as production evidence.
+
+The candidate implementation and automated/lab evidence are documented; final current-session
+Kiro acceptance, final Fable/Grok review status, and private-repository publication must be
+recorded only after those steps actually complete. See [architecture](docs/architecture.md),
+[test strategy](docs/test-strategy.md), and the [validation report](docs/validation-report.md).

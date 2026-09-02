@@ -62,9 +62,36 @@ attention to:
 10. complete cleanup accounting, including task definitions, containers, images, network, queues,
     table, bucket, and state;
 11. lock fidelity, `.dockerignore`, supply-chain claims, and command reproducibility;
-12. stale/contradictory docs, tenant-isolation versus authentication claims, and unsupported
+12. stale/contradictory docs, tenant-key partition separation versus authentication claims, and unsupported
     Kiro/Floci claims;
 13. whether tests actually drive the risky branches rather than merely assert strings or mocks.
+
+Re-evaluate `FBL-001` through `FBL-008` directly against source and executable evidence. Do not
+trust the acceptance ledger's status labels or a prior reviewer disposition. Reuse the original ID
+when a prior finding recurs; allocate new findings after the highest existing FBL number.
+
+In particular, verify all of the following rather than inferring them from prose:
+
+- state-schema-v2 real producer output matches the independent judge's fixed bounded consumer
+  schema, and the judge cannot be bypassed through a mutable project environment, added executable
+  source/bytecode, an in-repository manifest, a symlink, stderr, oversized output, or protected-file
+  mutation;
+- image plans precede Docker mutation, deterministic tags cannot overwrite foreign provenance,
+  every observed image/task-definition generation survives until frozen teardown, and partial
+  build or registration hard exits resume without changing immutable identity;
+- hard exits inside each destructive teardown phase converge on retry, including after service,
+  queue/table/bucket, task-definition, cluster, Compose, local-data, and first-image mutations;
+- Compose-down-before-checkpoint and fully-checkpointed-before-manifest-unlink resumes work, safe
+  atomic-write temporaries are recovered, unsafe state-directory entries fail closed, and terminal
+  success leaves a reusable local state boundary;
+- cluster-wide service/task and exact claim-bound task-container absence precedes data deletion,
+  including on resumed teardown when the outer Floci container is already absent;
+- a fresh final-tree live lifecycle proves two deployment generations, bounded external judging,
+  cleanup of every frozen task/task-definition/image reference, and preservation of foreign images;
+- the committed selected-profile transcript is one ordinary interactive `kiro-cli chat --v3
+  --agent pstack --model gpt-5.6-sol --effort max` session: the stored first attempt fails before a
+  source edit, the same immutable goal later passes, and neither ACP, `/spawn`, another Kiro
+  session, goal replacement, nor a native-v3 `/goal` claim is used.
 
 ## Output contract
 

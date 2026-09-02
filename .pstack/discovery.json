@@ -39,9 +39,15 @@
     ],
     "wiki": true
   },
-  "languages": {},
+  "languages": {
+    "python": [
+      "pyproject.toml"
+    ]
+  },
   "root": ".",
-  "tests": [],
+  "tests": [
+    "tests"
+  ],
   "verification_surfaces": [
     "Wiki/features"
   ]

@@ -1,146 +1,171 @@
 # Validation report
 
-## Bootstrap evidence
+This report separates deterministic local checks, controller proof, the live Docker-backed Floci
+campaign, Kiro-session evidence, and model-council acceptance. A pass at one boundary is not
+reported as a pass at another. The current snapshot is candidate-complete through the fresh
+exact-tree Floci boundary. The selected-profile Kiro campaign and final council gates are still
+pending.
 
-Reviewed source command:
+## Bootstrap and controller provenance
+
+PK-Stack was generated from the reviewed Power/controller source and retains a 49-file ownership
+receipt in `.pstack/bootstrap.json`. The maintained controller source suite passed **508 tests** at
+source commit `191997501c41ae078b6548b9d6c898aadf2907ae`. The generated controller was compared
+byte-for-byte with that source before the current lab-only hardening work.
+
+The repository-local generated controller currently reports:
 
 ```sh
-sed -n '1,280p' /Users/noahsutter/git-projects/codex/skills/setup-pstack/scripts/setup_pstack.py
+.pstack/bin/projectctl doctor --output json
+.pstack/bin/projectctl feature validate --output json
+.pstack/bin/projectctl knowledge validate --output json
 ```
 
-Dry-run command (exit 0):
+Observed result: 39 doctor checks passed, zero failed, and one optional warning reported that
+canonical `okn` is unavailable. All 49 receipt-managed files matched their recorded hashes. The
+one ready `document-export` feature contract had zero errors and warnings. Knowledge validation
+passed in explicit `feature-map-only` mode; strict broader OKF validation was not claimed.
+
+An isolated temporary repository also exercised ready feature generation, validation, execution,
+and a bounded stored goal. Goal `4360c683-7cc7-4bda-b0a5-c2b70b009735` recorded attempt 1 as a
+real failure and attempt 2 as passed after the smallest fixture repair. That proves controller
+state transitions, not a Kiro session.
+
+## Candidate static gate
+
+After the final pre-live safety audit, all of these commands exited zero:
 
 ```sh
-python3 /Users/noahsutter/git-projects/codex/skills/setup-pstack/scripts/setup_pstack.py \
-  --root /Users/noahsutter/git-projects/pk-stack-lab --dry-run --output json
-```
-
-The JSON reported `ok: true`, no conflicts, and only repository-local `.pstack`, `.kiro`,
-`Wiki/features`, `projectctl`, and `.gitignore` additions. Apply command (exit 0):
-
-```sh
-python3 /Users/noahsutter/git-projects/codex/skills/setup-pstack/scripts/setup_pstack.py \
-  --root /Users/noahsutter/git-projects/pk-stack-lab --output json
-```
-
-The apply JSON reported `ok: true`, no conflicts, and the same scoped additions. The frozen
-source Power was inspected only and was not modified.
-
-## Historical runtime validation: ci-012 (superseded)
-
-The final static gates all exited 0 after the propagation, parser, proof, and cleanup changes:
-
-```sh
+env PYTHONDONTWRITEBYTECODE=1 \
+  uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q
+env PYTHONDONTWRITEBYTECODE=1 uv run --locked --no-config --no-sync ruff check .
 uv lock --check
-uv run ruff check .
-uv run pytest
 git diff --check
+sh -n labctl
+./labctl doctor --output json
 ```
 
-This historical section predates the mandatory security enforcement checks and is not a final
-acceptance claim. `uv lock --check` reported `Resolved 15 packages`; Ruff reported `All checks passed!`; pytest
-collected and passed **54** tests; and `git diff --check` was silent.
+Pytest passed **221 tests** in 5.42 seconds. Ruff and diff checks were clean; the lock resolved 15
+packages. Doctor proved Docker server access through context `desktop-linux`, daemon
+`fabba3a8-3367-4971-9e85-efbdb563f86f`, the Unix socket at
+`unix:///Users/noahsutter/.docker/run/docker.sock`, loopback endpoint
+`http://127.0.0.1:4566`, task endpoint `http://floci:4566`, and the pinned Floci 2.0.1 digest.
 
-This clean cold lifecycle used run `ci-012` (all commands exited 0):
+The `labctl` launcher was also exercised through its fresh non-editable isolated uv environment,
+explicit uv-managed Python 3.12 selection, and forced package reinstall. The judge source-closure
+precondition saw exactly the five declared `src/pk_stack_lab/*.py` files and no bytecode or added
+source.
+
+The post-round-1 audit added regression coverage for state-directory ownership, complete
+ledger-bound active identities, untagged-S3 create/tag recovery, stale-image partial cleanup,
+bounded subprocess output/process-group termination, every destructive inner-phase crash, and
+terminal manifest cleanup. The final audit additionally made every ECS describe/list path reject
+unexpected structured failures and bound teardown's Compose input to the original run claim.
+
+## Fresh exact-tree live Floci campaign: `live-final-902`
+
+The final audited source used the public interface only:
 
 ```sh
-./labctl doctor --output json
-./labctl up --run-id ci-012 --output json
+./labctl up --run-id live-final-902 --acknowledge-docker-socket --output json
+./labctl deploy --output json
+# Remove the controlled temporary build-input marker.
 ./labctl deploy --output json
 ./labctl status --output json
 ./labctl verify --output json
-.pstack/bin/projectctl doctor --output json
-.pstack/bin/projectctl feature validate --output json
-.pstack/bin/projectctl feature verify document-export --output json
 ./labctl evidence --output json
 ```
 
-Doctor confirmed Docker server `29.7.2`, Compose `5.4.0`, context socket
-`unix:///Users/noahsutter/.docker/run/docker.sock`, `http://127.0.0.1:4566`, task endpoint
-`http://floci:4566`, `us-east-1`, and the exact immutable Floci digest. The run created only
-`pklab-ci-012-*` resources. Deploy registered API and worker revisions `:1`; status and evidence
-reported one RUNNING API task `a86caa7127e14d47b89038c351a6ac8a` and one RUNNING worker task
-`25655711bf364f5b891f98a79765f1f4`.
+`up` created claim `ddfc9f0d56d0deb47c208157cd5541fa` with canonical state schema v2,
+Compose digest `ffc0ae8024ceb2487f13efc4ee71a0c5c02f89e800e5657bb65783892bd45e38`,
+and a cleared S3-create intent after successful tagging. Both deployment generations stabilized
+one API and one worker service:
 
-Both service creation and repeat-update code request `propagateTags=SERVICE`. The resulting
-Floci `DescribeTasks(include=['TAGS'])` task dictionaries omitted `tags`, while
-`ListTagsForResource` returned `{'tags': []}` for each task. The current-run proof therefore
-retains its exact service-tag plus task ARN/family/container chain; it does not fake unavailable
-task tags.
+| Generation | Source digest | Docker image ID | API/worker revisions |
+| --- | --- | --- | --- |
+| controlled marker | `8ed57e672518fe41188f5b9ec2275eca9ad57eba65f157def997971e443dba12` | `sha256:4b5b4315c29eb040870840764d323a2ee4aeb4eaa04fc569675e9302139963c1` | `:1` / `:1` |
+| restored candidate | `d36f1eabc87725beab70b474a4777637520edb118a10bcecf7c20ad905a8977e` | `sha256:4566a83166a5ddb123b72a205b08aefd3cf2da700f337a89e8c41692226e58f7` | `:2` / `:2` |
 
-Manual verify returned `ok: true` for fresh export `e-ae7ca79dc29bdc10`, terminal `COMPLETE`,
-object `exports/tenant-a/e-ae7ca79dc29bdc10.json`, cross-tenant isolation, duplicate API POST,
-worker duplicate delivery no-op (`attempts: 1`, unchanged S3 identity), and the invocation's
-own DLQ message `09329d1f-66e4-41e7-b7e1-9d281fafb617`. The stored feature verifier independently
-called only `./labctl verify --output json` and passed with distinct fresh export
-`e-99b0fdd4fba7aac5`, object `exports/tenant-a/e-99b0fdd4fba7aac5.json`, and DLQ message
-`48d2ce4d-0b9d-4f4c-a651-c934cdac2577`. Projectctl doctor reported 39 pass/0 fail (one expected
-optional `okn` warning); feature validation reported one ready contract with no errors or
-warnings. The repository-owned independent judge also passed:
+The append-only ledger retained all 16 planned and observed image/task-definition events. The
+active API task was `2e147d27a9e44c57b2f8bee70102f730`; the worker task was
+`07458654a12d46d5aa5034aa1b146094`.
+
+The live verifier returned `ok: true` for export `e-387e74ba4a1222f1`. It proved API request
+idempotency, terminal `COMPLETE`, exact object
+`exports/tenant-a/e-387e74ba4a1222f1.json`, exact JSON body/content type/ETag, tenant-key partition
+separation, duplicate worker delivery as a consumed no-op with attempts remaining at 1 and S3
+identity unchanged, and current-invocation DLQ message
+`ca59a186-ac07-47fb-819a-f96427a816e0`. Post-business identity reproof passed.
+
+Both application containers ran as `65532:65532` on `pk-stack-lab-net`, with no mounts and exact
+image/task/run/claim/operation/source identity. Task definitions requested read-only rootfs,
+`CapDrop: ALL`, and `no-new-privileges`; Floci 2.0.1 demonstrably did not propagate those three
+controls to Docker. Evidence reported them as emulator limitations rather than claiming they were
+effective.
+
+## External judge
+
+While the final generation was live, an owner-controlled read-only external copy of the judge and
+an independent read-only control manifest invoked exactly the checkout's verifier:
 
 ```sh
-uv run python judge/verify_feature_contract.py --repo /Users/noahsutter/git-projects/pk-stack-lab \
-  --expected-contract-sha256 8793192a8d316c67e9b0633f23388b87913cf0867c0a4957444eb63529a55098
+python3 /private/tmp/pk-stack-judge-final-902.037z1V/verify_feature_contract.py \
+  --repo /Users/noahsutter/git-projects/pk-stack-lab \
+  --expected-contract-sha256 cc10d305410139155e5071bdd067dc780c2be51cbd7d404479f45e8fe3b59a04 \
+  --control-manifest /private/tmp/pk-stack-judge-final-902.037z1V/control-manifest.json
 ```
 
-It returned the same contract hash and `ok: true`.
+It exited zero with:
 
-Live mount inspection before teardown showed exactly two Floci bind mounts—the discovered Docker
-socket to `/var/run/docker.sock` and repository-local `.lab-state/floci-data` to `/app/data`—and
-`[]` for both real task containers. Evidence reported the exact Floci ECS label/resource-ID chain,
-dedicated network, images, task-definition revisions, allowed Floci labels, and manifest hash
-`82f0d0f3db661a19665ae71393904c963751c35edc3f70c15a79b03b6df5709c`, without secrets.
+```json
+{
+  "contract_sha256": "cc10d305410139155e5071bdd067dc780c2be51cbd7d404479f45e8fe3b59a04",
+  "control_manifest_sha256": "05df1735d8b702c9c9a54e23eae0c90cc81aa49ac94e1e3aaa9d9ac30529c041",
+  "judge_sha256": "d47418287932afbfa851593eb348d053c658fe683cd63b559cb4349c326646ab",
+  "ok": true
+}
+```
 
-Teardown and independent checks all exited 0:
+The external judge and manifest were direct, single-link files with modes 0500 and 0400. The
+judge bounded stdout, rejected any stderr, rehashed all protected files before and after, required
+the exact executable-source closure, and parsed the fixed-size resource projection rather than the
+internal artifact ledger.
+
+## Exact teardown and noninterference
 
 ```sh
 ./labctl down --output json
-docker ps -a --filter label=floci=true --format '{{.Names}} {{.Labels}}'
-docker ps -a --filter name=^pk-stack-lab-floci$ --format '{{.Names}}'
-docker network ls --filter name=^pk-stack-lab-net$ --format '{{.Name}}'
-docker image ls --format '{{.Repository}}:{{.Tag}}'
-docker volume ls --format '{{.Name}}'
 ```
 
-`down` returned zero owned ECS tasks, Floci container, network, local data, and current-run
-images. The container and network queries returned no output. The exact ci-012 image tags were
-absent afterward while the pre-existing image tags remained untouched. The volume inventory after
-teardown was the same seven pre-teardown IDs (`03c607…f37f`, `7a4036…ad48`, `37b268…71a`,
-`37fb87…78b0`, `51ccd8…93c8`, `083df5…3978`, `fcfd30…f002`), so ci-012 created no anonymous
-lab volume. `.lab-state` was absent after cleanup. Floci 2.0.1's missing task-tag response after
-explicit propagation is the documented emulator limitation; this historical proof does not manufacture
-task tags.
+`down` exited zero and reported four ECS tasks, four immutable image references, and every frozen
+phase complete in order:
 
-## Floci security-limit validation: live-r3-902
-
-This runtime attempt stopped under the then-mandatory fail-closed security check:
-
-```sh
-./labctl up --run-id live-r3-902 --acknowledge-docker-socket --output json  # exit 0
-./labctl deploy --output json                                                # exit 0
-./labctl evidence --output json                                              # exit 1
-./labctl down --output json                                                  # exit 0
+```text
+aws_compute_absent
+aws_data_absent
+aws_definitions_cluster_absent
+aws_postconditions_passed
+docker_outer_absent
+floci_data_absent
+docker_images_absent
+local_postconditions_passed
 ```
 
-The API and worker definitions requested user `65532:65532`, read-only root filesystem,
-`CapDrop: ALL`, and `no-new-privileges`. Docker inspected both exact current Floci task
-containers as `user=65532:65532 readonly=false capdrop=null security=null mounts=[]`.
-Evidence therefore returned `real ECS task container did not enforce required security fields`.
-An `internal: true` network experiment also left the Floci container healthy while deploy failed
-with `Could not connect to the endpoint URL: "http://127.0.0.1:4566/"`. The post-down read-only
-checks found no Floci container, `pk-stack-lab-net`, `pklab-live-r3-902-*` tag, or `.lab-state`.
-This is an accepted Floci-emulator limitation, not evidence that those three controls are
-effective. The release bar still requires non-root application tasks, no task mounts or Docker
-socket, exact identity, dedicated networking, and a separately hardened verifier.
+Independent exact-name/reference queries then found no `live-final-902` images, no Floci outer
+container, no Floci ECS task container, no `pk-stack-lab-net`, and no `.lab-state`. Pre-existing
+foreign image tags remained unchanged:
 
-## Post-stop local validation
+```text
+pklab-live-r2-902-api:d8f448b8302cb827d588aabe    250c0499c7c0
+pklab-live-r2-902-worker:d8f448b8302cb827d588aabe 250c0499c7c0
+```
 
-No further Floci lifecycle was launched after the security hard stop. Local corrections added
-the verifier's explicit Python entrypoint and exact-name `finally` cleanup, broad ordinary-
-exception JSON rendering, state-owner validation, and expanded judge protected closure. The
-latest pre-acceptance static suite passed with `uv lock --check`, `uv run --locked --no-config --no-sync
-ruff check .`, and `uv run --locked --no-config --no-sync pytest` (**63 passed**). The real
-vendored controller also passed `./projectctl doctor --output json` (39 pass, 0 fail, one
-expected `okn is unavailable` warning), `feature validate`, and `knowledge validate`; broad
-OKF validation was explicitly not run because `okn` is unavailable. This root test suite is
-distinct from the managed controller suite.
+## Council and current-session status
+
+Sol Advisor v0.6.0 supplied build-phase advice and is recorded as advisory, not acceptance.
+Fable 5.1 round 1 reviewed commit `0b000d359b99f34ee5001088548ca872322e734a` at max effort and
+returned eight material findings; their remediations are present in this later candidate but have
+not yet received a clean Fable disposition. The real one-process interactive
+`kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max` fail-repair-pass campaign is
+also still pending. Grok 4.6 `xhigh` runs only after clean Fable acceptance on that exact commit.
+Private GitHub publication is likewise not claimed yet.
