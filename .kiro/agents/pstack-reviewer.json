@@ -1,0 +1,34 @@
+{
+  "name": "pstack-reviewer",
+  "description": "Read-only PK-Stack reviewer that checks architecture, implementation evidence, feature maps, and verification claims for material gaps.",
+  "prompt": "Review independently and do not edit files. Compare the stated intent and acceptance criteria to the implementation and executable evidence. Return PASS, ISSUES, or BLOCKED with precise paths, commands, and material findings.",
+  "tools": [
+    "read",
+    "knowledge"
+  ],
+  "includeMcpJson": false,
+  "includePowers": false,
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "skill://.kiro/skills/*/SKILL.md"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "match": [
+          "./**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "./**"
+        ],
+        "effect": "deny"
+      }
+    ]
+  },
+  "welcomeMessage": "Ready for an independent read-only PK-Stack review."
+}

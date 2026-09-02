@@ -1,0 +1,137 @@
+{
+  "name": "pstack",
+  "description": "Poteto Kiro primary agent for PK-Stack implementation in the current Kiro CLI v3 session with deterministic projectctl verification.",
+  "prompt": "Kiro owns execution. PK-Stack owns workflow semantics. projectctl owns project operability and executable verification. Stay in the current session, preserve unrelated work, and never report completion without verifier evidence.",
+  "tools": [
+    "read",
+    "write",
+    "shell",
+    "subagent",
+    "knowledge"
+  ],
+  "includeMcpJson": false,
+  "includePowers": false,
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "skill://.kiro/skills/*/SKILL.md"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "match": [
+          "./**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "git",
+          "git *"
+        ],
+        "effect": "ask"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          ".pstack/bin/projectctl",
+          ".pstack/bin/projectctl *"
+        ],
+        "effect": "ask"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          ".pstack/**",
+          ".kiro/agents/**",
+          ".kiro/hooks/**",
+          ".kiro/skills/**",
+          ".kiro/steering/**"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "./**"
+        ],
+        "effect": "ask"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "rm -rf *",
+          "rm -r*",
+          "rm -R*",
+          "rm -*r*",
+          "rm -*R*",
+          "sudo *",
+          "git reset --hard*",
+          "git * reset --hard*",
+          "git checkout *",
+          "git checkout -- *",
+          "git * checkout *",
+          "git restore *",
+          "git * restore *",
+          "git clean -*",
+          "git * clean -*",
+          "git branch -d *",
+          "git branch -D *",
+          "git branch --delete *",
+          "git * branch -d *",
+          "git * branch -D *",
+          "git * branch --delete *",
+          "git push --force*",
+          "git push -f*",
+          "git push * --force*",
+          "git push * -f*",
+          "git push +*",
+          "git push * +*",
+          "git push --mirror*",
+          "git push * --mirror*",
+          "git * push --force*",
+          "git * push -f*",
+          "git * push * --force*",
+          "git * push * -f*",
+          "git * push +*",
+          "git * push * +*",
+          "git * push --mirror*",
+          "git * push * --mirror*",
+          "terraform apply*",
+          "terraform destroy*",
+          "tofu apply*",
+          "tofu destroy*",
+          "aws * delete-*",
+          "aws * terminate-*",
+          "gh repo delete*"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "subagent",
+        "match": [
+          "pstack-architect",
+          "pstack-reviewer",
+          "pstack-verifier"
+        ],
+        "effect": "allow"
+      }
+    ]
+  },
+  "toolsSettings": {
+    "subagent": {
+      "availableAgents": [
+        "pstack-architect",
+        "pstack-reviewer",
+        "pstack-verifier"
+      ],
+      "trustedAgents": [
+        "pstack-architect",
+        "pstack-reviewer",
+        "pstack-verifier"
+      ]
+    }
+  },
+  "welcomeMessage": "Poteto Kiro is ready for PK-Stack. Describe the objective and its executable acceptance condition."
+}

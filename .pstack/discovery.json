@@ -1,0 +1,48 @@
+{
+  "aws": {
+    "detected": false,
+    "markers": []
+  },
+  "developer_interfaces": [
+    "projectctl"
+  ],
+  "git": true,
+  "kiro": {
+    "agents": [
+      ".kiro/agents/pstack-architect.json",
+      ".kiro/agents/pstack-reviewer.json",
+      ".kiro/agents/pstack-verifier.json",
+      ".kiro/agents/pstack.json"
+    ],
+    "hooks": [
+      ".kiro/hooks/pstack-session.json",
+      ".kiro/hooks/pstack-tripwire.json"
+    ],
+    "present": true,
+    "skills": [
+      ".kiro/skills/architect/SKILL.md",
+      ".kiro/skills/arena/SKILL.md",
+      ".kiro/skills/model-council/SKILL.md",
+      ".kiro/skills/swarm/SKILL.md",
+      ".kiro/skills/verified-goal/SKILL.md"
+    ],
+    "specs": [],
+    "steering": [
+      ".kiro/steering/pstack-core.md",
+      ".kiro/steering/pstack-safety.md"
+    ]
+  },
+  "knowledge": {
+    "feature_map": true,
+    "knowledge_markers": [
+      "Wiki"
+    ],
+    "wiki": true
+  },
+  "languages": {},
+  "root": ".",
+  "tests": [],
+  "verification_surfaces": [
+    "Wiki/features"
+  ]
+}

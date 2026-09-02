@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "pstack-goal-tripwire-advisory",
+      "description": "Disabled advisory Stop probe. It reports active goal state but is never the verified-goal loop or a blocking control.",
+      "trigger": "Stop",
+      "action": {
+        "type": "command",
+        "command": "if [ -x .pstack/bin/projectctl ]; then .pstack/bin/projectctl goal tripwire --output json; else printf '%s\\n' '{\"pstack\":\"tripwire-unavailable\",\"display_name\":\"PK-Stack\",\"expanded_name\":\"Poteto Kiro\",\"power_id\":\"pk-stack\"}'; fi"
+      },
+      "timeout": 30,
+      "enabled": false
+    }
+  ]
+}

@@ -1,0 +1,353 @@
+"""Integration diagnostics for a bootstrapped project."""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import subprocess
+from pathlib import Path
+from typing import Any
+
+from pstack_kiro.bootstrap import (
+    INTERNAL_WRAPPER,
+    TARGET_PYPROJECT,
+    audit_bootstrap_receipt,
+    gitignore_has_entry,
+)
+from pstack_kiro.features import validate_feature_map
+from pstack_kiro.goal import GoalError, GoalStore
+from pstack_kiro.models import DoctorCheck
+from pstack_kiro.paths import WorkspacePathError, workspace_path
+
+
+def run_doctor(root: Path) -> dict[str, Any]:
+    root = root.resolve()
+    checks: list[DoctorCheck] = []
+
+    checks.append(
+        DoctorCheck(
+            "project-root",
+            "pass" if root.is_dir() else "fail",
+            str(root),
+            None if root.is_dir() else "Choose an existing project directory.",
+        )
+    )
+    checks.append(_command_check("uv", required=True))
+    checks.append(_command_check("kiro-cli", required=False))
+    checks.append(_command_check("okn", required=False))
+
+    wrapper = root / "projectctl"
+    try:
+        internal = workspace_path(root, Path(".pstack/bin/projectctl"))
+        internal_error = None
+    except WorkspacePathError as exc:
+        internal = root / ".pstack" / "bin" / "projectctl"
+        internal_error = str(exc)
+    if internal_error is None and internal.is_file() and os.access(internal, os.X_OK):
+        checks.append(DoctorCheck("projectctl", "pass", "executable internal projectctl present"))
+    else:
+        checks.append(
+            DoctorCheck(
+                "projectctl",
+                "fail",
+                internal_error or "executable .pstack/bin/projectctl entrypoint is missing",
+                "Run /setup-pstack or pstack-setup in this project.",
+            )
+        )
+    checks.append(_receipt_integrity_check(root))
+    checks.append(_runtime_integrity_check(root, internal))
+    if wrapper.exists() and not (wrapper.is_file() and os.access(wrapper, os.X_OK)):
+        checks.append(
+            DoctorCheck(
+                "root-projectctl",
+                "warn",
+                "root projectctl is not an executable file; use .pstack/bin/projectctl",
+            )
+        )
+
+    required_assets = {
+        "pstack-agent": root / ".kiro" / "agents" / "pstack.json",
+        "architect-agent": root / ".kiro" / "agents" / "pstack-architect.json",
+        "reviewer-agent": root / ".kiro" / "agents" / "pstack-reviewer.json",
+        "verifier-agent": root / ".kiro" / "agents" / "pstack-verifier.json",
+        "pstack-core-steering": root / ".kiro" / "steering" / "pstack-core.md",
+        "pstack-safety-steering": root / ".kiro" / "steering" / "pstack-safety.md",
+        "session-hook": root / ".kiro" / "hooks" / "pstack-session.json",
+        "tripwire-hook": root / ".kiro" / "hooks" / "pstack-tripwire.json",
+    }
+    for skill in (
+        "architect",
+        "arena",
+        "model-council",
+        "swarm",
+        "verified-goal",
+    ):
+        required_assets[f"{skill}-skill"] = root / ".kiro" / "skills" / skill / "SKILL.md"
+
+    kiro_executable = shutil.which("kiro-cli")
+    for name, path in required_assets.items():
+        try:
+            safe_path = workspace_path(root, path)
+        except WorkspacePathError as exc:
+            checks.append(DoctorCheck(name, "fail", str(exc), "Replace symlinked Kiro paths."))
+            continue
+        checks.append(
+            DoctorCheck(
+                name,
+                "pass" if safe_path.is_file() else "fail",
+                f"{safe_path.relative_to(root)} {'present' if safe_path.is_file() else 'missing'}",
+                (
+                    None
+                    if safe_path.is_file()
+                    else "Re-run /setup-pstack; foreign files are preserved."
+                ),
+            )
+        )
+        if safe_path.is_file():
+            checks.append(_asset_integrity_check(root, safe_path, name))
+        if safe_path.suffix == ".json" and safe_path.is_file():
+            try:
+                document = json.loads(safe_path.read_text(encoding="utf-8"))
+                _validate_kiro_json(safe_path, document)
+            except (OSError, json.JSONDecodeError, ValueError) as exc:
+                checks.append(DoctorCheck(f"{name}-json", "fail", f"invalid JSON: {exc}"))
+                continue
+            if (
+                safe_path.parent.name == "agents"
+                and kiro_executable
+                and Path(kiro_executable).is_file()
+            ):
+                checks.append(_kiro_agent_check(kiro_executable, safe_path, name))
+
+    feature_result: dict[str, Any]
+    try:
+        feature_result = validate_feature_map(root)
+    except (OSError, ValueError) as exc:
+        feature_result = {
+            "ok": False,
+            "feature_count": 0,
+            "features": [],
+            "errors": [str(exc)],
+            "warnings": [],
+        }
+    checks.append(
+        DoctorCheck(
+            "feature-map",
+            "pass" if feature_result["ok"] else "fail",
+            (
+                f"{feature_result['feature_count']} feature contract(s); "
+                f"{len(feature_result['errors'])} error(s), "
+                f"{len(feature_result['warnings'])} warning(s)"
+            ),
+            None if feature_result["ok"] else "Run projectctl feature validate for details.",
+        )
+    )
+
+    ignore_check = _runtime_state_ignored(root)
+    checks.append(ignore_check)
+    checks.append(_goal_state_check(root))
+
+    summary = {
+        "pass": sum(check.status == "pass" for check in checks),
+        "warn": sum(check.status == "warn" for check in checks),
+        "fail": sum(check.status == "fail" for check in checks),
+    }
+    return {
+        "ok": summary["fail"] == 0,
+        "root": str(root),
+        "summary": summary,
+        "checks": [check.to_dict() for check in checks],
+        "feature_map": feature_result,
+    }
+
+
+def _validate_kiro_json(path: Path, document: Any) -> None:
+    if not isinstance(document, dict):
+        raise ValueError("top level must be an object")
+    if path.parent.name == "agents":
+        if document.get("name") != path.stem:
+            raise ValueError("agent name must match its file name")
+        if not isinstance(document.get("tools"), list) or not document["tools"]:
+            raise ValueError("agent tools must be a non-empty list")
+        if not isinstance(document.get("permissions", {}).get("rules"), list):
+            raise ValueError("agent permissions.rules must be a list")
+    elif path.parent.name == "hooks":
+        if document.get("version") != "v1":
+            raise ValueError("hook version must be v1")
+        hooks = document.get("hooks")
+        if not isinstance(hooks, list) or not hooks:
+            raise ValueError("hooks must be a non-empty list")
+        if any(
+            not isinstance(hook, dict) or "trigger" not in hook or "action" not in hook
+            for hook in hooks
+        ):
+            raise ValueError("every hook requires trigger and action")
+
+
+def _runtime_integrity_check(root: Path, internal: Path) -> DoctorCheck:
+    pyproject = root / ".pstack" / "projectctl" / "pyproject.toml"
+    lock = root / ".pstack" / "projectctl" / "uv.lock"
+    cached_lock = root / ".pstack" / "projectctl" / "templates" / "projectctl" / "uv.lock"
+    try:
+        paths = [workspace_path(root, path) for path in (internal, pyproject, lock, cached_lock)]
+        expected = [
+            INTERNAL_WRAPPER.encode(),
+            TARGET_PYPROJECT.encode(),
+            paths[3].read_bytes(),
+        ]
+        actual = [paths[0].read_bytes(), paths[1].read_bytes(), paths[2].read_bytes()]
+    except (OSError, ValueError) as exc:
+        return DoctorCheck(
+            "projectctl-runtime-integrity",
+            "fail",
+            f"unable to validate managed runtime: {exc}",
+            "Re-run the Power-local setup preflight and repair managed files.",
+        )
+    return DoctorCheck(
+        "projectctl-runtime-integrity",
+        "pass" if actual == expected else "fail",
+        (
+            "managed wrapper, project metadata, and lock are consistent"
+            if actual == expected
+            else "managed wrapper, project metadata, or lock differs from the shipped runtime"
+        ),
+        None if actual == expected else "Review setup conflicts before --update-managed.",
+    )
+
+
+def _receipt_integrity_check(root: Path) -> DoctorCheck:
+    try:
+        audit = audit_bootstrap_receipt(root)
+    except (OSError, ValueError) as exc:
+        return DoctorCheck(
+            "bootstrap-receipt-integrity",
+            "fail",
+            f"unable to validate bootstrap ownership receipt: {exc}",
+            "Run the Power-local setup preflight and repair managed files.",
+        )
+    if audit.ok:
+        return DoctorCheck(
+            "bootstrap-receipt-integrity",
+            "pass",
+            f"all {audit.managed_count} receipt-managed files match recorded hashes",
+        )
+
+    failures: list[str] = []
+    for label, paths in (
+        ("missing or non-file", audit.missing),
+        ("hash mismatch", audit.hash_mismatches),
+        ("unsafe or unreadable", audit.unsafe_or_unreadable),
+    ):
+        if paths:
+            displayed = ", ".join(paths[:5])
+            remainder = len(paths) - 5
+            if remainder > 0:
+                displayed = f"{displayed}, and {remainder} more"
+            failures.append(f"{label} ({len(paths)}): {displayed}")
+    return DoctorCheck(
+        "bootstrap-receipt-integrity",
+        "fail",
+        f"checked {audit.managed_count} receipt-managed files; " + "; ".join(failures),
+        "Review setup conflicts and restore receipt-owned files from the reviewed Power.",
+    )
+
+
+def _asset_integrity_check(root: Path, live: Path, name: str) -> DoctorCheck:
+    relative = live.relative_to(root)
+    if relative.parts[:2] == (".kiro", "skills"):
+        cached_relative = Path(".pstack/projectctl/skills").joinpath(*relative.parts[2:])
+    elif relative.parts[:2] == (".kiro", "steering"):
+        cached_relative = Path(".pstack/projectctl/dev.kiro/steering").joinpath(*relative.parts[2:])
+    else:
+        cached_relative = Path(".pstack/projectctl/templates/project") / relative
+    try:
+        cached = workspace_path(root, cached_relative)
+        matches = cached.is_file() and live.read_bytes() == cached.read_bytes()
+    except (OSError, ValueError) as exc:
+        return DoctorCheck(f"{name}-managed-integrity", "fail", str(exc))
+    return DoctorCheck(
+        f"{name}-managed-integrity",
+        "pass" if matches else "fail",
+        "live asset matches managed cache" if matches else "live asset differs from managed cache",
+        None if matches else "Review the setup conflict; do not overwrite user changes silently.",
+    )
+
+
+def _goal_state_check(root: Path) -> DoctorCheck:
+    try:
+        state = GoalStore(root).load()
+    except (GoalError, OSError, ValueError) as exc:
+        return DoctorCheck(
+            "goal-state",
+            "fail",
+            f"invalid goal state: {exc}",
+            "Inspect .pstack/state/goal.json; do not discard active evidence automatically.",
+        )
+    if state is None:
+        return DoctorCheck("goal-state", "pass", "no persisted goal state")
+    return DoctorCheck(
+        "goal-state",
+        "pass",
+        f"valid {state.status} goal {state.goal_id} with {state.attempt_count} attempt(s)",
+    )
+
+
+def _kiro_agent_check(executable: str, path: Path, name: str) -> DoctorCheck:
+    try:
+        completed = subprocess.run(
+            [executable, "agent", "validate", "--path", str(path)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return DoctorCheck(f"{name}-kiro-validate", "fail", f"Kiro validation failed: {exc}")
+    message = (completed.stderr or completed.stdout).strip()
+    return DoctorCheck(
+        f"{name}-kiro-validate",
+        "pass" if completed.returncode == 0 else "fail",
+        message or f"kiro-cli accepted {path.name}",
+    )
+
+
+def _command_check(name: str, *, required: bool) -> DoctorCheck:
+    executable = shutil.which(name)
+    if executable:
+        return DoctorCheck(name, "pass", executable)
+    if required:
+        return DoctorCheck(name, "fail", f"{name} is unavailable", f"Install {name} and retry.")
+    return DoctorCheck(
+        name,
+        "warn",
+        f"{name} is unavailable",
+        f"Install {name} only if this project uses that optional integration.",
+    )
+
+
+def _runtime_state_ignored(root: Path) -> DoctorCheck:
+    try:
+        git_path = workspace_path(root, Path(".git"))
+        gitignore = workspace_path(root, Path(".gitignore"))
+        if not git_path.exists():
+            ignored = gitignore.is_file() and gitignore_has_entry(
+                gitignore.read_text(encoding="utf-8"),
+                ".pstack/state/",
+            )
+        else:
+            completed = subprocess.run(
+                ["git", "check-ignore", "-q", ".pstack/state/goal.json"],
+                cwd=root,
+                capture_output=True,
+                check=False,
+            )
+            ignored = completed.returncode == 0
+    except (OSError, ValueError) as exc:
+        return DoctorCheck("ephemeral-goal-state", "fail", str(exc), "Repair project paths.")
+    return DoctorCheck(
+        "ephemeral-goal-state",
+        "pass" if ignored else "fail",
+        ".pstack/state/ is ignored" if ignored else ".pstack/state/ is not ignored",
+        None if ignored else "Add .pstack/state/ to .gitignore.",
+    )
