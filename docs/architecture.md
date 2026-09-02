@@ -12,9 +12,9 @@ tasks have neither bind mount.
 with `runtimePlatform` `ARM64`/`LINUX`, `bridge` networking, fixed CPU/memory, and labels.
 The API listens on container port 8080 and the worker exposes no port. In the observed Floci
 2.0.1 Docker Desktop mode, ECS metadata advertises a bridge binding but Docker does not publish
-that binding to the macOS host. Verification therefore performs bounded HTTP from inside the
-exact API task container, derived from the ECS task ARN and verified against Floci ECS labels
-and the dedicated network. It does not claim host-loopback API reachability. This still uses
+that binding to the macOS host. Verification therefore uses a transient hardened container on
+the dedicated network to reach the exact API task container, derived from the ECS task ARN and
+verified against Floci ECS labels. It does not claim host-loopback API reachability. This still uses
 Floci's Docker-backed ECS behavior, not an ECS mock.
 
 The task environment contains no IAM role or Docker socket. It contains only task-network
@@ -22,6 +22,12 @@ Floci URL, fixed region, queue URL, table name, bucket name, and role. Applicati
 intentionally minimal and omit HTTP bodies and credentials. Floci is responsible for Docker
 container lifecycle; the lab's ownership labels are additional evidence, not an authorization
 to affect foreign containers.
+
+Task definitions request `65532:65532`, a read-only root filesystem, dropped Linux
+capabilities, and `no-new-privileges`; the evidence command re-inspects the real Docker task
+containers and fails closed if any differs. Floci 2.0.1 did not enforce the latter three fields
+in the final attempted security run, so this architecture must not be read as a security claim.
+The exact reproduction and clean teardown are recorded in `docs/limitations.md`.
 
 Lifecycle authority is an atomically created canonical `.lab-state/run.json` claim. It is
 created with `O_CREAT|O_EXCL` before any resource mutation and read, written, and removed through

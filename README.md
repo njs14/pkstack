@@ -11,11 +11,11 @@ It does not use a mock ECS implementation or Kubernetes.
 
 ## Quick start
 
-`uv sync --all-groups` is required once. Then run the full lifecycle, in order:
+`uv sync --locked --no-config` is required once. Then run the full lifecycle, in order:
 
 ```sh
 ./labctl doctor --output json
-./labctl up --output json
+./labctl up --acknowledge-docker-socket --output json
 ./labctl deploy --output json
 ./labctl status --output json
 ./labctl verify --output json
@@ -39,11 +39,17 @@ dummy credentials. No credentials are printed.
 
 `labctl doctor` resolves the active Docker context socket rather than assuming
 `/var/run/docker.sock`. The discovered socket is only mounted into Floci at that container
-path. API/worker ECS definitions have no socket mount. Docker Compose owns the deterministic
-network; per-run infrastructure uses exact ownership tags and local state stores the
-manifest. `down` stops only the two exact services, confirms their tasks exit, validates
+path. `up` requires an explicit acknowledgement because access to that socket is
+root-equivalent control of the selected Docker daemon. API/worker ECS definitions have no
+socket mount. Docker Compose owns the deterministic network; per-run infrastructure uses an
+opaque claim ID plus exact ownership tags and local state stores the manifest, the selected
+context/socket/daemon identity, and immutable deployment identity. `down` stops only the two
+exact services, confirms their tasks exit, validates
 every resource's tags before deleting it, removes the Floci Compose service, then independently
 checks for task containers, the Floci container, and the named network leak.
+
+The loopback emulator is unauthenticated for the lifetime of a run. Use a disposable Docker
+daemon and do not expose port 4566 beyond the local machine.
 
 See [architecture](docs/architecture.md), [usage](docs/usage.md),
 [test strategy](docs/test-strategy.md), [limitations](docs/limitations.md), and the

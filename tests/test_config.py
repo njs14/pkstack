@@ -12,7 +12,17 @@ from pk_stack_lab.config import (
 
 @pytest.mark.parametrize(
     "endpoint",
-    ["", "https://127.0.0.1:4566", "http://localhost:4566", "http://127.0.0.1", "http://127.0.0.1:4566/x", "http://user:pass@127.0.0.1:4566", "http://127.0.0.1:4566/?q=x", "http://169.254.169.254:4566", "http://aws.amazon.com:4566"],
+    [
+        "",
+        "https://127.0.0.1:4566",
+        "http://localhost:4566",
+        "http://127.0.0.1",
+        "http://127.0.0.1:4566/x",
+        "http://user:pass@127.0.0.1:4566",
+        "http://127.0.0.1:4566/?q=x",
+        "http://169.254.169.254:4566",
+        "http://aws.amazon.com:4566",
+    ],
 )
 def test_host_endpoint_rejects_every_non_exact_or_real_aws_path(endpoint: str) -> None:
     with pytest.raises(SafetyError):

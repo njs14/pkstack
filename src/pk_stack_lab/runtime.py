@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import secrets
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -28,6 +29,12 @@ def _ddb(endpoint: str):
 
 def _sqs(endpoint: str):
     return client("sqs", endpoint=endpoint)
+
+
+def _error_code(exc: ClientError) -> str:
+    """Return the structured service code; never infer it from exception prose."""
+    code = exc.response.get("Error", {}).get("Code")
+    return code if isinstance(code, str) else ""
 
 
 class ExportHandler(BaseHTTPRequestHandler):
@@ -72,7 +79,8 @@ class ExportHandler(BaseHTTPRequestHandler):
             return
         endpoint = runtime_env()["PK_STACK_LAB_ENDPOINT"]
         response = _ddb(endpoint).get_item(
-            TableName=_env("PK_STACK_LAB_TABLE"), Key={"pk": {"S": f"TENANT#{tenant}"}, "sk": {"S": export_id}}
+            TableName=_env("PK_STACK_LAB_TABLE"),
+            Key={"pk": {"S": f"TENANT#{tenant}"}, "sk": {"S": export_id}},
         )
         item = response.get("Item")
         if not item:
@@ -80,7 +88,12 @@ class ExportHandler(BaseHTTPRequestHandler):
             return
         self._reply(
             HTTPStatus.OK,
-            {"id": export_id, "tenant": tenant, "status": item["status"]["S"], "object_key": item.get("object_key", {}).get("S")},
+            {
+                "id": export_id,
+                "tenant": tenant,
+                "status": item["status"]["S"],
+                "object_key": item.get("object_key", {}).get("S"),
+            },
         )
 
     def do_POST(self) -> None:
@@ -101,41 +114,82 @@ class ExportHandler(BaseHTTPRequestHandler):
         table = _env("PK_STACK_LAB_TABLE")
         ddb = _ddb(endpoint)
         item = {
-            "pk": {"S": f"TENANT#{tenant}"}, "sk": {"S": export_id}, "idempotency": {"S": idem},
-            "status": {"S": "QUEUED"}, "attempts": {"N": "0"}, "tenant": {"S": tenant},
+            "pk": {"S": f"TENANT#{tenant}"},
+            "sk": {"S": export_id},
+            "idempotency": {"S": idem},
+            "status": {"S": "QUEUED"},
+            "attempts": {"N": "0"},
+            "tenant": {"S": tenant},
         }
+        duplicate = False
         try:
             ddb.put_item(
-                TableName=table, Item=item,
+                TableName=table,
+                Item=item,
                 ConditionExpression="attribute_not_exists(pk) AND attribute_not_exists(sk)",
             )
-        except ClientError:
-            existing = ddb.get_item(
-                TableName=table,
-                Key={"pk": {"S": f"TENANT#{tenant}"}, "sk": {"S": export_id}},
-            ).get("Item")
-            if existing and existing.get("idempotency", {}).get("S") == idem:
-                if existing.get("status", {}).get("S") == "QUEUED":
-                    _sqs(endpoint).send_message(
-                        QueueUrl=_env("PK_STACK_LAB_QUEUE_URL"),
-                        MessageBody=json.dumps({"tenant": tenant, "id": export_id}),
-                    )
+        except ClientError as exc:
+            # A conditional collision is the *only* duplicate path.  Access
+            # denied, throttling, malformed requests and emulator faults must
+            # remain retriable server errors rather than false conflicts.
+            if _error_code(exc) != "ConditionalCheckFailedException":
                 self._reply(
-                    HTTPStatus.ACCEPTED,
-                    {
-                        "id": export_id,
-                        "tenant": tenant,
-                        "status": existing["status"]["S"],
-                        "duplicate": True,
-                    },
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    {"error": "export claim temporarily unavailable"},
                 )
                 return
-            self._reply(HTTPStatus.CONFLICT, {"error": "idempotency conflict"})
+            try:
+                existing = ddb.get_item(
+                    TableName=table,
+                    Key={"pk": {"S": f"TENANT#{tenant}"}, "sk": {"S": export_id}},
+                ).get("Item")
+            except ClientError:
+                self._reply(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    {"error": "export lookup temporarily unavailable"},
+                )
+                return
+            if not existing or existing.get("idempotency", {}).get("S") != idem:
+                # This should be unreachable for the deterministic key, but it
+                # is not a client conflict and must not disclose state.
+                self._reply(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    {"error": "export claim temporarily unavailable"},
+                )
+                return
+            item = existing
+            duplicate = True
+        status = item.get("status", {}).get("S")
+        if not isinstance(status, str):
+            self._reply(
+                HTTPStatus.SERVICE_UNAVAILABLE, {"error": "export state temporarily unavailable"}
+            )
             return
-        _sqs(endpoint).send_message(
-            QueueUrl=_env("PK_STACK_LAB_QUEUE_URL"), MessageBody=json.dumps({"tenant": tenant, "id": export_id})
+        if status == "QUEUED":
+            try:
+                _sqs(endpoint).send_message(
+                    QueueUrl=_env("PK_STACK_LAB_QUEUE_URL"),
+                    MessageBody=json.dumps(
+                        {"tenant": tenant, "id": export_id}, separators=(",", ":")
+                    ),
+                )
+            except ClientError:
+                # The durable QUEUED row is intentionally retained.  A retry
+                # with the same key republished the same logical export ID.
+                self._reply(
+                    HTTPStatus.SERVICE_UNAVAILABLE,
+                    {"error": "export enqueue temporarily unavailable"},
+                )
+                return
+        self._reply(
+            HTTPStatus.ACCEPTED,
+            {
+                "id": export_id,
+                "tenant": tenant,
+                "status": status,
+                **({"duplicate": True} if duplicate else {}),
+            },
         )
-        self._reply(HTTPStatus.ACCEPTED, {"id": export_id, "tenant": tenant, "status": "QUEUED"})
 
 
 def serve() -> None:
@@ -145,11 +199,19 @@ def serve() -> None:
 
 def worker() -> None:
     endpoint = runtime_env()["PK_STACK_LAB_ENDPOINT"]
-    queue_url, table, bucket = _env("PK_STACK_LAB_QUEUE_URL"), _env("PK_STACK_LAB_TABLE"), _env("PK_STACK_LAB_BUCKET")
+    queue_url, table, bucket = (
+        _env("PK_STACK_LAB_QUEUE_URL"),
+        _env("PK_STACK_LAB_TABLE"),
+        _env("PK_STACK_LAB_BUCKET"),
+    )
     sqs, ddb, s3 = _sqs(endpoint), _ddb(endpoint), client("s3", endpoint=endpoint)
     while True:
-        messages = sqs.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1, WaitTimeSeconds=2, VisibilityTimeout=8).get("Messages", [])
+        messages = sqs.receive_message(
+            QueueUrl=queue_url, MaxNumberOfMessages=1, WaitTimeSeconds=2, VisibilityTimeout=8
+        ).get("Messages", [])
         for message in messages:
+            key: dict[str, dict[str, str]] | None = None
+            token: str | None = None
             try:
                 payload = json.loads(message["Body"])
                 tenant, export_id = payload["tenant"], payload["id"]
@@ -157,22 +219,89 @@ def worker() -> None:
                     raise TypeError("invalid job")
                 key = {"pk": {"S": f"TENANT#{tenant}"}, "sk": {"S": export_id}}
                 current = ddb.get_item(TableName=table, Key=key).get("Item")
-                if not current or current.get("status", {}).get("S") == "COMPLETE":
-                    if current:
-                        ddb.update_item(
-                            TableName=table,
-                            Key=key,
-                            UpdateExpression="ADD duplicate_deliveries :one",
-                            ExpressionAttributeValues={":one": {"N": "1"}},
-                        )
+                if not current:
+                    # Unknown/malformed jobs are left for the source queue's
+                    # bounded redrive policy; they are never acknowledged.
+                    continue
+                if current.get("status", {}).get("S") == "COMPLETE":
+                    ddb.update_item(
+                        TableName=table,
+                        Key=key,
+                        UpdateExpression="ADD duplicate_deliveries :one",
+                        ExpressionAttributeValues={":one": {"N": "1"}},
+                    )
                     sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"])
                     continue
+                token = secrets.token_hex(16)
+                try:
+                    ddb.update_item(
+                        TableName=table,
+                        Key=key,
+                        UpdateExpression="SET #s = :processing, processing_token = :token ADD attempts :one",
+                        ConditionExpression="#s = :queued",
+                        ExpressionAttributeNames={"#s": "status"},
+                        ExpressionAttributeValues={
+                            ":queued": {"S": "QUEUED"},
+                            ":processing": {"S": "PROCESSING"},
+                            ":token": {"S": token},
+                            ":one": {"N": "1"},
+                        },
+                    )
+                except ClientError as exc:
+                    if _error_code(exc) != "ConditionalCheckFailedException":
+                        continue
+                    # A competing delivery owns PROCESSING.  It is deliberately
+                    # not acknowledged: only a terminal winner can consume it.
+                    latest = ddb.get_item(TableName=table, Key=key).get("Item", {})
+                    if latest.get("status", {}).get("S") == "COMPLETE":
+                        sqs.delete_message(
+                            QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"]
+                        )
+                    continue
                 object_key = f"exports/{tenant}/{export_id}.json"
-                s3.put_object(Bucket=bucket, Key=object_key, Body=json.dumps({"tenant": tenant, "export_id": export_id}).encode(), ContentType="application/json")
-                ddb.update_item(TableName=table, Key=key, UpdateExpression="SET #s = :done, object_key = :key ADD attempts :one", ExpressionAttributeNames={"#s": "status"}, ExpressionAttributeValues={":done": {"S": "COMPLETE"}, ":key": {"S": object_key}, ":one": {"N": "1"}})
+                s3.put_object(
+                    Bucket=bucket,
+                    Key=object_key,
+                    Body=json.dumps(
+                        {"tenant": tenant, "export_id": export_id}, separators=(",", ":")
+                    ).encode(),
+                    ContentType="application/json",
+                )
+                ddb.update_item(
+                    TableName=table,
+                    Key=key,
+                    UpdateExpression="SET #s = :done, object_key = :key REMOVE processing_token",
+                    ConditionExpression="#s = :processing AND processing_token = :token",
+                    ExpressionAttributeNames={"#s": "status"},
+                    ExpressionAttributeValues={
+                        ":processing": {"S": "PROCESSING"},
+                        ":token": {"S": token},
+                        ":done": {"S": "COMPLETE"},
+                        ":key": {"S": object_key},
+                    },
+                )
                 sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=message["ReceiptHandle"])
             except (ClientError, KeyError, TypeError, ValueError, json.JSONDecodeError):
                 # Redrive policy on the source queue enforces the bounded DLQ path.
+                # If this attempt still owns PROCESSING, make it safely
+                # recoverable.  A completion whose response was lost cannot be
+                # reset because its conditional token no longer exists.
+                try:
+                    if key is not None and token is not None:
+                        ddb.update_item(
+                            TableName=table,
+                            Key=key,
+                            UpdateExpression="SET #s = :queued REMOVE processing_token",
+                            ConditionExpression="#s = :processing AND processing_token = :token",
+                            ExpressionAttributeNames={"#s": "status"},
+                            ExpressionAttributeValues={
+                                ":processing": {"S": "PROCESSING"},
+                                ":queued": {"S": "QUEUED"},
+                                ":token": {"S": token},
+                            },
+                        )
+                except ClientError:
+                    pass
                 continue
 
 

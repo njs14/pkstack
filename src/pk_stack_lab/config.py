@@ -15,9 +15,19 @@ from urllib.parse import urlparse
 HOST_ENDPOINT = "http://127.0.0.1:4566"
 TASK_ENDPOINT = "http://floci:4566"
 REGION = "us-east-1"
-FLOCI_IMAGE = "floci/floci:2.0.1@sha256:4e451c39c7bb88e3cd4f87e8fc0c25d5b47695a51185d521e2241fa00486e8eb"
+FLOCI_IMAGE = (
+    "floci/floci:2.0.1@sha256:4e451c39c7bb88e3cd4f87e8fc0c25d5b47695a51185d521e2241fa00486e8eb"
+)
 NETWORK = "pk-stack-lab-net"
 PROJECT = "pk-stack-lab"
+BUILD_INPUTS = (
+    "Dockerfile",
+    "requirements-runtime.txt",
+    "src/pk_stack_lab/__init__.py",
+    "src/pk_stack_lab/aws.py",
+    "src/pk_stack_lab/config.py",
+    "src/pk_stack_lab/runtime.py",
+)
 _RUN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,30}[a-z0-9])?$")
 
 
@@ -70,6 +80,21 @@ def state_dir(root: Path) -> Path:
     return root / ".lab-state"
 
 
+def source_digest(root: Path) -> str:
+    """Hash the exact Docker build-input set with unambiguous path framing."""
+    digest = hashlib.sha256()
+    for relative in BUILD_INPUTS:
+        path = root / relative
+        if not path.is_file() or path.is_symlink():
+            raise SafetyError(f"declared build input is missing or unsafe: {relative}")
+        data = path.read_bytes()
+        digest.update(relative.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(len(data).to_bytes(8, "big"))
+        digest.update(data)
+    return digest.hexdigest()
+
+
 @dataclass(frozen=True)
 class RunState:
     run_id: str
@@ -82,6 +107,18 @@ class RunState:
     worker_service: str
     api_family: str
     worker_family: str
+    # The values below are populated by `up`.  The benign defaults preserve
+    # deterministic unit fixtures while a real claim always supplies opaque
+    # identity and the exact daemon tuple.
+    claim_id: str = "local-test-claim"
+    docker_context: str = ""
+    docker_socket: str = ""
+    docker_daemon_id: str = ""
+    source_digest: str = ""
+    api_image_id: str = ""
+    worker_image_id: str = ""
+    api_task_definition_arn: str = ""
+    worker_task_definition_arn: str = ""
 
     @property
     def prefix(self) -> str:
@@ -104,7 +141,20 @@ class RunState:
         return self.__dict__.copy()
 
     @classmethod
-    def create(cls, run_id: str | None = None) -> RunState:
+    def create(
+        cls,
+        run_id: str | None = None,
+        *,
+        claim_id: str = "local-test-claim",
+        docker_context: str = "",
+        docker_socket: str = "",
+        docker_daemon_id: str = "",
+        source_digest: str = "",
+        api_image_id: str = "",
+        worker_image_id: str = "",
+        api_task_definition_arn: str = "",
+        worker_task_definition_arn: str = "",
+    ) -> RunState:
         value = safe_name(run_id or f"r{secrets.token_hex(5)}")
         prefix = f"pklab-{value}"
         # S3 disallows upper case and has a 63 character limit.
@@ -119,6 +169,15 @@ class RunState:
             worker_service=f"{prefix}-worker",
             api_family=f"{prefix}-api",
             worker_family=f"{prefix}-worker",
+            claim_id=claim_id,
+            docker_context=docker_context,
+            docker_socket=docker_socket,
+            docker_daemon_id=docker_daemon_id,
+            source_digest=source_digest,
+            api_image_id=api_image_id,
+            worker_image_id=worker_image_id,
+            api_task_definition_arn=api_task_definition_arn,
+            worker_task_definition_arn=worker_task_definition_arn,
         )
 
 
@@ -190,7 +249,18 @@ def _canonical_state(raw: object) -> RunState:
         raise SafetyError("state manifest fields must all be strings")
     try:
         state = RunState(**raw)
-        expected = RunState.create(state.run_id)
+        expected = RunState.create(
+            state.run_id,
+            claim_id=state.claim_id,
+            docker_context=state.docker_context,
+            docker_socket=state.docker_socket,
+            docker_daemon_id=state.docker_daemon_id,
+            source_digest=state.source_digest,
+            api_image_id=state.api_image_id,
+            worker_image_id=state.worker_image_id,
+            api_task_definition_arn=state.api_task_definition_arn,
+            worker_task_definition_arn=state.worker_task_definition_arn,
+        )
     except (TypeError, SafetyError) as exc:
         raise SafetyError("state manifest has an invalid run identifier") from exc
     if state != expected:
@@ -204,7 +274,13 @@ def load_state(root: Path) -> RunState:
     try:
         descriptor = os.open("run.json", os.O_RDONLY | os.O_NOFOLLOW, dir_fd=directory)
         try:
-            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            info = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(info.st_mode)
+                or info.st_uid != os.geteuid()
+                or info.st_nlink != 1
+                or stat.S_IMODE(info.st_mode) != 0o600
+            ):
                 raise SafetyError(".lab-state/run.json must be a direct regular file")
             with os.fdopen(descriptor, "r", encoding="utf-8") as handle:
                 descriptor = -1
@@ -221,31 +297,65 @@ def load_state(root: Path) -> RunState:
 
 
 def save_state(root: Path, state: RunState) -> None:
-    if state != RunState.create(state.run_id):
+    if state != RunState.create(
+        state.run_id,
+        claim_id=state.claim_id,
+        docker_context=state.docker_context,
+        docker_socket=state.docker_socket,
+        docker_daemon_id=state.docker_daemon_id,
+        source_digest=state.source_digest,
+        api_image_id=state.api_image_id,
+        worker_image_id=state.worker_image_id,
+        api_task_definition_arn=state.api_task_definition_arn,
+        worker_task_definition_arn=state.worker_task_definition_arn,
+    ):
         raise SafetyError("refusing noncanonical state write")
     directory = _open_state_directory(root, create=True)
     path = state_path(root)
     if path.is_symlink() or (path.exists() and not path.is_file()):
         raise SafetyError(".lab-state/run.json must be a direct regular file")
-    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+    # Never truncate an established claim in place.  A same-directory
+    # exclusive temporary plus fsync/replace makes a crash either retain the
+    # old complete manifest or expose the new complete manifest.
+    temporary = f".run.{secrets.token_hex(16)}.tmp"
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     if not hasattr(os, "O_NOFOLLOW"):
         raise SafetyError("platform does not support no-follow state writes")
-    descriptor = os.open("run.json", flags | os.O_NOFOLLOW, 0o600, dir_fd=directory)
+    descriptor = os.open(temporary, flags | os.O_NOFOLLOW, 0o600, dir_fd=directory)
     try:
         if not stat.S_ISREG(os.fstat(descriptor).st_mode):
             raise SafetyError(".lab-state/run.json must be a direct regular file")
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
             descriptor = -1
             handle.write(json.dumps(state.to_dict(), sort_keys=True))
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, "run.json", src_dir_fd=directory, dst_dir_fd=directory)
+        os.fsync(directory)
     finally:
         if descriptor != -1:
             os.close(descriptor)
+        try:
+            os.unlink(temporary, dir_fd=directory)
+        except FileNotFoundError:
+            pass
         os.close(directory)
 
 
 def claim_state(root: Path, state: RunState) -> None:
     """Atomically create the first canonical manifest; exactly one caller can win."""
-    if state != RunState.create(state.run_id):
+    if state != RunState.create(
+        state.run_id,
+        claim_id=state.claim_id,
+        docker_context=state.docker_context,
+        docker_socket=state.docker_socket,
+        docker_daemon_id=state.docker_daemon_id,
+        source_digest=state.source_digest,
+        api_image_id=state.api_image_id,
+        worker_image_id=state.worker_image_id,
+        api_task_definition_arn=state.api_task_definition_arn,
+        worker_task_definition_arn=state.worker_task_definition_arn,
+    ):
         raise SafetyError("refusing noncanonical state claim")
     directory = _open_state_directory(root, create=True)
     descriptor = -1
@@ -264,6 +374,9 @@ def claim_state(root: Path, state: RunState) -> None:
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
             descriptor = -1
             handle.write(json.dumps(state.to_dict(), sort_keys=True))
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.fsync(directory)
     except FileExistsError as exc:
         raise SafetyError(".lab-state already has a manifest") from exc
     except OSError as exc:
@@ -291,7 +404,9 @@ def remove_state_manifest(root: Path) -> None:
 def ownership_tags(state: RunState) -> list[dict[str, str]]:
     return [
         {"Key": "pk-stack-lab:managed", "Value": "true"},
+        {"Key": "pk-stack-lab:project", "Value": PROJECT},
         {"Key": "pk-stack-lab:run", "Value": state.run_id},
+        {"Key": "pk-stack-lab:claim", "Value": state.claim_id},
     ]
 
 

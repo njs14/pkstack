@@ -30,6 +30,13 @@ defects. Verify claims against implementation and tests. Do not reward volume or
 - Source-to-image-to-task identity and ECS rollout convergence must prevent stale code from passing.
 - The Docker-socket/root-equivalent Floci trust boundary, unauthenticated local API, egress posture,
   emulator gaps, and unsupported AWS parity must be stated honestly.
+- Task definitions must request non-root execution, a read-only root filesystem, dropped
+  capabilities, and no-new-privileges. Floci 2.0.1 is known to enforce only the non-root user in
+  the resulting Docker task containers. For this local development lab, the missing effective
+  read-only/capability/security-option controls are an accepted, explicitly evidenced emulator
+  limitation rather than a standalone release blocker. The enforceable acceptance bar is non-root
+  application tasks, no mounts or Docker socket in those tasks, exact task/image identity,
+  dedicated networking, a separately hardened verifier, and no false security claim.
 - The repository should be reproducible from committed locks and a minimal Docker build context.
 - JSON-mode CLI failures must be bounded and machine-readable. Destructive operations must remain
   narrowly scoped and recoverable.
@@ -50,8 +57,8 @@ attention to:
 6. API idempotency error classification and enqueue-recovery semantics;
 7. concurrent SQS duplicate deliveries and conditional completion ownership;
 8. exact S3 body validation, fresh repeated verification, and seeded-negative coverage;
-9. task container UID, mounts, network membership/egress, image identity, and bounded verifier
-   transport;
+9. task container UID, mounts, network membership/egress, image identity, bounded verifier
+   transport, and honest requested-versus-effective security evidence;
 10. complete cleanup accounting, including task definitions, containers, images, network, queues,
     table, bucket, and state;
 11. lock fidelity, `.dockerignore`, supply-chain claims, and command reproducibility;

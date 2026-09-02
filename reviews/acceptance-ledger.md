@@ -29,8 +29,10 @@ substitute for the required completed Fable review.
 - `LOCAL-008` — Make JSON-mode application failures bounded or narrow the promise precisely. Run
   the lab through the committed lock without ambient uv configuration.
 - `LOCAL-009` — Add a minimal Docker build context and hash-verified lock-derived runtime closure.
-  Enforce/prove non-root tasks, no mounts, a read-only root filesystem, dropped capabilities, and
-  the documented network/Floci Docker-socket trust boundary.
+  Enforce/prove non-root tasks, no mounts, no task Docker socket, exact image/task identity, a
+  separately hardened verifier, and the documented network/Floci Docker-socket trust boundary.
+  Request and report read-only rootfs, dropped capabilities, and no-new-privileges without
+  claiming Floci 2.0.1 enforces the fields it demonstrably drops.
 - `LOCAL-010` — Exercise projectctl/Cyclopts feature generation and `knowledge validate` in an
   isolated workspace. Separate lab-package tests from vendored-controller evidence and state that
   full OKF integration is unavailable when `okn` is absent.

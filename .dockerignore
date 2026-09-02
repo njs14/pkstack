@@ -1,0 +1,11 @@
+# Allow-list the Docker build context.  Dockerfile COPY instructions are the
+# authoritative build-input set; everything else is excluded from the context.
+**
+!Dockerfile
+!requirements-runtime.txt
+!src/
+!src/pk_stack_lab/
+!src/pk_stack_lab/__init__.py
+!src/pk_stack_lab/aws.py
+!src/pk_stack_lab/config.py
+!src/pk_stack_lab/runtime.py

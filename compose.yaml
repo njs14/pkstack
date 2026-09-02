@@ -24,6 +24,7 @@ services:
         aliases: [floci]
     labels:
       pk-stack-lab.managed: "true"
+      pk-stack-lab.project: pk-stack-lab
       pk-stack-lab.component: floci
       pk-stack-lab.version: "2.0.1"
       pk-stack-lab.source: compose

@@ -1,3 +1,12 @@
 #!/usr/bin/env sh
 set -eu
-exec uv run pk-stack-lab "$@"
+# The launcher deliberately has no JSON wrapper: a missing/broken uv installation
+# is outside the Python CLI's error envelope.  Once Python starts, `main` renders
+# ordinary failures as a bounded JSON object when requested.  `env -i` prevents
+# Compose/Docker/AWS/proxy/uv variables or an ambient repository `.env` policy
+# from leaking into uv or the Python process.
+exec env -i \
+  PATH="${PATH:-/usr/bin:/bin}" \
+  HOME="${HOME:?HOME_required_for_uv}" \
+  LANG="${LANG:-C}" \
+  uv run --locked --no-config --no-sync pk-stack-lab "$@"

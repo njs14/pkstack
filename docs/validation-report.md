@@ -26,7 +26,7 @@ python3 /Users/noahsutter/git-projects/codex/skills/setup-pstack/scripts/setup_p
 The apply JSON reported `ok: true`, no conflicts, and the same scoped additions. The frozen
 source Power was inspected only and was not modified.
 
-## Final runtime validation: ci-012
+## Historical runtime validation: ci-012 (superseded)
 
 The final static gates all exited 0 after the propagation, parser, proof, and cleanup changes:
 
@@ -37,7 +37,8 @@ uv run pytest
 git diff --check
 ```
 
-`uv lock --check` reported `Resolved 15 packages`; Ruff reported `All checks passed!`; pytest
+This historical section predates the mandatory security enforcement checks and is not a final
+acceptance claim. `uv lock --check` reported `Resolved 15 packages`; Ruff reported `All checks passed!`; pytest
 collected and passed **54** tests; and `git diff --check` was silent.
 
 This clean cold lifecycle used run `ci-012` (all commands exited 0):
@@ -107,5 +108,39 @@ absent afterward while the pre-existing image tags remained untouched. The volum
 teardown was the same seven pre-teardown IDs (`03c607…f37f`, `7a4036…ad48`, `37b268…71a`,
 `37fb87…78b0`, `51ccd8…93c8`, `083df5…3978`, `fcfd30…f002`), so ci-012 created no anonymous
 lab volume. `.lab-state` was absent after cleanup. Floci 2.0.1's missing task-tag response after
-explicit propagation is the documented emulator limitation; the final proof does not manufacture
+explicit propagation is the documented emulator limitation; this historical proof does not manufacture
 task tags.
+
+## Floci security-limit validation: live-r3-902
+
+This runtime attempt stopped under the then-mandatory fail-closed security check:
+
+```sh
+./labctl up --run-id live-r3-902 --acknowledge-docker-socket --output json  # exit 0
+./labctl deploy --output json                                                # exit 0
+./labctl evidence --output json                                              # exit 1
+./labctl down --output json                                                  # exit 0
+```
+
+The API and worker definitions requested user `65532:65532`, read-only root filesystem,
+`CapDrop: ALL`, and `no-new-privileges`. Docker inspected both exact current Floci task
+containers as `user=65532:65532 readonly=false capdrop=null security=null mounts=[]`.
+Evidence therefore returned `real ECS task container did not enforce required security fields`.
+An `internal: true` network experiment also left the Floci container healthy while deploy failed
+with `Could not connect to the endpoint URL: "http://127.0.0.1:4566/"`. The post-down read-only
+checks found no Floci container, `pk-stack-lab-net`, `pklab-live-r3-902-*` tag, or `.lab-state`.
+This is an accepted Floci-emulator limitation, not evidence that those three controls are
+effective. The release bar still requires non-root application tasks, no task mounts or Docker
+socket, exact identity, dedicated networking, and a separately hardened verifier.
+
+## Post-stop local validation
+
+No further Floci lifecycle was launched after the security hard stop. Local corrections added
+the verifier's explicit Python entrypoint and exact-name `finally` cleanup, broad ordinary-
+exception JSON rendering, state-owner validation, and expanded judge protected closure. The
+latest pre-acceptance static suite passed with `uv lock --check`, `uv run --locked --no-config --no-sync
+ruff check .`, and `uv run --locked --no-config --no-sync pytest` (**63 passed**). The real
+vendored controller also passed `./projectctl doctor --output json` (39 pass, 0 fail, one
+expected `okn is unavailable` warning), `feature validate`, and `knowledge validate`; broad
+OKF validation was explicitly not run because `okn` is unavailable. This root test suite is
+distinct from the managed controller suite.
