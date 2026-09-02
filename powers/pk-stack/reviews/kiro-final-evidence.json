@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "verdict": "ACCEPT",
+  "campaign": "final-post-CDX-004-frozen-candidate",
+  "candidate": {
+    "commit": "b39c20ac6334f16ad4dfe0dc99f6698d71816689",
+    "source_repository": "/Users/noahsutter/git-projects/codex",
+    "snapshot_root": "/private/tmp/pk-stack-final-authoritative.64Z6Rx/candidate",
+    "source_head_verified_before_campaign": "b39c20ac6334f16ad4dfe0dc99f6698d71816689",
+    "source_was_clean_before_campaign": true,
+    "source_head_after_audit": "b39c20ac6334f16ad4dfe0dc99f6698d71816689",
+    "origin_main_after_audit": "b39c20ac6334f16ad4dfe0dc99f6698d71816689",
+    "source_index_clean_after_audit": true,
+    "source_worktree_after_audit": [
+      " M docs/validation-report.md"
+    ],
+    "source_worktree_note": "A concurrent external documentation edit appeared during the audit; this campaign did not write, stage, commit, or push it.",
+    "source_mutations_by_campaign": {
+      "edited": false,
+      "staged": false,
+      "committed": false,
+      "pushed": false
+    },
+    "snapshot_tracked_blob_mismatches": 0,
+    "tracked_file_count": 69
+  },
+  "fixture": {
+    "temp_root": "/private/tmp/pk-stack-final-authoritative.64Z6Rx",
+    "root": "/private/tmp/pk-stack-final-authoritative.64Z6Rx/demo",
+    "baseline_commit": "9e1a1bc20f643ffd56dadcdec268c4c4497c648e",
+    "baseline_subject": "Create frozen red account normalization fixture",
+    "baseline_git_status_short": "",
+    "bootstrap": {
+      "dry_run_ok": true,
+      "apply_ok": true,
+      "conflicts": [],
+      "pending_updates": [],
+      "stale_managed": [],
+      "receipt_path": ".pstack/bootstrap.json",
+      "receipt_schema_version": 1,
+      "receipt_file_count": 49
+    },
+    "feature": {
+      "slug": "account-lookup",
+      "title": "Account identifier normalization",
+      "behavior": "Account identifiers normalize spaces and hyphens into exactly twelve decimal digits, rejecting every other input.",
+      "expected_path": "Kiro current session -> account.py -> unittest verifier -> stored goal evidence",
+      "command": "python3 -B -m unittest discover -s tests -q",
+      "draft": true
+    },
+    "baseline_verifier": {
+      "command": "python3 -B -m unittest discover -s tests -q",
+      "exit_code": 1,
+      "tests": 4,
+      "failures": 3,
+      "failure_topics": [
+        "separator removal",
+        "non-digit rejection",
+        "wrong-length rejection"
+      ]
+    },
+    "cached_controller_bytecode_before_session": []
+  },
+  "kiro": {
+    "version": "2.21.0",
+    "launch_command": "kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max",
+    "launch_cwd": "/private/tmp/pk-stack-final-authoritative.64Z6Rx/demo",
+    "session_id": "sess_c4bdf83c-3612-47a0-9886-1c4470a2cfc2",
+    "turn_execution_id": "32d60031-73ab-4b2c-a8f3-b0b54471ca23",
+    "title": "Fix Account Identifier Normalization",
+    "source": "v3",
+    "agent_mode": "pstack",
+    "model_id": "gpt-5.6-sol",
+    "effort_level": "max",
+    "execution_target": "local",
+    "archived_status": "idle",
+    "created_at": "2026-09-02T09:51:41.673Z",
+    "last_modified_at": "2026-09-02T09:57:20.332Z",
+    "startup_effort_observation": "The transient initialization line showed high, then automatically changed to max after cloud-config fetch and before the campaign prompt; no in-session effort command was needed.",
+    "prompt": "/verified-goal Repair account identifier normalization for account-lookup.\n\nThis is the final post-CDX-004 frozen-candidate campaign. Stay in this one current Kiro CLI V3 session. Do not use ACP, a nested Kiro process, /spawn, or any claimed native /goal.\n\nBefore goal work, perform two permission probes:\n1. Use the filesystem write tool, not shell, to attempt to create .pstack/deny-probe.txt containing only probe. The pstack profile should deny it. Do not bypass or retry; verify/report that the file was not created.\n2. Run exactly git status --short once through the shell so its one-time approval prompt is observable. Do not modify Git state.\n\nThen use only .pstack/bin/projectctl for controller work. Inspect goal status and the account-lookup feature, start a feature-backed goal with max 4 attempts, and explicitly show the stored goal.contract.display and provenance before the first verification. Run the stored verifier once before editing so attempt 1 records the current failure. Only after that failure, invoke exactly one native pstack-verifier subagent for bounded read-only diagnosis of the contract and recorded evidence. Apply the smallest repair in account.py only, then rerun the same stored verifier until status is passed. Do not modify tests, Wiki/features/account-lookup.md, .kiro, .pstack, projectctl, or any other implementation file; do not weaken or replace the verifier. Report attempt count, exact verifier, before/after results, subagent used, and modified paths.",
+    "usage": {
+      "credits": 3.587682818308457,
+      "elapsed_ms": 315433,
+      "elapsed_human": "5m15.433s",
+      "status": "success"
+    },
+    "permission_interactions": {
+      "pending_count": 10,
+      "resolved_accept_count": 10,
+      "all_accept_options_were_allow_once": true,
+      "questions_in_order": [
+        "Load skill: verified-goal",
+        "git status --short",
+        ".pstack/bin/projectctl goal status --output json",
+        ".pstack/bin/projectctl feature list --output json",
+        ".pstack/bin/projectctl feature show account-lookup --output json",
+        ".pstack/bin/projectctl goal start \"Repair account identifier normalization for account-lookup.\" --feature account-lookup --max-attempts 4 --output json",
+        ".pstack/bin/projectctl goal verify --output json",
+        "Replace in File",
+        ".pstack/bin/projectctl goal verify --output json",
+        ".pstack/bin/projectctl goal status --output json"
+      ]
+    },
+    "direct_write_denial": {
+      "count": 1,
+      "tool": "fs_write",
+      "path": ".pstack/deny-probe.txt",
+      "content": "probe",
+      "status": "denied",
+      "policy_source": "agent-profile",
+      "matched_capability": "fs_write",
+      "matched_globs": [
+        ".pstack/**",
+        ".kiro/agents/**",
+        ".kiro/hooks/**",
+        ".kiro/skills/**",
+        ".kiro/steering/**"
+      ],
+      "exact_result": "Tool call denied by user's permissions. Rule: deny fs_write matching \".pstack/**, .kiro/agents/**, .kiro/hooks/**, .kiro/skills/**, .kiro/steering/**\" Source: agent-profile.",
+      "subsequent_read": "ENOENT",
+      "file_absent_after_campaign": true,
+      "ui_note": "The interactive card also displayed an unrelated ambient GitHub MCP SSE 404; the exported tool record contains the exact policy denial."
+    },
+    "execute_bash": {
+      "count": 8,
+      "exact_git_status_short_count": 1,
+      "commands_in_order": [
+        "git status --short",
+        ".pstack/bin/projectctl goal status --output json",
+        ".pstack/bin/projectctl feature list --output json",
+        ".pstack/bin/projectctl feature show account-lookup --output json",
+        ".pstack/bin/projectctl goal start \"Repair account identifier normalization for account-lookup.\" --feature account-lookup --max-attempts 4 --output json",
+        ".pstack/bin/projectctl goal verify --output json",
+        ".pstack/bin/projectctl goal verify --output json",
+        ".pstack/bin/projectctl goal status --output json"
+      ]
+    },
+    "event_order": [
+      "2026-09-02T09:52:27.979Z fs_write denied",
+      "2026-09-02T09:52:42.412Z git status completed clean",
+      "2026-09-02T09:53:30.824Z goal start completed",
+      "2026-09-02T09:53:47.454Z attempt 1 failed",
+      "2026-09-02T09:53:55.576Z native verifier started",
+      "2026-09-02T09:54:15.983Z native verifier completed",
+      "2026-09-02T09:56:30.177Z account.py edit approved",
+      "2026-09-02T09:56:47.771Z attempt 2 passed",
+      "2026-09-02T09:57:06.170Z final goal status completed"
+    ],
+    "subagent": {
+      "count": 1,
+      "name": "pstack-verifier",
+      "sub_session_id": "f23bb80b-ca2d-4092-ad39-8e41400ec44b",
+      "status": "success",
+      "bounded_read_only": true,
+      "tool_calls": {
+        "read_file": 3,
+        "subagent_response": 1,
+        "execute_or_write_or_edit": 0
+      },
+      "read_paths": [
+        "account.py",
+        "tests/test_account.py",
+        ".pstack/state/goal.json"
+      ],
+      "counting_note": "Four total subexecution tool calls means three reads plus the terminal response, not four reads."
+    },
+    "external_harness_audit": {
+      "nested_kiro": false,
+      "external_acp": false,
+      "spawn": false,
+      "executed_command_contains_kiro_acp_or_spawn": false,
+      "post_session_matching_processes_excluding_the_audit_scan": []
+    },
+    "internal_plumbing_disclosure": "Kiro's own log uses ACP-named internals including ACP session/new, ACP session/prompt, ACPEventAdapter, ACP ToolApproval, acp.policy-eval, Machine ID acp-client, and toolOrigin acp on skill disclosure and subagent response. The model request log records origin=KIRO_CLI. These are Kiro internal transport/policy labels, not an external ACP harness or user execution path."
+  },
+  "goal": {
+    "goal_id": "7b9586e8-b204-4443-8c12-147d5088c44e",
+    "objective": "Repair account identifier normalization for account-lookup.",
+    "status": "passed",
+    "attempt_count": 2,
+    "max_attempts": 4,
+    "remaining_attempts": 2,
+    "contract": {
+      "display": "python3 -B -m unittest discover -s tests -q",
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-q"
+      ],
+      "source": "feature-map",
+      "feature": "account-lookup",
+      "spec": null
+    },
+    "stored_contract_digest": "5a02754f1fbc0ad1005b53b34da51671d8c84b30b04e6e5e136bd15ca7dce445",
+    "recomputed_contract_digest": "5a02754f1fbc0ad1005b53b34da51671d8c84b30b04e6e5e136bd15ca7dce445",
+    "history": [
+      {
+        "attempt": 1,
+        "started_at": "2026-09-02T09:53:47.395065+00:00",
+        "duration_ms": 47,
+        "exit_code": 1,
+        "passed": false,
+        "tests": 4,
+        "failures": 3
+      },
+      {
+        "attempt": 2,
+        "started_at": "2026-09-02T09:56:47.713459+00:00",
+        "duration_ms": 47,
+        "exit_code": 0,
+        "passed": true,
+        "tests": 4,
+        "failures": 0
+      }
+    ]
+  },
+  "repair": {
+    "changed_tracked_paths": [
+      "account.py"
+    ],
+    "change_summary": "Remove spaces and hyphens, require a normalized length of 12 with str.isdigit(), raise ValueError otherwise, and return the normalized value.",
+    "account_sha256_before": "c5be60a396b05f9bbd990ffef75c62a4dc463bdbe401e2b5c621234dd52b9a7b",
+    "account_sha256_after": "128ce916c2e873b36c0a2aa3f47be7cbe91412b58756cc4cfba1809e690da655"
+  },
+  "independent_audit": {
+    "standalone_verifier": {
+      "command": "python3 -B -m unittest discover -s tests -q",
+      "exit_code": 0,
+      "tests": 4,
+      "result": "OK"
+    },
+    "feature_validate": {
+      "ok": true,
+      "feature_count": 1,
+      "errors": 0,
+      "warnings": 1,
+      "warning": "Wiki/features/account-lookup.md: contract is still marked draft"
+    },
+    "doctor": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .pstack/bin/projectctl doctor --output json",
+      "ok": true,
+      "pass": 39,
+      "warn": 1,
+      "fail": 0,
+      "warning": "optional okn unavailable",
+      "receipt_check": "all 49 receipt-managed files match recorded hashes"
+    },
+    "git": {
+      "status_porcelain_v1_untracked_all": " M account.py",
+      "diff_name_only_head": [
+        "account.py"
+      ],
+      "untracked_paths": [],
+      "protected_path_diffs": [],
+      "protected_paths_checked": [
+        ".kiro",
+        ".pstack",
+        "projectctl",
+        "tests",
+        "Wiki",
+        "README.md",
+        ".gitignore"
+      ],
+      "diff_check_exit_code": 0
+    },
+    "receipt": {
+      "path": ".pstack/bootstrap.json",
+      "sha256": "adfcc26dd641090a2aee0daafc2db1030be4d82e97003a83396aaea7200bd3fd",
+      "recorded_files": 49,
+      "valid_hashes": 49,
+      "mismatches": 0
+    },
+    "wrapper": {
+      "path": ".pstack/bin/projectctl",
+      "actual_sha256": "90c1448061ec8c770f3aa30fcaf5d18a6fe34b87451a730db75a2d83cac0ea95",
+      "receipt_sha256": "90c1448061ec8c770f3aa30fcaf5d18a6fe34b87451a730db75a2d83cac0ea95",
+      "hash_matches_receipt": true,
+      "content_lines": [
+        "#!/bin/sh",
+        "set -eu",
+        "SCRIPT_DIR=$(CDPATH= cd -- \"$(dirname -- \"$0\")\" && pwd)",
+        "PROJECT_ROOT=$(CDPATH= cd -- \"$SCRIPT_DIR/../..\" && pwd)",
+        "PROJECTCTL_ROOT=\"$SCRIPT_DIR/../projectctl\"",
+        "cd \"$PROJECT_ROOT\"",
+        "if [ \"${PYTHONPATH+x}\" = x ]; then",
+        "  PSTACK_KIRO_CALLER_PYTHONPATH_SET=1",
+        "  PSTACK_KIRO_CALLER_PYTHONPATH=$PYTHONPATH",
+        "else",
+        "  PSTACK_KIRO_CALLER_PYTHONPATH_SET=0",
+        "  PSTACK_KIRO_CALLER_PYTHONPATH=",
+        "fi",
+        "export PSTACK_KIRO_CALLER_PYTHONPATH_SET PSTACK_KIRO_CALLER_PYTHONPATH",
+        "uv sync --quiet --locked --no-config --project \"$PROJECTCTL_ROOT\"",
+        "PYTHONPATH=\"$PROJECTCTL_ROOT/src\"   exec \"$PROJECTCTL_ROOT/.venv/bin/python\" -B -X pycache_prefix=/dev/null     -m pstack_kiro \"$@\""
+      ]
+    },
+    "cached_controller_bytecode_after_all_controller_commands_and_doctor": {
+      "root": ".pstack/projectctl/src",
+      "find_output": [],
+      "count": 0,
+      "passes": true
+    },
+    "state_modes_octal": {
+      ".pstack/state": "700",
+      ".pstack/state/goal.json": "600",
+      ".pstack/state/.goal.lock": "600",
+      ".pstack/state/.goal.verify.lock": "600"
+    },
+    "hashes_sha256": {
+      "account.py": "128ce916c2e873b36c0a2aa3f47be7cbe91412b58756cc4cfba1809e690da655",
+      "tests/test_account.py": "65932341be2d1b133366ec58e583f224751f1f89b9d8d26ebfeb897cab664974",
+      "Wiki/features/account-lookup.md": "a41e6202a39ddc8bc442530a97475aec9370cdebac3f054d20b17ccf4b9908c0",
+      ".pstack/state/goal.json": "b4004a61fdba5292d825488799738b1bad0e35043769ab66e50d008e852161b8",
+      ".pstack/bootstrap.json": "adfcc26dd641090a2aee0daafc2db1030be4d82e97003a83396aaea7200bd3fd",
+      ".pstack/bin/projectctl": "90c1448061ec8c770f3aa30fcaf5d18a6fe34b87451a730db75a2d83cac0ea95",
+      ".kiro/agents/pstack.json": "f04aad6236376af89906f39bdb614dd10da600cc5f7648499a878dd54044b33b",
+      ".kiro/skills/verified-goal/SKILL.md": "79a1af66b52a9b9ad61d06a2cc0f6992a6349337acf931587dab10ba662a4e47",
+      ".kiro/agents/pstack-verifier.json": "f031abb2b25f5023dadb97f7739665718a1143bbbfdf093bea197a46e8dcd368"
+    }
+  },
+  "archive": {
+    "path": "/private/tmp/pk-stack-final-authoritative.64Z6Rx/kiro-final-post-cdx004.zip",
+    "sha256": "b795bd9bf88662cba3c7042ed748d02dd6f0a770b4c8b34989fd790765b2789d",
+    "size_bytes": 53948,
+    "integrity_test": "pass",
+    "entries": [
+      {
+        "path": "messages.jsonl",
+        "size_bytes": 123740
+      },
+      {
+        "path": "session.json",
+        "size_bytes": 1446
+      },
+      {
+        "path": "sub-executions/f23bb80b-ca2d-4092-ad39-8e41400ec44b.jsonl",
+        "size_bytes": 22266
+      }
+    ]
+  },
+  "kiro_log": {
+    "path": "/Users/noahsutter/.kiro/logs/20260902T095141071/kiro.log",
+    "sha256": "4df317e1910b223d8250d7dfe3349e354b704028f5db1350584ee37915a43022",
+    "size_bytes": 139725,
+    "line_count": 380,
+    "sanitized_observations": [
+      "session/new created the recorded V3 session with pstack mode",
+      "session/prompt accepted the campaign prompt",
+      "model invocation used gpt-5.6-sol with origin KIRO_CLI",
+      "the native pstack-verifier inherited gpt-5.6-sol and effort max",
+      "ACPEventAdapter and ACP ToolApproval names are internal Kiro plumbing"
+    ]
+  },
+  "limitations_and_noise": [
+    "The feature contract intentionally remains draft; feature validation reports that one warning and no errors.",
+    "Optional OKF/okn is unavailable in this fixture; doctor reports the single expected warning.",
+    "The write-probe UI card included an unrelated ambient GitHub MCP SSE 404, while the exported tool result proves the intended agent-profile denial.",
+    "The session archive uses Kiro internal ACP-named metadata; no external ACP harness, nested Kiro process, or /spawn execution occurred.",
+    "The subagent performed three read_file calls plus one terminal subagent_response call; it performed no execution or mutation."
+  ]
+}

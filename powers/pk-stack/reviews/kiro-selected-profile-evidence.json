@@ -1,0 +1,309 @@
+{
+  "evidence_schema": 1,
+  "source": {
+    "candidate_snapshot": "bc6e79a",
+    "fixture_baseline": "d0104adb4a5d60a854ec59cf2296b2799139054f",
+    "archive_sha256": "e54412c40607b1e81574a9424a6b33cbe8f3e4eb3633b6ec74efde1e6846b851",
+    "archive_size_bytes": 50369,
+    "sanitization": "Selected structured fields only; tool-call correlation IDs retained, but no service transport request IDs or hidden reasoning."
+  },
+  "session": {
+    "schemaVersion": "1.0.0",
+    "id": "sess_3cebc0c9-ac7a-42d1-a898-9251ac6bb3f8",
+    "title": "Fix Account Identifier Normalization",
+    "agentMode": "pstack",
+    "modeId": "pstack",
+    "workspace": "/private/tmp/pk-stack-selected-profile.v5fnSx/demo",
+    "modelId": "gpt-5.6-sol",
+    "effortLevel": "max",
+    "executionTarget": "local",
+    "status": "idle",
+    "subagentOrchestration": true,
+    "createdAt": "2026-09-02T07:47:52.765Z",
+    "lastModifiedAt": "2026-09-02T07:54:35.968Z"
+  },
+  "permission_denial": {
+    "timestamp": "2026-09-02T07:51:07.320Z",
+    "type": "tool_call",
+    "toolCallId": "call_c4ba80da-5179-4441-b2b0-23b445d57458",
+    "toolName": "fs_write",
+    "args": {
+      "path": ".pstack/deny-probe.txt",
+      "text": "probe"
+    },
+    "status": "denied",
+    "agentMode": "pstack",
+    "policyDenial": {
+      "capability": "fs_write",
+      "resource": ".pstack/deny-probe.txt",
+      "effect": "deny",
+      "matchedRule": {
+        "capability": "fs_write",
+        "match": [
+          ".pstack/**",
+          ".kiro/agents/**",
+          ".kiro/hooks/**",
+          ".kiro/skills/**",
+          ".kiro/steering/**"
+        ],
+        "effect": "deny"
+      },
+      "scope": "workspace",
+      "source": "agent-profile"
+    },
+    "tool_result": {
+      "success": false,
+      "content": "Tool call denied by user's permissions. Rule: deny fs_write matching \".pstack/**, .kiro/agents/**, .kiro/hooks/**, .kiro/skills/**, .kiro/steering/**\" Source: agent-profile."
+    },
+    "post_run_probe_absent": true
+  },
+  "approval_option_map": {
+    "accept": "allow_once",
+    "always-accept": "allow_always",
+    "reject": "reject_once",
+    "always-reject": "reject_always"
+  },
+  "approvals": [
+    {
+      "promptTimestamp": "2026-09-02T07:48:29.724Z",
+      "resolvedAt": "2026-09-02T07:51:02.837Z",
+      "toolCallId": "call_d9351fd8-ea11-40e5-87f4-53aa484d7b7d",
+      "question": "Load skill: verified-goal",
+      "offered": ["allow_once", "allow_always", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:51:13.795Z",
+      "resolvedAt": "2026-09-02T07:51:35.343Z",
+      "toolCallId": "run_command_call_5d4a0af5-9049-4364-b99a-36cac089af96",
+      "question": "git status --short",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:51:39.382Z",
+      "resolvedAt": "2026-09-02T07:51:52.022Z",
+      "toolCallId": "run_command_call_76de50ef-5021-40ba-b3f2-b4e42678dba5",
+      "question": ".pstack/bin/projectctl goal status --output json",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:51:57.845Z",
+      "resolvedAt": "2026-09-02T07:52:05.803Z",
+      "toolCallId": "run_command_call_0323eca4-ebe9-4f0d-a777-b8cfad28f455",
+      "question": ".pstack/bin/projectctl feature list --output json",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:52:05.839Z",
+      "resolvedAt": "2026-09-02T07:52:22.954Z",
+      "toolCallId": "run_command_call_88efc65b-e7f6-454d-b474-bdb7d0dc0294",
+      "question": ".pstack/bin/projectctl feature show account-lookup --output json",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:52:26.981Z",
+      "resolvedAt": "2026-09-02T07:52:36.618Z",
+      "toolCallId": "run_command_call_7a761d4b-d7ab-427d-840a-753af6619db0",
+      "question": ".pstack/bin/projectctl goal start \"Repair account identifier normalization for account-lookup.\" --feature account-lookup --max-attempts 4 --output json",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:52:40.670Z",
+      "resolvedAt": "2026-09-02T07:52:50.648Z",
+      "toolCallId": "run_command_call_6997bb18-c203-468c-9745-2cb296cdd68a",
+      "question": ".pstack/bin/projectctl goal verify --output json",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:53:35.521Z",
+      "resolvedAt": "2026-09-02T07:53:53.052Z",
+      "toolCallId": "call_21090db7-5b21-489f-9ffc-af3a300de184",
+      "question": "Replace in File",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:53:55.991Z",
+      "resolvedAt": "2026-09-02T07:54:06.382Z",
+      "toolCallId": "run_command_call_c2784f23-723e-40f0-be94-ed93899f94b1",
+      "question": ".pstack/bin/projectctl goal verify --output json",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    },
+    {
+      "promptTimestamp": "2026-09-02T07:54:13.922Z",
+      "resolvedAt": "2026-09-02T07:54:19.948Z",
+      "toolCallId": "run_command_call_b14f32d2-b8a9-485a-824d-76113c57dbd2",
+      "question": ".pstack/bin/projectctl goal status --output json",
+      "offered": ["allow_once", "reject_once", "reject_always"],
+      "outcome": "selected",
+      "selectedOption": "accept",
+      "selectedKind": "allow_once"
+    }
+  ],
+  "goal": {
+    "goal_id": "9bc07fe8-8bc1-4c62-826d-3f2bb2beaf93",
+    "objective": "Repair account identifier normalization for account-lookup.",
+    "schema_version": 2,
+    "status": "passed",
+    "attempt_count": 2,
+    "max_attempts": 4,
+    "remaining_attempts": 2,
+    "contract": {
+      "argv": ["python3", "-B", "-m", "unittest", "discover", "-s", "tests", "-q"],
+      "display": "python3 -B -m unittest discover -s tests -q",
+      "feature": "account-lookup",
+      "source": "feature-map",
+      "spec": null
+    },
+    "contract_digest": "5a02754f1fbc0ad1005b53b34da51671d8c84b30b04e6e5e136bd15ca7dce445",
+    "created_at": "2026-09-02T07:52:36.737733+00:00",
+    "updated_at": "2026-09-02T07:54:06.556725+00:00",
+    "history": [
+      {
+        "started_at": "2026-09-02T07:52:50.753910+00:00",
+        "duration_ms": 324,
+        "exit_code": 1,
+        "passed": false,
+        "timed_out": false,
+        "truncated": false,
+        "observed_test_summary": "Ran 4 tests; FAILED (failures=3)"
+      },
+      {
+        "started_at": "2026-09-02T07:54:06.506888+00:00",
+        "duration_ms": 48,
+        "exit_code": 0,
+        "passed": true,
+        "timed_out": false,
+        "truncated": false,
+        "observed_test_summary": "Ran 4 tests; OK"
+      }
+    ]
+  },
+  "native_subagent": {
+    "start": {
+      "timestamp": "2026-09-02T07:52:58.700Z",
+      "type": "sub_agent_start",
+      "subSessionId": "828ee033-2999-4717-a625-393446f03533",
+      "subAgentName": "pstack-verifier",
+      "constraint": "bounded read-only diagnosis after attempt 1"
+    },
+    "complete": {
+      "timestamp": "2026-09-02T07:53:22.942Z",
+      "type": "sub_agent_complete",
+      "subSessionId": "828ee033-2999-4717-a625-393446f03533",
+      "status": "success"
+    },
+    "tool_calls": [
+      {"toolName": "read_file", "path": ".pstack/state/goal.json"},
+      {"toolName": "read_file", "path": "account.py"},
+      {"toolName": "read_file", "path": "tests/test_account.py"},
+      {"toolName": "read_file", "path": "Wiki/features/account-lookup.md"},
+      {"toolName": "subagent_response"}
+    ],
+    "shell_calls": 0,
+    "write_calls": 0,
+    "fresh_pass_claim": false
+  },
+  "runtime_boundary": {
+    "request_origin": "KIRO_CLI",
+    "primary_shell_commands": [
+      "git status --short",
+      ".pstack/bin/projectctl goal status --output json",
+      ".pstack/bin/projectctl feature list --output json",
+      ".pstack/bin/projectctl feature show account-lookup --output json",
+      ".pstack/bin/projectctl goal start \"Repair account identifier normalization for account-lookup.\" --feature account-lookup --max-attempts 4 --output json",
+      ".pstack/bin/projectctl goal verify --output json",
+      ".pstack/bin/projectctl goal verify --output json",
+      ".pstack/bin/projectctl goal status --output json"
+    ],
+    "external_acp_host_launches": 0,
+    "kiro_cli_acp_launches": 0,
+    "nested_kiro_launches": 0,
+    "spawn_invocations": 0,
+    "observed_internal_labels": [
+      {
+        "timestamp": "2026-09-02T07:48:29.718Z",
+        "toolName": "disclose_context",
+        "toolOrigin": "acp",
+        "agentMode": "pstack"
+      },
+      {
+        "timestamp": "2026-09-02T07:53:22.516Z",
+        "toolName": "subagent_response",
+        "toolOrigin": "acp",
+        "agentMode": "pstack"
+      },
+      {
+        "log_component": "ACPEventAdapter",
+        "context": "Kiro internal event routing for the ordinary V3 turn"
+      },
+      {
+        "timestamp": "2026-09-02T07:47:52.069Z",
+        "log_label": "KiroAgent ACP session/new",
+        "sessionId": "sess_3cebc0c9-ac7a-42d1-a898-9251ac6bb3f8",
+        "modeId": "pstack"
+      },
+      {
+        "timestamp": "2026-09-02T07:48:26.491Z",
+        "log_label": "KiroAgent ACP session/prompt",
+        "sessionId": "sess_3cebc0c9-ac7a-42d1-a898-9251ac6bb3f8"
+      },
+      {
+        "timestamp": "2026-09-02T07:51:07.319Z",
+        "log_label": "acp.policy-eval.complete",
+        "toolId": "fs_write",
+        "effect": "deny",
+        "capability": "fs_write"
+      }
+    ]
+  },
+  "usage_summary": {
+    "timestamp": "2026-09-02T07:54:35.950Z",
+    "status": "success",
+    "elapsedTime": 369441,
+    "unit": "credit",
+    "usage": 3.158119776318408
+  },
+  "post_run_audit": {
+    "stored_verifier_exit": 0,
+    "stored_verifier_summary": "Ran 4 tests; OK",
+    "git_status_short": " M account.py",
+    "git_diff_name_only": ["account.py"],
+    "protected_diff_exit": 0,
+    "probe_absent": true,
+    "receipt_files_checked": 49,
+    "receipt_missing": 0,
+    "receipt_hash_mismatches": 0,
+    "modes": {
+      ".pstack/state": "0700",
+      ".pstack/state/goal.json": "0600",
+      ".pstack/state/.goal.lock": "0600",
+      ".pstack/state/.goal.verify.lock": "0600"
+    }
+  }
+}

@@ -5,6 +5,11 @@
 PK-Stack (Poteto Kiro) adds workflow semantics to an ordinary interactive Kiro CLI v3 session. It
 does not replace Kiro's runtime and does not recreate a goal scheduler.
 
+The combined release has one editable Power source at `powers/pk-stack/`. Bootstrap materializes
+the fixture's `.kiro/` and `.pstack/projectctl/` assets from that package and records their hashes;
+tests compare every source, skill, steering, template, and runtime-lock byte. The generated cache
+is executable project state, never a second package or upgrade authority.
+
 ```text
 current interactive kiro-cli --v3 session
   -> Poteto Kiro custom agent and native v3 primitives

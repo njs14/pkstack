@@ -11,6 +11,7 @@ import pytest
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 CONTROLLER_ROOT = REPOSITORY_ROOT / ".pstack" / "projectctl"
 CONTROLLER_SOURCE = CONTROLLER_ROOT / "src"
+POWER_ROOT = REPOSITORY_ROOT / "powers" / "pk-stack"
 VERIFICATION_COMMAND = "./labctl verify --output json"
 
 
@@ -34,7 +35,19 @@ def controller() -> SimpleNamespace:
     def unused_find_feature(*_args: Any, **_kwargs: Any) -> Any:
         raise AssertionError("feature-map resolution is outside this controller regression suite")
 
+    def find_verifiable_feature(root: Path, slug: str) -> Any:
+        item = feature_stub.find_feature(root, slug)  # type: ignore[attr-defined]
+        if item.draft:
+            raise ValueError(
+                f"feature {slug!r} is still a draft; publish it before using it as "
+                "verification evidence"
+            )
+        if not item.command:
+            raise ValueError(f"feature {slug!r} has no executable verification command")
+        return item
+
     feature_stub.find_feature = unused_find_feature  # type: ignore[attr-defined]
+    feature_stub.find_verifiable_feature = find_verifiable_feature  # type: ignore[attr-defined]
     sys.path.insert(0, str(CONTROLLER_SOURCE))
     sys.modules[feature_stub.__name__] = feature_stub
     try:
@@ -45,7 +58,12 @@ def controller() -> SimpleNamespace:
             Path(module.__file__).resolve().is_relative_to(CONTROLLER_SOURCE)
             for module in (goal, runner, bootstrap)
         )
-        yield SimpleNamespace(goal=goal, runner=runner, bootstrap=bootstrap)
+        yield SimpleNamespace(
+            goal=goal,
+            runner=runner,
+            bootstrap=bootstrap,
+            features=feature_stub,
+        )
     finally:
         for name in tuple(sys.modules):
             if name == "pstack_kiro" or name.startswith("pstack_kiro."):
@@ -174,6 +192,55 @@ def test_verification_policy_accepts_the_document_export_contract(
     assert argv == ("./labctl", "verify", "--output", "json")
 
 
+def test_goal_rejects_a_draft_feature_even_when_it_has_an_executable_command(
+    tmp_path: Path,
+    controller: SimpleNamespace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _write_labctl(tmp_path)
+    draft = SimpleNamespace(
+        command=controller.runner.parse_command(VERIFICATION_COMMAND),
+        draft=True,
+    )
+    monkeypatch.setattr(controller.features, "find_feature", lambda _root, _slug: draft)
+
+    with pytest.raises(ValueError, match="still a draft.*verification evidence"):
+        controller.goal.start_goal(
+            tmp_path,
+            "Do not trust unpublished acceptance criteria",
+            feature="document-export",
+        )
+
+    assert not (tmp_path / ".pstack" / "state" / "goal.json").exists()
+
+
+def test_goal_accepts_and_runs_the_same_feature_after_publication(
+    tmp_path: Path,
+    controller: SimpleNamespace,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _write_labctl(tmp_path)
+    (tmp_path / "verification-pass").touch()
+    published = SimpleNamespace(
+        command=controller.runner.parse_command(VERIFICATION_COMMAND),
+        draft=False,
+    )
+    monkeypatch.setattr(controller.features, "find_feature", lambda _root, _slug: published)
+
+    started = controller.goal.start_goal(
+        tmp_path,
+        "Use the published acceptance criteria",
+        feature="document-export",
+    )
+    passed = controller.goal.verify_goal(tmp_path, timeout_seconds=5)
+
+    assert started.contract.source == "feature-map"
+    assert started.contract.feature == "document-export"
+    assert started.contract.argv == ("./labctl", "verify", "--output", "json")
+    assert passed.status == "passed"
+    assert passed.attempt_count == 1
+
+
 @pytest.mark.parametrize(
     ("command", "message"),
     [
@@ -201,12 +268,12 @@ def test_bootstrap_is_idempotent_and_preserves_its_receipt(
     tmp_path: Path,
     controller: SimpleNamespace,
 ) -> None:
-    first = controller.bootstrap.bootstrap_project(tmp_path, power_root=CONTROLLER_ROOT)
+    first = controller.bootstrap.bootstrap_project(tmp_path, power_root=POWER_ROOT)
     receipt = tmp_path / ".pstack" / "bootstrap.json"
     first_receipt = receipt.read_bytes()
     first_audit = controller.bootstrap.audit_bootstrap_receipt(tmp_path)
 
-    second = controller.bootstrap.bootstrap_project(tmp_path, power_root=CONTROLLER_ROOT)
+    second = controller.bootstrap.bootstrap_project(tmp_path, power_root=POWER_ROOT)
     second_audit = controller.bootstrap.audit_bootstrap_receipt(tmp_path)
 
     assert first.ok is True

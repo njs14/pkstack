@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pstack-kiro"
+version = "0.1.0"
+description = "PK-Stack Kiro CLI v3-native verified development Power and project control CLI"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]
+authors = [{ name = "PK-Stack contributors" }]
+dependencies = [
+  "cyclopts==4.23.2",
+  "PyYAML>=6.0.2,<7",
+]
+
+[project.scripts]
+projectctl = "pstack_kiro.cli:main"
+pstack-setup = "pstack_kiro.bootstrap:main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<0.14",
+  "ty>=0.0.1a20,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pstack_kiro"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills" = "pstack_kiro/_assets/skills"
+"dev.kiro/steering" = "pstack_kiro/_assets/dev.kiro/steering"
+"templates/project" = "pstack_kiro/_assets/templates/project"
+"templates/projectctl" = "pstack_kiro/_assets/templates/projectctl"
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers --cov-branch"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["pstack_kiro"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 85
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["tests/fixtures/generated"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"skills/setup-pstack/scripts/setup_pstack.py" = ["UP036"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.src]
+include = ["src", "tests"]

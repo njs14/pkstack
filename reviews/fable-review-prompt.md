@@ -11,6 +11,9 @@ defects. Verify claims against implementation and tests. Do not reward volume or
 ## Intended contract
 
 - Normal operation stays in an ordinary interactive `kiro-cli --v3` session.
+- The combined repository ships exactly one canonical installable Agent Plugins Power under
+  `powers/pk-stack/`; root `.pstack/projectctl/` is parity-checked generated fixture output, not a
+  second setup authority.
 - Kiro owns execution/orchestration; PK-Stack owns workflow semantics; `projectctl` owns project
   operability; OKF or `/knowledge` owns broader project knowledge when available.
 - Do not claim Kiro v3 has native `/goal`. `/verified-goal` must be a thin current-session skill and
@@ -43,6 +46,8 @@ defects. Verify claims against implementation and tests. Do not reward volume or
 - `projectctl`/Cyclopts, setup/bootstrap provenance and idempotence, OKF integration, feature-map
   generation/validation, hooks/permissions, and the verified-goal current-session loop must be
   coherent and tested. Do not confuse configuration validation with a real Kiro workflow run.
+- A feature marked `draft: true` must be rejected before `feature verify` executes its command and
+  before `goal start --feature` creates state; one shared source rule must govern both paths.
 
 ## Review method
 

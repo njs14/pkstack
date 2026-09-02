@@ -2,6 +2,12 @@
 
 ## Kiro workflow boundary
 
+Kiro 2.21.0 exposes custom-Power installation through the Powers UI rather than a `kiro-cli
+powers` command. The combined repository structurally validates the Agent Plugins manifest and
+executes the Power-local setup/idempotence/doctor path in a fresh project, but the automated
+campaign did not drive the graphical import click path. The selected-profile workflow itself was
+then exercised in a real Kiro v3 terminal session.
+
 PK-Stack adds a current-session skill and deterministic repository state; it does not add a native
 Kiro CLI v3 `/goal` command or runtime scheduler. Prompt and skill instructions guide the model,
 while `projectctl` owns only the executable contract, bounded attempt count, and terminal state. A

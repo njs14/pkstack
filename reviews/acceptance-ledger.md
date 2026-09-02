@@ -121,6 +121,14 @@ Fable's low-severity round-2 findings were also evaluated before the next live p
 - `PREFLIGHT-009` — Authorize emulator discard only for typed transport unreachability; a responding
   HTTP endpoint, malformed response, redirect, permission failure, or ambiguous URL failure must
   refuse before plan freeze or transition. Status: implemented and tested on both entry paths.
+- `PREFLIGHT-010` — Ship one canonical installable Agent Plugins Power alongside the lab rather
+  than presenting generated `.pstack` cache as source authority. Status: implemented at
+  `powers/pk-stack/`; manifest/package checks, fresh Power-local setup, idempotence, doctor, and
+  byte-for-byte source/generated parity are executable regressions.
+- `PREFLIGHT-011` — Prevent unpublished draft feature contracts from being executed by `feature
+  verify` or bound into a goal. Status: one shared ready-feature resolver now fails before command
+  execution or goal-state creation; the canonical source and generated controller tests cover
+  draft rejection and published acceptance.
 
 The exact-source `live-council-902` campaign subsequently passed two deployments, the complete
 business verifier, the owner-controlled external judge, all eight normal teardown phases, and a
@@ -129,7 +137,8 @@ full foreign-image noninterference comparison. Exact identifiers and commands ar
 
 ## Remaining acceptance sequence
 
-1. Commit the sanitized Kiro evidence and status/naming consistency sweep.
+1. Commit the canonical Power package, draft boundary remediation, sanitized Kiro evidence, and
+   status/naming consistency sweep.
 2. Run complete Fable round 4 on that exact immutable commit.
 3. Convert every material finding into a criterion, remediate, and repeat Fable.
 4. Run Grok 4.6 `xhigh` on the Fable-accepted commit.

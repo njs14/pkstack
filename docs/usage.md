@@ -2,7 +2,13 @@
 
 ## PK-Stack in an ordinary Kiro v3 session
 
-Initial bootstrap is performed by the installed PK-Stack Power's `/setup-pstack` skill. It first
+The installable Agent Plugins package is `powers/pk-stack/`; import that local directory through
+Kiro's Powers panel after cloning the private repository. Do not import `.pstack/projectctl/`: it
+is generated acceptance-fixture output and the controller rejects a target-local cache as setup
+authority. This repository root is already bootstrapped for the Floci campaign.
+
+Initial bootstrap in another project is performed by the installed PK-Stack Power's
+`/setup-pstack` skill. It first
 runs the Power-local setup shim as a dry run, reports conflicts and managed updates, and then
 creates repository-local `.kiro/` and `.pstack/` assets without overwriting user-owned files.
 Managed upgrades require explicit approval. After setup, select the generated Poteto Kiro agent in
@@ -71,8 +77,8 @@ The deterministic surface is also usable directly:
 ```
 
 Feature generation is a two-level safety boundary. Without `--ready`, it creates a draft that
-cannot serve as goal evidence. With `--ready`, it runs the proposed verifier successfully before
-publishing the ready contract:
+cannot be run by `feature verify` or serve as goal evidence. With `--ready`, it runs the proposed
+verifier successfully before publishing the ready contract:
 
 ```sh
 .pstack/bin/projectctl feature generate ready-check \

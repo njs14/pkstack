@@ -1,0 +1,110 @@
+# Third-party notices
+
+This file records third-party attribution and direct runtime dependency
+licenses for PK-Stack. It is informational and does not alter the terms of
+the root `LICENSE` or any third-party license.
+
+## Cursor pstack workflow reference
+
+This project is an independent Kiro-native semantic port informed by selected
+workflow contracts in Cursor's public pstack plugin.
+
+- Project: `cursor/plugins`, `pstack/` subtree
+- Source: <https://github.com/cursor/plugins/tree/b9ddc83c32972210b8a94d389130713e8eed346e/pstack>
+- Pinned commit: `b9ddc83c32972210b8a94d389130713e8eed346e`
+- Copyright: Copyright (c) 2026 Lauren Tan
+- License: MIT
+- Detailed file-level provenance: [`docs/provenance.md`](docs/provenance.md)
+
+The upstream MIT notice follows verbatim.
+
+```text
+MIT License
+
+Copyright (c) 2026 Lauren Tan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## Cyclopts
+
+Cyclopts is a direct runtime dependency used to expose the `projectctl` command
+interface.
+
+- Package: `cyclopts==4.23.2`
+- Source: <https://github.com/BrianPugh/cyclopts/tree/v4.23.2>
+- License: Apache License 2.0
+- License text: <https://github.com/BrianPugh/cyclopts/blob/v4.23.2/LICENSE>
+
+Cyclopts is not vendored in this repository. Its installed distribution remains
+under the Apache License 2.0. The root `LICENSE` contains the complete Apache
+License 2.0 text, but licenses the PK-Stack work rather than transferring
+ownership of Cyclopts.
+
+## PyYAML
+
+PyYAML is a direct runtime dependency used to parse and emit YAML feature and
+knowledge records. `pyproject.toml` allows `PyYAML>=6.0.2,<7`; the committed
+lockfile currently resolves version `6.0.3`.
+
+- Package: `PyYAML 6.0.3` in `uv.lock`
+- Source: <https://github.com/yaml/pyyaml/tree/6.0.3>
+- License: MIT
+- License text: <https://github.com/yaml/pyyaml/blob/6.0.3/LICENSE>
+
+The PyYAML MIT notice follows verbatim.
+
+```text
+Copyright (c) 2017-2021 Ingy döt Net
+Copyright (c) 2006-2016 Kirill Simonov
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## Build, development, and transitive packages
+
+`hatchling` is the build backend. Test and development groups include tools
+such as `pytest`, `pytest-cov`, `ruff`, and `ty`. Cyclopts and the development
+tools resolve additional transitive packages. These packages are not vendored
+or redistributed as source by this repository. The root `uv.lock` is the
+authoritative version and artifact inventory for development, while
+`templates/projectctl/uv.lock` is the corresponding inventory for the
+bootstrapped repo-local runtime. Each installed distribution supplies its own
+license metadata and license files.
+
+## Referenced but not redistributed
+
+Kiro, Cursor, OKF, optional external reviewer CLIs, `cursor-team-kit`, Graphite,
+and the Agent Plugins JSON schema are referenced for interoperability or
+provenance only. This repository does not bundle their runtimes, credentials,
+session state, or source code.

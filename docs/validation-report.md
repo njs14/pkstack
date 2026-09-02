@@ -10,10 +10,14 @@ current runs.
 
 ## Bootstrap and controller provenance
 
-PK-Stack was generated from the reviewed Power/controller source and retains a 49-file ownership
-receipt in `.pstack/bootstrap.json`. The maintained controller source suite passed **508 tests** at
-source commit `191997501c41ae078b6548b9d6c898aadf2907ae`. The generated controller was compared
-byte-for-byte with that source before the current lab-only hardening work.
+The canonical installable package is committed at `powers/pk-stack/`. It was imported byte-for-byte
+from the independently accepted source commit `191997501c41ae078b6548b9d6c898aadf2907ae`, after
+which the pre-Fable audit added one centralized draft-publication guard and regressions. The
+original source checkout remained clean and unchanged. The current canonical package suite passed
+**509 tests**. Its Power-local setup shim regenerated this fixture's controller; source, skills,
+steering, templates, and the runtime lock are parity-tested byte-for-byte.
+
+The generated fixture retains a 49-file ownership receipt in `.pstack/bootstrap.json`.
 
 The repository-local generated controller currently reports:
 
@@ -71,6 +75,40 @@ digest-pinned Floci image. A subsequent independent audit retained compatibility
 schema-v2 teardown journals and tightened discard authorization to typed transport failures rather
 than HTTP or malformed-response failures. The 285-test result above covers those changes; it is
 static evidence and is kept distinct from the live proof reported below.
+
+## Combined Power-package closure
+
+After the selected-profile campaign, an independent Codex pre-Fable audit found that the combined
+snapshot lacked an installable package root and that draft features with commands could still be
+executed or bound into goals. Both findings are recorded and closed in
+`reviews/pre-fable-round-4.md` and `reviews/acceptance-ledger.md`.
+
+The accepted standalone Power snapshot was imported at `powers/pk-stack/` without changing its
+original checkout. One shared `find_verifiable_feature` rule now rejects drafts before either
+`feature verify` command execution or `goal start --feature` state creation. The canonical setup
+shim then regenerated the fixture rather than relying on a hand-copied second source.
+
+The pre-Fable combined gates produced:
+
+```text
+(cd powers/pk-stack && env PYTHONDONTWRITEBYTECODE=1 \
+  uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q)
+# 509 passed in 37.58s
+
+env PYTHONDONTWRITEBYTECODE=1 \
+  uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q
+# 290 passed in 9.26s
+
+uvx --from check-jsonschema check-jsonschema \
+  --schemafile https://agent-plugins.org/schemas/1.0.0/plugin.schema.json \
+  powers/pk-stack/plugin.json
+# ok -- validation done
+```
+
+Canonical and combined Ruff checks, the canonical format and `ty` checks, both lock checks, all
+four `kiro-cli agent validate` commands, the 39-pass/zero-fail generated-controller doctor, feature
+and knowledge validation, shell syntax, JSON parsing, and `labctl doctor` also exited zero. The
+single controller warning remains the disclosed optional absence of canonical `okn`.
 
 ## Fresh current-source live Floci campaign: `live-council-902`
 

@@ -1,15 +1,16 @@
 # Test strategy
 
-PK-Stack needs evidence at three different boundaries: deterministic controller behavior, the
-real Docker-backed Floci fixture, and the behavior of one ordinary interactive Kiro v3 session.
-Passing one boundary must not be reported as proof of another.
+PK-Stack needs evidence at four different boundaries: the canonical installable Power,
+deterministic generated-controller behavior, the real Docker-backed Floci fixture, and the
+behavior of one ordinary interactive Kiro v3 session. Passing one boundary must not be reported
+as proof of another.
 
 ## Evidence matrix
 
 | Layer | What it proves | Primary check | Current acceptance role |
 | --- | --- | --- | --- |
 | Static and unit | Endpoint refusal, runtime semantics, state schema, ownership, bounded output | Repository pytest, Ruff, lockfile and diff checks | Required on every candidate |
-| Controller source | The maintained PK-Stack controller behaves correctly at its source | Controller checkout's locked pytest suite | Required; host-source only |
+| Canonical Power | The package manifest, source, skills, templates, and bootstrap behave together | `powers/pk-stack` locked release gates and fresh setup | Required on every source change |
 | Vendored controller | The generated `.pstack` runtime matches the reviewed controller | Byte-for-byte source comparison plus repo-local commands | Required separately from source tests |
 | Isolated contracts | Feature generation and goal state transitions work outside the fixture | Temporary repository with ready feature and fail-then-pass goal | Required, but not Kiro-session proof |
 | Live Floci | Docker-backed ECS service behavior, repeat deploy, business proof, exact cleanup | `doctor -> up -> deploy -> deploy -> verify -> evidence -> down` | Required on the candidate tree |
@@ -58,23 +59,26 @@ State/lifecycle coverage includes:
   refusal of a foreign task or reappeared outer boundary; and
 - a fixed-size `verify.resources` projection even when the internal artifact ledger grows.
 
-## Source controller versus generated controller
+## Canonical Power versus generated controller
 
-The maintained controller checkout and the generated runtime are separate proof boundaries. Run
-the source checkout's own locked test suite first:
+The canonical package under `powers/pk-stack/` and the generated runtime are separate proof
+boundaries. Run the package's own locked test suite first:
 
 ```sh
-env PYTHONDONTWRITEBYTECODE=1 \
+(cd powers/pk-stack && \
+  env PYTHONDONTWRITEBYTECODE=1 \
   uv run --locked --no-config --no-sync \
-  pytest -p no:cacheprovider --no-cov -q
+  pytest -p no:cacheprovider -q)
 ```
 
-Then compare its `src/pstack_kiro` directory to this repository's
-`.pstack/projectctl/src/pstack_kiro`, excluding only bytecode caches:
+The root suite's `tests/test_power_distribution.py` compares all canonical source, skill,
+steering, template, and runtime-lock assets byte-for-byte with the generated fixture, then invokes
+the Power-local setup shim twice against a fresh project and runs its generated doctor. A direct
+source comparison is also available:
 
 ```sh
 diff -qr --exclude=__pycache__ \
-  /absolute/path/to/reviewed-pk-stack-power/projectctl/src/pstack_kiro \
+  powers/pk-stack/src/pstack_kiro \
   .pstack/projectctl/src/pstack_kiro
 ```
 

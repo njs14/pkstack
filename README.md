@@ -1,11 +1,13 @@
 # PK-Stack (Poteto Kiro)
 
-PK-Stack is a Kiro CLI v3 workflow layer for doing implementation work in the user's current
-interactive session and proving completion with repository-owned checks. Kiro owns execution and
-orchestration; PK-Stack owns workflow semantics; the repo-local `projectctl` owns deterministic
-project operations and verification; OKF is the optional interface for broader project knowledge.
+This repository ships the canonical installable PK-Stack Power under `powers/pk-stack/` and its
+realistic acceptance fixture at the repository root. PK-Stack is a Kiro CLI v3 workflow layer for
+doing implementation work in the user's current interactive session and proving completion with
+repository-owned checks. Kiro owns execution and orchestration; PK-Stack owns workflow semantics;
+the repo-local `projectctl` owns deterministic project operations and verification; OKF is the
+optional interface for broader project knowledge.
 
-This repository is also PK-Stack's realistic acceptance fixture: a two-service document-export
+The acceptance fixture is a two-service document-export
 application running through Floci's Docker-backed ECS subset. The API writes a tenant-keyed
 DynamoDB job and SQS message. The worker writes a JSON result to S3 and records terminal state;
 bounded retries end at a DLQ. It uses real Docker task containers through
@@ -16,6 +18,12 @@ It does not use Kubernetes, a mock ECS implementation, AWS Fargate, or a real AW
 `.pstack/` directory are stable compatibility identifiers used by Kiro and existing workspaces.
 
 ## Use PK-Stack in Kiro v3
+
+Clone this private repository, then import the local `powers/pk-stack/` directory through Kiro's
+Powers panel. That directory has the Agent Plugins `plugin.json`, source, lock, skills, and
+templates. The root `.pstack/projectctl/` directory is generated fixture output and is never an
+installation or upgrade authority. Keeping one canonical Power source plus parity-checked output
+avoids a second hand-maintained implementation.
 
 Start an ordinary interactive v3 session with the generated Poteto Kiro profile:
 

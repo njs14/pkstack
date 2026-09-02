@@ -2,6 +2,11 @@
 
 This directory records the model-council acceptance loop for PK-Stack.
 
+The combined review target contains the canonical installable Power at `powers/pk-stack/` and its
+generated Floci fixture at the repository root. Historical reviewer records inside the imported
+Power subtree describe its earlier standalone source snapshot; only this root review sequence can
+accept the combined release.
+
 - Codex is the primary implementer and validates every proposed remediation.
 - Sol Advisor v0.6.0 was the initial build-phase advisor; its normalized record is retained as
   historical candidate evidence, not final acceptance.
