@@ -83,7 +83,8 @@ The emulator is unauthenticated while running. Port 4566 is bound to loopback, b
 network is not an egress-isolation boundary. Use a disposable Docker daemon and read the
 [limitations](docs/limitations.md) before treating the lab as production evidence.
 
-The candidate implementation and automated/lab evidence are documented; final current-session
-Kiro acceptance, final Fable/Grok review status, and private-repository publication must be
-recorded only after those steps actually complete. See [architecture](docs/architecture.md),
-[test strategy](docs/test-strategy.md), and the [validation report](docs/validation-report.md).
+The candidate implementation, automated/lab evidence, and local current-session Kiro campaign are
+documented. Independent Fable acceptance, the final Grok sweep, and private-repository publication
+remain gated until their evidence exists. See [architecture](docs/architecture.md),
+[test strategy](docs/test-strategy.md), the [Kiro campaign record](reviews/kiro-v3-campaign.md),
+and the [validation report](docs/validation-report.md).

@@ -88,10 +88,14 @@ In particular, verify all of the following rather than inferring them from prose
   including on resumed teardown when the outer Floci container is already absent;
 - a fresh final-tree live lifecycle proves two deployment generations, bounded external judging,
   cleanup of every frozen task/task-definition/image reference, and preservation of foreign images;
-- the committed selected-profile transcript is one ordinary interactive `kiro-cli chat --v3
-  --agent pstack --model gpt-5.6-sol --effort max` session: the stored first attempt fails before a
-  source edit, the same immutable goal later passes, and neither ACP, `/spawn`, another Kiro
-  session, goal replacement, nor a native-v3 `/goal` claim is used.
+- the committed bounded selected-profile transcript projection, externally hashed raw terminal
+  record, stored goal, and launcher metadata jointly evidence one ordinary interactive `kiro-cli
+  chat --v3 --agent pstack --model gpt-5.6-sol --effort max` session: the stored first attempt
+  fails before a source edit, the same immutable goal later passes, and neither an ACP user
+  command/launch, `/spawn`, another Kiro session, goal replacement, nor a native-v3 `/goal` claim
+  is used. Do not infer launch argv from a terminal recorder that did not echo its own invocation;
+  inspect the committed exact goal, input-history, and session-log projections and assess the
+  disclosed missing-PID-sidecar limitation explicitly.
 
 ## Output contract
 

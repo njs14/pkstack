@@ -13,8 +13,13 @@ This directory records the model-council acceptance loop for PK-Stack.
 - Any material remediation invalidates the prior acceptance verdict and requires a fresh Fable
   review of the new commit.
 
-The retained sequence currently includes `fable-round-1.md` and `fable-round-2.md`. Both are
-request-changes records; neither is presented as final acceptance.
+The retained sequence includes `fable-round-1.md` and `fable-round-2.md`, both request-changes
+records, followed by `fable-round-3-incomplete.md`, which has no verdict or acceptance value. The
+selected-profile workflow evidence is in `kiro-v3-campaign.md` with a bounded JSON projection in
+`kiro-v3-campaign.json`, the exact persisted goal in `kiro-v3-campaign-goal.json`, and the exact
+Kiro input history in `kiro-v3-campaign-history.txt`. Twelve exact non-secret Kiro log records are
+in `kiro-v3-campaign-session.jsonl`. Round 4 must review the exact commit containing those records;
+none of the earlier rounds is presented as final acceptance.
 
 Committed review Markdown is normalized output plus execution metadata. Raw model output is kept
 outside the repository only when a report explicitly names its location and SHA-256; otherwise it

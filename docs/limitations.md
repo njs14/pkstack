@@ -12,10 +12,12 @@ Feature-map validation and feature-backed goals do not require OKF. Broader proj
 search and `knowledge validate --require-okn` require the canonical `okn` executable. When it is
 absent, `doctor` reports a warning and PK-Stack remains in feature-map-only knowledge mode.
 
-The candidate implementation, isolated controller exercises, and Floci lab tests are not by
-themselves proof of a real Kiro current-session fail-repair-pass campaign. Final acceptance must
-retain that transcript and then record clean independent Fable review and the final Grok sweep.
-Those results, and private-repository publication, remain unclaimed until their evidence exists.
+The real selected-profile Kiro campaign is retained as a bounded committed chronology plus an
+owner-only externally hashed raw transcript. BSD `script` did not echo its own launch argv, so the
+exact command and single user-launched process remain harness metadata; the transcript proves the
+V3 UI, selected profile/model/effort, actions, and normal session end. This local evidence does not
+replace clean independent Fable review or the final Grok sweep. Those council results and private
+publication remain unclaimed until their evidence exists.
 
 ## Floci is a Docker-backed ECS subset, not Fargate
 

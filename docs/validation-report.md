@@ -3,9 +3,10 @@
 This report separates deterministic local checks, controller proof, the live Docker-backed Floci
 campaign, Kiro-session evidence, and model-council acceptance. A pass at one boundary is not
 reported as a pass at another. The current snapshot is candidate-complete through a fresh
-exact-source Floci campaign and external judge. The selected-profile Kiro campaign and final
-council gates are still pending. The older `live-final-902` evidence remains below as historical
-context and is not substituted for the current run.
+exact-source Floci campaign, external judge, and locally passed selected-profile Kiro campaign.
+That Kiro evidence still requires a complete independent Fable disposition before release. The
+older `live-final-902` evidence remains below as historical context and is not substituted for the
+current runs.
 
 ## Bootstrap and controller provenance
 
@@ -46,7 +47,7 @@ sh -n labctl
 ./labctl doctor --output json
 ```
 
-Pytest passed **285 tests** in 5.58 seconds. Ruff and diff checks were clean; the lock resolved 15
+Pytest passed **285 tests** in 6.61 seconds. Ruff and diff checks were clean; the lock resolved 15
 packages. Doctor proved Docker server access through context `desktop-linux`, daemon
 `fabba3a8-3367-4971-9e85-efbdb563f86f`, the Unix socket at
 `unix:///Users/noahsutter/.docker/run/docker.sock`, loopback endpoint
@@ -157,6 +158,59 @@ pklab-live-r2-902-api:d8f448b8302cb827d588aabe    250c0499c7c0
 pklab-live-r2-902-worker:d8f448b8302cb827d588aabe 250c0499c7c0
 ```
 
+## Current-session Kiro v3 campaign: `kiro-v3-accept-902`
+
+The controller seeded one deliberate GET partition-key defect in an isolated clone of candidate
+`d9b1e0d`; red commit `052b64f565a2d91a67098ac416c6d53481284cb3` changed only
+`src/pk_stack_lab/runtime.py`. The broken deployment reached API/worker revision 1 and the normal
+static suite still passed, making the live business verifier the meaningful oracle.
+
+One PTY launched one user-facing Kiro CLI 2.21.0 process with the ordinary interactive interface:
+
+```sh
+kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max
+```
+
+Kiro cloud configuration initially reset the launch effort to `high`; the same process was set to
+`max` before the goal prompt and displayed `pstack · GPT 5.6 Sol · max` through completion. The
+session loaded `/verified-goal`, then started goal
+`9ecd2693-35bd-4b2f-80bb-f9486b0f5b17` with exact objective:
+
+```text
+Repair the deployed document-export tenant-key partition-separation regression in this isolated local Floci lab.
+```
+
+Its immutable contract was `./labctl verify --output json`, source `feature-map`, feature
+`document-export`, digest
+`bddcfd86cc62d274993a11726302cc9b4bc2033f164aef2edaa8d59fb595b4ab`, maximum 4. Attempt 1 ran
+before any source write and exited 1; its exact JSON `error` value was
+`tenant-key partition separation check failed`.
+Kiro then used native `pstack-verifier` exactly once with no command or write, made the single
+permitted `runtime.py` edit through its file tool, and ran one `./labctl deploy --output json`.
+
+The repaired deployment reached API/worker revision 2 with candidate source digest
+`10e7e74db272a52be501983cb3a9254647937e89c3682042aadb7f15892ceded`. Attempt 2 exited 0 and
+proved tenant partition separation, the complete business contract, and post-business identity.
+Final goal state was `passed`, 2 of 4. There was no third verification, contract change, goal
+replacement/resume, `/spawn`, nested Kiro, native `/goal` claim, or user-selected ACP execution
+path. The one source write restored runtime SHA-256
+`83a05fcc163e8f72b418cb72834967e8d274bebfe872d4608ad393c18469cfe9`; all 88 tracked files then
+matched the candidate byte-for-byte.
+
+After the Kiro process exited normally, the frozen external judge passed with the same contract,
+control-manifest, and judge hashes as `live-council-902`. Evidence and sequential status checks
+passed. Reachable teardown removed four tasks and four run images through all eight frozen phases;
+exact postcondition checks passed and the full foreign-image inventory was unchanged.
+
+The scrubbed chronology, exact prompt, hashes, raw-evidence locations, and limitations are in
+`reviews/kiro-v3-campaign.md` and `reviews/kiro-v3-campaign.json`. The owner-only terminal
+typescript is outside Git at
+`/Users/noahsutter/.local/share/pk-stack/evidence/kiro-v3-accept-902/kiro.typescript`, SHA-256
+`b6bc01485060153eeb300abd1f79875ad6f8e7a737a126ebadf33a8252e94013`. Because BSD `script` does
+not echo its own invocation, the exact launch argv and single user-launched process are harness
+metadata rather than transcript bytes; the transcript independently proves the V3 UI, selected
+profile/model/effort, chronological actions, and normal session end.
+
 ## Historical exact-tree live Floci campaign: `live-final-902`
 
 Commit `2fcacc0` used the public interface only. This remains useful lifecycle evidence, but it was
@@ -256,13 +310,26 @@ pklab-live-r2-902-api:d8f448b8302cb827d588aabe    250c0499c7c0
 pklab-live-r2-902-worker:d8f448b8302cb827d588aabe 250c0499c7c0
 ```
 
+## Final naming and DRY sweep
+
+A full tracked-and-hidden search found no stale `PStack`, `Pstack`, `P-Stack`, `PKStack`,
+`PK Stack`, or `Potato Kiro` spelling. `PK-Stack` and `Poteto Kiro` are the user-facing names.
+Lowercase `pstack`, `.pstack`, `pstack-*` agents, the `pstack_kiro` module, `pstack-kiro`
+distribution/receipt manager, and `pk-stack-lab` fixture remain intentional compatibility or
+implementation identifiers. Installed agents, hooks, steering, and skills are byte-identical to
+their bootstrap-managed cached sources, so no duplicate template/live naming fix was needed.
+
 ## Council and current-session status
 
 Sol Advisor v0.6.0 supplied build-phase advice and is recorded as advisory, not acceptance.
 Fable 5.1 round 1 reviewed commit `0b000d359b99f34ee5001088548ca872322e734a`; round 2 reviewed
 commit `2fcacc054fd62e55a8d57107d35b73e3d1d1582c`. Both ran at max effort and returned material
-findings. Round-2 remediations are locally green but have not yet received a fresh immutable-source
-Fable disposition. The real one-process interactive
-`kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max` fail-repair-pass campaign is
-also still pending. Grok 4.6 `xhigh` runs only after clean Fable acceptance on that exact commit.
-Private GitHub publication is likewise not claimed yet.
+findings. Round 3 inspected immutable commit `d9b1e0d` read-only at max effort but reached the
+five-hour account rate limit before returning the required report. It has **no verdict, no
+acceptance value, and no finding disposition**. Round 4 must inspect the exact commit containing
+the completed Kiro campaign evidence.
+
+The optional Archify status flow, `npx skills use tt-a1i/archify@archify --agent codex`, reached its
+interactive trust TUI under `TERM=dumb` and was not activated; it produced no authoritative
+architecture artifact and changed no repository file. Grok 4.6 `xhigh` remains the final sweeper
+only after clean Fable acceptance. Private GitHub publication is likewise not claimed yet.

@@ -1,0 +1,58 @@
+{
+  "attempt_count": 2,
+  "contract": {
+    "argv": [
+      "./labctl",
+      "verify",
+      "--output",
+      "json"
+    ],
+    "display": "./labctl verify --output json",
+    "feature": "document-export",
+    "source": "feature-map",
+    "spec": null
+  },
+  "contract_digest": "bddcfd86cc62d274993a11726302cc9b4bc2033f164aef2edaa8d59fb595b4ab",
+  "created_at": "2026-09-02T19:41:30.726653+00:00",
+  "goal_id": "9ecd2693-35bd-4b2f-80bb-f9486b0f5b17",
+  "history": [
+    {
+      "duration_ms": 6227,
+      "error": null,
+      "exit_code": 1,
+      "passed": false,
+      "started_at": "2026-09-02T19:42:07.011883+00:00",
+      "stderr": "",
+      "stdout": "{\"command\": \"verify\", \"error\": \"tenant-key partition separation check failed\", \"ok\": false}\n",
+      "timed_out": false,
+      "truncated": false
+    },
+    {
+      "duration_ms": 24325,
+      "error": null,
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-09-02T19:45:28.104041+00:00",
+      "stderr": "",
+      "stdout": "{\"api_transport\": \"bounded HTTP from a transient hardened verifier container to the exact real ECS API task\", \"business\": {\"api_idempotency\": true, \"dlq\": {\"current_invocation\": true, \"message_id\": \"9713696c-a655-4b83-888a-7cbfd2ed08c1\"}, \"export_id\": \"e-9a32c09c4d9b7096\", \"s3_result\": {\"body\": {\"export_id\": \"e-9a32c09c4d9b7096\", \"tenant\": \"tenant-a\"}, \"content_type\": \"application/json\", \"etag\": \"\\\"d08ef68e4bfeb93ca23c9def1d76f2ac\\\"\", \"key\": \"exports/tenant-a/e-9a32c09c4d9b7096.json\"}, \"tenant_key_partition_separation\": true, \"terminal_status\": \"COMPLETE\", \"worker_duplicate_delivery\": {\"attempts\": 1, \"consumed_noop\": true, \"s3_identity_unchanged\": true}}, \"immutable\": {\"api_image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"api_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-kiro-v3-accept-902-api:2\", \"source_digest\": \"10e7e74db272a52be501983cb3a9254647937e89c3682042aadb7f15892ceded\", \"worker_image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"worker_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-kiro-v3-accept-902-worker:2\"}, \"ok\": true, \"resources\": {\"api_family\": \"pklab-kiro-v3-accept-902-api\", \"api_image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"api_service\": \"pklab-kiro-v3-accept-902-api\", \"api_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-kiro-v3-accept-902-api:2\", \"bucket\": \"pklab-kiro-v3-accept-902-results\", \"claim_id\": \"86f2e9e214c4703005ff60ffe54e162e\", \"cluster\": \"pklab-kiro-v3-accept-902-cluster\", \"dlq\": \"pklab-kiro-v3-accept-902-exports-dlq\", \"docker_context\": \"desktop-linux\", \"docker_daemon_id\": \"fabba3a8-3367-4971-9e85-efbdb563f86f\", \"docker_socket\": \"unix:///Users/noahsutter/.docker/run/docker.sock\", \"queue\": \"pklab-kiro-v3-accept-902-exports\", \"run_id\": \"kiro-v3-accept-902\", \"source_digest\": \"10e7e74db272a52be501983cb3a9254647937e89c3682042aadb7f15892ceded\", \"table\": \"pklab-kiro-v3-accept-902-exports\", \"worker_family\": \"pklab-kiro-v3-accept-902-worker\", \"worker_image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"worker_service\": \"pklab-kiro-v3-accept-902-worker\", \"worker_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-kiro-v3-accept-902-worker:2\"}, \"run\": \"kiro-v3-accept-902\", \"task_proof\": {\"api\": \"arn:aws:ecs:us-east-1:000000000000:task/pklab-kiro-v3-accept-902-cluster/14b0073049364f939755884822a56192\", \"containers\": [{\"image\": \"pklab-kiro-v3-accept-902-api:10e7e74db272a52be501983c\", \"image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"labels\": {\"floci\": \"true\", \"floci_emulator\": \"floci-aws\", \"io.floci\": \"aws\", \"io.floci.resource-id\": \"14b0073049364f939755884822a56192\", \"io.floci.service\": \"ecs\"}, \"name\": \"floci-ecs-14b0073049364f939755884822a56192-api\", \"network\": \"pk-stack-lab-net\", \"role\": \"api\", \"security\": {\"effective\": {\"cap_drop_all\": false, \"no_new_privileges\": false, \"readonly_root_filesystem\": false}, \"emulator_limitations\": [\"readonly_root_filesystem\", \"cap_drop_all\", \"no_new_privileges\"], \"mounts\": [], \"non_root\": true, \"requested\": {\"cap_drop_all\": true, \"no_new_privileges\": true, \"readonly_root_filesystem\": true}, \"user\": \"65532:65532\"}}, {\"image\": \"pklab-kiro-v3-accept-902-worker:10e7e74db272a52be501983c\", \"image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"labels\": {\"floci\": \"true\", \"floci_emulator\": \"floci-aws\", \"io.floci\": \"aws\", \"io.floci.resource-id\": \"886409de9d434508a4b5c6477953aee9\", \"io.floci.service\": \"ecs\"}, \"name\": \"floci-ecs-886409de9d434508a4b5c6477953aee9-worker\", \"network\": \"pk-stack-lab-net\", \"role\": \"worker\", \"security\": {\"effective\": {\"cap_drop_all\": false, \"no_new_privileges\": false, \"readonly_root_filesystem\": false}, \"emulator_limitations\": [\"readonly_root_filesystem\", \"cap_drop_all\", \"no_new_privileges\"], \"mounts\": [], \"non_root\": true, \"requested\": {\"cap_drop_all\": true, \"no_new_privileges\": true, \"readonly_root_filesystem\": true}, \"user\": \"65532:65532\"}}], \"post_business_reproof\": true, \"worker\": \"arn:aws:ecs:us-east-1:000000000000:task/pklab-kiro-v3-accept-902-cluster/886409de9d434508a4b5c6477953aee9\"}}\n",
+      "timed_out": false,
+      "truncated": false
+    }
+  ],
+  "last_result": {
+    "duration_ms": 24325,
+    "error": null,
+    "exit_code": 0,
+    "passed": true,
+    "started_at": "2026-09-02T19:45:28.104041+00:00",
+    "stderr": "",
+    "stdout": "{\"api_transport\": \"bounded HTTP from a transient hardened verifier container to the exact real ECS API task\", \"business\": {\"api_idempotency\": true, \"dlq\": {\"current_invocation\": true, \"message_id\": \"9713696c-a655-4b83-888a-7cbfd2ed08c1\"}, \"export_id\": \"e-9a32c09c4d9b7096\", \"s3_result\": {\"body\": {\"export_id\": \"e-9a32c09c4d9b7096\", \"tenant\": \"tenant-a\"}, \"content_type\": \"application/json\", \"etag\": \"\\\"d08ef68e4bfeb93ca23c9def1d76f2ac\\\"\", \"key\": \"exports/tenant-a/e-9a32c09c4d9b7096.json\"}, \"tenant_key_partition_separation\": true, \"terminal_status\": \"COMPLETE\", \"worker_duplicate_delivery\": {\"attempts\": 1, \"consumed_noop\": true, \"s3_identity_unchanged\": true}}, \"immutable\": {\"api_image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"api_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-kiro-v3-accept-902-api:2\", \"source_digest\": \"10e7e74db272a52be501983cb3a9254647937e89c3682042aadb7f15892ceded\", \"worker_image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"worker_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-kiro-v3-accept-902-worker:2\"}, \"ok\": true, \"resources\": {\"api_family\": \"pklab-kiro-v3-accept-902-api\", \"api_image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"api_service\": \"pklab-kiro-v3-accept-902-api\", \"api_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-kiro-v3-accept-902-api:2\", \"bucket\": \"pklab-kiro-v3-accept-902-results\", \"claim_id\": \"86f2e9e214c4703005ff60ffe54e162e\", \"cluster\": \"pklab-kiro-v3-accept-902-cluster\", \"dlq\": \"pklab-kiro-v3-accept-902-exports-dlq\", \"docker_context\": \"desktop-linux\", \"docker_daemon_id\": \"fabba3a8-3367-4971-9e85-efbdb563f86f\", \"docker_socket\": \"unix:///Users/noahsutter/.docker/run/docker.sock\", \"queue\": \"pklab-kiro-v3-accept-902-exports\", \"run_id\": \"kiro-v3-accept-902\", \"source_digest\": \"10e7e74db272a52be501983cb3a9254647937e89c3682042aadb7f15892ceded\", \"table\": \"pklab-kiro-v3-accept-902-exports\", \"worker_family\": \"pklab-kiro-v3-accept-902-worker\", \"worker_image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"worker_service\": \"pklab-kiro-v3-accept-902-worker\", \"worker_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-kiro-v3-accept-902-worker:2\"}, \"run\": \"kiro-v3-accept-902\", \"task_proof\": {\"api\": \"arn:aws:ecs:us-east-1:000000000000:task/pklab-kiro-v3-accept-902-cluster/14b0073049364f939755884822a56192\", \"containers\": [{\"image\": \"pklab-kiro-v3-accept-902-api:10e7e74db272a52be501983c\", \"image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"labels\": {\"floci\": \"true\", \"floci_emulator\": \"floci-aws\", \"io.floci\": \"aws\", \"io.floci.resource-id\": \"14b0073049364f939755884822a56192\", \"io.floci.service\": \"ecs\"}, \"name\": \"floci-ecs-14b0073049364f939755884822a56192-api\", \"network\": \"pk-stack-lab-net\", \"role\": \"api\", \"security\": {\"effective\": {\"cap_drop_all\": false, \"no_new_privileges\": false, \"readonly_root_filesystem\": false}, \"emulator_limitations\": [\"readonly_root_filesystem\", \"cap_drop_all\", \"no_new_privileges\"], \"mounts\": [], \"non_root\": true, \"requested\": {\"cap_drop_all\": true, \"no_new_privileges\": true, \"readonly_root_filesystem\": true}, \"user\": \"65532:65532\"}}, {\"image\": \"pklab-kiro-v3-accept-902-worker:10e7e74db272a52be501983c\", \"image_id\": \"sha256:b0ccb7cbfe4242f40aad292d24b8cc5ceedce83fbfd38a0e970f6a87748dee18\", \"labels\": {\"floci\": \"true\", \"floci_emulator\": \"floci-aws\", \"io.floci\": \"aws\", \"io.floci.resource-id\": \"886409de9d434508a4b5c6477953aee9\", \"io.floci.service\": \"ecs\"}, \"name\": \"floci-ecs-886409de9d434508a4b5c6477953aee9-worker\", \"network\": \"pk-stack-lab-net\", \"role\": \"worker\", \"security\": {\"effective\": {\"cap_drop_all\": false, \"no_new_privileges\": false, \"readonly_root_filesystem\": false}, \"emulator_limitations\": [\"readonly_root_filesystem\", \"cap_drop_all\", \"no_new_privileges\"], \"mounts\": [], \"non_root\": true, \"requested\": {\"cap_drop_all\": true, \"no_new_privileges\": true, \"readonly_root_filesystem\": true}, \"user\": \"65532:65532\"}}], \"post_business_reproof\": true, \"worker\": \"arn:aws:ecs:us-east-1:000000000000:task/pklab-kiro-v3-accept-902-cluster/886409de9d434508a4b5c6477953aee9\"}}\n",
+    "timed_out": false,
+    "truncated": false
+  },
+  "max_attempts": 4,
+  "objective": "Repair the deployed document-export tenant-key partition-separation regression in this isolated local Floci lab.",
+  "schema_version": 2,
+  "status": "passed",
+  "updated_at": "2026-09-02T19:45:52.431333+00:00"
+}

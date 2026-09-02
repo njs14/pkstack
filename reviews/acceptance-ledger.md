@@ -56,8 +56,9 @@ returned `REQUEST CHANGES` with eight material findings. The normalized report i
   the round-1 risky branches are covered, but Fable round 2 found that the orchestration-level
   verifier proof remained incomplete; see the narrowed round-2 criterion below.
 - `FBL-008` — Prove controller generation/transitions and one real same-session Kiro v3
-  fail-repair-pass run. Local disposition: controller source/vendored/isolated proof is complete;
-  the selected-profile Kiro campaign remains open.
+  fail-repair-pass run. Local disposition: controller source/vendored/isolated proof is complete,
+  and the selected-profile Kiro campaign passed locally. Fable has not yet reviewed its committed
+  evidence, so this criterion is not independently accepted.
 
 ## Fable round 2 criteria
 
@@ -73,8 +74,10 @@ returned `REQUEST CHANGES` with three material findings. The normalized report i
 - `FBL-008` — Add in-snapshot controller transition/policy/bootstrap regressions and retain one real
   selected-profile current-session Kiro campaign. Local disposition: 11 hermetic controller tests
   cover start, same-goal fail/pass, exhaustion/resume, clear policy, exact verifier policy and six
-  unsafe rejections, plus bootstrap idempotence and receipt integrity. The one-process Kiro campaign
-  remains open and therefore this criterion is not yet accepted.
+  unsafe rejections, plus bootstrap idempotence and receipt integrity. The one-process Kiro
+  campaign then passed the same feature contract on attempt 2 of 4 after one real fail, one native
+  verifier subagent, one source repair, and one redeploy. See `reviews/kiro-v3-campaign.md`.
+  Fable must still review that evidence commit before this criterion is accepted.
 - `FBL-021` — Support an explicit durable reachable-to-discard transition when a previously frozen
   reachable teardown loses Floci. Local disposition: implemented as a canonical hash-bound one-way
   transition that preserves the prior plan, completed prefix, and all frozen targets; reachable
@@ -126,10 +129,9 @@ full foreign-image noninterference comparison. Exact identifiers and commands ar
 
 ## Remaining acceptance sequence
 
-1. Commit the candidate and run an immutable Fable peer review.
-2. Convert every new material finding into a criterion and remediate/re-review.
-3. Run the one-process interactive Kiro v3 `/verified-goal` campaign on an isolated clone.
-4. Commit the selected-profile evidence and final PK-Stack naming/DRY sweep.
-5. Obtain clean Fable acceptance on that exact commit.
-6. Run Grok 4.6 `xhigh` as the final sweeper; return any material repair to Fable.
-7. Create and verify the private GitHub repository.
+1. Commit the sanitized Kiro evidence and status/naming consistency sweep.
+2. Run complete Fable round 4 on that exact immutable commit.
+3. Convert every material finding into a criterion, remediate, and repeat Fable.
+4. Run Grok 4.6 `xhigh` on the Fable-accepted commit.
+5. Return any material Grok-driven change to Fable before release.
+6. Create and verify the private GitHub repository.

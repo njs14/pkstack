@@ -14,7 +14,7 @@ Passing one boundary must not be reported as proof of another.
 | Isolated contracts | Feature generation and goal state transitions work outside the fixture | Temporary repository with ready feature and fail-then-pass goal | Required, but not Kiro-session proof |
 | Live Floci | Docker-backed ECS service behavior, repeat deploy, business proof, exact cleanup | `doctor -> up -> deploy -> deploy -> verify -> evidence -> down` | Required on the candidate tree |
 | External judge | A mutation cannot pass by changing its verifier or protected controls | Read-only external judge and control manifest | Required during live mutation campaign |
-| Kiro current session | `/verified-goal` displays and preserves one contract through fail, repair, redeploy, pass | One interactive `kiro-cli chat --v3 --agent pstack` transcript | Final acceptance evidence; not yet claimed here |
+| Kiro current session | `/verified-goal` displays and preserves one contract through fail, repair, redeploy, pass | One interactive `kiro-cli chat --v3 --agent pstack` transcript | Passed locally; exact evidence awaits Fable disposition |
 | Model council | Architecture/safety acceptance and final low-level sweep | Repeated Fable 5.1 peer reviews, then Grok 4.6 sweeper | Record only after completed cleanly |
 
 Do not encode a permanent test count in this document. The suite is still evolving; each
@@ -150,15 +150,15 @@ visible control hashes, and exit status.
 
 ## Real current-session Kiro campaign
 
-Final workflow acceptance requires one process launched exactly as an ordinary interactive v3
-session, without ACP, `/goal`, `--no-interactive`, a machine-output transport, resume into another
-session, or `/spawn`:
+The completed workflow campaign used one process launched exactly as an ordinary interactive v3
+session, without an ACP command/launch, native `/goal`, `--no-interactive`, a machine-output
+transport, resume into another session, or `/spawn`:
 
 ```sh
 kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max
 ```
 
-The seeded defect must force this sequence in that same session:
+The seeded defect forced this sequence in that same session:
 
 1. Invoke `/verified-goal` for the document-export feature with a bounded attempt budget.
 2. Display the stored feature contract and feature-map provenance before the first attempt.
@@ -166,10 +166,11 @@ The seeded defect must force this sequence in that same session:
 4. Diagnose and make the smallest permitted application-source repair.
 5. Redeploy with `./labctl deploy --output json`.
 6. Verify the same goal ID and unchanged contract until it records `passed` within budget.
-Only that transcript proves current-session semantics. After the Kiro process returns, the
-controlling harness invokes the protected external judge, verifies its before/after control hashes,
-and cleanly tears down the live lab. Those are independent acceptance actions, not a second Kiro
-session and not a substitute for the transcript.
+The committed bounded chronology plus externally hashed raw transcript records that sequence in
+`reviews/kiro-v3-campaign.md`; `reviews/kiro-v3-campaign.json` retains the machine-readable
+projection. After the Kiro process returned, the controlling harness invoked the protected
+external judge, verified its control hashes, and cleanly tore down the live lab. Those are
+independent acceptance actions, not a second Kiro session or a substitute for session evidence.
 
 Sol Advisor may advise the implementation phase, but its output is design input rather than an
 acceptance verdict. Fable 5.1 is the peer reviewer throughout candidate development and must review
