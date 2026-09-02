@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import codecs
+import errno
 import fcntl
 import json
 import os
@@ -12,6 +13,7 @@ import secrets
 import selectors
 import shutil
 import signal
+import socket
 import stat
 import subprocess
 import sys
@@ -20,9 +22,9 @@ from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
-from urllib.request import ProxyHandler, Request, build_opener
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
 from botocore.exceptions import ClientError
 
@@ -63,6 +65,7 @@ from .config import (
     source_digest,
     state_dir,
     state_directory_absent,
+    transition_teardown_to_discard,
     validate_host_endpoint,
 )
 
@@ -110,10 +113,44 @@ _BLOCKED_ENV_NAMES = {
 }
 _BOUND_SOCKET: str | None = None
 _LOCK_FILE = ".lab-lifecycle.lock"
+_TRANSPORT_UNREACHABLE_ERRNOS = frozenset(
+    code
+    for name in (
+        "ECONNABORTED",
+        "ECONNREFUSED",
+        "ECONNRESET",
+        "EHOSTDOWN",
+        "EHOSTUNREACH",
+        "ENETDOWN",
+        "ENETUNREACH",
+        "ENOTCONN",
+        "ETIMEDOUT",
+    )
+    if (code := getattr(errno, name, None)) is not None
+)
 
 
 class LabError(RuntimeError):
     """A controlled lifecycle failure suitable for machine-readable output."""
+
+
+class _HealthTransportUnreachable(LabError):
+    """The health endpoint failed with a specifically recognized transport error."""
+
+
+class _RefuseHealthRedirects(HTTPRedirectHandler):
+    """Keep an HTTP redirect from being mistaken for an unreachable final target."""
+
+    def redirect_request(
+        self,
+        request: Request,
+        _file_pointer: Any,
+        code: int,
+        _message: str,
+        headers: Any,
+        _new_url: str,
+    ) -> None:
+        raise HTTPError(request.full_url, code, "health redirect refused", headers, _file_pointer)
 
 
 @contextmanager
@@ -373,19 +410,9 @@ def _docker_identity() -> tuple[str, str, str]:
     return context, f"unix://{resolved}", daemon_id
 
 
-def _docker_socket() -> str:
-    """Compatibility helper retained for focused unit tests."""
-    return _docker_identity()[1]
-
-
 def _bind_daemon(state: RunState) -> str:
     """Bind all later Docker/Compose operations to the claim's exact daemon."""
     global _BOUND_SOCKET
-    # Deterministic unit fixtures created before `up` gained daemon metadata
-    # deliberately use the empty sentinel.  Real `up` never emits it.
-    if not state.docker_socket:
-        _BOUND_SOCKET = _docker_socket()
-        return _BOUND_SOCKET
     context, socket, daemon_id = _docker_identity()
     if (
         state.docker_context != context
@@ -560,6 +587,55 @@ def _compose_image(socket_endpoint: str) -> str:
     return values[0]
 
 
+def _inspect_floci_image() -> str:
+    """Return the exact pinned Floci image ID or fail closed."""
+    raw = _run(
+        [
+            "docker",
+            "image",
+            "inspect",
+            "--format",
+            '{"repo_digests":{{json .RepoDigests}},"image_id":{{json .Id}}}',
+            FLOCI_IMAGE,
+        ]
+    ).strip()
+    try:
+        evidence = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise LabError("Docker returned malformed pinned Floci image evidence") from exc
+    repository_and_tag, manifest_digest = FLOCI_IMAGE.rsplit("@", 1)
+    repository = repository_and_tag.rsplit(":", 1)[0]
+    expected_repo_digest = f"{repository}@{manifest_digest}"
+    if (
+        not isinstance(evidence, dict)
+        or set(evidence) != {"repo_digests", "image_id"}
+        or not isinstance(evidence["repo_digests"], list)
+        or any(not isinstance(value, str) for value in evidence["repo_digests"])
+        or expected_repo_digest not in evidence["repo_digests"]
+        or not isinstance(evidence["image_id"], str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", evidence["image_id"])
+    ):
+        raise LabError("Docker did not prove the exact pinned Floci image identity")
+    return evidence["image_id"]
+
+
+def _ensure_floci_image() -> str:
+    """Resolve the shared immutable Floci dependency before creating a run claim."""
+    try:
+        return _inspect_floci_image()
+    except LabError as exc:
+        expected_missing = (
+            "command failed (docker): Error response from daemon: "
+            f"No such image: {FLOCI_IMAGE}"
+        )
+        if str(exc) != expected_missing:
+            raise
+    # A pull mutates only Docker's shared content-addressed cache. It cannot
+    # create a Compose project object and the digest pin prevents tag drift.
+    _run(["docker", "image", "pull", "--quiet", FLOCI_IMAGE], timeout=600)
+    return _inspect_floci_image()
+
+
 def _compose_env(socket_endpoint: str, claim_id: str) -> dict[str, str]:
     return {
         "DOCKER_HOST": socket_endpoint,
@@ -612,10 +688,19 @@ def _http_json(
         headers={"Content-Type": "application/json", **(headers or {})},
     )
     try:
-        with build_opener(ProxyHandler({})).open(request, timeout=5) as response:
+        with build_opener(ProxyHandler({}), _RefuseHealthRedirects()).open(
+            request, timeout=5
+        ) as response:
             payload = response.read(MAX_READ)
             return response.status, json.loads(payload)
-    except (URLError, TimeoutError, json.JSONDecodeError) as exc:
+    except HTTPError as exc:
+        # HTTP errors are responses, not evidence of transport unreachability.
+        raise LabError("bounded HTTP probe failed") from exc
+    except json.JSONDecodeError as exc:
+        raise LabError("bounded HTTP probe failed") from exc
+    except (URLError, OSError) as exc:
+        if _is_transport_unreachable(exc):
+            raise _HealthTransportUnreachable("bounded HTTP probe failed") from exc
         raise LabError("bounded HTTP probe failed") from exc
 
 
@@ -635,6 +720,36 @@ def _wait_health_once() -> None:
     status, body = _http_json(f"{HOST_ENDPOINT}/_floci/health")
     if status >= 500 or not isinstance(body, dict):
         raise LabError("Floci health endpoint is not currently reachable")
+
+
+def _is_transport_unreachable(error: BaseException) -> bool:
+    """Recognize only typed endpoint transport failures, never response failures."""
+    if isinstance(error, HTTPError):
+        # HTTPError is also a URLError, but it proves that an HTTP endpoint answered.
+        return False
+    if isinstance(error, URLError):
+        reason = error.reason
+        return isinstance(reason, BaseException) and _is_transport_unreachable(reason)
+    if isinstance(error, (TimeoutError, socket.gaierror, ConnectionError)):
+        return True
+    if isinstance(error, OSError) and error.errno in _TRANSPORT_UNREACHABLE_ERRNOS:
+        return True
+    cause = error.__cause__
+    return cause is not None and _is_transport_unreachable(cause)
+
+
+def _require_unreachable_health_endpoint() -> None:
+    """Authorize destructive discard only after a typed transport failure."""
+    try:
+        _wait_health_once()
+    except _HealthTransportUnreachable:
+        return
+    except Exception as exc:
+        raise LabError(
+            "Floci health probe failed without proving transport unreachability; "
+            "refuse control-plane discard"
+        ) from exc
+    raise LabError("Floci health endpoint responded; refuse control-plane discard")
 
 
 def _tags_dict(state: RunState) -> dict[str, str]:
@@ -810,8 +925,9 @@ def command_up(args: argparse.Namespace) -> dict[str, Any]:
     _assert_outer_ownership(require_absent=True)
     claimed_compose_sha256 = compose_digest(ROOT)
     _compose_image(socket_endpoint)
+    _ensure_floci_image()
     if compose_digest(ROOT) != claimed_compose_sha256:
-        raise LabError("Compose definition changed during startup preflight")
+        raise LabError("Compose definition changed during pinned-image startup preflight")
     state = RunState.create(
         args.run_id,
         claim_id=secrets.token_hex(16),
@@ -825,7 +941,15 @@ def command_up(args: argparse.Namespace) -> dict[str, Any]:
     _floci_data_path(create=True)
     if compose_digest(ROOT) != state.compose_sha256:
         raise LabError("Compose definition changed after the startup claim")
-    _compose(socket_endpoint, "up", "-d", "--wait", claim_id=state.claim_id)
+    _compose(
+        socket_endpoint,
+        "up",
+        "-d",
+        "--wait",
+        "--pull",
+        "never",
+        claim_id=state.claim_id,
+    )
     _assert_outer_ownership(state, require_present=True)
     _wait_health()
     _assert_aws_targets_absent(state)
@@ -1519,6 +1643,7 @@ def _api_http(
         "\ntry:\n f=o.open(q,timeout=5); print(json.dumps({'status':f.status,'body':json.loads(f.read(8192))}))\n"
         "except HTTPError as e: print(json.dumps({'status':e.code,'body':json.loads(e.read(8192))}))"
     )
+    request_completed = False
     try:
         raw = _run(
             [
@@ -1566,6 +1691,7 @@ def _api_http(
             ],
             timeout=15,
         )
+        request_completed = True
     finally:
         # `--rm` covers normal completion; errors and timeouts still receive
         # exact-name cleanup before a later verifier can be attempted.
@@ -1573,7 +1699,7 @@ def _api_http(
             if _exact_docker_object_exists("container", verifier_name):
                 _run(["docker", "container", "rm", "-f", verifier_name])
         except LabError:
-            if sys.exc_info()[0] is None:
+            if request_completed:
                 raise
     if _exact_docker_object_exists("container", verifier_name):
         raise LabError("hardened verifier container was not cleaned up")
@@ -3199,10 +3325,22 @@ def _recover_stale_images(args: argparse.Namespace) -> dict[str, Any]:
         raise LabError("stale recovery refuses while the outer lab container or network is present")
     task_names = [
         line.strip()
-        for line in _run(["docker", "ps", "-a", "--format", "{{.Names}}"]).splitlines()
+        for line in _run(
+            [
+                "docker",
+                "ps",
+                "-a",
+                "--filter",
+                "name=^floci-ecs-",
+                "--format",
+                "{{.Names}}",
+            ]
+        ).splitlines()
         if line.strip()
     ]
-    if any(name.startswith("floci-ecs-") for name in task_names):
+    if any(not name.startswith("floci-ecs-") for name in task_names):
+        raise LabError("stale recovery Docker filter returned an unexpected container name")
+    if task_names:
         # Without the canonical state/task ARN capture, a Floci ECS container
         # cannot be attributed safely.  Preserve it for normal recovery.
         raise LabError("stale recovery refuses while any Floci ECS task container is present")
@@ -3256,23 +3394,23 @@ def command_down(_: argparse.Namespace) -> dict[str, Any]:
     state = load_state(ROOT)
     socket_endpoint = _bind_daemon(state)
     _assert_outer_ownership(state)
+    discard = bool(getattr(_, "teardown_unreachable_emulator", False))
     if state.teardown is None:
-        discard = bool(getattr(_, "teardown_unreachable_emulator", False))
         if discard:
-            try:
-                _wait_health_once()
-            except LabError:
-                pass
-            else:
-                raise LabError(
-                    "Floci is reachable; refuse control-plane discard and run normal down"
-                )
+            _require_unreachable_health_endpoint()
         mode = "discard-unreachable" if discard else "reachable"
         state, plan = _build_teardown_plan(state, aws_mode=mode)
         # This durable hash-bound plan precedes the first delete/update/down/rm.
         state = install_teardown_plan(ROOT, state, plan)
     else:
         plan = state.teardown.plan
+        if discard and plan.aws_mode == "reachable":
+            _require_unreachable_health_endpoint()
+            # Preserve every target from the frozen reachable inventory. This atomic,
+            # hash-bound transition is the only supported teardown mode change.
+            state = transition_teardown_to_discard(ROOT, state)
+            assert state.teardown is not None
+            plan = state.teardown.plan
 
     assert state.teardown is not None
     for phase in plan.phases[len(state.teardown.completed_phases) :]:
@@ -3286,6 +3424,7 @@ def command_down(_: argparse.Namespace) -> dict[str, Any]:
     _remove_empty_state_dir(root=ROOT)
     if not state_directory_absent(ROOT):
         raise LabError("local state directory is not empty after terminal teardown")
+    transition = state.teardown.transition
     return {
         "ok": True,
         "run": state.run_id,
@@ -3298,6 +3437,18 @@ def command_down(_: argparse.Namespace) -> dict[str, Any]:
             "floci_data": 0,
             "images": len(plan.docker.images),
             "completed_phases": list(plan.phases),
+            "control_plane_transition": (
+                {
+                    "from_aws_mode": transition.from_aws_mode,
+                    "to_aws_mode": plan.aws_mode,
+                    "reason": transition.reason,
+                    "from_plan_sha256": transition.from_plan_sha256,
+                    "to_plan_sha256": state.teardown.plan_sha256,
+                    "completed_before": list(transition.from_completed_phases),
+                }
+                if transition is not None
+                else None
+            ),
         },
     }
 

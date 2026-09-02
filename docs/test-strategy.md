@@ -53,8 +53,9 @@ State/lifecycle coverage includes:
 - task-container removal before data cleanup, cluster-wide service/task absence, timeout without a
   false checkpoint, fail-closed ECS describe/list failures, and S3 draining beyond one page;
 - original-claim Compose digest binding before both first-pass and resumed outer teardown;
-- exact image scope, stale-recovery dry-run/apply and mismatch refusal, and refusal of a foreign
-  task or reappeared outer boundary; and
+- exact pinned-Floci-image preflight before the run claim, Compose `--pull never` after the claim,
+  exact application-image scope, filtered stale-recovery dry-run/apply and mismatch refusal, and
+  refusal of a foreign task or reappeared outer boundary; and
 - a fixed-size `verify.resources` projection even when the internal artifact ledger grows.
 
 ## Source controller versus generated controller
@@ -142,7 +143,10 @@ The judge hashes controls before and after, rejects unmanifested executable sour
 customization, parses only bounded JSON, and invokes exactly the checkout's
 `labctl verify --output json`. It does not use Docker or AWS directly. The CLI exposes a fixed
 resource schema rather than the unbounded internal ledger so the judge's memory and output remain
-bounded. Retain the judge JSON, both visible control hashes, and exit status.
+bounded. A `src/**/__pycache__` directory is intentionally rejected: Python bytecode is executable
+mutable input, not a harmless cache at this trust boundary. Keep bytecode disabled throughout the
+campaign rather than excluding it from the source-closure check. Retain the judge JSON, both
+visible control hashes, and exit status.
 
 ## Real current-session Kiro campaign
 

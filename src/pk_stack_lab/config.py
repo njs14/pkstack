@@ -351,16 +351,48 @@ class TeardownPlan:
 
 
 @dataclass(frozen=True)
+class TeardownTransition:
+    """Durable audit record for the sole supported teardown mode change."""
+
+    from_aws_mode: str
+    from_plan_sha256: str
+    from_completed_phases: tuple[str, ...]
+    reason: str
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "from_aws_mode": self.from_aws_mode,
+            "from_plan_sha256": self.from_plan_sha256,
+            "from_completed_phases": list(self.from_completed_phases),
+            "reason": self.reason,
+        }
+
+    @classmethod
+    def from_dict(cls, raw: object) -> TeardownTransition:
+        value = _exact_object(raw, set(cls.__dataclass_fields__), "teardown transition")
+        return cls(
+            from_aws_mode=_string(value, "from_aws_mode", "teardown transition"),
+            from_plan_sha256=_string(value, "from_plan_sha256", "teardown transition"),
+            from_completed_phases=_string_tuple(
+                value, "from_completed_phases", "teardown transition"
+            ),
+            reason=_string(value, "reason", "teardown transition"),
+        )
+
+
+@dataclass(frozen=True)
 class TeardownState:
     plan: TeardownPlan
     plan_sha256: str
     completed_phases: tuple[str, ...] = ()
+    transition: TeardownTransition | None = None
 
     def to_dict(self) -> dict[str, object]:
         return {
             "plan": self.plan.to_dict(),
             "plan_sha256": self.plan_sha256,
             "completed_phases": list(self.completed_phases),
+            "transition": self.transition.to_dict() if self.transition is not None else None,
         }
 
     @classmethod
@@ -369,11 +401,26 @@ class TeardownState:
 
     @classmethod
     def from_dict(cls, raw: object) -> TeardownState:
-        value = _exact_object(raw, set(cls.__dataclass_fields__), "teardown state")
+        current_fields = set(cls.__dataclass_fields__)
+        legacy_fields = current_fields - {"transition"}
+        if isinstance(raw, dict) and set(raw) == legacy_fields:
+            # Schema v2 teardown manifests written before transition journaling
+            # are still valid recovery inputs.  The missing field has the same
+            # meaning as the canonical current representation's explicit null.
+            value = _exact_object(raw, legacy_fields, "teardown state")
+            transition = None
+        else:
+            value = _exact_object(raw, current_fields, "teardown state")
+            transition = value["transition"]
+        if transition is not None and not isinstance(transition, dict):
+            raise SafetyError("teardown state.transition must be an object or null")
         return cls(
             plan=TeardownPlan.from_dict(value["plan"]),
             plan_sha256=_string(value, "plan_sha256", "teardown state"),
             completed_phases=_string_tuple(value, "completed_phases", "teardown state"),
+            transition=(
+                TeardownTransition.from_dict(transition) if transition is not None else None
+            ),
         )
 
 
@@ -806,6 +853,38 @@ def _validate_teardown(state: RunState) -> None:
         raise SafetyError("teardown plan hash does not match its frozen contents")
     if plan.phases[: len(teardown.completed_phases)] != teardown.completed_phases:
         raise SafetyError("completed teardown phases must be an ordered plan prefix")
+
+    transition = teardown.transition
+    if transition is not None:
+        if not isinstance(transition, TeardownTransition):
+            raise SafetyError("teardown transition must use the canonical nested type")
+        if (
+            transition.from_aws_mode != "reachable"
+            or plan.aws_mode != "discard-unreachable"
+            or transition.reason != "floci-unreachable-control-plane-discard"
+        ):
+            raise SafetyError("teardown transition is not the canonical reachable-to-discard move")
+        if not _HEX_64.fullmatch(transition.from_plan_sha256):
+            raise SafetyError("teardown transition prior-plan hash is invalid")
+        prior_plan = replace(
+            plan,
+            aws_mode="reachable",
+            phases=REACHABLE_TEARDOWN_PHASES,
+        )
+        if teardown_plan_hash(prior_plan) != transition.from_plan_sha256:
+            raise SafetyError("teardown transition does not bind the prior reachable plan")
+        if (
+            REACHABLE_TEARDOWN_PHASES[: len(transition.from_completed_phases)]
+            != transition.from_completed_phases
+        ):
+            raise SafetyError("teardown transition prior phases are not an ordered prefix")
+        carried_prefix = tuple(
+            phase
+            for phase in transition.from_completed_phases
+            if phase in DISCARD_TEARDOWN_PHASES
+        )
+        if teardown.completed_phases[: len(carried_prefix)] != carried_prefix:
+            raise SafetyError("teardown transition did not preserve its completed local prefix")
 
     aws, docker = plan.aws, plan.docker
     _validate_named_target(aws.cluster, state.cluster, "cluster target")
@@ -1246,6 +1325,46 @@ def install_teardown_plan(root: Path, state: RunState, plan: TeardownPlan) -> Ru
             return state
         raise SafetyError("a different teardown plan is already frozen")
     updated = replace(state, teardown=TeardownState.create(plan))
+    _validate_state(updated)
+    return _save_transition(root, state, updated)
+
+
+def transition_teardown_to_discard(root: Path, state: RunState) -> RunState:
+    """Atomically project one frozen reachable plan into its local-only sequence.
+
+    The prior plan hash and completed prefix remain in the transition record. The
+    Docker, image, AWS-inventory, claim, ledger, and Compose targets are not rebuilt or
+    rediscovered; only the mode, canonical phase list, and mapped local prefix change.
+    """
+    teardown = state.teardown
+    if teardown is None or teardown.plan.aws_mode != "reachable":
+        raise SafetyError("only a frozen reachable teardown can transition to discard")
+    if teardown.transition is not None:
+        raise SafetyError("teardown mode has already transitioned")
+    prior_plan = teardown.plan
+    discard_plan = replace(
+        prior_plan,
+        aws_mode="discard-unreachable",
+        phases=DISCARD_TEARDOWN_PHASES,
+    )
+    carried_prefix = tuple(
+        phase for phase in teardown.completed_phases if phase in DISCARD_TEARDOWN_PHASES
+    )
+    transition = TeardownTransition(
+        from_aws_mode="reachable",
+        from_plan_sha256=teardown.plan_sha256,
+        from_completed_phases=teardown.completed_phases,
+        reason="floci-unreachable-control-plane-discard",
+    )
+    updated = replace(
+        state,
+        teardown=TeardownState(
+            plan=discard_plan,
+            plan_sha256=teardown_plan_hash(discard_plan),
+            completed_phases=carried_prefix,
+            transition=transition,
+        ),
+    )
     _validate_state(updated)
     return _save_transition(root, state, updated)
 

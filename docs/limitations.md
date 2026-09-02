@@ -93,8 +93,22 @@ The schema-v2 ledger and frozen teardown journal make interrupted local cleanup 
 not make arbitrary state loss recoverable. The run claim and teardown plan bind the original
 Compose-definition digest, so restore an edited `compose.yaml` before normal cleanup can invoke
 Compose. Never delete or reconstruct `.lab-state/run.json` by guessing.
+
+Before creating that claim, `up` inspects the exact content-addressed Floci dependency and, only if
+needed, performs a quiet ten-minute-bounded pull of that same digest. Compose then runs with
+`--pull never`. An interrupted preflight can leave shared immutable Docker cache layers, but it
+cannot leave a claimed Compose container or network. After the claim, any failed startup remains
+normal manifest-backed recovery work.
+
 `--teardown-unreachable-emulator` is an explicit discard of an unreachable emulator's
-ephemeral AWS-shaped state and cannot prove resource-by-resource deletion. State-less image
+ephemeral AWS-shaped state and cannot prove resource-by-resource deletion. It requires a typed
+connection, timeout, DNS, or socket failure; HTTP 4xx/5xx responses, malformed response JSON, and
+ambiguous probe errors fail closed. If a reachable plan was already frozen, the flag first requires
+the same proof of transport unreachability and durably records a
+one-way transition whose prior-plan hash and completed prefix remain validated. All frozen
+Docker, image, claim, ledger, Compose, and AWS-inventory targets are preserved; only the canonical
+AWS-free phase sequence changes. A persisted transition remains authoritative on retry, even if
+the flag is omitted. State-less image
 recovery handles only one or both remnants of one exact two-tag generation with a supplied run,
 claim, source digest, and image ID. It refuses a fully absent initial target, any surviving Floci
 task container, or an outer boundary. Normal schema-v2 state also carries a narrow S3-create
@@ -107,3 +121,7 @@ recovery mode scans or broadly deletes Docker volumes, images, containers, or ne
 
 Finally, the `labctl` launcher can promise a single bounded JSON response only after Python starts.
 A missing/broken `uv` or other launcher failure remains a shell diagnostic.
+
+The external judge also intentionally rejects any `src/**/__pycache__`: existing `.pyc` files can be
+loaded as executable input. Validation commands and the Kiro campaign must prevent bytecode writes;
+loosening that source-closure rule would weaken the independent evidence boundary.

@@ -9,6 +9,7 @@ import pytest
 
 from pk_stack_lab import config
 from pk_stack_lab.config import (
+    DISCARD_TEARDOWN_PHASES,
     REACHABLE_TEARDOWN_PHASES,
     ArtifactEvent,
     AwsTeardownTargets,
@@ -28,6 +29,8 @@ from pk_stack_lab.config import (
     load_state,
     remove_state_manifest,
     save_state,
+    teardown_plan_hash,
+    transition_teardown_to_discard,
 )
 
 
@@ -419,6 +422,126 @@ def test_teardown_plan_is_hash_bound_and_phases_are_an_ordered_prefix(tmp_path: 
     tampered = replace(state, teardown=replace(state.teardown, plan_sha256="0" * 64))
     with pytest.raises(SafetyError, match="noncanonical"):
         save_state(tmp_path, tampered)
+
+
+def test_legacy_schema_v2_teardown_can_transition_and_resume_strictly(tmp_path: Path) -> None:
+    state = RunState.create("ci-legacy-switch")
+    save_state(tmp_path, state)
+    state = append_artifact_events(tmp_path, state, *_events(state))
+    state = install_teardown_plan(tmp_path, state, _plan(state))
+    state = complete_teardown_phase(tmp_path, state, REACHABLE_TEARDOWN_PHASES[0])
+
+    path = tmp_path / ".lab-state" / "run.json"
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    assert raw["schema_version"] == 2
+    assert isinstance(raw["teardown"], dict)
+    assert raw["teardown"].pop("transition") is None
+    path.write_text(json.dumps(raw), encoding="utf-8")
+
+    legacy = load_state(tmp_path)
+    assert legacy == state
+    transitioned = transition_teardown_to_discard(tmp_path, legacy)
+    resumed = complete_teardown_phase(
+        tmp_path, transitioned, DISCARD_TEARDOWN_PHASES[0]
+    )
+    assert load_state(tmp_path) == resumed
+    assert resumed.teardown is not None
+    assert resumed.teardown.completed_phases == DISCARD_TEARDOWN_PHASES[:1]
+    assert resumed.teardown.transition is not None
+    assert resumed.teardown.transition.from_completed_phases == (
+        REACHABLE_TEARDOWN_PHASES[0],
+    )
+
+    smuggled = resumed.to_dict()
+    assert isinstance(smuggled["teardown"], dict)
+    smuggled["teardown"]["unexpected"] = True
+    with pytest.raises(SafetyError, match="invalid run identifier") as rejected:
+        config._canonical_state(smuggled)
+    assert isinstance(rejected.value.__cause__, SafetyError)
+    assert "canonical fields" in str(rejected.value.__cause__)
+
+
+@pytest.mark.parametrize("completed_count", range(len(REACHABLE_TEARDOWN_PHASES) + 1))
+def test_reachable_to_discard_transition_preserves_plan_and_maps_completed_prefix(
+    completed_count: int, tmp_path: Path
+) -> None:
+    state = RunState.create(f"ci-switch-{completed_count}")
+    save_state(tmp_path, state)
+    state = append_artifact_events(tmp_path, state, *_events(state))
+    reachable = _plan(state)
+    state = install_teardown_plan(tmp_path, state, reachable)
+    for phase in reachable.phases[:completed_count]:
+        state = complete_teardown_phase(tmp_path, state, phase)
+
+    transitioned = transition_teardown_to_discard(tmp_path, state)
+
+    assert transitioned.teardown is not None
+    teardown = transitioned.teardown
+    assert teardown.plan == replace(
+        reachable,
+        aws_mode="discard-unreachable",
+        phases=DISCARD_TEARDOWN_PHASES,
+    )
+    assert teardown.plan.aws == reachable.aws
+    assert teardown.plan.docker == reachable.docker
+    assert teardown.plan.claim_id == reachable.claim_id
+    assert teardown.plan.compose_sha256 == reachable.compose_sha256
+    assert teardown.plan.ledger_sha256 == reachable.ledger_sha256
+    assert teardown.plan_sha256 == teardown_plan_hash(teardown.plan)
+    assert teardown.completed_phases == tuple(
+        phase
+        for phase in reachable.phases[:completed_count]
+        if phase in DISCARD_TEARDOWN_PHASES
+    )
+    assert teardown.transition is not None
+    assert teardown.transition.from_aws_mode == "reachable"
+    assert teardown.transition.from_plan_sha256 == teardown_plan_hash(reachable)
+    assert teardown.transition.from_completed_phases == reachable.phases[:completed_count]
+    assert teardown.transition.reason == "floci-unreachable-control-plane-discard"
+    assert load_state(tmp_path) == transitioned
+
+
+def test_teardown_transition_rejects_wrong_source_mode_and_hash_tampering(tmp_path: Path) -> None:
+    state = RunState.create("ci-switch-invalid")
+    save_state(tmp_path, state)
+    discard = _plan(state, aws_mode="discard-unreachable")
+    state = install_teardown_plan(tmp_path, state, discard)
+    with pytest.raises(SafetyError, match="only a frozen reachable"):
+        transition_teardown_to_discard(tmp_path, state)
+
+    remove_state_manifest(tmp_path)
+    reachable = _plan(state, aws_mode="reachable")
+    state = replace(state, teardown=None)
+    save_state(tmp_path, state)
+    state = install_teardown_plan(tmp_path, state, reachable)
+    transitioned = transition_teardown_to_discard(tmp_path, state)
+    assert transitioned.teardown is not None
+    assert transitioned.teardown.transition is not None
+    tampered = replace(
+        transitioned,
+        teardown=replace(
+            transitioned.teardown,
+            transition=replace(
+                transitioned.teardown.transition,
+                from_plan_sha256="f" * 64,
+            ),
+        ),
+    )
+    with pytest.raises(SafetyError, match="noncanonical"):
+        save_state(tmp_path, tampered)
+
+    wrong_prefix = replace(
+        transitioned,
+        teardown=replace(
+            transitioned.teardown,
+            transition=replace(
+                transitioned.teardown.transition,
+                from_completed_phases=(REACHABLE_TEARDOWN_PHASES[1],),
+            ),
+        ),
+    )
+    with pytest.raises(SafetyError, match="noncanonical"):
+        save_state(tmp_path, wrong_prefix)
 
 
 def test_teardown_freezes_artifact_history(tmp_path: Path) -> None:

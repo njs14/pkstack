@@ -1,8 +1,11 @@
 import copy
 import json
+import os
+import re
 import subprocess
 import sys
 import threading
+import tomllib
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -243,12 +246,203 @@ def test_up_preserves_invalid_direct_manifest_without_reaching_docker(
     monkeypatch.setattr(cli, "ROOT", tmp_path)
     monkeypatch.setattr(
         cli,
-        "_docker_socket",
+        "_docker_identity",
         lambda: (_ for _ in ()).throw(AssertionError("Docker must not be reached")),
     )
     with pytest.raises(cli.LabError, match="existing .lab-state is invalid"):
         cli.command_up(SimpleNamespace(run_id="ci-002"))
     assert manifest.read_text(encoding="utf-8") == contents
+
+
+def test_bind_daemon_never_falls_back_from_an_empty_persisted_socket(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    invalid = replace(RunState.create("ci-empty-socket"), docker_socket="")
+    monkeypatch.setattr(
+        cli,
+        "_docker_identity",
+        lambda: (invalid.docker_context, "unix:///tmp/actual.sock", invalid.docker_daemon_id),
+    )
+    monkeypatch.setattr(cli, "_BOUND_SOCKET", None)
+
+    with pytest.raises(cli.LabError, match="identity drifted"):
+        cli._bind_daemon(invalid)
+    assert cli._BOUND_SOCKET is None
+
+
+def test_floci_image_preflight_uses_exact_digest_and_pulls_only_when_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    image_id = "sha256:" + "a" * 64
+    repository_and_tag, manifest_digest = cli.FLOCI_IMAGE.rsplit("@", 1)
+    repository = repository_and_tag.rsplit(":", 1)[0]
+    evidence = json.dumps(
+        {
+            "repo_digests": [f"{repository}@{manifest_digest}"],
+            "image_id": image_id,
+        }
+    )
+    calls: list[tuple[list[str], dict[str, object]]] = []
+    first_inspect = True
+
+    def run(args: list[str], **kwargs: object) -> str:
+        nonlocal first_inspect
+        calls.append((args, kwargs))
+        if args[:3] == ["docker", "image", "inspect"]:
+            if first_inspect:
+                first_inspect = False
+                raise cli.LabError(
+                    "command failed (docker): Error response from daemon: "
+                    f"No such image: {cli.FLOCI_IMAGE}"
+                )
+            return evidence
+        if args[:3] == ["docker", "image", "pull"]:
+            return image_id
+        raise AssertionError(f"unexpected Floci preflight command: {args}")
+
+    monkeypatch.setattr(cli, "_run", run)
+
+    assert cli._ensure_floci_image() == image_id
+    assert calls[0][0][-1] == cli.FLOCI_IMAGE
+    assert calls[1] == (
+        ["docker", "image", "pull", "--quiet", cli.FLOCI_IMAGE],
+        {"timeout": 600},
+    )
+    assert calls[2][0] == calls[0][0]
+
+
+def test_floci_image_preflight_does_not_pull_an_exact_cached_digest(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    image_id = "sha256:" + "b" * 64
+    repository_and_tag, manifest_digest = cli.FLOCI_IMAGE.rsplit("@", 1)
+    repository = repository_and_tag.rsplit(":", 1)[0]
+    commands: list[list[str]] = []
+
+    def run(args: list[str], **_kwargs: object) -> str:
+        commands.append(args)
+        assert args[:3] == ["docker", "image", "inspect"]
+        return json.dumps(
+            {
+                "repo_digests": [f"{repository}@{manifest_digest}"],
+                "image_id": image_id,
+            }
+        )
+
+    monkeypatch.setattr(cli, "_run", run)
+
+    assert cli._ensure_floci_image() == image_id
+    assert len(commands) == 1
+    assert commands[0][-1] == cli.FLOCI_IMAGE
+
+
+def test_floci_image_preflight_never_pulls_after_a_nonmissing_inspect_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    commands: list[list[str]] = []
+
+    def run(args: list[str], **_kwargs: object) -> str:
+        commands.append(args)
+        if args[:3] == ["docker", "image", "pull"]:
+            raise AssertionError("a daemon or evidence failure must not authorize a pull")
+        raise cli.LabError("command failed (docker): daemon permission denied")
+
+    monkeypatch.setattr(cli, "_run", run)
+
+    with pytest.raises(cli.LabError, match="daemon permission denied"):
+        cli._ensure_floci_image()
+    assert len(commands) == 1
+    assert commands[0][:3] == ["docker", "image", "inspect"]
+
+
+@pytest.mark.parametrize("mutation", ["wrong-digest", "bad-id", "extra-field"])
+def test_floci_image_inspection_rejects_nonexact_identity(
+    monkeypatch: pytest.MonkeyPatch, mutation: str,
+) -> None:
+    repository_and_tag, manifest_digest = cli.FLOCI_IMAGE.rsplit("@", 1)
+    repository = repository_and_tag.rsplit(":", 1)[0]
+    evidence: dict[str, object] = {
+        "repo_digests": [f"{repository}@{manifest_digest}"],
+        "image_id": "sha256:" + "c" * 64,
+    }
+    if mutation == "wrong-digest":
+        evidence["repo_digests"] = [f"{repository}@sha256:{'d' * 64}"]
+    elif mutation == "bad-id":
+        evidence["image_id"] = "mutable-id"
+    else:
+        evidence["unexpected"] = True
+    monkeypatch.setattr(cli, "_run", lambda *_args, **_kwargs: json.dumps(evidence))
+
+    with pytest.raises(cli.LabError, match="exact pinned Floci image identity"):
+        cli._inspect_floci_image()
+
+
+def test_up_resolves_floci_before_claim_and_forbids_compose_pull(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    events: list[tuple[str, tuple[str, ...]]] = []
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(cli, "compose_digest", lambda _root: "a" * 64)
+    monkeypatch.setattr(
+        cli, "_docker_identity", lambda: ("test", "unix:///tmp/docker.sock", "daemon")
+    )
+    monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(cli, "_compose_image", lambda _socket: cli.FLOCI_IMAGE)
+
+    def ensure_image() -> str:
+        assert state_directory_absent(tmp_path)
+        events.append(("image", (cli.FLOCI_IMAGE,)))
+        return "sha256:" + "b" * 64
+
+    def compose(_socket: str, *args: str, **_kwargs: object) -> str:
+        state = load_state(tmp_path)
+        assert state.claim_id != "0" * 32
+        events.append(("compose", args))
+        return ""
+
+    monkeypatch.setattr(cli, "_ensure_floci_image", ensure_image)
+    monkeypatch.setattr(cli, "_compose", compose)
+    monkeypatch.setattr(cli, "_wait_health", lambda: None)
+    monkeypatch.setattr(cli, "_assert_aws_targets_absent", lambda _state: None)
+    monkeypatch.setattr(cli, "_provision", lambda state: (state, {}))
+
+    result = cli.command_up(
+        SimpleNamespace(run_id="ci-image-preflight", acknowledge_docker_socket=True)
+    )
+
+    assert result["ok"] is True
+    assert events == [
+        ("image", (cli.FLOCI_IMAGE,)),
+        ("compose", ("up", "-d", "--wait", "--pull", "never")),
+    ]
+
+
+def test_failed_floci_image_preflight_never_creates_a_run_claim(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(cli, "compose_digest", lambda _root: "a" * 64)
+    monkeypatch.setattr(
+        cli, "_docker_identity", lambda: ("test", "unix:///tmp/docker.sock", "daemon")
+    )
+    monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(cli, "_compose_image", lambda _socket: cli.FLOCI_IMAGE)
+    monkeypatch.setattr(
+        cli,
+        "_ensure_floci_image",
+        lambda: (_ for _ in ()).throw(cli.LabError("pinned image unavailable")),
+    )
+    monkeypatch.setattr(
+        cli,
+        "_compose",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("Compose must not run after image preflight failure")
+        ),
+    )
+
+    with pytest.raises(cli.LabError, match="pinned image unavailable"):
+        cli.command_up(SimpleNamespace(run_id="ci-no-claim", acknowledge_docker_socket=True))
+    assert state_directory_absent(tmp_path)
 
 
 def test_task_definition_has_no_socket_or_host_mounts() -> None:
@@ -746,6 +940,7 @@ def test_command_up_never_provisions_after_collision_inventory_failure(
     )
     monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(cli, "_compose_image", lambda _socket: cli.FLOCI_IMAGE)
+    monkeypatch.setattr(cli, "_ensure_floci_image", lambda: "sha256:" + "a" * 64)
     monkeypatch.setattr(cli, "_compose", lambda *_args, **_kwargs: "")
     monkeypatch.setattr(cli, "_wait_health", lambda: None)
     monkeypatch.setattr(
@@ -941,26 +1136,35 @@ def test_task_container_evidence_still_rejects_root_user(
 def test_verify_proves_both_containers_before_docker_exec_or_aws_mutation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    state = RunState.create("ci-001")
+    state = _complete_deployment_state()
     task_id = "e" * 32
     api = {"taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/{state.cluster}/{task_id}"}
     worker = {"taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/{state.cluster}/" + "f" * 32}
     calls: list[str] = []
     monkeypatch.setattr(cli, "load_state", lambda root: state)
     monkeypatch.setattr(cli, "_bind_claimed_outer", lambda _: "unix:///tmp/docker.sock")
+    monkeypatch.setattr(cli, "source_digest", lambda root: state.source_digest)
     monkeypatch.setattr(cli, "_service_tasks", lambda value: (api, worker))
-    monkeypatch.setattr(
-        cli,
-        "_task_container_evidence",
-        lambda *args: (_ for _ in ()).throw(
-            cli.LabError("API and worker task containers must have no mounts")
-        ),
-    )
-    monkeypatch.setattr(cli, "_api_http", lambda *args, **kwargs: calls.append("docker-exec"))
-    monkeypatch.setattr(cli, "client", lambda name: calls.append(f"aws-{name}"))
-    with pytest.raises(cli.LabError, match="immutable deployment identity"):
+
+    def prove_container(task: dict[str, object], role: str, proof_state: RunState) -> dict[str, str]:
+        assert proof_state is state
+        calls.append(f"container-{role}")
+        return {"name": cli._task_container_name(task, role), "role": role}
+
+    def stop_at_api(*args: object, **kwargs: object) -> None:
+        calls.append("api-http")
+        raise cli.LabError("stop after first verifier request")
+
+    def reject_early_aws(name: str) -> None:
+        calls.append(f"aws-{name}")
+        raise AssertionError("AWS must follow both container proofs")
+
+    monkeypatch.setattr(cli, "_task_container_evidence", prove_container)
+    monkeypatch.setattr(cli, "_api_http", stop_at_api)
+    monkeypatch.setattr(cli, "client", reject_early_aws)
+    with pytest.raises(cli.LabError, match="stop after first verifier request"):
         cli.command_verify(SimpleNamespace())
-    assert calls == []
+    assert calls == ["container-api", "container-worker", "api-http"]
 
 
 def test_api_http_rejects_unproven_container_without_docker_exec(
@@ -1022,6 +1226,48 @@ def test_api_http_forced_cleanup_runs_after_transport_failure(
     with pytest.raises(cli.LabError, match="transport failed"):
         cli._api_http(task, container, method="GET", path="/healthz")
     assert removed == [f"{state.prefix}-verifier"]
+
+
+def test_api_http_surfaces_cleanup_failure_after_successful_transport(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    state = _complete_deployment_state(image_id="sha256:" + "a" * 64)
+    task_id = "e" * 32
+    task = {"taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/x/{task_id}"}
+    container = {"name": f"floci-ecs-{task_id}-api", "role": "api"}
+    existence = iter([False, True])
+    monkeypatch.setattr(cli, "load_state", lambda _root: state)
+    monkeypatch.setattr(cli, "_exact_docker_object_exists", lambda *_args: next(existence))
+
+    def run(args: list[str], **_kwargs: object) -> str:
+        if args[:3] == ["docker", "container", "rm"]:
+            raise cli.LabError("cleanup failed")
+        return json.dumps({"status": 200, "body": {"ok": True}})
+
+    monkeypatch.setattr(cli, "_run", run)
+    with pytest.raises(cli.LabError, match="cleanup failed"):
+        cli._api_http(task, container, method="GET", path="/healthz")
+
+
+def test_api_http_preserves_transport_failure_when_forced_cleanup_also_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    state = _complete_deployment_state(image_id="sha256:" + "a" * 64)
+    task_id = "e" * 32
+    task = {"taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/x/{task_id}"}
+    container = {"name": f"floci-ecs-{task_id}-api", "role": "api"}
+    existence = iter([False, True])
+    monkeypatch.setattr(cli, "load_state", lambda _root: state)
+    monkeypatch.setattr(cli, "_exact_docker_object_exists", lambda *_args: next(existence))
+
+    def run(args: list[str], **_kwargs: object) -> str:
+        if args[:3] == ["docker", "container", "rm"]:
+            raise cli.LabError("cleanup failed")
+        raise cli.LabError("transport failed")
+
+    monkeypatch.setattr(cli, "_run", run)
+    with pytest.raises(cli.LabError, match="transport failed"):
+        cli._api_http(task, container, method="GET", path="/healthz")
 
 
 class _Body:
@@ -1093,6 +1339,203 @@ def test_result_object_returns_exact_body_and_identity() -> None:
     assert cli._verify_result_object(
         S3(), state, tenant=tenant, export_id=export_id, object_key=key
     ) == (expected, '"etag"')
+
+
+def _install_command_verify_business_harness(
+    monkeypatch: pytest.MonkeyPatch, *, failure: str
+) -> dict[str, list[str]]:
+    """Drive command_verify deterministically up to one selected contract failure."""
+    assert failure in {
+        "tenant-b-visible",
+        "duplicate-post-id",
+        "duplicate-never-one",
+        "changed-etag",
+        "dlq-marker-absent",
+    }
+    state = _complete_deployment_state()
+    export_id = "e-" + "a" * 16
+    other_export_id = "e-" + "b" * 16
+    object_key = f"exports/tenant-a/{export_id}.json"
+    body = json.dumps(
+        {"tenant": "tenant-a", "export_id": export_id}, separators=(",", ":")
+    ).encode()
+    api_task = {
+        "taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/{state.cluster}/" + "e" * 32
+    }
+    worker_task = {
+        "taskArn": f"arn:aws:ecs:us-east-1:000000000000:task/{state.cluster}/" + "f" * 32
+    }
+    containers = [
+        {"name": cli._task_container_name(api_task, "api"), "role": "api"},
+        {"name": cli._task_container_name(worker_task, "worker"), "role": "worker"},
+    ]
+    api_requests: list[str] = []
+    ddb_reads: list[str] = []
+    etags: list[str] = []
+    dlq_receives: list[str] = []
+    reproofs: list[str] = []
+    sent_bodies: list[str] = []
+    expected_invalid_body = json.dumps(
+        {"marker": "verify-invalid-" + "1" * 16}, separators=(",", ":")
+    )
+
+    def api_http(
+        task: dict[str, object],
+        container: dict[str, object],
+        *,
+        method: str,
+        path: str,
+        **_: object,
+    ) -> tuple[int, dict[str, object]]:
+        assert task is api_task
+        assert container is containers[0]
+        api_requests.append(f"{method} {path}")
+        if method == "POST" and path == "/exports":
+            post_count = api_requests.count("POST /exports")
+            if post_count == 1:
+                return 202, {"status": "QUEUED", "id": export_id}
+            if post_count == 2:
+                returned_id = other_export_id if failure == "duplicate-post-id" else export_id
+                return 202, {"status": "QUEUED", "id": returned_id}
+        if method == "GET" and path == f"/exports?tenant=tenant-a&id={export_id}":
+            return 200, {"status": "COMPLETE", "object_key": object_key}
+        if method == "GET" and path == f"/exports?tenant=tenant-b&id={export_id}":
+            return (200 if failure == "tenant-b-visible" else 404), {}
+        raise AssertionError(f"unexpected API request: {method} {path}")
+
+    class S3:
+        def head_object(self, **request: object) -> dict[str, object]:
+            assert request == {"Bucket": state.bucket, "Key": object_key}
+            etag = '"initial-etag"'
+            if failure == "changed-etag" and etags:
+                etag = '"changed-etag"'
+            etags.append(etag)
+            return {
+                "ContentLength": len(body),
+                "ContentType": "application/json",
+                "ETag": etag,
+            }
+
+        def get_object(self, **request: object) -> dict[str, object]:
+            assert request == {"Bucket": state.bucket, "Key": object_key}
+            return {"Body": _Body(body)}
+
+    class Ddb:
+        def get_item(self, **request: object) -> dict[str, object]:
+            assert request["TableName"] == state.table
+            ddb_reads.append("read")
+            item: dict[str, object] = {"attempts": {"N": "1"}}
+            if len(ddb_reads) > 1:
+                duplicate_count = "0" if failure == "duplicate-never-one" else "1"
+                item["duplicate_deliveries"] = {"N": duplicate_count}
+            return {"Item": item}
+
+    class Sqs:
+        def get_queue_url(self, **request: object) -> dict[str, str]:
+            queue_name = request["QueueName"]
+            assert queue_name in {state.queue, state.dlq}
+            return {"QueueUrl": f"http://floci:4566/{queue_name}"}
+
+        def send_message(self, **request: object) -> dict[str, str]:
+            sent_bodies.append(str(request["MessageBody"]))
+            return {"MessageId": "sent"}
+
+        def receive_message(self, **request: object) -> dict[str, object]:
+            assert request["QueueUrl"] == f"http://floci:4566/{state.dlq}"
+            dlq_receives.append("receive")
+            observed_body = "not-the-current-marker"
+            if failure != "dlq-marker-absent":
+                assert sent_bodies[-1] == expected_invalid_body
+                observed_body = expected_invalid_body
+            return {
+                "Messages": [
+                    {
+                        "Body": observed_body,
+                        "ReceiptHandle": "receipt",
+                        "MessageId": "dlq-message",
+                    }
+                ]
+            }
+
+        def delete_message(self, **request: object) -> None:
+            assert request == {
+                "QueueUrl": f"http://floci:4566/{state.dlq}",
+                "ReceiptHandle": "receipt",
+            }
+
+    clients = {"s3": S3(), "dynamodb": Ddb(), "sqs": Sqs()}
+    monkeypatch.setattr(cli, "load_state", lambda root: state)
+    monkeypatch.setattr(cli, "_bind_claimed_outer", lambda value: "unix:///tmp/docker.sock")
+    monkeypatch.setattr(cli, "source_digest", lambda root: state.source_digest)
+    monkeypatch.setattr(cli, "_service_tasks", lambda value: (api_task, worker_task))
+    monkeypatch.setattr(cli, "_owned_container_proof", lambda *args: containers)
+    monkeypatch.setattr(cli, "_api_http", api_http)
+    monkeypatch.setattr(cli, "client", lambda name: clients[name])
+    monkeypatch.setattr(cli.time, "sleep", lambda _: None)
+    monkeypatch.setattr(cli.secrets, "token_hex", lambda _: "1" * 16)
+    monkeypatch.setattr(
+        cli,
+        "_reprove_deployment_identity",
+        lambda *args: reproofs.append("reproof"),
+    )
+    return {
+        "api_requests": api_requests,
+        "ddb_reads": ddb_reads,
+        "etags": etags,
+        "dlq_receives": dlq_receives,
+        "reproofs": reproofs,
+    }
+
+
+def test_verify_rejects_tenant_b_200_before_post_business_reproof(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    trace = _install_command_verify_business_harness(monkeypatch, failure="tenant-b-visible")
+    with pytest.raises(cli.LabError, match="tenant-key partition separation check failed"):
+        cli.command_verify(SimpleNamespace())
+    assert trace["api_requests"][-1].startswith("GET /exports?tenant=tenant-b")
+    assert trace["reproofs"] == []
+
+
+def test_verify_rejects_duplicate_post_id_mismatch_before_post_business_reproof(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    trace = _install_command_verify_business_harness(monkeypatch, failure="duplicate-post-id")
+    with pytest.raises(cli.LabError, match="API idempotency did not preserve"):
+        cli.command_verify(SimpleNamespace())
+    assert trace["api_requests"] == ["POST /exports", "POST /exports"]
+    assert trace["reproofs"] == []
+
+
+def test_verify_rejects_duplicate_delivery_that_never_reaches_one_before_reproof(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    trace = _install_command_verify_business_harness(monkeypatch, failure="duplicate-never-one")
+    with pytest.raises(cli.LabError, match="duplicate SQS delivery was not consumed as a no-op"):
+        cli.command_verify(SimpleNamespace())
+    assert len(trace["ddb_reads"]) == 17
+    assert trace["reproofs"] == []
+
+
+def test_verify_rejects_changed_etag_before_post_business_reproof(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    trace = _install_command_verify_business_harness(monkeypatch, failure="changed-etag")
+    with pytest.raises(cli.LabError, match="duplicate SQS delivery was not consumed as a no-op"):
+        cli.command_verify(SimpleNamespace())
+    assert trace["etags"][0] == '"initial-etag"'
+    assert set(trace["etags"][1:]) == {'"changed-etag"'}
+    assert trace["reproofs"] == []
+
+
+def test_verify_rejects_missing_current_dlq_marker_before_post_business_reproof(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    trace = _install_command_verify_business_harness(monkeypatch, failure="dlq-marker-absent")
+    with pytest.raises(cli.LabError, match="current invocation invalid message was not observed"):
+        cli.command_verify(SimpleNamespace())
+    assert len(trace["dlq_receives"]) == 24
+    assert trace["reproofs"] == []
 
 
 def test_post_business_reproof_rejects_manifest_drift(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -1267,6 +1710,15 @@ def test_stale_image_recovery_is_dry_run_first_and_exactly_scoped(
 
     def run(args: list[str], **_: object) -> str:
         if args[:3] == ["docker", "ps", "-a"]:
+            assert args == [
+                "docker",
+                "ps",
+                "-a",
+                "--filter",
+                "name=^floci-ecs-",
+                "--format",
+                "{{.Names}}",
+            ]
             return ""
         if args[:3] == ["docker", "image", "ls"]:
             reference = next(
@@ -1589,6 +2041,7 @@ def test_up_data_directory_failure_retains_manifest_and_returns_json(
     )
     monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *args, **kwargs: None)
     monkeypatch.setattr(cli, "_compose_image", lambda socket: cli.FLOCI_IMAGE)
+    monkeypatch.setattr(cli, "_ensure_floci_image", lambda: "sha256:" + "a" * 64)
     monkeypatch.setattr(
         cli, "_floci_data_path", lambda **kwargs: (_ for _ in ()).throw(OSError("disk error"))
     )
@@ -1614,8 +2067,8 @@ def test_down_data_directory_failure_retains_manifest_and_returns_json(
     monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *args, **kwargs: None)
     monkeypatch.setattr(
         cli,
-        "_wait_health_once",
-        lambda: (_ for _ in ()).throw(cli.LabError("endpoint unreachable")),
+        "_require_unreachable_health_endpoint",
+        lambda: None,
     )
     aws = AwsTeardownTargets(
         cluster=NamedArnTarget(state.cluster),
@@ -1678,16 +2131,41 @@ def test_task_image_has_complete_locked_runtime_closure() -> None:
     dockerfile = (cli.ROOT / "Dockerfile").read_text(encoding="utf-8")
     assert "pip install --no-cache-dir --require-hashes" in dockerfile
     requirements = (cli.ROOT / "requirements-runtime.txt").read_text(encoding="utf-8")
-    for pin in (
-        "boto3==1.43.86",
-        "botocore==1.43.86",
-        "jmespath==1.1.0",
-        "python-dateutil==2.9.0.post0",
-        "s3transfer==0.19.2",
-        "six==1.17.0",
-        "urllib3==2.7.0",
-    ):
-        assert pin in requirements
+    command = [
+        "uv",
+        "export",
+        "--locked",
+        "--no-config",
+        "--no-dev",
+        "--no-emit-project",
+        "--no-annotate",
+        "--format",
+        "requirements-txt",
+    ]
+    result = subprocess.run(
+        command,
+        cwd=cli.ROOT,
+        env={
+            "HOME": os.environ["HOME"],
+            "LANG": os.environ.get("LANG", "C"),
+            "PATH": os.environ["PATH"],
+            "PYTHONDONTWRITEBYTECODE": "1",
+        },
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert requirements == result.stdout
+    assert "--hash=sha256:" in requirements
+
+
+def test_build_backend_is_exactly_pinned() -> None:
+    metadata = tomllib.loads((cli.ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    build_requirements = metadata["build-system"]["requires"]
+    assert len(build_requirements) == 1
+    requirement = build_requirements[0]
+    assert re.fullmatch(r"hatchling==[0-9]+\.[0-9]+\.[0-9]+", requirement)
 
 
 def test_floci_data_path_is_direct_repository_local_and_cleanup_is_exact(tmp_path: Path) -> None:

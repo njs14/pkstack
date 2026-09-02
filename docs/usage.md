@@ -160,10 +160,25 @@ operator may explicitly choose local control-plane discard:
 ./labctl down --teardown-unreachable-emulator --output json
 ```
 
-This mode is refused while Floci is healthy. It does not construct AWS clients; it records a
-different frozen phase plan and removes only exactly claimed Docker/local/image targets. Treat it
-as intentional loss of the unreachable emulator's ephemeral state, not proof that AWS-shaped
-resources were individually deleted.
+This mode is authorized only when the health probe fails with a typed transport error such as a
+connection refusal, timeout, DNS failure, or unreachable socket. Any HTTP response, including
+4xx/5xx, malformed response JSON, or ambiguous probe failure is evidence that the endpoint
+responded or that unreachability was not proved; PK-Stack fails closed without freezing a discard
+plan. The discard path does not construct AWS clients and removes only exactly claimed
+Docker/local/image targets. Treat it as intentional loss of the unreachable emulator's ephemeral
+state, not proof that AWS-shaped resources were individually deleted.
+
+The same flag is also the explicit recovery path if normal `down` already froze a reachable plan
+but Floci became unreachable before cleanup finished. PK-Stack atomically records a one-way
+reachable-to-discard transition before the next mutation. The transition keeps the original
+plan's claim, ledger and Compose hashes, AWS inventory, Docker objects, and exact image targets;
+it also records the prior plan hash and completed phase prefix. Any already-checkpointed local
+phases map onto the canonical discard prefix, and retry resumes only its remaining local phases.
+Once that transition is recorded, a later retry follows the persisted discard plan even without
+repeating the flag and never falls back to AWS discovery. Successful JSON output reports both
+`control_plane: "discarded"` and a bounded `control_plane_transition` summary. Unless the health
+probe proves transport unreachability under the same strict rule, the transition is refused
+without changing the frozen reachable plan.
 
 If an interrupted normal teardown removed the manifest but left one or both immutable application
 image tags from one exact generation, stale-image recovery is dry-run first and requires the

@@ -53,11 +53,46 @@ returned `REQUEST CHANGES` with eight material findings. The normalized report i
 - `FBL-006` — Complete read-only collision inventory before provisioning. Local disposition:
   implemented; the S3 create/tag gap also has a durable narrowly scoped recovery intent.
 - `FBL-007` — Add deterministic risky-branch tests and repair vacuous tests. Local disposition:
-  221 tests cover concurrency, negative object cases, judge mutation/output bounds, provisioning
-  and teardown crash boundaries, image collisions, and stale recovery.
+  the round-1 risky branches are covered, but Fable round 2 found that the orchestration-level
+  verifier proof remained incomplete; see the narrowed round-2 criterion below.
 - `FBL-008` — Prove controller generation/transitions and one real same-session Kiro v3
   fail-repair-pass run. Local disposition: controller source/vendored/isolated proof is complete;
   the selected-profile Kiro campaign remains open.
+
+## Fable round 2 criteria
+
+Fable 5.1 reviewed commit `2fcacc054fd62e55a8d57107d35b73e3d1d1582c` at max effort and
+returned `REQUEST CHANGES` with three material findings. The normalized report is
+`reviews/fable-round-2.md`.
+
+- `FBL-007` — Make the verifier-order regression reach both container proofs and add deterministic
+  command-level negatives for tenant partition separation, duplicate API identity/count, duplicate
+  ETag stability, and current-invocation DLQ identity. Local disposition: implemented in the
+  snapshot-local suite; each business negative now proves that post-business identity reproof is
+  not reached.
+- `FBL-008` — Add in-snapshot controller transition/policy/bootstrap regressions and retain one real
+  selected-profile current-session Kiro campaign. Local disposition: 11 hermetic controller tests
+  cover start, same-goal fail/pass, exhaustion/resume, clear policy, exact verifier policy and six
+  unsafe rejections, plus bootstrap idempotence and receipt integrity. The one-process Kiro campaign
+  remains open and therefore this criterion is not yet accepted.
+- `FBL-021` — Support an explicit durable reachable-to-discard transition when a previously frozen
+  reachable teardown loses Floci. Local disposition: implemented as a canonical hash-bound one-way
+  transition that preserves the prior plan, completed prefix, and all frozen targets; reachable
+  refusal, every prior prefix, crash/retry, tamper, and no-reinventory/no-AWS paths are regressed.
+
+Fable's low-severity round-2 findings were also evaluated before the next live proof:
+
+- `FBL-022` — fixed cleanup error precedence around the temporary verifier container.
+- `FBL-023` — removed the unreachable empty-socket compatibility path.
+- `FBL-024` — pinned Hatchling exactly; an adversarial check showed that uv 0.12.9 ignored the
+  proposed build-constraint mechanism under this `uv run --no-config` path, so no inert hash claim
+  is shipped.
+- `FBL-018` — derive the complete hash-bearing runtime export directly from `uv.lock`.
+- `FBL-025` — filter stale-recovery container discovery server-side and reject unexpected names.
+- `FBL-026` — intentionally retained the judge's fail-closed bytecode rejection and made that
+  executable-input boundary explicit in tests and documentation.
+- `FBL-027` — inspect or bounded-pull the exact digest-pinned Floci image before claiming a run,
+  reprove its image ID, then start Compose with `--pull never`.
 
 ## Post-round-1 Codex preflight criteria
 
@@ -77,10 +112,21 @@ returned `REQUEST CHANGES` with eight material findings. The normalized report i
 - `PREFLIGHT-007` — Bind the direct Compose definition at the original `up` claim, carry that digest
   into the frozen teardown plan, and refuse both first-pass and resumed Compose mutation after
   drift. Status: implemented and tested before external inventory/execution.
+- `PREFLIGHT-008` — Preserve recovery compatibility with schema-v2 teardown journals written before
+  transition metadata existed, without admitting any other nested state shape. Status: implemented
+  and tested through legacy load, transition, checkpoint, reload, and extra-field rejection.
+- `PREFLIGHT-009` — Authorize emulator discard only for typed transport unreachability; a responding
+  HTTP endpoint, malformed response, redirect, permission failure, or ambiguous URL failure must
+  refuse before plan freeze or transition. Status: implemented and tested on both entry paths.
+
+The exact-source `live-council-902` campaign subsequently passed two deployments, the complete
+business verifier, the owner-controlled external judge, all eight normal teardown phases, and a
+full foreign-image noninterference comparison. Exact identifiers and commands are in
+`docs/validation-report.md`.
 
 ## Remaining acceptance sequence
 
-1. Commit the current candidate and run an immutable Fable peer review.
+1. Commit the candidate and run an immutable Fable peer review.
 2. Convert every new material finding into a criterion and remediate/re-review.
 3. Run the one-process interactive Kiro v3 `/verified-goal` campaign on an isolated clone.
 4. Commit the selected-profile evidence and final PK-Stack naming/DRY sweep.

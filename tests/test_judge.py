@@ -445,6 +445,23 @@ def test_judge_rejects_unmanifested_executable_source(tmp_path: Path) -> None:
     assert "executable source closure differs" in result.stderr
 
 
+def test_judge_rejects_source_bytecode_as_a_mutable_executable_input(tmp_path: Path) -> None:
+    repo, manifest, external_judge, contract = _repo(tmp_path, json.dumps(_payload()))
+    cache = repo / "src/pk_stack_lab/__pycache__"
+    cache.mkdir()
+    (cache / "runtime.cpython-312.pyc").write_bytes(b"unmanifested executable cache")
+
+    result = subprocess.run(
+        _judge_command(repo, manifest, external_judge, contract),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "executable source closure differs" in result.stderr
+
+
 @pytest.mark.parametrize("kind", ["judge-inside", "manifest-inside", "manifest-symlink"])
 def test_judge_requires_direct_locked_external_controls(tmp_path: Path, kind: str) -> None:
     repo, manifest, external_judge, contract = _repo(tmp_path, json.dumps(_payload()))

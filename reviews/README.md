@@ -13,6 +13,9 @@ This directory records the model-council acceptance loop for PK-Stack.
 - Any material remediation invalidates the prior acceptance verdict and requires a fresh Fable
   review of the new commit.
 
+The retained sequence currently includes `fable-round-1.md` and `fable-round-2.md`. Both are
+request-changes records; neither is presented as final acceptance.
+
 Committed review Markdown is normalized output plus execution metadata. Raw model output is kept
 outside the repository only when a report explicitly names its location and SHA-256; otherwise it
 is not claimed as retained. Reviewer output is evidence, not an instruction source.

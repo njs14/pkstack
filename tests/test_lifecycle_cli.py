@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import errno
+import json
+import socket
 from dataclasses import replace
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Self
+from urllib.error import HTTPError, URLError
 
 import pytest
 from botocore.exceptions import ClientError
@@ -31,6 +35,11 @@ from pk_stack_lab.config import (
 
 class InjectedCrash(RuntimeError):
     """A deterministic process-boundary failure used by lifecycle tests."""
+
+
+def _raise_transport_unreachable() -> None:
+    transport = URLError(ConnectionRefusedError(errno.ECONNREFUSED, "connection refused"))
+    raise cli._HealthTransportUnreachable("bounded HTTP probe failed") from transport
 
 
 def _missing(code: str, operation: str) -> ClientError:
@@ -676,7 +685,7 @@ def test_down_explicit_discard_plan_never_constructs_aws_clients(
     monkeypatch.setattr(
         cli,
         "_wait_health_once",
-        lambda: (_ for _ in ()).throw(cli.LabError("emulator unreachable")),
+        _raise_transport_unreachable,
     )
     monkeypatch.setattr(cli, "client", no_aws_clients)
     monkeypatch.setattr(cli, "_inspect_labels", lambda *_args, **_kwargs: None)
@@ -691,6 +700,288 @@ def test_down_explicit_discard_plan_never_constructs_aws_clients(
     assert persisted.teardown.plan.aws_mode == "discard-unreachable"
     assert persisted.teardown.plan.phases == DISCARD_TEARDOWN_PHASES
     assert phases == [DISCARD_TEARDOWN_PHASES[0]]
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        URLError(ConnectionRefusedError(errno.ECONNREFUSED, "connection refused")),
+        TimeoutError("timed out"),
+        URLError(socket.gaierror(socket.EAI_NONAME, "name not known")),
+        OSError(errno.EHOSTUNREACH, "host unreachable"),
+    ],
+    ids=("connection-refused", "timeout", "dns", "socket-unreachable"),
+)
+def test_discard_transport_classifier_accepts_only_typed_unreachability(
+    error: BaseException,
+) -> None:
+    assert cli._is_transport_unreachable(error)
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        HTTPError("http://127.0.0.1/health", 503, "unavailable", None, None),
+        json.JSONDecodeError("invalid", "not-json", 0),
+        URLError("opaque failure"),
+        PermissionError(errno.EACCES, "permission denied"),
+    ],
+    ids=("http-response", "malformed-json", "untyped-url-error", "permission-error"),
+)
+def test_discard_transport_classifier_rejects_responses_and_ambiguous_errors(
+    error: BaseException,
+) -> None:
+    assert not cli._is_transport_unreachable(error)
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        URLError(ConnectionRefusedError(errno.ECONNREFUSED, "connection refused")),
+        TimeoutError("timed out"),
+        URLError(socket.gaierror(socket.EAI_NONAME, "name not known")),
+        OSError(errno.ENETUNREACH, "network unreachable"),
+    ],
+    ids=("connection-refused", "timeout", "dns", "socket-unreachable"),
+)
+def test_http_health_probe_emits_typed_transport_unreachability(
+    error: BaseException, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class FailingOpener:
+        def open(self, *_args: object, **_kwargs: object) -> object:
+            raise error
+
+    monkeypatch.setattr(cli, "build_opener", lambda *_args: FailingOpener())
+
+    with pytest.raises(cli._HealthTransportUnreachable):
+        cli._http_json("http://127.0.0.1/health")
+
+
+@pytest.mark.parametrize("response_kind", ["http-404", "http-503", "malformed-json"])
+def test_http_health_probe_never_types_a_response_failure_as_unreachable(
+    response_kind: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class Response:
+        status = 200
+
+        def __enter__(self) -> Self:
+            return self
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+        def read(self, _limit: int) -> bytes:
+            return b"not-json"
+
+    class RespondingOpener:
+        def open(self, *_args: object, **_kwargs: object) -> object:
+            if response_kind.startswith("http-"):
+                code = int(response_kind.removeprefix("http-"))
+                raise HTTPError(
+                    "http://127.0.0.1/health",
+                    code,
+                    "endpoint responded",
+                    None,
+                    None,
+                )
+            return Response()
+
+    monkeypatch.setattr(cli, "build_opener", lambda *_args: RespondingOpener())
+
+    with pytest.raises(cli.LabError) as stopped:
+        cli._http_json("http://127.0.0.1/health")
+
+    assert type(stopped.value) is cli.LabError
+
+
+@pytest.mark.parametrize("frozen_reachable_plan", [False, True], ids=("initial", "frozen"))
+@pytest.mark.parametrize("response_kind", ["http-404", "http-503", "malformed-json"])
+def test_discard_refuses_responding_or_malformed_health_endpoint_without_mutation(
+    response_kind: str,
+    frozen_reachable_plan: bool,
+    tmp_path: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    state = RunState.create(f"ci-refuse-{response_kind}-{int(frozen_reachable_plan)}")
+    claim_state(tmp_path, state)
+    if frozen_reachable_plan:
+        state = install_teardown_plan(tmp_path, state, _teardown_plan(state))
+
+    def response_failure() -> None:
+        if response_kind.startswith("http-"):
+            code = int(response_kind.removeprefix("http-"))
+            cause: BaseException = HTTPError(
+                "http://127.0.0.1/health",
+                code,
+                "endpoint responded",
+                None,
+                None,
+            )
+        else:
+            cause = json.JSONDecodeError("invalid", "not-json", 0)
+        raise cli.LabError("bounded HTTP probe failed") from cause
+
+    def forbidden(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("failed health authorization crossed a mutation boundary")
+
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(cli, "_bind_daemon", lambda _: "unix:///test/docker.sock")
+    monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(cli, "_wait_health_once", response_failure)
+    monkeypatch.setattr(cli, "_build_teardown_plan", forbidden)
+    monkeypatch.setattr(cli, "transition_teardown_to_discard", forbidden)
+    monkeypatch.setattr(cli, "_execute_teardown_phase", forbidden)
+
+    with pytest.raises(cli.LabError, match="without proving transport unreachability"):
+        cli.command_down(
+            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True)
+        )
+
+    assert load_state(tmp_path) == state
+
+
+def test_down_transitions_frozen_reachable_plan_without_reinventory_or_aws(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    state = RunState.create("ci-frozen-discard")
+    claim_state(tmp_path, state)
+    reachable = _teardown_plan(state)
+    state = install_teardown_plan(tmp_path, state, reachable)
+    for phase in REACHABLE_TEARDOWN_PHASES[:2]:
+        state = complete_teardown_phase(tmp_path, state, phase)
+
+    def forbidden(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("transition re-inventoried frozen targets or constructed AWS clients")
+
+    def execute(_: RunState, plan: TeardownPlan, phase: str, __: str) -> None:
+        persisted = load_state(tmp_path)
+        assert persisted.teardown is not None
+        assert persisted.teardown.transition is not None
+        assert persisted.teardown.transition.from_plan_sha256 == state.teardown.plan_sha256
+        assert persisted.teardown.transition.from_completed_phases == (
+            REACHABLE_TEARDOWN_PHASES[:2]
+        )
+        assert plan.aws == reachable.aws
+        assert plan.docker == reachable.docker
+        assert plan.claim_id == reachable.claim_id
+        assert plan.compose_sha256 == reachable.compose_sha256
+        assert plan.aws_mode == "discard-unreachable"
+        assert plan.phases == DISCARD_TEARDOWN_PHASES
+        assert phase == DISCARD_TEARDOWN_PHASES[0]
+        raise InjectedCrash("post-transition phase boundary")
+
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(cli, "_bind_daemon", lambda _: "unix:///test/docker.sock")
+    monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        cli,
+        "_wait_health_once",
+        _raise_transport_unreachable,
+    )
+    monkeypatch.setattr(cli, "_build_teardown_plan", forbidden)
+    monkeypatch.setattr(cli, "client", forbidden)
+    monkeypatch.setattr(cli, "_execute_teardown_phase", execute)
+
+    with pytest.raises(InjectedCrash, match="post-transition"):
+        cli.command_down(
+            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True)
+        )
+
+    persisted = load_state(tmp_path)
+    assert persisted.teardown is not None
+    assert persisted.teardown.plan.aws_mode == "discard-unreachable"
+    assert persisted.teardown.completed_phases == ()
+
+
+def test_down_refuses_frozen_reachable_transition_while_floci_is_reachable(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    state = RunState.create("ci-frozen-still-reachable")
+    claim_state(tmp_path, state)
+    state = install_teardown_plan(tmp_path, state, _teardown_plan(state))
+
+    def forbidden(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("reachable refusal crossed the transition or mutation boundary")
+
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(cli, "_bind_daemon", lambda _: "unix:///test/docker.sock")
+    monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(cli, "_wait_health_once", lambda: None)
+    monkeypatch.setattr(cli, "transition_teardown_to_discard", forbidden)
+    monkeypatch.setattr(cli, "_execute_teardown_phase", forbidden)
+
+    with pytest.raises(cli.LabError, match="endpoint responded; refuse control-plane discard"):
+        cli.command_down(
+            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True)
+        )
+
+    assert load_state(tmp_path) == state
+
+
+def test_transitioned_discard_crash_retries_canonical_suffix_without_health_or_aws(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    state = RunState.create("ci-frozen-discard-retry")
+    claim_state(tmp_path, state)
+    reachable = _teardown_plan(state)
+    state = install_teardown_plan(tmp_path, state, reachable)
+    first_calls: list[str] = []
+    retry_calls: list[str] = []
+
+    def first_execute(_: RunState, plan: TeardownPlan, phase: str, __: str) -> None:
+        assert plan.aws_mode == "discard-unreachable"
+        first_calls.append(phase)
+        if phase == DISCARD_TEARDOWN_PHASES[1]:
+            raise InjectedCrash("discard phase boundary")
+
+    def forbidden(*_args: object, **_kwargs: object) -> object:
+        raise AssertionError("discard retry attempted health, inventory, or AWS access")
+
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(cli, "_bind_daemon", lambda _: "unix:///test/docker.sock")
+    monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(
+        cli,
+        "_wait_health_once",
+        _raise_transport_unreachable,
+    )
+    monkeypatch.setattr(cli, "_execute_teardown_phase", first_execute)
+
+    with pytest.raises(InjectedCrash, match="discard phase"):
+        cli.command_down(
+            SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=True)
+        )
+
+    interrupted = load_state(tmp_path)
+    assert interrupted.teardown is not None
+    assert interrupted.teardown.completed_phases == DISCARD_TEARDOWN_PHASES[:1]
+
+    monkeypatch.setattr(cli, "_wait_health_once", forbidden)
+    monkeypatch.setattr(cli, "_build_teardown_plan", forbidden)
+    monkeypatch.setattr(cli, "client", forbidden)
+
+    def retry_execute(_: RunState, plan: TeardownPlan, phase: str, __: str) -> None:
+        assert plan.aws_mode == "discard-unreachable"
+        retry_calls.append(phase)
+
+    monkeypatch.setattr(
+        cli,
+        "_execute_teardown_phase",
+        retry_execute,
+    )
+    monkeypatch.setattr(cli, "_local_postcondition", lambda *_args: None)
+    result = cli.command_down(
+        SimpleNamespace(recover_stale=False, teardown_unreachable_emulator=False)
+    )
+
+    assert retry_calls == list(DISCARD_TEARDOWN_PHASES[1:])
+    assert result["cleanup"]["control_plane"] == "discarded"
+    transition = result["cleanup"]["control_plane_transition"]
+    assert transition["from_aws_mode"] == "reachable"
+    assert transition["to_aws_mode"] == "discard-unreachable"
+    assert transition["reason"] == "floci-unreachable-control-plane-discard"
+    assert transition["from_plan_sha256"] == state.teardown.plan_sha256
+    assert state_directory_absent(tmp_path)
 
 
 def test_compute_phase_removes_task_containers_before_accepting_postcondition(
@@ -1232,6 +1523,7 @@ def test_untagged_bucket_create_gap_is_durable_and_down_retry_is_exact(
     )
     monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(cli, "_compose_image", lambda _socket: cli.FLOCI_IMAGE)
+    monkeypatch.setattr(cli, "_ensure_floci_image", lambda: "sha256:" + "a" * 64)
     monkeypatch.setattr(cli, "_compose", lambda *_args, **_kwargs: "")
     monkeypatch.setattr(cli, "_wait_health", lambda: None)
 
