@@ -14,7 +14,7 @@ The current candidate lineage is:
 | Floci evidence carrier / Kiro executable candidate B | commit `2a1afb8a301c952b655ffe9e8a0981adff3c324c`, tree `c0a2f4b84f169d86d2295f15dbbf9b5a37e98b4e` | Adds only the normalized final-Floci records to A; exact tree exercised by `kiro-final-902`. |
 | Round-5 council-review candidate C | commit `491bfdafc94832c6624ed86051955b1067245979`, tree `e314bd4ab33e492b905a080b43c4ea8bdfba6828` | Carries the final Kiro records and review-contract documentation. Fable 5.1 reviewed this exact immutable tree at `xhigh`; no live campaign is retroactively claimed against C. |
 | Historical executable candidate D | commit `8806fa607b991d8e3ca9d004f2724412596f715d`, tree `bd0488dc2b184c39c0a6c538d5f2d2ebf73375cf` | Exact detached archive independently exercised by `final-okf-campaign` and `final-floci-903`. The campaign records were produced afterward; neither their later evidence-carrier bytes nor any later tree is claimed as executed. |
-| Hosted-control candidate E | commit `6e8d4bbe25d549faa5f07378139d92de60294410`, tree `c4360f55963437d70079d7566997e20b047e2a60` | Exact tree for the hosted maintenance fail-fast run. Its planning and authenticated drift-detection jobs passed, but reviewer readiness failed before Kiro because no accepted Fable Actions credential was configured. No native-Spec, successful maintenance, or final-council execution is claimed for E. |
+| Hosted-control candidate E | commit `6e8d4bbe25d549faa5f07378139d92de60294410`, tree `c4360f55963437d70079d7566997e20b047e2a60` | Exact tree for the hosted maintenance fail-fast run. Its planning and authenticated drift-detection jobs passed, but reviewer readiness failed before Kiro because no credential was configured under either accepted Fable secret name. No native-Spec, successful maintenance, or final-council execution is claimed for E. |
 
 The older `live-final-902`, `live-council-902`, `fable-r5-902`, and `kiro-v3-accept-902`
 campaigns remain below as explicitly historical evidence. The newest retained exact-candidate
@@ -37,8 +37,8 @@ visibility was verified as private. Hosted Kiro evidence includes successful cre
 The bounded [maintenance preflight record](../reviews/hosted-maintenance-preflight-campaign.md)
 covers [run 33743730700](https://github.com/njs14/pk-stack/actions/runs/33743730700) on exact commit
 `6e8d4bbe25d549faa5f07378139d92de60294410`. Immutable planning and authenticated upstream drift
-detection passed, then reviewer readiness failed safely because no accepted Fable Actions
-credential was configured. No Kiro repair turn or publish step ran, and candidate-gate
+detection passed, then reviewer readiness failed safely because no credential was configured under
+either accepted Fable secret name. No Kiro repair turn or publish step ran, and candidate-gate
 [run 33743818713](https://github.com/njs14/pk-stack/actions/runs/33743818713) was skipped. This is
 fail-closed safety evidence, not a successful autonomous upstream-maintenance lifecycle. Successful
 maintenance, native-Spec proof, and exact-tree model-council acceptance remain separate open gates.

@@ -3399,15 +3399,83 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertIsNotNone(readiness_match)
         readiness = readiness_match.group("body")  # type: ignore[union-attr]
-        self.assertIn("needs: [plan, detect]", readiness)
         self.assertEqual(
-            readiness.count("if: needs.detect.outputs.needs_maintenance == 'true'"),
-            1,
+            re.findall(r"(?m)^    needs: ([^\n]+)$", readiness),
+            ["[plan, detect]"],
         )
+        self.assertEqual(
+            re.findall(r"(?m)^    if: ([^\n]+)$", readiness),
+            ["needs.detect.outputs.needs_maintenance == 'true'"],
+        )
+        self.assertEqual(
+            re.findall(r"(?m)^    ([^ \n][^:\n]*):[^\n]*$", readiness),
+            ["needs", "if", "runs-on", "permissions", "steps"],
+        )
+        self.assertRegex(readiness, r"(?m)^    runs-on: ubuntu-24\.04$")
         self.assertRegex(readiness, r"(?m)^    permissions: \{\}$")
+        self.assertEqual(re.findall(r"(?m)^    steps:([^\n]*)$", readiness), [""])
+        self.assertNotRegex(readiness, r"(?m)^\s*continue-on-error:")
+
+        step_matches = list(
+            re.finditer(r"(?m)^      -(?: (?P<header>[^\n]+))?$", readiness)
+        )
+        self.assertEqual(
+            [match.group("header") for match in step_matches],
+            [
+                "name: Harden runner networking",
+                "name: Fail fast unless exactly one Fable credential is configured",
+            ],
+        )
+        harden_step = readiness[step_matches[0].end() : step_matches[1].start()]
+        guard_step = readiness[step_matches[1].end() :]
+        self.assertEqual(
+            re.findall(r"(?m)^        ([^ \n][^:\n]*):[^\n]*$", harden_step),
+            ["uses", "with"],
+        )
+        self.assertEqual(
+            re.findall(r"(?m)^        ([^ \n][^:\n]*):[^\n]*$", guard_step),
+            ["env", "shell", "run"],
+        )
+        self.assertEqual(re.findall(r"(?m)^        if:([^\n]*)$", guard_step), [])
+        self.assertEqual(
+            re.findall(r"(?m)^        shell: ([^\n]+)$", guard_step),
+            ["bash"],
+        )
+        self.assertEqual(
+            re.findall(
+                r"(?m)^          "
+                r"(ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN): "
+                r"\$\{\{ secrets\."
+                r"(ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN) \}\}$",
+                guard_step,
+            ),
+            [
+                ("ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY"),
+                ("CLAUDE_CODE_OAUTH_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN"),
+            ],
+        )
+        reviewer_env_match = re.search(
+            r"(?ms)^        env:\n(?P<body>.*?)(?=^        shell:)",
+            guard_step,
+        )
+        self.assertIsNotNone(reviewer_env_match)
+        self.assertEqual(
+            reviewer_env_match.group("body"),  # type: ignore[union-attr]
+            "          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n"
+            "          CLAUDE_CODE_OAUTH_TOKEN: "
+            "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}\n",
+        )
+        self.assertNotRegex(guard_step, r"(?m)^ {8}[?:](?:\s|$)")
+        for property_match in re.finditer(
+            r"(?m)^        (?P<key>[^ \n][^:\n]*):[^\n]*$", guard_step
+        ):
+            self.assertRegex(
+                property_match.group("key"),
+                r"^[A-Za-z_][A-Za-z0-9_-]*$",
+            )
 
         script_match = re.search(
-            r"(?ms)^        run: \|\n(?P<script>(?:^          .*\n)+)",
+            r"(?m)^        run: \|\n(?P<script>(?:^          [^\n]*\n)+)",
             readiness,
         )
         self.assertIsNotNone(script_match)
@@ -3443,11 +3511,106 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertIsNotNone(maintain_match)
         maintain = maintain_match.group("body")  # type: ignore[union-attr]
-        self.assertIn("needs: [plan, detect, reviewer_readiness]", maintain)
-        self.assertLess(
-            workflow.index("  reviewer_readiness:"),
-            workflow.index("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"),
+        self.assertEqual(
+            re.findall(r"(?m)^    needs: ([^\n]+)$", maintain),
+            ["[plan, detect, reviewer_readiness]"],
         )
+        maintain_condition = (
+            "needs.reviewer_readiness.result == 'success' "
+            "&& needs.detect.outputs.needs_maintenance == 'true'"
+        )
+        self.assertEqual(
+            re.findall(r"(?m)^    if: ([^\n]+)$", maintain),
+            [maintain_condition],
+        )
+        key_binding = "KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"
+        self.assertEqual(workflow.count(key_binding), 4)
+        self.assertEqual(maintain.count(key_binding), 4)
+        key_binding_pattern = (
+            r"(?m)^          KIRO_API_KEY: \$\{\{ secrets\.KIRO_API_KEY \}\}$"
+        )
+        self.assertEqual(len(re.findall(key_binding_pattern, workflow)), 4)
+        self.assertEqual(len(re.findall(key_binding_pattern, maintain)), 4)
+        # Count the credential name itself as well as its expected binding syntax.
+        # This fails if another job references the secret with a different
+        # environment key or bracket notation while leaving the four expected
+        # bindings untouched.
+        self.assertEqual(workflow.count("KIRO_API_KEY"), 8)
+        self.assertEqual(maintain.count("KIRO_API_KEY"), 8)
+        secret_expressions = re.findall(
+            r"\$\{\{[^\n}]*\bsecrets\b[^\n}]*\}\}",
+            workflow,
+            flags=re.IGNORECASE,
+        )
+        self.assertEqual(
+            secret_expressions,
+            [
+                "${{ secrets.ANTHROPIC_API_KEY }}",
+                "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}",
+                *("${{ secrets.KIRO_API_KEY }}",) * 4,
+            ],
+        )
+        self.assertEqual(len(re.findall(r"(?i)\bsecrets\b", workflow)), 6)
+        self.assertEqual(len(re.findall(r"(?i)\bsecrets\b", readiness)), 2)
+        self.assertEqual(len(re.findall(r"(?i)\bsecrets\b", maintain)), 4)
+
+        jobs = workflow.split("\njobs:\n", 1)[1]
+        # An explicit YAML mapping key can span ``? key`` and ``: value``
+        # lines, bypassing a conventional ``key:`` scanner while still adding
+        # a valid GitHub Actions job. Keep this security-sensitive graph in the
+        # simple mapping form that the exact-key check below can enumerate.
+        self.assertNotRegex(jobs, r"(?m)^ {2}(?:[?:]| {2}[?:])(?:\s|$)")
+        job_matches = list(
+            re.finditer(r"(?m)^  (?P<key>[^ \n][^:\n]*):[^\n]*$", jobs)
+        )
+        job_ids = []
+        job_blocks = {}
+        for index, match in enumerate(job_matches):
+            key = match.group("key")
+            if len(key) >= 2 and key[0] == key[-1] and key[0] in {"'", '"'}:
+                key = key[1:-1]
+            self.assertRegex(key, r"^[A-Za-z_][A-Za-z0-9_-]*$")
+            job_ids.append(key)
+            block_end = (
+                job_matches[index + 1].start()
+                if index + 1 < len(job_matches)
+                else len(jobs)
+            )
+            job_blocks[key] = jobs[match.end() : block_end]
+        self.assertEqual(
+            job_ids,
+            ["plan", "detect", "reviewer_readiness", "maintain", "publish"],
+        )
+        expected_needs = {
+            "plan": [],
+            "detect": ["plan"],
+            "reviewer_readiness": ["[plan, detect]"],
+            "maintain": ["[plan, detect, reviewer_readiness]"],
+            "publish": ["[plan, detect, maintain]"],
+        }
+        expected_job_if = {
+            "plan": [],
+            "detect": ["needs.plan.outputs.should_run == 'true'"],
+            "reviewer_readiness": ["needs.detect.outputs.needs_maintenance == 'true'"],
+            "maintain": [maintain_condition],
+            "publish": ["needs.maintain.outputs.has_changes == 'true'"],
+        }
+        for job_id, block in job_blocks.items():
+            for property_match in re.finditer(
+                r"(?m)^    (?P<key>[^ \n][^:\n]*):[^\n]*$", block
+            ):
+                self.assertRegex(
+                    property_match.group("key"),
+                    r"^[A-Za-z_][A-Za-z0-9_-]*$",
+                )
+            self.assertEqual(
+                re.findall(r"(?m)^    needs: ([^\n]+)$", block),
+                expected_needs[job_id],
+            )
+            self.assertEqual(
+                re.findall(r"(?m)^    if: ([^\n]+)$", block),
+                expected_job_if[job_id],
+            )
 
     def test_workflow_contracts_are_statically_bound(self) -> None:
         kiro = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()

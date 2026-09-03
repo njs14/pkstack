@@ -234,10 +234,18 @@ jobs:
     runs-on: ubuntu-24.04
     permissions: {}
     steps:
+      - name: Harden runner networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            results-receiver.actions.githubusercontent.com:443
       - name: Fail fast unless exactly one Fable credential is configured
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        shell: bash
         run: |
           set -euo pipefail
           if [[ -z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then
@@ -254,7 +262,7 @@ jobs:
   # before a model turn and fails closed rather than substituting another model.
   maintain:
     needs: [plan, detect, reviewer_readiness]
-    if: needs.detect.outputs.needs_maintenance == 'true'
+    if: needs.reviewer_readiness.result == 'success' && needs.detect.outputs.needs_maintenance == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     permissions:

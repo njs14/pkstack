@@ -126,9 +126,11 @@ exist only inside the four bounded repair steps and are destroyed before candida
 secretless verification runs. The GitHub Agentic Workflows/Copilot route is manual-only recovery;
 it never silently substitutes for Kiro.
 
-Hosted maintenance requires the repository Actions secret `KIRO_API_KEY` and exactly one of
+Whenever drift is detected, hosted maintenance requires the repository Actions secret
+`KIRO_API_KEY` and one valid Fable credential under exactly one accepted secret name:
 `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`. Missing reviewer credentials fail closed instead
-of shipping an unreviewed operational change. See the [maintenance feature
+of shipping an unreviewed operational change. A no-drift run skips reviewer readiness and is not
+credential-path proof. See the [maintenance feature
 contract](Wiki/features/pk-stack-upstream-maintenance.md), [architecture](docs/architecture.md),
 and [review ledger](reviews/acceptance-ledger.md).
 

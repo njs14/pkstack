@@ -1,9 +1,9 @@
 # Hosted maintenance reviewer-readiness campaign
 
-This record preserves the first real private-repository execution of PK-Stack's scheduled Kiro
-maintenance entry path. It is a deliberate fail-closed result, not a successful maintenance
-lifecycle: authenticated detection found one bounded upstream transition, then the workflow
-stopped before Kiro because no Fable CI credential was configured.
+This record preserves the first manual dispatch of PK-Stack's private-repository Kiro maintenance
+workflow, whose other trigger is a daily schedule. It is a deliberate fail-closed result, not a
+successful maintenance lifecycle: authenticated detection found one bounded upstream transition,
+then the workflow stopped before Kiro because no Fable CI credential was configured.
 
 ## Immutable target
 
@@ -25,8 +25,11 @@ stopped before Kiro because no Fable CI credential was configured.
 ran from `main` on 2026-09-03. `plan` and `detect` passed. The detector used its read-only GitHub
 token and uploaded bounded artifact `9888782482`, named
 `pk-stack-detector-33743730700`, with a 4,842-byte archive and one-day retention. The
-`reviewer_readiness` job then failed with the intended requirement to configure exactly one of
-`ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`.
+`reviewer_readiness` job then took its absent-credential branch and emitted exactly:
+
+```text
+Fable review is mandatory; provision ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN before spending Kiro credits.
+```
 
 Because readiness failed, both `maintain` and `publish` were skipped. No Kiro model turn ran, no
 Kiro credit was spent, no candidate branch or PK-Stack maintenance pull request was created, and
@@ -60,10 +63,19 @@ This run proves private-repository scheduling controls, authenticated four-sourc
 artifact handoff, and fail-fast reviewer readiness. It does not prove the Kiro repair invocation,
 secretless acceptance/finalization, candidate publication, Fable review, or exact-SHA merge.
 
-The one external prerequisite is a repository secret containing exactly one CI-capable Fable
-credential. Local Claude login state is intentionally not copied into GitHub. Once that credential
-is provisioned, preserving this natural one-file drift gives the hosted workflow a real bounded
-transition to process end to end.
+The one external prerequisite is one valid CI-capable Fable credential configured under exactly one
+accepted repository-secret name. Readiness checks only presence and exclusivity; validity is proven
+later by the candidate's Fable invocation, so an invalid or revoked value would still fail closed
+but might do so after Kiro spends repair credits. Local Claude login state is intentionally not
+copied into GitHub. Once the credential is provisioned, preserving this natural one-file drift gives
+the hosted workflow a real bounded transition to process end to end. A no-drift run would skip
+reviewer readiness and therefore would not prove this credential path. This manual dispatch is not
+cron-cadence proof.
+
+The downloaded `upstream-check.json` payload was 29,170 bytes with SHA-256
+`311bc1cc1e260356dcfde329748be875d623177c73ef00b29606c529e052b3b3`; the GitHub artifact archive
+reported 4,842 bytes. The local maintenance guard revalidated the downloaded payload before it was
+discarded.
 
 The machine-readable companion is
 [`hosted-maintenance-preflight-campaign.json`](hosted-maintenance-preflight-campaign.json).

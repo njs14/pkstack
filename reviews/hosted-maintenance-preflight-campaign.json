@@ -29,9 +29,18 @@
   "detector_artifact": {
     "id": 9888782482,
     "name": "pk-stack-detector-33743730700",
-    "size_in_bytes": 4842,
+    "archive_size_in_bytes": 4842,
+    "payload_name": "upstream-check.json",
+    "payload_size_in_bytes": 29170,
+    "payload_sha256": "311bc1cc1e260356dcfde329748be875d623177c73ef00b29606c529e052b3b3",
     "created_at": "2026-09-03T10:20:51Z",
     "expires_at": "2026-09-04T10:20:51Z"
+  },
+  "reviewer_readiness_failure": {
+    "branch": "absent",
+    "stderr": "Fable review is mandatory; provision ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN before spending Kiro credits.",
+    "checks_presence_and_exclusivity_only": true,
+    "credential_validity_checked": false
   },
   "drift": {
     "source_id": "okf-skills",
@@ -71,6 +80,6 @@
     "conclusion": "skipped",
     "all_jobs_skipped": true
   },
-  "external_prerequisite": "Configure exactly one of CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY as a repository secret.",
+  "external_prerequisite": "Configure one valid CI credential under exactly one accepted repository-secret name: CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY.",
   "terminal_status": "blocked-before-model-as-designed"
 }

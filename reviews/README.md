@@ -64,8 +64,9 @@ The bounded [hosted maintenance preflight record](hosted-maintenance-preflight-c
 [JSON companion](hosted-maintenance-preflight-campaign.json) cover maintenance
 [run 33743730700](https://github.com/njs14/pk-stack/actions/runs/33743730700) on exact commit
 `6e8d4bbe25d549faa5f07378139d92de60294410`. Immutable planning and authenticated drift detection
-passed, then reviewer readiness failed safely because no accepted Fable Actions credential was
-configured. The Kiro repair and publish jobs were skipped, and downstream candidate-gate
+passed, then reviewer readiness failed safely because no credential was configured under either
+accepted Fable secret name. The Kiro repair and publish jobs were skipped, and downstream
+candidate-gate
 [run 33743818713](https://github.com/njs14/pk-stack/actions/runs/33743818713) was skipped. This proves
 the pre-credit fail-closed ordering only; it is not a successful maintenance lifecycle, candidate
 review, or merge.

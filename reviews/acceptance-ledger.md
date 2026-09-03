@@ -449,11 +449,13 @@ proofs named below.
   [33736820795](https://github.com/njs14/pk-stack/actions/runs/33736820795) passed. Maintenance
   [run 33743730700](https://github.com/njs14/pk-stack/actions/runs/33743730700) on commit
   `6e8d4bbe25d549faa5f07378139d92de60294410` passed immutable planning and authenticated drift
-  detection, then failed safely at reviewer readiness because no accepted Fable Actions credential
-  was configured; Kiro, publish, and merge work did not run. The resulting candidate-gate
+  detection, then failed safely at reviewer readiness because no credential was configured under
+  either accepted Fable secret name; Kiro, publish, and merge work did not run. The resulting
+  candidate-gate
   [run 33743818713](https://github.com/njs14/pk-stack/actions/runs/33743818713) was skipped. The
   bounded [preflight campaign](hosted-maintenance-preflight-campaign.md) preserves that safety proof.
-  A successful no-op or drift lifecycle therefore remains required.
+  A successful drift lifecycle therefore remains required; a no-op skips reviewer readiness and
+  cannot prove the reviewer-credential path.
 - `SELF-013` — Keep autonomous acceptance limited to the four configured GitHub source
   repositories, and add a separate weekly/manual read-only Kiro product canary. Resolve the
   official stable CLI manifest; select, checksum, and probe exactly the advertised x86_64 Linux
@@ -472,6 +474,21 @@ proofs named below.
   hashes, and cleanup without an uploaded artifact; the bounded
   [campaign record](kiro-runtime-canary-campaign.md) also retains the prior fail-safe extraction
   result and its exact-size remediation.
+
+## Fable reviewer-readiness peer criterion
+
+Fable 5.1 at `xhigh` reviewed immutable checkpoint
+`dfbcfa82b37401e673b8441b25f1569a8fed51d4` and returned one material preflight finding. This was
+a focused peer review of the hosted-maintenance checkpoint, not the final 24-area release verdict.
+
+- `FBL-046` — Bind the execution semantics that prevent Kiro credential use after reviewer
+  readiness fails. `maintain` must explicitly require a successful `reviewer_readiness` result;
+  regression coverage must pin the exact five-job graph and dependency edges, the explicit
+  success condition, and exactly four `KIRO_API_KEY` bindings confined to `maintain`. Status:
+  **implemented locally, Fable re-review pending**. The remediation also makes script extraction
+  line-bounded, hardens the readiness runner's network, records the absent-credential branch and
+  downloaded detector digest, and requires a hosted drift lifecycle rather than accepting a no-op
+  as reviewer-credential proof.
 
 ## Kiro model and methodology criteria
 
@@ -612,9 +629,9 @@ different skill.
 
 ## Remaining acceptance sequence
 
-1. Provision exactly one accepted Fable Actions credential, then complete one authenticated hosted
-   no-op or drift maintenance lifecycle. The existing fail-fast run is safety evidence, not a
-   successful lifecycle.
+1. Provision one valid Fable Actions credential under exactly one accepted secret name, then
+   complete one authenticated hosted drift-maintenance lifecycle. The existing fail-fast run is
+   safety evidence, not a successful lifecycle; a no-op would skip reviewer readiness.
 2. Re-run the canonical OKF/OKN campaign and every deterministic static, packaging, policy, and
    regression gate on the final functional tree. Retain the older `8806fa6` OKF/OKN and Floci
    campaigns as exact historical evidence only.
