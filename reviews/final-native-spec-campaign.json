@@ -50,8 +50,12 @@
     "model": "gpt-5.6-sol",
     "native_planning_credits_reported_approx": 49.16,
     "native_planning_wall_time_reported_approx": "34m",
-    "process_count": 1,
+    "launcher_argv": "/Users/noahsutter/.local/bin/kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max",
+    "single_persisted_root_session": true,
+    "os_pid_sidecar_retained": false,
     "resume_id": "sess_8e7906ef-addf-489d-af87-88f6d8c85887",
+    "session_projection": "reviews/final-native-spec-session-projection.json",
+    "session_projection_sha256": "f366b37497c8ea627ca1b390884005a69899a77717e017690303c8386eab1138",
     "surface": "interactive kiro-cli chat --v3"
   },
   "red_fixture": {

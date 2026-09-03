@@ -483,6 +483,7 @@ jobs:
             --max-turns 8
             --safe-mode
             --restricted
+            --setting-sources ""
             --disable-slash-commands
             --strict-mcp-config
             --permission-mode dontAsk

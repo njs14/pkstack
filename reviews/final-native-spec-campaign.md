@@ -16,7 +16,10 @@ hash-bound spec-to-proof bridge and deterministic goal state.
 The exact generated Spec package is retained under
 `reviews/native-spec-artifacts/document-export-partition-fix/`. The exact terminal goal state is
 retained as `reviews/final-native-spec-goal.json`; the normalized machine record is
-`reviews/final-native-spec-campaign.json`.
+`reviews/final-native-spec-campaign.json`. The Kiro-owned session metadata, 244-line message
+stream, and per-launch log are retained outside Git and hash-bound by
+`reviews/final-native-spec-session-projection.json`; the operator input sequence is in
+`reviews/final-native-spec-campaign-history.txt`.
 
 ## Immutable candidate and controlled red fixture
 
@@ -77,6 +80,14 @@ Without leaving the process, the conversation switched back to the workspace `ps
 invoked `/verified-goal`. The verified-goal skill then used the generated bridge to bind the
 completed spec to `document-export`. The terminal process exited normally through `/quit` and
 returned resume ID `sess_8e7906ef-addf-489d-af87-88f6d8c85887`.
+
+The launch was not wrapped by `script(1)`, so no separate terminal typescript or OS-PID sidecar
+exists. This is an explicit evidence limit, not a reconstructed PID claim. Kiro's own persisted
+session, message stream, and per-launch log bind the resume ID, client/version, agent, model,
+effort, workspace, timestamps, exact goal-phase tool sequence, one `pstack-verifier`, one
+`str_replace`, one deploy, and two goal verifications. User-level memory steering and contextual
+hooks did run and are disclosed in the projection. Kiro's log calls its internal client transport
+ACP; the user-facing path remained ordinary CLI v3, with no ACP command or alternate ACP workflow.
 
 ## Spec-backed goal proof
 

@@ -116,6 +116,31 @@ def test_committed_maintenance_campaign_matches_recorded_transition_and_manifest
         == evidence["disposition_counts"]
     )
 
+    prior = campaign["prior_campaign"]
+    prior_transition = ledger_source["transitions"][prior["accepted_transition_index"]]
+    prior_projection = [
+        {"path": item["path"], "disposition": item["disposition"]}
+        for item in prior_transition["dispositions"]
+    ]
+    prior_counts = {
+        disposition: sum(
+            item["disposition"] == disposition for item in prior_transition["dispositions"]
+        )
+        for disposition in ("A", "B", "C")
+    }
+    encoded_projection = json.dumps(prior_projection, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
+    assert prior["prior"] == prior_transition["prior"]
+    assert prior["new"] == prior_transition["new"]
+    assert prior["inventory_sha256"] == prior_transition["inventory_sha256"]
+    assert prior["path_count"] == len(prior_transition["dispositions"])
+    assert prior["disposition_counts"] == prior_counts
+    assert prior["dispositions_sha256"] == hashlib.sha256(encoded_projection).hexdigest()
+    assert prior["attempt_evidence"]["retained"] is False
+    assert prior["attempt_evidence"]["attempts"] is None
+    assert prior["attempt_evidence"]["bootstrap_preview"] is None
+
 
 def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_scoped() -> None:
     manifest = json.loads(

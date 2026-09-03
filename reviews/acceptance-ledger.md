@@ -415,14 +415,16 @@ proofs named below.
   cross-boundary rename confusion, replay, and generated-copy drift. Status: implemented with a
   strict append-only ledger, full ordered provenance markers, latest-transition remote reproof,
   and canonical/generated parity tests. Two real transitions are accepted and locally passed. The
-  bounded campaign record retains the first transition's 27 paths and `A=23` / `B=3` / `C=1`
-  summary, then binds the latest two-path `B=2` transition and final all-source no-drift reproof to
-  the accepted ledger tip.
+  bounded campaign record binds the first transition's 27 paths and `A=23` / `B=3` / `C=1`
+  dispositions to ledger transition 0, then binds the latest two-path `B=2` transition and final
+  all-source no-drift reproof to the accepted ledger tip. Attempt-level evidence for the first
+  transition was not retained and is not claimed.
 - `SELF-002` — Keep self-maintenance inside one immutable feature-backed `projectctl` goal. Record
   exactly one failing pre-edit attempt for a new goal, retain four bounded repair attempts, and
   resume an already-attempted goal without consuming another attempt before a meaningful change.
-  Status: implemented, regressed, and **passed in two real campaigns**. Goal
-  `395bd46c-f889-4fbc-8933-187ab0e88441` proved the first feature-backed transition. The later
+  Status: implemented, regressed, and **passed in one fully retained real campaign**. Historical
+  goal `395bd46c-f889-4fbc-8933-187ab0e88441` is associated with the first transition, but its
+  ignored attempt record was overwritten and is not used as attempt-level proof. The later
   source-scoped goal `efe929d9-9945-4c97-866b-a8f414b9ef97` retained contract digest
   `59f08f943111cf645d05dc4962912fa81c3bf20e26b879c6ef6f7c4e21f76b5a`, failed before the
   second transition, and passed on attempt 2 of 5 after acceptance.

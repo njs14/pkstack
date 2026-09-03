@@ -4163,6 +4163,64 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 hashlib.sha256(bundle_path.read_bytes()).hexdigest(),
             )
 
+    def test_reviewer_instruction_paths_are_protected_under_every_allowed_prefix(self) -> None:
+        prefixes = set(self.policy["agent_allowed_prefixes"]) | set(
+            self.policy["final_allowed_prefixes"]
+        )
+        dangerous_suffixes = (
+            "AGENTS.md",
+            "CLAUDE.md",
+            "CLAUDE.local.md",
+            "GEMINI.md",
+            ".claude/settings.json",
+            ".codex/config.toml",
+            ".cursor/rules.md",
+            ".gemini/settings.json",
+        )
+        for prefix in prefixes:
+            for suffix in dangerous_suffixes:
+                with self.subTest(prefix=prefix, suffix=suffix):
+                    self.assertTrue(guard._is_protected(prefix + suffix, self.policy))
+
+    def test_boundaries_and_fable_bundle_reject_nested_reviewer_instructions(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            safe = root / "powers/pk-stack/docs/guide.md"
+            safe.parent.mkdir(parents=True)
+            safe.write_text("base\n", encoding="utf-8")
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            commit = [
+                "git",
+                "-c",
+                "user.name=PK-Stack Test",
+                "-c",
+                "user.email=pk-stack@example.invalid",
+                "commit",
+                "-qm",
+            ]
+            subprocess.run([*commit, "base"], cwd=root, check=True)
+            base_sha = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=root, text=True
+            ).strip()
+            injected = root / "powers/pk-stack/docs/CLAUDE.md"
+            injected.write_text("untrusted reviewer instruction\n", encoding="utf-8")
+            with self.assertRaises(guard.GuardError):
+                guard._validate_worktree_paths(root, base_sha, self.policy, scope="agent")
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run([*commit, "candidate"], cwd=root, check=True)
+            head_sha = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=root, text=True
+            ).strip()
+            with self.assertRaises(guard.GuardError):
+                guard.build_fable_review_bundle(
+                    root,
+                    base_sha,
+                    head_sha,
+                    self.policy,
+                    root / ".git/fable-review-input.json",
+                )
+
     def test_goal_status_uses_attempt_count(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             status = Path(temporary) / "goal.json"
@@ -5081,6 +5139,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertIn("--model claude-fable-5-1", candidate)
         self.assertIn("--effort xhigh", candidate)
+        self.assertIn('--setting-sources ""', candidate)
         self.assertIn(
             "https://downloads.claude.ai/claude-code-releases/2.1.258/linux-x64/claude",
             candidate,

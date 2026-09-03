@@ -49,9 +49,23 @@
       ".kiro/**",
       ".pstack/**",
       ".pk-stack-ci/**",
+      ".claude/**",
+      ".codex/**",
+      ".cursor/**",
+      ".gemini/**",
+      "**/.claude/**",
+      "**/.codex/**",
+      "**/.cursor/**",
+      "**/.gemini/**",
       "**/AGENTS.md",
+      "**/CLAUDE.local.md",
+      "**/CLAUDE.md",
+      "**/GEMINI.md",
       "AGENTS.md",
+      "CLAUDE.local.md",
+      "CLAUDE.md",
       "Dockerfile",
+      "GEMINI.md",
       "Wiki/**",
       "compose.yaml",
       "docs/**",
@@ -162,6 +176,18 @@
     "tests/test_power_distribution.py",
     "tests/test_projectctl_controller.py",
     "uv.lock"
+  ],
+  "protected_basenames": [
+    "AGENTS.md",
+    "CLAUDE.local.md",
+    "CLAUDE.md",
+    "GEMINI.md"
+  ],
+  "protected_path_components": [
+    ".claude",
+    ".codex",
+    ".cursor",
+    ".gemini"
   ],
   "protected_prefixes": [
     ".github/",

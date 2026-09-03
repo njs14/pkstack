@@ -82,7 +82,7 @@ The canonical installable package is committed at `powers/pk-stack/`. It was imp
 from the independently accepted source commit `191997501c41ae078b6548b9d6c898aadf2907ae`, after
 which the pre-Fable audit added one centralized draft-publication guard and regressions. The
 original source checkout remained clean and unchanged. The current canonical package suite passed
-**769 tests**. Its Power-local setup shim regenerated this fixture's controller; source, skills,
+**787 tests**. Its Power-local setup shim regenerated this fixture's controller; source, skills,
 steering, templates, and the runtime lock are parity-tested byte-for-byte.
 
 The generated fixture currently retains a 156-file ownership receipt in
@@ -128,8 +128,9 @@ shellcheck <all .github/scripts/*.sh paths>
 .pstack/bin/projectctl knowledge validate --output json
 ```
 
-The root suite passed 302 tests in 25.87s; the canonical Power suite passed 787 tests in 83.23s;
-and the standalone maintenance guard passed 70 tests. Root Ruff and lock checks passed. Canonical
+The root suite passed 303 tests in 21.38s; the canonical Power suite passed 787 tests in 83.64s;
+and the standalone maintenance guard passed 73 tests with 257 subtests. Root Ruff and lock checks
+passed. Canonical
 Ruff, format, `ty`, and lock checks passed. Native `actionlint` 1.7.12 passed all active standard
 workflows with the intentional `SC2174` warning suppressed, and native ShellCheck 0.11.0 passed all
 three standalone workflow scripts. Generated-controller source parity, JSON parsing, receipt

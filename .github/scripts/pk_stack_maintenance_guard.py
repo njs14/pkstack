@@ -36,7 +36,9 @@ POLICY_KEYS = {
     "agent_allowed_prefixes",
     "final_allowed_exact",
     "final_allowed_prefixes",
+    "protected_basenames",
     "protected_exact",
+    "protected_path_components",
     "protected_prefixes",
 }
 GENERATED_PREFIXES = (".kiro/", ".pstack/bin/", ".pstack/projectctl/")
@@ -875,13 +877,29 @@ def load_policy(path: Path) -> tuple[bytes, dict[str, Any]]:
     for name in (
         "agent_allowed_exact",
         "final_allowed_exact",
+        "protected_basenames",
         "protected_exact",
+        "protected_path_components",
         "protected_prefixes",
     ):
         if not isinstance(policy.get(name), list) or not all(
             isinstance(item, str) and item for item in policy[name]
         ):
             raise GuardError(f"maintenance policy {name} must be a non-empty string list")
+    if policy["protected_basenames"] != [
+        "AGENTS.md",
+        "CLAUDE.local.md",
+        "CLAUDE.md",
+        "GEMINI.md",
+    ]:
+        raise GuardError("maintenance policy reviewer-instruction basenames changed")
+    if policy["protected_path_components"] != [
+        ".claude",
+        ".codex",
+        ".cursor",
+        ".gemini",
+    ]:
+        raise GuardError("maintenance policy reviewer-instruction components changed")
     for name in ("agent_allowed_prefixes", "final_allowed_prefixes"):
         mapping = policy.get(name)
         if not isinstance(mapping, dict):
@@ -1030,8 +1048,12 @@ def _matches(path: str, exact: set[str], prefixes: dict[str, list[str]]) -> bool
 
 
 def _is_protected(path: str, policy: dict[str, Any]) -> bool:
-    return path in set(policy["protected_exact"]) or any(
-        path.startswith(prefix) for prefix in policy["protected_prefixes"]
+    candidate = PurePosixPath(path)
+    return (
+        candidate.name in set(policy["protected_basenames"])
+        or bool(set(candidate.parts) & set(policy["protected_path_components"]))
+        or path in set(policy["protected_exact"])
+        or any(path.startswith(prefix) for prefix in policy["protected_prefixes"])
     )
 
 

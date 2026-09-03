@@ -86,11 +86,17 @@ what that goal itself proved.
 
 ## Prior campaign retained
 
-The machine artifact retains the durable summary of the first campaign:
-goal `395bd46c-f889-4fbc-8933-187ab0e88441`, two attempts, transition index 0,
+The machine artifact retains the durable identity of the first transition:
+historical goal `395bd46c-f889-4fbc-8933-187ab0e88441`, transition index 0,
 27 reviewed paths, and A=23/B=3/C=1. That transition advanced the genesis pin
 to `efa2a531985e0a8084d36ff3cf87233be8a9f34b`. The canonical ledger remains
-authoritative for its complete disposition rationales.
+authoritative for its complete disposition rationales, and the campaign record binds their
+canonical projection by SHA-256.
+
+The earlier ignored goal record was overwritten before its attempt timing, exit codes, stdout
+hashes, and bootstrap-preview counts were committed. Those details are therefore not claimed or
+reconstructed. The later source-scoped campaign above is the retained executable fail-then-pass
+goal proof; the first transition is ledger/provenance evidence only.
 
 ## Boundaries
 

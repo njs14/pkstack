@@ -396,7 +396,7 @@
     "campaign_id": "pk-stack-self-maintenance-2026-09-02",
     "goal_id": "395bd46c-f889-4fbc-8933-187ab0e88441",
     "contract_digest": "bae5cdd382fc4d779a3f1b5004a8a6bd743f4162e095931edcc38e5c6d91170f",
-    "decision": "passed",
+    "decision": "accepted_transition_proven; attempt_sequence_not_retained",
     "attempt_count": 2,
     "accepted_transition_index": 0,
     "prior": {
@@ -414,7 +414,14 @@
       "B": 3,
       "C": 1
     },
-    "evidence_note": "The preceding primary artifact recorded richer local transcript and controller details. This version retains the durable identity and verdict summary while the canonical ledger remains authoritative for its complete dispositions."
+    "dispositions_sha256": "c041132ee85fab9812490f509b9d472248b8d71d9bb89257535db58164a35cc1",
+    "attempt_evidence": {
+      "retained": false,
+      "attempts": null,
+      "bootstrap_preview": null,
+      "claim": "No attempt-level timing, exit, stdout hash, or bootstrap-preview count is claimed for this earlier campaign. The later source-scoped campaign is the executable fail-then-pass goal proof."
+    },
+    "evidence_note": "The canonical ledger and provenance marker prove the complete first transition and its dispositions. The earlier ignored goal record was overwritten before bounded attempt details were committed, so this record deliberately retracts the prior attempt-level proof claim instead of reconstructing data."
   },
   "evidence_boundaries": [
     "The committed manifest, review ledger, provenance markers, and parity artifact are the authority for accepted source identities and dispositions.",
