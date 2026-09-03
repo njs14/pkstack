@@ -32,9 +32,7 @@ CLI_DOWNLOAD_ORIGIN = "https://prod.download.cli.kiro.dev/stable/"
 CLI_ARCHIVE_NAME = "kirocli-x86_64-linux.tar.xz"
 PINNED_CLI_URL = f"{CLI_DOWNLOAD_ORIGIN}{PINNED_CLI_VERSION}/{CLI_ARCHIVE_NAME}"
 
-IDE_METADATA_URL = (
-    "https://prod.download.desktop.kiro.dev/stable/metadata-darwin-arm64-stable.json"
-)
+IDE_METADATA_URL = "https://prod.download.desktop.kiro.dev/stable/metadata-darwin-arm64-stable.json"
 CREW_CLI_FEED_URL = "https://download.crew.kiro.dev/feed/nightly/latest-cli.json"
 CREW_DESKTOP_FEED_URL = "https://updates.crew.kiro.dev/feed/nightly/latest-mac.yml"
 CHANGELOG_FEED_URL = "https://kiro.dev/changelog/feed.atom"
@@ -72,7 +70,7 @@ MAX_MANIFEST_BYTES = 128 * 1024
 MAX_OBSERVATION_BYTES = 2 * 1024 * 1024
 MAX_AGGREGATE_OBSERVATION_BYTES = 16 * 1024 * 1024
 MAX_ARCHIVE_BYTES = 700 * 1024 * 1024
-MAX_BINARY_BYTES = 512 * 1024 * 1024
+MAX_BINARY_BYTES = 1024 * 1024 * 1024
 MAX_COMMAND_BYTES = 128 * 1024
 MAX_STATE_BYTES = 256 * 1024
 MAX_PACKAGES = 64
@@ -83,16 +81,18 @@ SCRATCH_PREFIX = "pk-stack-kiro-runtime-canary"
 SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
 VERSION_RE = re.compile(r"([0-9]+)\.([0-9]+)\.([0-9]+)\Z")
 ANSI_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
-WORKSPACE_ROW_RE = re.compile(
-    r"^\s*(?:\*\s*)?([a-z0-9][a-z0-9_-]*)\s+Workspace(?:\s|$)"
-)
+WORKSPACE_ROW_RE = re.compile(r"^\s*(?:\*\s*)?([a-z0-9][a-z0-9_-]*)\s+Workspace(?:\s|$)")
 SETTINGS = (
-    b'{\n'
+    b"{\n"
     b'  "app.disableAutoupdates": true,\n'
     b'  "chat.disableInheritingDefaultResources": true,\n'
     b'  "telemetry.enabled": false\n'
-    b'}\n'
+    b"}\n"
 )
+PINNED_BINARY_SIZES = {
+    "kirocli/bin/kiro-cli": 113_921_088,
+    "kirocli/bin/kiro-cli-chat": 838_911_376,
+}
 
 
 class CanaryError(ValueError):
@@ -197,7 +197,9 @@ def _parse_manifest(raw: bytes) -> dict[str, Any]:
         and all(item.get(key) == value for key, value in TARGET_SELECTOR.items())
     ]
     if len(matches) != 1:
-        raise CanaryError("stable CLI manifest must contain exactly one x86_64 Linux headless tar.xz")
+        raise CanaryError(
+            "stable CLI manifest must contain exactly one x86_64 Linux headless tar.xz"
+        )
     package = matches[0]
     if set(package) != TARGET_PACKAGE_KEYS:
         raise CanaryError("stable CLI target package schema changed")
@@ -241,6 +243,10 @@ def _pin_status(target: dict[str, Any]) -> str:
     if advertised < pinned:
         return "rollback"
     return "republished"
+
+
+def _pinned_binary_sizes(target: dict[str, Any]) -> dict[str, int] | None:
+    return PINNED_BINARY_SIZES if _pin_status(target) == "match" else None
 
 
 def _validate_scratch(scratch: Path, runner_temp: Path) -> tuple[Path, Path]:
@@ -351,11 +357,24 @@ def _copy_tar_member(source: BinaryIO, destination: Path, expected_size: int) ->
         raise CanaryError("CLI archive member size changed during extraction")
 
 
-def _extract_binaries(archive_path: Path, bin_dir: Path) -> dict[str, Path]:
+def _extract_binaries(
+    archive_path: Path,
+    bin_dir: Path,
+    *,
+    expected_sizes: dict[str, int] | None = None,
+) -> dict[str, Path]:
     wanted = {
         "kirocli/bin/kiro-cli": bin_dir / "kiro-cli",
         "kirocli/bin/kiro-cli-chat": bin_dir / "kiro-cli-chat",
     }
+    if expected_sizes is not None and (
+        set(expected_sizes) != set(wanted)
+        or any(
+            type(size) is not int or not 1 <= size <= MAX_BINARY_BYTES
+            for size in expected_sizes.values()
+        )
+    ):
+        raise CanaryError("pinned CLI executable-size contract is invalid")
     found: set[str] = set()
     count = 0
     try:
@@ -370,6 +389,8 @@ def _extract_binaries(archive_path: Path, bin_dir: Path) -> dict[str, Path]:
                     raise CanaryError("CLI archive has an invalid or duplicate executable member")
                 if not 1 <= member.size <= MAX_BINARY_BYTES:
                     raise CanaryError("CLI archive executable member size is invalid")
+                if expected_sizes is not None and member.size != expected_sizes[member.name]:
+                    raise CanaryError("pinned CLI archive executable member size changed")
                 source = archive.extractfile(member)
                 if source is None:
                     raise CanaryError("CLI archive executable member cannot be read")
@@ -461,7 +482,10 @@ def _probe_runtime(root: Path, scratch: Path, version: str) -> dict[str, Any]:
     return_code, output, _ = _run_bounded(
         [str(binary), "--version"], cwd=workspace, environment=environment, timeout=30
     )
-    if return_code != 0 or output.decode("utf-8", errors="replace").strip() != f"kiro-cli {version}":
+    if (
+        return_code != 0
+        or output.decode("utf-8", errors="replace").strip() != f"kiro-cli {version}"
+    ):
         raise CanaryError("advertised Kiro CLI failed its exact version probe")
 
     agent_hashes: dict[str, str] = {}
@@ -574,7 +598,9 @@ def _parse_crew_desktop(raw: bytes) -> dict[str, str]:
         text = raw.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise CanaryError("Kiro Crew desktop feed is not UTF-8") from exc
-    versions = re.findall(r"(?m)^version: ([0-9]+\.[0-9]+\.[0-9]+-nightly\.[0-9]{8}t[0-9]{6})$", text)
+    versions = re.findall(
+        r"(?m)^version: ([0-9]+\.[0-9]+\.[0-9]+-nightly\.[0-9]{8}t[0-9]{6})$", text
+    )
     if len(versions) != 1 or len(re.findall(r"(?m)^\s+sha512: '[A-Za-z0-9+/=]+'$", text)) != 2:
         raise CanaryError("Kiro Crew desktop feed contract changed")
     return {"version": versions[0]}
@@ -700,7 +726,11 @@ def _prepare(root: Path, scratch: Path, runner_temp: Path) -> dict[str, Any]:
         target["manifest_sha256"] = hashlib.sha256(manifest).hexdigest()
         archive_path = scratch / CLI_ARCHIVE_NAME
         _download_archive(target, archive_path)
-        _extract_binaries(archive_path, scratch / "bin")
+        _extract_binaries(
+            archive_path,
+            scratch / "bin",
+            expected_sizes=_pinned_binary_sizes(target),
+        )
         archive_path.unlink()
         runtime = _probe_runtime(root, scratch, target["version"])
         state = {
@@ -764,7 +794,9 @@ def _finalize(scratch: Path, runner_temp: Path) -> dict[str, Any]:
     discovery_validated = (
         state.get("runtime", {}).get("workspace_agent_discovery_validated") is True
     )
-    gate = "pass" if pin_status == "match" and inventory_validated and discovery_validated else "fail"
+    gate = (
+        "pass" if pin_status == "match" and inventory_validated and discovery_validated else "fail"
+    )
     report = {**state, "gate": gate}
     print(json.dumps(report, separators=(",", ":"), sort_keys=True))
     if pin_status != "match":
@@ -824,9 +856,7 @@ def main(argv: list[str] | None = None) -> int:
                 json.dumps(
                     {
                         "phase": "inventory-validated",
-                        "model_inventory_sha256": state["runtime"][
-                            "model_inventory_sha256"
-                        ],
+                        "model_inventory_sha256": state["runtime"]["model_inventory_sha256"],
                     },
                     separators=(",", ":"),
                     sort_keys=True,

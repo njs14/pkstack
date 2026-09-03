@@ -106,9 +106,7 @@ def assert_pin_contract(texts: dict[str, str]) -> None:
             text,
             f"{label} checksum",
         )
-        probe = _one(
-            r'= "kiro-cli ([0-9]+\.[0-9]+\.[0-9]+)"$', text, f"{label} version probe"
-        )
+        probe = _one(r'= "kiro-cli ([0-9]+\.[0-9]+\.[0-9]+)"$', text, f"{label} version probe")
         if (url_version, archive_version, checksum, probe) != (
             version,
             version,
@@ -119,9 +117,7 @@ def assert_pin_contract(texts: dict[str, str]) -> None:
 
     setup = texts["runtime-setup"]
     setup_sha = _one(r"^expected_sha256=([0-9a-f]{64})$", setup, "runtime setup SHA")
-    setup_version = _one(
-        r'= "kiro-cli ([0-9]+\.[0-9]+\.[0-9]+)"$', setup, "runtime setup version"
-    )
+    setup_version = _one(r'= "kiro-cli ([0-9]+\.[0-9]+\.[0-9]+)"$', setup, "runtime setup version")
     if (setup_sha, setup_version) != (sha256, version):
         raise AssertionError("runtime setup pin tuple diverged")
 
@@ -131,9 +127,7 @@ def assert_pin_contract(texts: dict[str, str]) -> None:
         runtime_canary,
         "canary version",
     )
-    canary_sha = _one(
-        r'^PINNED_CLI_SHA256 = "([0-9a-f]{64})"$', runtime_canary, "canary SHA"
-    )
+    canary_sha = _one(r'^PINNED_CLI_SHA256 = "([0-9a-f]{64})"$', runtime_canary, "canary SHA")
     canary_size = _one(r"^PINNED_CLI_SIZE = ([0-9_]+)$", runtime_canary, "canary size")
     if (canary_version, canary_sha, canary_size) != (
         version,
@@ -193,11 +187,120 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
                     info = tarfile.TarInfo(name)
                     info.size = len(body)
                     archive.addfile(info, io.BytesIO(body))
-            extracted = canary._extract_binaries(archive_path, bin_dir)
+            extracted = canary._extract_binaries(
+                archive_path,
+                bin_dir,
+                expected_sizes={
+                    "kirocli/bin/kiro-cli": 3,
+                    "kirocli/bin/kiro-cli-chat": 4,
+                },
+            )
             self.assertEqual(extracted["kiro-cli"].read_bytes(), b"cli")
             self.assertEqual(extracted["kiro-cli-chat"].read_bytes(), b"chat")
             self.assertFalse((bin_dir / "file").exists())
             self.assertEqual(extracted["kiro-cli"].stat().st_mode & 0o777, 0o500)
+
+    def test_pinned_archive_member_sizes_are_exact_and_bounded(self) -> None:
+        self.assertEqual(
+            canary.PINNED_BINARY_SIZES,
+            {
+                "kirocli/bin/kiro-cli": 113_921_088,
+                "kirocli/bin/kiro-cli-chat": 838_911_376,
+            },
+        )
+        self.assertLessEqual(max(canary.PINNED_BINARY_SIZES.values()), canary.MAX_BINARY_BYTES)
+        self.assertLessEqual(canary.MAX_BINARY_BYTES, 1024 * 1024 * 1024)
+        bodies = {
+            "kirocli/bin/kiro-cli": b"cli",
+            "kirocli/bin/kiro-cli-chat": b"chat",
+        }
+        for changed_name in bodies:
+            with (
+                self.subTest(changed_name=changed_name),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
+                root = Path(temporary)
+                archive_path = root / "runtime.tar.xz"
+                bin_dir = root / "bin"
+                bin_dir.mkdir()
+                with tarfile.open(archive_path, "w:xz") as archive:
+                    for name, body in bodies.items():
+                        info = tarfile.TarInfo(name)
+                        info.size = len(body)
+                        archive.addfile(info, io.BytesIO(body))
+                expected = {name: len(body) for name, body in bodies.items()}
+                expected[changed_name] += 1
+                with self.assertRaisesRegex(canary.CanaryError, "member size changed"):
+                    canary._extract_binaries(
+                        archive_path,
+                        bin_dir,
+                        expected_sizes=expected,
+                    )
+                self.assertFalse((bin_dir / changed_name.rsplit("/", 1)[-1]).exists())
+
+    def test_unpinned_archive_uses_only_the_generic_member_bound(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive_path = root / "runtime.tar.xz"
+            bin_dir = root / "bin"
+            bin_dir.mkdir()
+            with tarfile.open(archive_path, "w:xz") as archive:
+                for name, body in (
+                    ("kirocli/bin/kiro-cli", b"cli"),
+                    ("kirocli/bin/kiro-cli-chat", b"chat"),
+                ):
+                    info = tarfile.TarInfo(name)
+                    info.size = len(body)
+                    archive.addfile(info, io.BytesIO(body))
+            extracted = canary._extract_binaries(archive_path, bin_dir)
+            self.assertEqual(set(extracted), {"kiro-cli", "kiro-cli-chat"})
+
+    def test_archive_member_above_generic_bound_fails_before_extractfile(self) -> None:
+        class OversizedMember:
+            name = "kirocli/bin/kiro-cli-chat"
+            size = canary.MAX_BINARY_BYTES + 1
+
+            @staticmethod
+            def isfile() -> bool:
+                return True
+
+        class FakeArchive:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args: object) -> None:
+                return None
+
+            def __iter__(self):
+                return iter([OversizedMember()])
+
+            @staticmethod
+            def extractfile(member: object) -> None:
+                del member
+                raise AssertionError("oversized member must fail before extraction")
+
+        with (
+            tempfile.TemporaryDirectory() as temporary,
+            mock.patch.object(canary.tarfile, "open", return_value=FakeArchive()),
+        ):
+            bin_dir = Path(temporary) / "bin"
+            bin_dir.mkdir()
+            with self.assertRaisesRegex(canary.CanaryError, "member size is invalid"):
+                canary._extract_binaries(Path(temporary) / "unused.tar.xz", bin_dir)
+            self.assertEqual(list(bin_dir.iterdir()), [])
+
+    def test_only_the_complete_pin_tuple_enables_exact_member_sizes(self) -> None:
+        target = canary._parse_manifest(manifest())
+        self.assertIs(canary._pinned_binary_sizes(target), canary.PINNED_BINARY_SIZES)
+        mutations = {
+            "version": "2.22.0",
+            "sha256": "a" * 64,
+            "download_url": canary.PINNED_CLI_URL.replace("2.21.0", "2.20.0"),
+            "size": canary.PINNED_CLI_SIZE - 1,
+        }
+        for field, value in mutations.items():
+            with self.subTest(field=field):
+                self.assertIsNone(canary._pinned_binary_sizes({**target, field: value}))
 
     def test_archive_extraction_rejects_linked_executable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -274,9 +377,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
             + [f"  {name:<30} Workspace description" for name in canary.EXPECTED_AGENTS]
             + ["  global-helper                  Global description"]
         ).encode()
-        self.assertEqual(
-            canary._workspace_agents(output), tuple(sorted(canary.EXPECTED_AGENTS))
-        )
+        self.assertEqual(canary._workspace_agents(output), tuple(sorted(canary.EXPECTED_AGENTS)))
         with self.assertRaisesRegex(canary.CanaryError, "duplicate"):
             canary._workspace_agents(output + b"\n  pstack Workspace duplicate\n")
 
@@ -287,9 +388,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
             (
                 0,
                 b"",
-                "\n".join(
-                    f"  {name:<30} Workspace ok" for name in canary.EXPECTED_AGENTS
-                ).encode(),
+                "\n".join(f"  {name:<30} Workspace ok" for name in canary.EXPECTED_AGENTS).encode(),
             ),
         ]
         with tempfile.TemporaryDirectory() as temporary:
@@ -304,9 +403,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
             [command[1:3] for command in commands[1:-1]],
             [["agent", "validate"]] * len(canary.EXPECTED_AGENTS),
         )
-        self.assertTrue(
-            all(Path(command[0]).name == "kiro-cli-chat" for command in commands[1:])
-        )
+        self.assertTrue(all(Path(command[0]).name == "kiro-cli-chat" for command in commands[1:]))
         self.assertEqual(commands[-1][1:], ["agent", "list"])
         self.assertEqual(Path(commands[-1][0]).name, "kiro-cli-chat")
         self.assertFalse(any("chat" in command[1:] for command in commands))
@@ -412,9 +509,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
                     },
                 )
                 with (
-                    mock.patch.dict(
-                        os.environ, {"KIRO_API_KEY": "sentinel-secret"}, clear=False
-                    ),
+                    mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}, clear=False),
                     mock.patch.object(canary, "_run_bounded", return_value=reply),
                     self.assertRaisesRegex(canary.CanaryError, "credential material"),
                 ):
@@ -422,8 +517,11 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
 
     def test_observation_parser_failures_are_non_gating(self) -> None:
         for error in (LookupError("unknown encoding"), TypeError("shape")):
-            with self.subTest(error=type(error).__name__), mock.patch.object(
-                canary, "_fetch_bytes", return_value=b"x" * canary.MAX_OBSERVATION_BYTES
+            with (
+                self.subTest(error=type(error).__name__),
+                mock.patch.object(
+                    canary, "_fetch_bytes", return_value=b"x" * canary.MAX_OBSERVATION_BYTES
+                ),
             ):
                 result = canary._safe_observation(
                     "advisory", "https://kiro.dev/llms.txt", mock.Mock(side_effect=error)
@@ -486,13 +584,9 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         self.assertIn('cron: "23 11 * * 1"', workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("permissions: {}", workflow)
-        self.assertNotIn(
-            "    env:\n      CANARY_ROOT: ${{ runner.temp }}", workflow
-        )
+        self.assertNotIn("    env:\n      CANARY_ROOT: ${{ runner.temp }}", workflow)
         self.assertEqual(
-            workflow.count(
-                "CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary"
-            ),
+            workflow.count("CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary"),
             4,
         )
         self.assertNotIn("actions/upload-artifact", workflow)
@@ -567,12 +661,8 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         )
         self.assertIsNotNone(candidate_gate)
         candidate_body = candidate_gate.group("body")  # type: ignore[union-attr]
-        self.assertIn(
-            '-z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN"', candidate_body
-        )
-        self.assertIn(
-            '-n "$ANTHROPIC_API_KEY" && -n "$CLAUDE_CODE_OAUTH_TOKEN"', candidate_body
-        )
+        self.assertIn('-z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN"', candidate_body)
+        self.assertIn('-n "$ANTHROPIC_API_KEY" && -n "$CLAUDE_CODE_OAUTH_TOKEN"', candidate_body)
 
     def test_all_active_cli_pin_copies_are_one_derived_tuple(self) -> None:
         version = canary.PINNED_CLI_VERSION
