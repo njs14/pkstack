@@ -517,6 +517,7 @@ def _grep_input_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace
     )
     if isinstance(raw_input, dict):
         case_sensitive = raw_input.get("caseSensitive")
+        has_explanation = "explanation" in raw_input
         explanation = raw_input.get("explanation")
         query = raw_input.get("query")
         facts.update(
@@ -526,8 +527,10 @@ def _grep_input_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace
                     "type": _diagnostic_type(case_sensitive),
                 },
                 "explanation": {
-                    "matches_validator_contract": isinstance(explanation, str)
-                    and 0 < len(explanation.encode("utf-8")) <= 512,
+                    "matches_validator_contract": not has_explanation
+                    or (
+                        isinstance(explanation, str) and 0 < len(explanation.encode("utf-8")) <= 512
+                    ),
                     "type": _diagnostic_type(explanation),
                 },
                 "include_pattern": _diagnostic_path(
@@ -673,16 +676,17 @@ def _validate_grep_group(group: list[tuple[int, dict[str, Any]]]) -> None:
     }:
         raise StreamError("Kiro grep start shape is invalid")
     raw_input = start.get("rawInput")
-    if not isinstance(raw_input, dict) or set(raw_input) != {
-        "caseSensitive",
-        "explanation",
-        "includePattern",
-        "query",
-    }:
+    required_input_keys = {"caseSensitive", "includePattern", "query"}
+    if (
+        not isinstance(raw_input, dict)
+        or not required_input_keys <= set(raw_input)
+        or set(raw_input) - required_input_keys not in (set(), {"explanation"})
+    ):
         raise StreamError("Kiro grep input shape is invalid")
-    explanation = _bounded_text(raw_input.get("explanation"), label="grep explanation")
-    if len(explanation.encode("utf-8")) > 512:
-        raise StreamError("Kiro grep explanation exceeds its bound")
+    if "explanation" in raw_input:
+        explanation = _bounded_text(raw_input["explanation"], label="grep explanation")
+        if len(explanation.encode("utf-8")) > 512:
+            raise StreamError("Kiro grep explanation exceeds its bound")
     if (
         start.get("kind") != "search"
         or start.get("title") != "Grep Search"

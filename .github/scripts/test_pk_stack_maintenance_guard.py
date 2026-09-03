@@ -2009,6 +2009,21 @@ class KiroPermissionStreamTests(unittest.TestCase):
             self.assertEqual(allowed["user_tool_calls"], 9)
             self.assertEqual(allowed["credit_usage"], 0.25)
 
+            without_explanation = self.complete_events(workspace)
+            for event in without_explanation[5:8]:
+                event["data"]["update"]["rawInput"].pop(  # type: ignore[index]
+                    "explanation", None
+                )
+            self.write_stream(stream, without_explanation)
+            optional_explanation = permission_stream_guard.validate_allowed_invocation(
+                stream,
+                stderr,
+                return_code=0,
+                api_key="test-secret",
+                workspace=workspace,
+            )
+            self.assertEqual(optional_explanation["user_tool_calls"], 9)
+
             resource = permission_stream_guard.DENIED_RESOURCES[0]
             denied_events = self.complete_events(workspace, denied_resource=resource)
             self.write_stream(stream, denied_events)
@@ -2160,7 +2175,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
             self.assertEqual(facts["unexpected_key_count"], 1)
             self.assertFalse(facts["case_sensitive"]["matches_expected"])
             self.assertEqual(facts["case_sensitive"]["type"], "string")
-            self.assertFalse(facts["explanation"]["matches_validator_contract"])
+            self.assertTrue(facts["explanation"]["matches_validator_contract"])
             self.assertEqual(facts["explanation"]["type"], "null")
             self.assertEqual(
                 facts["include_pattern"]["classification"], "other_string"
