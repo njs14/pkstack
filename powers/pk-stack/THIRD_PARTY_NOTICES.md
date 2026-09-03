@@ -10,8 +10,9 @@ This project is an independent Kiro-native semantic port informed by selected
 workflow contracts in Cursor's public pstack plugin.
 
 - Project: `cursor/plugins`, `pstack/` subtree
-- Source: <https://github.com/cursor/plugins/tree/b9ddc83c32972210b8a94d389130713e8eed346e/pstack>
-- Pinned commit: `b9ddc83c32972210b8a94d389130713e8eed346e`
+- Genesis source: <https://github.com/cursor/plugins/tree/b9ddc83c32972210b8a94d389130713e8eed346e/pstack>
+- Genesis commit: `b9ddc83c32972210b8a94d389130713e8eed346e`
+- Accepted pin: `7314f723a487ec406b6369fe5865ba034cfed166`
 - Copyright: Copyright (c) 2026 Lauren Tan
 - License: MIT
 - Detailed file-level provenance: [`docs/provenance.md`](docs/provenance.md)

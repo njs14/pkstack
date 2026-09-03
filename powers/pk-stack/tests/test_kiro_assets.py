@@ -33,6 +33,7 @@ EXPECTED_SKILLS = (
     | PK_ONLY_SKILLS
     | CURATED_SKILLS
 )
+REPO_ROOT = ROOT.parents[1]
 ALLOWED_SKILL_FRONTMATTER = {"name", "description", "compatibility"}
 ALLOWED_TOOLS = {"read", "write", "shell", "subagent", "knowledge"}
 ALLOWED_HOOK_TRIGGERS = {
@@ -104,6 +105,22 @@ def test_skill_frontmatter_matches_agent_skills_standard(skill_name: str) -> Non
 def test_only_expected_skill_directories_are_present() -> None:
     actual = {path.parent.name for path in SKILLS.glob("*/SKILL.md")}
     assert actual == EXPECTED_SKILLS
+
+
+def test_compatibility_document_inventory_counts_match_assets() -> None:
+    text = (ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8")
+    upstreams = json.loads(
+        (REPO_ROOT / "maintenance" / "upstreams.json").read_text(encoding="utf-8")
+    )["sources"]
+    workspace_agents = list((REPO_ROOT / ".kiro" / "agents").glob("*.json"))
+    shipped_agents = list(AGENTS.glob("*.json"))
+    materialized_skills = EXPECTED_SKILLS - {"setup-pstack"}
+
+    assert f"The {len(upstreams)} repositories in `maintenance/upstreams.json`" in text
+    assert f"validates all {len(workspace_agents)} workspace-agent files" in text
+    assert f"The other {len(materialized_skills)} workflow skills" in text
+    assert f"all {len(shipped_agents)} shipped Power profiles" in text
+    assert "`pstack-maintainer` and `pstack-ci-reviewer` CI profiles" in text
 
 
 def test_upstream_skill_parity_inventory_is_complete_and_rendered() -> None:

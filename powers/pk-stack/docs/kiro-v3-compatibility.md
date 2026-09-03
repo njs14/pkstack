@@ -54,14 +54,14 @@ discovery evidence.
 
 ## Automated product-drift canary
 
-The four repositories in `maintenance/upstreams.json` are PK-Stack's autonomous update sources.
+The 6 repositories in `maintenance/upstreams.json` are PK-Stack's autonomous update sources.
 Kiro product/runtime/documentation state is deliberately separate: the weekly and manually
 dispatchable `.github/workflows/pk-stack-kiro-runtime-canary.yml` is read-only and never promotes a
 pin or creates a candidate branch.
 
 The canary resolves the official stable Kiro CLI manifest, selects exactly the x86_64 Linux
 headless `tar.xz`, downloads and checksum-verifies the advertised binary, checks its reported
-version, validates all five workspace-agent files, requires their exact `Workspace` discovery, and
+version, validates all 6 workspace-agent files, requires their exact `Workspace` discovery, and
 strictly validates the live `--list-models` inventory without sending a model turn. A newer stable
 tuple or any runtime regression fails red. `KIRO_API_KEY` is available only to the inventory step
 after version, SHA-256, derived URL, and size exactly match the reviewed pin; an advertised
@@ -262,7 +262,7 @@ After bootstrap, skills use `.pstack/bin/projectctl`, never repository
 Setup remains Power-local and is cached under
 `.pstack/projectctl/skills/setup-pstack/`; bootstrap deliberately does not copy
 it to `.kiro/skills/`, where an older workspace copy could shadow an upgraded
-Power. The other 48 workflow skills are materialized in the workspace. Kiro's
+Power. The other 50 workflow skills are materialized in the workspace. Kiro's
 current [Agent Skills documentation](https://kiro.dev/docs/skills/) describes
 progressive disclosure: metadata is discovered first and the full skill body is
 loaded only when activated. It documents workspace skills across IDE, CLI, Web,
@@ -288,9 +288,9 @@ Kiro agent session.
 
 ### Custom agents
 
-PK-Stack uses JSON profiles because all four Power profiles validate with the
+PK-Stack uses JSON profiles because all 4 shipped Power profiles validate with the
 installed `kiro-cli agent validate`; the source repository also has the
-separately constrained `pstack-maintainer` CI profile. Every repository
+separately constrained `pstack-maintainer` and `pstack-ci-reviewer` CI profiles. Every repository
 workspace profile must both validate and appear in `agent list`. Each Power
 profile explicitly declares:
 
