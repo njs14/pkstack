@@ -167,6 +167,7 @@ because the provider envelope does not independently attest effort:
     --allowed-tools "Read,Glob,Grep" \
     --model claude-fable-5-1 \
     --effort xhigh \
+    --setting-sources "" \
     --no-session-persistence \
     --safe-mode \
     --restricted \
