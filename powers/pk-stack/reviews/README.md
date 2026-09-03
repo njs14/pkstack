@@ -29,14 +29,22 @@ permissions, the strict OS sandbox, and an explicit built-in tool allowlist.
 The primary Codex implementation loop must run and preserve the actual
 validation commands.
 
-## Local CLI snapshot
+## Local CLI snapshot and current policy
 
-Observed on 2026-09-01:
+The historical environment below was observed on 2026-09-01. Its Fable `max`
+value records the actual completed acceptance run and is not rewritten:
 
 | Reviewer | Installed CLI | Required model selection | Effort |
 | --- | --- | --- | --- |
 | Fable | Claude Code `2.1.252` | `claude-fable-5-1` | `max` |
 | Grok | Grok Build CLI `1.0.13` | `grok-4.6` | `xhigh` |
+
+Prospective council runs use this policy:
+
+| Reviewer | Required model selection | Effort |
+| --- | --- | --- |
+| Fable | `claude-fable-5-1` | `xhigh` |
+| Grok | `grok-4.6` | `xhigh` |
 
 Use the canonical Fable model ID `claude-fable-5-1`, not the `fable` alias.
 The installed Claude Code client predates its local model-table entry and may
@@ -98,7 +106,7 @@ chmod -R a-w "$FABLE_REVIEW_ROOT"
     --tools "Read,Glob,Grep" \
     --allowed-tools "Read,Glob,Grep" \
     --model claude-fable-5-1 \
-    --effort max \
+    --effort xhigh \
     --no-session-persistence \
     --safe-mode \
     --restricted \

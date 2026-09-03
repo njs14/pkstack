@@ -13,6 +13,7 @@ from typing import Any, Literal
 GoalStatus = Literal["active", "passed", "exhausted"]
 ContractSource = Literal["explicit", "feature-map", "spec"]
 CheckStatus = Literal["pass", "warn", "fail"]
+EvidenceVerdict = Literal["VERIFIED", "NOT VERIFIED", "INCONCLUSIVE"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -186,6 +187,30 @@ def _require_int(data: dict[str, Any], key: str) -> None:
 
 
 @dataclass(frozen=True, slots=True)
+class FeatureSubFeature:
+    """One independently nameable behavior within a user-facing feature."""
+
+    identifier: str
+    behavior: str
+
+    def to_dict(self) -> dict[str, str]:
+        return asdict(self)
+
+
+@dataclass(frozen=True, slots=True)
+class FeatureEntrypoint:
+    """A user path paired with its exact drive recipe and observable proof."""
+
+    identifier: str
+    user_path: str
+    drive: str
+    observable: str
+
+    def to_dict(self) -> dict[str, str]:
+        return asdict(self)
+
+
+@dataclass(frozen=True, slots=True)
 class FeatureSpec:
     slug: str
     title: str
@@ -195,11 +220,54 @@ class FeatureSpec:
     command: tuple[str, ...] | None
     related: tuple[str, ...]
     draft: bool
+    schema_version: int = 1
+    sub_features: tuple[FeatureSubFeature, ...] = ()
+    entrypoints: tuple[FeatureEntrypoint, ...] = ()
+    gotchas: tuple[str, ...] = ()
+    evidence_boundary: str = ""
+    cleanup_boundary: str = ""
+    legacy_extensions: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
         data["command"] = list(self.command) if self.command else None
         data["related"] = list(self.related)
+        data["sub_features"] = [item.to_dict() for item in self.sub_features]
+        data["entrypoints"] = [item.to_dict() for item in self.entrypoints]
+        data["gotchas"] = list(self.gotchas)
+        data["legacy_extensions"] = list(self.legacy_extensions)
+        data["migration_required"] = self.schema_version < 2
+        return data
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceReference:
+    """A workspace-contained artifact pointer with optional content binding."""
+
+    path: str
+    sha256: str | None = None
+
+    def to_dict(self) -> dict[str, str | None]:
+        return asdict(self)
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceEvent:
+    """One bounded public decision/evidence checkpoint; never hidden reasoning."""
+
+    schema_version: int
+    sequence: int
+    timestamp: str
+    requirement: str
+    evidence: str
+    decision: str
+    artifact: EvidenceReference | None
+    verification: str
+    verdict: EvidenceVerdict
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data["artifact"] = self.artifact.to_dict() if self.artifact else None
         return data
 
 

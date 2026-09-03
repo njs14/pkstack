@@ -2,9 +2,11 @@
 
 ## Purpose and boundary
 
-PK-Stack adds verified-development workflow semantics to an ordinary
-interactive Kiro CLI V3 session. It is a Power plus a thin repo-local control
-surface, not another agent runtime.
+PK-Stack adds verified-development workflow semantics to a current Kiro agent
+session. Kiro CLI v3 and Kiro IDE 1.x chat/Agent Focus are the primary
+surfaces; Kiro Crew is a compatible optional orchestrator; Kiro Web consumes
+committed workspace assets by design but is untested. PK-Stack is a Power plus
+a thin repo-local control surface, not another agent runtime.
 
 The governing rule is:
 
@@ -21,7 +23,7 @@ The design exposes three project interfaces:
 | Other `Wiki/`/OKF material | **KNOW** — architecture, decisions, concepts, and operations | Optional canonical OKF implementation |
 
 The versioned Kiro surface is documented in
-[Kiro CLI v3 compatibility](kiro-v3-compatibility.md). Operational commands and
+[Kiro surface compatibility](kiro-v3-compatibility.md). Operational commands and
 recovery procedures are in [Usage](usage.md). Porting provenance is in
 [Provenance and porting boundary](provenance.md).
 
@@ -29,8 +31,11 @@ recovery procedures are in [Usage](usage.md). Porting provenance is in
 
 ```mermaid
 flowchart TD
-    U[User in current kiro-cli --v3 session]
-    K[Kiro V3 execution and orchestration]
+    U[User in current Kiro agent session]
+    I[Primary clients: IDE 1.x chat or Agent Focus and CLI v3]
+    CW[Optional Kiro Crew orchestration]
+    W[Kiro Web repository path: untested]
+    K[Kiro shared agent harness]
     A[Skills, steering, custom agents, native subagents]
     C[Repo-local projectctl Cyclopts adapter]
     S[Typed Python services]
@@ -41,7 +46,12 @@ flowchart TD
     O[Optional canonical okn process]
     P[Project files and verifier programs]
 
-    U --> K
+    U --> I
+    U -. optional .-> CW
+    U -. supported by design .-> W
+    I --> K
+    CW -->|Kiro CLI over ACP| K
+    W --> K
     K --> A
     A -->|permission-gated commands| C
     C --> S
@@ -88,6 +98,12 @@ The cached controller's `setup` command requires an explicit reviewed
 `--power-root`; without one it fails instead of treating its own cached files
 as a current Power.
 
+Kiro steering preserves two upstream pervasive triggers without copying
+Cursor-only skill frontmatter. `pstack-unslop.md` is always included, while
+`pstack-typescript.md` uses Kiro's native `fileMatch` mode with the exact
+`**/*.ts` and `**/*.tsx` patterns. Their on-demand skills retain the fuller
+workflow and references.
+
 A bootstrapped project contains:
 
 ```text
@@ -108,7 +124,7 @@ A bootstrapped project contains:
 ├── .kiro/
 │   ├── agents/*.json
 │   ├── hooks/*.json
-│   ├── skills/*/SKILL.md                 # five workspace workflow skills
+│   ├── skills/*/SKILL.md                 # 47 live workflow skills; setup stays Power-local
 │   └── steering/*.md
 └── Wiki/features/
     └── README.md
@@ -213,8 +229,10 @@ exit codes. Domain behavior remains in ordinary Python services:
 | `discovery.py` | Read-only repository inventory |
 | `doctor.py` | Receipt-wide, runtime, Kiro-asset, feature-map, ignore, and goal-state checks |
 | `features.py` | Feature generation, loading, validation, lookup, and proof binding |
+| `evidence.py` | Bounded local decision/evidence JSONL, reference validation, locking, and audit |
 | `goal.py` | Single-goal state machine, locking, integrity checks, and audit history |
 | `runner.py` | Shell-free process execution, hazard screen, timeout, and bounded evidence |
+| `upstreams.py` | Strict manifest/review ledger, fixed-origin GitHub reproof, generated parity, and transactional pin acceptance |
 | `knowledge.py` | Optional subprocess boundary to canonical `okn` tooling |
 | `paths.py` | Lexical workspace containment and symlink-component rejection |
 | `models.py` | Strict typed wire values and status vocabulary |
@@ -224,11 +242,77 @@ emit `ok: false`, `error`, and `error_type`. An executed verifier records its
 exit code, stdout, stderr, duration, timeout status, truncation status, and
 start time.
 
+### Hash-pinned upstream maintenance
+
+`upstream check` treats `maintenance/upstreams.json`, its required
+`maintenance/upstream-reviews.json` ledger, and all remote responses as untrusted data. Both local
+files have exact schemas; project-relative manifest, ledger, and provenance paths reject traversal
+and every symlink component. Each ledger source is bound to the manifest repository, subtree, and
+provenance identity. Its genesis and 8 MiB byte-bounded transition list (with a conservative
+512-entry parser ceiling) must form one strict contiguous chain whose tip exactly equals the manifest pin.
+Each transition binds prior/new commit and subtree identities, the exact inventory digest, and one
+bounded, nonempty A/B/C rationale per changed path.
+Remote reads use `GET` only, disable ambient proxies and redirects, and are restricted before and
+after the request to `https://api.github.com`. The optional `GITHUB_TOKEN` appears only in the
+Authorization header. Timeouts, each response body, commit count, file count, tree entries, each
+patch, and aggregate patch bytes are bounded; the timeout is one aggregate network budget rather
+than a fresh allowance for every request.
+
+For each source, the service resolves the pinned commit and current ref, walks the configured
+subtree by content-addressed tree SHA, and reproofs the manifest pin. A changing ref must compare
+as a bounded fast-forward whose base and merge base equal the pin and whose complete commit page
+ends at the resolved head. It independently compares recursive pinned/current subtree trees and
+requires GitHub's source-scoped compare records to account for that exact path set. The resulting
+patches are escaped JSON text marked untrusted. Every hunk's actual body additions and deletions
+must match both its hunk header and GitHub's metadata. For text changes, the service fetches only
+the exact pinned blob, recomputes its Git object ID, applies the patch as data, and requires the
+resulting Git object ID and size to equal the current subtree identity. Added text starts from an
+empty byte string and removed text must end as one. Changed entries expose both old and new
+type/mode/SHA/size identities; only regular blobs in mode `100644` or `100755` are supported, so
+executable-bit changes are reviewable while symlinks and submodules fail closed. A canonical
+SHA-256 binds the repository, exact base, head, source path, both identities, metadata,
+reviewability class, and content. A missing patch fails for semantic content changes; only a
+zero-count top-level raster asset, an exact-blob pure rename, or an exact-blob mode-only change is
+permitted without one. Unavailable raster paths are machine-listed and require disposition B.
+Nothing from upstream is executed. The complete ledger chain is validated locally. The latest accepted
+transition is re-fetched and its remote identities, fast-forward relationship, inventory digest,
+and exact disposition path set are re-proved; Git history is the tamper-evident authority for
+older committed ledger entries, keeping network work constant as history grows. An explicit
+`--power-root` adds a bootstrap dry run with
+`update_managed=True`, then reports whether canonical and managed outputs have any pending change;
+the check never applies that preview.
+
+At the current 27-path shape, a 400-byte rationale per path fits the 512-entry ceiling: roughly
+9.8 years of weekly transitions. Maximum-length rationales can reach the 8 MiB byte bound sooner
+(roughly 2.7 years at that same path count). Before either limit, maintainers must perform an
+explicit reviewed, tamper-evident archive migration; the checker never rolls history over or drops
+evidence automatically. The 20 MiB recovery-journal bound is tested against near-8 MiB before and
+after ledgers.
+
+`upstream accept` is the only machine path that advances a self-maintenance pin. It requires the
+exact default manifest, canonical Power root, ephemeral `.pk-stack-maintenance/proposal.json`, and
+an explicit expected head. It freshly runs the same reproof and parity checks, requires one
+proposal transition to match the old pin, resolved head/subtree, inventory digest, and exhaustive
+path set, and supports a no-write `--dry-run`. The applying form journals and atomically replaces
+the normalized ledger and manifest, can complete an interrupted transaction on the same
+expected-head-bound rerun, and consumes all `.pk-stack-maintenance` state. It never edits
+provenance, the Power, or any upstream content.
+
+The ledger and its full ordered list of canonical `pk-stack-upstream-review` provenance markers
+are the machine-authoritative transition record. The checker binds every marker 1:1 to its ledger
+transition, not only the latest marker. Surrounding human-readable provenance prose is descriptive
+and must remain accurate, but it is not parsed as transition authority. Ordinary `upstream check`
+requires exact marker/ledger equality. Only the internal acceptance preproof permits one additional
+tail marker, and only when it is byte-semantically bound to the strictly parsed proposal; an extra,
+replaced, or reordered marker still fails. Once accepted, the appended ledger transition restores
+ordinary exact equality.
+
 ## Feature maps: the PROVE interface
 
-A feature contract is Markdown under `Wiki/features/`. Its frontmatter has:
+A feature contract is Markdown under `Wiki/features/`. Schema 2 frontmatter has:
 
 - `type: feature`;
+- `schema_version: 2`;
 - a lowercase hyphenated `slug` matching the filename;
 - a non-empty string `title`;
 - an exact boolean `draft`;
@@ -236,13 +320,40 @@ A feature contract is Markdown under `Wiki/features/`. Its frontmatter has:
   and
 - optional `related` as a list of paths relative to the feature file.
 
-The body must contain non-empty `## User behavior` and `## Expected path`
-sections. `feature validate` checks the strict schema, filename and location,
-related-path containment/existence, duplicate slugs, and verifier policy.
-A draft without a command warns; a ready contract without a command fails.
+The body retains non-empty `## User behavior` and `## Expected path` sections,
+then structurally records:
 
-`feature generate` creates a draft by default. `--ready` changes the operation
-from authoring to authoring plus initial proof:
+- one or more identifier-keyed `## Sub-features`;
+- every `## How to get to it (user POV)` entrypoint;
+- the same ordered entrypoint IDs under `## Driving it`, each with one
+  non-empty `#### Recipe` and `#### Observable proof`;
+- non-empty `## Evidence boundary` and `## Cleanup boundary`; and
+- one or more single-line `## Gotchas` bullets.
+
+`feature validate` checks this exact ordered section schema, duplicate YAML
+keys and headings, entrypoint-to-recipe coverage, filename and location,
+related-path containment/existence, duplicate slugs, and verifier policy. A
+draft without a command warns; a ready contract without a command fails.
+Every feature document is capped at 512 KiB and read through bounded binary
+I/O with strict UTF-8, pre/post size, identity, and concurrent-growth checks.
+Schema 1 contracts remain readable so an upgrade does not strand an existing
+goal, but validation emits a migration warning. `feature migrate` preserves
+the existing behavior, expected path, verifier, related paths, and draft state
+while adding the required structure. Automatic migration is permitted only
+when every byte matches projectctl's canonical schema-1 rendering. Duplicate
+known sections, pre-H2 prose, custom Verification prose, YAML comments or
+formatting, unmodeled frontmatter or verification keys, and extra sections all
+cause conservative refusal rather than data loss. Migrate those records
+manually while preserving their operator-authored content. Migrating a ready
+canonical record re-runs its verifier before replacement; failure or an exact
+byte change during proof leaves the observed record untouched.
+
+Structured `feature generate` pairs repeatable `identifier=text`
+`--entrypoint`, `--drive`, and `--entrypoint-proof` values by exact order and
+ID. Omitting all schema-2 fields preserves the legacy schema-1 interface and
+reports `migration_required: true`; new workflows should not use that fallback.
+`--ready` changes structured generation from authoring to authoring plus one
+initial proof:
 
 1. build the exact candidate Markdown without writing it;
 2. parse it back and require an exact semantic round-trip, rejecting structural
@@ -256,12 +367,77 @@ from authoring to authoring plus initial proof:
 
 A failed ready proof exits 1 and leaves a new target absent. For an existing
 target, overwrite refusal and pure input validation happen before proof, and a
-failed proof leaves the existing file unchanged. `--overwrite` is therefore a
-deliberate file-replacement option, not permission to skip proof.
+failed proof leaves the existing file unchanged. Every mutation uses one
+process/thread-safe feature-map lock. Ready generation snapshots exact target
+bytes before proof, then compares and writes under that lock; a changed target
+is not overwritten. A non-overwrite create uses an atomic hard-link install,
+so even a file planted after comparison cannot be clobbered. `--overwrite` is
+therefore a deliberate file-replacement option, not permission to skip proof
+or discard a concurrent update.
 
 Ready status records that the command passed during generation. It does not
 guarantee the repository remains green later; `feature verify` reruns the
 stored command.
+
+The initial verification-skill workflow instead supplies one bounded JSON plan
+to `feature generate-map`. The plan must contain exactly three to five complete
+schema-2 records, with unique slugs and an executable command for each.
+Projectctl validates every record, executes exactly the named
+`--representative` command once, revalidates the candidates, then writes that
+record as published and every other record as draft. A failed representative
+proof causes projectctl to write none of the map. The complete 3-5 record batch
+is staged under the same feature mutation lock; every target is snapshotted
+before proof, then rechecked for exact bytes, workspace location, and symlink
+components. New targets use atomic no-clobber installation, and overwritten
+bytes are boundedly snapshotted. If any later replace or directory sync fails,
+projectctl restores every earlier target before returning failure, so an
+ordinary I/O error cannot leave a partial or mixed map. `feature publish` then
+snapshots and compares exact bytes around its proof and surgically changes only
+the YAML `draft` scalar. Accepted H1/preamble and Verification prose remain
+byte-for-byte intact. The maintenance workflow subsequently runs
+`feature publish` once per remaining draft; each command must pass before that
+record becomes published. `feature validate` and a later live maintenance pass
+still cover the entire map—one representative proof is not evidence for the
+other entrypoints or features.
+
+## Decision/evidence trails
+
+`projectctl evidence` records a compact public audit trail, not a transcript or
+hidden reasoning. Its default target is
+`.pstack/state/evidence/<slug>/decision-log.jsonl`, beneath the setup-managed
+ignore rule. A committed trail requires both `--committed` and the exact
+`--target Wiki/evidence/<slug>/decision-log.jsonl`; a target alone, a flag
+alone, or another path fails before writing.
+
+Each canonical UTF-8 JSONL event has exactly `schema_version`, `sequence`,
+`timestamp`, `requirement`, `evidence`, `decision`, `artifact`, `verification`,
+and `verdict`. Verdict is exactly `VERIFIED`, `NOT VERIFIED`, or
+`INCONCLUSIVE`. Sequence starts at one and is contiguous. UTC timestamps are
+strictly increasing; if the host clock does not advance, the service advances
+the next timestamp by one microsecond. An existing empty ledger is invalid,
+not a successful zero-event audit. An artifact is null or one canonical
+workspace-relative regular-file path with an optional lowercase SHA-256. Path
+traversal, dot/dotdot aliases, backslash separators, absolute paths, symlink
+components, missing artifacts, and digest drift fail closed.
+
+The service caps each text field at 4 KiB, each event at 24 KiB, the ledger at
+2,048 events and 4 MiB, reference paths at 1 KiB, and explicitly hashed
+artifacts at 32 MiB. Known credential shapes and secret assignments are
+rejected without echoing the candidate value; callers record a redacted
+pointer instead. This screen cannot identify every possible secret, so the
+caller remains responsible for keeping credentials and personal data out.
+
+Append holds a POSIX lock in ignored state, validates the complete prior file,
+chooses the next sequence and timestamp, validates the complete candidate,
+then fsyncs a same-directory temporary file, atomically replaces the ledger,
+and fsyncs its directory. `evidence audit` rechecks exact keys and canonical
+encoding directly from raw bytes, every bound, LF-only record separator,
+sequence, timestamp, reference, optional digest, and secret screen. CRLF or
+mixed separators fail; a Unicode line-separator character inside a JSON string
+remains ordinary UTF-8 content in that one event. The byte-for-byte prior
+prefix is preserved by convention, but
+the ledger is not signed or tamper-proof; audit detects malformed or
+inconsistent state rather than authenticating its writer.
 
 ## Verifier execution and its safety boundary
 
@@ -283,8 +459,11 @@ forms for common build/test tools.
 The same policy is checked when a ready feature is proved, a feature map is
 validated, a goal starts, and every verifier executes. It also rejects a small
 set of context-free placeholder programs (`true`, `echo`, and similar forms)
-and direct projectctl self-verification. Predicate tools such as `test` remain
-available because they can fail based on project state. Processes run in their
+and generic projectctl self-verification. The sole self-host exception is the receipt-managed,
+executable, non-symlink `.pstack/bin/projectctl upstream check` with explicit project-contained
+manifest and Power paths, JSON output, no unknown or duplicate options, and an optional timeout
+bounded to 30 seconds. Predicate tools such as `test` remain available because they can fail based
+on project state. Processes run in their
 own process group. Output is drained concurrently into bounded head/tail
 buffers, invalid UTF-8 is replaced, timeouts kill descendants, and lingering
 descendants are killed at the end of a proof even if the parent exited.
@@ -357,7 +536,7 @@ added to `.gitignore`.
 
 The `/verified-goal` skill is the orchestration seam:
 
-1. remain in the current interactive Kiro V3 session;
+1. remain in the current Kiro agent session on the selected surface;
 2. use `.pstack/bin/projectctl` for the whole loop;
 3. inspect state and choose one executable acceptance contract;
 4. make the smallest evidence-backed change;
@@ -386,15 +565,20 @@ symlinked or escaping `Wiki` path is rejected before delegation.
 
 ## Kiro-native assets and permissions
 
-Bootstrap installs native V3 assets:
+Bootstrap installs Kiro-native assets:
 
-- five workspace Agent Skills: verified goal, architecture, arena, swarm, and
-  advisory model council;
+- 47 workspace Agent Skills spanning verified goals, architecture, investigation,
+  review, verification lifecycle, TDD, writing, TypeScript, cleanup, and
+  individually discoverable engineering principles;
 - the setup skill remains Power-local and is also cached under
   `.pstack/projectctl/skills/setup-pstack/`, so an old workspace copy cannot
   shadow an upgraded Power;
-- two small always-on steering files;
-- one primary and three bounded JSON custom-agent profiles;
+- three small always-on steering files plus a TypeScript `fileMatch` steering
+  file for `**/*.ts` and `**/*.tsx`;
+- one primary and three bounded JSON custom-agent profiles; the three read-only
+  profiles carry an empty `toolsSettings: {}` discovery sentinel required by the
+  exercised Kiro CLI 2.21.0 build, without moving authorization out of
+  `permissions.rules`;
 - a native subagent allow-list for architect, reviewer, and verifier; and
 - standalone `version: "v1"` SessionStart and Stop hook files.
 
@@ -409,15 +593,25 @@ control-plane paths are denied. Tool omission is the delegated read-only
 boundary; permission rules are defense in depth, not a subprocess sandbox.
 
 The Poteto Kiro primary profile is repository-local but is not automatically
-active. Setup hands off to `/agent swap pstack`; if discovery requires a
-restart, the documented
-launch is `kiro-cli chat --v3 --agent pstack`. Plain `--v3` continues to use
-the ambient default and does not receive these rules.
+active. In Kiro IDE 1.x, setup hands off to the chat/Agent Focus agent picker.
+In CLI v3, setup hands off to `/agent swap pstack`; if discovery requires a
+fresh pre-goal session, the documented launch is `kiro-cli chat --v3 --agent
+pstack`. Plain `--v3` continues to use the ambient default and does not receive
+these rules.
+
+Kiro Crew reads the same repository-local agents, skills, and steering when it
+orchestrates Kiro CLI. Crew may use ACP internally, but remains optional and
+does not become PK-Stack's launcher. Kiro Web reads committed project assets,
+but its built-in agent remains primary and the `pstack` profiles are available
+only as delegation targets. Web does not reproduce the IDE/CLI permission and
+interactive-approval boundary.
 
 Because that profile also sets `includePowers: false`, a later refresh stays in
-the same chat by switching to the Power-enabled setup agent, running
-`/setup-pstack`, and switching back to `pstack`. No external ACP host,
-`kiro-cli acp`, or nested Kiro process is involved.
+the same chat. IDE users select the Power-enabled setup agent and then
+`pstack` in the agent picker; CLI users run `/agent swap kiro_default`,
+`/setup-pstack`, and `/agent swap pstack` (using the actual local setup-agent
+name when different). No user-launched external ACP host, `kiro-cli acp`, or
+nested Kiro process is involved.
 
 The enabled SessionStart hook prints static orientation only. The Stop hook is
 disabled because Stop is not a documented control loop.
@@ -426,10 +620,12 @@ disabled because Stop is not a documented control loop.
 
 The normal path does not depend on:
 
-- **ACP.** No external host is required for a skill to act in the current
-  session.
-- **Native `/goal`.** Availability varies by build/account and is not claimed
-  or required.
+- **A user-launched ACP host.** No external host is required for a skill to act
+  in the current session. Kiro Crew's internal Kiro CLI/ACP connection is an
+  optional product integration, not PK-Stack's default path.
+- **Native `/goal`.** Kiro documents the command, but a sterile interactive
+  CLI 2.21.0 V3 probe treated `/goal clear` as ordinary prompt text. PK-Stack
+  does not invoke or require it; re-probe after runtime updates.
 - **A Stop-hook loop.** A post-response hook cannot be treated as a guaranteed
   next-turn scheduler.
 - **`/spawn` for fanout.** `/spawn` creates a separate user-managed session;
@@ -449,7 +645,11 @@ The normal path does not depend on:
 - Workspace path checks reject existing symlink components but cannot prevent
   another process racing the filesystem after a check.
 - Newly copied skills or the generated agent may require one explicit
-  `--agent pstack` restart for discovery. Once loaded, the verified-goal loop
-  stays in its current session.
+  CLI `--agent pstack` launch or one fresh IDE chat for discovery. Once loaded,
+  the verified-goal loop stays in its current Kiro agent session.
+- IDE 1.0.437 is a first-class structural target but has no separate GUI
+  end-to-end campaign in this snapshot.
+- Crew is compatible and optional; Web is supported by repository-local design
+  and explicitly untested. Web cannot select `pstack` as its primary agent.
 - Native knowledge support is experimental, and broad OKF behavior requires a
   separately installed canonical `okn` executable.

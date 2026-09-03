@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-03T00:40:00Z",
+  "runtime": {
+    "client": "Kiro CLI",
+    "client_version": "2.21.0",
+    "executable_sha256": "0a24ebce53f4dc5cea6fbc74e5e95e9df9787aa4ec76a5eb459959c200c59225",
+    "probe_command": "kiro-cli agent list"
+  },
+  "controlled_probe": {
+    "workspace": "disposable project-local .kiro/agents fixture",
+    "model_invoked": false,
+    "authenticated_chat_started": false,
+    "expected_workspace_agents": [
+      "pstack",
+      "pstack-architect",
+      "pstack-maintainer",
+      "pstack-reviewer",
+      "pstack-verifier"
+    ],
+    "workspace_agent_set_sha256": "2122ae5b1beb677694e05d73007e9d0a20261b69456d54fc6307036c47f2472f",
+    "field_absent_output_sha256": "acfd2441dcf8671873c9a362d8da53e5e692727a91c76c50e52575cdd06b0cc1",
+    "field_absent_observed_workspace_agents": [
+      "pstack",
+      "pstack-maintainer"
+    ],
+    "field_absent_result": "The three read-only helper profiles passed schema validation but were absent from exact Workspace rows.",
+    "empty_object_output_sha256": "8e8b7681321235e8d01d37a0445c2536b89537bf4086beb339c88f12fc018489",
+    "empty_object_observed_workspace_agents": [
+      "pstack",
+      "pstack-architect",
+      "pstack-maintainer",
+      "pstack-reviewer",
+      "pstack-verifier"
+    ],
+    "empty_object_result": "Adding an inert empty toolsSettings object to each read-only helper preserved validation and exposed all five exact Workspace rows.",
+    "raw_output_retention": "Raw output remains outside Git because global agent descriptions and local paths are unrelated account state. Only SHA-256 digests, bounded outcomes, and expected names are committed."
+  },
+  "documentation": {
+    "retrieved_at": "2026-09-03T00:40:00Z",
+    "pages": [
+      {
+        "url": "https://kiro.dev/llms.txt",
+        "sha256": "e260760ef80a9be25c6a4bf02c1aaf0915a5233412c3cb7af59d54575506da77"
+      },
+      {
+        "url": "https://kiro.dev/docs/cli/v3/agent-config.md",
+        "sha256": "3a6bba711ab56db59070466f599e590feda68730607ce00706155beac023190c"
+      },
+      {
+        "url": "https://kiro.dev/docs/custom-agents/configuration-reference.md",
+        "sha256": "80484017b11180fe9e27f9ee5f71c0e8812afa53591793d162bfb7027b99a4c3"
+      },
+      {
+        "url": "https://kiro.dev/docs/custom-agents/subagents.md",
+        "sha256": "31365d7e0996a3844be19e35db031c9676593f81d7e1f58e360a41170a29afac"
+      },
+      {
+        "url": "https://kiro.dev/docs/custom-agents.md",
+        "sha256": "4901ef1d9bb61a831849697619ca484a4b0517ac23ea3afd94de5fd399799400"
+      },
+      {
+        "url": "https://kiro.dev/docs/ide/whats-new-v1/agent-config.md",
+        "sha256": "55ff4294e193171bd7f1104912592f588b682e3852f44b2df824119781b55397"
+      },
+      {
+        "url": "https://kiro.dev/docs/crew/capabilities/agents.md",
+        "sha256": "f9be9521cfcf0f73e6aa11ba692e65f32f13c54c790901adaff6331bbc799f0d"
+      }
+    ]
+  },
+  "conclusion": "For this installed Kiro CLI 2.21.0 build, schema validation alone was insufficient loader evidence. The inert toolsSettings sentinel restored discovery without adding authority, and projectctl doctor must require exact Workspace rows before authenticated use.",
+  "limitations": [
+    "This is a point-in-time compatibility sentinel for one Kiro CLI build on macOS, not a permanent V3 schema rule.",
+    "The probe establishes local custom-agent validation and discovery only; it does not establish IDE, Web, or Crew permission parity.",
+    "Direct KAS projection into Crew does not preserve inline Kiro permission or native subagent parity.",
+    "No model turn, hosted workflow, IDE interaction, Web session, or Crew task was exercised by this probe."
+  ]
+}

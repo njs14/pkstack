@@ -102,6 +102,18 @@ authoritative version and artifact inventory for development, while
 bootstrapped repo-local runtime. Each installed distribution supplies its own
 license metadata and license files.
 
+## Kiro visual reference
+
+The private repository's `assets/logo.png` mascot is an AI-generated transformation made at the
+project owner's request with the installed Kiro application icon as a visual reference. The
+source `.icns` file is not included. The generated mascot intentionally retains the recognizable
+two-eye ghost silhouette and purple rounded-square visual language while replacing the body with
+a potato. See [`assets/README.md`](assets/README.md) for generation provenance.
+
+Kiro and its original artwork remain the property of their respective owner. This attribution
+does not claim a license, endorsement, or affiliation. Review or replace the mascot before any
+distribution whose trademark or artwork policy differs from this private-project use.
+
 ## Referenced but not redistributed
 
 Kiro, Cursor, OKF, optional external reviewer CLIs, `cursor-team-kit`, Graphite,

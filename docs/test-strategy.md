@@ -1,9 +1,10 @@
 # Test strategy
 
-PK-Stack needs evidence at four different boundaries: the canonical installable Power,
-deterministic generated-controller behavior, the real Docker-backed Floci fixture, and the
-behavior of one ordinary interactive Kiro v3 session. Passing one boundary must not be reported
-as proof of another.
+PK-Stack needs evidence at distinct boundaries: the canonical installable Power, deterministic
+generated-controller behavior, the real Docker-backed Floci fixture, and the behavior of one
+ordinary interactive Kiro CLI v3 session. Kiro IDE 1.x is a separate first-class structural
+target, Crew is a compatible optional orchestrator, and Web is supported by design but untested.
+Passing one boundary must not be reported as proof of another.
 
 ## Evidence matrix
 
@@ -16,6 +17,7 @@ as proof of another.
 | Live Floci | Docker-backed ECS service behavior, repeat deploy, business proof, exact cleanup | `doctor -> up -> deploy -> deploy -> verify -> evidence -> down` | Required on the candidate tree |
 | External judge | A mutation cannot pass by changing its verifier or protected controls | Read-only external judge and control manifest | Required during live mutation campaign |
 | Kiro current session | `/verified-goal` displays and preserves one contract through fail, repair, redeploy, pass | One interactive `kiro-cli chat --v3 --agent pstack` transcript | Passed locally; exact evidence awaits Fable disposition |
+| Cross-surface contract | IDE/CLI remain primary, Crew stays optional, Web limitations stay explicit, and skills avoid CLI-only request substitution | Kiro asset tests, installed IDE/Crew inventory, official Kiro docs, canonical support matrix | Required; structural evidence never substitutes for a surface campaign |
 | Model council | Architecture/safety acceptance and final low-level sweep | Repeated Fable 5.1 peer reviews, then Grok 4.6 sweeper | Record only after completed cleanly |
 
 Do not encode a permanent test count in this document. The suite is still evolving; each

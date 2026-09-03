@@ -2,7 +2,7 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "pk-stack",
   "version": "0.1.0",
-  "description": "PK-Stack (Poteto Kiro): verified-development workflows for Kiro CLI v3, with project operability, executable feature maps, and current-session verified goals.",
+  "description": "PK-Stack (Poteto Kiro): Kiro-native verified-development workflows with project operability, executable feature maps, and current-session verified goals.",
   "author": {
     "name": "PK-Stack contributors"
   },
@@ -18,7 +18,10 @@
     "architecture review",
     "arena",
     "swarm",
-    "Kiro CLI"
+    "Kiro CLI",
+    "Kiro IDE",
+    "Kiro Crew",
+    "Kiro Web"
   ],
   "repository": "https://github.com/njs14/pk-stack",
   "license": "Apache-2.0"

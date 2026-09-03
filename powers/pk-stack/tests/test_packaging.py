@@ -66,6 +66,10 @@ def test_wheel_assets_and_offline_installed_bootstrap_runtime(tmp_path: Path) ->
         assert f"pstack_kiro/{name}" in members
     for relative in REQUIRED_POWER_ASSETS:
         assert f"pstack_kiro/_assets/{relative}" in members
+    for source in (POWER_ROOT / "skills").rglob("*"):
+        if source.is_file():
+            relative = source.relative_to(POWER_ROOT).as_posix()
+            assert f"pstack_kiro/_assets/{relative}" in members
 
     clean_env = {
         key: value

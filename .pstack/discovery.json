@@ -10,6 +10,7 @@
   "kiro": {
     "agents": [
       ".kiro/agents/pstack-architect.json",
+      ".kiro/agents/pstack-maintainer.json",
       ".kiro/agents/pstack-reviewer.json",
       ".kiro/agents/pstack-verifier.json",
       ".kiro/agents/pstack.json"
@@ -21,15 +22,66 @@
     "present": true,
     "skills": [
       ".kiro/skills/architect/SKILL.md",
+      ".kiro/skills/architect/references/design-contract.md",
       ".kiro/skills/arena/SKILL.md",
+      ".kiro/skills/automate-me/SKILL.md",
+      ".kiro/skills/blast-radius/SKILL.md",
+      ".kiro/skills/bro/SKILL.md",
+      ".kiro/skills/create-verification-skill/SKILL.md",
+      ".kiro/skills/figure-it-out/SKILL.md",
+      ".kiro/skills/how/SKILL.md",
+      ".kiro/skills/how/references/roles-and-critique.md",
+      ".kiro/skills/interrogate/SKILL.md",
+      ".kiro/skills/interrogate/references/review-contract.md",
+      ".kiro/skills/maintain-pk-stack/SKILL.md",
+      ".kiro/skills/maintain-verification-skill/SKILL.md",
       ".kiro/skills/model-council/SKILL.md",
+      ".kiro/skills/no-comments/SKILL.md",
+      ".kiro/skills/poteto-mode/SKILL.md",
+      ".kiro/skills/poteto-mode/references/workflows.md",
+      ".kiro/skills/principle-boundary-discipline/SKILL.md",
+      ".kiro/skills/principle-build-the-lever/SKILL.md",
+      ".kiro/skills/principle-encode-lessons-in-structure/SKILL.md",
+      ".kiro/skills/principle-exhaust-the-design-space/SKILL.md",
+      ".kiro/skills/principle-experience-first/SKILL.md",
+      ".kiro/skills/principle-fix-root-causes/SKILL.md",
+      ".kiro/skills/principle-foundational-thinking/SKILL.md",
+      ".kiro/skills/principle-guard-the-context-window/SKILL.md",
+      ".kiro/skills/principle-laziness-protocol/SKILL.md",
+      ".kiro/skills/principle-make-operations-idempotent/SKILL.md",
+      ".kiro/skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md",
+      ".kiro/skills/principle-minimize-reader-load/SKILL.md",
+      ".kiro/skills/principle-model-the-domain/SKILL.md",
+      ".kiro/skills/principle-never-block-on-the-human/SKILL.md",
+      ".kiro/skills/principle-outcome-oriented-execution/SKILL.md",
+      ".kiro/skills/principle-prove-it-works/SKILL.md",
+      ".kiro/skills/principle-redesign-from-first-principles/SKILL.md",
+      ".kiro/skills/principle-separate-before-serializing-shared-state/SKILL.md",
+      ".kiro/skills/principle-sequence-verifiable-units/SKILL.md",
+      ".kiro/skills/principle-subtract-before-you-add/SKILL.md",
+      ".kiro/skills/principle-type-system-discipline/SKILL.md",
+      ".kiro/skills/principles/SKILL.md",
+      ".kiro/skills/principles/references/catalog.md",
+      ".kiro/skills/recall/SKILL.md",
+      ".kiro/skills/reflect/SKILL.md",
+      ".kiro/skills/reflect/references/lenses-and-synthesis.md",
+      ".kiro/skills/show-me-your-work/SKILL.md",
       ".kiro/skills/swarm/SKILL.md",
-      ".kiro/skills/verified-goal/SKILL.md"
+      ".kiro/skills/tdd/SKILL.md",
+      ".kiro/skills/teach/SKILL.md",
+      ".kiro/skills/technical-writing/SKILL.md",
+      ".kiro/skills/typescript-best-practices/SKILL.md",
+      ".kiro/skills/unslop/SKILL.md",
+      ".kiro/skills/verified-goal/SKILL.md",
+      ".kiro/skills/why/SKILL.md",
+      ".kiro/skills/why/references/evidence-contract.md"
     ],
     "specs": [],
     "steering": [
       ".kiro/steering/pstack-core.md",
-      ".kiro/steering/pstack-safety.md"
+      ".kiro/steering/pstack-safety.md",
+      ".kiro/steering/pstack-typescript.md",
+      ".kiro/steering/pstack-unslop.md"
     ]
   },
   "knowledge": {
@@ -49,6 +101,7 @@
     "tests"
   ],
   "verification_surfaces": [
+    ".github/workflows",
     "Wiki/features"
   ]
 }

@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "source_workflows": [
+    {
+      "name": "PK-Stack Upstream Maintenance (Kiro)",
+      "provider": "kiro",
+      "path": ".github/workflows/pk-stack-upstream-maintenance-kiro.yml"
+    },
+    {
+      "name": "PK-Stack Upstream Maintenance (Copilot fallback)",
+      "provider": "copilot",
+      "path": ".github/workflows/pk-stack-upstream-maintenance.lock.yml"
+    }
+  ],
+  "ci_authority": {
+    "path": ".kiro/agents/pstack-maintainer.json",
+    "power_managed": false,
+    "candidate_mutable": false,
+    "tools": [
+      "read",
+      "grep",
+      "write"
+    ],
+    "runtime_trust_tools": [
+      "fs_read",
+      "fs_write",
+      "grep"
+    ],
+    "tools_settings": {},
+    "resources": [
+      "file://AGENTS.md",
+      "file://.pk-stack-ci/upstream-delta.json",
+      "file://.pk-stack-ci/verification-feedback.txt"
+    ],
+    "write_patterns": [
+      ".pk-stack-maintenance/proposal.json",
+      "powers/pk-stack/README.md",
+      "powers/pk-stack/docs/upstream-skill-parity.json",
+      "powers/pk-stack/dev.kiro/**/*.md",
+      "powers/pk-stack/docs/**/*.md",
+      "powers/pk-stack/skills/**/*.md",
+      "powers/pk-stack/templates/project/**/*.json"
+    ],
+    "deny_patterns": [
+      ".github/**",
+      ".git/**",
+      ".kiro/**",
+      ".pstack/**",
+      ".pk-stack-ci/**",
+      "**/AGENTS.md",
+      "AGENTS.md",
+      "Dockerfile",
+      "Wiki/**",
+      "compose.yaml",
+      "docs/**",
+      "judge/**",
+      "labctl",
+      "maintenance/**",
+      "powers/pk-stack/docs/validation-report.md",
+      "powers/pk-stack/examples/**",
+      "powers/pk-stack/pyproject.toml",
+      "powers/pk-stack/reviews/**",
+      "powers/pk-stack/src/pstack_kiro/**",
+      "powers/pk-stack/tests/**",
+      "powers/pk-stack/uv.lock",
+      "projectctl",
+      "pyproject.toml",
+      "requirements-runtime.txt",
+      "reviews/**",
+      "src/pk_stack_lab/**",
+      "tests/**",
+      "uv.lock"
+    ]
+  },
+  "pull_request": {
+    "author_id": 41898282,
+    "author_login": "github-actions[bot]",
+    "branch_prefix": "pk-stack-upstream/",
+    "title": "[pk-stack upstream] Reconcile pinned upstream semantics"
+  },
+  "candidate_lifecycle": {
+    "workflow_name": "PK-Stack Upstream Candidate Gate",
+    "workflow_path": ".github/workflows/pk-stack-upstream-candidate.yml",
+    "run_title_prefix": "PK-Stack candidate gate for source run ",
+    "freshness_seconds": 21600
+  },
+  "fable_review": {
+    "required_for_all_candidates": true,
+    "model": "claude-fable-5-1",
+    "effort": "xhigh",
+    "action": "anthropics/claude-code-action",
+    "action_sha": "8251c103ac8c1d761882c86aba1412c7f583c844",
+    "credential_secrets": [
+      "ANTHROPIC_API_KEY",
+      "CLAUDE_CODE_OAUTH_TOKEN"
+    ]
+  },
+  "limits": {
+    "max_changed_files": 48,
+    "max_patch_bytes": 524288,
+    "max_changed_lines": 12000,
+    "max_candidate_package_bytes": 33554432,
+    "max_review_ledger_bytes": 8388608,
+    "max_review_transitions": 512
+  },
+  "agent_allowed_exact": [
+    ".pk-stack-maintenance/proposal.json",
+    "powers/pk-stack/README.md",
+    "powers/pk-stack/docs/upstream-skill-parity.json"
+  ],
+  "agent_allowed_prefixes": {
+    "powers/pk-stack/dev.kiro/": [".md"],
+    "powers/pk-stack/docs/": [".md"],
+    "powers/pk-stack/skills/": [".md"],
+    "powers/pk-stack/templates/project/": [".json"]
+  },
+  "final_allowed_exact": [
+    ".pstack/bin/projectctl",
+    ".pstack/bootstrap.json",
+    ".pstack/discovery.json",
+    ".pstack/projectctl/README.md",
+    "Wiki/features/README.md",
+    "maintenance/upstream-reviews.json",
+    "maintenance/upstreams.json",
+    "powers/pk-stack/README.md",
+    "powers/pk-stack/docs/upstream-skill-parity.json",
+    "projectctl"
+  ],
+  "final_allowed_prefixes": {
+    ".kiro/agents/": [".json"],
+    ".kiro/hooks/": [".json"],
+    ".kiro/skills/": [".md"],
+    ".kiro/steering/": [".md"],
+    ".pstack/projectctl/dev.kiro/": [".md"],
+    ".pstack/projectctl/skills/": [".md"],
+    ".pstack/projectctl/templates/project/": [".json"],
+    ".pstack/projectctl/templates/projectctl/": [".lock"],
+    "powers/pk-stack/dev.kiro/": [".md"],
+    "powers/pk-stack/docs/": [".md"],
+    "powers/pk-stack/skills/": [".md"],
+    "powers/pk-stack/templates/project/": [".json"]
+  },
+  "protected_exact": [
+    ".github/pk-stack-maintenance-policy.json",
+    ".kiro/agents/pstack-maintainer.json",
+    "AGENTS.md",
+    "Dockerfile",
+    "Wiki/features/document-export.md",
+    "Wiki/features/pk-stack-upstream-maintenance.md",
+    "compose.yaml",
+    "judge/verify_feature_contract.py",
+    "labctl",
+    "powers/pk-stack/docs/validation-report.md",
+    "pyproject.toml",
+    "requirements-runtime.txt",
+    "tests/test_power_distribution.py",
+    "tests/test_projectctl_controller.py",
+    "uv.lock"
+  ],
+  "protected_prefixes": [
+    ".github/",
+    "docs/",
+    "judge/",
+    "powers/pk-stack/examples/",
+    "powers/pk-stack/reviews/",
+    "powers/pk-stack/src/pstack_kiro/",
+    "powers/pk-stack/tests/",
+    "reviews/",
+    "src/pk_stack_lab/",
+    "tests/"
+  ]
+}

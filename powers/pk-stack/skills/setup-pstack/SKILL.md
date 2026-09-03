@@ -1,14 +1,18 @@
 ---
 name: setup-pstack
-description: Initialize or repair PK-Stack project scaffolding for Kiro CLI v3. Use when adopting PK-Stack in a repository, refreshing its feature-map and knowledge layout, or checking whether projectctl is ready.
-compatibility: Kiro CLI v3; Python 3.11 or newer, or uv, available in the workspace.
+description: Initialize or repair repository-local PK-Stack scaffolding for a Kiro workspace. Use when adopting PK-Stack, refreshing its feature-map and knowledge layout, or checking whether projectctl is ready.
+compatibility: Kiro IDE 1.x and Kiro CLI v3 for local Power bootstrap; Kiro Crew and Kiro Web consume committed post-bootstrap assets rather than invoking this setup skill; Python 3.11 or newer, or uv, available in the workspace.
 ---
 
 # Set up PK-Stack
 
-Set up the current workspace without leaving the user's current interactive Kiro session.
+Set up the current workspace without leaving the user's current Kiro agent session.
 
-Requested setup context: $ARGUMENTS
+Treat the request text that activated this skill as the setup context.
+
+This Kiro-native replacement does not enumerate or write Cursor-style per-role model slugs. Native
+sub-agents inherit the current session's selected Kiro model and effort unless the user makes another
+supported selection. Bootstrap never edits the user's global model, effort, or role settings.
 
 ## Resolve setup from this Power
 
@@ -39,6 +43,9 @@ is missing, report that exact prerequisite and stop.
 4. Run `<runner> doctor --output json`.
 5. Resolve only setup defects that are within the requested workspace. Re-run `doctor` after each material repair.
 6. If the project already has features, run `<runner> feature validate --output json` and `<runner> knowledge validate --output json`.
+7. If no project-local verification workflow covers the product's real user surface, offer
+   `create-verification-skill` as the next explicit step. Do not silently generate one during setup;
+   its repository interview and live proof need their own bounded run.
 
 Setup must be idempotent. Never overwrite a conflicting file merely to make setup appear successful. Surface the conflict with its path and the smallest safe resolution.
 
@@ -54,8 +61,9 @@ Report:
 
 Kiro discovers newly copied workspace skills at session startup. After setup,
 the generated Poteto Kiro (`pstack`) permission profile does not attach
-retroactively. Before
-the next workflow message, instruct the user to run:
+retroactively. In Kiro IDE 1.x, use the agent selector in the chat panel or
+Agent Focus and choose the workspace `pstack` agent before the next workflow
+message. In Kiro CLI v3, stay in the same chat and run:
 
 ```text
 /agent swap pstack
@@ -63,16 +71,29 @@ the next workflow message, instruct the user to run:
 
 The selected prompt, tools, and permissions take effect on the next message.
 For a later managed refresh, the `pstack` profile intentionally has no Powers.
-Stay in the same chat, run `/agent swap kiro_default`, invoke this Power-local
-`/setup-pstack`, and run `/agent swap pstack` again. If the local Power-enabled
-agent has another name, use the agent that performed initial setup.
+Stay in the same chat, temporarily select the Power-enabled setup agent, invoke
+this Power-local `/setup-pstack`, and select `pstack` again. In CLI v3 those
+agent selections can be `/agent swap kiro_default` and `/agent swap pstack`;
+if the Power-enabled agent has another name, use the agent that performed
+initial setup.
+
 If the newly scaffolded agent or `/verified-goal` is not discoverable in this
-session, instruct the user to exit and restart from the same repository with:
+session, open one fresh session from the same repository before starting a
+verified goal. In IDE 1.x, open a fresh chat/Agent Focus session and choose the
+workspace `pstack` agent. In CLI v3, exit normally and run:
 
 ```text
 kiro-cli chat --v3 --agent pstack
 ```
 
+Kiro Crew and Kiro Web consume the resulting repository-local assets only
+after this Power-local setup completes in IDE or CLI; neither uses this setup
+skill as its entry path. Crew remains an optional orchestrator. Web must
+receive the files through the cloned repository; Configuration Sync is not a
+substitute for bootstrapping and committing the complete PK-Stack workspace
+assets.
+
 Do not run a nested Kiro process, change the user's global default agent, or
 claim that the ambient setup agent received the generated ask/deny rules. Once
-selected and discovered, the entire goal loop stays in that current V3 session.
+selected and discovered, the entire goal loop stays in the current Kiro agent
+session.

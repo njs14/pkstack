@@ -1,17 +1,47 @@
 # Provenance and porting boundary
 
-PK-Stack (Poteto Kiro) is an independent Kiro CLI v3 implementation of selected
-verified-development workflow ideas from Cursor's public pstack plugin. It is
-not a copy of Cursor's runtime, a compatibility layer for Cursor tools, or a
-drop-in redistribution of the upstream plugin.
+PK-Stack (Poteto Kiro) is an independent Kiro-native implementation of the
+portable verified-development semantics across Cursor's public pstack skill
+catalog. Kiro
+CLI v3 and Kiro IDE 1.x are its primary surfaces; optional Crew compatibility
+and the supported-by-design Web path use the same repository-local workflow
+assets. It is not a copy of Cursor's runtime, a compatibility layer for Cursor
+tools, or a drop-in redistribution of the upstream plugin.
 
 ## Source snapshot
 
-The behavioral reference was the `pstack/` subtree of
+The port began from the `pstack/` subtree of
 [`cursor/plugins`](https://github.com/cursor/plugins) at commit
 [`b9ddc83c32972210b8a94d389130713e8eed346e`](https://github.com/cursor/plugins/commit/b9ddc83c32972210b8a94d389130713e8eed346e),
 retrieved on 2026-09-01. The pinned manifest identified upstream pstack as
-version `0.14.5`.
+version `0.14.5`. On 2026-09-02, the first self-maintenance campaign reviewed
+all 27 paths in a seven-commit fast-forward and accepted
+[`efa2a531985e0a8084d36ff3cf87233be8a9f34b`](https://github.com/cursor/plugins/commit/efa2a531985e0a8084d36ff3cf87233be8a9f34b),
+whose upstream manifest identifies pstack as version `0.14.7`.
+
+<!-- pk-stack-upstream-genesis: {"commit":"b9ddc83c32972210b8a94d389130713e8eed346e","path":"pstack","repository":"cursor/plugins","source_id":"cursor-pstack","subtree_sha":"950b90234c17babd00c43e32b19ae50abb4720f5"} -->
+<!-- pk-stack-upstream-review: {"inventory_sha256":"e45d7eff5baa59e8b73399b615741c4183c577ec372f8b7b33d28b7e2216caa6","new":{"commit":"efa2a531985e0a8084d36ff3cf87233be8a9f34b","subtree_sha":"1c625329e71538629f087374daa71293a498089f"},"path":"pstack","prior":{"commit":"b9ddc83c32972210b8a94d389130713e8eed346e","subtree_sha":"950b90234c17babd00c43e32b19ae50abb4720f5"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->
+
+The machine-readable maintenance pin in `maintenance/upstreams.json` now records
+that accepted commit and subtree tree `1c625329e71538629f087374daa71293a498089f`.
+After clean-room adaptation and all pre-pin gates pass, the trusted acceptance
+command advances the commit, subtree SHA, review ledger, and already-staged
+machine provenance marker together. The subsequent immutable-goal verification
+is what proves the accepted result. If that post-accept verification fails, the
+workflow restores the prior pin and ledger and removes exactly the one unaccepted
+tail marker before the next repair attempt, preserving the accepted marker prefix
+and surrounding provenance prose. An accepted pin alone is never a passing
+maintenance result.
+The companion `maintenance/upstream-reviews.json` ledger establishes that same commit and subtree
+as its genesis. The one canonical `pk-stack-upstream-genesis` comment above binds the source id,
+repository, path, commit, and subtree to that ledger genesis. Future pins require an append-only
+transition bound to the exact remote inventory digest and one reviewed A/B/C disposition with
+rationale for every changed path. The full chain is validated locally; its latest transition is
+remotely re-proved, while committed Git history is the tamper-evident authority for older entries.
+The genesis comment followed by the full ordered list of canonical `pk-stack-upstream-review`
+comments in this file is the machine-authoritative provenance record; missing, duplicated,
+modified, extra, or reordered markers fail closed. The surrounding prose is descriptive and
+should be kept current.
 
 Upstream pstack is licensed under the MIT License:
 
@@ -29,7 +59,8 @@ This project uses "clean-room semantic port" in a practical repository sense:
 - Public upstream files were consulted to identify observable workflow
   contracts, terminology, sequencing, safety concerns, and failure modes.
 - The Kiro skills, Python package, state model, command interfaces, tests, and
-  documentation were authored independently for Kiro CLI v3.
+  documentation were authored independently for Kiro's native agent surfaces,
+  with CLI v3 and IDE 1.x as the primary targets.
 - Upstream source files are not vendored, patched, imported, or executed by
   this repository. The upstream MIT notice itself is reproduced as required
   attribution.
@@ -42,7 +73,7 @@ behavior, and recover knowledge. `projectctl` owns deterministic project
 operations and goal state, feature records own executable proof, and OKF or
 other knowledge tooling remains an optional source of broader context. Those
 interfaces, the Cyclopts implementation, and the current-session
-`/verified-goal` protocol are original Kiro-port additions rather than upstream
+`/verified-goal` protocol are original Kiro-native additions rather than upstream
 pstack components.
 
 The current name is Kiro-specific branding, not a restoration of upstream
@@ -54,6 +85,14 @@ documented compatibility identifiers.
 
 Every link below is pinned to the source commit. The descriptions state why a
 file was consulted; they do not imply that its expression was copied.
+
+The selected examples below are not the inventory boundary. The
+[machine-readable skill parity catalog](upstream-skill-parity.json) binds all 45
+top-level packages and all 122 package files at both the reviewed genesis and
+live head `efa2a531985e0a8084d36ff3cf87233be8a9f34b`, including package trees,
+blob SHAs, modes, sizes, and per-resource handling. That live-head record is
+clean-room review input; it does not advance the accepted pin or genesis-only
+review ledger.
 
 ### Packaging and entry points
 
@@ -177,10 +216,16 @@ The port preserves these behavioral ideas:
   override a failing executable verifier.
 - Partition parallel work into bounded scopes, isolate writable outputs, and
   report incomplete coverage and dropouts instead of hiding them.
+- Preserve pervasive behavior through Kiro-native steering: prose discipline is
+  always included, while TypeScript discipline uses `fileMatch` for
+  `**/*.ts` and `**/*.tsx`. The upstream `paths` and
+  `disable-model-invocation` frontmatter is recorded but not copied.
 
 The implementation of those ideas is Kiro-native. Skills run in the user's
-current `kiro-cli --v3` session. Native Kiro sub-agents may perform bounded
-work, while `projectctl` owns deterministic goal state and verification.
+current Kiro agent session: IDE 1.x and CLI v3 are primary, Crew orchestration
+is optional, and the repository-local Web path is supported by design but
+untested. Native Kiro sub-agents may perform bounded work, while `projectctl`
+owns deterministic goal state and verification.
 
 ## Behavior deliberately not copied
 
@@ -195,7 +240,8 @@ The following upstream behavior was intentionally excluded or redesigned:
   `run_in_background`, `readonly`, `environment: "cloud"`,
   `cloud_base_branch`, and fixed Cursor model slugs.
 - Cursor's `/loop` wake mechanism, sticky-mode runtime behavior, and any
-  assumption that `/goal` exists in Kiro CLI v3.
+  dependency on native `/goal` availability or substitution of native goal
+  state for PK-Stack's repository-visible acceptance contract.
 - Nested ACP or secondary Kiro sessions as the default execution path. Kiro's
   user-facing `/spawn` command is not used as internal skill fanout.
 - Graphite stack operations, PR watcher/orchestrator scripts, Cursor cloud
@@ -225,12 +271,20 @@ Names such as Cursor, Kiro, pstack, Cyclopts, PyYAML, Fable, Grok, and OKF are
 used only to identify compatibility, provenance, or optional integrations. No
 trademark license, endorsement, or affiliation is claimed.
 
+The private repository's generated potato-ghost mascot is the one deliberate visual exception to
+the otherwise independent implementation boundary: it uses the installed Kiro app icon as an
+image-generation reference at the project owner's request. The source icon is not shipped, but the
+result intentionally echoes its silhouette and purple rounded-square presentation. Generation
+details and the distribution caveat are recorded in `assets/README.md` and
+`THIRD_PARTY_NOTICES.md`.
+
 Python dependencies are installed as separate third-party distributions and
 remain under their own licenses. Direct runtime dependencies and their license
 links are listed in `THIRD_PARTY_NOTICES.md`; the complete resolved package
 inventory is in `uv.lock`. Kiro, Cursor, OKF, external reviewer CLIs, and the
-Agent Plugins schema are not redistributed by this repository merely because
-the documentation or configuration refers to them.
+Agent Plugins schema are not redistributed as runtimes or source by this repository merely because
+the documentation or configuration refers to them; the generated visual-reference exception is
+disclosed above.
 
 If a future change copies or vendors upstream source, templates, images, or
 scripts, that change must add file-level provenance as appropriate, preserve

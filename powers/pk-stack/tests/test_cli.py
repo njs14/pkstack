@@ -32,6 +32,20 @@ def test_cli_feature_and_goal_json_round_trip(tmp_path: Path) -> None:
         "Command to result",
         "--command",
         f"{sys.executable} check.py",
+        "--sub-feature",
+        "health-check=The health result is observable.",
+        "--entrypoint",
+        "cli=Run the public health command.",
+        "--drive",
+        f"cli=Run {sys.executable} check.py.",
+        "--entrypoint-proof",
+        "cli=The command exits zero and prints healthy.",
+        "--gotcha",
+        "A process-only check does not prove the returned health value.",
+        "--evidence-boundary",
+        "Capture exit status and bounded output.",
+        "--cleanup-boundary",
+        "The check owns no persistent state.",
         "--ready",
         "--output",
         "json",
@@ -53,6 +67,7 @@ def test_cli_feature_and_goal_json_round_trip(tmp_path: Path) -> None:
     assert started.returncode == 0, started.stderr
     assert verified.returncode == 0, verified.stderr
     assert json.loads(generated.stdout)["ok"] is True
+    assert json.loads(generated.stdout)["schema_version"] == 2
     assert json.loads(started.stdout)["goal"]["status"] == "active"
     assert json.loads(verified.stdout)["goal"]["status"] == "passed"
 
@@ -133,3 +148,75 @@ def test_cli_parser_errors_are_one_clean_json_object(
     payload = json.loads(result.stdout)
     assert payload["ok"] is False
     assert payload["error_type"] == "CoercionError"
+
+
+def test_cli_evidence_append_and_audit_use_ignored_default(tmp_path: Path) -> None:
+    artifact = tmp_path / "result.txt"
+    artifact.write_text("verified\n", encoding="utf-8")
+
+    appended = _cli(
+        "evidence",
+        "append",
+        "health-campaign",
+        "--requirement",
+        "The health command returns a healthy result.",
+        "--evidence",
+        "Exit code zero and bounded stdout show healthy.",
+        "--decision",
+        "Keep the current implementation.",
+        "--verification",
+        f"{sys.executable} check.py passed.",
+        "--verdict",
+        "VERIFIED",
+        "--artifact",
+        "result.txt",
+        "--output",
+        "json",
+        cwd=tmp_path,
+    )
+    audited = _cli(
+        "evidence",
+        "audit",
+        "health-campaign",
+        "--output",
+        "json",
+        cwd=tmp_path,
+    )
+
+    assert appended.returncode == 0, appended.stderr
+    assert audited.returncode == 0, audited.stderr
+    append_payload = json.loads(appended.stdout)
+    audit_payload = json.loads(audited.stdout)
+    assert append_payload["event"]["sequence"] == 1
+    assert append_payload["path"] == ".pstack/state/evidence/health-campaign/decision-log.jsonl"
+    assert audit_payload["event_count"] == 1
+    assert not (tmp_path / "Wiki/evidence").exists()
+
+
+def test_cli_committed_evidence_requires_flag_and_exact_target(tmp_path: Path) -> None:
+    result = _cli(
+        "evidence",
+        "append",
+        "review",
+        "--requirement",
+        "The release is independently reviewed.",
+        "--evidence",
+        "The review verdict is recorded.",
+        "--decision",
+        "Hold the release until acceptance.",
+        "--verification",
+        "Reviewer returned INCONCLUSIVE.",
+        "--verdict",
+        "INCONCLUSIVE",
+        "--target",
+        "Wiki/evidence/review/decision-log.jsonl",
+        "--output",
+        "json",
+        cwd=tmp_path,
+    )
+
+    assert result.returncode == 2
+    assert result.stderr == ""
+    payload = json.loads(result.stdout)
+    assert payload["error_type"] == "EvidenceError"
+    assert "--committed" in payload["error"]

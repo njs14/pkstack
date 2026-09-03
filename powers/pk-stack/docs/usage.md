@@ -2,8 +2,9 @@
 
 ## Workflow at a glance
 
-PK-Stack keeps implementation in a normal interactive Kiro CLI V3 session
-and makes an executable project verifier the completion gate:
+PK-Stack keeps implementation in the current Kiro agent session and makes an
+executable project verifier the completion gate. Kiro IDE 1.x chat/Agent Focus
+and Kiro CLI v3 are the primary surfaces:
 
 ```text
 import and review Power
@@ -15,7 +16,8 @@ import and review Power
 .pstack/bin/projectctl doctor
         |
         v
-/agent swap pstack -- attach repo-local prompt, tools, and permissions
+IDE agent picker or CLI /agent swap pstack
+        -- attach repo-local prompt, tools, and permissions
         |
         v
 feature contract -- draft, or --ready after a passing proof
@@ -24,21 +26,24 @@ feature contract -- draft, or --ready after a passing proof
 /verified-goal <objective> -- same-session implement/verify/repair loop
 ```
 
-There is no nested Kiro process in that path. An external ACP host,
-`kiro-cli acp`, classic/V2, `/spawn`, a Stop hook, and native `/goal` are not
-the default execution mechanism. See
+There is no nested Kiro process in that path. A user-launched external ACP host,
+`kiro-cli acp`, classic/V2, `/spawn`, and a Stop hook are not the default
+execution mechanism. Kiro documents native `/goal`, but the installed CLI
+2.21.0 V3 runtime did not recognize it in a sterile interactive probe;
+PK-Stack neither invokes nor depends on it. See
 [Architecture](architecture.md) for the trust boundaries and
-[Kiro CLI v3 compatibility](kiro-v3-compatibility.md) for the inspected Kiro
-build.
+[Kiro surface compatibility](kiro-v3-compatibility.md) for the support/evidence
+matrix, September 1-2, 2026 change inventory, and inspected builds.
 
 ## Prerequisites
 
 You need:
 
 1. A local project directory you are allowed to modify.
-2. Kiro CLI with V3 available. The initial campaign used Kiro CLI `2.20.2`
-   (app build `20260831.180303`); the selected-profile acceptance campaign used
-   Kiro CLI `2.21.0`.
+2. Kiro IDE 1.x or Kiro CLI with v3 available. The installed IDE baseline is
+   `1.0.437`; the initial CLI campaign used `2.20.2` (app build
+   `20260831.180303`) and the selected-profile acceptance campaign used CLI
+   `2.21.0`.
 3. [`uv`](https://docs.astral.sh/uv/) on `PATH`.
 4. Python 3.11 or newer. The setup shim can ask `uv` for a compatible Python
    when the invoking Python is older.
@@ -51,14 +56,22 @@ Inspect the local tools without changing a project:
 kiro-cli --version
 kiro-cli chat --help
 kiro-cli chat --list-models --format json-pretty
+/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' \
+  '/Applications/Kiro.app/Contents/Info.plist'
 uv --version
 ```
 
 `max` is the highest Kiro effort name exposed by the tested CLI; there is no
-documented Kiro `ultra` effort. Model selection is a session choice and is not
-stored by projectctl.
+documented Kiro `ultra` effort. PK-Stack agents do not pin a model or store the
+selection in projectctl. Kiro itself automatically persists a CLI `/effort` or
+`--effort` choice for that model in the user's settings, and higher effort uses
+more credits. Ordinary usage should therefore inherit the user's existing
+choice. Kiro recommends Auto for general development, Sol for the hardest
+long-horizon work, Terra for routine multi-step work, and Luna for repeated
+high-frequency work. See the [versioned model policy and data-processing
+boundary](kiro-v3-compatibility.md#models-effort-and-verification-methodology).
 
-## Import the Power and start V3
+## Import the Power and start a primary surface
 
 The package root is an Agent Plugins Power (`plugin.json`) with manifest ID
 `pk-stack`. In the combined repository it is `powers/pk-stack/`. Import that local folder through
@@ -67,35 +80,58 @@ import under `pstack-kiro` may remain a separate Power and should be removed
 through that interface before importing `pk-stack`. The project does not
 install itself into global Kiro directories or change user-level settings.
 
-Start the target repository in V3:
+In Kiro IDE 1.x, open the target repository and then open chat or Agent Focus.
+In Kiro CLI, start the target repository in v3:
 
 ```bash
 cd /path/to/project
 kiro-cli chat --v3
 ```
 
-An explicit high-effort launch, when supported by the account, is:
+The acceptance campaign deliberately used the following high-cost
+configuration. It is evidence, not the interactive default; select the desired
+normal effort afterwards because Kiro persists the choice:
 
 ```bash
 kiro-cli chat --v3 --model gpt-5.6-sol --effort max
 ```
 
-After the project assets exist, select the primary custom profile for every
-PK-Stack workflow session:
+To return to Kiro's GPT-5.6 built-in default after that deliberate campaign,
+run `/effort high`; use the `/effort` picker instead if another level was your
+intended normal setting. `kiro-cli settings open` shows the persisted CLI
+configuration.
+
+After the project assets exist, select the workspace `pstack` profile for every
+PK-Stack workflow session. Use the IDE agent picker, or launch CLI v3 with:
 
 ```bash
 kiro-cli chat --v3 --agent pstack
 ```
 
-The initial ambient V3 chat is only the bootstrap path because the workspace
-agent does not exist before setup. The port deliberately leaves user-level
-Kiro defaults unchanged.
+In an existing CLI chat, `/agent swap pstack` is equivalent. The initial
+ambient IDE or CLI chat is only the bootstrap path because the workspace agent
+does not exist before setup. PK-Stack deliberately leaves user-level Kiro
+defaults unchanged.
+
+### Optional Crew and supported-by-design Web paths
+
+Kiro Crew can open the repository and consume its `.kiro` agents, skills, and
+steering. Crew runs Kiro CLI over ACP internally, but it is an optional
+orchestrator and does not make ACP PK-Stack's default entry path.
+
+Kiro Web must start from a repository that already commits the bootstrapped
+`.kiro` and `.pstack` assets. Its built-in agent remains primary; project
+`pstack-*` agents are delegation-only, and the IDE/CLI permission boundary is
+not claimed. The controller also requires Python 3.11+ and `uv` in the Web
+sandbox. This path is supported by design and explicitly untested. Do not use
+Configuration Sync as a complete Power installer: custom cloud Powers accept
+text only and at most 50 files, while PK-Stack exceeds that shape.
 
 ## Set up a project
 
 ### Preferred current-session path
 
-In the V3 session, invoke:
+In a current Kiro IDE or CLI session, invoke:
 
 ```text
 /setup-pstack
@@ -106,7 +142,7 @@ The skill resolves `scripts/setup_pstack.py` relative to its own loaded
 authority. Its first operation is equivalent to:
 
 ```bash
-python3 /absolute/path/to/pstack-kiro/skills/setup-pstack/scripts/setup_pstack.py \
+python3 /absolute/path/to/pk-stack-power/skills/setup-pstack/scripts/setup_pstack.py \
   --root "$PWD" \
   --dry-run \
   --output json
@@ -116,7 +152,7 @@ On a fresh project, review the preview and run the same Power-local shim without
 `--dry-run`:
 
 ```bash
-python3 /absolute/path/to/pstack-kiro/skills/setup-pstack/scripts/setup_pstack.py \
+python3 /absolute/path/to/pk-stack-power/skills/setup-pstack/scripts/setup_pstack.py \
   --root "$PWD" \
   --output json
 ```
@@ -143,7 +179,8 @@ owns that name, setup preserves it.
 
 The `pstack` profile keeps `includePowers: false`, so the Power-local setup
 skill is deliberately unavailable while that profile is selected. Keep the
-same interactive V3 session and switch through the Power-enabled setup agent:
+same Kiro agent session and switch through the Power-enabled setup agent. Use
+the IDE agent picker, or in CLI v3 run:
 
 ```text
 /agent swap kiro_default
@@ -194,9 +231,10 @@ It does not replace the rest of `.gitignore`, prune stale files, or delete any
 project content.
 
 Before target preflight, setup also verifies that the loaded Power contains all
-required Python modules, six source skills including the setup shim, steering,
-agent/hook templates, and the runtime lock. A missing required Power asset
-returns a structured error before any target file is written.
+required Python modules, the complete inventory-bound source skill catalog,
+steering, agent/hook templates, and the runtime lock. The current catalog has
+48 source skill directories. A missing required Power asset returns a
+structured error before any target file is written.
 
 Repository discovery records sorted project-relative paths and always stores
 `"root": "."`; it does not record local `okn` availability. Discovery is an
@@ -211,7 +249,7 @@ When an updated Power reports `pending_updates`, do not rerun blindly. Review
 the paths and desired Power version, then preview the exact opt-in:
 
 ```bash
-python3 /absolute/path/to/pstack-kiro/skills/setup-pstack/scripts/setup_pstack.py \
+python3 /absolute/path/to/pk-stack-power/skills/setup-pstack/scripts/setup_pstack.py \
   --root "$PWD" \
   --dry-run \
   --update-managed \
@@ -221,7 +259,7 @@ python3 /absolute/path/to/pstack-kiro/skills/setup-pstack/scripts/setup_pstack.p
 Only after explicit approval, apply the same reviewed operation:
 
 ```bash
-python3 /absolute/path/to/pstack-kiro/skills/setup-pstack/scripts/setup_pstack.py \
+python3 /absolute/path/to/pk-stack-power/skills/setup-pstack/scripts/setup_pstack.py \
   --root "$PWD" \
   --update-managed \
   --output json
@@ -245,7 +283,7 @@ Doctor checks:
 - the ownership receipt plus every receipt-managed path and SHA-256 digest;
 - the internal wrapper, `package = false` project metadata, live lock, and
   cached lock for exact runtime integrity;
-- four agents, five live workspace skills, two steering files, and two hook
+- four agents, all 47 live workspace skills, four steering files, and two hook
   files;
 - live Kiro assets against their cached managed copies;
 - JSON shape, plus `kiro-cli agent validate` when Kiro is installed;
@@ -261,8 +299,9 @@ who can change both managed content and its recorded digest.
 
 The setup skill is deliberately absent from the live workspace skill checks.
 It remains supplied by the loaded Power and is cached for bootstrap packaging;
-doctor checks the five skills that bootstrap actually materializes in
-`.kiro/skills/`.
+doctor checks every one of the other 47 skills materialized in `.kiro/skills/`.
+The controller cache retains the complete 48-skill source tree, including the
+setup shim.
 
 Also inspect the narrow and broad knowledge surfaces:
 
@@ -283,13 +322,20 @@ Once selected and loaded, the entire goal loop remains in that session.
 
 ## Kiro-native workflow and approvals
 
-The installed skill entrypoints are:
+The installed skill entrypoints are grouped below; the [complete 45/45 upstream
+mapping](upstream-skill-parity.md) names every route and its disposition.
 
 ```text
 /architect <architecture problem>
 /arena <artifact and gradeable criteria>
+/how <subsystem>
+/why <decision or behavior>
+/tdd <behavior change>
+/technical-writing <reader and task>
+/maintain-pk-stack <upstream maintenance request>
 /swarm <bounded coverage or race request>
 /model-council <intent, evidence, and review rubric>
+/principles <engineering decision>
 /verified-goal <objective with a checkable definition of done>
 ```
 
@@ -318,13 +364,88 @@ rules alone are not treated as a sandbox.
 Do not bypass these prompts with broad trust switches. Review the exact argv,
 especially when it comes from repository-controlled feature metadata.
 
+## Check the pinned upstream
+
+In the combined PK-Stack source repository, requested or scheduled maintenance stays in the
+current session through `/maintain-pk-stack`. Its deterministic first predicate is:
+
+```bash
+.pstack/bin/projectctl upstream check \
+  --manifest maintenance/upstreams.json \
+  --power-root powers/pk-stack \
+  --output json
+```
+
+The command reads one strict local manifest and its required
+`maintenance/upstream-reviews.json` ledger, contacts only `https://api.github.com`, and uses an
+optional `GITHUB_TOKEN` only as the HTTP Authorization value. The ledger binds the exact source
+identity, genesis, a contiguous prior/new commit-and-subtree chain, each transition's
+`inventory_sha256`, and one A/B/C disposition with a nonempty bounded rationale for every changed
+path. A pin-only manifest edit, stale chain, wrong identity or digest, or missing, duplicate, extra,
+or malformed disposition fails before it can claim the source is current.
+
+The service reproofs the pinned and current commit/subtree identities, requires a bounded
+fast-forward, reconciles GitHub's compare records against exact recursive subtree trees, and
+returns a bounded untrusted text-patch inventory. A canonical `inventory_sha256` binds that
+inventory to its base and head. Unified patch hunk and body counts must exactly match GitHub's
+additions/deletions. Each text patch is then applied to the fetched, Git-OID-verified pinned blob;
+the resulting bytes must hash to the exact current subtree blob (added text starts empty and
+removed text ends empty). Every changed path exposes old/new type, mode, SHA, and size. Regular
+`100644` and `100755` blobs are supported, including executable-mode changes; symlinks and
+submodules fail closed. A missing patch is rejected for semantic content changes; only zero-count
+top-level raster assets, exact-blob pure renames, and exact-blob mode-only changes are permitted. The detector
+lists unavailable raster paths under `review_constraints.unavailable_binary_paths`, and acceptance
+requires disposition B for each. No upstream content is fetched outside the bounded API evidence or
+executed. The whole ledger chain is checked locally and only its latest transition is remotely re-proved, so the
+request budget stays constant; committed Git history is the older-ledger tamper authority.
+The ledger is capped at both 8 MiB and 512 transitions. The representative 27-path, 400-byte-rationale
+shape supports the full 512 entries (about 9.8 years weekly); maximum-length rationales can reach
+the byte limit around 2.7 years. An explicit reviewed, tamper-evident archive migration is required
+before either limit—PK-Stack never silently discards review history.
+Supplying `--power-root` also runs an
+ownership-aware `--dry-run --update-managed` bootstrap preview and reports canonical/generated
+parity without writing.
+
+Drift exits 1 and is the expected baseline for a maintenance goal. Malformed or oversized data,
+truncation, a missing comparison page, identity disagreement, non-fast-forward history, unsafe
+paths, a network failure, or generated drift fails closed. The skill classifies every path as
+adapt, exclude, or provenance-only, updates canonical sources before regeneration, and stages
+provenance only after that implementation passes. It writes the exact transition object to
+`.pk-stack-maintenance/proposal.json` and appends a canonical
+`pk-stack-upstream-review` JSON comment to provenance. That final comment binds the source,
+repository/path, prior/new commit and subtree identities, and inventory digest; its marker count
+and full ordered marker list must match the ledger transitions 1:1. The ledger and markers are the
+machine-authoritative transition record; surrounding provenance prose is descriptive. Ordinary
+checks require exact marker/ledger equality. Acceptance alone permits exactly one proposal-bound
+tail marker during its preproof; extra, replaced, or reordered markers fail closed. Then the
+skill previews acceptance:
+
+```bash
+.pstack/bin/projectctl upstream accept \
+  --manifest maintenance/upstreams.json \
+  --power-root powers/pk-stack \
+  --proposal .pk-stack-maintenance/proposal.json \
+  --expected-head <exact-head-commit> \
+  --dry-run \
+  --output json
+```
+
+After reviewing the preview, omit `--dry-run` to apply the same expected-head-bound operation. The
+service re-fetches the proof, appends the normalized transition and advances the manifest pin as a
+recoverable journaled update, then removes `.pk-stack-maintenance`. It does not edit provenance or
+Power files. A stale, replayed, future, malformed, or symlinked proposal fails closed. The
+five-attempt goal budget uses attempt 1 for the mandatory pre-edit failure, leaving four bounded
+repair-and-secretless-verify pairs. Only the subsequent feature-goal pass permits a claim that the
+source is current.
+
 ## Create and prove feature contracts
 
 Feature slugs use lowercase letters, digits, and single hyphens. A contract
-describes user behavior, the expected system path, and an optional argv-style
-verifier.
+describes observable user behavior, the expected system path, every user
+entrypoint and its drive recipe, proof and cleanup boundaries, gotchas, and an
+optional argv-style verifier.
 
-### Create a draft
+### Create one structured draft
 
 ```bash
 .pstack/bin/projectctl feature generate account-lookup \
@@ -332,14 +453,30 @@ verifier.
   --behavior "A caller can retrieve an account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
   --command "uv run pytest tests/test_account_lookup.py -q" \
+  --sub-feature "lookup-status=Return the current account status." \
+  --sub-feature "missing-account=Return the public not-found result." \
+  --entrypoint "cli=Run the account lookup CLI command." \
+  --drive "cli=Run account lookup <id> --format json in the isolated fixture." \
+  --entrypoint-proof "cli=Exit zero and JSON contain the requested account status." \
+  --gotcha "A database read alone does not exercise the public CLI." \
+  --evidence-boundary "Retain bounded argv, exit status, and redacted JSON output." \
+  --cleanup-boundary "Remove only the fixture account; retain proof artifacts." \
   --output json
 ```
 
 This writes `Wiki/features/account-lookup.md` with `draft: true` without
-running its command. An omitted command is allowed for a draft and produces a
-validation warning. Add an existing knowledge link with, for example,
-`--related ../architecture/account-boundary.md`; related paths resolve from the
-feature file and must remain inside the project and exist at validation time.
+running its command. Repeatable structured values use `identifier=text`.
+Every `--entrypoint` ID must have one same-order `--drive` and
+`--entrypoint-proof`; there must also be at least one sub-feature and gotcha.
+An omitted command is allowed for a draft and produces a validation warning.
+Add an existing knowledge link with, for example, `--related
+../architecture/account-boundary.md`; related paths resolve from the feature
+file and must remain inside the project and exist at validation time.
+
+For compatibility, a call that omits *all* structured fields still creates a
+readable schema-1 record and returns `migration_required: true`. New workflows
+should not use that fallback. `feature validate` keeps legacy records valid but
+warns until they are migrated.
 
 Inspect the contract:
 
@@ -349,35 +486,103 @@ Inspect the contract:
 .pstack/bin/projectctl feature validate --output json
 ```
 
-`feature validate` checks strict frontmatter types, required sections, location
-and slug consistency, related links, and the verifier hazard policy. It does
-not run verifier commands.
+`feature validate` checks strict frontmatter types, duplicate YAML keys, the
+exact ordered required sections and headings, location and slug consistency,
+related links, and the verifier hazard policy. It does not run verifier
+commands. Feature Markdown is capped at 512 KiB and read as bounded strict
+UTF-8 with concurrent size and identity checks.
 
-### Generate a ready contract
+### Prove one record now
 
-Use `--ready` when the command should be run now as the initial proof:
-
-```bash
-.pstack/bin/projectctl feature generate account-lookup \
-  --title "Account lookup" \
-  --behavior "A caller can retrieve an account status." \
-  --expected-path "CLI -> gateway -> account service -> response" \
-  --command "uv run pytest tests/test_account_lookup.py -q" \
-  --ready \
-  --output json
-```
-
-Projectctl builds and parses the exact candidate Markdown before the verifier,
-requiring the caller's title, behavior, expected path, command, and related
-links to round-trip unchanged. Ready-contract related paths must already be
-contained in the project and present. The command then runs from the project
-root. On pass, projectctl repeats the candidate preflight, writes
-`draft: false`, and returns `initial_verification`. Invalid input runs no proof;
-a failed proof exits 1 with `created: false` and leaves a new target absent.
+Add `--ready` to the complete structured command when its verifier should run
+now. Projectctl builds and parses the exact candidate Markdown before the
+verifier, requiring every field and entrypoint pairing to round-trip unchanged.
+Ready-contract related paths must already be contained in the project and
+present. On pass, projectctl repeats candidate preflight, writes `draft: false`,
+and returns `initial_verification`. Invalid input runs no proof; a failed proof
+exits 1 with `created: false` and leaves a new target absent.
 
 To replace an existing contract deliberately, add `--overwrite --ready`.
 Overwrite refusal happens before proof, and a failed proof leaves the existing
 file unchanged. Preserve any manual edits before approving an overwrite.
+
+### Seed the initial three-to-five-feature map
+
+The creation workflow should interview the repository and write a bounded JSON
+definition with exactly one top-level `features` array and three to five
+records. Every record has exactly these keys:
+
+| Key | Exact value |
+| --- | --- |
+| `slug`, `title`, `behavior`, `expected_path` | Non-empty strings |
+| `command` | A command string or non-empty argv string list |
+| `related` | A list of feature-relative path strings |
+| `sub_features` | Non-empty `{identifier, behavior}` objects |
+| `entrypoints` | Non-empty `{identifier, user_path, drive, observable}` objects |
+| `gotchas` | Non-empty single-line string list |
+| `evidence_boundary`, `cleanup_boundary` | Non-empty strings |
+
+Unknown or duplicate JSON keys, duplicate slugs, malformed UTF-8, an unsafe
+path or command, and files over 256 KiB fail closed. Generate the map and name
+the one representative behavior to prove during creation:
+
+```bash
+.pstack/bin/projectctl feature generate-map feature-plan.json \
+  --representative account-lookup \
+  --output json
+```
+
+Projectctl validates all records, runs exactly the representative verifier
+once, revalidates the definitions, writes that record published, and leaves
+the other two to four records draft. One representative proof is enough to
+prove the newly created harness can run; it is not evidence that the rest of
+the map works. Projectctl snapshots every target before proof, then stages the
+full batch under the shared feature mutation lock. Inside that lock it compares
+the exact bytes, rechecks workspace and symlink containment, and uses atomic
+no-clobber creation for new targets. A later replacement or directory-sync
+error rolls every earlier target back instead of leaving a mixed initial map.
+`/maintain-verification-skill` must exercise every feature and entrypoint.
+As each remaining contract passes, publish it without re-entering its content:
+
+```bash
+.pstack/bin/projectctl feature publish account-update --output json
+.pstack/bin/projectctl feature publish account-delete --output json
+.pstack/bin/projectctl feature validate --output json
+```
+
+Each `feature publish` runs only that draft's stored verifier and changes
+`draft` to `false` only on pass.
+
+### Migrate a legacy record
+
+`feature migrate` preserves the legacy title, user behavior, expected path,
+command, related paths, and draft state. Supply only the new structural fields:
+
+```bash
+.pstack/bin/projectctl feature migrate account-lookup \
+  --sub-feature "lookup-status=Return the current account status." \
+  --entrypoint "cli=Run the account lookup CLI command." \
+  --drive "cli=Run account lookup <id> --format json in the isolated fixture." \
+  --entrypoint-proof "cli=Exit zero and JSON contain the requested status." \
+  --gotcha "A database read alone does not exercise the public CLI." \
+  --evidence-boundary "Retain bounded argv, exit status, and redacted JSON." \
+  --cleanup-boundary "Remove only fixture state; retain proof artifacts." \
+  --output json
+```
+
+A published legacy record is re-proved before replacement. Failure or any
+exact byte change during proof preserves the observed legacy file. A draft
+migrates without running its command and still needs `feature publish` later.
+Automatic migration accepts only a byte-canonical projectctl schema-1 record.
+It refuses duplicate known sections, pre-H2 prose, custom Verification prose,
+YAML comments or formatting, unmodeled frontmatter or verification keys, and
+extra level-2 sections so operator-authored content cannot be silently
+discarded; preserve those bytes in a manual schema-2 migration.
+
+`feature publish` snapshots exact bytes around its verifier and changes only
+the YAML `draft` scalar while holding the shared feature mutation lock.
+Accepted operator preamble and Verification prose stay byte-for-byte intact;
+a concurrent edit makes publication fail rather than overwrite that edit.
 
 ### Re-run a stored verifier
 
@@ -438,11 +643,77 @@ stored predicate covers the claimed behavior, review its `ask` decision, and
 avoid broad trust flags. Captured verifier output is stored in goal state, so do
 not print secrets.
 
+## Record and audit a decision trail
+
+The default evidence trail is local runtime state and remains ignored:
+
+```bash
+.pstack/bin/projectctl evidence append account-repair \
+  --requirement "Suspended accounts return their status through the public CLI." \
+  --evidence "The isolated CLI drive returned suspended with exit code zero." \
+  --decision "Keep the status mapping and remove the obsolete rejection branch." \
+  --verification "The account-lookup verifier passed twice after repair." \
+  --verdict VERIFIED \
+  --artifact artifacts/account-repair/result.json \
+  --output json
+
+.pstack/bin/projectctl evidence audit account-repair --output json
+```
+
+The first append creates
+`.pstack/state/evidence/account-repair/decision-log.jsonl`. Each later append
+receives the next contiguous sequence and a strictly increasing UTC timestamp.
+`--verdict` accepts exactly `VERIFIED`, `NOT VERIFIED`, or `INCONCLUSIVE`.
+`--artifact` must be a canonical workspace-relative existing regular file.
+Optionally add `--artifact-sha256` with a previously inspected 64-character
+lowercase digest to bind the event to those exact bytes; audit detects later
+artifact drift. Bulky evidence stays in that named artifact rather than in the
+JSONL field. Dot/dotdot aliases, backslashes, and other noncanonical spellings
+are rejected even when they happen to resolve inside the workspace.
+
+The event schema and encoding are exact. Text fields are non-empty and bounded;
+known private-key, provider-token, bearer-token, credential-URL, and
+secret-assignment shapes are rejected without echo. That is a safety screen,
+not a complete secret detector. Redact credentials and personal data before
+calling the command. Record requirements, visible evidence, decisions, and
+verification—not private chain-of-thought, model transcripts, or unrelated
+conversation history.
+
+Committed evidence is never inferred from the slug or a target path. It needs
+both opt-ins and the one exact Wiki location:
+
+```bash
+.pstack/bin/projectctl evidence append account-repair \
+  --requirement "The release has an independent acceptance verdict." \
+  --evidence "The immutable review artifact returned ACCEPT." \
+  --decision "Release the accepted snapshot." \
+  --verification "The final acceptance suite passed on the reviewed tree." \
+  --verdict VERIFIED \
+  --committed \
+  --target Wiki/evidence/account-repair/decision-log.jsonl \
+  --output json
+
+.pstack/bin/projectctl evidence audit account-repair \
+  --committed \
+  --target Wiki/evidence/account-repair/decision-log.jsonl \
+  --output json
+```
+
+The audit checks strict UTF-8 canonical JSONL, the exact key set, the 4 KiB
+field, 24 KiB event, 2,048-event, and 4 MiB file bounds, monotonic sequence and
+timestamps, current reference containment/existence, and optional hashes. The
+append path is lock-serialized and durably atomically replaced. A planted
+empty file is invalid rather than a successful zero-event audit. Parsing uses
+raw LF bytes: CRLF and mixed separators fail, while a Unicode line separator
+inside one JSON string remains content in that event. The trail is
+append-only by workflow convention but is not signed or tamper-proof; preserve
+superseded decisions as later events rather than rewriting history.
+
 ## Run a verified goal
 
 ### Preferred current-session path
 
-In the current Kiro V3 chat:
+In the current Kiro agent session:
 
 ```text
 /verified-goal Repair suspended-account lookup and make account-lookup pass.
@@ -626,7 +897,7 @@ copy, compare it with the Power source and receipt, then merge or restore it by
 an explicit project decision. Rerun the Power-local dry run afterward:
 
 ```bash
-python3 /absolute/path/to/pstack-kiro/skills/setup-pstack/scripts/setup_pstack.py \
+python3 /absolute/path/to/pk-stack-power/skills/setup-pstack/scripts/setup_pstack.py \
   --root "$PWD" \
   --dry-run \
   --output json
@@ -706,11 +977,13 @@ repository.
 
 ### `/verified-goal` is missing after setup
 
-First run `/agent swap pstack`. If Kiro has not discovered the new workspace
-agent or `.kiro/skills/`, start one new V3 chat in the same repository with
-`kiro-cli chat --v3 --agent pstack`. Do not switch to V2, start an external ACP
-host or `kiro-cli acp`, modify the global default agent, or invent prose-only
-goal state. Once discovered, invoke `/verified-goal` normally in that current
+First select the workspace `pstack` agent with the Kiro IDE agent picker or CLI
+`/agent swap pstack`. If Kiro has not discovered the new workspace agent or
+`.kiro/skills/`, open one fresh pre-goal IDE chat/Agent Focus session, or start
+one new CLI v3 chat in the same repository with `kiro-cli chat --v3 --agent
+pstack`. Do not switch to V2, start an external ACP host or `kiro-cli acp`,
+modify the global default agent, or invent prose-only goal state. Once
+discovered, invoke `/verified-goal` normally in that current Kiro agent
 session.
 
 ## Cleanup boundary

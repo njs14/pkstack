@@ -1,0 +1,2503 @@
+{
+  "schema_version": 1,
+  "source": {
+    "id": "cursor-pstack",
+    "repository": "cursor/plugins",
+    "path": "pstack",
+    "catalog_path": "skills",
+    "pinned": {
+      "commit": "b9ddc83c32972210b8a94d389130713e8eed346e",
+      "pstack_subtree_sha": "950b90234c17babd00c43e32b19ae50abb4720f5"
+    },
+    "current": {
+      "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+      "pstack_subtree_sha": "1c625329e71538629f087374daa71293a498089f"
+    },
+    "retrieved_on": "2026-09-02"
+  },
+  "allowed_dispositions": [
+    "direct-port",
+    "alias-consolidation",
+    "native-kiro-replacement",
+    "excluded"
+  ],
+  "pk_only_skills": [
+    "maintain-pk-stack",
+    "model-council",
+    "principles",
+    "verified-goal"
+  ],
+  "summary": {
+    "direct-port": 17,
+    "alias-consolidation": 23,
+    "native-kiro-replacement": 4,
+    "excluded": 1,
+    "upstream_total": 45,
+    "routed_upstream_names": 44,
+    "shipped_skill_directories": 48,
+    "pinned_package_files": 122,
+    "current_package_files": 122,
+    "semantic_source_files": 101,
+    "helper_semantics_only_files": 3,
+    "runtime_specific_exclusion_files": 18
+  },
+  "skills": [
+    {
+      "name": "architect",
+      "pinned": {
+        "package_tree_sha": "0eb5abdc7af97bfd9b9d15b8d9197206e4b88fcd",
+        "files": [
+          {
+            "path": "references/design-red-flags.md",
+            "blob_sha": "32cb24083f308fd67ab4c431b44e1d7d3563435a",
+            "size": 1944,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/rationale-template.md",
+            "blob_sha": "1ddd50545c977264ac387ab805afbef257df03b9",
+            "size": 3050,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/runner-prompt.md",
+            "blob_sha": "d2daeee48c50f31825fdb0645e0df05c08e37bb6",
+            "size": 3091,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "9c5dd1b5ab5d068fbacc60ed48d6603af0c237c3",
+            "size": 6061,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "d5f618581193285e79f6c9c99cd35db2292ec4e5",
+        "files": [
+          {
+            "path": "references/design-red-flags.md",
+            "blob_sha": "32cb24083f308fd67ab4c431b44e1d7d3563435a",
+            "size": 1944,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/rationale-template.md",
+            "blob_sha": "1ddd50545c977264ac387ab805afbef257df03b9",
+            "size": 3050,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/runner-prompt.md",
+            "blob_sha": "d2daeee48c50f31825fdb0645e0df05c08e37bb6",
+            "size": 3091,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "7bda4347cbd78059bc8a39a23eede4f657f95adc",
+            "size": 6063,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/architect/SKILL.md",
+      "rationale": "Grounded architecture alternatives and verification are portable; execution uses native Kiro context and optional projectctl evidence."
+    },
+    {
+      "name": "arena",
+      "pinned": {
+        "package_tree_sha": "43e60929c0d17183d6e94f94a99f5d443d075f2c",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "59a167432ba97dc349cffa379ee851b8b700c960",
+            "size": 5367,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "0b36a6459bd338af4514a129c0aea90f48f4034b",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a38fea089bf47d2eb76613b1c599063def84c733",
+            "size": 5371,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/arena/SKILL.md",
+      "rationale": "Competing implementation sketches and evidence-based selection map directly to native Kiro sub-agents."
+    },
+    {
+      "name": "automate-me",
+      "pinned": {
+        "package_tree_sha": "de1dcb3edaa5646124fcd244f8a8cce23bc45c1d",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "56829250c1fdce1ad72456d5421e1f1e5142373f",
+            "size": 7809,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "de1dcb3edaa5646124fcd244f8a8cce23bc45c1d",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "56829250c1fdce1ad72456d5421e1f1e5142373f",
+            "size": 7809,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "native-kiro-replacement",
+      "target": "skills/automate-me/SKILL.md",
+      "rationale": "Captures repeatable behavior from the current Kiro session and explicit project evidence; it does not mine private editor transcripts or auto-publish."
+    },
+    {
+      "name": "blast-radius",
+      "pinned": {
+        "package_tree_sha": "b7e78173d1cee739737fa2371017a211ebe3fc8c",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "4b24c77e102955af19ae60aa10af642f69eaa8ba",
+            "size": 4112,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "b7e78173d1cee739737fa2371017a211ebe3fc8c",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "4b24c77e102955af19ae60aa10af642f69eaa8ba",
+            "size": 4112,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/blast-radius/SKILL.md",
+      "rationale": "Portable impact tracing follows callers, state, boundaries, and executable behavior instead of treating text search as proof."
+    },
+    {
+      "name": "bro",
+      "pinned": {
+        "package_tree_sha": "53c3b2c5dc11fe0ee4156468da27505df9239dc6",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "b1701b778639c08bfc306291d70170c525c66a68",
+            "size": 267,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "53c3b2c5dc11fe0ee4156468da27505df9239dc6",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "b1701b778639c08bfc306291d70170c525c66a68",
+            "size": 267,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/bro/SKILL.md",
+      "rationale": "Plain-language restatement is surface-neutral and preserves material facts and caveats."
+    },
+    {
+      "name": "create-verification-skill",
+      "pinned": {
+        "package_tree_sha": "38a3e016bb42ba7ba6f66315e04ef64242937660",
+        "files": [
+          {
+            "path": "references/feature-map-example/create-note.md",
+            "blob_sha": "21357566b69223a503d6780a04fb90ce540eae22",
+            "size": 2926,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/feature-map-example/README.md",
+            "blob_sha": "fb64570cfab3bbe672fe80925651933ebd57aa33",
+            "size": 2601,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/feature-map-example/search.md",
+            "blob_sha": "1f8e57d3aaf19cf27a9464d55fa72e46bcbc8b0f",
+            "size": 3478,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "f869e26122991252373d5b8f6357e5b9ff195a00",
+            "size": 5879,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "38a3e016bb42ba7ba6f66315e04ef64242937660",
+        "files": [
+          {
+            "path": "references/feature-map-example/create-note.md",
+            "blob_sha": "21357566b69223a503d6780a04fb90ce540eae22",
+            "size": 2926,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/feature-map-example/README.md",
+            "blob_sha": "fb64570cfab3bbe672fe80925651933ebd57aa33",
+            "size": 2601,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/feature-map-example/search.md",
+            "blob_sha": "1f8e57d3aaf19cf27a9464d55fa72e46bcbc8b0f",
+            "size": 3478,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "f869e26122991252373d5b8f6357e5b9ff195a00",
+            "size": 5879,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/create-verification-skill/SKILL.md",
+      "rationale": "The repository interview and live proof lifecycle maps to projectctl feature contracts and project-local Kiro skills."
+    },
+    {
+      "name": "figure-it-out",
+      "pinned": {
+        "package_tree_sha": "ab4f59a6cf0bed04794b713e40b605963e975071",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "6ffc04db212737584aac966c69c53836757fa545",
+            "size": 5161,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "ab4f59a6cf0bed04794b713e40b605963e975071",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "6ffc04db212737584aac966c69c53836757fa545",
+            "size": 5161,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/figure-it-out/SKILL.md",
+      "rationale": "Hypothesis-driven unfamiliar work is portable and stays in the current Kiro session with bounded native delegation."
+    },
+    {
+      "name": "how",
+      "pinned": {
+        "package_tree_sha": "3d341663ea4e4eaf516f17f3bc48f94cf17b75d4",
+        "files": [
+          {
+            "path": "references/critic-prompt.md",
+            "blob_sha": "e17298e8499d919d7700d06334d0c3d1744c4bfb",
+            "size": 2286,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/critique-rubric.md",
+            "blob_sha": "b4d452f536de805107d3b96fc0772e9bbc1c1209",
+            "size": 2877,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/explainer-prompt.md",
+            "blob_sha": "868c737894352bc4f9a401eb0c3ab2051f2be37f",
+            "size": 3121,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/explorer-prompt.md",
+            "blob_sha": "80228270978dcd403bae34ed22b0f517fd38a6fc",
+            "size": 2693,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "c156b76aefd1b6ca11c3c4685b5efc38391a97c6",
+            "size": 7285,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "6b3b08d82cd8d8a00ff0a677bc8145ccd64e579d",
+        "files": [
+          {
+            "path": "references/critic-prompt.md",
+            "blob_sha": "e17298e8499d919d7700d06334d0c3d1744c4bfb",
+            "size": 2286,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/critique-rubric.md",
+            "blob_sha": "b4d452f536de805107d3b96fc0772e9bbc1c1209",
+            "size": 2877,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/explainer-prompt.md",
+            "blob_sha": "868c737894352bc4f9a401eb0c3ab2051f2be37f",
+            "size": 3121,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/explorer-prompt.md",
+            "blob_sha": "80228270978dcd403bae34ed22b0f517fd38a6fc",
+            "size": 2693,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "7da56ddda31197fe6c9c54800f579c57e503ccc6",
+            "size": 7322,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/how/SKILL.md",
+      "rationale": "Evidence-grounded runtime explanation is portable; fixed reviewer models and editor-specific transcript mechanisms are removed."
+    },
+    {
+      "name": "interrogate",
+      "pinned": {
+        "package_tree_sha": "07d83143e202963c4d824818709ad04e23091f18",
+        "files": [
+          {
+            "path": "references/code-quality-review.md",
+            "blob_sha": "569c9a4915dbbca8f02ede9359e1bad733fd7959",
+            "size": 5372,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/lead-judgment.md",
+            "blob_sha": "ea6262ebe540a156e7b12f6b353f92ad621114a6",
+            "size": 3465,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/reviewer-prompt.md",
+            "blob_sha": "53ffa747ff6af72ed24cc00e2622b2c14dd564a9",
+            "size": 2756,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/rubric.md",
+            "blob_sha": "0f63289b7138bd300ed302ebfb919f67c7f9cb83",
+            "size": 5096,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "11fb2fbe44ab3fb531bc35cc6a4e7d06c8472264",
+            "size": 5629,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "c3ebe624be696d6589b1c21ccd77dd174304374d",
+        "files": [
+          {
+            "path": "references/code-quality-review.md",
+            "blob_sha": "569c9a4915dbbca8f02ede9359e1bad733fd7959",
+            "size": 5372,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/lead-judgment.md",
+            "blob_sha": "ea6262ebe540a156e7b12f6b353f92ad621114a6",
+            "size": 3465,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/reviewer-prompt.md",
+            "blob_sha": "53ffa747ff6af72ed24cc00e2622b2c14dd564a9",
+            "size": 2756,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/rubric.md",
+            "blob_sha": "0f63289b7138bd300ed302ebfb919f67c7f9cb83",
+            "size": 5096,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "4e23d35ee2af0188b52654e7467e508261789c42",
+            "size": 5631,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/interrogate/SKILL.md",
+      "rationale": "A discoverable compatibility route into model-council preserves adversarial review while one canonical council owns advisory policy.",
+      "consolidates_to": "skills/model-council/SKILL.md"
+    },
+    {
+      "name": "maintain-verification-skill",
+      "pinned": {
+        "package_tree_sha": "b6ce4dcdc378492f9acd55a4e56ae111204b4f11",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a2680b91fead45a0b4963d8c367a854956bea59d",
+            "size": 4922,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "b6ce4dcdc378492f9acd55a4e56ae111204b4f11",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a2680b91fead45a0b4963d8c367a854956bea59d",
+            "size": 4922,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/maintain-verification-skill/SKILL.md",
+      "rationale": "The live feature-by-feature audit is portable and updates only verifier assets unless product repair is separately requested."
+    },
+    {
+      "name": "make-bot-ui",
+      "pinned": {
+        "package_tree_sha": "1ec6b1c00cad0aa8b8ae1ced27c8bb05537af269",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "9ae55ae3931ce59d4b28f03056b612e38bd9286e",
+            "size": 4618,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "4fb9b8cdd991f08b1c3d7516a886af210bd312cd",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "285df7569758a70e62e9f3596a1f829a5b6ba80e",
+            "size": 4649,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "excluded",
+      "target": null,
+      "rationale": "No runnable skill ships: the source is a Cursor/Grok Bot routine coupled to secret-card APIs, a cursor.sh webhook endpoint, and automatic sudo/Tailscale installation. Use architect to design a reviewed, least-privilege manual bot UI for the target environment.",
+      "safe_alternative": "Use the architect skill to design a manual, reviewed, least-privilege bot UI for the actual target environment."
+    },
+    {
+      "name": "no-comments",
+      "pinned": {
+        "package_tree_sha": "db5caac72d02599dbfee5f44b08b34e46c373bc3",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a14bdda050e71788638733d3b7c342be7f7a2523",
+            "size": 2655,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "db5caac72d02599dbfee5f44b08b34e46c373bc3",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a14bdda050e71788638733d3b7c342be7f7a2523",
+            "size": 2655,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/no-comments/SKILL.md",
+      "rationale": "Portable cleanup distinguishes redundant narration from external contracts, safety rationale, and narrow suppressions."
+    },
+    {
+      "name": "poteto-mode",
+      "pinned": {
+        "package_tree_sha": "9e74ac33c126b46ac355e126d7c153e7f9ee9d8a",
+        "files": [
+          {
+            "path": "playbooks/authoring-a-skill.md",
+            "blob_sha": "0fc01383d072ceaf72b697076953d7376f162256",
+            "size": 956,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/autonomous-run.md",
+            "blob_sha": "bc68ad73435547747876a84d0283b62f8e51cdb9",
+            "size": 2032,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/autopilot-full.md",
+            "blob_sha": "36e5e470ccf36aec63a0f6c395d2e001c38abb45",
+            "size": 5278,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/autopilot-stack.md",
+            "blob_sha": "2f7b23f4c00ec0ca2622d39f3ac8387b419d7857",
+            "size": 4871,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/babysit.md",
+            "blob_sha": "ea83b98f081619c58c0a1c5fb6657e1c4db7d28a",
+            "size": 8275,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/bug-fix.md",
+            "blob_sha": "3db48fb5adf75a5f9a3fcd2c6a1a1d79921ead99",
+            "size": 2669,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/eval.md",
+            "blob_sha": "fe18dd589045fe7400e1af3385f3e6dbe0d6e63a",
+            "size": 3114,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/feature.md",
+            "blob_sha": "77dd564f1f7f4c9969a823449d4848434beaf92f",
+            "size": 3001,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/hillclimb.md",
+            "blob_sha": "6ae44bb6c4430028e2540ce67f6a717f25238fa6",
+            "size": 4533,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/investigation.md",
+            "blob_sha": "2f1e9ec991597c1263a842517754e75d4f09f671",
+            "size": 1124,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/multi-phase-plan.md",
+            "blob_sha": "76affeb2d3ff5ea51f7ce5f453b22e21c46eeb5e",
+            "size": 11180,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/opening-a-pr.md",
+            "blob_sha": "2b90a1921f71239762deb6e69aa431b225b372d7",
+            "size": 3399,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/orchestrate.md",
+            "blob_sha": "fcd5a3e15b6cf5d0a88197119a82b09c52ca0984",
+            "size": 17496,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/pause-safely.md",
+            "blob_sha": "b125efb8072e35d34639835d5bffddfc823cbd0a",
+            "size": 1509,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/perf-issue.md",
+            "blob_sha": "e791de3562a3d0c660cfa7e9e12dc6dd9855f41f",
+            "size": 3530,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/prototype.md",
+            "blob_sha": "0f0a888396f2ff1da11a56bb694ee65eb51529f8",
+            "size": 2532,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/refactoring.md",
+            "blob_sha": "70d74ac869d6a71bdbccfb0cfcbcfb086d9ed9e3",
+            "size": 4006,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/runtime-forensics.md",
+            "blob_sha": "76ebfb3a8c661fea4ab619968a1ac566797344d7",
+            "size": 1414,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/session-pickup.md",
+            "blob_sha": "b75ce11a1fba2f5deff43c272e1d40303524bb09",
+            "size": 2121,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/shipping.md",
+            "blob_sha": "43b575370a8a34b48b5ee217316d25650cfe5d21",
+            "size": 4145,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/trace-forensics.md",
+            "blob_sha": "10f8209e3d9c0e6b50056c92a28d89d56f5a31e6",
+            "size": 2080,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/visual-parity.md",
+            "blob_sha": "ec4a449efdf4f1a3d4b81dc19797d7866545db95",
+            "size": 1345,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/worktree-cleanup.md",
+            "blob_sha": "9f6be47290b138c30ed8bb7338cf15173899147a",
+            "size": 2932,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/bugbot-triage.md",
+            "blob_sha": "da1e7a78ec4788f207033a46df425b6c5c472f80",
+            "size": 9604,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/bootstrap.ts",
+            "blob_sha": "d9c63e2007449a80000abe75ecaf7f2a0bd5826b",
+            "size": 1737,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/bun.lock",
+            "blob_sha": "65f0c662f300a0f72b319ca93ea18f56219c2581",
+            "size": 6679,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/check-plan.mjs",
+            "blob_sha": "21d350ac155928bbcf8d29dce193a97974f12748",
+            "size": 7630,
+            "handling": "helper-semantics-only",
+            "mode": "100755"
+          },
+          {
+            "path": "scripts/orch/orch.test.ts",
+            "blob_sha": "9c234de724991083b4644e906a5f1358f8ef8dcc",
+            "size": 18424,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/orch/orch.ts",
+            "blob_sha": "219ac17bd8805b45140eca7c429834be9ded1b7d",
+            "size": 15511,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100755"
+          },
+          {
+            "path": "scripts/orch/store.ts",
+            "blob_sha": "5e6c602fb670a6b5598977f5bf85d717cf797ef7",
+            "size": 42927,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/package.json",
+            "blob_sha": "8a3dfe27c2d0221a786e1ce61963d51c55260725",
+            "size": 352,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/cli.test.ts",
+            "blob_sha": "0656b413e6c180858ca42981105944c45caf9dca",
+            "size": 6161,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/cli.ts",
+            "blob_sha": "ec8a2f27c5ac24866b699e6395e7d1f32e595068",
+            "size": 6983,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/fakes.test-helper.ts",
+            "blob_sha": "2312522cd7399334115a5f39fd6438aab7fc5aa5",
+            "size": 2944,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/github.test.ts",
+            "blob_sha": "87f4048f08a63a54975c4ef2de8065375e751683",
+            "size": 9059,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/github.ts",
+            "blob_sha": "79bc06fb682c5d99de7d48338b0a6ecd27a518da",
+            "size": 24072,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/policy.test.ts",
+            "blob_sha": "0620ddedde46da8e763ab2a55ebceaad2aa6d0a7",
+            "size": 12397,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/policy.ts",
+            "blob_sha": "4665be37e8f9afff1c9e1f5dd60d98e0d70c8c6c",
+            "size": 25132,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/render.ts",
+            "blob_sha": "0e935839357335f24ab1bbc193d761495646ea99",
+            "size": 7083,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/tsconfig.json",
+            "blob_sha": "477af90b05cbd24fcf974fd73cf331d5ac7379cc",
+            "size": 270,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/types.compile.ts",
+            "blob_sha": "1b53279c7f3e5da55703ed17d6ad0616254c5751",
+            "size": 2258,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/types.ts",
+            "blob_sha": "b67144e0d757e0b61ff079f981ced0a98555ea9d",
+            "size": 12359,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/watch-pr",
+            "blob_sha": "99807d577c3b006cfe6ee9e149cf2914bfd4afd6",
+            "size": 211,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100755"
+          },
+          {
+            "path": "scripts/worktree-audit.sh",
+            "blob_sha": "b9af08160032aeb17143248f2a3648e98f5a75b3",
+            "size": 3984,
+            "handling": "helper-semantics-only",
+            "mode": "100755"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a74065cd21d18c6c179e9b71f37f1ddb0baea1d8",
+            "size": 18858,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "8ad9381998863b41aea7fc492b55e5b53dace42c",
+        "files": [
+          {
+            "path": "playbooks/authoring-a-skill.md",
+            "blob_sha": "0fc01383d072ceaf72b697076953d7376f162256",
+            "size": 956,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/autonomous-run.md",
+            "blob_sha": "bc68ad73435547747876a84d0283b62f8e51cdb9",
+            "size": 2032,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/autopilot-full.md",
+            "blob_sha": "56f3a6581f432ff9752de1cc27ce02bf866b76a7",
+            "size": 6021,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/autopilot-stack.md",
+            "blob_sha": "8599a482a7537d8e4fe6ce6cdb74f69bab719f7f",
+            "size": 5600,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/babysit.md",
+            "blob_sha": "5b162dd3145963138c25d30ba68b02d20250872c",
+            "size": 9564,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/bug-fix.md",
+            "blob_sha": "d0d05e4beef994deb65b5063a9255329b7f8b5e5",
+            "size": 2683,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/eval.md",
+            "blob_sha": "fe18dd589045fe7400e1af3385f3e6dbe0d6e63a",
+            "size": 3114,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/feature.md",
+            "blob_sha": "77dd564f1f7f4c9969a823449d4848434beaf92f",
+            "size": 3001,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/hillclimb.md",
+            "blob_sha": "c6adf1f3261849f0511a8796613536b4ce20fc0d",
+            "size": 4547,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/investigation.md",
+            "blob_sha": "2f1e9ec991597c1263a842517754e75d4f09f671",
+            "size": 1124,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/multi-phase-plan.md",
+            "blob_sha": "fb1d8b03f63b7c55d696780d96547bfeaae6332c",
+            "size": 12551,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/opening-a-pr.md",
+            "blob_sha": "10ab011f6e391178f5844df387907ae044a27154",
+            "size": 4229,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/orchestrate.md",
+            "blob_sha": "fcd5a3e15b6cf5d0a88197119a82b09c52ca0984",
+            "size": 17496,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/pause-safely.md",
+            "blob_sha": "b125efb8072e35d34639835d5bffddfc823cbd0a",
+            "size": 1509,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/perf-issue.md",
+            "blob_sha": "62f81bb2844f6211c07156143a27b590b69f414a",
+            "size": 3544,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/prototype.md",
+            "blob_sha": "0f0a888396f2ff1da11a56bb694ee65eb51529f8",
+            "size": 2532,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/refactoring.md",
+            "blob_sha": "70d74ac869d6a71bdbccfb0cfcbcfb086d9ed9e3",
+            "size": 4006,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/runtime-forensics.md",
+            "blob_sha": "76ebfb3a8c661fea4ab619968a1ac566797344d7",
+            "size": 1414,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/session-pickup.md",
+            "blob_sha": "b75ce11a1fba2f5deff43c272e1d40303524bb09",
+            "size": 2121,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/shipping.md",
+            "blob_sha": "ac3fb6d0e11275319453af68ea19aafb6532145f",
+            "size": 5403,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/trace-forensics.md",
+            "blob_sha": "10f8209e3d9c0e6b50056c92a28d89d56f5a31e6",
+            "size": 2080,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/visual-parity.md",
+            "blob_sha": "ec4a449efdf4f1a3d4b81dc19797d7866545db95",
+            "size": 1345,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "playbooks/worktree-cleanup.md",
+            "blob_sha": "9f6be47290b138c30ed8bb7338cf15173899147a",
+            "size": 2932,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/bugbot-triage.md",
+            "blob_sha": "b2fc7d35712783707607cf2f39752885c8d5105c",
+            "size": 9629,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/bootstrap.ts",
+            "blob_sha": "d9c63e2007449a80000abe75ecaf7f2a0bd5826b",
+            "size": 1737,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/bun.lock",
+            "blob_sha": "65f0c662f300a0f72b319ca93ea18f56219c2581",
+            "size": 6679,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/check-plan.mjs",
+            "blob_sha": "21d350ac155928bbcf8d29dce193a97974f12748",
+            "size": 7630,
+            "handling": "helper-semantics-only",
+            "mode": "100755"
+          },
+          {
+            "path": "scripts/orch/orch.test.ts",
+            "blob_sha": "9c234de724991083b4644e906a5f1358f8ef8dcc",
+            "size": 18424,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/orch/orch.ts",
+            "blob_sha": "219ac17bd8805b45140eca7c429834be9ded1b7d",
+            "size": 15511,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100755"
+          },
+          {
+            "path": "scripts/orch/store.ts",
+            "blob_sha": "5e6c602fb670a6b5598977f5bf85d717cf797ef7",
+            "size": 42927,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/package.json",
+            "blob_sha": "8a3dfe27c2d0221a786e1ce61963d51c55260725",
+            "size": 352,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/cli.test.ts",
+            "blob_sha": "0656b413e6c180858ca42981105944c45caf9dca",
+            "size": 6161,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/cli.ts",
+            "blob_sha": "ec8a2f27c5ac24866b699e6395e7d1f32e595068",
+            "size": 6983,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/fakes.test-helper.ts",
+            "blob_sha": "2312522cd7399334115a5f39fd6438aab7fc5aa5",
+            "size": 2944,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/github.test.ts",
+            "blob_sha": "87f4048f08a63a54975c4ef2de8065375e751683",
+            "size": 9059,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/github.ts",
+            "blob_sha": "79bc06fb682c5d99de7d48338b0a6ecd27a518da",
+            "size": 24072,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/policy.test.ts",
+            "blob_sha": "0620ddedde46da8e763ab2a55ebceaad2aa6d0a7",
+            "size": 12397,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/policy.ts",
+            "blob_sha": "4665be37e8f9afff1c9e1f5dd60d98e0d70c8c6c",
+            "size": 25132,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/render.ts",
+            "blob_sha": "0e935839357335f24ab1bbc193d761495646ea99",
+            "size": 7083,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/tsconfig.json",
+            "blob_sha": "477af90b05cbd24fcf974fd73cf331d5ac7379cc",
+            "size": 270,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/types.compile.ts",
+            "blob_sha": "1b53279c7f3e5da55703ed17d6ad0616254c5751",
+            "size": 2258,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/types.ts",
+            "blob_sha": "b67144e0d757e0b61ff079f981ced0a98555ea9d",
+            "size": 12359,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/watch-pr/watch-pr",
+            "blob_sha": "99807d577c3b006cfe6ee9e149cf2914bfd4afd6",
+            "size": 211,
+            "handling": "runtime-specific-exclusion",
+            "mode": "100755"
+          },
+          {
+            "path": "scripts/worktree-audit.sh",
+            "blob_sha": "b9af08160032aeb17143248f2a3648e98f5a75b3",
+            "size": 3984,
+            "handling": "helper-semantics-only",
+            "mode": "100755"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "930bea154f48180ce5c112a180e6e9d823474df3",
+            "size": 18918,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/poteto-mode/SKILL.md",
+      "rationale": "A discoverable compatibility router selects PK-Stack skills and the DO/PROVE/KNOW interfaces without recreating Cursor task orchestration.",
+      "consolidates_to": "PK-Stack skill router and DO/PROVE/KNOW interfaces"
+    },
+    {
+      "name": "principle-boundary-discipline",
+      "pinned": {
+        "package_tree_sha": "022c087a63e8410dc99ad2d3415fb5bc1f9e0cc1",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "84d526ce7ea45d207587e80015912d5a01714e21",
+            "size": 1919,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "022c087a63e8410dc99ad2d3415fb5bc1f9e0cc1",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "84d526ce7ea45d207587e80015912d5a01714e21",
+            "size": 1919,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-boundary-discipline/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-build-the-lever",
+      "pinned": {
+        "package_tree_sha": "ab52bdaccf67ef351d62ba6a08e37257a5aab0cb",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "8ba6740bd3bd9b2e582080bce0917cc4a7293d2f",
+            "size": 2655,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "ab52bdaccf67ef351d62ba6a08e37257a5aab0cb",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "8ba6740bd3bd9b2e582080bce0917cc4a7293d2f",
+            "size": 2655,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-build-the-lever/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-encode-lessons-in-structure",
+      "pinned": {
+        "package_tree_sha": "22f227027a83520ba9122bd8624a07ec9702f3ae",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "86a22f21146d358fc18afb2a0186da61470c3241",
+            "size": 2243,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "22f227027a83520ba9122bd8624a07ec9702f3ae",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "86a22f21146d358fc18afb2a0186da61470c3241",
+            "size": 2243,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-encode-lessons-in-structure/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-exhaust-the-design-space",
+      "pinned": {
+        "package_tree_sha": "3c9528f7814d889dc91c2434cc942439a9dd6257",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "85dd16f1312f3427e2dddcfc8e7deb89e2555bb3",
+            "size": 1152,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "3c9528f7814d889dc91c2434cc942439a9dd6257",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "85dd16f1312f3427e2dddcfc8e7deb89e2555bb3",
+            "size": 1152,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-exhaust-the-design-space/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-experience-first",
+      "pinned": {
+        "package_tree_sha": "daf94f1bbf9a5182ded9d8c5141cab98e6a1652d",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "be15f055d536721bbda859be3e3d202e78a2e001",
+            "size": 1308,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "daf94f1bbf9a5182ded9d8c5141cab98e6a1652d",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "be15f055d536721bbda859be3e3d202e78a2e001",
+            "size": 1308,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-experience-first/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-fix-root-causes",
+      "pinned": {
+        "package_tree_sha": "476bdf66ce21dc9b2d4c4679815dc647b3f540b3",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "5b3b7916c961c231e7ce1430cd93541204ec0ec0",
+            "size": 1366,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "476bdf66ce21dc9b2d4c4679815dc647b3f540b3",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "5b3b7916c961c231e7ce1430cd93541204ec0ec0",
+            "size": 1366,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-fix-root-causes/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-foundational-thinking",
+      "pinned": {
+        "package_tree_sha": "75d8010f2ebe173b9ad72035f1790a5e5005d198",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "3fcc57b3a54dea965e245dad966cab423f768b11",
+            "size": 1780,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "75d8010f2ebe173b9ad72035f1790a5e5005d198",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "3fcc57b3a54dea965e245dad966cab423f768b11",
+            "size": 1780,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-foundational-thinking/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-guard-the-context-window",
+      "pinned": {
+        "package_tree_sha": "160097c93ba42dd955907f5c02ac38a5975f1518",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "0862757bbb63e314f13f18528c25db85d0901078",
+            "size": 1152,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "160097c93ba42dd955907f5c02ac38a5975f1518",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "0862757bbb63e314f13f18528c25db85d0901078",
+            "size": 1152,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-guard-the-context-window/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-laziness-protocol",
+      "pinned": {
+        "package_tree_sha": "b3f5ad47409de89611d80802e3fc3e9ea2702aaf",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "16bbb97426d1bbcbf957c032f0629a96a4709753",
+            "size": 1520,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "b3f5ad47409de89611d80802e3fc3e9ea2702aaf",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "16bbb97426d1bbcbf957c032f0629a96a4709753",
+            "size": 1520,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-laziness-protocol/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-make-operations-idempotent",
+      "pinned": {
+        "package_tree_sha": "c69d590d8da3af63e34954aa21254e1ec9a2996c",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a0834247ca99b09c11441747717a8034d4c22d7c",
+            "size": 1390,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "c69d590d8da3af63e34954aa21254e1ec9a2996c",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a0834247ca99b09c11441747717a8034d4c22d7c",
+            "size": 1390,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-make-operations-idempotent/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-migrate-callers-then-delete-legacy-apis",
+      "pinned": {
+        "package_tree_sha": "2604f87c7ebe4dd2ff8eb9093eb4da938526b13d",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a0c6e65e1eaf58278fa6bac1a01c23f998759f5c",
+            "size": 1152,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "2604f87c7ebe4dd2ff8eb9093eb4da938526b13d",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a0c6e65e1eaf58278fa6bac1a01c23f998759f5c",
+            "size": 1152,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-minimize-reader-load",
+      "pinned": {
+        "package_tree_sha": "11ec7245004020e7fc5e0097cc012cdb715d3c3b",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "1c5e18c332438ccd5e47f108ec28872e85e82501",
+            "size": 2099,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "11ec7245004020e7fc5e0097cc012cdb715d3c3b",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "1c5e18c332438ccd5e47f108ec28872e85e82501",
+            "size": 2099,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-minimize-reader-load/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-model-the-domain",
+      "pinned": {
+        "package_tree_sha": "b4384796bd31ee727b9bafafccc9e84904f92db6",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "b2f6449498505a866592493ff3f3a10cfdd8ce5c",
+            "size": 2127,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "b4384796bd31ee727b9bafafccc9e84904f92db6",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "b2f6449498505a866592493ff3f3a10cfdd8ce5c",
+            "size": 2127,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-model-the-domain/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-never-block-on-the-human",
+      "pinned": {
+        "package_tree_sha": "2940c8641e3e7729ce8d66f5dcca995e1dd6f495",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "0c55555f85d6636cc26429cc18016ffdafaff576",
+            "size": 1596,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "2940c8641e3e7729ce8d66f5dcca995e1dd6f495",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "0c55555f85d6636cc26429cc18016ffdafaff576",
+            "size": 1596,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-never-block-on-the-human/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-outcome-oriented-execution",
+      "pinned": {
+        "package_tree_sha": "df70eb76cacab0c2bcbd8df2a5c50e7f664fbf1e",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "4c2ed4695b4ca15ea5a98468c13bfe5de97f16df",
+            "size": 1132,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "df70eb76cacab0c2bcbd8df2a5c50e7f664fbf1e",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "4c2ed4695b4ca15ea5a98468c13bfe5de97f16df",
+            "size": 1132,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-outcome-oriented-execution/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-prove-it-works",
+      "pinned": {
+        "package_tree_sha": "809a6925dac5be32419d4b08a459f92466db11a7",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "088c412cc38eb37442914a71d9e05bc6ee430a1b",
+            "size": 2068,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "809a6925dac5be32419d4b08a459f92466db11a7",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "088c412cc38eb37442914a71d9e05bc6ee430a1b",
+            "size": 2068,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-prove-it-works/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-redesign-from-first-principles",
+      "pinned": {
+        "package_tree_sha": "2f9ce6649070033606242178ce56903bab0fe643",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "6a8cf256d69d0d5f2ce4b57795f2794c41c8e5a0",
+            "size": 943,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "2f9ce6649070033606242178ce56903bab0fe643",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "6a8cf256d69d0d5f2ce4b57795f2794c41c8e5a0",
+            "size": 943,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-redesign-from-first-principles/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-separate-before-serializing-shared-state",
+      "pinned": {
+        "package_tree_sha": "c9f8649ad53ebc84344b1037c1383ccca3b7c86c",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "523591e0a1bda493598292358bd2142277fdbd19",
+            "size": 1631,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "c9f8649ad53ebc84344b1037c1383ccca3b7c86c",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "523591e0a1bda493598292358bd2142277fdbd19",
+            "size": 1631,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-separate-before-serializing-shared-state/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-sequence-verifiable-units",
+      "pinned": {
+        "package_tree_sha": "a8d7d3d438b73f86b483a074f426ca64a7777cf1",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "737480800564d634347afdcef25dd48851e9f2eb",
+            "size": 2290,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "a8d7d3d438b73f86b483a074f426ca64a7777cf1",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "737480800564d634347afdcef25dd48851e9f2eb",
+            "size": 2290,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-sequence-verifiable-units/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-subtract-before-you-add",
+      "pinned": {
+        "package_tree_sha": "dcd8d09a19fc6c4795d5a4799c50db4108ae59ab",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "1666d2617dbc9cf107ecb52aac30b6ffbcc1159b",
+            "size": 1337,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "dcd8d09a19fc6c4795d5a4799c50db4108ae59ab",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "1666d2617dbc9cf107ecb52aac30b6ffbcc1159b",
+            "size": 1337,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-subtract-before-you-add/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "principle-type-system-discipline",
+      "pinned": {
+        "package_tree_sha": "7b04ed645018056af8396b93e2f31cd2efbcd358",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "192a1255709e105cd055543b058b9e1bf66d84e1",
+            "size": 5097,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "7b04ed645018056af8396b93e2f31cd2efbcd358",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "192a1255709e105cd055543b058b9e1bf66d84e1",
+            "size": 5097,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "alias-consolidation",
+      "target": "skills/principle-type-system-discipline/SKILL.md",
+      "rationale": "Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog.",
+      "consolidates_to": "skills/principles/references/catalog.md"
+    },
+    {
+      "name": "recall",
+      "pinned": {
+        "package_tree_sha": "b1a0bf2803b93af37e68cc267e00325c20f0f5c2",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "7e3f26595160dac08bfc3287cef48d7e75b74dfa",
+            "size": 5696,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "b1a0bf2803b93af37e68cc267e00325c20f0f5c2",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "7e3f26595160dac08bfc3287cef48d7e75b74dfa",
+            "size": 5696,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "native-kiro-replacement",
+      "target": "skills/recall/SKILL.md",
+      "rationale": "Uses current-session context, Kiro steering, projectctl knowledge, git, and explicitly authorized task history instead of private Cursor transcript stores."
+    },
+    {
+      "name": "reflect",
+      "pinned": {
+        "package_tree_sha": "dbf8e52e18cb63c6c5f873c6e0a054f0bc1918ec",
+        "files": [
+          {
+            "path": "references/divergent-reviewer.md",
+            "blob_sha": "70cfdff377e793208f7daa581caf8a7fbdfb2dd1",
+            "size": 3956,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/judgment-reviewer.md",
+            "blob_sha": "76261f1690adc8b8f845113466dd9e80c40f7103",
+            "size": 3322,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/synthesizer.md",
+            "blob_sha": "11040b0f4dc639517b569b55460f4a128f503e2a",
+            "size": 4164,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/tooling-reviewer.md",
+            "blob_sha": "19f4aa48775da3409116cc05a2162dc3d361c839",
+            "size": 4795,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "a0e50f7eeb993559744a7a8b44b7c4f8a432d92d",
+            "size": 5045,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "c204f03fb08faa9cd521ae8a6c1ea5a1b087bf4f",
+        "files": [
+          {
+            "path": "references/divergent-reviewer.md",
+            "blob_sha": "70cfdff377e793208f7daa581caf8a7fbdfb2dd1",
+            "size": 3956,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/judgment-reviewer.md",
+            "blob_sha": "76261f1690adc8b8f845113466dd9e80c40f7103",
+            "size": 3322,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/synthesizer.md",
+            "blob_sha": "11040b0f4dc639517b569b55460f4a128f503e2a",
+            "size": 4164,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/tooling-reviewer.md",
+            "blob_sha": "19f4aa48775da3409116cc05a2162dc3d361c839",
+            "size": 4795,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "3e056e97eb55103db24b2d5f99e5f1edef9d38ef",
+            "size": 5051,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "native-kiro-replacement",
+      "target": "skills/reflect/SKILL.md",
+      "rationale": "Reflects on current Kiro work and proposes structural learning; broad durable instruction changes require explicit approval."
+    },
+    {
+      "name": "setup-pstack",
+      "pinned": {
+        "package_tree_sha": "968c5d5e4e0e75612a626ef4e2d9924f2df641c9",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "ee882deb0600bc34a07a043033e12e6a1b05aecf",
+            "size": 4648,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "3b89c0e122c102f92b16335bcec4d411ee4f52f4",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "6dcaef578f2075558a8da57a21f97a62590d07f1",
+            "size": 4710,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "native-kiro-replacement",
+      "target": "skills/setup-pstack/SKILL.md",
+      "rationale": "Preserves the upstream setup outcome and optional verification-workflow offer, but replaces its Cursor global role-model rule with idempotent Kiro Power bootstrap, ownership receipts, a pinned local controller, and inheritance of the user's selected Kiro model and effort."
+    },
+    {
+      "name": "show-me-your-work",
+      "pinned": {
+        "package_tree_sha": "bc5101de50dfb902248e7983751947706f6cdf49",
+        "files": [
+          {
+            "path": "references/decision-log-template.tsv",
+            "blob_sha": "db220376ecb8c582a6a4f6575a8f26469603a38d",
+            "size": 38,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/log.sh",
+            "blob_sha": "523e2a74ee15bfe6528c795a347827f04ecc5e95",
+            "size": 1234,
+            "handling": "helper-semantics-only",
+            "mode": "100755"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "8a9c731acf5bb7ad789e10ec7c5af6970dce1176",
+            "size": 6762,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "bc5101de50dfb902248e7983751947706f6cdf49",
+        "files": [
+          {
+            "path": "references/decision-log-template.tsv",
+            "blob_sha": "db220376ecb8c582a6a4f6575a8f26469603a38d",
+            "size": 38,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "scripts/log.sh",
+            "blob_sha": "523e2a74ee15bfe6528c795a347827f04ecc5e95",
+            "size": 1234,
+            "handling": "helper-semantics-only",
+            "mode": "100755"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "8a9c731acf5bb7ad789e10ec7c5af6970dce1176",
+            "size": 6762,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/show-me-your-work/SKILL.md",
+      "rationale": "A bounded decision-and-evidence trail is portable; it excludes hidden reasoning and unsafe raw transcript export."
+    },
+    {
+      "name": "swarm",
+      "pinned": {
+        "package_tree_sha": "78b490b8c095ede6d7bea1f5fbdaca0f89019c46",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "b7e61ec7bc46629930582a50f12a6b9f1f28a368",
+            "size": 2232,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "78b490b8c095ede6d7bea1f5fbdaca0f89019c46",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "b7e61ec7bc46629930582a50f12a6b9f1f28a368",
+            "size": 2232,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/swarm/SKILL.md",
+      "rationale": "Independent bounded work maps to native Kiro sub-agents with explicit ownership and current-session synthesis."
+    },
+    {
+      "name": "tdd",
+      "pinned": {
+        "package_tree_sha": "3a761ae539f19c61c7ae73eddbec54951d44e752",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "7d923bd705e4727b0bc9a378ca0928cc825035de",
+            "size": 3536,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "3a761ae539f19c61c7ae73eddbec54951d44e752",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "7d923bd705e4727b0bc9a378ca0928cc825035de",
+            "size": 3536,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/tdd/SKILL.md",
+      "rationale": "Failing-behavior-first implementation and layered proof are runtime-neutral."
+    },
+    {
+      "name": "teach",
+      "pinned": {
+        "package_tree_sha": "11a2a58a0bb7e303a289195bdff6f14722a29d48",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "beea0ffaa916e8fcf93f2bf13c632f2a9259d1e2",
+            "size": 6253,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "11a2a58a0bb7e303a289195bdff6f14722a29d48",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "beea0ffaa916e8fcf93f2bf13c632f2a9259d1e2",
+            "size": 6253,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/teach/SKILL.md",
+      "rationale": "Layered how-and-why teaching is portable and grounded in inspected project evidence when repository-specific."
+    },
+    {
+      "name": "technical-writing",
+      "pinned": {
+        "package_tree_sha": "08b040cf2ec3e053b51d08ea0a56138483b87697",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "d13baf98426a72764f94d18ab45d1549151a6c38",
+            "size": 11522,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "08b040cf2ec3e053b51d08ea0a56138483b87697",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "d13baf98426a72764f94d18ab45d1549151a6c38",
+            "size": 11522,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/technical-writing/SKILL.md",
+      "rationale": "Reader- and task-oriented documentation is portable; examples and volatile claims require direct verification."
+    },
+    {
+      "name": "typescript-best-practices",
+      "pinned": {
+        "package_tree_sha": "1fb484a7b093b399e4726516f1bcd3370216bc59",
+        "files": [
+          {
+            "path": "references/patterns.md",
+            "blob_sha": "f8a6c78755010d27a7c1fc8fc48fffe02f29283f",
+            "size": 8695,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "9c4e3cb6236433ca480dcf246a11bca529794e88",
+            "size": 2532,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "b50554bb7119f369f17273c9654c3619ef3e3b4d",
+        "files": [
+          {
+            "path": "references/patterns.md",
+            "blob_sha": "15c3e1118055ca2f2d353b968004fc4a46491248",
+            "size": 9537,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "2912734bdb985ac217849e8581c7a7e0aa7383a5",
+            "size": 2780,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/typescript-best-practices/SKILL.md",
+      "rationale": "TypeScript boundary schemas, constructive types, exhaustive variants, and runtime tests are portable. The full skill remains on demand, while Kiro-native fileMatch steering preserves the upstream .ts/.tsx trigger without unsupported Cursor frontmatter."
+    },
+    {
+      "name": "unslop",
+      "pinned": {
+        "package_tree_sha": "6161508c5c7959b156ff0e4e10b510863b51f9cc",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "2a93c06bbe54fde89a36c88e63ef07477da323d4",
+            "size": 6595,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "35153230eaaf0aa02437e7004bc319b33c5fbe1f",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "ccb0c5563ff0fe7a04e2f95f27bf681df86240a9",
+            "size": 6626,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/unslop/SKILL.md",
+      "rationale": "Specific, human prose editing is portable and preserves facts, voice, and uncertainty. The full skill remains on demand, while concise always-included Kiro steering preserves the upstream must-always-apply contract."
+    },
+    {
+      "name": "why",
+      "pinned": {
+        "package_tree_sha": "401af6846377c1f6bb712337f28252f003e9cd32",
+        "files": [
+          {
+            "path": "references/epistemics.md",
+            "blob_sha": "aca563ef9fe4ce27797a73027c6fb38b6d93e6f7",
+            "size": 7749,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/investigator-prompt.md",
+            "blob_sha": "1886b46deb20ef1f13d409a0ad7f6c3fb885eb6a",
+            "size": 6985,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/source-playbook.md",
+            "blob_sha": "bcf11e1315e7774651649dbf91b67213463c8073",
+            "size": 1363,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/code-archaeology.md",
+            "blob_sha": "32d5f97f8d2d3974c668f5f0392737b7e8e25afd",
+            "size": 3489,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/databricks.md",
+            "blob_sha": "5e82b90536b81f395c74aa5f98c387bc0d5d5d79",
+            "size": 6994,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/datadog.md",
+            "blob_sha": "039330e8491430a34167005c55a0baa29f7eeb67",
+            "size": 5323,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/incident-postmortem.md",
+            "blob_sha": "e5afc3204ba7e2b15b01e5abc538d26d8b1b3b53",
+            "size": 1973,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/linear.md",
+            "blob_sha": "c000efd5aad749a4483e2563a63d460903eae124",
+            "size": 2996,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/notion.md",
+            "blob_sha": "ea6ab335c40834ba79e0085ae2d7a94950502f49",
+            "size": 2853,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/sentry.md",
+            "blob_sha": "fe09d17254e7653a7c75f855cecc779d5512a02e",
+            "size": 4947,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/slack.md",
+            "blob_sha": "d4a5f23646053516bb1235f06dcf697b49acda23",
+            "size": 3105,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/synthesizer-prompt.md",
+            "blob_sha": "dae7efc580f5bc8e63b2fd28a1462fe2b8445d07",
+            "size": 7984,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "c34bc86b6aec4e48dafa19c4f4d25f5989e9689d",
+            "size": 21343,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "current": {
+        "package_tree_sha": "661a335f8efe4f7fa15f4838b8d9025170454ad4",
+        "files": [
+          {
+            "path": "references/epistemics.md",
+            "blob_sha": "aca563ef9fe4ce27797a73027c6fb38b6d93e6f7",
+            "size": 7749,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/investigator-prompt.md",
+            "blob_sha": "1886b46deb20ef1f13d409a0ad7f6c3fb885eb6a",
+            "size": 6985,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/source-playbook.md",
+            "blob_sha": "bcf11e1315e7774651649dbf91b67213463c8073",
+            "size": 1363,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/code-archaeology.md",
+            "blob_sha": "32d5f97f8d2d3974c668f5f0392737b7e8e25afd",
+            "size": 3489,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/databricks.md",
+            "blob_sha": "5e82b90536b81f395c74aa5f98c387bc0d5d5d79",
+            "size": 6994,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/datadog.md",
+            "blob_sha": "039330e8491430a34167005c55a0baa29f7eeb67",
+            "size": 5323,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/incident-postmortem.md",
+            "blob_sha": "e5afc3204ba7e2b15b01e5abc538d26d8b1b3b53",
+            "size": 1973,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/linear.md",
+            "blob_sha": "c000efd5aad749a4483e2563a63d460903eae124",
+            "size": 2996,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/notion.md",
+            "blob_sha": "ea6ab335c40834ba79e0085ae2d7a94950502f49",
+            "size": 2853,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/sentry.md",
+            "blob_sha": "fe09d17254e7653a7c75f855cecc779d5512a02e",
+            "size": 4947,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/sources/slack.md",
+            "blob_sha": "d4a5f23646053516bb1235f06dcf697b49acda23",
+            "size": 3105,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "references/synthesizer-prompt.md",
+            "blob_sha": "dae7efc580f5bc8e63b2fd28a1462fe2b8445d07",
+            "size": 7984,
+            "handling": "semantic-source",
+            "mode": "100644"
+          },
+          {
+            "path": "SKILL.md",
+            "blob_sha": "3aea3f7d3f51421f7860c00e775f00acc45a58cc",
+            "size": 21376,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
+      "disposition": "direct-port",
+      "target": "skills/why/SKILL.md",
+      "rationale": "Evidence-first rationale recovery is portable; fixed model roles and editor-private transcript assumptions are removed."
+    }
+  ],
+  "allowed_resource_handling": [
+    "semantic-source",
+    "helper-semantics-only",
+    "runtime-specific-exclusion"
+  ]
+}

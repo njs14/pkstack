@@ -10,12 +10,35 @@ from pstack_kiro.bootstrap import bootstrap_project
 from pstack_kiro.doctor import (
     _command_check,
     _kiro_agent_check,
+    _kiro_agent_discovery_check,
+    _parse_workspace_agent_rows,
     _runtime_state_ignored,
     _validate_kiro_json,
     run_doctor,
 )
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = POWER_ROOT.parents[1]
+
+
+def _agent_list_output(names: list[str], *, ansi: bool = False) -> str:
+    reset = "\x1b[m" if ansi else ""
+    rows = "\n".join(f"  {name:<30} {reset}Workspace{reset}     test profile" for name in names)
+    return (
+        f"{reset}Workspace: {reset}/tmp/project/.kiro/agents\n"
+        f"{reset}Global:    {reset}/tmp/home/.kiro/agents\n\n"
+        f"{rows}\n"
+    )
+
+
+def _write_workspace_agents(root: Path, names: list[str]) -> None:
+    agents = root / ".kiro" / "agents"
+    agents.mkdir(parents=True)
+    for name in names:
+        (agents / f"{name}.json").write_text(
+            json.dumps({"name": name}),
+            encoding="utf-8",
+        )
 
 
 def _without_optional_doctor_tools(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -30,10 +53,28 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
     monkeypatch,
 ) -> None:
     bootstrap_project(tmp_path, power_root=POWER_ROOT)
+    fake_kiro = tmp_path / "tools" / "kiro-cli"
+    fake_kiro.parent.mkdir()
+    fake_kiro.write_text("test executable sentinel\n", encoding="utf-8")
     monkeypatch.setattr(
         "pstack_kiro.doctor.shutil.which",
-        lambda name: f"/tools/{name}" if name in {"uv", "kiro-cli"} else None,
+        lambda name: (
+            str(fake_kiro) if name == "kiro-cli" else "/tools/uv" if name == "uv" else None
+        ),
     )
+    calls: list[tuple[list[str], Path | None]] = []
+
+    def run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        cwd = kwargs.get("cwd")
+        assert cwd is None or isinstance(cwd, Path)
+        calls.append((command, cwd))
+        if command[1:] == ["agent", "list"]:
+            names = sorted(path.stem for path in (tmp_path / ".kiro/agents").glob("*.json"))
+            return subprocess.CompletedProcess(command, 0, _agent_list_output(names, ansi=True), "")
+        assert command[1:3] == ["agent", "validate"]
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr("pstack_kiro.doctor.subprocess.run", run)
 
     result = run_doctor(tmp_path)
 
@@ -42,6 +83,20 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
     checks = {check["name"]: check for check in result["checks"]}
     receipt = json.loads((tmp_path / ".pstack" / "bootstrap.json").read_text())
     assert checks["okn"]["status"] == "warn"
+    assert checks["kiro-workspace-agent-discovery"]["status"] == "pass"
+    for steering in (
+        "pstack-core-steering",
+        "pstack-safety-steering",
+        "pstack-typescript-steering",
+        "pstack-unslop-steering",
+    ):
+        assert checks[steering]["status"] == "pass"
+        assert checks[f"{steering}-managed-integrity"]["status"] == "pass"
+    assert calls[0] == ([str(fake_kiro), "agent", "list"], tmp_path.resolve())
+    assert all(call[0][1:3] == ["agent", "validate"] for call in calls[1:])
+    assert {Path(call[0][-1]).stem for call in calls[1:]} == {
+        path.stem for path in (tmp_path / ".kiro/agents").glob("*.json")
+    }
     assert checks["bootstrap-receipt-integrity"] == {
         "name": "bootstrap-receipt-integrity",
         "status": "pass",
@@ -383,3 +438,214 @@ def test_doctor_reports_runtime_ignore_and_kiro_validation_execution_errors(
         lambda *_args, **_kwargs: (_ for _ in ()).throw(timeout),
     )
     assert _kiro_agent_check("kiro-cli", tmp_path / "agent.json", "agent").status == "fail"
+
+
+def test_kiro_workspace_agent_discovery_accepts_all_exact_ansi_rows(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    expected = [
+        "pstack",
+        "pstack-architect",
+        "pstack-maintainer",
+        "pstack-reviewer",
+        "pstack-verifier",
+    ]
+    _write_workspace_agents(tmp_path, expected)
+    observed: dict[str, object] = {}
+
+    def run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        observed["command"] = command
+        observed.update(kwargs)
+        return subprocess.CompletedProcess(command, 0, _agent_list_output(expected, ansi=True), "")
+
+    monkeypatch.setattr("pstack_kiro.doctor.subprocess.run", run)
+
+    check = _kiro_agent_discovery_check("/opt/kiro-cli", tmp_path)
+
+    assert check.status == "pass"
+    assert "all 5 workspace agent profile(s)" in check.message
+    assert observed["command"] == ["/opt/kiro-cli", "agent", "list"]
+    assert observed["cwd"] == tmp_path
+    assert observed["timeout"] == 30
+    assert observed["check"] is False
+
+
+def test_kiro_workspace_agent_discovery_accepts_real_cli_stderr_renderer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    expected = [
+        "pstack",
+        "pstack-architect",
+        "pstack-maintainer",
+        "pstack-reviewer",
+        "pstack-verifier",
+    ]
+    _write_workspace_agents(tmp_path, expected)
+    output = _agent_list_output(expected, ansi=True)
+    monkeypatch.setattr(
+        "pstack_kiro.doctor.subprocess.run",
+        lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, "", output),
+    )
+
+    check = _kiro_agent_discovery_check("kiro-cli", tmp_path)
+
+    assert check.status == "pass"
+    assert "all 5 workspace agent profile(s)" in check.message
+
+
+def test_kiro_workspace_agent_discovery_fails_when_expected_agent_is_missing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    expected = ["pstack", "pstack-reviewer", "pstack-verifier"]
+    _write_workspace_agents(tmp_path, expected)
+    output = _agent_list_output(["pstack", "pstack-reviewer"])
+    monkeypatch.setattr(
+        "pstack_kiro.doctor.subprocess.run",
+        lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, output, ""),
+    )
+
+    check = _kiro_agent_discovery_check("kiro-cli", tmp_path)
+
+    assert check.status == "fail"
+    assert check.message == "workspace agents missing from kiro-cli agent list: pstack-verifier"
+
+
+@pytest.mark.parametrize(
+    "output",
+    [
+        "Global: /tmp/home/.kiro/agents\n  pstack Workspace test\n",
+        "Workspace: /tmp/project/.kiro/agents\n  pstack Workspace\n  pstack Workspace\n",
+        "Workspace: /tmp/project/.kiro/agents\nno loader rows\n",
+    ],
+    ids=("missing-header", "duplicate-row", "no-exact-row"),
+)
+def test_kiro_workspace_agent_discovery_fails_on_malformed_output(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    output: str,
+) -> None:
+    _write_workspace_agents(tmp_path, ["pstack"])
+    monkeypatch.setattr(
+        "pstack_kiro.doctor.subprocess.run",
+        lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, output, ""),
+    )
+
+    check = _kiro_agent_discovery_check("kiro-cli", tmp_path)
+
+    assert check.status == "fail"
+    assert check.message.startswith("malformed kiro-cli agent list output:")
+
+
+def test_kiro_workspace_agent_discovery_fails_closed_on_timeout(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _write_workspace_agents(tmp_path, ["pstack"])
+
+    def timeout(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        timeout_seconds = kwargs["timeout"]
+        assert isinstance(timeout_seconds, (int, float))
+        raise subprocess.TimeoutExpired(command, timeout_seconds)
+
+    monkeypatch.setattr("pstack_kiro.doctor.subprocess.run", timeout)
+
+    check = _kiro_agent_discovery_check("kiro-cli", tmp_path)
+
+    assert check.status == "fail"
+    assert check.message == "kiro-cli agent list timed out after 30 seconds"
+
+
+def test_kiro_workspace_agent_discovery_fails_closed_on_nonzero(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _write_workspace_agents(tmp_path, ["pstack"])
+    monkeypatch.setattr(
+        "pstack_kiro.doctor.subprocess.run",
+        lambda command, **_kwargs: subprocess.CompletedProcess(
+            command,
+            23,
+            "",
+            "sensitive local diagnostics stay out of the doctor payload",
+        ),
+    )
+
+    check = _kiro_agent_discovery_check("kiro-cli", tmp_path)
+
+    assert check.status == "fail"
+    assert check.message == "kiro-cli agent list exited 23"
+    assert "sensitive" not in check.message
+
+
+def test_agent_discovery_probe_records_bounded_221_evidence() -> None:
+    evidence = json.loads(
+        (REPOSITORY_ROOT / "reviews" / "kiro-v3-agent-discovery-probe.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert evidence["schema_version"] == 1
+    assert evidence["observed_at"] == "2026-09-03T00:40:00Z"
+    assert evidence["runtime"] == {
+        "client": "Kiro CLI",
+        "client_version": "2.21.0",
+        "executable_sha256": "0a24ebce53f4dc5cea6fbc74e5e95e9df9787aa4ec76a5eb459959c200c59225",
+        "probe_command": "kiro-cli agent list",
+    }
+    probe = evidence["controlled_probe"]
+    assert probe["expected_workspace_agents"] == [
+        "pstack",
+        "pstack-architect",
+        "pstack-maintainer",
+        "pstack-reviewer",
+        "pstack-verifier",
+    ]
+    assert probe["workspace_agent_set_sha256"] == (
+        "2122ae5b1beb677694e05d73007e9d0a20261b69456d54fc6307036c47f2472f"
+    )
+    assert probe["field_absent_output_sha256"] == (
+        "acfd2441dcf8671873c9a362d8da53e5e692727a91c76c50e52575cdd06b0cc1"
+    )
+    assert probe["empty_object_output_sha256"] == (
+        "8e8b7681321235e8d01d37a0445c2536b89537bf4086beb339c88f12fc018489"
+    )
+    assert evidence["documentation"]["retrieved_at"] == "2026-09-03T00:40:00Z"
+    assert {page["url"]: page["sha256"] for page in evidence["documentation"]["pages"]} == {
+        "https://kiro.dev/llms.txt": (
+            "e260760ef80a9be25c6a4bf02c1aaf0915a5233412c3cb7af59d54575506da77"
+        ),
+        "https://kiro.dev/docs/cli/v3/agent-config.md": (
+            "3a6bba711ab56db59070466f599e590feda68730607ce00706155beac023190c"
+        ),
+        "https://kiro.dev/docs/custom-agents/configuration-reference.md": (
+            "80484017b11180fe9e27f9ee5f71c0e8812afa53591793d162bfb7027b99a4c3"
+        ),
+        "https://kiro.dev/docs/custom-agents/subagents.md": (
+            "31365d7e0996a3844be19e35db031c9676593f81d7e1f58e360a41170a29afac"
+        ),
+        "https://kiro.dev/docs/custom-agents.md": (
+            "4901ef1d9bb61a831849697619ca484a4b0517ac23ea3afd94de5fd399799400"
+        ),
+        "https://kiro.dev/docs/ide/whats-new-v1/agent-config.md": (
+            "55ff4294e193171bd7f1104912592f588b682e3852f44b2df824119781b55397"
+        ),
+        "https://kiro.dev/docs/crew/capabilities/agents.md": (
+            "f9be9521cfcf0f73e6aa11ba692e65f32f13c54c790901adaff6331bbc799f0d"
+        ),
+    }
+    compatibility = " ".join(
+        (POWER_ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8").split()
+    )
+    assert "Crew's direct KAS projection" in compatibility
+    assert "does not preserve inline permission or native subagent parity" in compatibility
+
+
+def test_parse_workspace_agent_rows_does_not_promote_global_or_builtin_rows() -> None:
+    output = _agent_list_output(["pstack"], ansi=True)
+    output += "  pstack-global                  Global        unrelated\n"
+    output += "  kiro_default                   (Built-in)    default\n"
+
+    assert _parse_workspace_agent_rows(output) == {"pstack"}

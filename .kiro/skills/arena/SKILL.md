@@ -1,12 +1,12 @@
 ---
 name: arena
 description: Compare multiple structurally distinct solutions to one artifact under a shared rubric, select a base, coherently graft the strongest ideas, and verify the result. Use when a design or implementation has meaningful competing approaches.
-compatibility: Kiro CLI v3; native sub-agents are optional.
+compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; native sub-agents are optional.
 ---
 
 # Run an arena
 
-Artifact or question: $ARGUMENTS
+Treat the request text that activated this skill as the artifact or question.
 
 ## Frame one contest
 

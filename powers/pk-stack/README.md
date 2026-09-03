@@ -1,11 +1,18 @@
 # PK-Stack
 
-**PK-Stack** expands to **Poteto Kiro**. It is a Kiro CLI v3-first Power for
-development that must end in executable evidence. It keeps implementation and
-repair work in the user's current interactive Kiro session and adds a small
+<p align="center">
+  <img src="assets/logo.png" alt="PK-Stack: the Kiro ghost reimagined as a scholarly golden potato" width="220">
+</p>
+
+**PK-Stack** expands to **Poteto Kiro**. It is a Kiro-native Power for
+development that must end in executable evidence. Kiro CLI v3 and Kiro IDE
+1.x chat/Agent Focus are its first-class primary surfaces. Kiro Crew is a
+compatible optional orchestrator, and Kiro Web is supported through committed
+workspace assets by design but remains untested. PK-Stack keeps implementation
+and repair work in the user's current Kiro agent session and adds a small
 repo-local control surface; it does not launch an external ACP host or the
 `kiro-cli acp` entrypoint, recreate an agent runtime, or claim that native
-`/goal` is available in V3.
+`/goal` is available in CLI v3.
 
 The ownership rule is:
 
@@ -47,24 +54,31 @@ That produces three deliberately separate interfaces:
 
 | Interface | Purpose |
 | --- | --- |
-| `.pstack/bin/projectctl` | **DO**: setup, diagnostics, feature operations, and bounded goal state |
+| `.pstack/bin/projectctl` | **DO**: setup, diagnostics, feature and upstream operations, and bounded goal state |
 | `Wiki/features/*.md` | **PROVE**: user-visible behavior bound to an executable verifier |
 | Other `Wiki/`/OKF material | **KNOW**: architecture, decisions, concepts, and operations |
 
-## Quick start
+## Quick start on the primary surfaces
 
-Prerequisites are Kiro CLI with V3, `uv`, and Python 3.11 or newer. Import this
-package directory as a Kiro Power, review it, then use an ordinary V3 chat to
-install the repository-local assets. In the combined PK-Stack repository the
-package directory is `powers/pk-stack/`; do not import its generated
-`.pstack/projectctl/` acceptance-fixture cache:
+Prerequisites are Kiro IDE 1.x or Kiro CLI with v3, `uv`, and Python 3.11 or
+newer. Import this package directory as a Kiro Power and review it. In the
+combined PK-Stack repository the package directory is `powers/pk-stack/`; do
+not import its generated `.pstack/projectctl/` acceptance-fixture cache.
+
+In Kiro IDE, open the repository and use the chat panel or Agent Focus. In
+Kiro CLI, start an ordinary v3 chat:
 
 ```bash
 cd /path/to/project
 kiro-cli chat --v3
 ```
 
-Run the Power's setup skill in that session:
+PK-Stack inherits the model and effort already selected in Kiro. It does not
+hard-code Sol/max or another Cursor-era role. See [models, effort, and
+verification methodology](docs/kiro-v3-compatibility.md#models-effort-and-verification-methodology)
+before deliberately changing that session choice.
+
+Run the Power's setup skill in that Kiro agent session:
 
 ```text
 /setup-pstack
@@ -83,7 +97,8 @@ uses the locked repo-local entrypoint:
 ```
 
 The generated permission profile cannot attach retroactively to the setup
-chat. Before the next workflow message, switch the current V3 session:
+chat. Before the next workflow message, use the IDE agent picker to choose the
+workspace **pstack** agent, or in CLI v3 stay in the same chat and run:
 
 ```text
 /agent swap pstack
@@ -91,7 +106,8 @@ chat. Before the next workflow message, switch the current V3 session:
 
 The Poteto Kiro primary profile retains the compatibility agent ID `pstack`
 and excludes installed Powers. For a later managed refresh, stay in this same
-chat and temporarily return to the Power-enabled setup agent:
+chat and temporarily return to the Power-enabled setup agent. Use the IDE agent
+picker, or in CLI v3 run:
 
 ```text
 /agent swap kiro_default
@@ -103,16 +119,19 @@ Use the previously selected Power-enabled agent if its local name differs.
 The cached `.pstack/bin/projectctl setup` command is not upgrade authority and
 fails unless a reviewed `--power-root` is supplied explicitly.
 
-If the newly created profile or slash skills are not discoverable yet, exit and
-restart the same repository explicitly with:
+If the newly created profile or slash skills are not discoverable yet, open
+one fresh pre-goal IDE chat/Agent Focus session and choose the workspace
+**pstack** agent. In CLI v3, exit normally and restart the same repository
+explicitly with:
 
 ```bash
 kiro-cli chat --v3 --agent pstack
 ```
 
-Both paths use normal Kiro V3; neither launches an external ACP host,
-`kiro-cli acp`, classic/V2, or a nested Kiro process. Setup never changes the
-user's global default agent.
+Both primary paths use Kiro's native agent harness; neither launches an
+external ACP host, `kiro-cli acp`, classic/V2, or a nested Kiro process. Setup
+never changes the user's global default agent. Once `/verified-goal` is loaded,
+the whole loop remains in that current Kiro agent session.
 
 Create a ready feature contract only when its verifier can prove the behavior:
 
@@ -146,11 +165,52 @@ The skill reports completion only after the stored verifier reaches `passed`.
 Native subagents can help with bounded diagnosis, but a reviewer opinion is not
 completion evidence.
 
+## Workflow catalog
+
+The Power contains 48 source skill directories. Setup remains Power-local; the
+other 47 are installed into `.kiro/skills`, while the controller cache retains
+all 48. They cover architecture, investigation and explanation, verification
+lifecycle, TDD, technical writing, TypeScript, cleanup, teaching, context
+recovery, advisory review, and individually discoverable engineering
+principles. See the [complete upstream skill parity
+matrix](docs/upstream-skill-parity.md) for every upstream name, Kiro-native
+route, and the one explicit safety exclusion.
+
+Kiro discovers skill metadata first and loads a full body only on activation.
+The current Kiro documentation gives no per-project skill-count cap; this is not
+a claim that the catalog is unlimited.
+
+Two portable upstream behaviors are also pervasive. An always-included prose
+steering file carries the concise `unslop` core, and native `fileMatch` steering
+loads TypeScript discipline for `**/*.ts` and `**/*.tsx`. The full skills remain
+available on demand for deeper review workflows.
+
+## Crew and Web
+
+Kiro Crew may open the repository and consume the generated `.kiro` agents,
+skills, and steering. Crew drives Kiro CLI over ACP internally; that is an
+optional Kiro product integration, not PK-Stack's default entrypoint and not a
+reason to launch `kiro-cli acp` yourself.
+
+For Kiro Web, bootstrap and review PK-Stack locally, then commit the generated
+`.kiro` and `.pstack` assets before opening the repository in Web. Invoke
+`/verified-goal` from Web's primary session agent. Project custom agents are
+delegation-only on Web, and the IDE/CLI permission profile is not available
+there. Do not upload this complete custom Power as a Configuration Sync
+substitute: custom cloud Powers are text-only and capped at 50 files, while
+PK-Stack exceeds that shape. This Web route is supported by design and has not
+been exercised end to end.
+
+See the [Kiro surface support and evidence
+matrix](docs/kiro-v3-compatibility.md) for the exact tested/untested boundary
+and the September 1-2, 2026 Kiro change inventory.
+
 ## Documentation
 
 - [Usage and recovery](docs/usage.md)
 - [Architecture and trust boundaries](docs/architecture.md)
-- [Kiro CLI v3 compatibility](docs/kiro-v3-compatibility.md)
+- [Kiro surface compatibility](docs/kiro-v3-compatibility.md)
+- [Upstream skill parity catalog](docs/upstream-skill-parity.md)
 - [Provenance and porting boundary](docs/provenance.md)
 - [Validation report](docs/validation-report.md)
 

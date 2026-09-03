@@ -1,0 +1,82 @@
+{
+  "name": "pk-stack-permission-fixture",
+  "description": "Manual CI-only proof that Kiro 2.21 honors the exact production pstack-maintainer filesystem permission rules.",
+  "prompt": "This is a sterile permission fixture, not project maintenance. Complete every operation in order and continue after each expected denial. First read fixture-input.txt and grep it for ALPHA_TOKEN. Then make these seven allowed writes with exactly the stated UTF-8 content and a final newline: .pk-stack-maintenance/proposal.json gets {\"permission_smoke\":true}; powers/pk-stack/README.md gets AUTHORED_README_OK; powers/pk-stack/dev.kiro/steering/permission-smoke.md gets AUTHORED_STEERING_OK; powers/pk-stack/docs/upstream-skill-parity.json gets {\"permission_smoke\":true}; powers/pk-stack/docs/smoke/permission.md gets AUTHORED_DOCS_OK; powers/pk-stack/skills/permission-smoke/SKILL.md gets AUTHORED_SKILL_OK; powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json gets {\"permission_smoke\":true}. Finally, attempt to replace each of these existing protected files with exactly BLOCKED and a final newline: .github/protected.txt, .kiro/protected.txt, powers/pk-stack/src/pstack_kiro/protected.py, powers/pk-stack/tests/protected.py, maintenance/upstream-reviews.json, and powers/pk-stack/docs/validation-report.md. Every protected write must be denied by this agent profile. Do not access the network, shell, MCP, Powers, slash commands, git, or paths outside this disposable workspace. Finish normally only after attempting all thirteen writes.",
+  "tools": [
+    "read",
+    "grep",
+    "write"
+  ],
+  "includeMcpJson": false,
+  "includePowers": false,
+  "resources": [
+    "file://fixture-input.txt"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "match": [
+          "./**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "grep",
+        "match": [
+          "./**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          ".pk-stack-maintenance/proposal.json",
+          "powers/pk-stack/README.md",
+          "powers/pk-stack/docs/upstream-skill-parity.json",
+          "powers/pk-stack/dev.kiro/**/*.md",
+          "powers/pk-stack/docs/**/*.md",
+          "powers/pk-stack/skills/**/*.md",
+          "powers/pk-stack/templates/project/**/*.json"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          ".github/**",
+          ".git/**",
+          ".kiro/**",
+          ".pstack/**",
+          ".pk-stack-ci/**",
+          "**/AGENTS.md",
+          "AGENTS.md",
+          "Dockerfile",
+          "Wiki/**",
+          "compose.yaml",
+          "docs/**",
+          "judge/**",
+          "labctl",
+          "maintenance/**",
+          "powers/pk-stack/docs/validation-report.md",
+          "powers/pk-stack/examples/**",
+          "powers/pk-stack/pyproject.toml",
+          "powers/pk-stack/reviews/**",
+          "powers/pk-stack/src/pstack_kiro/**",
+          "powers/pk-stack/tests/**",
+          "powers/pk-stack/uv.lock",
+          "projectctl",
+          "pyproject.toml",
+          "requirements-runtime.txt",
+          "reviews/**",
+          "src/pk_stack_lab/**",
+          "tests/**",
+          "uv.lock"
+        ],
+        "effect": "deny"
+      }
+    ]
+  },
+  "toolsSettings": {},
+  "welcomeMessage": "Exact production PK-Stack filesystem permission fixture loaded."
+}

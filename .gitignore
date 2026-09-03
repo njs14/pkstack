@@ -9,3 +9,4 @@ __pycache__/
 .pstack/state/
 .pstack/tmp/
 .pstack/projectctl/.venv/
+.pk-stack-maintenance/

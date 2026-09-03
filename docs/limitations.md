@@ -9,11 +9,26 @@ campaign did not drive the graphical import click path. The selected-profile wor
 then exercised in a real Kiro v3 terminal session. Until Kiro exposes a corresponding CLI command,
 an end user must still complete and confirm the graphical Power import manually.
 
-PK-Stack adds a current-session skill and deterministic repository state; it does not add a native
-Kiro CLI v3 `/goal` command or runtime scheduler. Prompt and skill instructions guide the model,
-while `projectctl` owns only the executable contract, bounded attempt count, and terminal state. A
-disabled Stop hook is advisory, not a blocker. The normal workflow is ordinary interactive
-`kiro-cli --v3`, not ACP.
+Kiro IDE 1.x chat/Agent Focus is a first-class target and the installed 1.0.437 build plus shared
+workspace assets are structurally validated, but this snapshot has no separate GUI end-to-end
+repair campaign. Kiro Crew compatibility is required while Crew itself remains optional; no Crew
+end-to-end verified-goal campaign is claimed here. Crew's internal Kiro CLI/ACP transport is not
+PK-Stack's normal launcher.
+
+Kiro Web is supported by design and explicitly untested. Its honest path is an already
+bootstrapped repository with committed `.kiro` and `.pstack` assets. Web cannot select a project
+custom agent as primary or apply the local IDE/CLI permission surface, and its sandbox still needs
+the controller's Python 3.11+/`uv` prerequisites. Configuration Sync cannot upload the complete
+PK-Stack custom Power because custom cloud Powers are text-only, limited to 50 files, and do not
+write back to local `.kiro`.
+
+PK-Stack adds a current-session skill and deterministic repository state; it neither supplies nor
+depends on Kiro's documented native `/goal` loop. A sterile interactive Kiro CLI 2.21.0 V3 probe
+treated `/goal clear` as ordinary prompt text, so this tested runtime does not expose the
+documented slash command. Prompt and skill instructions guide the model, while `projectctl` owns
+only the executable contract, bounded attempt count, and terminal state. A disabled Stop hook is
+advisory, not a blocker. The normal workflow is ordinary interactive Kiro IDE chat/Agent Focus or
+`kiro-cli --v3`, not a user-launched external ACP host.
 
 Feature-map validation and feature-backed goals do not require OKF. Broader project-knowledge
 search and `knowledge validate --require-okn` require the canonical `okn` executable. When it is

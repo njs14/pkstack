@@ -4,9 +4,11 @@ This report separates deterministic local checks, controller proof, the live Doc
 campaign, Kiro-session evidence, and model-council acceptance. A pass at one boundary is not
 reported as a pass at another. Fable round 4 reviewed combined commit `ced867c` and found two
 material gaps: the API-idempotency oracle was incomplete, and the live evidence was not bound to
-that combined tree. The `live-council-902` and selected-profile Kiro campaigns ran on the earlier
-`d9b1e0d` source line. They remain useful historical lifecycle and current-session evidence, but
-neither is substituted for the required fresh proof of the remediated final tree.
+that combined tree. Both are now locally closed on executable commit
+`cb2cb0905687c3e94e539333d8945c37109f6189` by strengthened tests and the fresh exact-executable
+`fable-r5-902` lifecycle plus external judge. This remains candidate evidence until Fable reviews
+an immutable snapshot containing its record. The earlier `live-council-902` and selected-profile
+Kiro campaigns remain separately labeled historical lifecycle and current-session evidence.
 
 ## Bootstrap and controller provenance
 
@@ -37,7 +39,7 @@ and a bounded stored goal. Goal `4360c683-7cc7-4bda-b0a5-c2b70b009735` recorded 
 real failure and attempt 2 as passed after the smallest fixture repair. That proves controller
 state transitions, not a Kiro session.
 
-## Candidate static gate
+## Historical pre-round-4 static gate
 
 After the final pre-live safety audit, all of these commands exited zero:
 
@@ -109,6 +111,84 @@ Canonical and combined Ruff checks, the canonical format and `ty` checks, both l
 four `kiro-cli agent validate` commands, the 39-pass/zero-fail generated-controller doctor, feature
 and knowledge validation, shell syntax, JSON parsing, and `labctl doctor` also exited zero. The
 single controller warning remains the disclosed optional absence of canonical `okn`.
+
+## Current executable candidate and static suites
+
+The Fable round-4 remediation was committed before the final live campaign:
+
+```text
+commit  cb2cb0905687c3e94e539333d8945c37109f6189
+tree    c28e71a050185f19befb3832e865c4e54f2bcf03
+```
+
+The complete combined suite passed 298 tests, and the canonical Power suite passed 509:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 \
+  uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q
+# 298 passed
+
+(cd powers/pk-stack && env PYTHONDONTWRITEBYTECODE=1 \
+  uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q)
+# 509 passed
+```
+
+The executable remediation requires the duplicate API response marker and accepted status,
+stable export ID, exact durable idempotency key, confirmed enqueue, and exactly one worker attempt.
+It also closes the round-4 root-controller, exact-network, real-producer/judge-payload, and exact
+build-backend-pin low findings with executable regressions.
+
+## Fresh exact-executable Floci campaign: `fable-r5-902`
+
+The lifecycle used only the public control surface on executable commit `cb2cb09`:
+
+```sh
+./labctl doctor --output json
+./labctl up --run-id fable-r5-902 --acknowledge-docker-socket --output json
+# Add one controlled build-input marker to src/pk_stack_lab/runtime.py.
+./labctl deploy --output json
+# Restore src/pk_stack_lab/runtime.py byte-for-byte to executable commit cb2cb09.
+./labctl deploy --output json
+./labctl status --output json
+./labctl verify --output json
+./labctl evidence --output json
+```
+
+Both API and worker services converged on two distinct generations:
+
+| Generation | Source digest | Docker image ID | API/worker revisions | Operation ID |
+| --- | --- | --- | --- | --- |
+| controlled marker | `21d72b651fe61d76f14cb4c2e427755a3ffefe4704da6c8397311283b97c1d72` | `sha256:43545de6babede31a7d1eeaa5dc93b2578145338c35fbf9c9d582010c0bc5f69` | `:1` / `:1` | `3ce59f0bbf08bd17c5676b915a5f0f3a` |
+| restored executable commit | `5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6` | `sha256:8510c0cf5e34ce1c81869249a893779b8d9a9992a9ad322aec59cdf63c7d1377` | `:2` / `:2` | `d0e2fe295881efa76e36fc025c1b4f87` |
+
+The restored runtime hash was
+`83a05fcc163e8f72b418cb72834967e8d274bebfe872d4608ad393c18469cfe9`. The evidence command
+reported the final source digest explicitly at the top level. Direct verification returned
+`ok: true` for export `e-80e481584565639f` and current-invocation DLQ message
+`df56c9f6-c725-486a-8ce3-d42ec91af49d`. The strengthened API-idempotency checks, complete business
+contract, and post-business identity reproof passed.
+
+The frozen owner-controlled judge then invoked the exact public verifier:
+
+```sh
+/usr/bin/python3 -I -B \
+  /private/tmp/pk-stack-judge-fable-r5.dg6p1m/controls/verify_feature_contract.py \
+  --repo /Users/noahsutter/git-projects/pk-stack-lab \
+  --expected-contract-sha256 f8678410245c3f62b186a88535432f7f97d2f02687d1ea3685e30f526242fc48 \
+  --control-manifest \
+    /private/tmp/pk-stack-judge-fable-r5.dg6p1m/controls/control-manifest.json
+```
+
+It exited zero with `ok: true`, judge SHA-256
+`73e6b16865381c0475e528d5c87458081d92f213e31811395b4e2ecfad9560d7`, manifest SHA-256
+`b7b7e9176d435242738abfb9ea31b4faed4573cd68448454b5d964235629dd0d`, and contract SHA-256
+`f8678410245c3f62b186a88535432f7f97d2f02687d1ea3685e30f526242fc48`. The full frozen 14-path
+hash map is retained in `reviews/fable-r5-live-proof.md`.
+
+Normal `./labctl down --output json` then accounted for four ECS tasks and four immutable image
+references, completed all eight frozen phases, and left every exact local postcondition clean. The
+full foreign-image inventory was unchanged. These results close `FBL-028` and `FBL-029` locally;
+independent Fable acceptance remains the next gate.
 
 ## Historical pre-combination live Floci campaign: `live-council-902`
 
@@ -374,9 +454,10 @@ commit `2fcacc054fd62e55a8d57107d35b73e3d1d1582c`. Both ran at max effort and re
 findings. Round 3 inspected immutable commit `d9b1e0d` read-only at max effort but reached the
 five-hour account rate limit before returning the required report. It has **no verdict, no
 acceptance value, and no finding disposition**. Round 4 reviewed immutable combined commit
-`ced867c4814ef722441215bd4d33ac30769868ec` and returned `REQUEST CHANGES` with open material
-findings `FBL-028` and `FBL-029`; see `reviews/fable-round-4.md`. A later Fable round must inspect
-the exact remediated commit and its fresh live evidence before acceptance.
+`ced867c4814ef722441215bd4d33ac30769868ec` and returned `REQUEST CHANGES` with material findings
+`FBL-028` and `FBL-029`; see `reviews/fable-round-4.md`. Both are closed locally by executable
+commit `cb2cb09` and `reviews/fable-r5-live-proof.md`. A later Fable round must inspect the exact
+remediated bytes and fresh live evidence before acceptance.
 
 The optional Archify status flow, `npx skills use tt-a1i/archify@archify --agent codex`, reached its
 interactive trust TUI under `TERM=dumb` and was not activated; it produced no authoritative

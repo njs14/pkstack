@@ -849,6 +849,79 @@ def display_command(argv: Sequence[str]) -> str:
     return shlex.join(tuple(argv))
 
 
+def _is_managed_upstream_check(argv: Sequence[str], *, root: Path) -> bool:
+    """Allow one meaningful self-host predicate without reopening generic self-proof."""
+
+    if len(argv) < 3 or tuple(argv[1:3]) != ("upstream", "check"):
+        return False
+    resolved_root = _resolve_policy_path(root)
+    executable = Path(argv[0])
+    candidate = Path(
+        os.path.abspath(executable if executable.is_absolute() else resolved_root / executable)
+    )
+    canonical = resolved_root / ".pstack" / "bin" / "projectctl"
+    if candidate != canonical:
+        return False
+    if (
+        not candidate.is_file()
+        or candidate.is_symlink()
+        or _resolve_policy_path(candidate) != candidate
+    ):
+        raise CommandRejected("the managed upstream verifier entrypoint is missing or unsafe")
+    if not os.access(candidate, os.X_OK):
+        raise CommandRejected("the managed upstream verifier entrypoint is not executable")
+
+    allowed_options = {"--manifest", "--output", "--power-root", "--timeout-seconds"}
+    values: dict[str, str] = {}
+    index = 3
+    while index < len(argv):
+        token = argv[index]
+        if "=" in token:
+            option, value = token.split("=", 1)
+            consumed = 1
+        else:
+            option = token
+            if index + 1 >= len(argv):
+                raise CommandRejected(
+                    f"managed upstream verifier option requires a value: {option}"
+                )
+            value = argv[index + 1]
+            consumed = 2
+        if option not in allowed_options:
+            raise CommandRejected(f"unsupported managed upstream verifier option: {option}")
+        if option in values:
+            raise CommandRejected(f"duplicate managed upstream verifier option: {option}")
+        if not value or "\x00" in value:
+            raise CommandRejected(
+                f"managed upstream verifier option has an invalid value: {option}"
+            )
+        values[option] = value
+        index += consumed
+
+    required = {"--manifest", "--output", "--power-root"}
+    if not required <= set(values):
+        missing = ", ".join(sorted(required - set(values)))
+        raise CommandRejected(f"managed upstream verifier is missing required options: {missing}")
+    if values["--output"] != "json":
+        raise CommandRejected("managed upstream verifier must use JSON output")
+    if values["--manifest"] != "maintenance/upstreams.json":
+        raise CommandRejected("managed upstream verifier must use maintenance/upstreams.json")
+    if values["--power-root"] != "powers/pk-stack":
+        raise CommandRejected("managed upstream verifier must use powers/pk-stack")
+    for option in ("--manifest", "--power-root"):
+        _reject_path_escape(values[option], root=resolved_root)
+    if "--timeout-seconds" in values:
+        try:
+            timeout = float(values["--timeout-seconds"])
+        except ValueError as exc:
+            raise CommandRejected("managed upstream verifier timeout must be numeric") from exc
+        if not math.isfinite(timeout) or not 0 < timeout <= 30:
+            raise CommandRejected(
+                "managed upstream verifier timeout must be positive, finite, and at most 30 seconds"
+            )
+    return True
+
+
 def enforce_verification_policy(argv: Sequence[str], *, root: Path) -> None:
     """Reject operations that do not belong in a verifier.
 
@@ -863,6 +936,8 @@ def enforce_verification_policy(argv: Sequence[str], *, root: Path) -> None:
 
     executable = argv[0]
     base = Path(executable).name.lower()
+    if _is_managed_upstream_check(argv, root=root):
+        return
     if base in _NON_EVIDENTIARY_EXECUTABLES:
         raise CommandRejected(f"{base!r} cannot establish verification evidence")
     if base in _CONTROL_PLANE_EXECUTABLES:

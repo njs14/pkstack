@@ -8,6 +8,7 @@
   ],
   "includeMcpJson": false,
   "includePowers": false,
+  "toolsSettings": {},
   "resources": [
     "file://.kiro/steering/**/*.md",
     "skill://.kiro/skills/*/SKILL.md"

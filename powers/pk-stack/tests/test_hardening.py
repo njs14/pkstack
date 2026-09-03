@@ -38,6 +38,16 @@ from pstack_kiro.runner import CommandRejected, run_command
 POWER_ROOT = Path(__file__).resolve().parents[1]
 
 
+def _copy_power_fixture(destination: Path) -> None:
+    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates"):
+        shutil.copytree(POWER_ROOT / relative, destination / relative)
+    (destination / "docs").mkdir()
+    shutil.copy2(
+        POWER_ROOT / "docs" / "upstream-skill-parity.json",
+        destination / "docs" / "upstream-skill-parity.json",
+    )
+
+
 def test_bootstrap_rejects_symlink_escape_before_writing(tmp_path: Path) -> None:
     project = tmp_path / "project"
     outside = tmp_path / "outside"
@@ -92,16 +102,21 @@ def test_bootstrap_rejects_incomplete_power_before_writing(
     missing_asset: str,
 ) -> None:
     power = tmp_path / "power"
-    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates"):
-        shutil.copytree(POWER_ROOT / relative, power / relative)
+    _copy_power_fixture(power)
     (power / missing_asset).unlink()
     target = tmp_path / "target"
     target.mkdir()
 
-    with pytest.raises(ValueError, match="required PK-Stack Power assets are missing") as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         bootstrap_project(target, power_root=power)
 
-    assert missing_asset in str(exc_info.value)
+    message = str(exc_info.value)
+    if missing_asset == "skills/verified-goal/SKILL.md":
+        assert "PK-Stack skill catalog mismatch" in message
+        assert "missing verified-goal" in message
+    else:
+        assert "required PK-Stack Power assets are missing" in message
+        assert missing_asset in message
     assert list(target.iterdir()) == []
 
 
@@ -109,8 +124,7 @@ def test_bootstrap_rejects_required_source_asset_symlink_before_writing(
     tmp_path: Path,
 ) -> None:
     power = tmp_path / "power"
-    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates"):
-        shutil.copytree(POWER_ROOT / relative, power / relative)
+    _copy_power_fixture(power)
     outside = tmp_path / "outside-goal.py"
     sentinel = "external source sentinel must remain unread"
     outside.write_text(sentinel, encoding="utf-8")
@@ -253,9 +267,7 @@ def test_bootstrap_preflights_non_directory_parent_without_partial_install(
 
 def test_managed_upgrade_requires_preview_then_explicit_opt_in(tmp_path: Path) -> None:
     power_v2 = tmp_path / "power-v2"
-    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates"):
-        source = POWER_ROOT / relative
-        shutil.copytree(source, power_v2 / relative)
+    _copy_power_fixture(power_v2)
 
     first = bootstrap_project(tmp_path, power_root=POWER_ROOT)
     assert first.ok is True
@@ -290,11 +302,15 @@ def test_owned_discovery_refreshes_without_managed_upgrade_gate(tmp_path: Path) 
 
 def test_retired_managed_asset_is_reported_until_explicitly_removed(tmp_path: Path) -> None:
     power_v1 = tmp_path / "power-v1"
-    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates"):
-        shutil.copytree(POWER_ROOT / relative, power_v1 / relative)
+    _copy_power_fixture(power_v1)
     retired = power_v1 / "skills" / "retired" / "SKILL.md"
     retired.parent.mkdir()
     retired.write_text("---\nname: retired\ndescription: Retired.\n---\n", encoding="utf-8")
+    parity_path = power_v1 / "docs" / "upstream-skill-parity.json"
+    parity = json.loads(parity_path.read_text(encoding="utf-8"))
+    parity["pk_only_skills"] = sorted([*parity["pk_only_skills"], "retired"])
+    parity["summary"]["shipped_skill_directories"] += 1
+    parity_path.write_text(json.dumps(parity, indent=2) + "\n", encoding="utf-8")
 
     first = bootstrap_project(tmp_path, power_root=power_v1)
     assert first.ok is True
@@ -302,6 +318,10 @@ def test_retired_managed_asset_is_reported_until_explicitly_removed(tmp_path: Pa
     assert live.is_file()
 
     retired.unlink()
+    retired.parent.rmdir()
+    parity["pk_only_skills"].remove("retired")
+    parity["summary"]["shipped_skill_directories"] -= 1
+    parity_path.write_text(json.dumps(parity, indent=2) + "\n", encoding="utf-8")
     blocked = bootstrap_project(tmp_path, power_root=power_v1, update_managed=True)
     assert blocked.ok is False
     assert ".kiro/skills/retired/SKILL.md" in blocked.stale_managed

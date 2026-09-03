@@ -1,0 +1,425 @@
+name: PK-Stack Kiro Permission Smoke
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: pk-stack-kiro-permission-smoke-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  permission-boundary:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Harden runner networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            api.github.com:443
+            app.kiro.dev:443
+            assets.app.kiro.dev:443
+            cli.kiro.dev:443
+            desktop-release.q.us-east-1.amazonaws.com:443
+            github.com:443
+            management.eu-central-1.kiro.dev:443
+            management.us-east-1.kiro.dev:443
+            objects.githubusercontent.com:443
+            prod.download.cli.kiro.dev:443
+            prod.download.desktop.kiro.dev:443
+            prod.us-east-1.auth.desktop.kiro.dev:443
+            prod.us-east-1.telemetry.desktop.kiro.dev:443
+            q.eu-central-1.amazonaws.com:443
+            q.us-east-1.amazonaws.com:443
+            results-receiver.actions.githubusercontent.com:443
+            runtime.eu-central-1.kiro.dev:443
+            runtime.us-east-1.kiro.dev:443
+            telemetry.eu-central-1.kiro.dev:443
+            telemetry.us-east-1.kiro.dev:443
+      - name: Check out immutable permission fixture
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Prepare checksum-pinned sterile Kiro permission runtime
+        env:
+          SMOKE_ROOT: ${{ runner.temp }}/pk-stack-kiro-permission-smoke
+        run: |
+          set -euo pipefail
+          umask 077
+          test ! -e "$SMOKE_ROOT"
+          mkdir -p \
+            "$SMOKE_ROOT/bin" \
+            "$SMOKE_ROOT/kiro-home/agents" \
+            "$SMOKE_ROOT/user-home" \
+            "$SMOKE_ROOT/runtime" \
+            "$SMOKE_ROOT/workspace/.github" \
+            "$SMOKE_ROOT/workspace/.kiro" \
+            "$SMOKE_ROOT/workspace/.pk-stack-maintenance" \
+            "$SMOKE_ROOT/workspace/maintenance" \
+            "$SMOKE_ROOT/workspace/powers/pk-stack/dev.kiro/steering" \
+            "$SMOKE_ROOT/workspace/powers/pk-stack/docs/smoke" \
+            "$SMOKE_ROOT/workspace/powers/pk-stack/skills/permission-smoke" \
+            "$SMOKE_ROOT/workspace/powers/pk-stack/src/pstack_kiro" \
+            "$SMOKE_ROOT/workspace/powers/pk-stack/templates/project/.kiro/agents" \
+            "$SMOKE_ROOT/workspace/powers/pk-stack/tests"
+          archive="$SMOKE_ROOT/kirocli-2.21.0.tar.xz"
+          curl --proto '=https' --tlsv1.2 --fail --location \
+            --retry 3 --retry-all-errors --output "$archive" \
+            https://prod.download.cli.kiro.dev/stable/2.21.0/kirocli-x86_64-linux.tar.xz
+          printf '%s  %s\n' \
+            6eccb46617a84690fc892219f264f7617312761c9a3d7e38cc47a0e2ab0152b7 \
+            "$archive" | sha256sum --check
+          tar --extract --xz --file "$archive" --directory "$SMOKE_ROOT/bin" \
+            --strip-components=2 \
+            kirocli/bin/kiro-cli \
+            kirocli/bin/kiro-cli-chat
+          test "$("$SMOKE_ROOT/bin/kiro-cli" --version)" = "kiro-cli 2.21.0"
+          install -m 0600 \
+            .github/fixtures/kiro-permission-agent.json \
+            "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json"
+          install -m 0500 \
+            .github/scripts/validate_kiro_permission_stream.py \
+            "$SMOKE_ROOT/validate-stream.py"
+          printf '%s  %s\n' \
+            516d4a8da6eab3effc5f04d42388dc84659c02716a0859f0f0eca1f42a5ebd50 \
+            "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json" \
+            | sha256sum --check
+          printf '%s  %s\n' \
+            e1b9fb70d7916f743a1d82d4923cd5eb8ef059a1530a9cce8734677ac2b0c06a \
+            "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
+          python3 - "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          production = json.loads(
+              Path(".kiro/agents/pstack-maintainer.json").read_text(encoding="utf-8")
+          )
+          policy = json.loads(
+              Path(".github/pk-stack-maintenance-policy.json").read_text(encoding="utf-8")
+          )
+          authority = policy["ci_authority"]
+          expected = [
+              {"capability": "fs_read", "match": ["./**"], "effect": "allow"},
+              {"capability": "grep", "match": ["./**"], "effect": "allow"},
+              {
+                  "capability": "fs_write",
+                  "match": authority["write_patterns"],
+                  "effect": "allow",
+              },
+              {
+                  "capability": "fs_write",
+                  "match": authority["deny_patterns"],
+                  "effect": "deny",
+              },
+          ]
+          fixture_permissions = fixture.get("permissions")
+          production_permissions = production.get("permissions")
+          if not isinstance(fixture_permissions, dict) or set(fixture_permissions) != {"rules"}:
+              raise SystemExit("permission fixture must contain only permissions.rules")
+          if fixture_permissions["rules"] != expected:
+              raise SystemExit("permission fixture rules differ from immutable policy")
+          if production_permissions != fixture_permissions:
+              raise SystemExit("permission fixture rules differ from production maintainer")
+          if fixture.get("toolsSettings") != authority["tools_settings"]:
+              raise SystemExit("permission fixture lacks immutable V3 discovery settings")
+          if production.get("toolsSettings") != fixture["toolsSettings"]:
+              raise SystemExit("permission fixture discovery settings differ from production")
+          PY
+          printf '%s\n' 'ALPHA_TOKEN sterile permission input' \
+            >"$SMOKE_ROOT/workspace/fixture-input.txt"
+          protected_paths=(
+            .github/protected.txt
+            .kiro/protected.txt
+            powers/pk-stack/src/pstack_kiro/protected.py
+            powers/pk-stack/tests/protected.py
+            maintenance/upstream-reviews.json
+            powers/pk-stack/docs/validation-report.md
+          )
+          for protected_path in "${protected_paths[@]}"; do
+            printf 'PROTECTED_BASELINE %s\n' "$protected_path" \
+              >"$SMOKE_ROOT/workspace/$protected_path"
+          done
+          (
+            cd "$SMOKE_ROOT/workspace"
+            sha256sum "${protected_paths[@]}" >"$SMOKE_ROOT/protected-baseline.sha256"
+          )
+          cat >"$SMOKE_ROOT/expected-files.txt" <<'EOF'
+          .github/protected.txt
+          .kiro/protected.txt
+          .pk-stack-maintenance/proposal.json
+          fixture-input.txt
+          maintenance/upstream-reviews.json
+          powers/pk-stack/README.md
+          powers/pk-stack/dev.kiro/steering/permission-smoke.md
+          powers/pk-stack/docs/smoke/permission.md
+          powers/pk-stack/docs/upstream-skill-parity.json
+          powers/pk-stack/docs/validation-report.md
+          powers/pk-stack/skills/permission-smoke/SKILL.md
+          powers/pk-stack/src/pstack_kiro/protected.py
+          powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json
+          powers/pk-stack/tests/protected.py
+          EOF
+          (
+            cd "$SMOKE_ROOT"
+            HOME="$SMOKE_ROOT/user-home" KIRO_HOME="$SMOKE_ROOT/kiro-home" \
+              "$SMOKE_ROOT/bin/kiro-cli" settings chat.disableInheritingDefaultResources true
+            HOME="$SMOKE_ROOT/user-home" KIRO_HOME="$SMOKE_ROOT/kiro-home" \
+              "$SMOKE_ROOT/bin/kiro-cli" settings app.disableAutoupdates true
+            HOME="$SMOKE_ROOT/user-home" KIRO_HOME="$SMOKE_ROOT/kiro-home" \
+              "$SMOKE_ROOT/bin/kiro-cli" settings telemetry.enabled false
+          )
+          chmod -R a-w "$GITHUB_WORKSPACE"
+      - name: Invoke exact production permission matrix
+        env:
+          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
+          SMOKE_ROOT: ${{ runner.temp }}/pk-stack-kiro-permission-smoke
+        run: |
+          set -euo pipefail
+          : "${KIRO_API_KEY:?KIRO_API_KEY is not configured}"
+          (
+            cd "$SMOKE_ROOT/workspace"
+            env -i \
+              HOME="$SMOKE_ROOT/user-home" \
+              KIRO_HOME="$SMOKE_ROOT/kiro-home" \
+              PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
+              LANG=C.UTF-8 \
+              CI=true \
+              NO_COLOR=1 \
+              KIRO_LOG_NO_COLOR=1 \
+              XDG_RUNTIME_DIR="$SMOKE_ROOT/runtime" \
+              SSL_CERT_DIR=/etc/ssl/certs \
+              KIRO_API_KEY="$KIRO_API_KEY" \
+              "$SMOKE_ROOT/bin/kiro-cli" agent validate \
+                --path "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json"
+          )
+          agent_list_log="$SMOKE_ROOT/agent-list.log"
+          (
+            cd "$SMOKE_ROOT/workspace"
+            env -i \
+              HOME="$SMOKE_ROOT/user-home" \
+              KIRO_HOME="$SMOKE_ROOT/kiro-home" \
+              PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
+              LANG=C.UTF-8 \
+              CI=true \
+              NO_COLOR=1 \
+              KIRO_LOG_NO_COLOR=1 \
+              XDG_RUNTIME_DIR="$SMOKE_ROOT/runtime" \
+              SSL_CERT_DIR=/etc/ssl/certs \
+              KIRO_API_KEY="$KIRO_API_KEY" \
+              "$SMOKE_ROOT/bin/kiro-cli" agent list
+          ) >"$agent_list_log" 2>&1
+          grep -Eq '(^|[[:space:]])pk-stack-permission-fixture([[:space:]]|$)' \
+            "$agent_list_log"
+          stream="$SMOKE_ROOT/stream.jsonl"
+          stderr="$SMOKE_ROOT/stderr.log"
+          prompt='Run the sterile permission fixture now. Follow the agent prompt exactly, attempt every allowed and protected write, continue after every expected denial, and then stop.'
+          set +e
+          (
+            cd "$SMOKE_ROOT/workspace"
+            env -i \
+              HOME="$SMOKE_ROOT/user-home" \
+              KIRO_HOME="$SMOKE_ROOT/kiro-home" \
+              PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
+              LANG=C.UTF-8 \
+              CI=true \
+              NO_COLOR=1 \
+              KIRO_LOG_NO_COLOR=1 \
+              XDG_RUNTIME_DIR="$SMOKE_ROOT/runtime" \
+              SSL_CERT_DIR=/etc/ssl/certs \
+              KIRO_API_KEY="$KIRO_API_KEY" \
+              timeout --signal=TERM --kill-after=5s 300s \
+              "$SMOKE_ROOT/bin/kiro-cli" chat \
+                --v3 \
+                --agent pk-stack-permission-fixture \
+                --model gpt-5.6-sol \
+                --effort max \
+                --no-interactive \
+                --trust-tools=fs_read,fs_write,grep \
+                --output-format stream-json \
+                "$prompt"
+          ) >"$stream" 2>"$stderr"
+          kiro_rc=$?
+          set -e
+          python3 - \
+            "$stream" \
+            "$stderr" \
+            "$kiro_rc" \
+            "$SMOKE_ROOT/validate-stream.py" \
+            "$agent_list_log" <<'PY'
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          stream_path, stderr_path = map(Path, sys.argv[1:3])
+          return_code = int(sys.argv[3])
+          validator_path = Path(sys.argv[4])
+          agent_list_path = Path(sys.argv[5])
+          spec = importlib.util.spec_from_file_location(
+              "validate_kiro_permission_stream",
+              validator_path,
+          )
+          if spec is None or spec.loader is None:
+              raise SystemExit("unable to load checksum-pinned permission stream validator")
+          validator = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(validator)
+          raw_stream = stream_path.read_bytes()
+          raw_stderr = stderr_path.read_bytes()
+          raw_agent_list = agent_list_path.read_bytes()
+          if (
+              len(raw_stream) > validator.MAX_OUTPUT_BYTES
+              or len(raw_stderr) > validator.MAX_OUTPUT_BYTES
+              or len(raw_agent_list) > validator.MAX_OUTPUT_BYTES
+          ):
+              raise SystemExit("Kiro permission output exceeded the per-file bound")
+          api_key = os.environ.get("KIRO_API_KEY", "").encode("utf-8")
+          if not api_key:
+              raise SystemExit("KIRO_API_KEY is empty")
+          if api_key in raw_stream or api_key in raw_stderr or api_key in raw_agent_list:
+              raise SystemExit("Kiro permission output contained the API key")
+          if b'not found, using "default"' in raw_stderr:
+              raise SystemExit("Kiro fell back from the exact permission fixture to default")
+          if return_code != 0:
+              raise SystemExit(f"Kiro permission fixture exited {return_code}")
+          try:
+              lines = raw_stream.decode("utf-8").splitlines()
+          except UnicodeDecodeError as exc:
+              raise SystemExit("Kiro permission stream is not UTF-8") from exc
+          events = []
+          try:
+              for line in lines:
+                  if not line.strip():
+                      continue
+                  event = json.loads(
+                      line,
+                      object_pairs_hook=validator._strict_object,
+                      parse_constant=validator._reject_constant,
+                  )
+                  if not isinstance(event, dict):
+                      raise SystemExit("Kiro permission stream line is not an object")
+                  events.append(event)
+                  if len(events) > validator.MAX_EVENTS:
+                      raise SystemExit("Kiro permission stream exceeded the event-count bound")
+          except json.JSONDecodeError as exc:
+              raise SystemExit(f"malformed Kiro permission stream: {exc}") from exc
+          if not events:
+              raise SystemExit("Kiro permission stream is empty")
+          mappings = [mapping for event in events for mapping in validator._walk(event)]
+          denials = [
+              mapping["policyDenial"]
+              for mapping in mappings
+              if isinstance(mapping.get("policyDenial"), dict)
+          ]
+          protected = [
+              ".github/protected.txt",
+              ".kiro/protected.txt",
+              "powers/pk-stack/src/pstack_kiro/protected.py",
+              "powers/pk-stack/tests/protected.py",
+              "maintenance/upstream-reviews.json",
+              "powers/pk-stack/docs/validation-report.md",
+          ]
+          missing = []
+          for resource in protected:
+              expected = {
+                  "capability": "fs_write",
+                  "resource": resource,
+                  "effect": "deny",
+                  "scope": "workspace",
+                  "source": "agent-profile",
+              }
+              if expected not in denials:
+                  missing.append(resource)
+          if missing:
+              raise SystemExit(
+                  "Kiro stream lacks exact agent-profile denials for: " + ", ".join(missing)
+              )
+          allowed = {
+              ".pk-stack-maintenance/proposal.json",
+              "powers/pk-stack/README.md",
+              "powers/pk-stack/dev.kiro/steering/permission-smoke.md",
+              "powers/pk-stack/docs/smoke/permission.md",
+              "powers/pk-stack/docs/upstream-skill-parity.json",
+              "powers/pk-stack/skills/permission-smoke/SKILL.md",
+              "powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json",
+          }
+          if any(denial.get("resource") in allowed for denial in denials):
+              raise SystemExit("Kiro denied an allowed representative write")
+          used_tools = {
+              tool
+              for mapping in mappings
+              for tool in mapping.get("usedTools", [])
+              if isinstance(tool, str)
+          }
+          if not {"read_file", "grep_search", "fs_write"} <= used_tools:
+              raise SystemExit("Kiro completion did not attest read, grep, and write tool use")
+          forbidden_tools = {"execute_bash", "kiro_powers", "remote_web_search"} & used_tools
+          if forbidden_tools:
+              raise SystemExit(
+                  "Kiro permission fixture used forbidden tools: "
+                  + ", ".join(sorted(forbidden_tools))
+              )
+          finished = any(
+              (
+                  isinstance(mapping.get("runFinished"), dict)
+                  and mapping["runFinished"].get("status") == "success"
+              )
+              or (
+                  mapping.get("status") == "success"
+                  and any(
+                      str(mapping.get(key, "")).lower().replace("_", "") == "runfinished"
+                      for key in ("type", "kind", "sessionUpdate", "updateType")
+                  )
+              )
+              for mapping in mappings
+          )
+          if not finished:
+              raise SystemExit("Kiro permission stream lacks a successful runFinished event")
+          PY
+          printf '{"permission_smoke":true}\n' \
+            | cmp - "$SMOKE_ROOT/workspace/.pk-stack-maintenance/proposal.json"
+          printf 'AUTHORED_README_OK\n' \
+            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/README.md"
+          printf 'AUTHORED_STEERING_OK\n' \
+            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/dev.kiro/steering/permission-smoke.md"
+          printf 'AUTHORED_DOCS_OK\n' \
+            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/docs/smoke/permission.md"
+          printf '{"permission_smoke":true}\n' \
+            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/docs/upstream-skill-parity.json"
+          printf 'AUTHORED_SKILL_OK\n' \
+            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/skills/permission-smoke/SKILL.md"
+          printf '{"permission_smoke":true}\n' \
+            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json"
+          (
+            cd "$SMOKE_ROOT/workspace"
+            sha256sum --check "$SMOKE_ROOT/protected-baseline.sha256"
+            find . -type f -printf '%P\n' | LC_ALL=C sort >"$SMOKE_ROOT/actual-files.txt"
+          )
+          cmp "$SMOKE_ROOT/expected-files.txt" "$SMOKE_ROOT/actual-files.txt"
+          printf '%s\n' \
+            'Kiro honored the exact production maintainer filesystem matrix under a sterile HOME.'
+      - name: Delete every disposable Kiro permission artifact
+        if: always()
+        env:
+          SMOKE_ROOT: ${{ runner.temp }}/pk-stack-kiro-permission-smoke
+        run: |
+          set -euo pipefail
+          case "$SMOKE_ROOT" in
+            "$RUNNER_TEMP"/pk-stack-kiro-permission-smoke) ;;
+            *) echo 'refusing unsafe cleanup target' >&2; exit 1 ;;
+          esac
+          if [[ -e "$SMOKE_ROOT" ]]; then
+            chmod -R u+rwX "$SMOKE_ROOT"
+            rm -rf -- "$SMOKE_ROOT"
+          fi
+          test ! -e "$SMOKE_ROOT"

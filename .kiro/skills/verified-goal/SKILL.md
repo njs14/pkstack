@@ -1,14 +1,18 @@
 ---
 name: verified-goal
-description: Work toward a concrete objective in the current Kiro CLI v3 session and require deterministic projectctl verification before reporting success. Use for multi-step implementation, repair, migration, or refactoring with an executable acceptance check.
-compatibility: Kiro CLI v3; an initialized PK-Stack workspace with projectctl.
+description: Work toward a concrete objective in the current Kiro agent session and require deterministic projectctl verification before reporting success. Use for multi-step implementation, repair, migration, or refactoring with an executable acceptance check.
+compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; initialized PK-Stack workspace with projectctl.
 ---
 
 # Run a verified goal
 
-Stay in the current interactive Kiro session. Do not start another Kiro session or a parallel user session. Native sub-agents may help with bounded diagnosis, but the primary agent owns the goal and its evidence.
+Stay in the current Kiro agent session on the selected surface. Do not start
+another Kiro session or a parallel user session. Kiro Crew may own the session
+and use ACP internally, but it remains optional and does not change the goal
+contract. Native sub-agents may help with bounded diagnosis, but the primary
+agent owns the goal and its evidence.
 
-Objective and acceptance context: $ARGUMENTS
+Treat the request text that activated this skill as the objective and acceptance context.
 
 ## Resolve the controller once
 

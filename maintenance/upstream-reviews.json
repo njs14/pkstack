@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "genesis": {
+        "commit": "b9ddc83c32972210b8a94d389130713e8eed346e",
+        "subtree_sha": "950b90234c17babd00c43e32b19ae50abb4720f5"
+      },
+      "id": "cursor-pstack",
+      "path": "pstack",
+      "provenance_path": "powers/pk-stack/docs/provenance.md",
+      "repository": "cursor/plugins",
+      "transitions": [
+        {
+          "dispositions": [
+            {
+              "disposition": "B",
+              "path": ".cursor-plugin/plugin.json",
+              "rationale": "Cursor registration, model, and runtime metadata is intentionally excluded; PK-Stack ships Kiro-native Power and agent manifests instead."
+            },
+            {
+              "disposition": "C",
+              "path": "README.md",
+              "rationale": "Upstream catalog and release prose was used to reconcile inventory and provenance; executable semantics are accounted for in the affected packages and guides."
+            },
+            {
+              "disposition": "B",
+              "path": "assets/logo.png",
+              "rationale": "The unavailable upstream raster and Cursor branding are excluded; PK-Stack uses an independently generated potato-ghost asset."
+            },
+            {
+              "disposition": "A",
+              "path": "docs/guide/06-verify-and-ship.md",
+              "rationale": "Verification, review, freshness, and authorization-gated shipping semantics were adapted to projectctl and current-session Kiro workflows."
+            },
+            {
+              "disposition": "A",
+              "path": "docs/guide/07-overnight.md",
+              "rationale": "Unattended supervision and recovery semantics were adapted to the fail-closed scheduled Kiro and GitHub maintenance lane."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/architect/SKILL.md",
+              "rationale": "Architecture scaffold, signature, rationale, interface-depth, red-flag, and verification contracts were adapted to the Kiro-native architect route."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/arena/SKILL.md",
+              "rationale": "Isolated candidates, shared rubric, lead adjudication, coherent grafting, and final proof were retained with Kiro subagents."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/how/SKILL.md",
+              "rationale": "Grounded explanation and explicit critique mode were retained without Cursor task metadata."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/interrogate/SKILL.md",
+              "rationale": "Independent correctness, code-quality, and lead-judgment review rubrics were adapted to bounded Kiro evidence packets."
+            },
+            {
+              "disposition": "B",
+              "path": "skills/make-bot-ui/SKILL.md",
+              "rationale": "Cursor and Grok routines, secret-card APIs, cursor.sh, automatic sudo, and Tailscale side effects are excluded; docs expose a safe manual architecture path."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/SKILL.md",
+              "rationale": "The complete workflow router, visible skips, verification lifecycle, review council, and safe authorization boundaries were adapted to Kiro."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+              "rationale": "Long-horizon implementation, checkpoint, independent review, repair, and terminal verdict semantics were retained in current-session Kiro form."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+              "rationale": "Risk-first independently landable phases, base-chain validation, and freshness proof were retained without Cursor runtime control."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/babysit.md",
+              "rationale": "Durable supervision, stable patch-id freshness after rebases, bounded recovery, and explicit terminal outcomes were adapted to Kiro."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/bug-fix.md",
+              "rationale": "Reproduction, root-cause repair, regression proof, and independent review sequencing were retained."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/hillclimb.md",
+              "rationale": "Baseline measurement, one-variable improvements, evidence checkpoints, and rollback discipline were retained."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+              "rationale": "Risk-first phases, explicit predicates, independently verifiable units, and checkpoint semantics were retained."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+              "rationale": "GitHub CLI default, optional Origin capability, early ready durable PR checkpoint, and separate PR authorization were retained; Graphite and unsafe rewrites were excluded."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/perf-issue.md",
+              "rationale": "Measured baseline, representative workload, profile-driven repair, and regression thresholds were retained."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/shipping.md",
+              "rationale": "Bottom-up shipping, base and head identity binding, patch-id freshness, CI and mergeability reproof, and separately gated landing were retained."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/references/bugbot-triage.md",
+              "rationale": "Finding classification, evidence-based adjudication, and fail-closed unresolved-review handling were adapted to the reviewer council."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/reflect/SKILL.md",
+              "rationale": "Three independent reflection lenses, synthesis, and approval before durable project-local edits were retained."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/setup-pstack/SKILL.md",
+              "rationale": "Setup outcome was retained as idempotent Kiro bootstrap, discovery validation, inherited selected model and effort, and optional verification offer; fixed Cursor role models were dropped."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/typescript-best-practices/SKILL.md",
+              "rationale": "TypeScript discipline was retained as an on-demand skill plus Kiro fileMatch steering for TypeScript and TSX files."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/typescript-best-practices/references/patterns.md",
+              "rationale": "Concrete TypeScript patterns were adapted into the full skill reference and concise pervasive steering contract."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/unslop/SKILL.md",
+              "rationale": "Scan, rewrite, add-soul, pattern catalog, and self-audit semantics were retained in the full route plus an always-on concise core."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/why/SKILL.md",
+              "rationale": "Parallel source-category investigation, coverage and gap accounting, confidence, and bounded external evidence packets were retained."
+            }
+          ],
+          "inventory_sha256": "e45d7eff5baa59e8b73399b615741c4183c577ec372f8b7b33d28b7e2216caa6",
+          "new": {
+            "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+            "subtree_sha": "1c625329e71538629f087374daa71293a498089f"
+          },
+          "prior": {
+            "commit": "b9ddc83c32972210b8a94d389130713e8eed346e",
+            "subtree_sha": "950b90234c17babd00c43e32b19ae50abb4720f5"
+          }
+        }
+      ]
+    }
+  ]
+}

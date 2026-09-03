@@ -1,0 +1,179 @@
+---
+type: feature
+schema_version: 2
+slug: pk-stack-upstream-maintenance
+title: PK-Stack upstream maintenance
+draft: false
+verification:
+  command:
+    - .pstack/bin/projectctl
+    - upstream
+    - check
+    - --manifest
+    - maintenance/upstreams.json
+    - --power-root
+    - powers/pk-stack
+    - --output
+    - json
+related:
+  - ../../maintenance/upstreams.json
+  - ../../maintenance/upstream-reviews.json
+  - ../../powers/pk-stack/docs/provenance.md
+---
+
+# PK-Stack upstream maintenance
+
+## User behavior
+
+A maintainer can reprove the immutable cursor-pstack source pin, its one canonical genesis marker,
+and every later transition marker; compare that accepted baseline with the current configured ref;
+inspect a bounded and exhaustive untrusted path-and-patch inventory; and prove that every accepted
+pin transition has an exact content-addressed A/B/C review disposition for every changed path.
+Every semantic patch is complete, count-reconciled, and applied from an exact Git-OID-verified old
+blob to the exact current blob; old/new regular-blob modes are explicit; every unavailable raster
+asset is excluded with disposition B; and the canonical Power still matches every
+bootstrap-managed workspace copy. Drift and any network, schema, identity, ledger, pagination,
+size, or parity failure return nonzero.
+
+## Expected path
+
+Strict local manifest and contiguous review ledger -> exactly one source-bound genesis marker ->
+fixed GitHub API origin -> pinned/current commit and tree reproof -> fast-forward compare plus exact
+subtree and skill-package inventory -> every accepted transition digest/path/reviewability reproof
+-> ownership-aware bootstrap dry-run -> JSON verdict. The genesis marker must precede every
+transition marker and bind the ledger genesis exactly; transition markers remain ordered and
+immutable. Upstream content is data only and is never executed.
+
+## Sub-features
+
+### `remote-reproof`
+
+Reprove repository identity, immutable commit and tree identities, fast-forward ancestry, bounded
+pagination, and exact changed-path inventory against the configured authoritative origin.
+
+### `skill-package-parity`
+
+Account for every upstream top-level skill and every nested semantic resource, with one explicit
+direct, alias, native-replacement, or excluded disposition and deterministic generated parity.
+
+### `review-and-provenance`
+
+Bind the ledger genesis and every accepted transition to canonical provenance markers, exhaustive
+A/B/C review evidence, semantic patch completeness, and independent Fable 5.1 review.
+
+### `transactional-acceptance`
+
+Freshly revalidate the exact proposal, canonical/generated parity, tests, and ownership before one
+atomic ledger append and pin advance; a failed check changes neither baseline.
+
+### `hands-off-cadence`
+
+Run the same fail-closed maintenance contract on schedule and through an authorized manual dispatch
+without granting upstream content execution authority.
+
+## How to get to it (user POV)
+
+### `local-check`
+
+From the repository root, request a read-only comparison of the accepted pin and current upstream
+state without accepting or modifying either one.
+
+### `current-session-maintenance`
+
+In the current Kiro IDE agent panel or CLI v3 session, invoke the PK-Stack maintenance workflow,
+review its bounded proposal, and keep any acceptance decision explicit.
+
+### `scheduled-cadence`
+
+Let the repository's scheduled GitHub workflow discover drift, build a bounded candidate, and run
+the same gates using repository-scoped credentials and permissions.
+
+### `manual-dispatch`
+
+An authorized maintainer may dispatch the maintenance workflow and separately authorize proposal
+acceptance or PR landing after inspecting its durable evidence.
+
+## Driving it
+
+### `local-check`
+
+#### Recipe
+
+Run `.pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root
+powers/pk-stack --output json` with a GitHub token passed only through the environment when the API
+requires authentication.
+
+#### Observable proof
+
+The bounded JSON reports exact source identities, current inventory digest, skill-package parity,
+bootstrap parity, and a nonzero drift verdict when the accepted pin is behind.
+
+### `current-session-maintenance`
+
+#### Recipe
+
+Invoke `/maintain-verification-skill` or `/poteto-mode` in the selected `pstack` agent, keep one live
+coordinator, inspect the generated proposal, and run the documented verification/review sequence.
+
+#### Observable proof
+
+Every changed path has one A/B/C disposition, semantic adaptations and generated assets reconcile,
+the verifier is rerun once after any repair, and acceptance remains a separately authorized action.
+
+### `scheduled-cadence`
+
+#### Recipe
+
+Run the compiled upstream-maintenance GitHub workflow on its configured cadence with least-privilege
+repository permissions, environment-only credentials, and the checked-in manifest, ledger, and
+review policy.
+
+#### Observable proof
+
+One run produces durable run and candidate identities, exact inventory evidence, all required test
+results, and a review disposition; missing credentials or incomplete evidence fail closed without
+moving the pin.
+
+### `manual-dispatch`
+
+#### Recipe
+
+Use the workflow's authorized manual-dispatch entrypoint, inspect the candidate and its Fable 5.1
+`xhigh` review, then grant PR creation or landing authority separately if the result is acceptable.
+
+#### Observable proof
+
+The workflow identifies the triggering run and candidate, preserves every prior marker and ledger
+entry byte-for-byte, and changes the accepted pin only after the exact proposal passes fresh gates.
+
+## Evidence boundary
+
+Retain source and tree identities, bounded inventories and digests, A/B/C dispositions, bootstrap
+and test results, workflow/candidate IDs, and prospective Fable 5.1 `xhigh` verdicts. Do not retain
+GitHub tokens, Kiro credentials, raw secret-bearing logs, private reasoning, or unbounded upstream
+content. Historical review records preserve the effort actually used, including prior `max` runs.
+
+## Cleanup boundary
+
+A read-only check removes only verifier-owned temporary files. Successful acceptance consumes only
+the exact reviewed proposal and preserves the ledger, the singular genesis marker, all transition
+markers, and the prior pin in history. Failure or cancellation leaves the accepted baseline intact
+and never recursively deletes worktrees, runtime state, or foreign assets.
+
+## Gotchas
+
+- Expected upstream drift is a nonzero candidate state until it is reviewed; it is not a passing check.
+- Anonymous GitHub API access can return 403; pass the existing token through the environment without logging it.
+- Skill parity includes nested playbooks, templates, and helper semantics, not only top-level SKILL.md files.
+- Each source has exactly one canonical genesis marker before all immutable transition markers.
+- Missing credentials, incomplete pagination, or indeterminate identity evidence fail closed without acceptance.
+- Prospective Fable 5.1 review uses `xhigh`; historical records keep the actual earlier `max` effort.
+
+## Verification
+
+`.pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --output json`
+
+An expected upstream change keeps this contract failing until the change has been reviewed and
+semantically adapted, the canonical Power has been regenerated and tested, provenance is current,
+and `upstream accept` has freshly validated the exact proposal before appending the ledger
+transition and advancing the pin.

@@ -101,6 +101,58 @@ def _handler(reply: list[tuple[int, dict[str, object]]]):
     return handler
 
 
+def _get_handler(tenant: str, export_id: str, reply: list[tuple[int, dict[str, object]]]):
+    handler = object.__new__(runtime.ExportHandler)
+    handler.path = f"/exports?tenant={tenant}&id={export_id}"
+    handler._reply = lambda status, body: reply.append((int(status), body))
+    return handler
+
+
+def test_get_export_uses_tenant_partition_key_and_hides_other_tenants(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    export_id = "e-0123456789abcdef"
+    item = {
+        "status": {"S": "COMPLETE"},
+        "object_key": {"S": f"exports/tenant-a/{export_id}.json"},
+    }
+    requested_keys: list[dict[str, dict[str, str]]] = []
+
+    class Ddb:
+        def get_item(self, **kwargs):
+            key = kwargs["Key"]
+            requested_keys.append(key)
+            return {"Item": item} if key["pk"]["S"] == "TENANT#tenant-a" else {}
+
+    monkeypatch.setattr(runtime, "_ddb", lambda endpoint: Ddb())
+    monkeypatch.setattr(
+        runtime, "runtime_env", lambda: {"PK_STACK_LAB_ENDPOINT": "http://floci:4566"}
+    )
+    monkeypatch.setattr(runtime, "_env", lambda name: "exports-table")
+
+    owner_reply: list[tuple[int, dict[str, object]]] = []
+    runtime.ExportHandler.do_GET(_get_handler("tenant-a", export_id, owner_reply))
+    other_reply: list[tuple[int, dict[str, object]]] = []
+    runtime.ExportHandler.do_GET(_get_handler("tenant-b", export_id, other_reply))
+
+    assert owner_reply == [
+        (
+            200,
+            {
+                "id": export_id,
+                "tenant": "tenant-a",
+                "status": "COMPLETE",
+                "object_key": f"exports/tenant-a/{export_id}.json",
+            },
+        )
+    ]
+    assert other_reply == [(404, {"error": "not found"})]
+    assert requested_keys == [
+        {"pk": {"S": "TENANT#tenant-a"}, "sk": {"S": export_id}},
+        {"pk": {"S": "TENANT#tenant-b"}, "sk": {"S": export_id}},
+    ]
+
+
 def test_queued_retry_republishes_after_initial_ddb_success_and_sqs_failure(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -2,8 +2,10 @@
 
 ## System boundary
 
-PK-Stack (Poteto Kiro) adds workflow semantics to an ordinary interactive Kiro CLI v3 session. It
-does not replace Kiro's runtime and does not recreate a goal scheduler.
+PK-Stack (Poteto Kiro) adds workflow semantics to a current Kiro agent session. Kiro CLI v3 and
+Kiro IDE 1.x chat/Agent Focus are its primary surfaces; Kiro Crew can orchestrate it optionally;
+Kiro Web can consume committed workspace assets by design but is untested. PK-Stack does not
+replace Kiro's shared agent harness and does not recreate a goal scheduler.
 
 The combined release has one editable Power source at `powers/pk-stack/`. Bootstrap materializes
 the fixture's `.kiro/` and `.pstack/projectctl/` assets from that package and records their hashes;
@@ -11,8 +13,10 @@ tests compare every source, skill, steering, template, and runtime-lock byte. Th
 is executable project state, never a second package or upgrade authority.
 
 ```text
-current interactive kiro-cli --v3 session
-  -> Poteto Kiro custom agent and native v3 primitives
+current Kiro agent session
+  -> Kiro IDE 1.x chat/Agent Focus or ordinary kiro-cli --v3 (primary)
+  -> optional Kiro Crew orchestration; repository-local Kiro Web path (untested)
+  -> Poteto Kiro custom agent where selectable and native Kiro primitives
   -> PK-Stack skills and steering
   -> repo-local .pstack/bin/projectctl
        -> DO: stable project commands
@@ -24,16 +28,23 @@ current interactive kiro-cli --v3 session
 Kiro retains execution and orchestration: `/spec`, workspace skills, custom agents, native
 sub-agents, `/spawn`, hooks, permissions, steering, and `/knowledge` are used where appropriate.
 PK-Stack contributes the workflow contract around those primitives. The generated `pstack` agent
-is deliberately permission-scoped and selects trusted PK-Stack sub-agents. `/spawn` creates a
-separate session and is therefore not part of a current-session `/verified-goal` proof unless the
-user explicitly asks for parallel session work.
+is deliberately permission-scoped and selects trusted PK-Stack sub-agents on IDE and CLI. Kiro
+Web cannot select that project agent as primary and does not reproduce its local permission
+boundary; its built-in primary agent can still activate the committed workspace skills. `/spawn`
+creates a separate session and is therefore not part of a current-session `/verified-goal` proof
+unless the user explicitly asks for parallel session work.
 
-`/verified-goal` is a workspace skill, not a native Kiro `/goal`. In one current session it selects
-an existing feature-map verifier or one explicit project command, displays the stored contract and
-provenance, and delegates attempt accounting to `projectctl goal verify`. The deterministic state
-machine is thin: `active` becomes `passed` when the same stored verifier succeeds or `exhausted`
-when its bounded attempt budget ends. A disabled Stop hook can report advisory state, but it is not
-control-flow enforcement. ACP is not used for the normal path.
+`/verified-goal` is a workspace skill with a repository-visible contract, separate from Kiro's
+documented native `/goal`. In one current session it selects an existing feature-map verifier or
+one explicit project command, displays the stored contract and provenance, and delegates attempt
+accounting to `projectctl goal verify`. The deterministic state machine is thin: `active` becomes
+`passed` when the same stored verifier succeeds or `exhausted` when its bounded attempt budget
+ends. PK-Stack neither invokes nor depends on native `/goal`; a sterile interactive CLI 2.21.0 V3
+probe treated `/goal clear` as ordinary prompt text, so this tested runtime does not expose the
+documented command. A disabled Stop hook can report advisory state, but it is not control-flow
+enforcement. ACP is not used for the normal IDE/CLI path. Kiro Crew drives Kiro CLI over ACP
+internally, but Crew is an optional product surface rather than PK-Stack's default launcher or
+runtime.
 
 The canonical controller entrypoint is `.pstack/bin/projectctl`. The controller uses Cyclopts only
 as a thin command surface over typed bootstrap, feature, goal, knowledge, doctor, and runner

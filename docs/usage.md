@@ -1,6 +1,6 @@
 # Usage
 
-## PK-Stack in an ordinary Kiro v3 session
+## PK-Stack in a Kiro agent session
 
 The installable Agent Plugins package is `powers/pk-stack/`; import that local directory through
 Kiro's Powers panel after cloning the private repository. Do not import `.pstack/projectctl/`: it
@@ -12,22 +12,41 @@ Initial bootstrap in another project is performed by the installed PK-Stack Powe
 runs the Power-local setup shim as a dry run, reports conflicts and managed updates, and then
 creates repository-local `.kiro/` and `.pstack/` assets without overwriting user-owned files.
 Managed upgrades require explicit approval. After setup, select the generated Poteto Kiro agent in
-the same chat:
+the same chat. In Kiro IDE 1.x, choose the workspace `pstack` agent from the chat/Agent Focus agent
+picker. In Kiro CLI v3, run:
 
 ```text
 /agent swap pstack
 ```
 
-Agent selection applies to the next message. If Kiro has not discovered the new agent or skill in
-the existing process, exit normally and restart from the same repository:
+Agent selection applies to the next message. If Kiro IDE has not discovered the new agent or
+skill, open one fresh pre-goal chat/Agent Focus session in the same workspace and choose `pstack`.
+If Kiro CLI has not discovered it, exit normally and restart from the same repository:
 
 ```sh
-kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max
+kiro-cli chat --v3 --agent pstack
 ```
 
 Do not start a nested Kiro process. For a later managed refresh, the `pstack` profile deliberately
 has no Powers: swap in the same chat to the Power-enabled setup agent, run `/setup-pstack`, then
 swap back to `pstack` before the next workflow message.
+
+Kiro Crew is a compatible optional orchestrator. It reads committed `.kiro` configuration and
+drives Kiro CLI through ACP internally; that transport does not make `kiro-cli acp` the default
+PK-Stack entrypoint. Kiro Web is supported by design only from a repository that already commits
+the bootstrapped `.kiro` and `.pstack` assets. Web cannot select the project `pstack` agent as its
+primary agent or reproduce the local permission profile, and this release has not exercised the
+Web workflow end to end. Do not treat Configuration Sync as a complete custom-Power install: its
+custom Powers are text-only and limited to 50 files, while PK-Stack exceeds that shape. The exact
+surface/evidence boundary is in the [compatibility matrix](../powers/pk-stack/docs/kiro-v3-compatibility.md).
+
+PK-Stack's custom agents inherit the user's active model and effort. Normal commands intentionally
+omit both flags: Kiro recommends Auto for general development, while Sol/max is a high-cost choice
+reserved here for the recorded hard acceptance campaign. Kiro persists a CLI `/effort` or
+`--effort` selection for that model, so users who opt into max should deliberately choose their
+desired normal level afterwards. The canonical compatibility guide records the Sol/Terra/Luna
+trade-offs, experimental lifecycle and AWS processing-geography boundary, and the optional IDE-only
+property-based testing methodology.
 
 ### Exact before/after interaction
 
@@ -35,7 +54,7 @@ Without PK-Stack, a user can ask Kiro to make a change and separately mention a 
 no PK-Stack goal record tying attempts to that immutable predicate:
 
 ```sh
-kiro-cli chat --v3 --model gpt-5.6-sol --effort max
+kiro-cli chat --v3
 ```
 
 ```text
@@ -43,11 +62,11 @@ Repair the document-export tenant-key partition-separation regression, then run
 ./labctl verify --output json.
 ```
 
-With PK-Stack, the ordinary process is still interactive Kiro v3; only the agent profile and
-workspace skill are added:
+With PK-Stack, the ordinary CLI process is still interactive Kiro v3; only the agent profile and
+workspace skill are added. The IDE uses the equivalent agent picker and skill invocation:
 
 ```sh
-kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max
+kiro-cli chat --v3 --agent pstack
 ```
 
 ```text
@@ -57,7 +76,9 @@ kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max
 The skill stays in that session, displays the exact stored feature contract and its provenance,
 and uses `.pstack/bin/projectctl goal verify --output json` for every attempt. A failing verifier
 keeps the goal `active` until its budget is exhausted; a passing invocation records `passed`.
-`/verified-goal` is not evidence that Kiro v3 provides `/goal`, and ACP is not involved.
+`/verified-goal` is separate from documented native `/goal`. A sterile interactive Kiro CLI 2.21.0
+V3 probe treated `/goal clear` as ordinary prompt text, so the tested runtime does not expose that
+slash command. PK-Stack does not invoke or depend on it, and no external ACP host is involved.
 
 The deterministic surface is also usable directly:
 

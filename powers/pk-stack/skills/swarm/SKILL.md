@@ -1,12 +1,12 @@
 ---
 name: swarm
 description: Fan out bounded independent investigations or reviews across native Kiro sub-agents, then aggregate coverage, gaps, and evidence. Use for parallel research, repository inventory, test triage, or independent review tracks.
-compatibility: Kiro CLI v3 with native sub-agents when parallel execution is available.
+compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; native sub-agents optional when parallel execution is available.
 ---
 
 # Run a swarm
 
-Swarm objective: $ARGUMENTS
+Treat the request text that activated this skill as the swarm objective.
 
 ## Declare the fanout
 

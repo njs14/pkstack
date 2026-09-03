@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -18,7 +19,14 @@ from pstack_kiro.bootstrap import (
 from pstack_kiro.features import validate_feature_map
 from pstack_kiro.goal import GoalError, GoalStore
 from pstack_kiro.models import DoctorCheck
-from pstack_kiro.paths import WorkspacePathError, workspace_path
+from pstack_kiro.paths import WorkspacePathError, ensure_tree_no_symlinks, workspace_path
+
+KIRO_AGENT_TIMEOUT_SECONDS = 30
+ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+WORKSPACE_HEADER_RE = re.compile(r"^\s*Workspace:\s+\S.*$")
+WORKSPACE_AGENT_ROW_RE = re.compile(
+    r"^\s*(?:\*\s+)?(?P<name>[A-Za-z0-9][A-Za-z0-9_-]*)\s+Workspace(?:\s+.*)?$"
+)
 
 
 def run_doctor(root: Path) -> dict[str, Any]:
@@ -36,6 +44,13 @@ def run_doctor(root: Path) -> dict[str, Any]:
     checks.append(_command_check("uv", required=True))
     checks.append(_command_check("kiro-cli", required=False))
     checks.append(_command_check("okn", required=False))
+
+    # Discovery is a local, no-model loader probe. Keep it ahead of every
+    # per-profile Kiro invocation so doctor never mistakes schema validity for
+    # evidence that the current runtime can actually select the profiles.
+    kiro_executable = shutil.which("kiro-cli")
+    if kiro_executable:
+        checks.append(_kiro_agent_discovery_check(kiro_executable, root))
 
     wrapper = root / "projectctl"
     try:
@@ -73,19 +88,36 @@ def run_doctor(root: Path) -> dict[str, Any]:
         "verifier-agent": root / ".kiro" / "agents" / "pstack-verifier.json",
         "pstack-core-steering": root / ".kiro" / "steering" / "pstack-core.md",
         "pstack-safety-steering": root / ".kiro" / "steering" / "pstack-safety.md",
+        "pstack-typescript-steering": root / ".kiro" / "steering" / "pstack-typescript.md",
+        "pstack-unslop-steering": root / ".kiro" / "steering" / "pstack-unslop.md",
         "session-hook": root / ".kiro" / "hooks" / "pstack-session.json",
         "tripwire-hook": root / ".kiro" / "hooks" / "pstack-tripwire.json",
     }
-    for skill in (
-        "architect",
-        "arena",
-        "model-council",
-        "swarm",
-        "verified-goal",
-    ):
+    try:
+        cached_skills = ensure_tree_no_symlinks(
+            root,
+            Path(".pstack/projectctl/skills"),
+        )
+        skill_names = sorted(
+            path.name
+            for path in cached_skills.iterdir()
+            if path.is_dir() and (path / "SKILL.md").is_file()
+        )
+    except (OSError, WorkspacePathError) as exc:
+        checks.append(
+            DoctorCheck(
+                "workspace-skill-inventory",
+                "fail",
+                f"unable to enumerate managed skills safely: {exc}",
+                "Repair the receipt-managed projectctl skill cache.",
+            )
+        )
+        skill_names = []
+    for skill in skill_names:
+        if skill == "setup-pstack":
+            continue
         required_assets[f"{skill}-skill"] = root / ".kiro" / "skills" / skill / "SKILL.md"
 
-    kiro_executable = shutil.which("kiro-cli")
     for name, path in required_assets.items():
         try:
             safe_path = workspace_path(root, path)
@@ -299,7 +331,7 @@ def _kiro_agent_check(executable: str, path: Path, name: str) -> DoctorCheck:
             [executable, "agent", "validate", "--path", str(path)],
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=KIRO_AGENT_TIMEOUT_SECONDS,
             check=False,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
@@ -310,6 +342,138 @@ def _kiro_agent_check(executable: str, path: Path, name: str) -> DoctorCheck:
         "pass" if completed.returncode == 0 else "fail",
         message or f"kiro-cli accepted {path.name}",
     )
+
+
+def _kiro_agent_discovery_check(executable: str, root: Path) -> DoctorCheck:
+    """Require every safe workspace profile to appear in Kiro's loader output."""
+
+    root = root.resolve()
+    try:
+        expected = _workspace_agent_names(root)
+    except (OSError, ValueError, WorkspacePathError) as exc:
+        return DoctorCheck(
+            "kiro-workspace-agent-discovery",
+            "fail",
+            f"unable to derive workspace agents safely: {exc}",
+            "Repair .kiro/agents before starting an authenticated Kiro session.",
+        )
+
+    try:
+        completed = subprocess.run(
+            [executable, "agent", "list"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            timeout=KIRO_AGENT_TIMEOUT_SECONDS,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        return DoctorCheck(
+            "kiro-workspace-agent-discovery",
+            "fail",
+            f"kiro-cli agent list timed out after {KIRO_AGENT_TIMEOUT_SECONDS} seconds",
+            "Retry the local no-model discovery probe before authenticated use.",
+        )
+    except OSError as exc:
+        return DoctorCheck(
+            "kiro-workspace-agent-discovery",
+            "fail",
+            f"kiro-cli agent list could not run: {exc}",
+            "Repair the local Kiro CLI installation and retry.",
+        )
+
+    if completed.returncode != 0:
+        return DoctorCheck(
+            "kiro-workspace-agent-discovery",
+            "fail",
+            f"kiro-cli agent list exited {completed.returncode}",
+            "Run the same command from the project root and repair loader errors.",
+        )
+
+    # Kiro CLI 2.21 renders `agent list` to stderr when it owns a terminal-style
+    # renderer. Test both captured streams as one bounded loader transcript;
+    # neither stream is surfaced in the doctor payload.
+    agent_list_output = "\n".join(
+        stream for stream in (completed.stdout, completed.stderr) if stream
+    )
+    try:
+        discovered = _parse_workspace_agent_rows(agent_list_output)
+    except ValueError as exc:
+        return DoctorCheck(
+            "kiro-workspace-agent-discovery",
+            "fail",
+            f"malformed kiro-cli agent list output: {exc}",
+            "Treat schema validation as insufficient; inspect the local loader output.",
+        )
+
+    missing = sorted(expected - discovered)
+    if missing:
+        return DoctorCheck(
+            "kiro-workspace-agent-discovery",
+            "fail",
+            "workspace agents missing from kiro-cli agent list: " + ", ".join(missing),
+            "Repair agent discovery before starting an authenticated Kiro session.",
+        )
+
+    extras = sorted(discovered - expected)
+    message = f"discovered all {len(expected)} workspace agent profile(s): " + ", ".join(
+        sorted(expected)
+    )
+    if extras:
+        message += "; additional Workspace rows: " + ", ".join(extras)
+    return DoctorCheck("kiro-workspace-agent-discovery", "pass", message)
+
+
+def _workspace_agent_names(root: Path) -> set[str]:
+    """Derive exact expected loader names from safe project-local JSON profiles."""
+
+    agents = ensure_tree_no_symlinks(root, Path(".kiro/agents"))
+    if not agents.is_dir():
+        raise ValueError(".kiro/agents is not a directory")
+    profiles = sorted(agents.glob("*.json"))
+    if not profiles:
+        raise ValueError(".kiro/agents contains no JSON profiles")
+
+    names: set[str] = set()
+    for profile in profiles:
+        safe_profile = workspace_path(root, profile)
+        if not safe_profile.is_file():
+            raise ValueError(f"{safe_profile.name} is not a regular profile file")
+        document = json.loads(safe_profile.read_text(encoding="utf-8"))
+        if not isinstance(document, dict) or document.get("name") != safe_profile.stem:
+            raise ValueError(f"{safe_profile.name} has no exact file-matching agent name")
+        name = safe_profile.stem
+        if name in names:
+            raise ValueError(f"duplicate workspace agent name: {name}")
+        names.add(name)
+    return names
+
+
+def _parse_workspace_agent_rows(output: str) -> set[str]:
+    """Strip terminal control sequences and parse exact Workspace-scoped rows."""
+
+    if not isinstance(output, str):
+        raise ValueError("stdout was not text")
+    normalized = ANSI_ESCAPE_RE.sub("", output).replace("\r", "")
+    lines = normalized.splitlines()
+    headers = [line for line in lines if WORKSPACE_HEADER_RE.fullmatch(line)]
+    if len(headers) != 1:
+        raise ValueError("expected exactly one Workspace path header")
+
+    names: set[str] = set()
+    row_count = 0
+    for line in lines:
+        match = WORKSPACE_AGENT_ROW_RE.fullmatch(line)
+        if match is None:
+            continue
+        row_count += 1
+        name = match.group("name")
+        if name in names:
+            raise ValueError(f"duplicate Workspace row for {name}")
+        names.add(name)
+    if row_count == 0:
+        raise ValueError("no exact Workspace rows")
+    return names
 
 
 def _command_check(name: str, *, required: bool) -> DoctorCheck:

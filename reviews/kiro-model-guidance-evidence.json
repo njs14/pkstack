@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-03T00:06:37Z",
+  "documentation": {
+    "index": {
+      "url": "https://kiro.dev/llms.txt",
+      "bytes": 46660,
+      "lines": 340,
+      "sha256": "e260760ef80a9be25c6a4bf02c1aaf0915a5233412c3cb7af59d54575506da77"
+    },
+    "pages": [
+      {
+        "url": "https://openai.com/index/gpt-5-6-in-kiro/",
+        "published": "2026-08-24",
+        "retrieved_with": "OpenAI official web page"
+      },
+      {
+        "url": "https://kiro.dev/docs/models.md",
+        "sha256": "e04a67705b0a5282c38562b15edae29d0ec74d396a1d30cb7f7954c324e3ef69"
+      },
+      {
+        "url": "https://kiro.dev/docs/models/available-models.md",
+        "sha256": "2554c2116259547df71f6852e9135249cae4e83ee091134ee85b3d1e5b383ae8"
+      },
+      {
+        "url": "https://kiro.dev/docs/models/effort.md",
+        "sha256": "c094b9fd6a3a8c9d85732efffe19d0de10ab8c5acb956a436c31a449a4eaa676"
+      },
+      {
+        "url": "https://kiro.dev/docs/specs/correctness.md",
+        "sha256": "9db822f0a5b2b301bbeaf3127adcebea0cff04fa78329fb09ae3f65f5cb06ee2"
+      },
+      {
+        "url": "https://kiro.dev/docs/privacy-and-security/data-protection.md",
+        "sha256": "697dfa699d8a5a6ce6e241e60b00f1c85cd792f4ba16007e1e92303fd16b1404"
+      },
+      {
+        "url": "https://kiro.dev/docs/cli/chat/goal.md",
+        "sha256": "de8b521f9900d7a21387ffec3842ee5aa0f5b67a98b5f2ffac21900889b4b3b8"
+      }
+    ]
+  },
+  "live_account_inventory": {
+    "command": "kiro-cli chat --list-models --format json",
+    "cli_version": "2.21.0",
+    "default_model": "auto",
+    "raw_output_sha256": "a31f58159d05d9372714c287dab39de135812addcb52c85172b9c556768b64ec",
+    "models": [
+      {
+        "model_id": "gpt-5.6-sol",
+        "context_window_tokens": 272000,
+        "rate_multiplier": 2.4,
+        "lifecycle_description": "Experimental preview"
+      },
+      {
+        "model_id": "gpt-5.6-terra",
+        "context_window_tokens": 272000,
+        "rate_multiplier": 1.0,
+        "lifecycle_description": "Experimental preview"
+      },
+      {
+        "model_id": "gpt-5.6-luna",
+        "context_window_tokens": 272000,
+        "rate_multiplier": 0.1,
+        "lifecycle_description": "Experimental preview"
+      }
+    ]
+  },
+  "methodology_boundaries": [
+    "PK-Stack agents inherit the user's active Kiro model and do not hard-code a model.",
+    "The scheduled self-maintainer deliberately pins Sol/max for its bounded high-risk reconciliation task; that is not the interactive default.",
+    "Kiro's property-based spec testing is optional, IDE-only in the reviewed documentation, and provides evidence rather than formal proof.",
+    "PK-Stack's executable projectctl verifier remains the completion gate on every supported surface.",
+    "Experimental model availability, lifecycle, cost, and routing may change and must be revalidated."
+  ],
+  "data_processing_boundaries": [
+    "Global cross-region inference does not change the region where Kiro stores data.",
+    "For OpenAI GPT models, only classifier-flagged traffic may be retained for up to 30 days for automated offline abuse detection.",
+    "When that scoped retention applies, the retained traffic is stored in the region where inference was processed."
+  ]
+}

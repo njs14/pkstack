@@ -1,0 +1,15 @@
+{
+  "review_ledger_path": "maintenance/upstream-reviews.json",
+  "schema_version": 1,
+  "sources": [
+    {
+      "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+      "id": "cursor-pstack",
+      "path": "pstack",
+      "provenance_path": "powers/pk-stack/docs/provenance.md",
+      "ref": "main",
+      "repository": "cursor/plugins",
+      "subtree_sha": "1c625329e71538629f087374daa71293a498089f"
+    }
+  ]
+}
