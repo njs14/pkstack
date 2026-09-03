@@ -486,6 +486,15 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         self.assertIn('cron: "23 11 * * 1"', workflow)
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIn("permissions: {}", workflow)
+        self.assertNotIn(
+            "    env:\n      CANARY_ROOT: ${{ runner.temp }}", workflow
+        )
+        self.assertEqual(
+            workflow.count(
+                "CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary"
+            ),
+            4,
+        )
         self.assertNotIn("actions/upload-artifact", workflow)
         self.assertNotIn("anthropic", workflow.lower())
         self.assertNotIn("claude", workflow.lower())
