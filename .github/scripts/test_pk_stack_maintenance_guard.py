@@ -2186,7 +2186,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertNotIn("actions/checkout", smoke)
         self.assertNotIn("actions/upload-artifact", smoke)
         self.assertEqual(smoke.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 1)
-        self.assertIn("--agent pstack-maintainer", smoke)
+        self.assertIn("--agent pk-stack-credential-smoke", smoke)
+        self.assertNotIn("--agent pstack-maintainer", smoke)
         self.assertIn("--model gpt-5.6-sol", smoke)
         self.assertIn("--effort max", smoke)
         self.assertIn("--trust-tools=", smoke)
@@ -2227,9 +2228,43 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             line.strip()
             for line in embedded_agent.group("body").splitlines()  # type: ignore[union-attr]
         )
+        credential_agent_raw = base64.b64decode(encoded, validate=True)
+        credential_agent = json.loads(credential_agent_raw)
         self.assertEqual(
-            base64.b64decode(encoded, validate=True),
+            credential_agent,
+            {
+                "name": "pk-stack-credential-smoke",
+                "description": (
+                    "Immutable CI-only tool-free PK-Stack Kiro credential smoke."
+                ),
+                "prompt": (
+                    "This is an authentication-only smoke. You have no tools or "
+                    "resources. Reply exactly PK-STACK-KIRO-AUTH-OK and do nothing else."
+                ),
+                "tools": [],
+                "includeMcpJson": False,
+                "includePowers": False,
+                "resources": [],
+                "permissions": {"rules": []},
+                "toolsSettings": {},
+                "welcomeMessage": "Tool-free credential smoke fixture loaded.",
+            },
+        )
+        self.assertNotEqual(
+            credential_agent_raw,
             (ROOT / ".kiro/agents/pstack-maintainer.json").read_bytes(),
+        )
+        embedded_agent_sha = re.search(
+            r"(?m)^          CI_AGENT_SHA256: ([0-9a-f]{64})$", smoke
+        )
+        self.assertIsNotNone(embedded_agent_sha)
+        self.assertEqual(
+            embedded_agent_sha.group(1),  # type: ignore[union-attr]
+            hashlib.sha256(credential_agent_raw).hexdigest(),
+        )
+        self.assertIn(
+            "$SMOKE_ROOT/kiro-home/agents/pk-stack-credential-smoke.json",
+            smoke,
         )
         embedded_validator = re.search(
             r"(?ms)^          STREAM_VALIDATOR_BASE64: \|-\n"
@@ -2319,6 +2354,99 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertNotIn("protected/blocked.txt", permission_smoke)
         self.assertEqual(permission_smoke.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 1)
         self.assertNotIn("actions/upload-artifact", permission_smoke)
+
+    def test_credential_smoke_cleanup_is_exact_and_restores_owner_write(self) -> None:
+        smoke = (
+            ROOT / ".github/workflows/pk-stack-kiro-credential-smoke.yml"
+        ).read_text()
+        cleanup_marker = "      - name: Remove every credential-smoke runtime and log\n"
+        self.assertEqual(smoke.count(cleanup_marker), 1)
+        cleanup_step = smoke.split(cleanup_marker, maxsplit=1)[1]
+        run_marker = "        run: |\n"
+        self.assertEqual(cleanup_step.count(run_marker), 1)
+        indented_script = cleanup_step.split(run_marker, maxsplit=1)[1]
+        script_lines = indented_script.splitlines(keepends=True)
+        self.assertTrue(
+            all(not line.strip() or line.startswith("          ") for line in script_lines)
+        )
+        cleanup_script = "".join(
+            line[10:] if line.strip() else line for line in script_lines
+        )
+
+        self.assertIn(
+            '"$RUNNER_TEMP"/pk-stack-kiro-credential-smoke) ;;', cleanup_script
+        )
+        self.assertIn('test ! -L "$SMOKE_ROOT"', cleanup_script)
+        self.assertIn('test -O "$SMOKE_ROOT"', cleanup_script)
+        self.assertEqual(cleanup_script.count('rm -rf -- "$SMOKE_ROOT"'), 1)
+        self.assertLess(
+            cleanup_script.index('chmod -R u+rwX "$SMOKE_ROOT"'),
+            cleanup_script.index('rm -rf -- "$SMOKE_ROOT"'),
+        )
+        self.assertNotIn('rm -rf -- "$RUNNER_TEMP"', cleanup_script)
+        self.assertNotIn('rm -rf -- "$RUNNER_TEMP"/', cleanup_script)
+        self.assertNotIn("*pk-stack-kiro-credential-smoke*", cleanup_script)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            runner_temp = Path(temporary) / "runner-temp"
+            runner_temp.mkdir()
+            smoke_root = runner_temp / "pk-stack-kiro-credential-smoke"
+            workspace = smoke_root / "workspace"
+            workspace.mkdir(parents=True)
+            readonly = workspace / "sentinel.txt"
+            readonly.write_text("immutable\n", encoding="utf-8")
+            readonly.chmod(0o400)
+            workspace.chmod(0o500)
+            foreign = runner_temp / "foreign"
+            foreign.mkdir()
+            foreign_sentinel = foreign / "keep.txt"
+            foreign_sentinel.write_text("preserve\n", encoding="utf-8")
+
+            cleanup_env = os.environ.copy()
+            cleanup_env.update(
+                {
+                    "RUNNER_TEMP": str(runner_temp),
+                    "SMOKE_ROOT": str(smoke_root),
+                }
+            )
+            completed = subprocess.run(
+                ["bash", "-c", cleanup_script],
+                env=cleanup_env,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertFalse(smoke_root.exists())
+            self.assertEqual(foreign_sentinel.read_text(encoding="utf-8"), "preserve\n")
+
+            os.symlink(foreign, smoke_root, target_is_directory=True)
+            symlink_attempt = subprocess.run(
+                ["bash", "-c", cleanup_script],
+                env=cleanup_env,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertNotEqual(symlink_attempt.returncode, 0)
+            self.assertTrue(smoke_root.is_symlink())
+            self.assertEqual(foreign_sentinel.read_text(encoding="utf-8"), "preserve\n")
+            smoke_root.unlink()
+
+            wrong_root = runner_temp / "wrong-root"
+            wrong_root.mkdir()
+            wrong_sentinel = wrong_root / "keep.txt"
+            wrong_sentinel.write_text("preserve\n", encoding="utf-8")
+            wrong_env = cleanup_env | {"SMOKE_ROOT": str(wrong_root)}
+            wrong_attempt = subprocess.run(
+                ["bash", "-c", cleanup_script],
+                env=wrong_env,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertNotEqual(wrong_attempt.returncode, 0)
+            self.assertEqual(wrong_sentinel.read_text(encoding="utf-8"), "preserve\n")
 
     def test_stale_pr_classification_uses_mocked_api_data(self) -> None:
         subprocess.run(
