@@ -13,10 +13,12 @@ The current candidate lineage is:
 | Final executable candidate A | commit `28b918268104cbcd19b18486dcb4134213c6351a`, tree `72fe6177d20eea67b6580899c1134d586be987c0` | Exact executable tree exercised by `final-floci-902`. |
 | Floci evidence carrier / Kiro executable candidate B | commit `2a1afb8a301c952b655ffe9e8a0981adff3c324c`, tree `c0a2f4b84f169d86d2295f15dbbf9b5a37e98b4e` | Adds only the normalized final-Floci records to A; exact tree exercised by `kiro-final-902`. |
 | Round-5 council-review candidate C | commit `491bfdafc94832c6624ed86051955b1067245979`, tree `e314bd4ab33e492b905a080b43c4ea8bdfba6828` | Carries the final Kiro records and review-contract documentation. Fable 5.1 reviewed this exact immutable tree at `xhigh`; no live campaign is retroactively claimed against C. |
-| Current immutable executable candidate D | commit `8806fa607b991d8e3ca9d004f2724412596f715d`, tree `bd0488dc2b184c39c0a6c538d5f2d2ebf73375cf` | Exact detached archive independently exercised by `final-okf-campaign` and `final-floci-903`. The campaign records were produced afterward; neither their later evidence-carrier bytes nor any later tree is claimed as executed. |
+| Historical executable candidate D | commit `8806fa607b991d8e3ca9d004f2724412596f715d`, tree `bd0488dc2b184c39c0a6c538d5f2d2ebf73375cf` | Exact detached archive independently exercised by `final-okf-campaign` and `final-floci-903`. The campaign records were produced afterward; neither their later evidence-carrier bytes nor any later tree is claimed as executed. |
+| Hosted-control candidate E | commit `6e8d4bbe25d549faa5f07378139d92de60294410`, tree `c4360f55963437d70079d7566997e20b047e2a60` | Exact tree for the hosted maintenance fail-fast run. Its planning and authenticated drift-detection jobs passed, but reviewer readiness failed before Kiro because no accepted Fable Actions credential was configured. No native-Spec, successful maintenance, or final-council execution is claimed for E. |
 
 The older `live-final-902`, `live-council-902`, `fable-r5-902`, and `kiro-v3-accept-902`
-campaigns remain below as explicitly historical evidence. The newest exact-candidate records are
+campaigns remain below as explicitly historical evidence. The newest retained exact-candidate
+application records are
 the [`final OKF/OKN campaign`](../reviews/final-okf-campaign.md) and
 [`final-floci-903` exact-deletion campaign](../reviews/final-floci-deletion-campaign.md). The
 [`kiro-final-902` campaign](../reviews/final-kiro-v3-campaign.md) remains the most recent real Kiro
@@ -24,11 +26,22 @@ current-session proof, but it exercised candidate B and is not proof of candidat
 Spec bridge or OKF integration.
 
 The authorized [`njs14/pk-stack`](https://github.com/njs14/pk-stack) repository now exists and its
-visibility was verified as private. Hosted credential, permission-matrix, and read-only Kiro
-runtime-canary evidence now exists, including successful
-[canary run 33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801). The autonomous
-upstream-maintenance lifecycle and exact-tree model-council acceptance remain separate pending
-gates; repository existence and the narrower hosted smokes do not prove either one.
+visibility was verified as private. Hosted Kiro evidence includes successful credential
+[run 33729855987](https://github.com/njs14/pk-stack/actions/runs/33729855987) on exact commit
+`99d2784b35a255ebc70585542e8e78b78d05895e`, exact permission-matrix
+[run 33736820795](https://github.com/njs14/pk-stack/actions/runs/33736820795) on exact commit
+`8c5651927f6ab98fb7967e5ceca8a70bd85b9a9b`, and read-only runtime-canary
+[run 33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801) on exact commit
+`7ce09e3dc161965b0cdac01f992e7ec1c89748b0`.
+
+The bounded [maintenance preflight record](../reviews/hosted-maintenance-preflight-campaign.md)
+covers [run 33743730700](https://github.com/njs14/pk-stack/actions/runs/33743730700) on exact commit
+`6e8d4bbe25d549faa5f07378139d92de60294410`. Immutable planning and authenticated upstream drift
+detection passed, then reviewer readiness failed safely because no accepted Fable Actions
+credential was configured. No Kiro repair turn or publish step ran, and candidate-gate
+[run 33743818713](https://github.com/njs14/pk-stack/actions/runs/33743818713) was skipped. This is
+fail-closed safety evidence, not a successful autonomous upstream-maintenance lifecycle. Successful
+maintenance, native-Spec proof, and exact-tree model-council acceptance remain separate open gates.
 
 ## Bootstrap and controller provenance
 
@@ -36,7 +49,7 @@ The canonical installable package is committed at `powers/pk-stack/`. It was imp
 from the independently accepted source commit `191997501c41ae078b6548b9d6c898aadf2907ae`, after
 which the pre-Fable audit added one centralized draft-publication guard and regressions. The
 original source checkout remained clean and unchanged. The current canonical package suite passed
-**759 tests**. Its Power-local setup shim regenerated this fixture's controller; source, skills,
+**769 tests**. Its Power-local setup shim regenerated this fixture's controller; source, skills,
 steering, templates, and the runtime lock are parity-tested byte-for-byte.
 
 The generated fixture currently retains a 156-file ownership receipt in
@@ -78,12 +91,12 @@ env PYTHONDONTWRITEBYTECODE=1 \
 .pstack/bin/projectctl doctor --output json
 ```
 
-The root suite passed 302 tests, the canonical Power suite passed 759 tests, and doctor returned
+The root suite passed 302 tests, the canonical Power suite passed 769 tests, and doctor returned
 `ok: true` with 130 pass, zero fail, and the single disclosed optional `okn` warning. These
-deterministic checks supplement, rather than replace, the immutable candidate-D campaigns below or
-the older candidate-B Kiro session proof.
+deterministic checks supplement, rather than replace, the older immutable candidate-D campaigns
+below or the older candidate-B Kiro session proof.
 
-## Current immutable OKF/OKN campaign
+## Retained immutable OKF/OKN campaign
 
 The [`final-okf-campaign`](../reviews/final-okf-campaign.md) executed candidate D from an isolated
 `git archive`. The tar embedded exact commit
@@ -105,7 +118,7 @@ This is local Darwin arm64 evidence. It does not exercise the OKN registry, MCP,
 remote knowledge, a Kiro UI/session, Crew, Web, Floci, or application business behavior. It also
 does not promote `okfcli/okf` into the runtime path.
 
-## Current immutable Floci exact-deletion campaign: `final-floci-903`
+## Retained immutable Floci exact-deletion campaign: `final-floci-903`
 
 The [`final-floci-903` campaign](../reviews/final-floci-deletion-campaign.md) independently executed
 the same candidate-D commit and tree from a detached archive with SHA-256
@@ -663,10 +676,13 @@ Kiro campaign. Candidate C `491bfda` carries both normalized campaign records an
 immutable target for Fable round 5 at `xhigh`. Round 5 returned `REQUEST CHANGES` with material
 findings `FBL-037`, `FBL-038`, and `FBL-039`; this report and the README address the documentation
 portion of `FBL-039`, while the acceptance ledger and executable hardening are tracked separately.
-Candidate D `8806fa6` contains the post-round-5 Kiro/OKF integration and other remediation work. Its
-exact archive now has independent canonical OKN and Floci exact-deletion proof; its native-Spec
-current-session campaign and post-remediation council review remain pending. Those boundaries are
-intentional: no report claims that a later evidence-carrier commit was the executable in an earlier
+Historical candidate D `8806fa6` contains the post-round-5 Kiro/OKF integration and other
+remediation work. Its exact archive has independent canonical OKN and Floci exact-deletion proof.
+Hosted-control candidate E `6e8d4bb` carries later workflow, compatibility, and evidence changes;
+maintenance run 33743730700 exercised its control path only and stopped before Kiro. Neither D's
+older campaigns nor E's fail-fast run proves the final tree's native-Spec current-session campaign,
+successful maintenance lifecycle, or post-remediation council review. Those boundaries are
+intentional: no report claims that a later evidence carrier was the executable in an earlier
 campaign. Prospective Fable 5.1 peer and acceptance runs use `xhigh`; historical `max` runs remain
 labeled as such. This report does not claim final Fable acceptance until the exact post-remediation
 review tree receives `ACCEPT` with zero material unresolved findings.
@@ -675,5 +691,6 @@ The optional Archify status flow, `npx skills use tt-a1i/archify@archify --agent
 interactive trust TUI under `TERM=dumb` and was not activated; it produced no authoritative
 architecture artifact and changed no repository file. Grok 4.6 `xhigh` remains the final sweeper
 after clean Fable acceptance, with another Fable pass required if the sweep drives a material tree
-change. The private GitHub repository is now real and verified private; hosted credential,
-permission, and maintenance workflow proof is not yet claimed.
+change. The private GitHub repository is real and verified private; hosted credential, exact
+permission-matrix, and read-only canary proof now exist. A successful hosted maintenance lifecycle,
+the final native-Spec current-session campaign, and exact-tree Fable/Grok acceptance remain open.

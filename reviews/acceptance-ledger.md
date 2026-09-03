@@ -313,7 +313,10 @@ returned `REQUEST CHANGES` with three material findings. The normalized report i
   checkout; pre-Git close refusal; and trusted Git configuration that disables hooks, fsmonitor,
   external diff, ambient attributes, and inherited global/system configuration. Planted hook and
   config regressions prove refusal before staging or hook execution. The exact hosted Kiro
-  permission smoke remains a publication gate and is not replaced by this local proof.
+  permission sub-gate is now **closed** by
+  [run 33736820795](https://github.com/njs14/pk-stack/actions/runs/33736820795) on commit
+  `8c5651927f6ab98fb7967e5ceca8a70bd85b9a9b`; successful hosted maintenance and final council
+  acceptance remain separate gates.
 - `FBL-039` — Correct stale executable identities, generated counts, campaign links, and acceptance
   status narrative. Local disposition: **closed locally** in the root README,
   `docs/validation-report.md`, and this ledger, with historical and current evidence roles kept
@@ -321,7 +324,8 @@ returned `REQUEST CHANGES` with three material findings. The normalized report i
 - `FBL-040` — Create the authorized private repository before treating its plugin URL as live.
   Disposition: **closed**. The authorized [`njs14/pk-stack`](https://github.com/njs14/pk-stack)
   repository was created and its visibility verified as private. This closes the URL/publication
-  identity finding only; hosted workflow evidence and final council acceptance remain pending.
+  identity finding. Hosted credential, exact permission-matrix, and read-only canary evidence now
+  exists; successful maintenance and final council acceptance remain separate pending gates.
 - `FBL-041` — Remove the misleading null Kiro evidence-carrier field and state whether the source
   write preceded attempt 2. Local disposition: **closed locally** in the final Kiro JSON and prose
   evidence.
@@ -336,7 +340,8 @@ returned `REQUEST CHANGES` with three material findings. The normalized report i
   routes and retain the remaining hosted/publication gates. Local route disposition:
   **closed locally** by `reviews/skill-route-campaign.md`, its JSON companion, and the bound
   executable regression. That record is intentionally non-interactive and does not substitute for
-  private-repository cadence, credential, or permission evidence, which remain pending.
+  private-repository maintenance-lifecycle evidence, which remains pending. The separate hosted
+  credential and exact permission-matrix smokes have since passed.
 - `FBL-044` — Accept only the canonical Fable reviewer while tolerating the one exact, versioned,
   tightly bounded first-party Haiku companion shape observed in the real pinned-client envelope.
   Local disposition: **closed locally** with positive real-shape and negative identity/usage-bound
@@ -374,9 +379,13 @@ proofs named below.
   `max`, no ACP default, a minimal CI-only agent, and no shell/network/MCP/subagent authority in the
   model step. Expose `KIRO_API_KEY` only to the four bounded repair steps, destroy its isolated
   runtime before candidate code or secretless verification, and never fall back to another model
-  automatically after a Kiro failure. Status: **closed locally, hosted proof pending**. The
-  conventional Kiro workflow and structural tests implement the contract; its exact private-repo
-  credential, permission, and cadence execution remains required.
+  automatically after a Kiro failure. Status: **closed locally, hosted lifecycle proof pending**.
+  The conventional Kiro workflow and structural tests implement the contract. Hosted credential
+  run [33729855987](https://github.com/njs14/pk-stack/actions/runs/33729855987) passed on commit
+  `99d2784b35a255ebc70585542e8e78b78d05895e`, and exact permission-matrix run
+  [33736820795](https://github.com/njs14/pk-stack/actions/runs/33736820795) passed on commit
+  `8c5651927f6ab98fb7967e5ceca8a70bd85b9a9b`. Neither proves the updater's scheduled or dispatched
+  repair lifecycle, including its per-attempt model preflight.
 - `SELF-004` — Treat upstream patches and model output as untrusted data. Permit automatic author
   edits only on the declared bounded Power surface, keep controller/tests/CI/feature contracts
   immutable, and let a secretless base-commit finalizer alone regenerate, test, advance the pin,
@@ -398,10 +407,14 @@ proofs named below.
   primary Kiro workflow.
 - `SELF-007` — Create only the authorized private `njs14/pk-stack` repository, configure the Kiro
   secret without printing it, verify repository/action privacy and permissions, and run a hosted
-  workflow proof. Status: **partially closed**. The authorized repository now exists and was
-  verified private; repository creation is no longer a pending publication claim. A successful
-  bounded hosted credential/permission/maintenance proof and final council acceptance remain open,
-  so private-repository existence is not treated as hosted liveness.
+  workflow proof. Status: **closed**. The authorized repository exists and was verified private;
+  credential run [33729855987](https://github.com/njs14/pk-stack/actions/runs/33729855987) passed on
+  commit `99d2784b35a255ebc70585542e8e78b78d05895e`, permission run
+  [33736820795](https://github.com/njs14/pk-stack/actions/runs/33736820795) passed on commit
+  `8c5651927f6ab98fb7967e5ceca8a70bd85b9a9b`, and read-only runtime canary
+  [33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801) passed on commit
+  `7ce09e3dc161965b0cdac01f992e7ec1c89748b0`. Successful maintenance and final council acceptance
+  remain separate criteria; they are not implied by this repository-liveness proof.
 - `SELF-008` — Ship a documented, decodable RGBA potato-ghost mascot with an OKF scholar's
   mortarboard, transparent outer corners, and an honest visual-reference notice. Status:
   implemented; the asset checksum and decoded alpha behavior are regressed.
@@ -416,9 +429,11 @@ proofs named below.
   and representative overlapping protected path must be checked, with exact policy-denial events
   and unchanged protected hashes. The production and fixture agents must also carry the exact
   `toolsSettings` discovery contract, appear in a sterile V3 `agent list`, and fail on any default-
-  agent fallback. Status: closed locally after a live negative exposed the missing discovery field;
-  29 guard tests and sterile no-model production/fixture discovery now pass. Hosted execution
-  remains a publication gate.
+  agent fallback. Status: **closed on hosted commit
+  `8c5651927f6ab98fb7967e5ceca8a70bd85b9a9b`**. After a live negative exposed the missing discovery
+  field, the local guard suite and sterile no-model production/fixture discovery passed; hosted
+  [run 33736820795](https://github.com/njs14/pk-stack/actions/runs/33736820795) then exercised seven
+  allowed writes and six isolated denials with unchanged protected hashes and exact cleanup.
 - `SELF-011` — Bind each upstream source to exactly one machine-validated canonical genesis marker
   before its ordered transition markers. Reject missing, changed, duplicate, extra, malformed, or
   reordered genesis/transition evidence before network access, and preserve genesis through accept
@@ -428,8 +443,17 @@ proofs named below.
   inventories, and disposition counts.
 - `SELF-012` — Demonstrate the committed daily cadence, credential smoke, exact-authority
   permission smoke, authenticated upstream check, and one hosted no-op or drift lifecycle in the
-  authorized private repository. Status: pending publication; local static proof cannot substitute
-  for GitHub-hosted liveness.
+  authorized private repository. Status: **partially closed**. The daily schedule is committed;
+  credential run [33729855987](https://github.com/njs14/pk-stack/actions/runs/33729855987) and
+  exact-authority permission run
+  [33736820795](https://github.com/njs14/pk-stack/actions/runs/33736820795) passed. Maintenance
+  [run 33743730700](https://github.com/njs14/pk-stack/actions/runs/33743730700) on commit
+  `6e8d4bbe25d549faa5f07378139d92de60294410` passed immutable planning and authenticated drift
+  detection, then failed safely at reviewer readiness because no accepted Fable Actions credential
+  was configured; Kiro, publish, and merge work did not run. The resulting candidate-gate
+  [run 33743818713](https://github.com/njs14/pk-stack/actions/runs/33743818713) was skipped. The
+  bounded [preflight campaign](hosted-maintenance-preflight-campaign.md) preserves that safety proof.
+  A successful no-op or drift lifecycle therefore remains required.
 - `SELF-013` — Keep autonomous acceptance limited to the four configured GitHub source
   repositories, and add a separate weekly/manual read-only Kiro product canary. Resolve the
   official stable CLI manifest; select, checksum, and probe exactly the advertised x86_64 Linux
@@ -442,7 +466,8 @@ proofs named below.
   `llms.txt`, and recorded relevant documentation hashes as non-gating observations. Any newer
   stable pin or runtime regression must fail red; promotion remains deliberately manual because
   workflow and protected controller files are trust roots. Status: **closed on hosted commit
-  `7ce09e3`**. [Run 33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801)
+  `7ce09e3dc161965b0cdac01f992e7ec1c89748b0`**.
+  [Run 33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801)
   passed the exact pin, five-agent validation/discovery, live model inventory, all 13 documentation
   hashes, and cleanup without an uploaded artifact; the bounded
   [campaign record](kiro-runtime-canary-campaign.md) also retains the prior fail-safe extraction
@@ -495,10 +520,14 @@ the material items below as release criteria.
   profile carries an inert empty `toolsSettings` object and the primary profile carries only its
   documented subagent settings; all filesystem/shell authorization remains in `permissions.rules`.
   Document this as a tested 2.21.0 compatibility sentinel, not a general V3 requirement, and do not
-  overstate IDE or Crew permission parity. Status: **closed locally**. The bounded Kiro 2.21.0
-  probe in `reviews/kiro-v3-agent-discovery-probe.json` records the field-absent failure and then
-  exact sterile discovery of all five shipped workspace agents with the inert sentinel present.
-  Hosted execution and IDE, Web, or Crew permission parity are not claimed by that local probe.
+  overstate IDE or Crew permission parity. Status: **closed for the tested CLI 2.21.0 boundary**.
+  The bounded local Kiro 2.21.0 probe in `reviews/kiro-v3-agent-discovery-probe.json` records the
+  field-absent failure and then exact sterile discovery of all five shipped workspace agents with
+  the inert sentinel present. Hosted runtime-canary
+  [run 33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801) on commit
+  `7ce09e3dc161965b0cdac01f992e7ec1c89748b0` independently validated and discovered all five, and
+  the hosted permission smoke exercised the production profile. IDE, Web, and Crew permission
+  parity remain explicitly untested.
 
 ## Upstream skill-parity criteria
 
@@ -583,11 +612,12 @@ different skill.
 
 ## Remaining acceptance sequence
 
-1. Commit the bounded `8806fa6` OKF/OKN and Floci exact-deletion records as evidence-carrier bytes,
-   then rerun every deterministic static, packaging, policy, and regression gate. Do not claim that
-   the later evidence carrier was the executable used by either campaign.
-2. Run the exact hosted credential, permission, and maintenance smokes in the already-created
-   private repository; retain only bounded, secret-free evidence.
+1. Provision exactly one accepted Fable Actions credential, then complete one authenticated hosted
+   no-op or drift maintenance lifecycle. The existing fail-fast run is safety evidence, not a
+   successful lifecycle.
+2. Re-run the canonical OKF/OKN campaign and every deterministic static, packaging, policy, and
+   regression gate on the final functional tree. Retain the older `8806fa6` OKF/OKN and Floci
+   campaigns as exact historical evidence only.
 3. Exercise the final native-Spec-to-verified-goal integration on its exact immutable candidate.
 4. Repeat Fable 5.1 at `xhigh` on immutable candidates until it returns acceptance with zero
    material unresolved findings.

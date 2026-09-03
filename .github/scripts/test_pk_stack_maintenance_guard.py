@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -3389,6 +3390,64 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 ):
                     self.assertEqual(source.count(f'"{key}"'), 1)
                     self.assertNotIn(f" settings {key} ", source)
+
+    def test_reviewer_readiness_fails_closed_before_kiro_maintenance(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        readiness_match = re.search(
+            r"(?ms)^  reviewer_readiness:\n(?P<body>.*?)(?=^  maintain:\n)",
+            workflow,
+        )
+        self.assertIsNotNone(readiness_match)
+        readiness = readiness_match.group("body")  # type: ignore[union-attr]
+        self.assertIn("needs: [plan, detect]", readiness)
+        self.assertEqual(
+            readiness.count("if: needs.detect.outputs.needs_maintenance == 'true'"),
+            1,
+        )
+        self.assertRegex(readiness, r"(?m)^    permissions: \{\}$")
+
+        script_match = re.search(
+            r"(?ms)^        run: \|\n(?P<script>(?:^          .*\n)+)",
+            readiness,
+        )
+        self.assertIsNotNone(script_match)
+        script = textwrap.dedent(script_match.group("script"))  # type: ignore[union-attr]
+        cases = (
+            ("neither", "", "", 1, "Fable review is mandatory"),
+            ("both", "test-anthropic", "test-oauth", 1, "exactly one Claude CI credential"),
+            ("anthropic-only", "test-anthropic", "", 0, ""),
+            ("oauth-only", "", "test-oauth", 0, ""),
+        )
+        for label, anthropic, oauth, expected_rc, expected_stderr in cases:
+            with self.subTest(credentials=label):
+                result = subprocess.run(
+                    ["bash"],
+                    input=script,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                    env={
+                        "ANTHROPIC_API_KEY": anthropic,
+                        "CLAUDE_CODE_OAUTH_TOKEN": oauth,
+                    },
+                )
+                self.assertEqual(result.returncode, expected_rc)
+                if expected_stderr:
+                    self.assertIn(expected_stderr, result.stderr)
+                else:
+                    self.assertEqual(result.stderr, "")
+
+        maintain_match = re.search(
+            r"(?ms)^  maintain:\n(?P<body>.*?)(?=^  publish:\n)",
+            workflow,
+        )
+        self.assertIsNotNone(maintain_match)
+        maintain = maintain_match.group("body")  # type: ignore[union-attr]
+        self.assertIn("needs: [plan, detect, reviewer_readiness]", maintain)
+        self.assertLess(
+            workflow.index("  reviewer_readiness:"),
+            workflow.index("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"),
+        )
 
     def test_workflow_contracts_are_statically_bound(self) -> None:
         kiro = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()

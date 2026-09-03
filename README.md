@@ -132,9 +132,12 @@ of shipping an unreviewed operational change. See the [maintenance feature
 contract](Wiki/features/pk-stack-upstream-maintenance.md), [architecture](docs/architecture.md),
 and [review ledger](reviews/acceptance-ledger.md).
 
-The authorized repository has been created and verified private. That establishes the real clone
-URL, not hosted liveness: successful bounded credential, permission, and maintenance workflow
-evidence, followed by final Fable/Grok council acceptance, is still pending.
+The authorized repository has been created and verified private. Hosted credential,
+exact-permission-matrix, and read-only runtime-canary proofs now pass. The first authenticated
+[maintenance preflight](reviews/hosted-maintenance-preflight-campaign.md) detected real
+`okf-skills` drift and then stopped before Kiro or publication because the required Fable Actions
+credential is not yet configured. One successful maintenance lifecycle, the final native-Spec
+campaign, and final Fable/Grok council acceptance remain open.
 
 ## Run the Floci acceptance fixture
 
@@ -181,8 +184,8 @@ The emulator is unauthenticated while running. Port 4566 is bound to loopback, b
 network is not an egress-isolation boundary. Use a disposable Docker daemon and read the
 [limitations](docs/limitations.md) before treating the lab as production evidence.
 
-The current immutable executable candidate is commit
-`8806fa607b991d8e3ca9d004f2724412596f715d`. Its detached archive passed the
+Historical executable candidate
+`8806fa607b991d8e3ca9d004f2724412596f715d` passed the
 [canonical OKF/OKN campaign](reviews/final-okf-campaign.md)
 ([machine-readable record](reviews/final-okf-campaign.json)) and the
 [Floci exact-deletion campaign](reviews/final-floci-deletion-campaign.md)
@@ -194,6 +197,7 @@ evidence-carrier bytes are claimed as executed. The earlier
 for its own older executable commit, not for `8806fa6`.
 
 See [architecture](docs/architecture.md), [test strategy](docs/test-strategy.md), and the full
-[validation report](docs/validation-report.md). The repository exists and is private, but hosted
-workflow proof, a final native-Spec current-session campaign, independent Fable acceptance, and the
-final Grok sweep remain gated until their own evidence exists.
+[validation report](docs/validation-report.md). The repository exists and is private, and its
+credential, permission, canary, and fail-closed maintenance-entry proofs are retained. A successful
+maintenance lifecycle, final native-Spec current-session campaign, independent Fable acceptance,
+and final Grok sweep remain gated until their own evidence exists.

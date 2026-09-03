@@ -40,10 +40,40 @@ write/deploy evidence boundary are disclosed in the campaign record. The fresh c
 campaign with a PID sidecar, exact action trace, frozen judge, teardown, and explicit ambient-memory
 and Docker-bridge limitations is in `final-kiro-v3-campaign.md`,
 `final-kiro-v3-campaign.json`, and `final-kiro-v3-campaign-history.txt`.
-The first hosted read-only product/runtime canary is recorded in
+Candidate D's later canonical OKF/OKN and exact-deletion proofs are retained in
+`final-okf-campaign.md`/`.json` and `final-floci-deletion-campaign.md`/`.json`. Both executed exact
+older candidate `8806fa607b991d8e3ca9d004f2724412596f715d`; neither is current-tree execution proof.
+
+Hosted Kiro liveness is independently bounded by three successful runs:
+
+- credential [run 33729855987](https://github.com/njs14/pk-stack/actions/runs/33729855987) on exact
+  commit `99d2784b35a255ebc70585542e8e78b78d05895e`;
+- exact permission-matrix [run
+  33736820795](https://github.com/njs14/pk-stack/actions/runs/33736820795) on exact commit
+  `8c5651927f6ab98fb7967e5ceca8a70bd85b9a9b`; and
+- read-only product/runtime canary [run
+  33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801) on exact commit
+  `7ce09e3dc161965b0cdac01f992e7ec1c89748b0`.
+
+The canary's bounded record is in
 `kiro-runtime-canary-campaign.md` and its JSON companion. Run `33743033801` passed on exact commit
 `7ce09e3`; the retained failed-safe precursor documents why the initial executable-member bound
 was raised and then pinned to the reviewed archive's exact two member sizes.
+
+The bounded [hosted maintenance preflight record](hosted-maintenance-preflight-campaign.md) and its
+[JSON companion](hosted-maintenance-preflight-campaign.json) cover maintenance
+[run 33743730700](https://github.com/njs14/pk-stack/actions/runs/33743730700) on exact commit
+`6e8d4bbe25d549faa5f07378139d92de60294410`. Immutable planning and authenticated drift detection
+passed, then reviewer readiness failed safely because no accepted Fable Actions credential was
+configured. The Kiro repair and publish jobs were skipped, and downstream candidate-gate
+[run 33743818713](https://github.com/njs14/pk-stack/actions/runs/33743818713) was skipped. This proves
+the pre-credit fail-closed ordering only; it is not a successful maintenance lifecycle, candidate
+review, or merge.
+
+Release therefore still requires one successful hosted maintenance lifecycle, the final native
+Spec-to-current-session verified-goal campaign on its exact candidate, Fable 5.1 `xhigh`
+acceptance with zero material unresolved findings, and the Grok 4.6 `xhigh` sweep followed by
+Fable reacceptance if that sweep drives a material change.
 
 Committed review Markdown is normalized output plus execution metadata. Raw model output is kept
 outside the repository only when a report explicitly names its location and SHA-256; otherwise it
