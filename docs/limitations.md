@@ -30,6 +30,19 @@ only the executable contract, bounded attempt count, and terminal state. A disab
 advisory, not a blocker. The normal workflow is ordinary interactive Kiro IDE chat/Agent Focus or
 `kiro-cli --v3`, not a user-launched external ACP host.
 
+The weekly and manually dispatchable Kiro runtime/documentation canary reduces product-drift
+blindness; it is not an autonomous Kiro upgrade mechanism. It resolves the official stable CLI
+manifest, verifies and probes the advertised x86_64 Linux headless binary, validates exact
+five-agent schema/discovery, and requests the live model inventory without sending a model turn.
+`KIRO_API_KEY` exists only in that inventory step after the advertised version, SHA-256, derived
+URL, and size exactly match the reviewed pin; an unpinned binary never receives the credential.
+The canary does not invoke Anthropic.
+IDE metadata, Kiro Crew Nightly feeds, the changelog, `llms.txt`, and relevant documentation hashes
+are bounded non-gating observations: they do not prove an IDE, Crew, or Web workflow campaign. A
+new stable CLI or regression fails red, but promoting the checksum/version tuple remains manual
+because the workflows and protected controller files that carry it are trust roots. The four
+configured GitHub source repositories are the only autonomous update sources.
+
 Feature-map validation and feature-backed goals do not require OKF. Broader project-knowledge
 search and `knowledge validate --require-okn` require the canonical `okn` executable. When it is
 absent, `doctor` reports a warning and PK-Stack remains in feature-map-only knowledge mode.

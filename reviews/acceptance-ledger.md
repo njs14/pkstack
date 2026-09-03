@@ -430,6 +430,20 @@ proofs named below.
   permission smoke, authenticated upstream check, and one hosted no-op or drift lifecycle in the
   authorized private repository. Status: pending publication; local static proof cannot substitute
   for GitHub-hosted liveness.
+- `SELF-013` — Keep autonomous acceptance limited to the four configured GitHub source
+  repositories, and add a separate weekly/manual read-only Kiro product canary. Resolve the
+  official stable CLI manifest; select, checksum, and probe exactly the advertised x86_64 Linux
+  headless binary; validate and discover all five workspace agents; and strictly validate the live
+  model inventory without sending a model turn. Expose `KIRO_API_KEY` only to that inventory step
+  after version, SHA-256, derived URL, and size exactly match the reviewed pin; never pass it to an
+  advertised unpinned binary. Invoke neither Anthropic nor any model, bound and scrub output,
+  upload no artifact, and always
+  clean the isolated runtime. Treat IDE metadata, Kiro Crew Nightly feeds, the changelog,
+  `llms.txt`, and recorded relevant documentation hashes as non-gating observations. Any newer
+  stable pin or runtime regression must fail red; promotion remains deliberately manual because
+  workflow and protected controller files are trust roots. Status: implemented locally with strict
+  canary and cross-copy pin-contract regressions; the first hosted scheduled/manual proof remains
+  pending.
 
 ## Kiro model and methodology criteria
 

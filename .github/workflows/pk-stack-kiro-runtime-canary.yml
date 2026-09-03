@@ -1,0 +1,107 @@
+name: PK-Stack Kiro Runtime Canary
+
+on:
+  schedule:
+    - cron: "23 11 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: pk-stack-kiro-runtime-canary-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  runtime-canary:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    env:
+      CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Harden runner networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            api.github.com:443
+            app.kiro.dev:443
+            assets.app.kiro.dev:443
+            cli.kiro.dev:443
+            desktop-release.q.us-east-1.amazonaws.com:443
+            download.crew.kiro.dev:443
+            github.com:443
+            kiro.dev:443
+            management.eu-central-1.kiro.dev:443
+            management.us-east-1.kiro.dev:443
+            objects.githubusercontent.com:443
+            prod.download.cli.kiro.dev:443
+            prod.download.desktop.kiro.dev:443
+            prod.us-east-1.auth.desktop.kiro.dev:443
+            prod.us-east-1.telemetry.desktop.kiro.dev:443
+            q.eu-central-1.amazonaws.com:443
+            q.us-east-1.amazonaws.com:443
+            results-receiver.actions.githubusercontent.com:443
+            runtime.eu-central-1.kiro.dev:443
+            runtime.us-east-1.kiro.dev:443
+            telemetry.eu-central-1.kiro.dev:443
+            telemetry.us-east-1.kiro.dev:443
+            updates.crew.kiro.dev:443
+      - name: Refuse a non-default-branch dispatch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          test -n "$DEFAULT_BRANCH"
+          test "$GITHUB_REF" = "refs/heads/$DEFAULT_BRANCH"
+      - name: Check out immutable canary controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Resolve and probe the advertised stable Kiro runtime
+        id: prepare
+        run: |
+          set -euo pipefail
+          umask 077
+          chmod -R a-w -- "$GITHUB_WORKSPACE"
+          python3 .github/scripts/kiro_runtime_canary.py prepare \
+            --root "$GITHUB_WORKSPACE" \
+            --scratch "$CANARY_ROOT" \
+            --runner-temp "$RUNNER_TEMP"
+          pin_match=$(python3 .github/scripts/kiro_runtime_canary.py pin-match \
+            --scratch "$CANARY_ROOT" \
+            --runner-temp "$RUNNER_TEMP")
+          [[ "$pin_match" == "true" || "$pin_match" == "false" ]]
+          printf 'pin_match=%s\n' "$pin_match" >>"$GITHUB_OUTPUT"
+      - name: Validate live model inventory without a model turn
+        if: steps.prepare.outputs.pin_match == 'true'
+        env:
+          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          python3 .github/scripts/kiro_runtime_canary.py inventory \
+            --root "$GITHUB_WORKSPACE" \
+            --scratch "$CANARY_ROOT" \
+            --runner-temp "$RUNNER_TEMP"
+      - name: Enforce the reviewed stable pin and runtime contract
+        if: always() && steps.prepare.outcome == 'success'
+        run: |
+          set -euo pipefail
+          env -u KIRO_API_KEY \
+            python3 .github/scripts/kiro_runtime_canary.py finalize \
+              --scratch "$CANARY_ROOT" \
+              --runner-temp "$RUNNER_TEMP"
+      - name: Remove every canary runtime and observation body
+        if: always()
+        run: |
+          set -euo pipefail
+          env -u KIRO_API_KEY \
+            python3 .github/scripts/kiro_runtime_canary.py cleanup \
+              --scratch "$CANARY_ROOT" \
+              --runner-temp "$RUNNER_TEMP"

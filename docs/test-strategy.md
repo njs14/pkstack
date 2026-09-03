@@ -18,6 +18,7 @@ Passing one boundary must not be reported as proof of another.
 | External judge | A mutation cannot pass by changing its verifier or protected controls | Read-only external judge and control manifest | Required during live mutation campaign |
 | Kiro current session | `/verified-goal` displays and preserves one contract through fail, repair, redeploy, pass | One interactive `kiro-cli chat --v3 --agent pstack` transcript | Passed locally; exact evidence awaits Fable disposition |
 | Cross-surface contract | IDE/CLI remain primary, Crew stays optional, Web limitations stay explicit, and skills avoid CLI-only request substitution | Kiro asset tests, installed IDE/Crew inventory, official Kiro docs, canonical support matrix | Required; structural evidence never substitutes for a surface campaign |
+| Kiro product canary | The advertised stable Linux CLI still matches the reviewed pin and preserves agent/model-inventory contracts | Weekly/manual read-only GitHub workflow plus strict canary-script tests | Required drift detector; failure opens review work but never promotes a pin |
 | Model council | Architecture/safety acceptance and final low-level sweep | Repeated Fable 5.1 peer reviews, then Grok 4.6 sweeper | Record only after completed cleanly |
 
 Do not encode a permanent test count in this document. The suite is still evolving; each
@@ -100,6 +101,25 @@ In a new temporary repository, generate one ready feature with a harmless execut
 validate and verify it, then start a two-attempt goal whose command initially fails. Record attempt
 1 as `active`; make the smallest fixture change and record attempt 2 as `passed`. This proves
 feature generation plus projectctl's state transition, but it must not be labeled a Kiro campaign.
+
+## Scheduled Kiro product canary
+
+`.github/workflows/pk-stack-kiro-runtime-canary.yml` runs weekly and by manual dispatch. It resolves
+the official stable manifest, selects exactly the x86_64 Linux headless `tar.xz`, downloads and
+checksum-verifies the advertised artifact, probes its version, validates and discovers the exact
+five workspace agents, and strictly validates `kiro-cli chat --list-models` output without sending
+a model turn. Static pin-consistency tests bind every active workflow, runtime helper, cache key,
+and smoke-test copy to the same version/SHA/URL tuple.
+
+Script tests cover strict manifest and archive selection, pin match/newer/rollback or malformed
+states, checksum and version disagreement, malformed or missing agent rows, bounded process output,
+secret scrubbing, and cleanup on success or failure. Workflow tests prove that `KIRO_API_KEY` is
+scoped only to the inventory step after the entire reviewed pin tuple matches and is never passed
+to an advertised unpinned binary, no Anthropic credential or model turn exists, no artifact is
+uploaded, and the checkout is not mutated. IDE metadata, Kiro Crew Nightly feeds, the changelog,
+`llms.txt`, and previously recorded relevant documentation hashes are bounded non-gating
+observations. A newer stable tuple or runtime regression intentionally fails red; a maintainer must
+review and promote the pin because workflow and protected controller files are trust roots.
 
 ## Live Floci matrix
 

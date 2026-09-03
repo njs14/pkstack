@@ -105,6 +105,20 @@ publish one non-draft bot PR; the next daily run then picks up any remaining sou
 stops before Kiro or Fable is invoked, so faster backlog draining does not spend model credits on a
 clean repository.
 
+That autonomous update lane covers exactly four GitHub sources: `cursor/plugins`,
+`scaccogatto/okf-skills`, `GoogleCloudPlatform/knowledge-catalog`, and the versioned CLI-schema
+subtree in `openknowledge-sh/openknowledge`. A separate weekly and manually dispatchable,
+read-only Kiro product canary resolves the official stable CLI manifest; downloads, checksum
+verifies, and probes the advertised x86_64 Linux headless binary; validates all five workspace
+agents and exact discovery; and lists the live model inventory without sending a model turn. It
+also records bounded non-gating observations for IDE metadata, Kiro Crew Nightly feeds, the
+changelog, `llms.txt`, and relevant documentation hashes. `KIRO_API_KEY` is exposed only to the
+inventory step and only after version, SHA-256, derived URL, and size all match the reviewed pin;
+an advertised unpinned binary never receives it. The canary invokes neither Anthropic nor any
+model. A newer stable pin or runtime regression fails red, but pin promotion remains a deliberate
+human change because the workflow and protected controller files are trust roots, not autonomous
+update surfaces.
+
 The candidate workflow independently tests the unchanged base and exact candidate, then requires
 Fable 5.1 at `xhigh` to approve the exact base/head/content/patch identity before an API-only squash
 merge. Upstream patches and reviewer output remain untrusted data throughout. Kiro credentials

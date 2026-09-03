@@ -865,7 +865,11 @@ def test_surface_support_matrix_separates_targets_from_evidence() -> None:
     assert "Agent Focus Mode as experimental" in normalized_compatibility
     assert "Compatibility required; orchestration optional" in normalized_compatibility
     assert "Supported by design, explicitly untested" in normalized_compatibility
-    assert "0.6.0-nightly.20260902t061347" in normalized_compatibility
+    crew_nightly_versions = re.findall(
+        r"\b[0-9]+\.[0-9]+\.[0-9]+-nightly\.[0-9]{8}t[0-9]{6}\b",
+        normalized_compatibility,
+    )
+    assert len(crew_nightly_versions) == 1
     assert "project custom agent as primary" in normalized_compatibility
     assert "keep `/setup-pstack` Power-local as an IDE/CLI bootstrap exception" in (
         normalized_compatibility

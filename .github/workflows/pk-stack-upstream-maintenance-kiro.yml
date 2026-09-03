@@ -228,11 +228,32 @@ jobs:
           retention-days: 1
           compression-level: 9
 
+  reviewer_readiness:
+    needs: [plan, detect]
+    if: needs.detect.outputs.needs_maintenance == 'true'
+    runs-on: ubuntu-24.04
+    permissions: {}
+    steps:
+      - name: Fail fast unless exactly one Fable credential is configured
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then
+            echo 'Fable review is mandatory; provision ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN before spending Kiro credits.' >&2
+            exit 1
+          fi
+          if [[ -n "$ANTHROPIC_API_KEY" && -n "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then
+            echo 'Configure exactly one Claude CI credential so reviewer authentication is unambiguous.' >&2
+            exit 1
+          fi
+
   # This high-risk scheduled lane deliberately uses experimental Sol/max. Each
   # credential-bearing repair invocation revalidates the live model inventory
   # before a model turn and fails closed rather than substituting another model.
   maintain:
-    needs: [plan, detect]
+    needs: [plan, detect, reviewer_readiness]
     if: needs.detect.outputs.needs_maintenance == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 150

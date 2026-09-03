@@ -3962,6 +3962,15 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             text=True,
         )
 
+    def test_kiro_runtime_canary_contract(self) -> None:
+        subprocess.run(
+            [sys.executable, ".github/scripts/test_kiro_runtime_canary.py"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
     def test_post_accept_failure_restores_pin_and_ledger_for_attempt_two(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             sandbox = Path(temporary)

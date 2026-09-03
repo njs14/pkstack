@@ -52,6 +52,29 @@ output, timeout, and nonzero exit are failures. The existing per-profile
 `agent validate` checks remain separate because schema validity is not loader
 discovery evidence.
 
+## Automated product-drift canary
+
+The four repositories in `maintenance/upstreams.json` are PK-Stack's autonomous update sources.
+Kiro product/runtime/documentation state is deliberately separate: the weekly and manually
+dispatchable `.github/workflows/pk-stack-kiro-runtime-canary.yml` is read-only and never promotes a
+pin or creates a candidate branch.
+
+The canary resolves the official stable Kiro CLI manifest, selects exactly the x86_64 Linux
+headless `tar.xz`, downloads and checksum-verifies the advertised binary, checks its reported
+version, validates all five workspace-agent files, requires their exact `Workspace` discovery, and
+strictly validates the live `--list-models` inventory without sending a model turn. A newer stable
+tuple or any runtime regression fails red. `KIRO_API_KEY` is available only to the inventory step
+after version, SHA-256, derived URL, and size exactly match the reviewed pin; an advertised
+unpinned binary never receives it. No Anthropic credential, external reviewer, or Kiro model turn is involved. IDE release metadata,
+Kiro Crew Nightly feeds, the changelog, `llms.txt`, and already recorded relevant documentation
+hashes are fetched under bounds and reported as non-gating observations.
+
+Pin promotion remains a deliberate maintainer change because the workflow copies and protected
+controller files are trust roots. This detector does not change the product composition: Kiro CLI
+v3 and IDE chat/Agent Focus remain primary, Crew remains compatible and optional, and Web remains
+supported by design but untested. Native Specs, Quick Specs, Skills, and Powers still drive the
+workflow; `/verified-goal` remains separate from native `/goal`.
+
 ## September 1-2, 2026 Kiro inventory
 
 The following official changes were reviewed before this compatibility text
@@ -555,7 +578,8 @@ the portable completion predicate on every supported path.
 ## Remaining limits
 
 - CLI v3 was selected explicitly with `--v3` in both the initial 2.20.2 snapshot
-  and the later 2.21.0 campaign. Recheck every Kiro update.
+  and the later 2.21.0 campaign. The weekly canary detects stable CLI drift, but
+  a human must review and promote the trust-root version/SHA tuple.
 - Native `/goal` is documented but not exposed by the sterile interactive CLI
   2.21.0 V3 probe for this build/account/session. Re-probe after Kiro updates;
   PK-Stack does not invoke or depend on it.

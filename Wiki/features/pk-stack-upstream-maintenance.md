@@ -41,6 +41,10 @@ asset is excluded with disposition B; and the canonical Power still matches ever
 bootstrap-managed workspace copy. Drift and any network, schema, identity, ledger, pagination,
 size, or parity failure return nonzero.
 
+The autonomous acceptance path is limited to the four configured GitHub source repositories. A
+separate weekly or manually dispatched Kiro canary observes product/runtime/documentation drift
+without editing the repository or promoting a new CLI pin.
+
 ## Expected path
 
 Strict local manifest and source-scoped contiguous review ledgers -> exactly one genesis marker per
@@ -81,6 +85,14 @@ atomic ledger append and pin advance; a failed check changes neither baseline.
 
 Run the same fail-closed maintenance contract on schedule and through an authorized manual dispatch
 without granting upstream content execution authority.
+
+### `kiro-product-canary`
+
+Resolve the official stable Kiro CLI manifest, select exactly the x86_64 Linux headless archive,
+verify and probe the advertised binary, validate and discover the five workspace agents, and query
+the live model inventory without sending a model turn. Record bounded, non-gating observations for
+IDE metadata, Kiro Crew Nightly feeds, the changelog, `llms.txt`, and already tracked relevant Kiro
+documentation hashes.
 
 ## How to get to it (user POV)
 
@@ -141,13 +153,15 @@ separately authorized, one-source action; other source pins and ledgers remain b
 
 Run the compiled upstream-maintenance GitHub workflow on its configured cadence with least-privilege
 repository permissions, environment-only credentials, and the checked-in manifest, ledger, and
-review policy.
+review policy. Separately, let `.github/workflows/pk-stack-kiro-runtime-canary.yml` run weekly, or
+dispatch that read-only canary manually when Kiro ships a change.
 
 #### Observable proof
 
 One run produces durable run and candidate identities, exact inventory evidence, all required test
 results, and a review disposition; missing credentials or incomplete evidence fail closed without
-moving the pin.
+moving the pin. The separate canary fails red on a newer stable CLI or runtime regression but never
+edits a pin or candidate branch.
 
 ### `manual-dispatch`
 
@@ -164,21 +178,31 @@ authority.
 The workflow identifies the triggering run and candidate, preserves every prior marker and ledger
 entry byte-for-byte, and changes the accepted pin only after the exact proposal passes fresh gates.
 A rejected, stale, foreign, or ambiguous candidate remains unmerged without asking a model to
-override policy.
+override policy. A manually dispatched product canary remains read-only: `KIRO_API_KEY` is scoped
+only to live `--list-models` inventory after the advertised tuple exactly matches the reviewed
+version, SHA-256, derived URL, and size; an unpinned binary never receives it. The canary neither
+calls Anthropic nor sends a model turn, uploads an artifact, or mutates the checkout. Its
+advertised-binary checksum/version, exact
+five-agent validation/discovery, and strict model-inventory checks are gates; IDE metadata, Kiro
+Crew Nightly feeds, the changelog, `llms.txt`, and recorded documentation hashes are bounded
+observations. A maintainer must separately promote a stable pin because workflow and protected
+controller files are trust roots.
 
 ## Evidence boundary
 
 Retain source and tree identities, bounded inventories and digests, A/B/C dispositions, bootstrap
-and test results, workflow/candidate IDs, and prospective Fable 5.1 `xhigh` verdicts. Do not retain
-GitHub tokens, Kiro credentials, raw secret-bearing logs, private reasoning, or unbounded upstream
-content. Historical review records preserve the effort actually used, including prior `max` runs.
+and test results, workflow/candidate IDs, prospective Fable 5.1 `xhigh` verdicts, and the canary's
+bounded product metadata and content hashes. Do not retain GitHub tokens, Kiro credentials, raw
+secret-bearing logs, private reasoning, or unbounded upstream content. Historical review records
+preserve the effort actually used, including prior `max` runs.
 
 ## Cleanup boundary
 
 A read-only check removes only verifier-owned temporary files. Successful acceptance consumes only
 the exact reviewed proposal and preserves the ledger, the singular genesis marker, all transition
 markers, and the prior pin in history. Failure or cancellation leaves the accepted baseline intact
-and never recursively deletes worktrees, runtime state, or foreign assets.
+and never recursively deletes worktrees, runtime state, or foreign assets. The product canary
+always removes only its isolated temporary Kiro runtime and retains no uploaded artifact.
 
 ## Gotchas
 
@@ -190,6 +214,8 @@ and never recursively deletes worktrees, runtime state, or foreign assets.
 - Each source has exactly one canonical genesis marker before all immutable transition markers.
 - Missing credentials, incomplete pagination, or indeterminate identity evidence fail closed without acceptance.
 - Prospective Fable 5.1 review uses `xhigh`; historical records keep the actual earlier `max` effort.
+- Only the four configured GitHub source repositories advance autonomously; Kiro product facts are observations, not a fifth self-updating source.
+- A newer stable Kiro CLI deliberately fails the canary until a human reviews and promotes every trust-root pin copy; the canary itself must not edit workflows or protected controller code.
 
 ## Verification
 
