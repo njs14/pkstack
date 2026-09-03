@@ -12,7 +12,7 @@ import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from pstack_kiro.branding import DISPLAY_NAME, DISTRIBUTION_NAME, RECEIPT_MANAGER
@@ -28,7 +28,16 @@ BOOTSTRAP_SCHEMA = 1
 RECEIPT = Path(".pstack/bootstrap.json")
 DISCOVERY = Path(".pstack/discovery.json")
 SKILL_PARITY_ASSET = Path("docs/upstream-skill-parity.json")
+CURATED_SKILLS_ASSET = Path("docs/curated-skills.json")
+CURATED_SHOW_ME_PARITY_ASSET = Path("docs/humanlayer-show-me-source-parity.json")
+CURATED_SHOW_ME_PROVENANCE_ASSET = Path("docs/humanlayer-show-me-provenance.md")
+CURATED_SHOW_ME_BUNDLE_ASSET = Path("docs/humanlayer-show-me-bundle-manifest.json")
+CURATED_ARCHIFY_PARITY_ASSET = Path("docs/tt-a1i-archify-source-parity.json")
+CURATED_ARCHIFY_PROVENANCE_ASSET = Path("docs/tt-a1i-archify-provenance.md")
+CURATED_ARCHIFY_BUNDLE_ASSET = Path("docs/tt-a1i-archify-bundle-manifest.json")
 MAX_SKILL_PARITY_BYTES = 512 * 1024
+MAX_CURATED_REGISTRY_BYTES = 512 * 1024
+MAX_CURATED_BUNDLE_BYTES = 512 * 1024
 ALLOWED_SKILL_DISPOSITIONS = {
     "direct-port",
     "alias-consolidation",
@@ -53,6 +62,13 @@ REQUIRED_SOURCE_MODULES = (
 )
 REQUIRED_POWER_ASSETS = (
     SKILL_PARITY_ASSET.as_posix(),
+    CURATED_SKILLS_ASSET.as_posix(),
+    CURATED_SHOW_ME_PARITY_ASSET.as_posix(),
+    CURATED_SHOW_ME_PROVENANCE_ASSET.as_posix(),
+    CURATED_SHOW_ME_BUNDLE_ASSET.as_posix(),
+    CURATED_ARCHIFY_PARITY_ASSET.as_posix(),
+    CURATED_ARCHIFY_PROVENANCE_ASSET.as_posix(),
+    CURATED_ARCHIFY_BUNDLE_ASSET.as_posix(),
     "skills/setup-pstack/scripts/setup_pstack.py",
     "skills/principles/references/catalog.md",
     "dev.kiro/steering/pstack-core.md",
@@ -83,7 +99,7 @@ GITIGNORE_RESULT_KEY = ".gitignore:pstack-runtime-block"
 
 TARGET_PYPROJECT = f"""[project]
 name = "{DISTRIBUTION_NAME}"
-version = "0.1.0"
+version = "0.2.0"
 description = "Repo-local {DISPLAY_NAME} project control surface"
 requires-python = ">=3.11"
 dependencies = [
@@ -136,38 +152,75 @@ Runtime goal state lives in `.pstack/state/` and is intentionally ignored.
 
 WIKI_INDEX = """---
 okf_version: "0.2"
+type: Guide
+title: PK-Stack project knowledge
+description: Navigation for the DO, PROVE, and KNOW interfaces.
+tags: [pk-stack, knowledge, navigation]
 ---
 
-# Project knowledge
+# PK-Stack project knowledge
 
-This source-controlled OKF bundle is the project's **KNOW** interface. Keep broader architecture,
-decisions, concepts, and operations here. PK-Stack starts with the narrow feature map and follows
-explicit links into this material only when the task needs deeper context.
+This directory is the source-controlled **KNOW** layer. Start with the narrow
+feature map, then follow the smallest explicit link that answers the question.
+The map and the project controller are the **PROVE** and **DO** layers; neither
+is replaced by a broad knowledge search.
 
-- [Feature contracts](features/README.md) are the narrow **PROVE** interface.
+## Start here
+
+| Need | Read |
+| --- | --- |
+| Prove a user-visible behavior | [Feature map](features/README.md) |
+| Understand the runtime boundary | [Architecture](architecture/native-kiro-composition.md) |
+| Keep planning and retrieval separate | [Planning decision](decisions/native-spec-and-okn.md) |
+| Decide how far to search | [Context-depth runbook](operations/context-depth.md) |
+| Install or recover the Power | [Usage guide](../powers/pk-stack/docs/usage.md) |
+| Check release claims | [v0.2.0 release status](../reviews/release-status.md) |
+
+## Layer map
+
+```text
+DO      .pstack/bin/projectctl
+  -> PROVE  Wiki/features/*.md + one executable verifier
+  -> KNOW   this Wiki + optional canonical `okn`
+```
+
+The repository's [architecture](../powers/pk-stack/docs/architecture.md),
+[provenance](../powers/pk-stack/docs/provenance.md), and
+[validation report](../powers/pk-stack/docs/validation-report.md) describe the
+implementation and evidence boundaries. Historical release records are
+indexed under [`reviews/historical/pre-v0.2/`](../reviews/historical/pre-v0.2/)
+and are not current acceptance evidence.
 """
 
 FEATURE_README = """---
 type: Guide
-title: Feature map
-description: PK-Stack executable feature-contract index.
+title: PK-Stack feature map
+description: Index of executable feature contracts.
 tags: [pk-stack, verification, feature-map]
 ---
 
 # Feature map
 
-This directory is the narrow **PROVE** interface. Each feature file describes
-one user-observable behavior and binds it to one explicitly reviewed executable
-verification command. Broader architecture, decisions, concepts, and
-operations belong elsewhere in `Wiki/` (the **KNOW** interface).
+This directory is the narrow **PROVE** interface. Each published feature
+describes one user-observable behavior and binds it to one reviewed executable
+verification command. Architecture, decisions, concepts, and operations belong
+in the broader [KNOW index](../index.md).
 
-Create a contract with:
+## Current contracts
 
-```bash
+| Contract | What it covers |
+| --- | --- |
+| [Upstream maintenance](pk-stack-upstream-maintenance.md) | Pinned-source reproof and acceptance |
+
+## Create a contract
+
+Use the canonical project wrapper from the repository root:
+
+```sh
 .pstack/bin/projectctl feature generate account-lookup \\
   --title "Account lookup" \\
   --behavior "A caller can retrieve account status." \\
-  --expected-path "Runtime -> gateway -> account service -> response" \\
+  --expected-path "CLI -> gateway -> account service -> response" \\
   --sub-feature "lookup-status=Return the current account status." \\
   --entrypoint "cli=Run the account lookup command." \\
   --drive "cli=Run the public command from the project root." \\
@@ -175,26 +228,32 @@ Create a contract with:
   --gotcha "A zero exit without the expected status is insufficient." \\
   --evidence-boundary "Retain bounded public output and its exit status." \\
   --cleanup-boundary "Remove only verifier-owned temporary state." \\
-  --command "uv run pytest tests/test_account_lookup.py" \\
-  --ready
+  --command "uv run pytest tests/test_account_lookup.py -q" \\
+  --ready --output json
 ```
 
-Schema-2 contracts map sub-features, every user entrypoint, a same-name drive
-recipe and observable proof for each entrypoint, gotchas, and evidence/cleanup
-boundaries. Generated contracts default to `draft: true`. With `--ready`,
-projectctl runs the command first and writes a ready contract only when that
-proof passes.
+Schema-2 contracts describe sub-features, entrypoints, driving recipes,
+observable proof, gotchas, and evidence/cleanup boundaries. New contracts are
+drafts unless `--ready` proves the command first. For an initial map, prepare
+three to five complete records and run `feature generate-map`; only the named
+representative is published until each remaining verifier passes.
 
-For an initial map, prepare one exact JSON object containing 3-5 complete
-schema-2 feature records, then prove only one representative:
-
-```bash
+```sh
 .pstack/bin/projectctl feature generate-map feature-plan.json \\
-  --representative account-lookup
+  --representative account-lookup --output json
+.pstack/bin/projectctl feature publish <slug> --output json
 ```
 
-The remaining records stay drafts until each is independently proven with
-`.pstack/bin/projectctl feature publish <slug>`.
+Validate the map at any time:
+
+```sh
+.pstack/bin/projectctl feature validate --output json
+```
+
+If a contract needs deeper context, follow its `related` links before issuing
+one targeted `projectctl knowledge search` query. Keep the verifier specific:
+a passing command is evidence for that predicate, not proof of unrelated
+features.
 """
 
 
@@ -569,7 +628,13 @@ def _validate_power_assets(asset_root: Path, source_package: Path) -> None:
         ensure_tree_no_symlinks(source_package.parent, Path(source_package.name))
     else:
         ensure_tree_no_symlinks(asset_root, source_relative)
-    for relative in ("skills", "dev.kiro/steering", "templates/project", "templates/projectctl"):
+    for relative in (
+        "skills",
+        "docs",
+        "dev.kiro/steering",
+        "templates/project",
+        "templates/projectctl",
+    ):
         ensure_tree_no_symlinks(asset_root, Path(relative))
     missing = [
         f"src/pstack_kiro/{name}"
@@ -586,7 +651,14 @@ def _validate_power_assets(asset_root: Path, source_package: Path) -> None:
 
 
 def _validate_skill_catalog(asset_root: Path) -> tuple[str, ...]:
-    """Require the bounded parity catalog to name every shipped skill exactly once."""
+    """Require Cursor parity, PK-only, and curated skills to be one safe catalog.
+
+    ``upstream-skill-parity.json`` remains deliberately scoped to the Cursor
+    source.  Curated skills have their own registry and bundle manifests so a
+    new reviewed source can be added without changing the Cursor parity
+    schema.  Bootstrap still exposes one exact set of skill directories to
+    the generated workspace.
+    """
 
     path = asset_root / SKILL_PARITY_ASSET
     try:
@@ -642,8 +714,13 @@ def _validate_skill_catalog(asset_root: Path) -> tuple[str, ...]:
     if pk_only != sorted(set(pk_only)) or set(pk_only) & set(upstream_names):
         raise ValueError(f"{DISPLAY_NAME} PK-only skill inventory must be sorted and disjoint")
 
-    expected = set(routed_names) | set(pk_only)
-    skill_root = asset_root / "skills"
+    cursor_expected = set(routed_names) | set(pk_only)
+    summary = document.get("summary")
+
+    curated_names = _validate_curated_registry(asset_root, forbidden=cursor_expected)
+    expected = cursor_expected | set(curated_names)
+    skill_root = ensure_tree_no_symlinks(asset_root, Path("skills"))
+    _validate_case_collisions(skill_root, context=f"{DISPLAY_NAME} skill catalog")
     actual = {
         child.name
         for child in skill_root.iterdir()
@@ -665,10 +742,229 @@ def _validate_skill_catalog(asset_root: Path) -> tuple[str, ...]:
         if unexpected_directories:
             details.append("directories without SKILL.md " + ", ".join(unexpected_directories))
         raise ValueError(f"{DISPLAY_NAME} skill catalog mismatch: {'; '.join(details)}")
-    summary = document.get("summary")
-    if not isinstance(summary, dict) or summary.get("shipped_skill_directories") != len(expected):
+    if not isinstance(summary, dict):
+        raise ValueError(f"{DISPLAY_NAME} skill parity summary is invalid")
+    if summary.get("shipped_skill_directories") != len(cursor_expected):
         raise ValueError(f"{DISPLAY_NAME} skill parity summary does not match the catalog")
     return tuple(sorted(expected))
+
+
+_CURATED_REGISTRY_KEYS = {"schema_version", "registry_type", "skills", "summary"}
+_CURATED_SKILL_KEYS = {
+    "name",
+    "source_id",
+    "target",
+    "bundle_root",
+    "bundle_manifest",
+    "source_parity",
+    "provenance",
+}
+_CURATED_BUNDLE_KEYS = {
+    "schema_version",
+    "artifact_type",
+    "skill",
+    "bundle_root",
+    "files",
+    "summary",
+}
+_CURATED_BUNDLE_FILE_KEYS = {"path", "sha256", "size", "mode", "source_path", "handling"}
+
+
+def _validate_curated_registry(asset_root: Path, *, forbidden: set[str]) -> tuple[str, ...]:
+    """Validate the independent curated-skill registry and its exact bundles."""
+
+    path = asset_root / CURATED_SKILLS_ASSET
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        raise ValueError(f"unable to read {DISPLAY_NAME} curated skill registry: {path}") from exc
+    if len(raw) > MAX_CURATED_REGISTRY_BYTES:
+        raise ValueError(
+            f"{DISPLAY_NAME} curated skill registry exceeds {MAX_CURATED_REGISTRY_BYTES} bytes"
+        )
+    try:
+        document = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid {DISPLAY_NAME} curated skill registry: {exc}") from exc
+    if not isinstance(document, dict) or set(document) != _CURATED_REGISTRY_KEYS:
+        raise ValueError(f"invalid {DISPLAY_NAME} curated skill registry schema")
+    if document.get("schema_version") != 1 or document.get("registry_type") != "curated-skills":
+        raise ValueError(f"invalid {DISPLAY_NAME} curated skill registry schema")
+    entries = document.get("skills")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError(f"invalid {DISPLAY_NAME} curated skill inventory")
+
+    names: list[str] = []
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict) or set(entry) != _CURATED_SKILL_KEYS:
+            raise ValueError(f"curated skill entry {index} has invalid fields")
+        name = entry.get("name")
+        if type(name) is not str or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
+            raise ValueError(f"curated skill entry {index} has an invalid name")
+        names.append(name)
+        if name in forbidden:
+            raise ValueError(f"curated skill {name!r} duplicates a Cursor or PK-only skill")
+        source_id = entry.get("source_id")
+        if type(source_id) is not str or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", source_id):
+            raise ValueError(f"curated skill {name!r} has an invalid source_id")
+        target = entry.get("target")
+        if target != f"skills/{name}/SKILL.md":
+            raise ValueError(f"curated skill {name!r} must target its canonical skill file")
+        for key, suffix in (
+            ("bundle_root", ""),
+            ("bundle_manifest", ".json"),
+            ("source_parity", ".json"),
+            ("provenance", ".md"),
+        ):
+            value = entry.get(key)
+            if type(value) is not str or not _valid_posix_relative(value):
+                raise ValueError(f"curated skill {name!r} has an unsafe {key}")
+            if suffix and not value.endswith(suffix):
+                raise ValueError(f"curated skill {name!r} {key} has an invalid suffix")
+        if entry["bundle_root"] != f"skills/{name}":
+            raise ValueError(f"curated skill {name!r} bundle_root must be its canonical directory")
+        for key in ("bundle_manifest", "source_parity", "provenance"):
+            referenced = asset_root / entry[key]
+            if not referenced.is_file() or referenced.is_symlink():
+                raise ValueError(f"curated skill {name!r} {key} is missing or unsafe")
+        _validate_curated_bundle_manifest(asset_root, entry)
+
+    if names != sorted(set(names)):
+        raise ValueError(f"{DISPLAY_NAME} curated skill inventory must be sorted and unique")
+    source_ids = {entry.get("source_id") for entry in entries if isinstance(entry, dict)}
+    if len(source_ids) != len(entries):
+        raise ValueError(f"{DISPLAY_NAME} curated skill source ids must be unique")
+    summary = document.get("summary")
+    if not isinstance(summary, dict) or set(summary) != {
+        "curated_skill_count",
+        "shipped_skill_directories",
+        "bundle_file_count",
+    }:
+        raise ValueError(f"{DISPLAY_NAME} curated skill summary is invalid")
+    bundle_file_count = sum(
+        _bundle_file_count(asset_root / entry["bundle_manifest"])
+        for entry in entries
+        if isinstance(entry, dict)
+    )
+    if summary != {
+        "curated_skill_count": len(entries),
+        "shipped_skill_directories": len(entries),
+        "bundle_file_count": bundle_file_count,
+    }:
+        raise ValueError(f"{DISPLAY_NAME} curated skill summary does not match the registry")
+    return tuple(names)
+
+
+def _validate_curated_bundle_manifest(asset_root: Path, entry: dict[str, Any]) -> None:
+    name = entry["name"]
+    manifest_path = asset_root / entry["bundle_manifest"]
+    try:
+        raw = manifest_path.read_bytes()
+    except OSError as exc:
+        raise ValueError(f"unable to read curated bundle manifest for {name!r}") from exc
+    if len(raw) > MAX_CURATED_BUNDLE_BYTES:
+        raise ValueError(f"curated bundle manifest for {name!r} exceeds the byte limit")
+    try:
+        document = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid curated bundle manifest for {name!r}: {exc}") from exc
+    if not isinstance(document, dict) or set(document) != _CURATED_BUNDLE_KEYS:
+        raise ValueError(f"invalid curated bundle manifest schema for {name!r}")
+    if document.get("schema_version") != 1 or document.get("artifact_type") != "curated-bundle":
+        raise ValueError(f"invalid curated bundle manifest schema for {name!r}")
+    if document.get("skill") != name or document.get("bundle_root") != entry["bundle_root"]:
+        raise ValueError(f"curated bundle manifest for {name!r} does not bind its registry entry")
+    bundle_root = asset_root / entry["bundle_root"]
+    if not bundle_root.is_dir() or bundle_root.is_symlink():
+        raise ValueError(f"curated bundle root for {name!r} is missing or unsafe")
+    ensure_tree_no_symlinks(asset_root, Path(entry["bundle_root"]))
+    files = document.get("files")
+    if not isinstance(files, list) or not files:
+        raise ValueError(f"curated bundle manifest for {name!r} has no files")
+    paths: list[str] = []
+    for index, item in enumerate(files):
+        if not isinstance(item, dict) or set(item) != _CURATED_BUNDLE_FILE_KEYS:
+            raise ValueError(f"curated bundle file {name!r} index {index} has invalid fields")
+        relative = item.get("path")
+        if type(relative) is not str or not _valid_posix_relative(relative):
+            raise ValueError(f"curated bundle file {name!r} index {index} has an unsafe path")
+        paths.append(relative)
+        if type(item.get("sha256")) is not str or not re.fullmatch(r"[0-9a-f]{64}", item["sha256"]):
+            raise ValueError(f"curated bundle file {name!r} index {index} has an invalid hash")
+        if type(item.get("size")) is not int or item["size"] < 0:
+            raise ValueError(f"curated bundle file {name!r} index {index} has an invalid size")
+        if item.get("mode") not in {"100644", "100755"}:
+            raise ValueError(f"curated bundle file {name!r} index {index} has an invalid mode")
+        source_path = item.get("source_path")
+        if type(source_path) is not str or not _valid_posix_relative(source_path):
+            raise ValueError(
+                f"curated bundle file {name!r} index {index} has an unsafe source path"
+            )
+        if type(item.get("handling")) is not str or not item["handling"].strip():
+            raise ValueError(f"curated bundle file {name!r} index {index} has no handling")
+        target = workspace_path(asset_root, Path(entry["bundle_root"]) / relative)
+        if not target.is_file() or target.is_symlink():
+            raise ValueError(f"curated bundle file {name!r} is missing or unsafe: {relative}")
+        actual = target.read_bytes()
+        if len(actual) != item["size"] or _hash(actual) != item["sha256"]:
+            raise ValueError(f"curated bundle file {name!r} hash or size mismatch: {relative}")
+        actual_mode = "100755" if target.stat().st_mode & 0o111 else "100644"
+        if actual_mode != item["mode"]:
+            raise ValueError(f"curated bundle file {name!r} mode mismatch: {relative}")
+    if paths != sorted(set(paths), key=str.casefold):
+        raise ValueError(f"curated bundle manifest for {name!r} paths must be sorted and unique")
+    actual_paths = sorted(
+        [
+            path.relative_to(bundle_root).as_posix()
+            for path in bundle_root.rglob("*")
+            if path.is_file()
+        ],
+        key=str.casefold,
+    )
+    if actual_paths != paths:
+        raise ValueError(f"curated bundle manifest for {name!r} does not match its exact files")
+    _validate_case_collisions(bundle_root, context=f"curated bundle {name}")
+    summary = document.get("summary")
+    if not isinstance(summary, dict) or set(summary) != {"file_count", "byte_count"}:
+        raise ValueError(f"curated bundle summary for {name!r} is invalid")
+    if summary != {
+        "file_count": len(files),
+        "byte_count": sum(item["size"] for item in files),
+    }:
+        raise ValueError(f"curated bundle summary for {name!r} does not match its files")
+
+
+def _bundle_file_count(path: Path) -> int:
+    try:
+        document = json.loads(path.read_bytes())
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"unable to read curated bundle manifest: {path}") from exc
+    files = document.get("files") if isinstance(document, dict) else None
+    if not isinstance(files, list):
+        raise ValueError(f"curated bundle manifest files are invalid: {path}")
+    return len(files)
+
+
+def _valid_posix_relative(value: Any) -> bool:
+    if type(value) is not str or not value or value.startswith("/") or "\\" in value:
+        return False
+    path = PurePosixPath(value)
+    return path.as_posix() == value and all(part not in {"", ".", ".."} for part in path.parts)
+
+
+def _validate_case_collisions(root: Path, *, context: str) -> None:
+    """Reject case-fold aliases that are ambiguous on macOS and Windows."""
+
+    seen: dict[str, str] = {}
+    if not root.exists():
+        return
+    for path in sorted(root.rglob("*")):
+        relative = path.relative_to(root).as_posix()
+        folded = relative.casefold()
+        previous = seen.get(folded)
+        if previous is not None and previous != relative:
+            raise ValueError(f"{context} has a case-collision: {previous} and {relative}")
+        seen[folded] = relative
 
 
 def _resolve_power_source(path: Path) -> Path:

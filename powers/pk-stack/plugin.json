@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "pk-stack",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "PK-Stack (Poteto Kiro): Kiro-native verified-development workflows with project operability, executable feature maps, and current-session verified goals.",
   "author": {
     "name": "PK-Stack contributors"

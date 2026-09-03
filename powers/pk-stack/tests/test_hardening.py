@@ -39,13 +39,8 @@ POWER_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _copy_power_fixture(destination: Path) -> None:
-    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates"):
+    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates", "docs"):
         shutil.copytree(POWER_ROOT / relative, destination / relative)
-    (destination / "docs").mkdir()
-    shutil.copy2(
-        POWER_ROOT / "docs" / "upstream-skill-parity.json",
-        destination / "docs" / "upstream-skill-parity.json",
-    )
 
 
 def test_bootstrap_rejects_symlink_escape_before_writing(tmp_path: Path) -> None:

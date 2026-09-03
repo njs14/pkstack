@@ -27,6 +27,28 @@ WORKSPACE_HEADER_RE = re.compile(r"^\s*Workspace:\s+\S.*$")
 WORKSPACE_AGENT_ROW_RE = re.compile(
     r"^\s*(?:\*\s+)?(?P<name>[A-Za-z0-9][A-Za-z0-9_-]*)\s+Workspace(?:\s+.*)?$"
 )
+ARCHIFY_REQUIRED_RUNTIME_FILES = (
+    "upstream/bin/archify.mjs",
+    "upstream/bin/open-artifact.mjs",
+    "upstream/bin/preview.mjs",
+    "upstream/bin/visual-check.mjs",
+    "upstream/assets/template.html",
+    "upstream/scripts/check-render-output.mjs",
+    "upstream/scripts/render-examples.mjs",
+    "upstream/renderers/shared/generated-validators.mjs",
+    "upstream/renderers/shared/output-path.mjs",
+    "upstream/renderers/architecture/render-architecture.mjs",
+    "upstream/renderers/dataflow/render-dataflow.mjs",
+    "upstream/renderers/lifecycle/render-lifecycle.mjs",
+    "upstream/renderers/sequence/render-sequence.mjs",
+    "upstream/renderers/workflow/render-workflow.mjs",
+    "upstream/schemas/architecture.schema.json",
+    "upstream/schemas/dataflow.schema.json",
+    "upstream/schemas/lifecycle.schema.json",
+    "upstream/schemas/sequence.schema.json",
+    "upstream/schemas/workflow.schema.json",
+)
+ARCHIFY_NODE_MIN_MAJOR = 18
 
 
 def run_doctor(root: Path) -> dict[str, Any]:
@@ -113,6 +135,9 @@ def run_doctor(root: Path) -> dict[str, Any]:
             )
         )
         skill_names = []
+    if "archify" in skill_names:
+        checks.append(_archify_runtime_check(root))
+        checks.append(_archify_node_check())
     for skill in skill_names:
         if skill == "setup-pstack":
             continue
@@ -487,6 +512,90 @@ def _command_check(name: str, *, required: bool) -> DoctorCheck:
         "warn",
         f"{name} is unavailable",
         f"Install {name} only if this project uses that optional integration.",
+    )
+
+
+def _archify_runtime_check(root: Path) -> DoctorCheck:
+    """Check the reviewed offline Archify runtime closure without executing it."""
+
+    runtime = Path(".pstack/projectctl/skills/archify")
+    try:
+        runtime_root = ensure_tree_no_symlinks(root, runtime)
+        missing = [
+            relative
+            for relative in ARCHIFY_REQUIRED_RUNTIME_FILES
+            if not (runtime_root / relative).is_file()
+        ]
+    except (OSError, WorkspacePathError) as exc:
+        return DoctorCheck(
+            "archify-runtime",
+            "fail",
+            f"unable to inspect the managed Archify runtime safely: {exc}",
+            "Re-run /setup-pstack and restore the reviewed Archify bundle.",
+        )
+    if missing:
+        return DoctorCheck(
+            "archify-runtime",
+            "fail",
+            "managed Archify runtime is incomplete: " + ", ".join(missing),
+            "Re-run /setup-pstack and restore the reviewed Archify bundle.",
+        )
+    return DoctorCheck(
+        "archify-runtime",
+        "pass",
+        "offline Archify runtime is complete "
+        f"({len(ARCHIFY_REQUIRED_RUNTIME_FILES)} required files)",
+    )
+
+
+def _archify_node_check() -> DoctorCheck:
+    """Report Node as an optional capability because Archify is shipped offline."""
+
+    executable = shutil.which("node")
+    if not executable:
+        return DoctorCheck(
+            "archify-node",
+            "warn",
+            "Node.js is unavailable; optional Archify execution is unavailable",
+            "Install Node.js 18 or newer to use Archify validate/deliver/visual-check.",
+        )
+    try:
+        completed = subprocess.run(
+            [executable, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return DoctorCheck(
+            "archify-node",
+            "warn",
+            f"Node.js version probe failed: {exc}",
+            "Install or repair Node.js 18 or newer before using Archify.",
+        )
+    output = (completed.stdout or completed.stderr).strip()
+    version = output.splitlines()[0] if output else ""
+    match = re.match(r"^v(?P<major>\d+)(?:\.\d+){0,2}$", version)
+    if completed.returncode != 0 or match is None:
+        return DoctorCheck(
+            "archify-node",
+            "warn",
+            f"Node.js version is unavailable or invalid: {version or 'no version output'}",
+            "Install or repair Node.js 18 or newer before using Archify.",
+        )
+    major = int(match.group("major"))
+    if major < ARCHIFY_NODE_MIN_MAJOR:
+        return DoctorCheck(
+            "archify-node",
+            "warn",
+            f"Node.js {version} is below the optional Archify requirement (>=18)",
+            "Install Node.js 18 or newer before using Archify.",
+        )
+    return DoctorCheck(
+        "archify-node",
+        "pass",
+        f"Node.js {version} supports optional Archify execution",
     )
 
 

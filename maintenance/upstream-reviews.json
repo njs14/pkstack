@@ -187,6 +187,18 @@
     },
     {
       "genesis": {
+        "commit": "4d8d644ca747517973f58d7953f58d7cd07520cd",
+        "subtree_sha": "dddf8a7e4e579d44f29310868a4a282ccd77bdff"
+      },
+      "id": "humanlayer-show-me",
+      "parity_path": "powers/pk-stack/docs/humanlayer-show-me-source-parity.json",
+      "path": "plugins/show-me",
+      "provenance_path": "powers/pk-stack/docs/humanlayer-show-me-provenance.md",
+      "repository": "humanlayer/skills",
+      "transitions": []
+    },
+    {
+      "genesis": {
         "commit": "fbbc7975388288244dfc62aea0066600b25b7c47",
         "subtree_sha": "a8cc7ed0f4ec6bb6019da9b8ace51e3e6dafd06f"
       },
@@ -219,6 +231,18 @@
       "path": "packages/cli/schemas/v1",
       "provenance_path": "powers/pk-stack/docs/openknowledge-cli-contract-provenance.md",
       "repository": "openknowledge-sh/openknowledge",
+      "transitions": []
+    },
+    {
+      "genesis": {
+        "commit": "06dd052602dd9a369e4d034e24faef0917b5a60c",
+        "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
+      },
+      "id": "tt-a1i-archify",
+      "parity_path": "powers/pk-stack/docs/tt-a1i-archify-source-parity.json",
+      "path": "archify",
+      "provenance_path": "powers/pk-stack/docs/tt-a1i-archify-provenance.md",
+      "repository": "tt-a1i/archify",
       "transitions": []
     }
   ]

@@ -25,9 +25,14 @@ PARITY_PATH = ROOT / "docs" / "upstream-skill-parity.json"
 PARITY = json.loads(PARITY_PATH.read_text(encoding="utf-8"))
 PARITY_SKILLS = PARITY["skills"]
 PK_ONLY_SKILLS = set(PARITY["pk_only_skills"])
-EXPECTED_SKILLS = {
-    Path(entry["target"]).parent.name for entry in PARITY_SKILLS if entry["target"] is not None
-} | PK_ONLY_SKILLS
+CURATED_REGISTRY_PATH = ROOT / "docs" / "curated-skills.json"
+CURATED_REGISTRY = json.loads(CURATED_REGISTRY_PATH.read_text(encoding="utf-8"))
+CURATED_SKILLS = {entry["name"] for entry in CURATED_REGISTRY["skills"]}
+EXPECTED_SKILLS = (
+    {Path(entry["target"]).parent.name for entry in PARITY_SKILLS if entry["target"] is not None}
+    | PK_ONLY_SKILLS
+    | CURATED_SKILLS
+)
 ALLOWED_SKILL_FRONTMATTER = {"name", "description", "compatibility"}
 ALLOWED_TOOLS = {"read", "write", "shell", "subagent", "knowledge"}
 ALLOWED_HOOK_TRIGGERS = {
@@ -195,7 +200,7 @@ def test_upstream_skill_parity_inventory_is_complete_and_rendered() -> None:
             "runtime-specific-exclusion": PARITY["summary"]["runtime_specific_exclusion_files"],
         }
     )
-    assert len(EXPECTED_SKILLS) == PARITY["summary"]["shipped_skill_directories"]
+    assert len(EXPECTED_SKILLS - CURATED_SKILLS) == PARITY["summary"]["shipped_skill_directories"]
 
     rendered = (ROOT / "docs" / "upstream-skill-parity.md").read_text(encoding="utf-8")
     assert r"\n|" not in rendered

@@ -98,7 +98,7 @@ def test_wheel_assets_and_offline_installed_bootstrap_runtime(tmp_path: Path) ->
     version_output = _run_clean_json(
         [str(controller), "version", "--output", "json"], cwd=target, env=clean_env
     )
-    assert version_output == {**identity_payload(), "version": "0.1.0"}
+    assert version_output == {**identity_payload(), "version": "0.2.0"}
     doctor_output = _run(
         [str(controller), "doctor", "--output", "json"],
         cwd=target,
@@ -193,7 +193,7 @@ def test_bootstrapped_wrapper_ignores_unchecked_controller_bytecode(tmp_path: Pa
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
     controller = target / ".pstack" / "bin" / "projectctl"
-    expected = {**identity_payload(), "version": "0.1.0"}
+    expected = {**identity_payload(), "version": "0.2.0"}
     command = [str(controller), "version", "--output", "json"]
     assert _run_clean_json(command, cwd=target) == expected
 

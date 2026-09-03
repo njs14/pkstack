@@ -19,11 +19,8 @@ POWER_ROOT = Path(__file__).parents[1]
 
 
 def _copy_power_fixture(destination: Path) -> None:
-    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates"):
+    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates", "docs"):
         shutil.copytree(POWER_ROOT / relative, destination / relative)
-    docs = destination / "docs"
-    docs.mkdir()
-    shutil.copy2(POWER_ROOT / "docs" / "upstream-skill-parity.json", docs)
 
 
 def _concurrent_bootstrap_worker(
@@ -74,11 +71,16 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     parity = json.loads(
         (POWER_ROOT / "docs" / "upstream-skill-parity.json").read_text(encoding="utf-8")
     )
-    canonical_skills = {
-        Path(entry["target"]).parent.name
-        for entry in parity["skills"]
-        if entry["target"] is not None
-    } | set(parity["pk_only_skills"])
+    curated = json.loads((POWER_ROOT / "docs" / "curated-skills.json").read_text(encoding="utf-8"))
+    canonical_skills = (
+        {
+            Path(entry["target"]).parent.name
+            for entry in parity["skills"]
+            if entry["target"] is not None
+        }
+        | set(parity["pk_only_skills"])
+        | {entry["name"] for entry in curated["skills"]}
+    )
     live_skills = {path.parent.name for path in (tmp_path / ".kiro" / "skills").glob("*/SKILL.md")}
     cached_skills = {
         path.parent.name
@@ -86,7 +88,10 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     }
     assert live_skills == canonical_skills - {"setup-pstack"}
     assert cached_skills == canonical_skills
-    assert len(canonical_skills) == parity["summary"]["shipped_skill_directories"]
+    assert len(canonical_skills) == (
+        parity["summary"]["shipped_skill_directories"]
+        + curated["summary"]["shipped_skill_directories"]
+    )
     live_steering = {path.name for path in (tmp_path / ".kiro" / "steering").glob("*.md")}
     cached_steering = {
         path.name

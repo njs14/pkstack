@@ -1,5 +1,11 @@
 # Provenance and porting boundary
 
+PK-Stack `0.2.0` release metadata is owned by [`plugin.json`](../plugin.json).
+This document records external source identities and the independent Kiro
+adaptation; it is not a release verdict. Current acceptance belongs to the
+root [release status](../../../reviews/release-status.md), while older review
+and runtime records remain historical evidence.
+
 PK-Stack (Poteto Kiro) is an independent Kiro-native implementation of the
 portable verified-development semantics across Cursor's public pstack skill
 catalog. Kiro
@@ -84,9 +90,9 @@ interfaces, the Cyclopts implementation, and the current-session
 pstack components.
 
 The current name is Kiro-specific branding, not a restoration of upstream
-metadata. The Power manifest identifier and source-repository name are `pk-stack`; the Python
-distribution, receipt manager, package, agent routes, and on-disk `.pstack` paths retain their
-documented compatibility identifiers.
+metadata. The Power manifest identifier and source-repository name are
+`pk-stack`; the Python distribution, receipt manager, package, agent routes,
+and on-disk `.pstack` paths retain their documented compatibility identifiers.
 
 ## Upstream files consulted
 
@@ -294,6 +300,9 @@ the documentation or configuration refers to them; the generated visual-referenc
 disclosed above.
 
 If a future change copies or vendors upstream source, templates, images, or
-scripts, that change must add file-level provenance as appropriate, preserve
-the applicable notice, and update both this document and
-`THIRD_PARTY_NOTICES.md`.
+scripts, it must add file-level provenance as appropriate, preserve the
+applicable notice, and update both this document and
+`THIRD_PARTY_NOTICES.md`. The separate private
+[`pk-stack-floci-lab`](https://github.com/njs14/pk-stack-floci-lab) repository
+owns the Floci application and live campaigns; Floci is not a source or review
+input for this Power release.

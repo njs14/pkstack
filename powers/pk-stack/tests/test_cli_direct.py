@@ -32,7 +32,7 @@ def test_renderers_and_version_cover_text_and_json(
         assert f'"{key}": "{value}"' in output
 
     cli.version_command(output="text")
-    expected = {**identity_payload(), "version": "0.1.0"}
+    expected = {**identity_payload(), "version": "0.2.0"}
     expected_text = "".join(f"{key}: {value}\n" for key, value in expected.items())
     assert capsys.readouterr().out == expected_text
 

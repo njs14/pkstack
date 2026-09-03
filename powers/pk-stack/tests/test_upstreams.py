@@ -564,7 +564,12 @@ def _write_skill_parity(root: Path, document: Any | None = None) -> Path:
             else set()
         )
         upstream_names = {entry["name"] for entry in payload["skills"]}
-        payload["pk_only_skills"] = sorted(local_names - upstream_names)
+        curated_path = root / "powers" / "pk-stack" / "docs" / "curated-skills.json"
+        curated_names: set[str] = set()
+        if curated_path.is_file():
+            curated = json.loads(curated_path.read_text(encoding="utf-8"))
+            curated_names = {entry["name"] for entry in curated["skills"]}
+        payload["pk_only_skills"] = sorted(local_names - upstream_names - curated_names)
         payload["summary"]["shipped_skill_directories"] = payload["summary"][
             "routed_upstream_names"
         ] + len(payload["pk_only_skills"])

@@ -13,6 +13,16 @@
       "subtree_sha": "ae6fff5803260f38f075feb8c3b008ed68153fa0"
     },
     {
+      "commit": "4d8d644ca747517973f58d7953f58d7cd07520cd",
+      "id": "humanlayer-show-me",
+      "parity_path": "powers/pk-stack/docs/humanlayer-show-me-source-parity.json",
+      "path": "plugins/show-me",
+      "provenance_path": "powers/pk-stack/docs/humanlayer-show-me-provenance.md",
+      "ref": "main",
+      "repository": "humanlayer/skills",
+      "subtree_sha": "dddf8a7e4e579d44f29310868a4a282ccd77bdff"
+    },
+    {
       "commit": "fbbc7975388288244dfc62aea0066600b25b7c47",
       "id": "google-okf-spec",
       "parity_path": "powers/pk-stack/docs/okf-spec-source-parity.json",
@@ -41,6 +51,16 @@
       "ref": "main",
       "repository": "openknowledge-sh/openknowledge",
       "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf"
+    },
+    {
+      "commit": "06dd052602dd9a369e4d034e24faef0917b5a60c",
+      "id": "tt-a1i-archify",
+      "parity_path": "powers/pk-stack/docs/tt-a1i-archify-source-parity.json",
+      "path": "archify",
+      "provenance_path": "powers/pk-stack/docs/tt-a1i-archify-provenance.md",
+      "ref": "main",
+      "repository": "tt-a1i/archify",
+      "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
     }
   ]
 }

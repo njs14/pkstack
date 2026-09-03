@@ -1,0 +1,29 @@
+{
+  "registry_type": "curated-skills",
+  "schema_version": 1,
+  "skills": [
+    {
+      "bundle_manifest": "docs/tt-a1i-archify-bundle-manifest.json",
+      "bundle_root": "skills/archify",
+      "name": "archify",
+      "provenance": "docs/tt-a1i-archify-provenance.md",
+      "source_id": "tt-a1i-archify",
+      "source_parity": "docs/tt-a1i-archify-source-parity.json",
+      "target": "skills/archify/SKILL.md"
+    },
+    {
+      "bundle_manifest": "docs/humanlayer-show-me-bundle-manifest.json",
+      "bundle_root": "skills/show-me",
+      "name": "show-me",
+      "provenance": "docs/humanlayer-show-me-provenance.md",
+      "source_id": "humanlayer-show-me",
+      "source_parity": "docs/humanlayer-show-me-source-parity.json",
+      "target": "skills/show-me/SKILL.md"
+    }
+  ],
+  "summary": {
+    "bundle_file_count": 72,
+    "curated_skill_count": 2,
+    "shipped_skill_directories": 2
+  }
+}

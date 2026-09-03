@@ -1,11 +1,40 @@
 ---
 okf_version: "0.2"
+type: Guide
+title: PK-Stack project knowledge
+description: Navigation for the DO, PROVE, and KNOW interfaces.
+tags: [pk-stack, knowledge, navigation]
 ---
 
-# Project knowledge
+# PK-Stack project knowledge
 
-This source-controlled OKF bundle is the project's **KNOW** interface. Keep broader architecture,
-decisions, concepts, and operations here. PK-Stack starts with the narrow feature map and follows
-explicit links into this material only when the task needs deeper context.
+This directory is the source-controlled **KNOW** layer. Start with the narrow
+feature map, then follow the smallest explicit link that answers the question.
+The map and the project controller are the **PROVE** and **DO** layers; neither
+is replaced by a broad knowledge search.
 
-- [Feature contracts](features/README.md) are the narrow **PROVE** interface.
+## Start here
+
+| Need | Read |
+| --- | --- |
+| Prove a user-visible behavior | [Feature map](features/README.md) |
+| Understand the runtime boundary | [Architecture](architecture/native-kiro-composition.md) |
+| Keep planning and retrieval separate | [Planning decision](decisions/native-spec-and-okn.md) |
+| Decide how far to search | [Context-depth runbook](operations/context-depth.md) |
+| Install or recover the Power | [Usage guide](../powers/pk-stack/docs/usage.md) |
+| Check release claims | [v0.2.0 release status](../reviews/release-status.md) |
+
+## Layer map
+
+```text
+DO      .pstack/bin/projectctl
+  -> PROVE  Wiki/features/*.md + one executable verifier
+  -> KNOW   this Wiki + optional canonical `okn`
+```
+
+The repository's [architecture](../powers/pk-stack/docs/architecture.md),
+[provenance](../powers/pk-stack/docs/provenance.md), and
+[validation report](../powers/pk-stack/docs/validation-report.md) describe the
+implementation and evidence boundaries. Historical release records are
+indexed under [`reviews/historical/pre-v0.2/`](../reviews/historical/pre-v0.2/)
+and are not current acceptance evidence.

@@ -1,0 +1,20 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/show-me",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "012797ba2b9b900015a09ced7036d15293b9a13219f03b736db3b5742f7ee3b6",
+      "size": 1871,
+      "source_path": "plugins/show-me/skills/show-me/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "show-me",
+  "summary": {
+    "byte_count": 1871,
+    "file_count": 1
+  }
+}

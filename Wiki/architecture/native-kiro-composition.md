@@ -7,6 +7,9 @@ tags: [pk-stack, kiro, architecture, okf]
 
 # Native Kiro and PK-Stack composition
 
+This page explains the boundary behind the [project knowledge index](../index.md).
+For installation and recovery, use the [Power usage guide](../../powers/pk-stack/docs/usage.md).
+
 ## Ownership
 
 Kiro owns execution and orchestration. Its native Spec, Quick Spec, Bug Fix, and Plan workflows own

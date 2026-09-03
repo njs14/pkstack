@@ -1,0 +1,66 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a4ee29d07de172e585bc14478ae156691df67acb",
+        "size": 394,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": ".claude-plugin/plugin.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a4ee29d07de172e585bc14478ae156691df67acb",
+        "size": 394,
+        "type": "blob"
+      },
+      "rationale": "Cursor/Claude plugin registration is not part of a Kiro skill bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "15b5601da145549adb4996f07abe5d8b55ff9ada",
+        "size": 3230,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "skills/show-me/SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "15b5601da145549adb4996f07abe5d8b55ff9ada",
+        "size": 3230,
+        "type": "blob"
+      },
+      "rationale": "Reviewed HumanLayer visual-explainer semantics are adapted into the Kiro-native wrapper and retained as the lightweight show-me route."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "4d8d644ca747517973f58d7953f58d7cd07520cd",
+      "subtree_sha": "dddf8a7e4e579d44f29310868a4a282ccd77bdff"
+    },
+    "id": "humanlayer-show-me",
+    "path": "plugins/show-me",
+    "pinned": {
+      "commit": "4d8d644ca747517973f58d7953f58d7cd07520cd",
+      "subtree_sha": "dddf8a7e4e579d44f29310868a4a282ccd77bdff"
+    },
+    "repository": "humanlayer/skills",
+    "retrieved_on": "2026-09-03"
+  },
+  "summary": {
+    "A": 1,
+    "B": 0,
+    "C": 1,
+    "current_files": 2,
+    "pinned_files": 2
+  }
+}

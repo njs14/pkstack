@@ -98,6 +98,92 @@ or the OpenKnowledge runtime.
 The schemas are not redistributed. The root `LICENSE` contains the Apache License 2.0 text but
 licenses PK-Stack rather than transferring ownership of OpenKnowledge.
 
+## HumanLayer show-me semantic reference
+
+The Kiro-native `show-me` skill preserves the lightweight visual-explainer
+semantics from HumanLayer's public `plugins/show-me/` subtree. Its Kiro
+wrapper is adapted for this Power and is kept separate from `show-me-your-work`.
+
+- Project: `humanlayer/skills`, `plugins/show-me/` subtree
+- Source: <https://github.com/humanlayer/skills/tree/4d8d644ca747517973f58d7953f58d7cd07520cd/plugins/show-me>
+- Pinned commit: `4d8d644ca747517973f58d7953f58d7cd07520cd`
+- Copyright: Copyright (c) 2026 HumanLayer
+- License: MIT
+- Detailed file-level provenance: [`docs/humanlayer-show-me-provenance.md`](docs/humanlayer-show-me-provenance.md)
+
+The upstream MIT notice follows verbatim.
+
+```text
+MIT License
+
+Copyright (c) 2026 HumanLayer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## Archify reviewed offline runtime
+
+PK-Stack redistributes a reviewed, byte-addressed subset of the Archify runtime
+under [`skills/archify/upstream/`](skills/archify/upstream/). The Kiro wrapper
+and curated bundle manifest are separate from that byte-exact upstream
+subtree. Tests, rendered demo HTML, `node_modules`, build/gallery tooling, the
+network update checker, and npm lock/install workflow are intentionally not
+included.
+
+- Project: `tt-a1i/archify`, `archify/` subtree
+- Source: <https://github.com/tt-a1i/archify/tree/06dd052602dd9a369e4d034e24faef0917b5a60c/archify>
+- Pinned commit: `06dd052602dd9a369e4d034e24faef0917b5a60c`
+- Copyright: Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI
+- License: MIT
+- Detailed file-level provenance: [`docs/tt-a1i-archify-provenance.md`](docs/tt-a1i-archify-provenance.md)
+- Exact shipped bundle: [`docs/tt-a1i-archify-bundle-manifest.json`](docs/tt-a1i-archify-bundle-manifest.json)
+
+The vendored runtime includes the upstream MIT license and its separate
+third-party brand-mark notice at [`skills/archify/upstream/LICENSE`](skills/archify/upstream/LICENSE)
+and [`skills/archify/upstream/THIRD_PARTY_NOTICES.md`](skills/archify/upstream/THIRD_PARTY_NOTICES.md).
+The upstream MIT notice follows verbatim.
+
+```text
+MIT License
+
+Copyright (c) 2026 tt-a1i (Archify)
+Copyright (c) 2025 Cocoon AI
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ## Cyclopts
 
 Cyclopts is a direct runtime dependency used to expose the `projectctl` command

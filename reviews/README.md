@@ -1,24 +1,19 @@
 # Release evidence
 
-This directory holds bounded evidence for the PK-Stack Power and its self-maintenance pipeline. Historical Floci application campaigns moved to the private [`njs14/pk-stack-floci-lab`](https://github.com/njs14/pk-stack-floci-lab) repository.
+Start with the [current v0.2.0 release status](release-status.md). It is the
+only current surface that can describe whether this repository is ready for a
+release. The `plugin.json` version is the metadata authority; a historical
+record never accepts a different candidate.
 
-Documentation and old reports never substitute for a current gate. A release candidate needs:
+Older test runs, Kiro observations, upstream campaigns, and reviewer reports
+are retained under [`historical/pre-v0.2/`](historical/pre-v0.2/) with their
+original provenance. They are useful context and regression history, not
+current gate results. The [validation report](../powers/pk-stack/docs/validation-report.md)
+explains how to collect a fresh evidence packet.
 
-1. the deterministic Power, controller, workflow, and policy suites;
-2. a successful Kiro credential smoke on the exact candidate;
-3. an independent Fable 5.1 review at `xhigh` with no material unresolved finding;
-4. a Grok 4.6 `xhigh` sweep when the user's official CLI session is authenticated, or an explicit external blocker;
-5. a clean private pull request bound to the reviewed commit.
+Review contracts and Power-specific review guidance remain with the package in
+[`powers/pk-stack/reviews/`](../powers/pk-stack/reviews/).
 
-Fable is the peer acceptance reviewer. Grok is a final sweeper. Neither reviewer output is trusted as executable code, and neither may replace deterministic checks.
-
-The most useful retained records are:
-
-- `kiro-model-guidance-evidence.json` for model-inventory shape and versioned guidance;
-- `kiro-runtime-canary-campaign.md` and `.json` for the hosted read-only runtime canary;
-- `kiro-v3-agent-discovery-probe.json` and `kiro-v3-native-goal-probe.json` for bounded CLI observations;
-- `kirocrew-nightly-smoke-campaign.md` and `.json` for the non-gating Nightly command-surface check;
-- `pk-stack-maintenance-campaign.md` and `.json` for the maintenance feature contract;
-- `okf-integration-evidence.md` and `.json` for the OKF and `okn` boundary.
-
-Each record states the commit or runtime it observed. Evidence from an older commit stays historical.
+The Floci application and its live integration campaigns are maintained in the
+separate private [pk-stack-floci-lab](https://github.com/njs14/pk-stack-floci-lab)
+repository. Floci is not a PK-Stack release artifact or release gate.
