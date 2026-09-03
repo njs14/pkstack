@@ -1510,6 +1510,113 @@ class KiroCredentialStreamTests(unittest.TestCase):
 
 
 class KiroPermissionStreamTests(unittest.TestCase):
+    @staticmethod
+    def selection_event(workspace: str) -> dict[str, object]:
+        return {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": "sanitized-session",
+                "update": {
+                    "sessionUpdate": "config_option_update",
+                    "configOptions": [
+                        {
+                            "id": "mode",
+                            "name": "Mode",
+                            "type": "select",
+                            "category": "mode",
+                            "currentValue": permission_stream_guard.PERMISSION_AGENT_NAME,
+                            "options": [
+                                {
+                                    "name": permission_stream_guard.PERMISSION_AGENT_NAME,
+                                    "value": permission_stream_guard.PERMISSION_AGENT_NAME,
+                                    "description": (
+                                        permission_stream_guard.PERMISSION_AGENT_DESCRIPTION
+                                    ),
+                                    "_meta": {
+                                        "kiro": {
+                                            "source": "workspace",
+                                            "welcomeMessage": (
+                                                permission_stream_guard.PERMISSION_AGENT_WELCOME
+                                            ),
+                                            "resource": {
+                                                "resourceType": "agent",
+                                                "source": {
+                                                    "origin": "workspace",
+                                                    "root": workspace,
+                                                },
+                                            },
+                                        }
+                                    },
+                                }
+                            ],
+                        }
+                    ],
+                },
+            },
+        }
+
+    def test_requires_exact_workspace_agent_selection_attestation(self) -> None:
+        workspace = "/tmp/pk-stack-permission-workspace"
+        event = self.selection_event(workspace)
+        initial_vibe = json.loads(json.dumps(event))
+        initial_vibe["data"]["update"]["configOptions"][0]["currentValue"] = "vibe"
+        permission_stream_guard.validate_workspace_agent_selection(
+            [initial_vibe, event], expected_workspace=workspace
+        )
+
+        def clone() -> dict[str, object]:
+            return json.loads(json.dumps(event))
+
+        wrong_root = clone()
+        wrong_root["data"]["update"]["configOptions"][0]["options"][0]["_meta"][
+            "kiro"
+        ]["resource"]["source"]["root"] = "/tmp/other-workspace"
+        global_source = clone()
+        global_source["data"]["update"]["configOptions"][0]["options"][0]["_meta"][
+            "kiro"
+        ]["source"] = "global"
+        extra_option_key = clone()
+        extra_option_key["data"]["update"]["configOptions"][0]["options"][0][
+            "unexpected"
+        ] = True
+        duplicate_option = clone()
+        duplicate_option["data"]["update"]["configOptions"][0]["options"].append(
+            duplicate_option["data"]["update"]["configOptions"][0]["options"][0]
+        )
+        fallback = clone()
+        fallback["data"]["update"]["configOptions"][0]["currentValue"] = "vibe"
+        conflicting_mode = clone()
+        second_mode = json.loads(
+            json.dumps(conflicting_mode["data"]["update"]["configOptions"][0])
+        )
+        second_mode["currentValue"] = "vibe"
+        conflicting_mode["data"]["update"]["configOptions"].append(second_mode)
+
+        for malformed in (
+            wrong_root,
+            global_source,
+            extra_option_key,
+            duplicate_option,
+            fallback,
+        ):
+            with self.subTest(malformed=malformed), self.assertRaises(
+                permission_stream_guard.StreamError
+            ):
+                permission_stream_guard.validate_workspace_agent_selection(
+                    [malformed], expected_workspace=workspace
+                )
+
+        for events in (
+            [event, fallback],
+            [conflicting_mode],
+        ):
+            with self.subTest(events=events), self.assertRaises(
+                permission_stream_guard.StreamError
+            ):
+                permission_stream_guard.validate_workspace_agent_selection(
+                    events, expected_workspace=workspace
+                )
+
     def test_exact_agent_profile_denial_and_used_tools_are_required(self) -> None:
         events = [
             {
@@ -2897,8 +3004,50 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             hashlib.sha256(credential_agent_raw).hexdigest(),
         )
         self.assertIn(
+            "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-credential-smoke.json",
+            smoke,
+        )
+        self.assertEqual(
+            smoke.count(
+                "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-credential-smoke.json"
+            ),
+            3,
+        )
+        self.assertNotIn(
             "$SMOKE_ROOT/kiro-home/agents/pk-stack-credential-smoke.json",
             smoke,
+        )
+        self.assertNotIn(
+            "$SMOKE_ROOT/user-home/.kiro/agents/pk-stack-credential-smoke.json",
+            smoke,
+        )
+        self.assertLess(
+            credential_prepare.group(0).index(  # type: ignore[union-attr]
+                "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-credential-smoke.json"
+            ),
+            credential_prepare.group(0).index(  # type: ignore[union-attr]
+                'find "$SMOKE_ROOT/workspace" -type f -print0'
+            ),
+        )
+        self.assertLess(
+            credential_prepare.group(0).index(  # type: ignore[union-attr]
+                'find "$SMOKE_ROOT/workspace" -type f -print0'
+            ),
+            credential_prepare.group(0).index(  # type: ignore[union-attr]
+                'chmod -R a-w "$SMOKE_ROOT/workspace"'
+            ),
+        )
+        self.assertIn(
+            "grep -Fq 'not found, using \"default\"' \"$stderr\"",
+            credential_invoke.group(0),  # type: ignore[union-attr]
+        )
+        self.assertLess(
+            credential_invoke.group(0).index(  # type: ignore[union-attr]
+                "grep -Fq 'not found, using \"default\"'"
+            ),
+            credential_invoke.group(0).index(  # type: ignore[union-attr]
+                "actual_workspace_sha256="
+            ),
         )
         embedded_validator = re.search(
             r"(?ms)^          STREAM_VALIDATOR_BASE64: \|-\n"
@@ -2928,6 +3077,16 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("pk-stack-permission-fixture", permission_smoke)
         self.assertIn("validate_kiro_permission_stream.py", permission_smoke)
         self.assertIn(
+            "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json",
+            permission_smoke,
+        )
+        self.assertEqual(
+            permission_smoke.count(
+                "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json"
+            ),
+            4,
+        )
+        self.assertNotIn(
             "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json",
             permission_smoke,
         )
@@ -2962,6 +3121,11 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "pk-stack-permission-fixture([[:space:]]|$)",
             permission_smoke,
         )
+        self.assertIn(
+            "validator.validate_workspace_agent_selection(",
+            permission_smoke,
+        )
+        self.assertIn("expected_workspace=expected_workspace", permission_smoke)
         for path in (
             ".pk-stack-maintenance/proposal.json",
             "powers/pk-stack/README.md",
@@ -2970,6 +3134,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "powers/pk-stack/skills/permission-smoke/SKILL.md",
             "powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json",
             ".github/protected.txt",
+            ".kiro/agents/pk-stack-permission-fixture.json",
             ".kiro/protected.txt",
             "powers/pk-stack/src/pstack_kiro/protected.py",
             "powers/pk-stack/tests/protected.py",
@@ -2986,6 +3151,22 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn(
             'sha256sum --check "$SMOKE_ROOT/protected-baseline.sha256"',
             permission_smoke,
+        )
+        self.assertIn(
+            "protected_paths+=(.kiro/agents/pk-stack-permission-fixture.json)",
+            permission_smoke,
+        )
+        self.assertLess(
+            permission_smoke.index('for protected_path in "${protected_paths[@]}"; do'),
+            permission_smoke.index(
+                "protected_paths+=(.kiro/agents/pk-stack-permission-fixture.json)"
+            ),
+        )
+        self.assertLess(
+            permission_smoke.index(
+                "protected_paths+=(.kiro/agents/pk-stack-permission-fixture.json)"
+            ),
+            permission_smoke.index('sha256sum "${protected_paths[@]}"'),
         )
         self.assertIn('cmp "$SMOKE_ROOT/expected-files.txt"', permission_smoke)
         self.assertIn('chmod -R a-w "$GITHUB_WORKSPACE"', permission_smoke)

@@ -57,11 +57,11 @@ jobs:
           test ! -e "$SMOKE_ROOT"
           mkdir -p \
             "$SMOKE_ROOT/bin" \
-            "$SMOKE_ROOT/kiro-home/agents" \
+            "$SMOKE_ROOT/kiro-home" \
             "$SMOKE_ROOT/user-home" \
             "$SMOKE_ROOT/runtime" \
             "$SMOKE_ROOT/workspace/.github" \
-            "$SMOKE_ROOT/workspace/.kiro" \
+            "$SMOKE_ROOT/workspace/.kiro/agents" \
             "$SMOKE_ROOT/workspace/.pk-stack-maintenance" \
             "$SMOKE_ROOT/workspace/maintenance" \
             "$SMOKE_ROOT/workspace/powers/pk-stack/dev.kiro/steering" \
@@ -84,18 +84,18 @@ jobs:
           test "$("$SMOKE_ROOT/bin/kiro-cli" --version)" = "kiro-cli 2.21.0"
           install -m 0600 \
             .github/fixtures/kiro-permission-agent.json \
-            "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json"
+            "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json"
           install -m 0500 \
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
             5bb13e43f63c47c9437816cd14462743b1c8b069d50a04887ac6d8f51feed9f5 \
-            "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json" \
+            "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            e1b9fb70d7916f743a1d82d4923cd5eb8ef059a1530a9cce8734677ac2b0c06a \
+            89bcda57523210059c361cd60805aa745de7a6c9f7a472a9ab9060f608cd1714 \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
-          python3 - "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json" <<'PY'
+          python3 - "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
           import json
           import sys
           from pathlib import Path
@@ -149,12 +149,14 @@ jobs:
             printf 'PROTECTED_BASELINE %s\n' "$protected_path" \
               >"$SMOKE_ROOT/workspace/$protected_path"
           done
+          protected_paths+=(.kiro/agents/pk-stack-permission-fixture.json)
           (
             cd "$SMOKE_ROOT/workspace"
             sha256sum "${protected_paths[@]}" >"$SMOKE_ROOT/protected-baseline.sha256"
           )
           cat >"$SMOKE_ROOT/expected-files.txt" <<'EOF'
           .github/protected.txt
+          .kiro/agents/pk-stack-permission-fixture.json
           .kiro/protected.txt
           .pk-stack-maintenance/proposal.json
           fixture-input.txt
@@ -206,7 +208,7 @@ jobs:
               SSL_CERT_DIR=/etc/ssl/certs \
               KIRO_API_KEY="$KIRO_API_KEY" \
               "$SMOKE_ROOT/bin/kiro-cli" agent validate \
-                --path "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json"
+                --path "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json"
           )
           agent_list_log="$SMOKE_ROOT/agent-list.log"
           (
@@ -261,7 +263,8 @@ jobs:
             "$stderr" \
             "$kiro_rc" \
             "$SMOKE_ROOT/validate-stream.py" \
-            "$agent_list_log" <<'PY'
+            "$agent_list_log" \
+            "$SMOKE_ROOT/workspace" <<'PY'
           import importlib.util
           import json
           import os
@@ -272,6 +275,7 @@ jobs:
           return_code = int(sys.argv[3])
           validator_path = Path(sys.argv[4])
           agent_list_path = Path(sys.argv[5])
+          expected_workspace = sys.argv[6]
           spec = importlib.util.spec_from_file_location(
               "validate_kiro_permission_stream",
               validator_path,
@@ -321,6 +325,10 @@ jobs:
               raise SystemExit(f"malformed Kiro permission stream: {exc}") from exc
           if not events:
               raise SystemExit("Kiro permission stream is empty")
+          validator.validate_workspace_agent_selection(
+              events,
+              expected_workspace=expected_workspace,
+          )
           mappings = [mapping for event in events for mapping in validator._walk(event)]
           denials = [
               mapping["policyDenial"]

@@ -11,6 +11,12 @@ from typing import Any
 
 MAX_OUTPUT_BYTES = 4 * 1024 * 1024
 MAX_EVENTS = 8192
+PERMISSION_AGENT_NAME = "pk-stack-permission-fixture"
+PERMISSION_AGENT_DESCRIPTION = (
+    "Manual CI-only proof that Kiro 2.21 honors the exact production "
+    "pstack-maintainer filesystem permission rules."
+)
+PERMISSION_AGENT_WELCOME = "Exact production PK-Stack filesystem permission fixture loaded."
 
 
 class StreamError(RuntimeError):
@@ -41,6 +47,113 @@ def _walk(value: Any) -> list[dict[str, Any]]:
         elif isinstance(current, list):
             pending.extend(current)
     return mappings
+
+
+def validate_workspace_agent_selection(
+    events: list[dict[str, Any]],
+    *,
+    expected_workspace: str,
+    expected_agent: str = PERMISSION_AGENT_NAME,
+    expected_description: str = PERMISSION_AGENT_DESCRIPTION,
+    expected_welcome: str = PERMISSION_AGENT_WELCOME,
+) -> None:
+    """Require exact V3 evidence that the requested agent came from this workspace."""
+    if not expected_workspace or not Path(expected_workspace).is_absolute():
+        raise StreamError("expected workspace must be an absolute path")
+
+    attestations = 0
+    direct_selections: list[str] = []
+    for event in events:
+        if event.get("type") != "sessionUpdate":
+            continue
+        data = event.get("data")
+        if not isinstance(data, dict):
+            continue
+        update = data.get("update")
+        if not isinstance(update, dict) or update.get("sessionUpdate") != "config_option_update":
+            continue
+        config_options = update.get("configOptions")
+        if not isinstance(config_options, list):
+            continue
+        direct_modes = [
+            option
+            for option in config_options
+            if isinstance(option, dict) and option.get("id") == "mode"
+        ]
+        if len(direct_modes) > 1:
+            raise StreamError("Kiro config update contains conflicting direct mode entries")
+        if not direct_modes:
+            continue
+        mode = direct_modes[0]
+        if set(event) != {"data", "type"} or set(data) != {"sessionId", "update"}:
+            raise StreamError("Kiro selected-agent attestation has a malformed envelope")
+        if set(update) != {"configOptions", "sessionUpdate"}:
+            raise StreamError("Kiro selected-agent attestation has unexpected update fields")
+        if set(mode) != {"category", "currentValue", "id", "name", "options", "type"}:
+            raise StreamError("Kiro selected-agent mode has unexpected fields")
+        if (
+            mode.get("category") != "mode"
+            or mode.get("name") != "Mode"
+            or mode.get("type") != "select"
+        ):
+            raise StreamError("Kiro selected-agent mode metadata is invalid")
+        current_value = mode.get("currentValue")
+        options = mode.get("options")
+        if not isinstance(current_value, str) or not current_value:
+            raise StreamError("Kiro selected-agent current mode is invalid")
+        if not isinstance(options, list):
+            raise StreamError("Kiro selected-agent mode options are invalid")
+        direct_selections.append(current_value)
+        if current_value != expected_agent:
+            continue
+        matches = [
+            option
+            for option in options
+            if isinstance(option, dict) and option.get("value") == expected_agent
+        ]
+        if len(matches) != 1:
+            raise StreamError("Kiro selected-agent option is missing or duplicated")
+        option = matches[0]
+        if set(option) != {"_meta", "description", "name", "value"}:
+            raise StreamError("Kiro selected-agent option has unexpected fields")
+        if (
+            option.get("name") != expected_agent
+            or option.get("description") != expected_description
+        ):
+            raise StreamError("Kiro selected-agent identity does not match the fixture")
+        metadata = option.get("_meta")
+        if not isinstance(metadata, dict) or set(metadata) != {"kiro"}:
+            raise StreamError("Kiro selected-agent option metadata is invalid")
+        kiro = metadata.get("kiro")
+        if not isinstance(kiro, dict) or set(kiro) != {
+            "resource",
+            "source",
+            "welcomeMessage",
+        }:
+            raise StreamError("Kiro selected-agent Kiro metadata is invalid")
+        resource = kiro.get("resource")
+        if (
+            kiro.get("source") != "workspace"
+            or kiro.get("welcomeMessage") != expected_welcome
+            or not isinstance(resource, dict)
+            or set(resource) != {"resourceType", "source"}
+            or resource.get("resourceType") != "agent"
+        ):
+            raise StreamError("Kiro selected-agent source metadata is invalid")
+        source = resource.get("source")
+        if (
+            not isinstance(source, dict)
+            or set(source) != {"origin", "root"}
+            or source.get("origin") != "workspace"
+            or source.get("root") != expected_workspace
+        ):
+            raise StreamError("Kiro selected-agent workspace root is invalid")
+        attestations += 1
+
+    if not direct_selections or direct_selections[-1] != expected_agent:
+        raise StreamError("Kiro final direct mode selection is not the permission fixture")
+    if not attestations:
+        raise StreamError("Kiro stream does not attest the exact workspace permission fixture")
 
 
 def validate(
