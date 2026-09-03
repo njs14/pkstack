@@ -30,7 +30,7 @@ POLICY_KEYS = {
     "ci_authority",
     "pull_request",
     "candidate_lifecycle",
-    "fable_review",
+    "candidate_review",
     "limits",
     "agent_allowed_exact",
     "agent_allowed_prefixes",
@@ -864,7 +864,7 @@ def load_policy(path: Path) -> tuple[bytes, dict[str, Any]]:
         workflow_path = item["path"]
         if not isinstance(name, str) or not name or name in seen_names:
             raise GuardError("source workflow names must be unique non-empty strings")
-        if provider not in {"kiro", "copilot"} or provider in seen_providers:
+        if provider != "kiro" or provider in seen_providers:
             raise GuardError("source workflow providers must be unique and supported")
         if (
             not isinstance(workflow_path, str)
@@ -1004,25 +1004,25 @@ def load_policy(path: Path) -> tuple[bytes, dict[str, Any]]:
         policy["protected_prefixes"]
     ):
         raise GuardError("controller and canonical Power tests must be protected")
-    fable = policy.get("fable_review")
-    if not isinstance(fable, dict) or set(fable) != {
-        "required_for_all_candidates",
+    review = policy.get("candidate_review")
+    if not isinstance(review, dict) or set(review) != {
+        "required",
+        "provider",
         "model",
         "effort",
-        "action",
-        "action_sha",
-        "credential_secrets",
+        "credential_secret",
+        "agent",
     }:
-        raise GuardError("maintenance policy fable_review is invalid")
+        raise GuardError("maintenance policy candidate_review is invalid")
     if (
-        fable["required_for_all_candidates"] is not True
-        or fable["model"] != "claude-fable-5-1"
-        or fable["effort"] != "xhigh"
-        or fable["action"] != "anthropics/claude-code-action"
-        or fable["action_sha"] != "8251c103ac8c1d761882c86aba1412c7f583c844"
-        or fable["credential_secrets"] != ["ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN"]
+        review["required"] is not True
+        or review["provider"] != "kiro"
+        or review["model"] != "claude-opus-5"
+        or review["effort"] != "xhigh"
+        or review["credential_secret"] != "KIRO_API_KEY"
+        or review["agent"] != "pstack-ci-reviewer"
     ):
-        raise GuardError("mandatory exact-candidate Fable review contract changed")
+        raise GuardError("mandatory Kiro-hosted candidate review contract changed")
     return raw, policy
 
 
@@ -3054,7 +3054,7 @@ def validate_package(
     return {**summary, "package_sha256": expected_digest}
 
 
-def build_fable_review_bundle(
+def build_candidate_review_bundle(
     root: Path,
     base_sha: str,
     head_sha: str,
@@ -3063,15 +3063,15 @@ def build_fable_review_bundle(
 ) -> dict[str, Any]:
     """Create a deterministic, non-executable exact-commit review input."""
 
-    _sha1(base_sha, "Fable review base")
-    _sha1(head_sha, "Fable review head")
+    _sha1(base_sha, "candidate review base")
+    _sha1(head_sha, "candidate review head")
     if _git_text(root, "rev-parse", "HEAD").strip() != head_sha:
-        raise GuardError("Fable review checkout is not the expected candidate head")
+        raise GuardError("candidate review checkout is not the expected candidate head")
     parents = _git_text(root, "rev-list", "--parents", "-n", "1", head_sha).split()
     if parents != [head_sha, base_sha]:
-        raise GuardError("Fable review candidate is not exactly one commit atop base")
+        raise GuardError("candidate review candidate is not exactly one commit atop base")
     if _git_text(root, "rev-list", "--count", f"{base_sha}..{head_sha}").strip() != "1":
-        raise GuardError("Fable review candidate commit count changed")
+        raise GuardError("candidate review commit count changed")
     if _git_bytes(
         root,
         "diff",
@@ -3082,7 +3082,7 @@ def build_fable_review_bundle(
         "--find-copies",
         f"{base_sha}..{head_sha}",
     ):
-        raise GuardError("Fable review candidate contains a rename or copy")
+        raise GuardError("candidate review contains a rename or copy")
     raw_paths = _git_bytes(
         root,
         "diff",
@@ -3093,33 +3093,33 @@ def build_fable_review_bundle(
     )
     paths = sorted(item.decode("utf-8", errors="strict") for item in raw_paths.split(b"\0") if item)
     if not paths or len(paths) > policy["limits"]["max_changed_files"]:
-        raise GuardError("Fable review candidate file count is outside policy")
+        raise GuardError("candidate review file count is outside policy")
     exact = set(policy["final_allowed_exact"])
     prefixes = policy["final_allowed_prefixes"]
     for path in paths:
         _validate_path(path)
         if _is_protected(path, policy) or not _matches(path, exact, prefixes):
-            raise GuardError(f"Fable review path is outside final policy: {path}")
+            raise GuardError(f"candidate review path is outside final policy: {path}")
         exists = _git_run(root, "cat-file", "-e", f"{head_sha}:{path}", check=False)
         if exists.returncode != 0:
             continue
         record = _git_bytes(root, "ls-tree", "-z", head_sha, "--", path).rstrip(b"\0")
         if not record:
-            raise GuardError(f"Fable review candidate tree entry is missing: {path}")
+            raise GuardError(f"candidate review tree entry is missing: {path}")
         metadata, encoded_path = record.split(b"\t", 1)
         mode, object_type, _ = metadata.split(b" ", 2)
         expected_mode = b"100755" if path in EXECUTABLE_PATHS else b"100644"
         if encoded_path.decode("utf-8", errors="strict") != path:
-            raise GuardError(f"Fable review candidate tree path changed: {path}")
+            raise GuardError(f"candidate review tree path changed: {path}")
         if object_type != b"blob" or mode != expected_mode:
-            raise GuardError(f"Fable review candidate object or mode is invalid: {path}")
+            raise GuardError(f"candidate review object or mode is invalid: {path}")
         content = _git_bytes(root, "show", f"{head_sha}:{path}")
         try:
             content.decode("utf-8")
         except UnicodeDecodeError as exc:
-            raise GuardError(f"Fable review candidate is not UTF-8 text: {path}") from exc
+            raise GuardError(f"candidate review content is not UTF-8 text: {path}") from exc
         if b"\0" in content:
-            raise GuardError(f"Fable review candidate contains NUL bytes: {path}")
+            raise GuardError(f"candidate review content contains NUL bytes: {path}")
 
     changed_lines = 0
     for line in _git_text(
@@ -3131,10 +3131,10 @@ def build_fable_review_bundle(
     ).splitlines():
         additions, deletions, _ = line.split("\t", 2)
         if additions == "-" or deletions == "-":
-            raise GuardError("Fable review candidate contains a binary diff")
+            raise GuardError("candidate review contains a binary diff")
         changed_lines += int(additions) + int(deletions)
     if changed_lines > policy["limits"]["max_changed_lines"]:
-        raise GuardError("Fable review candidate changed-line count exceeds policy")
+        raise GuardError("candidate review changed-line count exceeds policy")
     patch = _git_bytes(
         root,
         "diff",
@@ -3145,18 +3145,18 @@ def build_fable_review_bundle(
         "--",
     )
     if len(patch) > policy["limits"]["max_patch_bytes"]:
-        raise GuardError("Fable review candidate patch exceeds policy")
+        raise GuardError("candidate review patch exceeds policy")
     try:
         patch_text = patch.decode("utf-8")
     except UnicodeDecodeError as exc:
-        raise GuardError("Fable review patch is not UTF-8 text") from exc
+        raise GuardError("candidate review patch is not UTF-8 text") from exc
     patch_sha256 = hashlib.sha256(patch).hexdigest()
     bundle = {
         "schema_version": 1,
-        "review_type": "mandatory-independent-exact-candidate-fable",
+        "review_type": "mandatory-independent-exact-candidate",
         "base_sha": base_sha,
         "head_sha": head_sha,
-        "requires_fable": True,
+        "requires_review": True,
         "changed_files": len(paths),
         "changed_lines": changed_lines,
         "paths": paths,
@@ -3165,7 +3165,7 @@ def build_fable_review_bundle(
     }
     raw = (json.dumps(bundle, sort_keys=True, separators=(",", ":")) + "\n").encode()
     if len(raw) > policy["limits"]["max_patch_bytes"] * 2 + 65_536:
-        raise GuardError("Fable review bundle exceeds its encoded size limit")
+        raise GuardError("candidate review bundle exceeds its encoded size limit")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_bytes(raw)
     return {
@@ -3242,7 +3242,7 @@ def validate_fable_verdict(
     result_messages = [item for item in messages if item.get("type") == "result"]
     if len(init_messages) != 1 or len(result_messages) != 1:
         raise GuardError("Fable execution evidence must contain exactly one init and one result")
-    expected_model = policy["fable_review"]["model"]
+    expected_model = "claude-fable-5-1"
     if init_messages[0].get("model") != expected_model:
         raise GuardError("Fable execution init did not resolve the required model")
     result = result_messages[0]
@@ -3328,7 +3328,7 @@ def validate_fable_verdict(
         "model": expected_model,
         # Effort has no provider-returned metadata. Its evidence is the immutable
         # workflow argument validated by static controls, not a model-authored echo.
-        "configured_effort": policy["fable_review"]["effort"],
+        "configured_effort": "xhigh",
     }
     return {
         "reviewed_base_sha": base_sha,
@@ -3421,7 +3421,7 @@ def _parser() -> argparse.ArgumentParser:
     package.add_argument("--output", type=Path, required=True)
     package.add_argument("--source-workflow", required=True)
     package.add_argument("--source-run-id", required=True)
-    package.add_argument("--provider", choices=("kiro", "copilot"), required=True)
+    package.add_argument("--provider", choices=("kiro",), required=True)
 
     check_package = commands.add_parser("validate-package")
     check_package.add_argument("--base", required=True)
@@ -3429,9 +3429,9 @@ def _parser() -> argparse.ArgumentParser:
     check_package.add_argument("--expected-digest", required=True)
     check_package.add_argument("--source-workflow", required=True)
     check_package.add_argument("--source-run-id", required=True)
-    check_package.add_argument("--provider", choices=("kiro", "copilot"), required=True)
+    check_package.add_argument("--provider", choices=("kiro",), required=True)
 
-    review_bundle = commands.add_parser("build-fable-review-bundle")
+    review_bundle = commands.add_parser("build-candidate-review-bundle")
     review_bundle.add_argument("--base", required=True)
     review_bundle.add_argument("--head", required=True)
     review_bundle.add_argument("--output", type=Path, required=True)
@@ -3546,9 +3546,9 @@ def main() -> int:
             provider=args.provider,
         )
         result["ok"] = True
-    elif args.command == "build-fable-review-bundle":
+    elif args.command == "build-candidate-review-bundle":
         output_path = args.output if args.output.is_absolute() else root / args.output
-        result = build_fable_review_bundle(root, args.base, args.head, policy, output_path)
+        result = build_candidate_review_bundle(root, args.base, args.head, policy, output_path)
         result["ok"] = True
     elif args.command == "validate-fable-verdict":
         verdict_path = args.verdict if args.verdict.is_absolute() else root / args.verdict

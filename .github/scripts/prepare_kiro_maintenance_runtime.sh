@@ -8,6 +8,12 @@ set -euo pipefail
 : "${RUNNER_TEMP:?RUNNER_TEMP is required}"
 : "${TRUSTED_ROOT:?TRUSTED_ROOT is required}"
 
+agent_name=${KIRO_AGENT_NAME:-pstack-maintainer}
+if [[ ! "$agent_name" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+  echo "KIRO_AGENT_NAME is invalid" >&2
+  exit 2
+fi
+
 expected_sha256=6eccb46617a84690fc892219f264f7617312761c9a3d7e38cc47a0e2ab0152b7
 for target in "$KIRO_BIN_DIR" "$KIRO_HOME" "$KIRO_USER_HOME"; do
   [[ ! -e "$target" && ! -L "$target" ]]
@@ -23,10 +29,10 @@ tar --extract --xz --file "$KIRO_ARCHIVE" --directory "$KIRO_BIN_DIR" \
   kirocli/bin/kiro-cli \
   kirocli/bin/kiro-cli-chat
 test "$("$KIRO_BIN_DIR/kiro-cli" --version)" = "kiro-cli 2.21.0"
-trusted_agent="$TRUSTED_ROOT/.kiro/agents/pstack-maintainer.json"
+trusted_agent="$TRUSTED_ROOT/.kiro/agents/${agent_name}.json"
 [[ -f "$trusted_agent" && ! -L "$trusted_agent" ]]
 install -m 0600 "$trusted_agent" \
-  "$KIRO_HOME/agents/pstack-maintainer.json"
+  "$KIRO_HOME/agents/${agent_name}.json"
 
 settings_path="$KIRO_HOME/settings/cli.json"
 install -m 0600 /dev/null "$settings_path"

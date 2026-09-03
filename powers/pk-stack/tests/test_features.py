@@ -1271,5 +1271,5 @@ def test_shipped_repository_features_are_complete_schema_two_contracts() -> None
     maintenance_path = REPOSITORY_ROOT / "Wiki/features/pk-stack-upstream-maintenance.md"
     maintenance = maintenance_path.read_text(encoding="utf-8")
     assert "exactly one canonical genesis marker" in maintenance
-    assert "Fable 5.1" in maintenance
+    assert "Kiro-hosted Claude Opus 5" in maintenance
     assert "`xhigh`" in maintenance

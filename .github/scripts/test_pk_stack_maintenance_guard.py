@@ -56,7 +56,6 @@ KIRO_ISOLATED_SETTINGS_SHA256 = hashlib.sha256(KIRO_ISOLATED_SETTINGS).hexdigest
 MAINTENANCE_JOB_PROPERTIES = {
     "plan": ("runs-on", "permissions", "outputs", "steps"),
     "detect": ("needs", "if", "runs-on", "permissions", "outputs", "steps"),
-    "reviewer_readiness": ("needs", "if", "runs-on", "permissions", "steps"),
     "maintain": (
         "needs",
         "if",
@@ -75,16 +74,9 @@ MAINTENANCE_JOB_CONTROL_FLOW = {
         "needs": "plan",
         "if": "needs.plan.outputs.should_run == 'true'",
     },
-    "reviewer_readiness": {
+    "maintain": {
         "needs": "[plan, detect]",
         "if": "needs.detect.outputs.needs_maintenance == 'true'",
-    },
-    "maintain": {
-        "needs": "[plan, detect, reviewer_readiness]",
-        "if": (
-            "needs.reviewer_readiness.result == 'success' "
-            "&& needs.detect.outputs.needs_maintenance == 'true'"
-        ),
     },
     "publish": {
         "needs": "[plan, detect, maintain]",
@@ -92,16 +84,7 @@ MAINTENANCE_JOB_CONTROL_FLOW = {
     },
 }
 EXPECTED_SECRET_CONTEXT_EXPRESSIONS = (
-    "${{ secrets.ANTHROPIC_API_KEY }}",
-    "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}",
     *("${{ secrets.KIRO_API_KEY }}",) * 4,
-)
-REVIEWER_READINESS_STEPS = (
-    ("Harden runner networking", ("uses", "with")),
-    (
-        "Fail fast unless exactly one Fable credential is configured",
-        ("env", "shell", "run"),
-    ),
 )
 MAINTENANCE_MAINTAIN_STEPS = (
     ("Harden runner networking", ("uses", "with")),
@@ -140,44 +123,6 @@ MAINTENANCE_PUBLISH_STEPS = (
         "Create one exact candidate commit and non-draft PR through the API",
         ("uses", "env", "with"),
     ),
-)
-REVIEWER_READINESS_HARDEN_STEP = (
-    "      - name: Harden runner networking\n"
-    "        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1\n"
-    "        with:\n"
-    "          egress-policy: block\n"
-    "          disable-sudo: true\n"
-    "          allowed-endpoints: |\n"
-    "            results-receiver.actions.githubusercontent.com:443\n"
-)
-REVIEWER_READINESS_HARDEN_STEP_SHA256 = (
-    "c48b6735210074a694b9736a32f2c584a705e2ad587b95c6b7db471cd287d8aa"
-)
-REVIEWER_READINESS_ABSENT_STDERR = (
-    "Fable review is mandatory; provision ANTHROPIC_API_KEY or "
-    "CLAUDE_CODE_OAUTH_TOKEN before spending Kiro credits."
-)
-HOSTED_PREFLIGHT_JOB_RESULTS = {
-    "plan": "success",
-    "detect": "success",
-    "reviewer_readiness": "failure",
-    "maintain": "skipped",
-    "publish": "skipped",
-}
-REVIEWER_READINESS_SCRIPT = (
-    "set -euo pipefail\n"
-    'if [[ -z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then\n'
-    f"  echo '{REVIEWER_READINESS_ABSENT_STDERR}' >&2\n"
-    "  exit 1\n"
-    "fi\n"
-    'if [[ -n "$ANTHROPIC_API_KEY" && -n "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then\n'
-    "  echo 'Configure exactly one Claude CI credential so reviewer "
-    "authentication is unambiguous.' >&2\n"
-    "  exit 1\n"
-    "fi\n"
-)
-REVIEWER_READINESS_SCRIPT_SHA256 = (
-    "05315e69ea60aa0bf68047a1f43b1b323542f3d0f99980b5f90e8a234ee50b2e"
 )
 
 
@@ -755,7 +700,7 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
     secret_expressions = _secret_context_expressions(lines)
     if secret_expressions != EXPECTED_SECRET_CONTEXT_EXPRESSIONS:
         raise WorkflowContractError(
-            "secret context expressions must be exactly the six approved bindings"
+            "secret context expressions must be exactly the four approved Kiro bindings"
         )
     job_ranges = _maintenance_job_ranges(lines)
     step_ranges_by_job: dict[str, list[tuple[str, int, int]]] = {}
@@ -786,7 +731,6 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
         )
 
     expected_steps = {
-        "reviewer_readiness": REVIEWER_READINESS_STEPS,
         "maintain": MAINTENANCE_MAINTAIN_STEPS,
         "publish": MAINTENANCE_PUBLISH_STEPS,
     }
@@ -805,53 +749,6 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
             raise WorkflowContractError(
                 f"{job} step names and properties must be exactly enumerated"
             )
-
-    reviewer_steps = step_ranges_by_job["reviewer_readiness"]
-    harden_name, harden_start, harden_end = reviewer_steps[0]
-    harden_step = _raw_source_range(source_lines, harden_start, harden_end)
-    if harden_name != "Harden runner networking" or harden_step != REVIEWER_READINESS_HARDEN_STEP:
-        raise WorkflowContractError("reviewer harden-runner step bytes changed")
-    if hashlib.sha256(harden_step.encode()).hexdigest() != REVIEWER_READINESS_HARDEN_STEP_SHA256:
-        raise WorkflowContractError("reviewer harden-runner byte pin changed")
-
-    guard_name, guard_start, guard_end = reviewer_steps[1]
-    reviewer_env = _protected_env_block(
-        source_lines,
-        lines,
-        step_name=guard_name,
-        start=guard_start,
-        end=guard_end,
-    )
-    expected_reviewer_env = (
-        "        env:\n"
-        "          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n"
-        "          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}\n"
-    )
-    if reviewer_env != expected_reviewer_env:
-        raise WorkflowContractError("reviewer readiness env mapping changed")
-    run_headers = [
-        index
-        for index in range(guard_start + 1, guard_end)
-        if not lines[index].block_scalar
-        and lines[index].indent == 8
-        and lines[index].code.rstrip() == "        run: |"
-    ]
-    if len(run_headers) != 1:
-        raise WorkflowContractError("reviewer readiness requires one literal run body")
-    script_start = run_headers[0] + 1
-    script_line_indices = [
-        index
-        for index in range(script_start, guard_end)
-        if lines[index].block_scalar and lines[index].raw.strip()
-    ]
-    if not script_line_indices:
-        raise WorkflowContractError("reviewer readiness script body is empty")
-    script_end = script_line_indices[-1] + 1
-    script = textwrap.dedent(_raw_source_range(source_lines, script_start, script_end))
-    if script != REVIEWER_READINESS_SCRIPT:
-        raise WorkflowContractError("reviewer readiness script bytes changed")
-    if hashlib.sha256(script.encode()).hexdigest() != REVIEWER_READINESS_SCRIPT_SHA256:
-        raise WorkflowContractError("reviewer readiness script byte pin changed")
 
     repair_steps = {
         name: (start, end)
@@ -1737,7 +1634,11 @@ class KiroCredentialStreamTests(unittest.TestCase):
 
     @classmethod
     def cloud_config_terminal(
-        cls, *, status: str = "failed", session_id: str | None = None
+        cls,
+        *,
+        status: str = "failed",
+        session_id: str | None = None,
+        observed_completed_output: bool = False,
     ) -> dict[str, object]:
         update: dict[str, object] = {
             "sessionUpdate": "tool_call_update",
@@ -1746,6 +1647,8 @@ class KiroCredentialStreamTests(unittest.TestCase):
         }
         if status == "failed":
             update["rawOutput"] = "sanitized isolated cloud-config lookup failure"
+        elif status == "completed" and observed_completed_output:
+            update["rawOutput"] = {"kind": "notEnabled", "retracted": False}
         return {
             "type": "sessionUpdate",
             "data": {
@@ -1852,6 +1755,9 @@ class KiroCredentialStreamTests(unittest.TestCase):
         for terminal in (
             self.cloud_config_terminal(status="failed"),
             self.cloud_config_terminal(status="completed"),
+            self.cloud_config_terminal(
+                status="completed", observed_completed_output=True
+            ),
         ):
             with self.subTest(status=terminal["data"]["update"]["status"]):
                 raw = self.complete(
@@ -4118,7 +4024,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             with self.assertRaises(guard.GuardError):
                 guard.validate_ci_agent(path, self.policy)
 
-    def test_operational_skill_patch_builds_mandatory_exact_fable_input(self) -> None:
+    def test_operational_skill_patch_builds_mandatory_exact_review_input(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             skill = root / "powers/pk-stack/skills/example/SKILL.md"
@@ -4146,7 +4052,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 ["git", "rev-parse", "HEAD"], cwd=root, text=True
             ).strip()
             bundle_path = root / ".git/fable-review-input.json"
-            result = guard.build_fable_review_bundle(
+            result = guard.build_candidate_review_bundle(
                 root,
                 base_sha,
                 head_sha,
@@ -4155,7 +4061,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             )
             bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
             self.assertEqual(bundle["paths"], ["powers/pk-stack/skills/example/SKILL.md"])
-            self.assertTrue(bundle["requires_fable"])
+            self.assertTrue(bundle["requires_review"])
             self.assertEqual(bundle["base_sha"], base_sha)
             self.assertEqual(bundle["head_sha"], head_sha)
             self.assertEqual(
@@ -4182,7 +4088,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 with self.subTest(prefix=prefix, suffix=suffix):
                     self.assertTrue(guard._is_protected(prefix + suffix, self.policy))
 
-    def test_boundaries_and_fable_bundle_reject_nested_reviewer_instructions(self) -> None:
+    def test_boundaries_and_review_bundle_reject_nested_reviewer_instructions(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             safe = root / "powers/pk-stack/docs/guide.md"
@@ -4213,7 +4119,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 ["git", "rev-parse", "HEAD"], cwd=root, text=True
             ).strip()
             with self.assertRaises(guard.GuardError):
-                guard.build_fable_review_bundle(
+                guard.build_candidate_review_bundle(
                     root,
                     base_sha,
                     head_sha,
@@ -4291,229 +4197,18 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                     self.assertEqual(source.count(f'"{key}"'), 1)
                     self.assertNotIn(f" settings {key} ", source)
 
-    def test_reviewer_readiness_fails_closed_before_kiro_maintenance(self) -> None:
+    def test_maintenance_uses_only_four_scoped_kiro_credentials(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         validate_maintenance_workflow_security_contract(workflow)
-        readiness_match = re.search(
-            r"(?ms)^  reviewer_readiness:\n(?P<body>.*?)(?=^  maintain:\n)",
-            workflow,
-        )
-        self.assertIsNotNone(readiness_match)
-        readiness = readiness_match.group("body")  # type: ignore[union-attr]
-        self.assertEqual(
-            re.findall(r"(?m)^    needs: ([^\n]+)$", readiness),
-            ["[plan, detect]"],
-        )
-        self.assertEqual(
-            re.findall(r"(?m)^    if: ([^\n]+)$", readiness),
-            ["needs.detect.outputs.needs_maintenance == 'true'"],
-        )
-        self.assertEqual(
-            re.findall(r"(?m)^    ([^ \n][^:\n]*):[^\n]*$", readiness),
-            ["needs", "if", "runs-on", "permissions", "steps"],
-        )
-        self.assertRegex(readiness, r"(?m)^    runs-on: ubuntu-24\.04$")
-        self.assertRegex(readiness, r"(?m)^    permissions: \{\}$")
-        self.assertEqual(re.findall(r"(?m)^    steps:([^\n]*)$", readiness), [""])
-        self.assertNotRegex(readiness, r"(?m)^\s*continue-on-error:")
-
-        step_matches = list(
-            re.finditer(r"(?m)^      -(?: (?P<header>[^\n]+))?$", readiness)
-        )
-        self.assertEqual(
-            [match.group("header") for match in step_matches],
-            [
-                "name: Harden runner networking",
-                "name: Fail fast unless exactly one Fable credential is configured",
-            ],
-        )
-        harden_step = readiness[step_matches[0].end() : step_matches[1].start()]
-        guard_step = readiness[step_matches[1].end() :]
-        self.assertEqual(
-            re.findall(r"(?m)^        ([^ \n][^:\n]*):[^\n]*$", harden_step),
-            ["uses", "with"],
-        )
-        self.assertEqual(
-            re.findall(r"(?m)^        ([^ \n][^:\n]*):[^\n]*$", guard_step),
-            ["env", "shell", "run"],
-        )
-        self.assertEqual(re.findall(r"(?m)^        if:([^\n]*)$", guard_step), [])
-        self.assertEqual(
-            re.findall(r"(?m)^        shell: ([^\n]+)$", guard_step),
-            ["bash"],
-        )
-        self.assertEqual(
-            re.findall(
-                r"(?m)^          "
-                r"(ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN): "
-                r"\$\{\{ secrets\."
-                r"(ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN) \}\}$",
-                guard_step,
-            ),
-            [
-                ("ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY"),
-                ("CLAUDE_CODE_OAUTH_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN"),
-            ],
-        )
-        reviewer_env_match = re.search(
-            r"(?ms)^        env:\n(?P<body>.*?)(?=^        shell:)",
-            guard_step,
-        )
-        self.assertIsNotNone(reviewer_env_match)
-        self.assertEqual(
-            reviewer_env_match.group("body"),  # type: ignore[union-attr]
-            "          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n"
-            "          CLAUDE_CODE_OAUTH_TOKEN: "
-            "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}\n",
-        )
-        self.assertNotRegex(guard_step, r"(?m)^ {8}[?:](?:\s|$)")
-        for property_match in re.finditer(
-            r"(?m)^        (?P<key>[^ \n][^:\n]*):[^\n]*$", guard_step
-        ):
-            self.assertRegex(
-                property_match.group("key"),
-                r"^[A-Za-z_][A-Za-z0-9_-]*$",
-            )
-
-        script_match = re.search(
-            r"(?m)^        run: \|\n(?P<script>(?:^          [^\n]*\n)+)",
-            readiness,
-        )
-        self.assertIsNotNone(script_match)
-        script = textwrap.dedent(script_match.group("script"))  # type: ignore[union-attr]
-        cases = (
-            ("neither", "", "", 1, "Fable review is mandatory"),
-            ("both", "test-anthropic", "test-oauth", 1, "exactly one Claude CI credential"),
-            ("anthropic-only", "test-anthropic", "", 0, ""),
-            ("oauth-only", "", "test-oauth", 0, ""),
-        )
-        for label, anthropic, oauth, expected_rc, expected_stderr in cases:
-            with self.subTest(credentials=label):
-                result = subprocess.run(
-                    ["bash"],
-                    input=script,
-                    text=True,
-                    capture_output=True,
-                    check=False,
-                    env={
-                        "ANTHROPIC_API_KEY": anthropic,
-                        "CLAUDE_CODE_OAUTH_TOKEN": oauth,
-                        "CI": "true",
-                        "GITHUB_ACTIONS": "true",
-                    },
-                )
-                self.assertEqual(result.returncode, expected_rc)
-                if expected_stderr:
-                    self.assertIn(expected_stderr, result.stderr)
-                else:
-                    self.assertEqual(result.stderr, "")
-
-        maintain_match = re.search(
-            r"(?ms)^  maintain:\n(?P<body>.*?)(?=^  publish:\n)",
-            workflow,
-        )
-        self.assertIsNotNone(maintain_match)
-        maintain = maintain_match.group("body")  # type: ignore[union-attr]
-        self.assertEqual(
-            re.findall(r"(?m)^    needs: ([^\n]+)$", maintain),
-            ["[plan, detect, reviewer_readiness]"],
-        )
-        maintain_condition = (
-            "needs.reviewer_readiness.result == 'success' "
-            "&& needs.detect.outputs.needs_maintenance == 'true'"
-        )
-        self.assertEqual(
-            re.findall(r"(?m)^    if: ([^\n]+)$", maintain),
-            [maintain_condition],
-        )
+        self.assertNotIn("reviewer_readiness:", workflow)
+        self.assertIn("needs: [plan, detect]", workflow)
+        self.assertIn("if: needs.detect.outputs.needs_maintenance == 'true'", workflow)
         key_binding = "KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"
         self.assertEqual(workflow.count(key_binding), 4)
-        self.assertEqual(maintain.count(key_binding), 4)
-        key_binding_pattern = (
-            r"(?m)^          KIRO_API_KEY: \$\{\{ secrets\.KIRO_API_KEY \}\}$"
-        )
-        self.assertEqual(len(re.findall(key_binding_pattern, workflow)), 4)
-        self.assertEqual(len(re.findall(key_binding_pattern, maintain)), 4)
-        # Count the credential name itself as well as its expected binding syntax.
-        # This fails if another job references the secret with a different
-        # environment key or bracket notation while leaving the four expected
-        # bindings untouched.
-        self.assertEqual(workflow.count("KIRO_API_KEY"), 8)
-        self.assertEqual(maintain.count("KIRO_API_KEY"), 8)
-        secret_expressions = re.findall(
-            r"\$\{\{[^\n}]*\bsecrets\b[^\n}]*\}\}",
+        self.assertNotRegex(
             workflow,
-            flags=re.IGNORECASE,
+            r"(ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|OPENAI_API_KEY|XAI_API_KEY|copilot)",
         )
-        self.assertEqual(
-            secret_expressions,
-            [
-                "${{ secrets.ANTHROPIC_API_KEY }}",
-                "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}",
-                *("${{ secrets.KIRO_API_KEY }}",) * 4,
-            ],
-        )
-        self.assertEqual(len(re.findall(r"(?i)\bsecrets\b", workflow)), 6)
-        self.assertEqual(len(re.findall(r"(?i)\bsecrets\b", readiness)), 2)
-        self.assertEqual(len(re.findall(r"(?i)\bsecrets\b", maintain)), 4)
-
-        jobs = workflow.split("\njobs:\n", 1)[1]
-        # An explicit YAML mapping key can span ``? key`` and ``: value``
-        # lines, bypassing a conventional ``key:`` scanner while still adding
-        # a valid GitHub Actions job. Keep this security-sensitive graph in the
-        # simple mapping form that the exact-key check below can enumerate.
-        self.assertNotRegex(jobs, r"(?m)^ {2}(?:[?:]| {2}[?:])(?:\s|$)")
-        job_matches = list(
-            re.finditer(r"(?m)^  (?P<key>[^ \n][^:\n]*):[^\n]*$", jobs)
-        )
-        job_ids = []
-        job_blocks = {}
-        for index, match in enumerate(job_matches):
-            key = match.group("key")
-            if len(key) >= 2 and key[0] == key[-1] and key[0] in {"'", '"'}:
-                key = key[1:-1]
-            self.assertRegex(key, r"^[A-Za-z_][A-Za-z0-9_-]*$")
-            job_ids.append(key)
-            block_end = (
-                job_matches[index + 1].start()
-                if index + 1 < len(job_matches)
-                else len(jobs)
-            )
-            job_blocks[key] = jobs[match.end() : block_end]
-        self.assertEqual(
-            job_ids,
-            ["plan", "detect", "reviewer_readiness", "maintain", "publish"],
-        )
-        expected_needs = {
-            "plan": [],
-            "detect": ["plan"],
-            "reviewer_readiness": ["[plan, detect]"],
-            "maintain": ["[plan, detect, reviewer_readiness]"],
-            "publish": ["[plan, detect, maintain]"],
-        }
-        expected_job_if = {
-            "plan": [],
-            "detect": ["needs.plan.outputs.should_run == 'true'"],
-            "reviewer_readiness": ["needs.detect.outputs.needs_maintenance == 'true'"],
-            "maintain": [maintain_condition],
-            "publish": ["needs.maintain.outputs.has_changes == 'true'"],
-        }
-        for job_id, block in job_blocks.items():
-            for property_match in re.finditer(
-                r"(?m)^    (?P<key>[^ \n][^:\n]*):[^\n]*$", block
-            ):
-                self.assertRegex(
-                    property_match.group("key"),
-                    r"^[A-Za-z_][A-Za-z0-9_-]*$",
-                )
-            self.assertEqual(
-                re.findall(r"(?m)^    needs: ([^\n]+)$", block),
-                expected_needs[job_id],
-            )
-            self.assertEqual(
-                re.findall(r"(?m)^    if: ([^\n]+)$", block),
-                expected_job_if[job_id],
-            )
 
     def test_maintenance_workflow_rejects_yaml_indirection_and_scope_bypasses(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
@@ -4647,24 +4342,13 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 "    if: needs.plan.outputs.should_run == 'true'\n",
                 "    if: always()\n",
             ),
-            "reviewer-readiness-needs": (
+            "maintain-needs": (
                 "    needs: [plan, detect]\n",
                 "    needs: detect\n",
             ),
-            "reviewer-readiness-if": (
+            "maintain-if": (
                 "    if: needs.detect.outputs.needs_maintenance == 'true'\n",
                 "    if: always()\n",
-            ),
-            "maintain-needs": (
-                "    needs: [plan, detect, reviewer_readiness]\n",
-                "    needs: [plan, detect]\n",
-            ),
-            "maintain-if": (
-                (
-                    "    if: needs.reviewer_readiness.result == 'success' "
-                    "&& needs.detect.outputs.needs_maintenance == 'true'\n"
-                ),
-                "    if: needs.detect.outputs.needs_maintenance == 'true'\n",
             ),
             "publish-needs": (
                 "    needs: [plan, detect, maintain]\n",
@@ -4688,7 +4372,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "      - name: Harden runner networking\n"
             "        uses: step-security/harden-runner@"
         )
-        self.assertEqual(workflow.count(plan_step), 5)
+        self.assertEqual(workflow.count(plan_step), 4)
         self.assertLess(workflow.index(plan_step), workflow.index("\n  detect:\n"))
 
         def add_plan_step_env(value: str) -> str:
@@ -4929,57 +4613,18 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             ):
                 _reject_yaml_indirection(_yaml_structural_lines(source))
 
-    def test_hosted_preflight_record_matches_workflow_and_does_not_overclaim(self) -> None:
-        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+    def test_historical_preflight_is_not_current_release_evidence(self) -> None:
         markdown = (ROOT / "reviews/hosted-maintenance-preflight-campaign.md").read_text()
         record = json.loads(
             (ROOT / "reviews/hosted-maintenance-preflight-campaign.json").read_text()
         )
-
         self.assertEqual(record["source_run"]["event"], "workflow_dispatch")
-        self.assertEqual(record["source_run"]["jobs"], HOSTED_PREFLIGHT_JOB_RESULTS)
-        self.assertEqual(
-            record["reviewer_readiness_failure"]["stderr"],
-            REVIEWER_READINESS_ABSENT_STDERR,
-        )
-        self.assertIn(
-            f"echo '{REVIEWER_READINESS_ABSENT_STDERR}' >&2",
-            workflow,
-        )
-        self.assertIn(
-            f"```text\n{REVIEWER_READINESS_ABSENT_STDERR}\n```",
-            markdown,
-        )
-        for job, result in HOSTED_PREFLIGHT_JOB_RESULTS.items():
-            self.assertIn(f"| `{job}` | `{result}` |", markdown)
-
-        local_validation = record["local_payload_validation"]
-        self.assertTrue(local_validation["reported"])
-        self.assertFalse(local_validation["machine_record_retained"])
-        self.assertEqual(local_validation["proof_status"], "not-claimed")
-        self.assertIn("no machine-readable validator result was retained", markdown)
-        self.assertRegex(
-            markdown,
-            r"does\s+not claim durable local validation proof",
-        )
-
-        hardening = record["post_run_hardening"]
-        success_condition = "needs.reviewer_readiness.result == 'success'"
-        self.assertEqual(hardening["explicit_reviewer_success_condition"], success_condition)
-        self.assertFalse(hardening["hosted_execution_observed"])
-        self.assertIn(success_condition, workflow)
-        self.assertRegex(markdown, r"has not\s+yet run in hosted Actions")
-        self.assertIn("manual-dispatch controls", markdown)
-        self.assertNotIn("proves private-repository scheduling controls", markdown)
-        self.assertRegex(markdown, r"not\s+cron-cadence proof")
+        self.assertIn("do not prove", markdown.lower())
+        self.assertFalse(record["local_payload_validation"]["machine_record_retained"])
 
     def test_workflow_contracts_are_statically_bound(self) -> None:
         kiro = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
-        fallback = (ROOT / ".github/workflows/pk-stack-upstream-maintenance.md").read_text()
-        fallback_lock = (
-            ROOT / ".github/workflows/pk-stack-upstream-maintenance.lock.yml"
-        ).read_text()
         smoke = (ROOT / ".github/workflows/pk-stack-kiro-credential-smoke.yml").read_text()
         permission_smoke = (
             ROOT / ".github/workflows/pk-stack-kiro-permission-smoke.yml"
@@ -5084,7 +4729,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 self.assertIn(setting, block)
         self.assertIn(': "${TRUSTED_ROOT:?TRUSTED_ROOT is required}"', kiro_setup)
         self.assertIn(
-            'trusted_agent="$TRUSTED_ROOT/.kiro/agents/pstack-maintainer.json"',
+            'trusted_agent="$TRUSTED_ROOT/.kiro/agents/${agent_name}.json"',
             kiro_setup,
         )
         self.assertNotIn("install -m 0600 .kiro/agents/pstack-maintainer.json", kiro_setup)
@@ -5124,7 +4769,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.assertIn("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}", repair_step)
             self.assertNotIn("READONLY_GITHUB_TOKEN", repair_step)
         self.assertIn("needs.base_tests.result == 'success'", candidate)
-        self.assertIn("needs.fable_review.result == 'success'", candidate)
+        self.assertIn("needs.kiro_peer_review.result == 'success'", candidate)
         self.assertIn(
             "run-name: PK-Stack candidate gate for source run ${{ github.event.workflow_run.id }}",
             candidate,
@@ -5133,28 +4778,18 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("authorizeTerminalCandidateClose", candidate)
         self.assertIn("needs.merge.result != 'success'", candidate)
         self.assertIn("future scheduled maintenance may retry", candidate)
-        self.assertIn(
-            "anthropics/claude-code-action@8251c103ac8c1d761882c86aba1412c7f583c844",
-            candidate,
-        )
-        self.assertIn("--model claude-fable-5-1", candidate)
-        self.assertIn("--effort xhigh", candidate)
-        self.assertIn('--setting-sources ""', candidate)
-        self.assertIn(
-            "https://downloads.claude.ai/claude-code-releases/2.1.258/linux-x64/claude",
-            candidate,
-        )
-        self.assertIn(
-            "704f1334ac65d3e89e1c6c1d7663293ad786a6166afdb71b5075337df630f976",
-            candidate,
-        )
-        self.assertIn("path_to_claude_code_executable:", candidate)
-        self.assertIn("downloads.claude.ai:443", candidate)
-        self.assertNotIn("https://claude.ai/install.sh", candidate)
-        self.assertIn("FABLE_REVIEWED_CONTENT_SHA256", candidate)
-        self.assertIn("steps.fable.outputs.execution_file", candidate)
+        self.assertIn("REVIEW_MODEL: claude-opus-5", candidate)
+        self.assertIn("REVIEW_EFFORT: xhigh", candidate)
+        self.assertIn("--agent pstack-ci-reviewer", candidate)
+        self.assertIn("--trust-tools=", candidate)
+        self.assertIn("validate_kiro_review_stream.py", candidate)
+        self.assertIn("REVIEWED_CONTENT_SHA256", candidate)
         self.assertIn("execution_evidence_sha256", candidate)
-        self.assertIn("FABLE_ATTESTATION_SHA256", candidate)
+        self.assertIn("REVIEW_ATTESTATION_SHA256", candidate)
+        self.assertNotRegex(
+            candidate,
+            r"ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|OPENAI_API_KEY|XAI_API_KEY|copilot",
+        )
         self.assertIn("powers/pk-stack/skills/", json.dumps(self.policy))
         self.assertIn("TESTED_BASE_SHA", candidate)
         self.assertLess(
@@ -5174,15 +4809,6 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertIn("test ! -e .pk-stack-maintenance", verifier)
         self.assertNotIn("test ! -e .pstack/state/upstream-accept.lock", verifier)
-        self.assertIn("workflow_dispatch:", fallback)
-        self.assertNotIn("schedule:", fallback)
-        self.assertIn("max-daily-ai-credits: -1", fallback)
-        self.assertIn("acknowledge-diagnostic:", fallback)
-        self.assertNotIn("create-pull-request:", fallback)
-        self.assertIn("copilot-requests: write", fallback_lock)
-        self.assertIn('"acknowledge_diagnostic"', fallback_lock)
-        for permission in ("issues", "actions", "contents", "pull-requests"):
-            self.assertNotRegex(fallback_lock, rf"(?m)^\s+{permission}: write$")
         self.assertIn("workflow_dispatch:", smoke)
         self.assertNotIn("schedule:", smoke)
         self.assertGreaterEqual(smoke.count("permissions: {}"), 2)

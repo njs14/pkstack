@@ -102,14 +102,14 @@ exactly one source per transaction so pins, inventories, provenance, and accepta
 ambiguous. Real drift must fail attempt 1, receive one
 exhaustive A/B/C path review and provenance record, and pass a later attempt before the workflow can
 publish one non-draft bot PR; the next daily run then picks up any remaining source. A no-drift run
-stops before Kiro or Fable is invoked, so faster backlog draining does not spend model credits on a
+stops before Kiro is invoked, so faster backlog draining does not spend model credits on a
 clean repository.
 
 That autonomous update lane covers exactly four GitHub sources: `cursor/plugins`,
 `scaccogatto/okf-skills`, `GoogleCloudPlatform/knowledge-catalog`, and the versioned CLI-schema
 subtree in `openknowledge-sh/openknowledge`. A separate weekly and manually dispatchable,
 read-only Kiro product canary resolves the official stable CLI manifest; downloads, checksum
-verifies, and probes the advertised x86_64 Linux headless binary; validates all five workspace
+verifies, and probes the advertised x86_64 Linux headless binary; validates all six workspace
 agents and exact discovery; and lists the live model inventory without sending a model turn. It
 also records bounded non-gating observations for IDE metadata, Kiro Crew Nightly feeds, the
 changelog, `llms.txt`, and relevant documentation hashes. `KIRO_API_KEY` is exposed only to the
@@ -119,26 +119,27 @@ model. A newer stable pin or runtime regression fails red, but pin promotion rem
 human change because the workflow and protected controller files are trust roots, not autonomous
 update surfaces.
 
-The candidate workflow independently tests the unchanged base and exact candidate, then requires
-Fable 5.1 at `xhigh` to approve the exact base/head/content/patch identity before an API-only squash
-merge. Upstream patches and reviewer output remain untrusted data throughout. Kiro credentials
-exist only inside the four bounded repair steps and are destroyed before candidate code or
-secretless verification runs. The GitHub Agentic Workflows/Copilot route is manual-only recovery;
-it never silently substitutes for Kiro.
+The candidate workflow independently tests the unchanged base and exact candidate, then requires a
+separate Kiro-hosted Claude Opus 5 review at `xhigh` to approve the exact
+base/head/content/patch identity before an API-only squash merge. The reviewer has no tools,
+inherits no user resources, and runs in an isolated workspace containing only an immutable agent
+definition and the bounded review bundle. Upstream patches and reviewer output remain untrusted
+data throughout. Kiro credentials exist only inside the four bounded repair steps and the isolated
+review/validation pair; they are never exposed to candidate code or secretless verification.
 
-Whenever drift is detected, hosted maintenance requires the repository Actions secret
-`KIRO_API_KEY` and one valid Fable credential under exactly one accepted secret name:
-`ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`. Missing reviewer credentials fail closed instead
-of shipping an unreviewed operational change. A no-drift run skips reviewer readiness and is not
-credential-path proof. See the [maintenance feature
+Whenever drift is detected, hosted maintenance requires only the repository Actions secret
+`KIRO_API_KEY`. No Anthropic, OpenAI, xAI, or GitHub Copilot credential is used by the pipeline.
+Claude/Fable, Codex, and Grok GitHub integrations may add advisory reviews, while local
+subscription-backed Fable and Grok remain release-council checks; none can be mistaken for the
+mandatory exact-SHA Kiro review. See the [maintenance feature
 contract](Wiki/features/pk-stack-upstream-maintenance.md), [architecture](docs/architecture.md),
 and [review ledger](reviews/acceptance-ledger.md).
 
 The authorized repository has been created and verified private. Hosted credential,
 exact-permission-matrix, and read-only runtime-canary proofs now pass. The first authenticated
 [maintenance preflight](reviews/hosted-maintenance-preflight-campaign.md) detected real
-`okf-skills` drift and then stopped before Kiro or publication because the required Fable Actions
-credential is not yet configured. One successful maintenance lifecycle, final exact-tree
+`okf-skills` drift and then stopped before Kiro under the superseded reviewer-readiness design.
+One successful maintenance lifecycle under the current single-secret design, final exact-tree
 deterministic and canonical OKF/OKN reproof, the final native-Spec campaign, and final Fable/Grok
 council acceptance remain open.
 

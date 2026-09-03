@@ -74,7 +74,9 @@ dispositions. All parity artifacts are deterministic and source-scoped.
 ### `review-and-provenance`
 
 Bind the ledger genesis and every accepted transition to canonical provenance markers, exhaustive
-A/B/C review evidence, semantic patch completeness, and independent Fable 5.1 review.
+A/B/C review evidence, semantic patch completeness, and an independent no-tool Kiro-hosted Claude
+Opus 5 review of the exact candidate. Local Fable and Grok council reviews remain release evidence,
+not GitHub Actions credentials.
 
 ### `transactional-acceptance`
 
@@ -89,7 +91,7 @@ without granting upstream content execution authority.
 ### `kiro-product-canary`
 
 Resolve the official stable Kiro CLI manifest, select exactly the x86_64 Linux headless archive,
-verify and probe the advertised binary, validate and discover the five workspace agents, and query
+verify and probe the advertised binary, validate and discover the six workspace agents, and query
 the live model inventory without sending a model turn. Record bounded, non-gating observations for
 IDE metadata, Kiro Crew Nightly feeds, the changelog, `llms.txt`, and already tracked relevant Kiro
 documentation hashes.
@@ -115,7 +117,7 @@ the same gates using repository-scoped credentials and permissions.
 
 An authorized maintainer may dispatch the same hands-off maintenance workflow outside its cadence.
 After the repository's one-time permissions and credentials are configured, that run follows the
-same bounded proposal, candidate gates, Fable acceptance, exact-SHA merge, and fail-closed policy as
+same bounded proposal, candidate gates, Kiro-hosted peer acceptance, exact-SHA merge, and fail-closed policy as
 the scheduled run; it does not require a second per-run landing approval.
 
 ## Driving it
@@ -168,7 +170,7 @@ edits a pin or candidate branch.
 #### Recipe
 
 Use the workflow's authorized manual-dispatch entrypoint. The workflow automatically creates only
-its own exact-head candidate PR, runs its bound Fable 5.1 `xhigh` review, and squash-merges that
+its own exact-head candidate PR, runs its bound Claude Opus 5 `xhigh` review through Kiro, and squash-merges that
 exact SHA only when every policy gate accepts. Inspect the durable evidence afterward or while a
 failed run is awaiting remediation; no model output or upstream text receives independent landing
 authority.
@@ -191,7 +193,7 @@ controller files are trust roots.
 ## Evidence boundary
 
 Retain source and tree identities, bounded inventories and digests, A/B/C dispositions, bootstrap
-and test results, workflow/candidate IDs, prospective Fable 5.1 `xhigh` verdicts, and the canary's
+and test results, workflow/candidate IDs, Kiro-hosted Claude Opus 5 `xhigh` verdicts, and the canary's
 bounded product metadata and content hashes. Do not retain GitHub tokens, Kiro credentials, raw
 secret-bearing logs, private reasoning, or unbounded upstream content. Historical review records
 preserve the effort actually used, including prior `max` runs.
@@ -213,7 +215,7 @@ always removes only its isolated temporary Kiro runtime and retains no uploaded 
 - Multiple drifting sources are serialized; no proposal or acceptance transaction may mix them.
 - Each source has exactly one canonical genesis marker before all immutable transition markers.
 - Missing credentials, incomplete pagination, or indeterminate identity evidence fail closed without acceptance.
-- Prospective Fable 5.1 review uses `xhigh`; historical records keep the actual earlier `max` effort.
+- Automated peer review uses Kiro-hosted Claude Opus 5 at `xhigh`; local Fable records keep their actual model and effort.
 - Only the four configured GitHub source repositories advance autonomously; Kiro product facts are observations, not a fifth self-updating source.
 - A newer stable Kiro CLI deliberately fails the canary until a human reviews and promotes every trust-root pin copy; the canary itself must not edit workflows or protected controller code.
 

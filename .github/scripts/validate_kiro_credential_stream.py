@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -259,7 +260,14 @@ def _bootstrap_tool_event(event: dict[str, Any]) -> tuple[str, str, str]:
                 raise StreamError("Kiro emitted an invalid failed cloud-config bootstrap terminal")
             return "terminal", session_id, call_id
         if status == "completed":
-            if set(update) != {"sessionUpdate", "status", "toolCallId"}:
+            base_keys = {"sessionUpdate", "status", "toolCallId"}
+            if set(update) == base_keys:
+                return "terminal", session_id, call_id
+            if (
+                set(update) != base_keys | {"rawOutput"}
+                or update.get("rawOutput")
+                != {"kind": "notEnabled", "retracted": False}
+            ):
                 raise StreamError(
                     "Kiro emitted a malformed completed cloud-config bootstrap terminal"
                 )
@@ -379,7 +387,11 @@ def _validate_run_finished(event: dict[str, Any]) -> tuple[str, str, dict[str, A
     return session_id, final_text, data
 
 
-def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
+def _validated_assistant_text(
+    events: list[dict[str, Any]],
+    *,
+    response_validator: Callable[[str], bool] = _is_bounded_challenge_response,
+) -> str:
     if len(events) < 3:
         raise StreamError("Kiro stream is too short for a complete authenticated turn")
     _validate_run_started(events[0])
@@ -468,11 +480,51 @@ def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
     assistant_text = "".join(chunks)
     if finished_session != agent_session:
         raise StreamError("Kiro runFinished does not match the agent-message session")
-    if finished_text != assistant_text or not _is_bounded_challenge_response(assistant_text):
+    if finished_text != assistant_text or not response_validator(assistant_text):
         _raise_run_finished_failure(finished_data, assistant_text=assistant_text)
     if bootstrap_session is not None and bootstrap_session != finished_session:
         raise StreamError("Kiro bootstrap and runFinished sessions do not match")
     return assistant_text
+
+
+def parse_no_tool_stream_bytes(
+    stream_raw: bytes,
+    *,
+    maximum_bytes: int,
+    maximum_events: int = MAX_EVENTS,
+    response_validator: Callable[[str], bool],
+) -> tuple[str, list[dict[str, Any]]]:
+    """Parse one successful v3 turn that used no agent-visible tools."""
+
+    if not stream_raw or len(stream_raw) > maximum_bytes:
+        raise StreamError("Kiro stream is empty or exceeds its byte limit")
+    try:
+        stream = stream_raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise StreamError("Kiro stream is not UTF-8") from exc
+    events: list[dict[str, Any]] = []
+    try:
+        for line in stream.splitlines():
+            if not line.strip():
+                continue
+            value = json.loads(
+                line,
+                object_pairs_hook=_strict_object,
+                parse_constant=_reject_constant,
+            )
+            if not isinstance(value, dict):
+                raise StreamError("Kiro stream-json line was not an object")
+            events.append(value)
+            if len(events) > maximum_events:
+                raise StreamError("Kiro stream exceeded the event-count bound")
+    except json.JSONDecodeError as exc:
+        raise StreamError(f"Kiro stream contains malformed JSON: {exc}") from exc
+    if not events:
+        raise StreamError("Kiro emitted no stream-json events")
+    return (
+        _validated_assistant_text(events, response_validator=response_validator),
+        events,
+    )
 
 
 def validate_stream_bytes(
@@ -491,32 +543,11 @@ def validate_stream_bytes(
         raise StreamError("Kiro output contained the API key")
     if return_code != 0:
         raise StreamError(f"Kiro credential smoke failed with exit code {return_code}")
-    try:
-        stream = stream_raw.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        raise StreamError("Kiro stream is not UTF-8") from exc
-
-    events: list[dict[str, Any]] = []
-    try:
-        for line in stream.splitlines():
-            if not line.strip():
-                continue
-            value = json.loads(
-                line,
-                object_pairs_hook=_strict_object,
-                parse_constant=_reject_constant,
-            )
-            if not isinstance(value, dict):
-                raise StreamError("Kiro stream-json line was not an object")
-            events.append(value)
-            if len(events) > MAX_EVENTS:
-                raise StreamError("Kiro stream exceeded the event-count bound")
-    except json.JSONDecodeError as exc:
-        raise StreamError(f"Kiro stream contains malformed JSON: {exc}") from exc
-    if not events:
-        raise StreamError("Kiro emitted no stream-json events")
-
-    _validated_assistant_text(events)
+    _, events = parse_no_tool_stream_bytes(
+        stream_raw,
+        maximum_bytes=MAX_OUTPUT_BYTES,
+        response_validator=_is_bounded_challenge_response,
+    )
     return {"ok": True, "events": len(events)}
 
 
