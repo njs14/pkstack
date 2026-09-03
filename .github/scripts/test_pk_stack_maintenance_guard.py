@@ -1617,45 +1617,575 @@ class KiroPermissionStreamTests(unittest.TestCase):
                     events, expected_workspace=workspace
                 )
 
-    def test_exact_agent_profile_denial_and_used_tools_are_required(self) -> None:
-        events = [
-            {
-                "type": "toolResult",
-                "policyDenial": {
-                    "capability": "fs_write",
-                    "resource": "protected/blocked.txt",
-                    "effect": "deny",
-                    "scope": "workspace",
-                    "source": "agent-profile",
-                },
-            },
-            {
-                "runFinished": {
-                    "status": "success",
-                    "usedTools": ["read_file", "grep_search", "fs_write", "fs_write"],
-                }
-            },
-        ]
-        with tempfile.TemporaryDirectory() as temporary:
-            stream = Path(temporary) / "stream.jsonl"
-            stderr = Path(temporary) / "stderr.log"
-            stream.write_text(
-                "".join(f"{json.dumps(event)}\n" for event in events),
-                encoding="utf-8",
-            )
-            stderr.write_text("", encoding="utf-8")
-            self.assertEqual(
-                permission_stream_guard.validate(stream, stderr, 0, "test-secret"),
-                {"ok": True, "events": 2},
-            )
+    SESSION_ID = "sess_00000000-0000-0000-0000-000000000001"
 
-            events[0]["policyDenial"]["resource"] = "protected/other.txt"  # type: ignore[index]
-            stream.write_text(
-                "".join(f"{json.dumps(event)}\n" for event in events),
-                encoding="utf-8",
+    @staticmethod
+    def tool_call_id(index: int) -> str:
+        return f"call_00000000-0000-0000-0000-{index:012x}"
+
+    @classmethod
+    def envelope(cls, update: dict[str, object]) -> dict[str, object]:
+        return {
+            "type": "sessionUpdate",
+            "data": {"sessionId": cls.SESSION_ID, "update": update},
+        }
+
+    @staticmethod
+    def reflected_content(raw_output: dict[str, str]) -> list[dict[str, object]]:
+        return [
+            {
+                "type": "content",
+                "content": {"type": "text", "text": json.dumps(raw_output)},
+            }
+        ]
+
+    @classmethod
+    def read_group(cls, workspace: Path, index: int) -> list[dict[str, object]]:
+        tool_call_id = cls.tool_call_id(index)
+        raw_input = {
+            "limit": 2000,
+            "offset": 0,
+            "path": permission_stream_guard.FIXTURE_INPUT_PATH,
+        }
+        locations = [
+            {"path": str(workspace / permission_stream_guard.FIXTURE_INPUT_PATH)}
+        ]
+        origin = {"kiro": {"toolOrigin": "default"}}
+        raw_output = {
+            "message": (
+                "fixture-input.txt: "
+                + permission_stream_guard.FIXTURE_INPUT_TEXT.rstrip("\n")
             )
+        }
+        return [
+            cls.envelope(
+                {
+                    "sessionUpdate": "tool_call",
+                    "toolCallId": tool_call_id,
+                    "title": "Read File",
+                    "kind": "read",
+                    "rawInput": raw_input,
+                    "locations": locations,
+                    "_meta": origin,
+                }
+            ),
+            cls.envelope(
+                {
+                    "sessionUpdate": "tool_call_update",
+                    "toolCallId": tool_call_id,
+                    "status": "in_progress",
+                    "rawInput": raw_input,
+                    "locations": locations,
+                    "_meta": origin,
+                }
+            ),
+            cls.envelope(
+                {
+                    "sessionUpdate": "tool_call_update",
+                    "toolCallId": tool_call_id,
+                    "status": "completed",
+                    "title": "Read File",
+                    "rawInput": raw_input,
+                    "rawOutput": raw_output,
+                    "content": cls.reflected_content(raw_output),
+                    "locations": locations,
+                    "_meta": origin,
+                }
+            ),
+        ]
+
+    @classmethod
+    def grep_group(cls, index: int) -> list[dict[str, object]]:
+        tool_call_id = cls.tool_call_id(index)
+        raw_input = {
+            "caseSensitive": True,
+            "explanation": "Find the exact sterile token.",
+            "includePattern": permission_stream_guard.FIXTURE_INPUT_PATH,
+            "query": permission_stream_guard.GREP_QUERY,
+        }
+        origin = {"kiro": {"toolOrigin": "default"}}
+        raw_output = {
+            "message": (
+                "fixture-input.txt: "
+                + permission_stream_guard.FIXTURE_INPUT_TEXT.rstrip("\n")
+            )
+        }
+        return [
+            cls.envelope(
+                {
+                    "sessionUpdate": "tool_call",
+                    "toolCallId": tool_call_id,
+                    "title": "Grep Search",
+                    "kind": "search",
+                    "rawInput": raw_input,
+                    "_meta": origin,
+                }
+            ),
+            cls.envelope(
+                {
+                    "sessionUpdate": "tool_call_update",
+                    "toolCallId": tool_call_id,
+                    "status": "in_progress",
+                    "rawInput": raw_input,
+                    "_meta": origin,
+                }
+            ),
+            cls.envelope(
+                {
+                    "sessionUpdate": "tool_call_update",
+                    "toolCallId": tool_call_id,
+                    "status": "completed",
+                    "title": "Grep Search",
+                    "rawInput": raw_input,
+                    "rawOutput": raw_output,
+                    "content": cls.reflected_content(raw_output),
+                    "_meta": origin,
+                }
+            ),
+        ]
+
+    @classmethod
+    def write_group(
+        cls,
+        workspace: Path,
+        index: int,
+        relative_path: str,
+        text: str,
+        *,
+        denied: bool,
+        deny_patterns: list[str] | None = None,
+    ) -> list[dict[str, object]]:
+        tool_call_id = cls.tool_call_id(index)
+        raw_input = {"path": relative_path, "text": text}
+        locations = [{"path": str(workspace / relative_path)}]
+        start_preview = {"file": relative_path, "modifiedContent": text}
+        if denied:
+            start_preview["originalContent"] = (
+                f"PROTECTED_BASELINE {relative_path}\n"
+            )
+        start = cls.envelope(
+            {
+                "sessionUpdate": "tool_call",
+                "toolCallId": tool_call_id,
+                "status": "in_progress",
+                "title": "Write File",
+                "kind": "edit",
+                "rawInput": raw_input,
+                "locations": locations,
+                "_meta": {
+                    "kiro": {"toolOrigin": "default", "preview": start_preview}
+                },
+            }
+        )
+        pending = cls.envelope(
+            {
+                "sessionUpdate": "tool_call_update",
+                "toolCallId": tool_call_id,
+                "status": "pending",
+                "rawInput": raw_input,
+                "locations": locations,
+                "_meta": {
+                    "kiro": {
+                        "toolOrigin": "default",
+                        "preview": {"file": relative_path},
+                    }
+                },
+            }
+        )
+        if denied:
+            assert deny_patterns is not None
+            policy_denial = {
+                "capability": "fs_write",
+                "effect": "deny",
+                "matchedRule": {
+                    "capability": "fs_write",
+                    "effect": "deny",
+                    "match": deny_patterns,
+                },
+                "resource": relative_path,
+                "scope": "workspace",
+                "source": "agent-profile",
+            }
+            terminal = cls.envelope(
+                {
+                    "sessionUpdate": "tool_call_update",
+                    "toolCallId": tool_call_id,
+                    "status": "failed",
+                    "title": "Write File",
+                    "rawInput": raw_input,
+                    "rawOutput": {
+                        "message": "Tool call denied. Source: agent-profile."
+                    },
+                    "content": [
+                        {
+                            "type": "diff",
+                            "path": relative_path,
+                            "oldText": "",
+                            "newText": text,
+                        }
+                    ],
+                    "locations": locations,
+                    "_meta": {
+                        "kiro": {
+                            "toolOrigin": "default",
+                            "preview": {
+                                "file": relative_path,
+                                "modifiedContent": text,
+                                "originalContent": "",
+                            },
+                            "policyDenial": policy_denial,
+                        }
+                    },
+                }
+            )
+            return [start, pending, terminal]
+
+        absolute_path = str(workspace / relative_path)
+        file_uri = f"file://{absolute_path}"
+        snapshot = f"kiro-snapshot-v2://{cls.SESSION_ID}/{index}"
+        terminal = cls.envelope(
+            {
+                "sessionUpdate": "tool_call_update",
+                "toolCallId": tool_call_id,
+                "status": "completed",
+                "title": "Write File",
+                "rawInput": raw_input,
+                "rawOutput": {"message": "File written successfully."},
+                "content": [
+                    {
+                        "type": "diff",
+                        "path": file_uri,
+                        "oldText": "",
+                        "newText": text,
+                    }
+                ],
+                "locations": locations,
+                "_meta": {
+                    "kiro": {
+                        "toolOrigin": "default",
+                        "preview": {
+                            "file": absolute_path,
+                            "local": file_uri,
+                            "modified": snapshot,
+                            "modifiedContent": text,
+                            "originalContent": "",
+                        },
+                        "checkpoint": {"local": file_uri, "modified": snapshot},
+                    }
+                },
+            }
+        )
+        return [start, pending, terminal]
+
+    @classmethod
+    def complete_events(
+        cls, workspace: Path, *, denied_resource: str | None = None
+    ) -> list[dict[str, object]]:
+        events: list[dict[str, object]] = [
+            {
+                "type": "runStarted",
+                "data": {
+                    "payloadSchema": "acp",
+                    "acpProtocolVersion": 1,
+                    "engine": "v3",
+                },
+            }
+        ]
+        selection = cls.selection_event(str(workspace))
+        selection["data"]["sessionId"] = cls.SESSION_ID  # type: ignore[index]
+        events.append(selection)
+        if denied_resource is not None:
+            fixture = json.loads(
+                (ROOT / ".github/fixtures/kiro-permission-agent.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            deny_patterns = fixture["permissions"]["rules"][3]["match"]
+            events.extend(
+                cls.write_group(
+                    workspace,
+                    1,
+                    denied_resource,
+                    permission_stream_guard.DENIED_WRITE_TEXT,
+                    denied=True,
+                    deny_patterns=deny_patterns,
+                )
+            )
+            used_tools = ["fs_write"]
+        else:
+            events.extend(cls.read_group(workspace, 1))
+            events.extend(cls.grep_group(2))
+            for index, (relative_path, text) in enumerate(
+                permission_stream_guard.ALLOWED_WRITES, start=3
+            ):
+                events.extend(
+                    cls.write_group(
+                        workspace,
+                        index,
+                        relative_path,
+                        text,
+                        denied=False,
+                    )
+                )
+            used_tools = [
+                "read_file",
+                "grep_search",
+                *("fs_write" for _ in permission_stream_guard.ALLOWED_WRITES),
+            ]
+        request_ids = [
+            f"00000000-0000-0000-0001-{index:012x}"
+            for index in range(len(used_tools) + 1)
+        ]
+        events.append(
+            cls.envelope(
+                {
+                    "sessionUpdate": "session_info_update",
+                    "_meta": {
+                        "kiro": {
+                            "kind": "turn_completion",
+                            "status": "success",
+                            "elapsedTime": 1,
+                            "requestIds": request_ids,
+                            "promptTurnSummaries": [
+                                {
+                                    "unit": "credit",
+                                    "unitPlural": "credits",
+                                    "usage": 0.25,
+                                    "usedTools": used_tools,
+                                }
+                            ],
+                        }
+                    },
+                }
+            )
+        )
+        events.append(
+            {
+                "type": "runFinished",
+                "data": {
+                    "sessionId": cls.SESSION_ID,
+                    "status": "success",
+                    "stopReason": "end_turn",
+                    "finalText": "",
+                    "finalTextTruncated": False,
+                },
+            }
+        )
+        return events
+
+    @staticmethod
+    def write_stream(path: Path, events: list[dict[str, object]]) -> None:
+        path.write_text(
+            "".join(f"{json.dumps(event, separators=(',', ':'))}\n" for event in events),
+            encoding="utf-8",
+        )
+        path.chmod(0o600)
+
+    @staticmethod
+    def fixture_workspace(temporary: str) -> tuple[Path, Path, Path, Path]:
+        root = Path(temporary)
+        workspace = root / "workspace"
+        agent = workspace / ".kiro/agents/pk-stack-permission-fixture.json"
+        agent.parent.mkdir(parents=True)
+        shutil.copyfile(ROOT / ".github/fixtures/kiro-permission-agent.json", agent)
+        stream = root / "stream.jsonl"
+        stderr = root / "stderr.log"
+        stderr.write_text("", encoding="utf-8")
+        stderr.chmod(0o600)
+        return workspace, agent, stream, stderr
+
+    def test_real_shape_allowed_and_isolated_denied_streams_validate(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            allowed_events = self.complete_events(workspace)
+            self.write_stream(stream, allowed_events)
+            allowed = permission_stream_guard.validate_allowed_invocation(
+                stream,
+                stderr,
+                return_code=124,
+                api_key="test-secret",
+                workspace=workspace,
+            )
+            self.assertEqual(allowed["user_tool_calls"], 9)
+            self.assertEqual(allowed["credit_usage"], 0.25)
+
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            denied_events = self.complete_events(workspace, denied_resource=resource)
+            self.write_stream(stream, denied_events)
+            denied = permission_stream_guard.validate_denied_invocation(
+                stream,
+                stderr,
+                return_code=0,
+                api_key="test-secret",
+                workspace=workspace,
+                agent_path=agent,
+                resource=resource,
+            )
+            self.assertEqual(denied["user_tool_calls"], 1)
+            self.assertEqual(denied["resource"], resource)
+
+    def test_denied_stream_rejects_policy_and_lifecycle_lookalikes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            baseline = self.complete_events(workspace, denied_resource=resource)
+
+            def clone() -> list[dict[str, object]]:
+                return json.loads(json.dumps(baseline))
+
+            malformed_streams: list[list[dict[str, object]]] = []
+            for mutation in ("missing", "extra", "resource", "rule"):
+                events = clone()
+                terminal = events[-3]["data"]["update"]  # type: ignore[index]
+                denial = terminal["_meta"]["kiro"]["policyDenial"]  # type: ignore[index]
+                if mutation == "missing":
+                    denial.pop("matchedRule")
+                elif mutation == "extra":
+                    denial["unexpected"] = True
+                elif mutation == "resource":
+                    denial["resource"] = permission_stream_guard.DENIED_RESOURCES[1]
+                else:
+                    denial["matchedRule"]["match"] = [resource]
+                malformed_streams.append(events)
+
+            mismatched_id = clone()
+            mismatched_id[-3]["data"]["update"]["toolCallId"] = self.tool_call_id(9)  # type: ignore[index]
+            malformed_streams.append(mismatched_id)
+            late_selection = clone()
+            late_selection.insert(-2, late_selection[1])
+            malformed_streams.append(late_selection)
+            unknown_update = clone()
+            unknown_update.insert(
+                -1,
+                self.envelope({"sessionUpdate": "command_execution", "status": "done"}),
+            )
+            malformed_streams.append(unknown_update)
+            extra_tool = clone()
+            extra_tool[-2:-2] = self.write_group(
+                workspace,
+                2,
+                resource,
+                permission_stream_guard.DENIED_WRITE_TEXT,
+                denied=True,
+                deny_patterns=json.loads(agent.read_text(encoding="utf-8"))["permissions"]
+                ["rules"][3]["match"],
+            )
+            malformed_streams.append(extra_tool)
+
+            for events in malformed_streams:
+                with self.subTest(events=events), self.assertRaises(
+                    permission_stream_guard.StreamError
+                ):
+                    self.write_stream(stream, events)
+                    permission_stream_guard.validate_denied_invocation(
+                        stream,
+                        stderr,
+                        return_code=124,
+                        api_key="test-secret",
+                        workspace=workspace,
+                        agent_path=agent,
+                        resource=resource,
+                    )
+
+    def test_allowed_stream_rejects_missing_reordered_or_denied_tools(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, _, stream, stderr = self.fixture_workspace(temporary)
+            baseline = self.complete_events(workspace)
+
+            def clone() -> list[dict[str, object]]:
+                return json.loads(json.dumps(baseline))
+
+            missing_write = clone()
+            missing_id = self.tool_call_id(9)
+            missing_write[:] = [
+                event
+                for event in missing_write
+                if event.get("data", {}).get("update", {}).get("toolCallId") != missing_id  # type: ignore[union-attr]
+            ]
+            wrong_order = clone()
+            first_write = next(
+                event
+                for event in wrong_order
+                if event.get("data", {}).get("update", {}).get("toolCallId")  # type: ignore[union-attr]
+                == self.tool_call_id(3)
+            )
+            first_write["data"]["update"]["rawInput"]["path"] = "wrong.txt"  # type: ignore[index]
+            wrong_used_tools = clone()
+            wrong_used_tools[-2]["data"]["update"]["_meta"]["kiro"][  # type: ignore[index]
+                "promptTurnSummaries"
+            ][0]["usedTools"].append("execute_bash")
+            hidden_denial = clone()
+            hidden_denial.insert(
+                -1,
+                self.envelope(
+                    {
+                        "sessionUpdate": "session_info_update",
+                        "_meta": {"kiro": {"policyDenial": {"effect": "deny"}}},
+                    }
+                ),
+            )
+            nonempty_final = clone()
+            nonempty_final[-1]["data"]["finalText"] = "done"  # type: ignore[index]
+
+            for events in (
+                missing_write,
+                wrong_order,
+                wrong_used_tools,
+                hidden_denial,
+                nonempty_final,
+            ):
+                with self.subTest(events=events), self.assertRaises(
+                    permission_stream_guard.StreamError
+                ):
+                    self.write_stream(stream, events)
+                    permission_stream_guard.validate_allowed_invocation(
+                        stream,
+                        stderr,
+                        return_code=124,
+                        api_key="test-secret",
+                        workspace=workspace,
+                    )
+
+    def test_invocation_bounds_fallback_and_secret_checks_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            events = self.complete_events(workspace, denied_resource=resource)
+            self.write_stream(stream, events)
+            common = {
+                "stream_path": stream,
+                "stderr_path": stderr,
+                "api_key": "test-secret",
+                "workspace": workspace,
+                "agent_path": agent,
+                "resource": resource,
+            }
             with self.assertRaises(permission_stream_guard.StreamError):
-                permission_stream_guard.validate(stream, stderr, 0, "test-secret")
+                permission_stream_guard.validate_denied_invocation(
+                    return_code=1, **common
+                )
+            stream.chmod(0o644)
+            with self.assertRaises(permission_stream_guard.StreamError):
+                permission_stream_guard.validate_denied_invocation(
+                    return_code=0, **common
+                )
+            stream.chmod(0o600)
+            stderr.write_text('not found, using "default"', encoding="utf-8")
+            with self.assertRaises(permission_stream_guard.StreamError):
+                permission_stream_guard.validate_denied_invocation(
+                    return_code=0, **common
+                )
+            stderr.write_text("test-secret", encoding="utf-8")
+            with self.assertRaises(permission_stream_guard.StreamError):
+                permission_stream_guard.validate_denied_invocation(
+                    return_code=0, **common
+                )
+            stderr.write_text("", encoding="utf-8")
+            with self.assertRaises(permission_stream_guard.StreamError):
+                permission_stream_guard.validate_denied_invocation(
+                    return_code=0,
+                    **(common | {"resource": "unapproved/protected.txt"}),
+                )
 
 
 class GitControlBoundaryTests(unittest.TestCase):
@@ -2531,27 +3061,19 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertEqual(production["toolsSettings"], fixture["toolsSettings"])
 
         prompt = fixture["prompt"]
-        allowed_representatives = {
-            ".pk-stack-maintenance/proposal.json",
-            "powers/pk-stack/README.md",
-            "powers/pk-stack/dev.kiro/steering/permission-smoke.md",
-            "powers/pk-stack/docs/upstream-skill-parity.json",
-            "powers/pk-stack/docs/smoke/permission.md",
-            "powers/pk-stack/skills/permission-smoke/SKILL.md",
-            "powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json",
-        }
-        protected_representatives = {
-            ".github/protected.txt",
-            ".kiro/protected.txt",
-            "powers/pk-stack/src/pstack_kiro/protected.py",
-            "powers/pk-stack/tests/protected.py",
-            "maintenance/upstream-reviews.json",
-            "powers/pk-stack/docs/validation-report.md",
-        }
-        for path in allowed_representatives | protected_representatives:
-            self.assertIn(path, prompt)
-        self.assertIn("continue after each expected denial", prompt)
-        self.assertIn("Finish normally only after attempting all thirteen writes", prompt)
+        self.assertIn(
+            "exactly and only the ordered filesystem operations enumerated in the current user prompt",
+            prompt,
+        )
+        self.assertIn("Do not infer, retry, or add operations", prompt)
+        self.assertIn("Emit no assistant prose before or after tool use", prompt)
+        self.assertIn("including when that operation is denied", prompt)
+        self.assertNotIn("continue after each expected denial", prompt)
+        self.assertNotIn("all thirteen writes", prompt)
+        for path in permission_stream_guard.ALLOWED_WRITES:
+            self.assertNotIn(path[0], prompt)
+        for path in permission_stream_guard.DENIED_RESOURCES:
+            self.assertNotIn(path, prompt)
 
     def test_ci_agent_rejects_nonempty_v3_discovery_settings(self) -> None:
         document = json.loads(
@@ -2699,6 +3221,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 self.assertTrue(
                     'test ! -e "$KIRO_USER_HOME/.kiro"' in source
                     or 'test ! -e "$SMOKE_ROOT/user-home/.kiro"' in source
+                    or 'test ! -e "$case_root/user-home/.kiro"' in source
                 )
                 for key in (
                     "app.disableAutoupdates",
@@ -3073,18 +3596,17 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("workflow_dispatch:", permission_smoke)
         self.assertNotIn("schedule:", permission_smoke)
         self.assertIn("permissions: {}", permission_smoke)
+        self.assertIn("timeout-minutes: 20", permission_smoke)
         self.assertIn("--trust-tools=fs_read,fs_write,grep", permission_smoke)
         self.assertIn("pk-stack-permission-fixture", permission_smoke)
         self.assertIn("validate_kiro_permission_stream.py", permission_smoke)
         self.assertIn(
-            "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json",
+            "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json",
             permission_smoke,
         )
-        self.assertEqual(
-            permission_smoke.count(
-                "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json"
-            ),
-            4,
+        self.assertIn(
+            '$workspace/.kiro/agents/pk-stack-permission-fixture.json',
+            permission_smoke,
         )
         self.assertNotIn(
             "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json",
@@ -3121,60 +3643,61 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "pk-stack-permission-fixture([[:space:]]|$)",
             permission_smoke,
         )
+        self.assertIn("--kind allowed", permission_smoke)
+        self.assertIn("--kind denied", permission_smoke)
+        self.assertIn('run_case allowed 180 allowed "$allowed_prompt"', permission_smoke)
         self.assertIn(
-            "validator.validate_workspace_agent_selection(",
+            'run_case "$case_id" 120 denied "$denied_prompt" "$resource"',
             permission_smoke,
         )
-        self.assertIn("expected_workspace=expected_workspace", permission_smoke)
-        for path in (
-            ".pk-stack-maintenance/proposal.json",
-            "powers/pk-stack/README.md",
-            "powers/pk-stack/dev.kiro/steering/permission-smoke.md",
-            "powers/pk-stack/docs/smoke/permission.md",
-            "powers/pk-stack/skills/permission-smoke/SKILL.md",
-            "powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json",
-            ".github/protected.txt",
-            ".kiro/agents/pk-stack-permission-fixture.json",
-            ".kiro/protected.txt",
-            "powers/pk-stack/src/pstack_kiro/protected.py",
-            "powers/pk-stack/tests/protected.py",
-            "maintenance/upstream-reviews.json",
-            "powers/pk-stack/docs/validation-report.md",
-        ):
+        self.assertEqual(permission_smoke.count('"$SMOKE_ROOT/bin/kiro-cli" chat'), 1)
+        self.assertIn('test ! -e "$case_root"', permission_smoke)
+        self.assertIn('"$case_root/user-home"', permission_smoke)
+        self.assertIn('"$case_root/kiro-home/settings"', permission_smoke)
+        self.assertIn('"$case_root/runtime"', permission_smoke)
+        self.assertIn('"$case_root/logs"', permission_smoke)
+        self.assertIn('test ! -e "$case_root/user-home/.kiro"', permission_smoke)
+        self.assertIn(
+            'find "$case_root" ! -type d ! -type f -print -quit', permission_smoke
+        )
+        self.assertGreaterEqual(
+            permission_smoke.count('find . ! -type d ! -type f -print -quit'), 3
+        )
+        for path, _ in permission_stream_guard.ALLOWED_WRITES:
             self.assertIn(path, permission_smoke)
-        self.assertIn('"source": "agent-profile"', permission_smoke)
+        denied_block = re.search(
+            r"(?ms)^          denied_resources=\(\n(?P<body>.*?)^          \)\n",
+            permission_smoke,
+        )
+        self.assertIsNotNone(denied_block)
+        denied_resources = tuple(
+            line.strip()
+            for line in denied_block.group("body").splitlines()  # type: ignore[union-attr]
+            if line.strip()
+        )
+        self.assertEqual(denied_resources, permission_stream_guard.DENIED_RESOURCES)
+        for path in permission_stream_guard.DENIED_RESOURCES:
+            self.assertIn(path, permission_smoke)
         self.assertIn("b'not found, using \"default\"'", permission_smoke)
         self.assertIn(
-            '{"execute_bash", "kiro_powers", "remote_web_search"}',
+            'sha256sum --check "$SMOKE_ROOT/template-baseline.sha256"',
             permission_smoke,
         )
-        self.assertIn(
-            'sha256sum --check "$SMOKE_ROOT/protected-baseline.sha256"',
-            permission_smoke,
+        self.assertIn('cmp "$SMOKE_ROOT/template-files.txt"', permission_smoke)
+        self.assertIn('cmp "$SMOKE_ROOT/allowed-files.txt"', permission_smoke)
+        self.assertGreaterEqual(
+            permission_smoke.count('"$SMOKE_ROOT/template-directories.txt"'), 3
         )
-        self.assertIn(
-            "protected_paths+=(.kiro/agents/pk-stack-permission-fixture.json)",
-            permission_smoke,
-        )
-        self.assertLess(
-            permission_smoke.index('for protected_path in "${protected_paths[@]}"; do'),
-            permission_smoke.index(
-                "protected_paths+=(.kiro/agents/pk-stack-permission-fixture.json)"
-            ),
-        )
-        self.assertLess(
-            permission_smoke.index(
-                "protected_paths+=(.kiro/agents/pk-stack-permission-fixture.json)"
-            ),
-            permission_smoke.index('sha256sum "${protected_paths[@]}"'),
-        )
-        self.assertIn('cmp "$SMOKE_ROOT/expected-files.txt"', permission_smoke)
+        self.assertIn('actual-directories.txt', permission_smoke)
         self.assertIn('chmod -R a-w "$GITHUB_WORKSPACE"', permission_smoke)
         self.assertNotIn("git status --porcelain=v1 --untracked-files=all", permission_smoke)
         self.assertNotIn('test -z "$(git status', permission_smoke)
         self.assertNotIn("protected/blocked.txt", permission_smoke)
         self.assertEqual(permission_smoke.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 1)
         self.assertNotIn("actions/upload-artifact", permission_smoke)
+        self.assertIn('test ! -L "$SMOKE_ROOT"', permission_smoke)
+        self.assertIn('test -O "$SMOKE_ROOT"', permission_smoke)
+        self.assertEqual(permission_smoke.count('rm -rf -- "$SMOKE_ROOT"'), 1)
 
     def test_credential_smoke_cleanup_is_exact_and_restores_owner_write(self) -> None:
         smoke = (ROOT / ".github/workflows/pk-stack-kiro-credential-smoke.yml").read_text()

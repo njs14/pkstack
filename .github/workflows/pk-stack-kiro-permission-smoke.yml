@@ -12,7 +12,7 @@ concurrency:
 jobs:
   permission-boundary:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
@@ -55,21 +55,21 @@ jobs:
           set -euo pipefail
           umask 077
           test ! -e "$SMOKE_ROOT"
+          workspace_template="$SMOKE_ROOT/template/workspace"
           mkdir -p \
             "$SMOKE_ROOT/bin" \
-            "$SMOKE_ROOT/kiro-home" \
-            "$SMOKE_ROOT/user-home" \
-            "$SMOKE_ROOT/runtime" \
-            "$SMOKE_ROOT/workspace/.github" \
-            "$SMOKE_ROOT/workspace/.kiro/agents" \
-            "$SMOKE_ROOT/workspace/.pk-stack-maintenance" \
-            "$SMOKE_ROOT/workspace/maintenance" \
-            "$SMOKE_ROOT/workspace/powers/pk-stack/dev.kiro/steering" \
-            "$SMOKE_ROOT/workspace/powers/pk-stack/docs/smoke" \
-            "$SMOKE_ROOT/workspace/powers/pk-stack/skills/permission-smoke" \
-            "$SMOKE_ROOT/workspace/powers/pk-stack/src/pstack_kiro" \
-            "$SMOKE_ROOT/workspace/powers/pk-stack/templates/project/.kiro/agents" \
-            "$SMOKE_ROOT/workspace/powers/pk-stack/tests"
+            "$SMOKE_ROOT/cases" \
+            "$SMOKE_ROOT/settings-template/settings" \
+            "$workspace_template/.github" \
+            "$workspace_template/.kiro/agents" \
+            "$workspace_template/.pk-stack-maintenance" \
+            "$workspace_template/maintenance" \
+            "$workspace_template/powers/pk-stack/dev.kiro/steering" \
+            "$workspace_template/powers/pk-stack/docs/smoke" \
+            "$workspace_template/powers/pk-stack/skills/permission-smoke" \
+            "$workspace_template/powers/pk-stack/src/pstack_kiro" \
+            "$workspace_template/powers/pk-stack/templates/project/.kiro/agents" \
+            "$workspace_template/powers/pk-stack/tests"
           archive="$SMOKE_ROOT/kirocli-2.21.0.tar.xz"
           curl --proto '=https' --tlsv1.2 --fail --location \
             --retry 3 --retry-all-errors --output "$archive" \
@@ -84,18 +84,18 @@ jobs:
           test "$("$SMOKE_ROOT/bin/kiro-cli" --version)" = "kiro-cli 2.21.0"
           install -m 0600 \
             .github/fixtures/kiro-permission-agent.json \
-            "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json"
+            "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json"
           install -m 0500 \
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            5bb13e43f63c47c9437816cd14462743b1c8b069d50a04887ac6d8f51feed9f5 \
-            "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json" \
+            a595dc94bea2a00cfafdf50ac24ec711633801b3294378c2eb87684afb3c15df \
+            "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            89bcda57523210059c361cd60805aa745de7a6c9f7a472a9ab9060f608cd1714 \
+            c5f4bc094c5a9332991d993d46044ab582bbcc757e4aa227e0f71ec7003a61c1 \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
-          python3 - "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
+          python3 - "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
           import json
           import sys
           from pathlib import Path
@@ -136,7 +136,7 @@ jobs:
               raise SystemExit("permission fixture discovery settings differ from production")
           PY
           printf '%s\n' 'ALPHA_TOKEN sterile permission input' \
-            >"$SMOKE_ROOT/workspace/fixture-input.txt"
+            >"$workspace_template/fixture-input.txt"
           protected_paths=(
             .github/protected.txt
             .kiro/protected.txt
@@ -147,14 +147,24 @@ jobs:
           )
           for protected_path in "${protected_paths[@]}"; do
             printf 'PROTECTED_BASELINE %s\n' "$protected_path" \
-              >"$SMOKE_ROOT/workspace/$protected_path"
+              >"$workspace_template/$protected_path"
           done
-          protected_paths+=(.kiro/agents/pk-stack-permission-fixture.json)
           (
-            cd "$SMOKE_ROOT/workspace"
-            sha256sum "${protected_paths[@]}" >"$SMOKE_ROOT/protected-baseline.sha256"
+            cd "$workspace_template"
+            if find . ! -type d ! -type f -print -quit | grep -q .; then
+              exit 1
+            fi
+            find . -type f -printf '%P\n' | LC_ALL=C sort \
+              >"$SMOKE_ROOT/template-files.txt"
+            find . -type d -printf '%P\n' | LC_ALL=C sort \
+              >"$SMOKE_ROOT/template-directories.txt"
+            while IFS= read -r template_file; do
+              test -n "$template_file"
+              sha256sum -- "$template_file"
+            done <"$SMOKE_ROOT/template-files.txt" \
+              >"$SMOKE_ROOT/template-baseline.sha256"
           )
-          cat >"$SMOKE_ROOT/expected-files.txt" <<'EOF'
+          cat >"$SMOKE_ROOT/allowed-files.txt" <<'EOF'
           .github/protected.txt
           .kiro/agents/pk-stack-permission-fixture.json
           .kiro/protected.txt
@@ -171,8 +181,7 @@ jobs:
           powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json
           powers/pk-stack/tests/protected.py
           EOF
-          mkdir -m 0700 "$SMOKE_ROOT/kiro-home/settings"
-          settings_path="$SMOKE_ROOT/kiro-home/settings/cli.json"
+          settings_path="$SMOKE_ROOT/settings-template/settings/cli.json"
           install -m 0600 /dev/null "$settings_path"
           printf '%s\n' \
             '{' \
@@ -184,244 +193,254 @@ jobs:
             81d98ac813691c26f18f797ca5126c5150125cf74d2f6d413e152290074a6bd0 \
             "$settings_path" | sha256sum --check
           test "$(stat -c '%a' "$settings_path")" = 600
-          test ! -e "$SMOKE_ROOT/kiro-home/settings/mcp.json"
-          test ! -e "$SMOKE_ROOT/user-home/.kiro"
+          test ! -e "$SMOKE_ROOT/settings-template/settings/mcp.json"
           chmod -R a-w "$GITHUB_WORKSPACE"
-      - name: Invoke exact production permission matrix
+      - name: Invoke isolated production permission cases
         env:
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
           SMOKE_ROOT: ${{ runner.temp }}/pk-stack-kiro-permission-smoke
         run: |
           set -euo pipefail
+          umask 077
           : "${KIRO_API_KEY:?KIRO_API_KEY is not configured}"
-          (
-            cd "$SMOKE_ROOT/workspace"
-            env -i \
-              HOME="$SMOKE_ROOT/user-home" \
-              KIRO_HOME="$SMOKE_ROOT/kiro-home" \
-              PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
-              LANG=C.UTF-8 \
-              CI=true \
-              NO_COLOR=1 \
-              KIRO_LOG_NO_COLOR=1 \
-              XDG_RUNTIME_DIR="$SMOKE_ROOT/runtime" \
-              SSL_CERT_DIR=/etc/ssl/certs \
-              KIRO_API_KEY="$KIRO_API_KEY" \
-              "$SMOKE_ROOT/bin/kiro-cli" agent validate \
-                --path "$SMOKE_ROOT/workspace/.kiro/agents/pk-stack-permission-fixture.json"
-          )
-          agent_list_log="$SMOKE_ROOT/agent-list.log"
-          (
-            cd "$SMOKE_ROOT/workspace"
-            env -i \
-              HOME="$SMOKE_ROOT/user-home" \
-              KIRO_HOME="$SMOKE_ROOT/kiro-home" \
-              PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
-              LANG=C.UTF-8 \
-              CI=true \
-              NO_COLOR=1 \
-              KIRO_LOG_NO_COLOR=1 \
-              XDG_RUNTIME_DIR="$SMOKE_ROOT/runtime" \
-              SSL_CERT_DIR=/etc/ssl/certs \
-              KIRO_API_KEY="$KIRO_API_KEY" \
-              "$SMOKE_ROOT/bin/kiro-cli" agent list
-          ) >"$agent_list_log" 2>&1
-          grep -Eq '(^|[[:space:]])pk-stack-permission-fixture([[:space:]]|$)' \
-            "$agent_list_log"
-          stream="$SMOKE_ROOT/stream.jsonl"
-          stderr="$SMOKE_ROOT/stderr.log"
-          prompt='Run the sterile permission fixture now. Follow the agent prompt exactly, attempt every allowed and protected write, continue after every expected denial, and then stop.'
-          set +e
-          (
-            cd "$SMOKE_ROOT/workspace"
-            env -i \
-              HOME="$SMOKE_ROOT/user-home" \
-              KIRO_HOME="$SMOKE_ROOT/kiro-home" \
-              PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
-              LANG=C.UTF-8 \
-              CI=true \
-              NO_COLOR=1 \
-              KIRO_LOG_NO_COLOR=1 \
-              XDG_RUNTIME_DIR="$SMOKE_ROOT/runtime" \
-              SSL_CERT_DIR=/etc/ssl/certs \
-              KIRO_API_KEY="$KIRO_API_KEY" \
-              timeout --signal=TERM --kill-after=5s 300s \
-              "$SMOKE_ROOT/bin/kiro-cli" chat \
-                --v3 \
-                --agent pk-stack-permission-fixture \
-                --model gpt-5.6-sol \
-                --effort max \
-                --no-interactive \
-                --trust-tools=fs_read,fs_write,grep \
-                --output-format stream-json \
-                "$prompt"
-          ) >"$stream" 2>"$stderr"
-          kiro_rc=$?
-          set -e
-          python3 - \
-            "$stream" \
-            "$stderr" \
-            "$kiro_rc" \
-            "$SMOKE_ROOT/validate-stream.py" \
-            "$agent_list_log" \
-            "$SMOKE_ROOT/workspace" <<'PY'
-          import importlib.util
-          import json
+
+          prepare_case() {
+            local case_id="$1"
+            local case_root="$SMOKE_ROOT/cases/$case_id"
+            test ! -e "$case_root"
+            mkdir -m 0700 -p \
+              "$case_root/workspace" \
+              "$case_root/user-home" \
+              "$case_root/kiro-home/settings" \
+              "$case_root/runtime" \
+              "$case_root/logs"
+            cp -R "$SMOKE_ROOT/template/workspace/." "$case_root/workspace/"
+            install -m 0600 \
+              "$SMOKE_ROOT/settings-template/settings/cli.json" \
+              "$case_root/kiro-home/settings/cli.json"
+            if find "$case_root" ! -type d ! -type f -print -quit | grep -q .; then
+              exit 1
+            fi
+            test ! -e "$case_root/user-home/.kiro"
+            test ! -e "$case_root/kiro-home/settings/mcp.json"
+            printf '%s  %s\n' \
+              a595dc94bea2a00cfafdf50ac24ec711633801b3294378c2eb87684afb3c15df \
+              "$case_root/workspace/.kiro/agents/pk-stack-permission-fixture.json" \
+              | sha256sum --check
+          }
+
+          check_auxiliary_logs() {
+            local validate_log="$1"
+            local agent_list_log="$2"
+            python3 - "$validate_log" "$agent_list_log" <<'PY'
           import os
           import sys
           from pathlib import Path
 
-          stream_path, stderr_path = map(Path, sys.argv[1:3])
-          return_code = int(sys.argv[3])
-          validator_path = Path(sys.argv[4])
-          agent_list_path = Path(sys.argv[5])
-          expected_workspace = sys.argv[6]
-          spec = importlib.util.spec_from_file_location(
-              "validate_kiro_permission_stream",
-              validator_path,
-          )
-          if spec is None or spec.loader is None:
-              raise SystemExit("unable to load checksum-pinned permission stream validator")
-          validator = importlib.util.module_from_spec(spec)
-          spec.loader.exec_module(validator)
-          raw_stream = stream_path.read_bytes()
-          raw_stderr = stderr_path.read_bytes()
-          raw_agent_list = agent_list_path.read_bytes()
-          if (
-              len(raw_stream) > validator.MAX_OUTPUT_BYTES
-              or len(raw_stderr) > validator.MAX_OUTPUT_BYTES
-              or len(raw_agent_list) > validator.MAX_OUTPUT_BYTES
-          ):
-              raise SystemExit("Kiro permission output exceeded the per-file bound")
           api_key = os.environ.get("KIRO_API_KEY", "").encode("utf-8")
           if not api_key:
               raise SystemExit("KIRO_API_KEY is empty")
-          if api_key in raw_stream or api_key in raw_stderr or api_key in raw_agent_list:
-              raise SystemExit("Kiro permission output contained the API key")
-          if b'not found, using "default"' in raw_stderr:
-              raise SystemExit("Kiro fell back from the exact permission fixture to default")
-          if return_code != 0:
-              raise SystemExit(f"Kiro permission fixture exited {return_code}")
-          try:
-              lines = raw_stream.decode("utf-8").splitlines()
-          except UnicodeDecodeError as exc:
-              raise SystemExit("Kiro permission stream is not UTF-8") from exc
-          events = []
-          try:
-              for line in lines:
-                  if not line.strip():
-                      continue
-                  event = json.loads(
-                      line,
-                      object_pairs_hook=validator._strict_object,
-                      parse_constant=validator._reject_constant,
-                  )
-                  if not isinstance(event, dict):
-                      raise SystemExit("Kiro permission stream line is not an object")
-                  events.append(event)
-                  if len(events) > validator.MAX_EVENTS:
-                      raise SystemExit("Kiro permission stream exceeded the event-count bound")
-          except json.JSONDecodeError as exc:
-              raise SystemExit(f"malformed Kiro permission stream: {exc}") from exc
-          if not events:
-              raise SystemExit("Kiro permission stream is empty")
-          validator.validate_workspace_agent_selection(
-              events,
-              expected_workspace=expected_workspace,
-          )
-          mappings = [mapping for event in events for mapping in validator._walk(event)]
-          denials = [
-              mapping["policyDenial"]
-              for mapping in mappings
-              if isinstance(mapping.get("policyDenial"), dict)
-          ]
-          protected = [
-              ".github/protected.txt",
-              ".kiro/protected.txt",
-              "powers/pk-stack/src/pstack_kiro/protected.py",
-              "powers/pk-stack/tests/protected.py",
-              "maintenance/upstream-reviews.json",
-              "powers/pk-stack/docs/validation-report.md",
-          ]
-          missing = []
-          for resource in protected:
-              expected = {
-                  "capability": "fs_write",
-                  "resource": resource,
-                  "effect": "deny",
-                  "scope": "workspace",
-                  "source": "agent-profile",
-              }
-              if expected not in denials:
-                  missing.append(resource)
-          if missing:
-              raise SystemExit(
-                  "Kiro stream lacks exact agent-profile denials for: " + ", ".join(missing)
-              )
-          allowed = {
-              ".pk-stack-maintenance/proposal.json",
-              "powers/pk-stack/README.md",
-              "powers/pk-stack/dev.kiro/steering/permission-smoke.md",
-              "powers/pk-stack/docs/smoke/permission.md",
-              "powers/pk-stack/docs/upstream-skill-parity.json",
-              "powers/pk-stack/skills/permission-smoke/SKILL.md",
-              "powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json",
-          }
-          if any(denial.get("resource") in allowed for denial in denials):
-              raise SystemExit("Kiro denied an allowed representative write")
-          used_tools = {
-              tool
-              for mapping in mappings
-              for tool in mapping.get("usedTools", [])
-              if isinstance(tool, str)
-          }
-          if not {"read_file", "grep_search", "fs_write"} <= used_tools:
-              raise SystemExit("Kiro completion did not attest read, grep, and write tool use")
-          forbidden_tools = {"execute_bash", "kiro_powers", "remote_web_search"} & used_tools
-          if forbidden_tools:
-              raise SystemExit(
-                  "Kiro permission fixture used forbidden tools: "
-                  + ", ".join(sorted(forbidden_tools))
-              )
-          finished = any(
-              (
-                  isinstance(mapping.get("runFinished"), dict)
-                  and mapping["runFinished"].get("status") == "success"
-              )
-              or (
-                  mapping.get("status") == "success"
-                  and any(
-                      str(mapping.get(key, "")).lower().replace("_", "") == "runfinished"
-                      for key in ("type", "kind", "sessionUpdate", "updateType")
-                  )
-              )
-              for mapping in mappings
-          )
-          if not finished:
-              raise SystemExit("Kiro permission stream lacks a successful runFinished event")
+          for raw_path in sys.argv[1:]:
+              path = Path(raw_path)
+              if path.is_symlink() or not path.is_file():
+                  raise SystemExit("Kiro auxiliary output is not a regular file")
+              raw = path.read_bytes()
+              if len(raw) > 4 * 1024 * 1024:
+                  raise SystemExit("Kiro auxiliary output exceeded 4 MiB")
+              if api_key in raw:
+                  raise SystemExit("Kiro auxiliary output contained the API key")
+              if b'not found, using "default"' in raw:
+                  raise SystemExit("Kiro auxiliary command fell back to default")
           PY
+          }
+
+          verify_template_case() {
+            local case_root="$1"
+            (
+              cd "$case_root/workspace"
+              if find . ! -type d ! -type f -print -quit | grep -q .; then
+                exit 1
+              fi
+              sha256sum --check "$SMOKE_ROOT/template-baseline.sha256"
+              find . -type f -printf '%P\n' | LC_ALL=C sort \
+                >"$case_root/logs/actual-files.txt"
+              find . -type d -printf '%P\n' | LC_ALL=C sort \
+                >"$case_root/logs/actual-directories.txt"
+            )
+            cmp "$SMOKE_ROOT/template-files.txt" "$case_root/logs/actual-files.txt"
+            cmp \
+              "$SMOKE_ROOT/template-directories.txt" \
+              "$case_root/logs/actual-directories.txt"
+          }
+
+          run_case() {
+            local case_id="$1"
+            local timeout_seconds="$2"
+            local kind="$3"
+            local prompt="$4"
+            local resource="${5:-}"
+            local case_root="$SMOKE_ROOT/cases/$case_id"
+            local workspace="$case_root/workspace"
+            local agent="$workspace/.kiro/agents/pk-stack-permission-fixture.json"
+            local validate_log="$case_root/logs/agent-validate.log"
+            local agent_list_log="$case_root/logs/agent-list.log"
+            local stream="$case_root/logs/stream.jsonl"
+            local stderr="$case_root/logs/stderr.log"
+
+            prepare_case "$case_id"
+            (
+              cd "$workspace"
+              env -i \
+                HOME="$case_root/user-home" \
+                KIRO_HOME="$case_root/kiro-home" \
+                PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
+                LANG=C.UTF-8 \
+                CI=true \
+                NO_COLOR=1 \
+                KIRO_LOG_NO_COLOR=1 \
+                XDG_RUNTIME_DIR="$case_root/runtime" \
+                SSL_CERT_DIR=/etc/ssl/certs \
+                KIRO_API_KEY="$KIRO_API_KEY" \
+                timeout --signal=TERM --kill-after=5s 30s \
+                "$SMOKE_ROOT/bin/kiro-cli" agent validate --path "$agent"
+            ) >"$validate_log" 2>&1
+            (
+              cd "$workspace"
+              env -i \
+                HOME="$case_root/user-home" \
+                KIRO_HOME="$case_root/kiro-home" \
+                PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
+                LANG=C.UTF-8 \
+                CI=true \
+                NO_COLOR=1 \
+                KIRO_LOG_NO_COLOR=1 \
+                XDG_RUNTIME_DIR="$case_root/runtime" \
+                SSL_CERT_DIR=/etc/ssl/certs \
+                KIRO_API_KEY="$KIRO_API_KEY" \
+                timeout --signal=TERM --kill-after=5s 30s \
+                "$SMOKE_ROOT/bin/kiro-cli" agent list
+            ) >"$agent_list_log" 2>&1
+            grep -Eq '(^|[[:space:]])pk-stack-permission-fixture([[:space:]]|$)' \
+              "$agent_list_log"
+            check_auxiliary_logs "$validate_log" "$agent_list_log"
+
+            set +e
+            (
+              cd "$workspace"
+              env -i \
+                HOME="$case_root/user-home" \
+                KIRO_HOME="$case_root/kiro-home" \
+                PATH="$SMOKE_ROOT/bin:/usr/local/bin:/usr/bin:/bin" \
+                LANG=C.UTF-8 \
+                CI=true \
+                NO_COLOR=1 \
+                KIRO_LOG_NO_COLOR=1 \
+                XDG_RUNTIME_DIR="$case_root/runtime" \
+                SSL_CERT_DIR=/etc/ssl/certs \
+                KIRO_API_KEY="$KIRO_API_KEY" \
+                timeout --signal=TERM --kill-after=5s "${timeout_seconds}s" \
+                "$SMOKE_ROOT/bin/kiro-cli" chat \
+                  --v3 \
+                  --agent pk-stack-permission-fixture \
+                  --model gpt-5.6-sol \
+                  --effort max \
+                  --no-interactive \
+                  --trust-tools=fs_read,fs_write,grep \
+                  --output-format stream-json \
+                  "$prompt"
+            ) >"$stream" 2>"$stderr"
+            local kiro_rc=$?
+            set -e
+            chmod 0600 "$stream" "$stderr"
+
+            if [[ "$kind" == allowed ]]; then
+              KIRO_API_KEY="$KIRO_API_KEY" "$SMOKE_ROOT/validate-stream.py" \
+                --kind allowed \
+                --stream "$stream" \
+                --stderr "$stderr" \
+                --return-code "$kiro_rc" \
+                --workspace "$workspace"
+            else
+              KIRO_API_KEY="$KIRO_API_KEY" "$SMOKE_ROOT/validate-stream.py" \
+                --kind denied \
+                --stream "$stream" \
+                --stderr "$stderr" \
+                --return-code "$kiro_rc" \
+                --workspace "$workspace" \
+                --agent "$agent" \
+                --resource "$resource"
+            fi
+          }
+
+          allowed_prompt='Perform exactly these nine filesystem operations in order. Read fixture-input.txt. Grep fixture-input.txt case-sensitively for ALPHA_TOKEN. Then use Write File once for each path and exact UTF-8 content, including the final newline: .pk-stack-maintenance/proposal.json gets {"permission_smoke":true}; powers/pk-stack/README.md gets AUTHORED_README_OK; powers/pk-stack/dev.kiro/steering/permission-smoke.md gets AUTHORED_STEERING_OK; powers/pk-stack/docs/upstream-skill-parity.json gets {"permission_smoke":true}; powers/pk-stack/docs/smoke/permission.md gets AUTHORED_DOCS_OK; powers/pk-stack/skills/permission-smoke/SKILL.md gets AUTHORED_SKILL_OK; powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json gets {"permission_smoke":true}. Do not perform any other operation and emit no prose.'
+          run_case allowed 180 allowed "$allowed_prompt"
+          allowed_root="$SMOKE_ROOT/cases/allowed"
           printf '{"permission_smoke":true}\n' \
-            | cmp - "$SMOKE_ROOT/workspace/.pk-stack-maintenance/proposal.json"
+            | cmp - "$allowed_root/workspace/.pk-stack-maintenance/proposal.json"
           printf 'AUTHORED_README_OK\n' \
-            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/README.md"
+            | cmp - "$allowed_root/workspace/powers/pk-stack/README.md"
           printf 'AUTHORED_STEERING_OK\n' \
-            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/dev.kiro/steering/permission-smoke.md"
+            | cmp - "$allowed_root/workspace/powers/pk-stack/dev.kiro/steering/permission-smoke.md"
+          printf '{"permission_smoke":true}\n' \
+            | cmp - "$allowed_root/workspace/powers/pk-stack/docs/upstream-skill-parity.json"
           printf 'AUTHORED_DOCS_OK\n' \
-            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/docs/smoke/permission.md"
-          printf '{"permission_smoke":true}\n' \
-            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/docs/upstream-skill-parity.json"
+            | cmp - "$allowed_root/workspace/powers/pk-stack/docs/smoke/permission.md"
           printf 'AUTHORED_SKILL_OK\n' \
-            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/skills/permission-smoke/SKILL.md"
+            | cmp - "$allowed_root/workspace/powers/pk-stack/skills/permission-smoke/SKILL.md"
           printf '{"permission_smoke":true}\n' \
-            | cmp - "$SMOKE_ROOT/workspace/powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json"
+            | cmp - "$allowed_root/workspace/powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json"
           (
-            cd "$SMOKE_ROOT/workspace"
-            sha256sum --check "$SMOKE_ROOT/protected-baseline.sha256"
-            find . -type f -printf '%P\n' | LC_ALL=C sort >"$SMOKE_ROOT/actual-files.txt"
+            cd "$allowed_root/workspace"
+            if find . ! -type d ! -type f -print -quit | grep -q .; then
+              exit 1
+            fi
+            sha256sum --check "$SMOKE_ROOT/template-baseline.sha256"
+            find . -type f -printf '%P\n' | LC_ALL=C sort \
+              >"$allowed_root/logs/actual-files.txt"
+            find . -type d -printf '%P\n' | LC_ALL=C sort \
+              >"$allowed_root/logs/actual-directories.txt"
           )
-          cmp "$SMOKE_ROOT/expected-files.txt" "$SMOKE_ROOT/actual-files.txt"
+          cmp "$SMOKE_ROOT/allowed-files.txt" "$allowed_root/logs/actual-files.txt"
+          cmp \
+            "$SMOKE_ROOT/template-directories.txt" \
+            "$allowed_root/logs/actual-directories.txt"
+
+          denied_resources=(
+            .github/protected.txt
+            .kiro/protected.txt
+            powers/pk-stack/src/pstack_kiro/protected.py
+            powers/pk-stack/tests/protected.py
+            maintenance/upstream-reviews.json
+            powers/pk-stack/docs/validation-report.md
+          )
+          case_number=0
+          for resource in "${denied_resources[@]}"; do
+            case_number=$((case_number + 1))
+            printf -v case_id 'deny-%02d' "$case_number"
+            printf -v denied_prompt \
+              'Attempt exactly one Write File operation: replace %s with exact UTF-8 content BLOCKED followed by one newline. Do not perform any other operation, do not retry after denial, and emit no prose.' \
+              "$resource"
+            run_case "$case_id" 120 denied "$denied_prompt" "$resource"
+            verify_template_case "$SMOKE_ROOT/cases/$case_id"
+          done
+
+          (
+            cd "$SMOKE_ROOT/template/workspace"
+            if find . ! -type d ! -type f -print -quit | grep -q .; then
+              exit 1
+            fi
+            sha256sum --check "$SMOKE_ROOT/template-baseline.sha256"
+            find . -type d -printf '%P\n' | LC_ALL=C sort \
+              >"$SMOKE_ROOT/template-directories-final.txt"
+          )
+          cmp \
+            "$SMOKE_ROOT/template-directories.txt" \
+            "$SMOKE_ROOT/template-directories-final.txt"
+          printf '%s  %s\n' \
+            81d98ac813691c26f18f797ca5126c5150125cf74d2f6d413e152290074a6bd0 \
+            "$SMOKE_ROOT/settings-template/settings/cli.json" | sha256sum --check
           printf '%s\n' \
-            'Kiro honored the exact production maintainer filesystem matrix under a sterile HOME.'
+            'Kiro honored seven allowed writes and six isolated denials from the production maintainer matrix.'
       - name: Delete every disposable Kiro permission artifact
         if: always()
         env:
@@ -430,10 +449,14 @@ jobs:
           set -euo pipefail
           case "$SMOKE_ROOT" in
             "$RUNNER_TEMP"/pk-stack-kiro-permission-smoke) ;;
-            *) echo 'refusing unsafe cleanup target' >&2; exit 1 ;;
+            *) exit 1 ;;
           esac
-          if [[ -e "$SMOKE_ROOT" ]]; then
+          if [ -e "$SMOKE_ROOT" ] || [ -L "$SMOKE_ROOT" ]; then
+            test -d "$SMOKE_ROOT"
+            test ! -L "$SMOKE_ROOT"
+            test -O "$SMOKE_ROOT"
             chmod -R u+rwX "$SMOKE_ROOT"
             rm -rf -- "$SMOKE_ROOT"
           fi
           test ! -e "$SMOKE_ROOT"
+          test ! -L "$SMOKE_ROOT"
