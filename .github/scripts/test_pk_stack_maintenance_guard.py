@@ -814,10 +814,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
     OTHER_SESSION_ID = "sess_22222222-2222-4222-8222-222222222222"
     CALL_ID = "12345678-1234-4123-8123-123456789abc"
     REPLAY_ID = "sanitizedReplayId_1234567890123456789012"
-    FOCUS_TITLE = (
-        "Authentication smoke only. Invoke no tools and reply exactly "
-        "PK-STACK-KIRO-AUTH-OK."
-    )
+    FOCUS_TITLE = stream_guard.MARKER
 
     @staticmethod
     def stream(*events: dict[str, object]) -> bytes:
@@ -838,16 +835,24 @@ class KiroCredentialStreamTests(unittest.TestCase):
 
     @classmethod
     def run_finished(
-        cls, *, session_id: str | None = None, final_text: str | None = None
+        cls,
+        *,
+        session_id: str | None = None,
+        final_text: str | None = None,
+        status: str = "success",
+        stop_reason: str = "end_turn",
+        truncated: bool = False,
     ) -> dict[str, object]:
         return {
             "type": "runFinished",
             "data": {
                 "sessionId": session_id or cls.SESSION_ID,
-                "status": "success",
-                "stopReason": "end_turn",
-                "finalText": final_text or stream_guard.MARKER,
-                "finalTextTruncated": False,
+                "status": status,
+                "stopReason": stop_reason,
+                "finalText": (
+                    final_text if final_text is not None else stream_guard.MARKER
+                ),
+                "finalTextTruncated": truncated,
             },
         }
 
@@ -967,6 +972,38 @@ class KiroCredentialStreamTests(unittest.TestCase):
         chunks = ["PK", "-", "STACK", "-K", "IRO", "-A", "UTH", "-", "OK"]
         raw = self.complete(*(self.agent_chunk(chunk) for chunk in chunks))
         self.assertEqual(self.validate(raw), {"ok": True, "events": 11})
+
+    def test_accepts_one_bounded_challenge_with_exact_assistant_final_equality(self) -> None:
+        response = f"{stream_guard.MARKER}\nAcknowledged."
+        raw = self.stream(
+            self.run_started(),
+            self.agent_chunk(response),
+            self.run_finished(final_text=response),
+        )
+        self.assertEqual(self.validate(raw), {"ok": True, "events": 3})
+
+    def test_rejects_missing_duplicate_or_overlong_challenge_response(self) -> None:
+        responses = (
+            "no challenge present",
+            f"{stream_guard.MARKER} {stream_guard.MARKER}",
+            stream_guard.MARKER
+            + "x" * (
+                stream_guard.MAX_ASSISTANT_RESPONSE_BYTES
+                - len(stream_guard.MARKER.encode())
+                + 1
+            ),
+        )
+        for response in responses:
+            with self.subTest(response_bytes=len(response.encode())), self.assertRaises(
+                stream_guard.StreamError
+            ):
+                self.validate(
+                    self.stream(
+                        self.run_started(),
+                        self.agent_chunk(response),
+                        self.run_finished(final_text=response),
+                    )
+                )
 
     def test_accepts_exact_failed_and_completed_bootstrap_pairs(self) -> None:
         for terminal in (
@@ -1384,6 +1421,83 @@ class KiroCredentialStreamTests(unittest.TestCase):
                         finish,
                     )
                 )
+
+    def test_run_finished_failure_reports_only_bounded_non_content_metadata(self) -> None:
+        unexpected_final = f"sensitive-prefix {stream_guard.MARKER} sensitive-suffix"
+        with self.assertRaises(stream_guard.StreamError) as mismatch_caught:
+            self.validate(
+                self.stream(
+                    self.run_started(),
+                    self.agent_chunk(stream_guard.MARKER),
+                    self.run_finished(final_text=unexpected_final),
+                )
+            )
+        mismatch_message = str(mismatch_caught.exception)
+        mismatch_diagnostic = json.loads(
+            mismatch_message.split("run_finished_diagnostic=", 1)[1]
+        )
+        self.assertEqual(
+            mismatch_diagnostic,
+            {
+                "assistant_final_equal": False,
+                "finalTextTruncated": False,
+                "final_text_utf8_bytes": len(unexpected_final.encode()),
+                "marker_occurrence_count": 1,
+                "status": "success",
+                "stopReason": "end_turn",
+            },
+        )
+        self.assertNotIn(unexpected_final, mismatch_message)
+        self.assertNotIn(stream_guard.MARKER, mismatch_message)
+        self.assertNotIn(self.SESSION_ID, mismatch_message)
+        self.assertNotIn("sensitive-prefix", mismatch_message)
+
+        equal_non_marker = "sensitive-equal-non-marker"
+        with self.assertRaises(stream_guard.StreamError) as equal_caught:
+            self.validate(
+                self.stream(
+                    self.run_started(),
+                    self.agent_chunk(equal_non_marker),
+                    self.run_finished(final_text=equal_non_marker),
+                )
+            )
+        equal_message = str(equal_caught.exception)
+        equal_diagnostic = json.loads(
+            equal_message.split("run_finished_diagnostic=", 1)[1]
+        )
+        self.assertTrue(equal_diagnostic["assistant_final_equal"])
+        self.assertEqual(equal_diagnostic["marker_occurrence_count"], 0)
+        self.assertNotIn(equal_non_marker, equal_message)
+
+        with self.assertRaises(stream_guard.StreamError) as failed_caught:
+            self.validate(
+                self.stream(
+                    self.run_started(),
+                    self.agent_chunk(stream_guard.MARKER),
+                    self.run_finished(status="failed"),
+                )
+            )
+        failed_diagnostic = json.loads(
+            str(failed_caught.exception).split("run_finished_diagnostic=", 1)[1]
+        )
+        self.assertEqual(failed_diagnostic["status"], "failed")
+        self.assertIsNone(failed_diagnostic["assistant_final_equal"])
+
+        unsafe_status = "sensitiveRawStatus"
+        with self.assertRaises(stream_guard.StreamError) as unsafe_caught:
+            self.validate(
+                self.stream(
+                    self.run_started(),
+                    self.agent_chunk(stream_guard.MARKER),
+                    self.run_finished(status=unsafe_status),
+                )
+            )
+        unsafe_message = str(unsafe_caught.exception)
+        unsafe_diagnostic = json.loads(
+            unsafe_message.split("run_finished_diagnostic=", 1)[1]
+        )
+        self.assertIsNone(unsafe_diagnostic["status"])
+        self.assertNotIn(unsafe_status, unsafe_message)
 
     def test_rejects_malformed_duplicate_and_non_finite_json(self) -> None:
         for raw in (
@@ -2731,6 +2845,14 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertIn(
             'KIRO_API_KEY="$KIRO_API_KEY"',
+            credential_invoke.group(0),  # type: ignore[union-attr]
+        )
+        self.assertIn(
+            "prompt='PK-STACK-KIRO-AUTH-OK'",
+            credential_invoke.group(0),  # type: ignore[union-attr]
+        )
+        self.assertNotIn(
+            "Authentication smoke only. Invoke no tools",
             credential_invoke.group(0),  # type: ignore[union-attr]
         )
         embedded_agent = re.search(

@@ -15,6 +15,7 @@ MAX_EVENTS = 4096
 MAX_MARKER_DIAGNOSTIC_PATHS = 8
 MAX_MARKER_DIAGNOSTIC_PATH_LENGTH = 256
 MAX_FOCUS_TITLE_BYTES = 512
+MAX_ASSISTANT_RESPONSE_BYTES = 256
 _AGENT_MESSAGE_TAGS = {"agentmessagechunk", "assistantmessagechunk"}
 _DISCRIMINATOR_KEYS = {"kind", "sessionupdate", "type", "updatetype"}
 _SESSION_UPDATE_KINDS = {
@@ -32,6 +33,21 @@ _TOOL_CALL_ID = re.compile(_UUID)
 _SESSION_ID = re.compile(rf"sess_{_UUID}")
 _REPLAY_ID = re.compile(r"[A-Za-z0-9_-]{40}")
 _SAFE_PATH_KEY = re.compile(r"[A-Za-z_][A-Za-z0-9_-]{0,63}")
+_RUN_STATUS_DIAGNOSTIC_VALUES = {
+    "cancelled",
+    "completed",
+    "error",
+    "failed",
+    "success",
+}
+_STOP_REASON_DIAGNOSTIC_VALUES = {
+    "cancelled",
+    "end_turn",
+    "error",
+    "max_tokens",
+    "stop_sequence",
+    "tool_use",
+}
 _FOCUS_TITLE_MARKER_PATHS = {
     "$.data.update._meta.kiro.focus.title",
     "$.data.update._meta.kiro.title",
@@ -169,6 +185,14 @@ def _marker_diagnostic(value: Any) -> tuple[list[str], int]:
     return paths, match_count
 
 
+def _is_bounded_challenge_response(text: str) -> bool:
+    try:
+        response_bytes = len(text.encode("utf-8"))
+    except UnicodeEncodeError:
+        return False
+    return 0 < response_bytes <= MAX_ASSISTANT_RESPONSE_BYTES and text.count(MARKER) == 1
+
+
 def _focus_update_title(event: dict[str, Any]) -> str | None:
     _, update = _session_envelope(event, label="focus-update")
     if update.get("sessionUpdate") != "session_info_update":
@@ -287,7 +311,49 @@ def _validate_run_started(event: dict[str, Any]) -> None:
         raise StreamError("Kiro stream does not begin with the exact v3 runStarted event")
 
 
-def _validate_run_finished(event: dict[str, Any]) -> tuple[str, str]:
+def _run_finished_diagnostic(data: dict[str, Any], *, assistant_text: str | None) -> dict[str, Any]:
+    final_text = data.get("finalText")
+    try:
+        final_text_bytes = len(final_text.encode("utf-8")) if isinstance(final_text, str) else None
+    except UnicodeEncodeError:
+        final_text_bytes = None
+    return {
+        "assistant_final_equal": (
+            assistant_text == final_text
+            if assistant_text is not None and isinstance(final_text, str)
+            else None
+        ),
+        "finalTextTruncated": (
+            data.get("finalTextTruncated") if type(data.get("finalTextTruncated")) is bool else None
+        ),
+        "final_text_utf8_bytes": final_text_bytes,
+        "marker_occurrence_count": (
+            final_text.count(MARKER) if isinstance(final_text, str) else None
+        ),
+        "status": (
+            data.get("status")
+            if isinstance(data.get("status"), str)
+            and data.get("status") in _RUN_STATUS_DIAGNOSTIC_VALUES
+            else None
+        ),
+        "stopReason": (
+            data.get("stopReason")
+            if isinstance(data.get("stopReason"), str)
+            and data.get("stopReason") in _STOP_REASON_DIAGNOSTIC_VALUES
+            else None
+        ),
+    }
+
+
+def _raise_run_finished_failure(data: dict[str, Any], *, assistant_text: str | None) -> None:
+    diagnostic = _run_finished_diagnostic(data, assistant_text=assistant_text)
+    raise StreamError(
+        "Kiro runFinished did not attest one bounded successful challenge; "
+        f"run_finished_diagnostic={json.dumps(diagnostic, separators=(',', ':'), sort_keys=True)}"
+    )
+
+
+def _validate_run_finished(event: dict[str, Any]) -> tuple[str, str, dict[str, Any]]:
     if set(event) != {"data", "type"} or event.get("type") != "runFinished":
         raise StreamError("Kiro stream does not end with the exact runFinished event")
     data = event.get("data")
@@ -307,17 +373,17 @@ def _validate_run_finished(event: dict[str, Any]) -> tuple[str, str]:
         data.get("status") != "success"
         or data.get("stopReason") != "end_turn"
         or data.get("finalTextTruncated") is not False
-        or final_text != MARKER
+        or not isinstance(final_text, str)
     ):
-        raise StreamError("Kiro runFinished did not attest the exact successful marker")
-    return session_id, final_text
+        _raise_run_finished_failure(data, assistant_text=None)
+    return session_id, final_text, data
 
 
 def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
     if len(events) < 3:
         raise StreamError("Kiro stream is too short for a complete authenticated turn")
     _validate_run_started(events[0])
-    finished_session, finished_text = _validate_run_finished(events[-1])
+    finished_session, finished_text, finished_data = _validate_run_finished(events[-1])
 
     bootstrap_seen = False
     bootstrap_pending: tuple[str, str] | None = None
@@ -400,10 +466,10 @@ def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
     if not chunks or agent_session is None:
         raise StreamError("Kiro emitted no exact agent-message chunks")
     assistant_text = "".join(chunks)
-    if assistant_text != MARKER:
-        raise StreamError("Kiro did not emit the exact marker in agent-message content")
-    if finished_text != assistant_text or finished_session != agent_session:
-        raise StreamError("Kiro runFinished does not match the exact agent-message result")
+    if finished_session != agent_session:
+        raise StreamError("Kiro runFinished does not match the agent-message session")
+    if finished_text != assistant_text or not _is_bounded_challenge_response(assistant_text):
+        _raise_run_finished_failure(finished_data, assistant_text=assistant_text)
     if bootstrap_session is not None and bootstrap_session != finished_session:
         raise StreamError("Kiro bootstrap and runFinished sessions do not match")
     return assistant_text
