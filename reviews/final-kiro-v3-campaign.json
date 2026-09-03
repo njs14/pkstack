@@ -11,8 +11,7 @@
     "red_runtime_sha256": "b4a0091a163077296b408b243215744a952e25985c4a28154a3d023e6b62e3f6",
     "repaired_runtime_sha256": "83a05fcc163e8f72b418cb72834967e8d274bebfe872d4608ad393c18469cfe9",
     "tracked_diff_from_candidate_exit_code": 0,
-    "campaign_worktree_matches_candidate": true,
-    "evidence_carrier_commit": null
+    "campaign_worktree_matches_candidate": true
   },
   "isolation": {
     "root": "/private/tmp/pk-stack-final-kiro.qL6A0S",
@@ -100,6 +99,7 @@
     },
     {
       "attempt": 2,
+      "source_write_preceded_attempt": true,
       "exit_code": 0,
       "duration_ms": 24255,
       "passed": true,
@@ -219,8 +219,12 @@
     "default_bridge_scope": "local",
     "default_bridge_subnet": "172.17.0.0/16",
     "default_bridge_gateway": "172.17.0.1",
-    "bridge_change_window": "after the 02:31:22Z pre-snapshot and during lab startup, before the first deployment",
-    "bridge_change_cause_established": false
+    "bridge_change_window": "after the 02:31:22Z cached pre-snapshot and during Docker Desktop VM resume, before the first deployment",
+    "bridge_change_cause_established": true,
+    "bridge_change_cause": "docker_desktop_resource_saver_vm_resume",
+    "docker_desktop_auto_pause_seconds": 300,
+    "pre_snapshot_served_from_stopped_engine_cache": true,
+    "vm_resume_trigger": "read-only Docker containers-list API request"
   },
   "raw_evidence": {
     "committed": false,

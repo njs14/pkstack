@@ -163,14 +163,20 @@ pre-existing `pklab-*` image records (SHA-256
 `4d6bc3e1d5a3665280921a971e988ea6dd62e8f05b1bc86a59a3a9278bfe3460`).
 
 The network inventory was semantically identical by name, driver, and scope, but **not**
-byte-identical by object ID. Docker's built-in `bridge` retained driver `bridge`, local scope,
-subnet `172.17.0.0/16`, and gateway `172.17.0.1`, but its ID changed from
+byte-identical by object ID. Docker Desktop's five-minute Resource Saver had stopped its VM before
+the baseline; its host backend served that network-list request from the stopped-engine cache. The
+first live, read-only container-list request during startup resumed the VM, and Docker recreated
+its built-in `bridge`. The bridge retained driver `bridge`, local scope, subnet `172.17.0.0/16`,
+and gateway `172.17.0.1`, but its opaque ID changed from
 `825882251a325749072379f7e2db68125e24f1d2791c8309f6062cd158f4b133` to
 `f69b57cbdb8a9976f6719f9962fccc520f28b5c05428ed3ad291b31ef2be5e84`. Docker reports the new
-bridge was created at `2026-09-03T02:31:29.761118125Z`: after the 02:31:22Z pre-snapshot, during
-the startup window, and before the first deployment. The code and teardown target only the exact
-claim-bound `pk-stack-lab-net`; causality for the built-in bridge refresh was not established, so
-this report does not claim full network byte preservation.
+bridge was created at `2026-09-03T02:31:29.761118125Z`: after the 02:31:22Z cached pre-snapshot
+and before the first deployment. Docker Desktop's host and VM logs independently record the idle
+shutdown, cached request, VM initialization, old-resource de-registration, and new-resource
+registration. PK-Stack creates, validates, and removes only the exact claim-bound
+`pk-stack-lab-net`; no repository command targets Docker's built-in bridge. This report therefore
+does not claim byte preservation of a host-managed default-network ID across Resource Saver
+transitions.
 
 This realistic session also inherited the user's normal Kiro configuration. It invoked configured
 `memory-recall` and `memory-distill` hooks, included user-level `memory-steering.md`, and wrote

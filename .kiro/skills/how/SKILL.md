@@ -15,6 +15,11 @@ mechanics; use `why` to investigate motivation.
 Read [`references/roles-and-critique.md`](references/roles-and-critique.md)
 before delegating or critiquing.
 
+Start with the matching feature record and follow its explicit related links. If those do not
+explain the runtime boundary, record the missing question and issue one bounded, targeted
+`.pstack/bin/projectctl knowledge search "<specific mechanism>" --budget 1200 --output json` query.
+Record the selected depth and escalation reason; never inject the whole Wiki.
+
 ## Choose the path
 
 1. Interpret the question and state a reasonable scope when it is ambiguous.

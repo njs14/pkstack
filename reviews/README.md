@@ -23,10 +23,15 @@ records, followed by `fable-round-3-incomplete.md`, which has no verdict or acce
 `fable-round-4.md` records the review of combined commit `ced867c`; it returned request changes with
 two material findings. Both are locally remediated on executable commit `cb2cb09`; the exact
 `fable-r5-902` lifecycle, frozen 14-path control map, external-judge result, and cleanup record are
-in `fable-r5-live-proof.md`. The newer complete-candidate Floci campaign is recorded in
-`final-floci-campaign.md` and `final-floci-campaign.json`. A new Fable review must still accept
-that immutable evidence, so no Fable-accepted release exists yet. The historical selected-profile
-workflow evidence is in
+in `fable-r5-live-proof.md`. The newer candidate-A Floci campaign is recorded in
+`final-floci-campaign.md` and `final-floci-campaign.json`; candidate B was the executable for the
+fresh Kiro campaign, and candidate C was the immutable target of `fable-round-5.md`. Round 5 used
+Fable 5.1 at `xhigh` and returned request changes with material findings `FBL-037` through
+`FBL-039`; it is not an acceptance record. The remediation tree also retains the bounded
+self-maintenance evidence in `pk-stack-maintenance-campaign.md`/`.json` and the representative
+skill-route evidence in `skill-route-campaign.md`/`.json`. A later Fable review must still accept
+the exact immutable remediation tree, so no Fable-accepted release exists yet. The historical
+selected-profile workflow evidence is in
 `kiro-v3-campaign.md` with a bounded JSON projection in
 `kiro-v3-campaign.json`, the exact persisted goal in `kiro-v3-campaign-goal.json`, and the exact
 Kiro input history in `kiro-v3-campaign-history.txt`. Twelve exact non-secret Kiro log records are

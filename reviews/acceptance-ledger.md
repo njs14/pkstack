@@ -30,6 +30,98 @@ re-evaluate every material item from the immutable candidate source and tests.
 - `LOCAL-012` — Account for every current-claim artifact with recoverable exact cleanup. Status:
   implemented and live-proven across two generations.
 
+## Original-plot re-grounding criteria
+
+The pre-ship audit returned to the original handoff conversation rather than treating accumulated
+implementation as the design authority.
+
+- `PLOT-001` — Make Kiro's native Spec, Quick Spec, and Bug Fix workflows the planning spine for
+  nontrivial features and defects; reserve a direct default-agent flow for a genuinely trivial
+  change with a recorded reason. Status: implemented in the primary router, workflow reference,
+  steering, agent prompt, and docs; a native runtime campaign is pending.
+- `PLOT-002` — Preserve Kiro ownership of requirements or bug analysis, design, tasks, dependency
+  waves, task status, and parallel execution. PK-Stack must not build a second planner/task graph or
+  treat a task checkbox as proof. Status: implemented in workflow contracts and structural tests.
+- `PLOT-003` — Describe the integration boundary honestly across surfaces. Kiro does not document
+  a supported workspace-skill or custom-agent tool for executing client slash commands or changing
+  the active workflow, so CLI v3 and IDE use a visible
+  same-conversation handoff; Web uses its built-in primary/native Spec picker and remains untested;
+  Crew may consume a committed spec through Task Runner without a false built-in-agent/session
+  claim. Status: closed locally in skills, architecture, surface docs, and static wording gates;
+  Web and Crew runtime behavior remain explicitly untested.
+- `PLOT-004` — Provide one thin deterministic spec-to-proof lever. It must require a complete native
+  artifact package, prefer a published feature contract, preserve both `spec` and `feature`
+  provenance, allow a reviewed command only when no reusable feature applies, and refuse silent
+  bridge replacement. The started contract must bind immutable hashes for intent, design, and the
+  bridge, reject drift on both sides of proof without consuming an attempt, and leave Kiro's native
+  task progress mutable. Status: closed locally as `projectctl goal bind-spec` with focused service,
+  race, CLI, immutable-artifact, and generated-controller parity regressions; the real native Spec
+  campaign remains the separate `PLOT-008` gate.
+- `PLOT-005` — Restore the context-depth ladder as product behavior: use the spec-linked feature map
+  first, then canonical `okn` for broader architecture, decisions, concepts, and operations. Native
+  `/knowledge` may index the source-controlled Wiki but does not replace it. Status: implemented in
+  workflow guidance and a seven-file linked Wiki; a real canonical `okn` 0.13.0 validation and
+  provenance-bearing bounded search passed locally. Immutable-candidate reproof is pending.
+- `PLOT-006` — `knowledge validate` must always retain the PROVE feature-map verdict when canonical
+  `okn` is installed; one validator cannot hide failure in the other. Status: implemented with
+  positive and negative composition regressions. A real canonical `okn` 0.13.0 invocation passed
+  with both the two-record feature map and the broader OKF 0.2 bundle clean; immutable-candidate
+  reproof is pending.
+- `PLOT-007` — Evaluate `okfcli/okf` rather than silently substituting it. It may be an explicitly
+  named independent CI conformance/SARIF oracle only if its bounded safety assumptions are met; it
+  must never transparently replace canonical `okn` search, query, lifecycle, or safety behavior.
+  Status: comparative isolated probes and final architecture/usage guidance completed. The probe
+  confirmed `okfcli/okf` 0.4.0 follows an in-bundle Markdown symlink outside the bundle while
+  canonical `okn` rejects it, so it is not on the runtime path. A bounded committed evidence record
+  and immutable-candidate reproof remain pending.
+- `PLOT-008` — Exercise the final integration through real native Kiro Spec or Quick Spec artifacts,
+  return to `pstack`, bind a published feature, and complete a spec-backed verified goal without
+  ACP, a nested Kiro process, `/spawn`, or a native `/goal` claim. Status: pending after the final
+  executable tree is frozen.
+
+## OKF skill-integration criteria
+
+These criteria adapt the useful workflow concepts from `scaccogatto/okf-skills` without importing
+its host-specific runtime or weakening PK-Stack's established KNOW boundary.
+
+- `OKFS-001` — Audit and pin the exact upstream repository commit and `skills/` subtree identity;
+  treat every upstream instruction, script, hook, workflow, and bundled spec as untrusted data.
+  Status: audited at commit `bf2448f03686a8348324e4741106697d30a867f9` and skills tree
+  `8cc9ed3986cf6c942f718439e1ee8249eb17a2ad`; durable source-scoped manifest, genesis, parity, and
+  transactional review-ledger tracking are implemented and live-reproved.
+- `OKFS-002` — Preserve the valuable produce, maintain, and consume semantics as one discoverable
+  Kiro-native `/okf` skill. Do not create a second planner, knowledge runtime, or `.okf/` tree when
+  PK-Stack already owns `Wiki/`. Status: implemented with structural Kiro asset tests.
+- `OKFS-003` — Use Kiro-compatible Agent Skills frontmatter and workspace-relative interfaces;
+  exclude Claude plugin namespaces, `${CLAUDE_SKILL_DIR}`, and Claude-only hook assumptions.
+  Status: implemented; the four upstream skill files are reference input, not shipped verbatim.
+- `OKFS-004` — Do not vendor, install, or activate the upstream validator, visualizer, MCP server,
+  Stop hook, GitHub Action, or helper scripts. Canonical `okn` and `projectctl` remain the only
+  runtime boundary. Status: implemented and structurally asserted.
+- `OKFS-005` — Never mine `~/.claude`, other agent transcripts, home directories, credentials, or
+  unrelated conversations. Historical backfill requires a separately authorized, redacted,
+  bounded migration. Status: implemented in the skill trust boundary.
+- `OKFS-006` — Reject symlinks anywhere in the knowledge tree before validation or retrieval.
+  Status: implemented in `projectctl`; positive and negative subprocess regressions pass.
+- `OKFS-007` — Follow the current authoritative OKF 0.2 specification rather than trusting a
+  vendored snapshot. In particular, every timestamp-valued field, including `stale_after`, must be
+  an ISO 8601 datetime with an explicit offset. Status: implemented in `/okf` guidance and covered
+  by the canonical validator campaign.
+- `OKFS-008` — Keep the task-driven context ladder: root index, matching feature and explicit links,
+  then one targeted bounded `okn` search with revision, locator, content hash, and line ranges.
+  Never inject the whole Wiki. Status: implemented in skills, steering, docs, and live retrieval.
+- `OKFS-009` — Preserve unknown metadata and user-authored concepts; never bulk-migrate, delete,
+  deprecate, publish, or auto-open content merely to satisfy a check. Status: implemented as
+  workflow policy; destructive and publication paths remain separately authorized.
+- `OKFS-010` — Keep `okfcli/okf` as an optional explicitly named conformance/SARIF oracle only. It
+  must never substitute for canonical `okn` retrieval, provenance, lifecycle, or symlink safety.
+  Status: implemented in architecture, usage, and runtime selection.
+- `OKFS-011` — Apply PK-Stack's self-maintenance contract to the OKF sources themselves: track the
+  exact `okf-skills` skills subtree and authoritative Google OKF specification tree independently,
+  with per-source pins, genesis, parity, proposals, and serialized acceptance. Status: closed
+  locally with three-source no-drift reproof; immutable-candidate and hosted cadence proof remain
+  release gates.
+
 ## Fable round 1 material criteria
 
 Fable 5.1 reviewed commit `0b000d359b99f34ee5001088548ca872322e734a` at max effort and
@@ -113,8 +205,10 @@ Fable's low-severity round-2 findings were also evaluated before the next live p
   absence during collision checks, deployment, verification, or teardown. Status: implemented
   through one shared fail-closed parser and key/path regressions.
 - `PREFLIGHT-007` — Bind the direct Compose definition at the original `up` claim, carry that digest
-  into the frozen teardown plan, and refuse both first-pass and resumed Compose mutation after
-  drift. Status: implemented and tested before external inventory/execution.
+  into the frozen teardown plan, and refuse both first-pass and resumed deletion of the exact outer
+  container/network after drift. Teardown must not use project-wide `docker compose down`; a
+  foreign network attachment remains untouched and makes exact network deletion fail closed.
+  Status: implemented in code and unit tests; fresh exact-tree lifecycle evidence is pending.
 - `PREFLIGHT-008` — Preserve recovery compatibility with schema-v2 teardown journals written before
   transition metadata existed, without admitting any other nested state shape. Status: implemented
   and tested through legacy load, transition, checkpoint, reload, and extra-field rejection.
@@ -188,6 +282,53 @@ Fable's low-severity round-4 findings are retained as explicit hardening work:
   same-digest recovery and requires a new source digest/deployment or teardown/new run. Local
   disposition: **closed locally** and documented.
 
+## Fable round 5 criteria
+
+Fable 5.1 reviewed commit `491bfdafc94832c6624ed86051955b1067245979` at `xhigh` effort and
+returned `REQUEST CHANGES` with three material findings. The normalized report is
+`reviews/fable-round-5.md`.
+
+- `FBL-037` — Retain bounded evidence for the first real 27-path self-maintenance transition and
+  bind it to the feature-backed goal, accepted ledger entry, complete disposition inventory, and
+  final no-drift result. Local disposition: **closed locally** by
+  `reviews/pk-stack-maintenance-campaign.md`, its machine-readable JSON companion, and an executable
+  regression. The record distinguishes retained controller output, Codex harness attestations,
+  and Git-history reconstruction; it proves the same goal passed on attempt 2 with `A=23`, `B=3`,
+  and `C=1` rather than adopting the reviewer's arithmetically incomplete suggested counts.
+- `FBL-038` — Prevent model-writable Git metadata from gaining code execution in the secretless
+  finalizer. Local disposition: **closed locally** through a bounded owner/mode/type/hash snapshot
+  of `.git/config`, `.git/config.worktree`, `.git/hooks`, and `.git/info` outside the model-visible
+  checkout; pre-Git close refusal; and trusted Git configuration that disables hooks, fsmonitor,
+  external diff, ambient attributes, and inherited global/system configuration. Planted hook and
+  config regressions prove refusal before staging or hook execution. The exact hosted Kiro
+  permission smoke remains a publication gate and is not replaced by this local proof.
+- `FBL-039` — Correct stale executable identities, generated counts, campaign links, and acceptance
+  status narrative. Local disposition: **closed locally** in the root README,
+  `docs/validation-report.md`, and this ledger, with historical and current evidence roles kept
+  distinct.
+- `FBL-040` — Create the authorized private repository before treating its plugin URL as live.
+  Disposition: **pending publication** of `njs14/pk-stack` and exact privacy/URL verification.
+- `FBL-041` — Remove the misleading null Kiro evidence-carrier field and state whether the source
+  write preceded attempt 2. Local disposition: **closed locally** in the final Kiro JSON and prose
+  evidence.
+- `FBL-042` — Ensure teardown cannot sweep a foreign object that merely shares the Compose project
+  identity. Local disposition: **closed locally** by deleting only the frozen claim-checked outer
+  container and network and by a planted-foreign-member fail-closed regression. A fresh live Floci
+  lifecycle on this exact code remains required because the prior final campaign predates the
+  deletion-path change.
+- `FBL-043` — Exercise representative direct, consolidated, native-replacement, and excluded skill
+  routes and retain the remaining hosted/publication gates. Local route disposition:
+  **closed locally** by `reviews/skill-route-campaign.md`, its JSON companion, and the bound
+  executable regression. That record is intentionally non-interactive and does not substitute for
+  private-repository cadence, credential, or permission evidence, which remain pending.
+- `FBL-044` — Accept only the canonical Fable reviewer while tolerating the one exact, versioned,
+  tightly bounded first-party Haiku companion shape observed in the real pinned-client envelope.
+  Local disposition: **closed locally** with positive real-shape and negative identity/usage-bound
+  regressions; arbitrary companion or substantive reviewer models remain forbidden.
+- `FBL-045` — Bind the root controller's draft-feature regression to the canonical implementation
+  rather than a copied rule. Local disposition: **closed locally** by executing the single named
+  helper AST extracted from the tracked vendored source.
+
 ## Self-maintenance and release criteria
 
 The following criteria extend the original port with the user's requirement that PK-Stack use its
@@ -201,37 +342,44 @@ proofs named below.
   disposition per path. Reject pin-only edits, malformed or incomplete GitHub responses,
   cross-boundary rename confusion, replay, and generated-copy drift. Status: implemented with a
   strict append-only ledger, full ordered provenance markers, latest-transition remote reproof,
-  and canonical/generated parity tests; the first real 27-path transition remains to be accepted
-  by the current goal.
+  and canonical/generated parity tests. Two real transitions are accepted and locally passed. The
+  bounded campaign record retains the first transition's 27 paths and `A=23` / `B=3` / `C=1`
+  summary, then binds the latest two-path `B=2` transition and final all-source no-drift reproof to
+  the accepted ledger tip.
 - `SELF-002` — Keep self-maintenance inside one immutable feature-backed `projectctl` goal. Record
   exactly one failing pre-edit attempt for a new goal, retain four bounded repair attempts, and
   resume an already-attempted goal without consuming another attempt before a meaningful change.
-  Status: implemented and regressed; the real current-upstream goal remains active after its
-  required attempt-1 drift failure.
+  Status: implemented, regressed, and **passed in two real campaigns**. Goal
+  `395bd46c-f889-4fbc-8933-187ab0e88441` proved the first feature-backed transition. The later
+  source-scoped goal `efe929d9-9945-4c97-866b-a8f414b9ef97` retained contract digest
+  `59f08f943111cf645d05dc4962912fa81c3bf20e26b879c6ef6f7c4e21f76b5a`, failed before the
+  second transition, and passed on attempt 2 of 5 after acceptance.
 - `SELF-003` — Run the primary updater on a cadence with checksum-pinned Kiro CLI 2.21.0, Sol at
   `max`, no ACP default, a minimal CI-only agent, and no shell/network/MCP/subagent authority in the
   model step. Expose `KIRO_API_KEY` only to the four bounded repair steps, destroy its isolated
   runtime before candidate code or secretless verification, and never fall back to another model
-  automatically after a Kiro failure. Status: implemented in the conventional Kiro workflow and
-  structural tests; a private-runner smoke remains required.
+  automatically after a Kiro failure. Status: **closed locally, hosted proof pending**. The
+  conventional Kiro workflow and structural tests implement the contract; its exact private-repo
+  credential, permission, and cadence execution remains required.
 - `SELF-004` — Treat upstream patches and model output as untrusted data. Permit automatic author
   edits only on the declared bounded Power surface, keep controller/tests/CI/feature contracts
   immutable, and let a secretless base-commit finalizer alone regenerate, test, advance the pin,
   and package the candidate. Every candidate, including any operational skill or agent-definition
   change, must receive a fail-closed Fable 5.1/xhigh verdict bound to the exact base SHA, head SHA,
   content digest, patch digest, and trusted model execution metadata before merge. Status:
-  implemented and under final
-  adversarial workflow review; a repository Claude credential is an external prerequisite for
-  hands-off operational updates and must never be copied from local session state.
+  **closed locally, hosted proof pending** after the trusted-Git remediation and adversarial
+  workflow regressions. A repository Claude credential is an external prerequisite for hands-off
+  operational updates and must never be copied from local session state.
 - `SELF-005` — Publish only one exact, non-draft, bot-owned candidate commit; re-run the same
   deterministic gate on base and head, rebind mergeability and all digests immediately before
   squash merge, and safely replace an exact bot-owned stale PR after the default branch moves.
-  Human or ambiguous PRs must never be closed or adopted. Status: implemented with mocked policy
-  regressions; live GitHub behavior remains required.
+  Human or ambiguous PRs must never be closed or adopted. Status: **closed locally, hosted proof
+  pending**; mocked policy regressions pass, but live private-repository behavior remains required.
 - `SELF-006` — Keep the GitHub Agentic Workflows/Copilot path manual-only and independently locked,
   with the same immutable candidate contract. It may assist recovery but must never silently
-  replace Kiro or weaken the Fable gate. Status: implemented as a manually dispatched fallback;
-  compile and action validation remain release gates.
+  replace Kiro or weaken the Fable gate. Status: **closed locally, hosted proof pending** as a
+  manually dispatched fallback; it remains uninvoked on GitHub and cannot substitute for the
+  primary Kiro workflow.
 - `SELF-007` — Create only the authorized private `njs14/pk-stack` repository, configure the Kiro
   secret without printing it, verify repository/action privacy and permissions, and run a hosted
   workflow proof. Status: pending council acceptance and publication.
@@ -241,8 +389,9 @@ proofs named below.
 - `SELF-009` — Bind the candidate gate and final merge to the exact authorized Kiro workflow name,
   provider, workflow path, source-run ID, base, repository, and branch
   `pk-stack-upstream/kiro-<source-run-id>`. A fallback run or a different Kiro run must not adopt a
-  surviving candidate. Status: implemented with exact resolve/merge revalidation and cross-run /
-  cross-provider negative tests.
+  surviving candidate. Status: **closed locally, hosted proof pending** with exact resolve/merge
+  revalidation and cross-run / cross-provider negative tests; the authorized private workflow must
+  still exercise that binding.
 - `SELF-010` — Make the hosted Kiro permission smoke exercise the exact immutable
   `pstack-maintainer` permission matrix rather than a representative surrogate. Every allowed class
   and representative overlapping protected path must be checked, with exact policy-denial events
@@ -254,9 +403,11 @@ proofs named below.
 - `SELF-011` — Bind each upstream source to exactly one machine-validated canonical genesis marker
   before its ordered transition markers. Reject missing, changed, duplicate, extra, malformed, or
   reordered genesis/transition evidence before network access, and preserve genesis through accept
-  and recovery. Status: implemented; 87 focused upstream tests, 604 canonical tests, parity, and a
-  live pin re-proof passed while the real 27-path transition remained unaccepted.
-- `SELF-012` — Demonstrate the committed weekly cadence, credential smoke, exact-authority
+  and recovery. Status: implemented and **passed across both real campaigns**. Canonical genesis
+  remained intact through the 27-path transition and the later two-path transition; the latest
+  passing attempt re-proved the accepted tip, live ref, complete ordered chain, transition
+  inventories, and disposition counts.
+- `SELF-012` — Demonstrate the committed daily cadence, credential smoke, exact-authority
   permission smoke, authenticated upstream check, and one hosted no-op or drift lifecycle in the
   authorized private repository. Status: pending publication; local static proof cannot substitute
   for GitHub-hosted liveness.
@@ -308,8 +459,10 @@ the material items below as release criteria.
   profile carries an inert empty `toolsSettings` object and the primary profile carries only its
   documented subagent settings; all filesystem/shell authorization remains in `permissions.rules`.
   Document this as a tested 2.21.0 compatibility sentinel, not a general V3 requirement, and do not
-  overstate IDE or Crew permission parity. Status: remediation in progress after controlled
-  field-present/field-absent probes exposed three silently undiscoverable helper agents.
+  overstate IDE or Crew permission parity. Status: **closed locally**. The bounded Kiro 2.21.0
+  probe in `reviews/kiro-v3-agent-discovery-probe.json` records the field-absent failure and then
+  exact sterile discovery of all five shipped workspace agents with the inert sentinel present.
+  Hosted execution and IDE, Web, or Crew permission parity are not claimed by that local probe.
 
 ## Upstream skill-parity criteria
 
@@ -323,7 +476,9 @@ different skill.
   entry exactly one machine-readable disposition: direct Kiro port, discoverable compatibility
   route to a shared Kiro-native core, exact native-Kiro replacement, or explicit exclusion with a
   narrow rationale. Reject missing, duplicate, unknown, or stale catalog entries. Status:
-  implementation in progress.
+  **closed locally** by `powers/pk-stack/docs/upstream-skill-parity.json`: 45 upstream skills and
+  122 package files are inventoried at both accepted and reviewed-current identities, with every
+  load-bearing resource and exactly one validated disposition represented.
 - `SKL-002` — Preserve an invocable Kiro skill under the familiar upstream name for every
   user-meaningful workflow, even when it is a thin DRY route to consolidated instructions. A prose
   crosswalk alone is insufficient, and the upstream workflow itself—not its title or description—is
@@ -331,58 +486,75 @@ different skill.
   translating only Cursor/runtime-specific seams. Native replacement is allowed only when the named
   route clearly teaches the user how to invoke the equivalent Kiro primitive; exclusions are
   limited to non-workflow packaging or unsafe/inapplicable runtime machinery. Status:
-  implementation in progress.
+  **closed locally** with 17 direct ports, 23 discoverable aliases to shared Kiro-native cores,
+  four explicit native-Kiro replacements, and one narrowly justified exclusion; all 44 runnable
+  upstream names retain invocable routes.
 - `SKL-003` — Adapt every routed skill to PK-Stack's surface contract: current Kiro agent-session
   language; CLI V3 and IDE Agent Focus as first-class surfaces; Crew compatibility; Web support by
   design but untested; inherited model and effort; and no Cursor Task API, fixed model, ACP default,
   Graphite requirement, watcher daemon, destructive worktree cleanup, or unreviewed external side
-  effect. Status: implementation in progress.
+  effect. Status: **closed locally** across the routed catalog and its wording regressions. This is
+  packaged compatibility evidence, not a claim that Web or every IDE/Crew permission behavior was
+  exercised.
 - `SKL-004` — Package and generate the complete routed catalog without drift across the canonical
   Power, `.kiro`, and projectctl distribution. Tests must prove exact catalog coverage, route-target
   validity, metadata/schema validity, safe exclusion wording, and canonical/generated byte parity.
-  The expected distribution is 48 canonical and projectctl-cache skill directories, with only the
-  Power-local `setup-pstack` shim omitted from the 47 live `.kiro/skills` routes. Managed live skill
+  The expected distribution is 49 canonical and projectctl-cache skill directories, with only the
+  Power-local `setup-pstack` shim omitted from the 48 live `.kiro/skills` routes. Managed live skill
   paths remain write-denied while a new user-owned skill path falls through to explicit approval,
   so authoring workflows are functional without making generated PK-Stack assets mutable. Status:
-  implementation in progress.
+  **closed locally**. Managed bootstrap materialized 48 live `.kiro` skills and all 49
+  controller-cache skills; the dry-run is idempotent, and exact catalog, route, metadata, safety,
+  and canonical/generated byte-parity regressions pass.
 - `SKL-005` — Exercise representative direct, consolidated, native-replacement, and excluded routes
   in the final validation campaign, then include the complete catalog and disposition evidence in
-  both the Fable acceptance review and Grok sweep. Status: pending implementation and council
-  review.
+  both the Fable acceptance review and Grok sweep. Status: **closed locally, pending council
+  review**. `reviews/skill-route-campaign.md` and its JSON/regression exercise one route of every
+  disposition class under an offline bounded harness; the campaign expressly does not claim an
+  interactive model-selection transcript. Fable re-review and the Grok sweep remain required.
 - `SKL-006` — Preserve pervasive upstream activation semantics through supported Kiro mechanisms,
   not unsupported Cursor frontmatter. TypeScript guidance must have a Kiro `fileMatch` steering
   route for `*.ts`/`*.tsx`, and the concise non-slop prose core must be always applied while the full
   skills remain directly invocable. Tests must prove steering frontmatter, generated parity, and
-  that normal interactive operation still inherits the selected Kiro model. Status: implementation
-  in progress.
+  that normal interactive operation still inherits the selected Kiro model. Status:
+  **closed locally** through the Kiro steering assets, directly invocable skills, inherited-model
+  agent profiles, and exact generated-parity regressions.
 - `SKL-007` — Preserve the upstream verification lifecycle in executable projectctl contracts:
   launch, doctor, drive, evidence, cleanup, helpers, sub-features, every user entrypoint, per-entry
   drive recipes, and gotchas. Creation seeds three to five records and proves one representative
   feature; maintenance later drives the complete map with one coordinator, one bounded drift-repair
   retry, explicit verified-unreachable prerequisites, and zero or one separately authorized PR.
-  Status: implementation in progress.
+  Status: **closed locally** by the generated controller contracts, verification-skill templates,
+  and full-catalog regressions; any real external PR remains separately authorization-gated.
 - `SKL-008` — Restore the nested reasoning and review contracts rather than collapsing them into
   generic advice: architect's usage-first type/signature/module scaffold, rationale and red flags;
   how's independent critique rubric; interrogate/model-council correctness, code-quality, and lead
   judgment; reflect's three independent lenses plus synthesis; and why's source-category discovery,
-  null/gap accounting, incident evidence, and calibrated confidence. Status: implementation in
-  progress.
+  null/gap accounting, incident evidence, and calibrated confidence. Status: **closed locally** in
+  the direct and consolidated routed skill bodies and their semantic-content assertions.
 - `SKL-009` — Restore the load-bearing meta-workflows in `figure-it-out`, `no-comments`, `teach`,
   `technical-writing`, `unslop`, and `show-me-your-work`. The last must use a deterministic bounded,
   redacted, append-only evidence lever that is local/uncommitted by default; none may request hidden
-  reasoning. Status: implementation in progress.
+  reasoning. Status: **closed locally** with the workflows and bounded evidence lever present in
+  the canonical/generated catalog and protected by focused safety assertions.
 - `SKL-010` — Preserve all 23 Poteto playbook routes and the reviewed live-current PR semantics:
   `gh` by default with optional Origin, early authorized ready-PR checkpoint, stable patch-ID
   freshness after rebase, and a same-scenario trunk regression lane or absolute budget when trunk
   lacks the feature. Cursor `/goal`, `/loop`, Task metadata, Graphite, watchers, and destructive
-  cleanup remain translated or excluded rather than copied. Status: implementation in progress.
+  cleanup remain translated or excluded rather than copied. Status: **closed locally** for all 23
+  Poteto playbook routes, including the current reviewed PR semantics and explicit translation or
+  exclusion of unsupported runtime machinery.
 
 ## Remaining acceptance sequence
 
-1. Complete the upstream skill-parity phase, self-apply the first reviewed upstream transition, and
-   then run every static and packaging gate.
-2. Run a fresh exact-final-tree Floci lifecycle and external judge; commit its evidence.
-3. Repeat Fable on that immutable snapshot until no material finding remains.
-4. Run Grok 4.6 `xhigh` on the Fable-accepted commit.
-5. Return any material Grok-driven change to Fable before release.
-6. Create and verify the private GitHub repository, secrets, permissions, and hosted workflow.
+1. Finish the trusted-Git audit and run every local static, packaging, policy, and regression gate.
+2. Create the authorized private repository and run the exact hosted credential, permission, and
+   maintenance smokes; retain only bounded, secret-free evidence.
+3. Run and commit a fresh exact-code Floci lifecycle and external-judge proof after the
+   claim-bound Docker deletion change.
+4. Repeat Fable 5.1 at `xhigh` on immutable candidates until it returns acceptance with zero
+   material unresolved findings.
+5. Run the final Grok 4.6 `xhigh` read-only sweep on the Fable-accepted commit.
+6. Return any material Grok-driven tree change to Fable 5.1 `xhigh` for reacceptance.
+7. Verify final private publication, default-branch identity, secret names, workflow permissions,
+   hosted evidence, and exact release commit before declaring completion.

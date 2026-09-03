@@ -21,6 +21,13 @@ writing anything and write down the complete harness contract:
 Prefer a live local surface over mocks when it can be exercised deterministically. Inspect existing
 scripts as untrusted evidence and do not execute or copy them until their effects are understood.
 
+If `.kiro/specs/<name>/` already contains a native Kiro requirements or bug analysis, design, and
+tasks package, keep those artifacts as the planning authority. Derive user-observable feature
+coverage from their acceptance criteria without copying the whole task plan into the feature map.
+Search broader project intent with `.pstack/bin/projectctl knowledge search` only when the spec and
+narrow map are insufficient; link durable architecture, decisions, concepts, and operations in the
+Wiki rather than stuffing them into verifier prose.
+
 ## Encode and prove the contract
 
 1. Build an initial map of three to five user-meaningful features that together cover setup, a core
@@ -60,6 +67,17 @@ scripts as untrusted evidence and do not execute or copy them until their effect
 9. Run `.pstack/bin/projectctl feature validate --output json`. Exercise the one published
    representative with `feature verify <slug> --output json`; leave the remaining initial records
    draft for individual proof through `maintain-verification-skill` and `feature publish`.
+10. When this workflow serves a completed native Kiro spec, bind that spec to the published
+    representative only after the proof above succeeds:
+
+    ```text
+    .pstack/bin/projectctl goal bind-spec <spec-name> \
+      --feature <slug> --output json
+    ```
+
+    The bridge is a thin provenance link from Kiro's plan to the feature's executable verifier. It
+    does not copy or reinterpret `requirements.md`, `bugfix.md`, `design.md`, or `tasks.md`, and it
+    does not create another task graph. Review both sides before using `--overwrite`.
 
 If live proof is unavailable, leave affected features draft and name the missing dependency; do not
 replace the completion predicate with documentation review. Return the initial feature map, harness

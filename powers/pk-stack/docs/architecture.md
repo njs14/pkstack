@@ -10,9 +10,9 @@ a thin repo-local control surface, not another agent runtime.
 
 The governing rule is:
 
-> Kiro owns execution. PK-Stack owns workflow semantics. `projectctl` owns
-> project operability and executable evidence. OKF tooling, when present, owns
-> broader project knowledge.
+> Kiro owns execution and native planning. PK-Stack owns workflow semantics.
+> `projectctl` owns project operability and executable evidence. Source-controlled
+> OKF plus canonical `okn` owns broader project knowledge.
 
 The design exposes three project interfaces:
 
@@ -20,7 +20,7 @@ The design exposes three project interfaces:
 | --- | --- | --- |
 | `.pstack/bin/projectctl` | **DO** — setup, diagnostics, feature operations, and bounded goal state | PK-Stack |
 | `Wiki/features/*.md` | **PROVE** — user-observable behavior plus an executable verifier | Project repository |
-| Other `Wiki/`/OKF material | **KNOW** — architecture, decisions, concepts, and operations | Optional canonical OKF implementation |
+| Other `Wiki/`/OKF material | **KNOW** — architecture, decisions, concepts, and operations | Project repository plus canonical `okn` |
 
 The versioned Kiro surface is documented in
 [Kiro surface compatibility](kiro-v3-compatibility.md). Operational commands and
@@ -36,7 +36,8 @@ flowchart TD
     CW[Optional Kiro Crew orchestration]
     W[Kiro Web repository path: untested]
     K[Kiro shared agent harness]
-    A[Skills, steering, custom agents, native subagents]
+    N[Native Spec, Quick Spec, Bug Fix, and task waves]
+    A[Upstream-derived skills, steering, custom agents, native subagents]
     C[Repo-local projectctl Cyclopts adapter]
     S[Typed Python services]
     B[Bootstrap and doctor]
@@ -52,7 +53,8 @@ flowchart TD
     I --> K
     CW -->|Kiro CLI over ACP| K
     W --> K
-    K --> A
+    K --> N
+    N -->|same-conversation handoff| A
     A -->|permission-gated commands| C
     C --> S
     S --> B
@@ -71,6 +73,29 @@ Kiro decides when to inspect, edit, invoke a native subagent, or request a
 project command. The Python package does not call a model. It parses explicit
 inputs, returns structured values, and persists only managed-file receipts,
 repository discovery, and bounded goal evidence.
+
+## Native planning and the PK-Stack wrapper
+
+For nontrivial feature and bug work, Kiro's built-in Spec, Quick Spec, or Bug Fix workflow is the
+planning spine. Kiro owns `requirements.md` or `bugfix.md`, `design.md`, `tasks.md`, dependency-wave
+analysis, task status, and native parallel execution. Standard Spec is the default for unfamiliar,
+cross-boundary, high-risk, or requirements-sensitive work. Quick Spec is appropriate for bounded,
+well-understood changes that do not benefit from approval between phases. An obvious one- or
+two-file change may skip a native artifact with an explicit reason.
+
+PK-Stack cannot and does not emulate a client slash command from inside a workspace skill. In CLI
+v3, the user enters `/spec new <name>`, `/spec <name>`, or `/spec run <name>`, then runs `/agent swap
+pstack` after the native phase. In the IDE, **Build with spec** or the workflow picker provides the
+same handoff before `pstack` is reselected. This remains one user conversation, but the selected
+built-in and project agents have distinct tool/resource scopes. Web uses its built-in primary and
+native Spec picker. Crew can run a committed spec through its Task Runner; PK-Stack makes no claim
+that Crew exposes the same local built-in-agent switch.
+
+Once the native artifacts are complete, PK-Stack composes the applicable upstream-derived skills
+around them and binds the plan to executable evidence. `projectctl goal bind-spec <name> --feature
+<slug>` validates the artifact shape and writes one small bridge. The feature's verifier remains
+the predicate; the goal state records both the native spec and feature provenance. No Kiro task
+checkbox, prose acceptance criterion, or second task graph is treated as proof.
 
 ## Distribution and workspace materialization
 
@@ -124,7 +149,7 @@ A bootstrapped project contains:
 ├── .kiro/
 │   ├── agents/*.json
 │   ├── hooks/*.json
-│   ├── skills/*/SKILL.md                 # 47 live workflow skills; setup stays Power-local
+│   ├── skills/*/SKILL.md                 # 48 live workflow skills; setup stays Power-local
 │   └── steering/*.md
 └── Wiki/features/
     └── README.md
@@ -274,7 +299,16 @@ SHA-256 binds the repository, exact base, head, source path, both identities, me
 reviewability class, and content. A missing patch fails for semantic content changes; only a
 zero-count top-level raster asset, an exact-blob pure rename, or an exact-blob mode-only change is
 permitted without one. Unavailable raster paths are machine-listed and require disposition B.
-Nothing from upstream is executed. The complete ledger chain is validated locally. The latest accepted
+Nothing from upstream is executed. Each source also names one machine-validated parity artifact.
+Cursor pstack uses the complete skill-package catalog; OKF methodology and specification sources
+use exhaustive regular-blob inventories with A/B/C dispositions. An aggregate check validates every
+source and reports all drift. `--source-id` retains the full local manifest/ledger validation but
+fetches and reports only that exact source. Scheduled maintenance deterministically selects the
+lexicographically first drifting source, and one proposal may advance only that source; the
+transaction proves every deferred pin, ledger, parity result, and provenance file unchanged for a
+later cadence.
+
+The complete ledger chain is validated locally. The latest accepted
 transition is re-fetched and its remote identities, fast-forward relationship, inventory digest,
 and exact disposition path set are re-proved; Git history is the tamper-evident authority for
 older committed ledger entries, keeping network work constant as history grows. An explicit
@@ -291,11 +325,12 @@ after ledgers.
 
 `upstream accept` is the only machine path that advances a self-maintenance pin. It requires the
 exact default manifest, canonical Power root, ephemeral `.pk-stack-maintenance/proposal.json`, and
-an explicit expected head. It freshly runs the same reproof and parity checks, requires one
-proposal transition to match the old pin, resolved head/subtree, inventory digest, and exhaustive
-path set, and supports a no-write `--dry-run`. The applying form journals and atomically replaces
-the normalized ledger and manifest, can complete an interrupted transaction on the same
-expected-head-bound rerun, and consumes all `.pk-stack-maintenance` state. It never edits
+an explicit expected head. The proposal itself supplies the selected `source_id`. Acceptance
+freshly runs the same aggregate reproof and parity checks, requires that source's transition to
+match the old pin, resolved head/subtree, inventory digest, and exhaustive path set, and supports a
+no-write `--dry-run`. The applying form journals and atomically replaces only that source's
+normalized ledger entry and manifest pin, can complete an interrupted transaction on the same
+source/expected-head-bound rerun, and consumes all `.pk-stack-maintenance` state. It never edits
 provenance, the Power, or any upstream content.
 
 The ledger and its full ordered list of canonical `pk-stack-upstream-review` provenance markers
@@ -493,6 +528,8 @@ There is one goal slot per project. Schema version 2 is stored at
 - a UUID goal identifier, objective, status, and timestamps;
 - one immutable executable contract with `explicit`, `feature-map`, or `spec`
   provenance;
+- for a spec contract, SHA-256 snapshots of its intent (`requirements.md` or `bugfix.md`),
+  `design.md`, and `pstack-verification.json`, while `tasks.md` remains Kiro-owned mutable state;
 - a SHA-256 `contract_digest` over canonical serialized contract data;
 - `attempt_count` and `max_attempts`; and
 - the last result plus append-only attempt history.
@@ -506,7 +543,9 @@ relationships, and terminal states that contradict their evidence.
 An explicit command, a named feature, or a bridge at
 `.kiro/specs/<name>/pstack-verification.json` can supply the contract. Exactly
 one source is required. Spec names cannot contain traversal or path separators.
-A prose acceptance criterion alone is not executable proof.
+A prose acceptance criterion alone is not executable proof. A spec verifier is rejected without
+consuming an attempt if its bound intent, design, or bridge changed. Those artifacts are checked
+again after the command and a racing change discards the result.
 
 ```mermaid
 stateDiagram-v2
@@ -548,26 +587,36 @@ Native subagents may help with bounded diagnosis or read-only review. The
 primary session owns edits and final evidence. The disabled Stop tripwire is
 advisory only and cannot schedule another model turn or complete a goal.
 
-## Optional OKF boundary: the KNOW interface
+## OKF and `okn`: the KNOW interface
 
-PK-Stack does not implement OKF graphs, claims, registries, or broad search.
-If canonical `okn` is on `PATH`, it delegates through the bounded runner:
+PK-Stack does not implement a second OKF graph, registry, validator, or broad-search runtime. Its
+Kiro-native `/okf` skill selectively adapts the useful produce, maintain, and consume workflow
+semantics from `scaccogatto/okf-skills`; it does not vendor or activate that project's
+Claude-specific hooks, transcript backfill, validator, MCP server, or visualizer.
+The source-controlled Wiki is a first-class context layer, while the external CLI remains an
+optional runtime prerequisite so verification can degrade honestly on a fresh machine. If
+canonical `okn` is on `PATH`, PK-Stack delegates through the bounded runner:
 
 ```text
 okn validate Wiki
 okn search Wiki <query>
 ```
 
-If `okn` is absent, `knowledge status` reports `feature-map-only`,
-`knowledge validate` validates only `Wiki/features/` and warns about the
+`knowledge validate` always composes the narrow feature-map verdict with the broader OKF verdict;
+installing `okn` never causes PROVE validation to disappear. If `okn` is absent, `knowledge status`
+reports `feature-map-only`, `knowledge validate` validates only `Wiki/features/` and warns about the
 missing broad check, `--require-okn` fails, and `knowledge search` fails. A
 symlinked or escaping `Wiki` path is rejected before delegation.
+
+The separate `okfcli/okf` project is not a transparent fallback. It can serve as an optional
+independent CI conformance/SARIF check, but its result never silently substitutes for `okn` search,
+query, lifecycle, or safety semantics.
 
 ## Kiro-native assets and permissions
 
 Bootstrap installs Kiro-native assets:
 
-- 47 workspace Agent Skills spanning verified goals, architecture, investigation,
+- 48 workspace Agent Skills spanning verified goals, OKF knowledge, architecture, investigation,
   review, verification lifecycle, TDD, writing, TypeScript, cleanup, and
   individually discoverable engineering principles;
 - the setup skill remains Power-local and is also cached under

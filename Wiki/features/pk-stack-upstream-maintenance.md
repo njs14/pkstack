@@ -16,19 +16,25 @@ verification:
     - --output
     - json
 related:
+  - ../architecture/native-kiro-composition.md
+  - ../decisions/native-spec-and-okn.md
+  - ../operations/context-depth.md
   - ../../maintenance/upstreams.json
   - ../../maintenance/upstream-reviews.json
   - ../../powers/pk-stack/docs/provenance.md
+  - ../../powers/pk-stack/docs/okf-skills-provenance.md
+  - ../../powers/pk-stack/docs/okf-spec-provenance.md
 ---
 
 # PK-Stack upstream maintenance
 
 ## User behavior
 
-A maintainer can reprove the immutable cursor-pstack source pin, its one canonical genesis marker,
-and every later transition marker; compare that accepted baseline with the current configured ref;
-inspect a bounded and exhaustive untrusted path-and-patch inventory; and prove that every accepted
-pin transition has an exact content-addressed A/B/C review disposition for every changed path.
+A maintainer can reprove every immutable configured source pin, its one canonical genesis marker,
+and every later transition marker; compare each accepted baseline with its current configured ref;
+select exactly one drifting source per transaction; inspect its bounded and exhaustive untrusted
+path-and-patch inventory; and prove that every accepted pin transition has an exact
+content-addressed A/B/C review disposition for every changed path.
 Every semantic patch is complete, count-reconciled, and applied from an exact Git-OID-verified old
 blob to the exact current blob; old/new regular-blob modes are explicit; every unavailable raster
 asset is excluded with disposition B; and the canonical Power still matches every
@@ -37,12 +43,16 @@ size, or parity failure return nonzero.
 
 ## Expected path
 
-Strict local manifest and contiguous review ledger -> exactly one source-bound genesis marker ->
-fixed GitHub API origin -> pinned/current commit and tree reproof -> fast-forward compare plus exact
-subtree and skill-package inventory -> every accepted transition digest/path/reviewability reproof
--> ownership-aware bootstrap dry-run -> JSON verdict. The genesis marker must precede every
+Strict local manifest and source-scoped contiguous review ledgers -> exactly one genesis marker per
+source -> fixed GitHub API origin -> pinned/current commit and tree reproof -> deterministic
+one-source selection -> fast-forward compare plus exact subtree and source inventory -> every
+accepted transition digest/path/reviewability reproof -> ownership-aware bootstrap dry-run -> JSON
+verdict. Each genesis marker must precede every
 transition marker and bind the ledger genesis exactly; transition markers remain ordered and
-immutable. Upstream content is data only and is never executed.
+immutable. Upstream content is data only and is never executed. This flow follows the
+[native Kiro composition boundary](../architecture/native-kiro-composition.md), the
+[canonical KNOW decision](../decisions/native-spec-and-okn.md), and the
+[task-driven context-depth runbook](../operations/context-depth.md).
 
 ## Sub-features
 
@@ -53,8 +63,9 @@ pagination, and exact changed-path inventory against the configured authoritativ
 
 ### `skill-package-parity`
 
-Account for every upstream top-level skill and every nested semantic resource, with one explicit
-direct, alias, native-replacement, or excluded disposition and deterministic generated parity.
+Account for every tracked source path. Cursor skill packages retain direct, alias,
+native-replacement, or excluded handling; generic OKF sources retain exact A/B/C source-inventory
+dispositions. All parity artifacts are deterministic and source-scoped.
 
 ### `review-and-provenance`
 
@@ -101,14 +112,15 @@ the scheduled run; it does not require a second per-run landing approval.
 
 #### Recipe
 
-Run `.pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root
-powers/pk-stack --output json` with a GitHub token passed only through the environment when the API
-requires authentication.
+Run `.pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json` with
+`--power-root powers/pk-stack --output json`. Pass a GitHub token only through the environment when
+the API requires authentication.
 
 #### Observable proof
 
-The bounded JSON reports exact source identities, current inventory digest, skill-package parity,
-bootstrap parity, and a nonzero drift verdict when the accepted pin is behind.
+The bounded JSON reports every exact source identity, source-scoped inventory digest and parity,
+bootstrap parity, the deterministic selected source, and a nonzero drift verdict when any accepted
+pin is behind.
 
 ### `current-session-maintenance`
 
@@ -119,8 +131,9 @@ coordinator, inspect the generated proposal, and run the documented verification
 
 #### Observable proof
 
-Every changed path has one A/B/C disposition, semantic adaptations and generated assets reconcile,
-the verifier is rerun once after any repair, and acceptance remains a separately authorized action.
+For the selected source, every changed path has one A/B/C disposition, semantic adaptations and
+generated assets reconcile, and the verifier is rerun once after any repair. Acceptance remains a
+separately authorized, one-source action; other source pins and ledgers remain byte-identical.
 
 ### `scheduled-cadence`
 
@@ -171,7 +184,9 @@ and never recursively deletes worktrees, runtime state, or foreign assets.
 
 - Expected upstream drift is a nonzero candidate state until it is reviewed; it is not a passing check.
 - Anonymous GitHub API access can return 403; pass the existing token through the environment without logging it.
-- Skill parity includes nested playbooks, templates, and helper semantics, not only top-level SKILL.md files.
+- Cursor skill parity includes nested playbooks, templates, and helper semantics, not only top-level SKILL.md files.
+- OKF source inventories cover every regular blob even when PK-Stack adapts only a narrow semantic subset.
+- Multiple drifting sources are serialized; no proposal or acceptance transaction may mix them.
 - Each source has exactly one canonical genesis marker before all immutable transition markers.
 - Missing credentials, incomplete pagination, or indeterminate identity evidence fail closed without acceptance.
 - Prospective Fable 5.1 review uses `xhigh`; historical records keep the actual earlier `max` effort.

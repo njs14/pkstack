@@ -17,17 +17,34 @@ current Kiro agent session
   -> Kiro IDE 1.x chat/Agent Focus or ordinary kiro-cli --v3 (primary)
   -> optional Kiro Crew orchestration; repository-local Kiro Web path (untested)
   -> Poteto Kiro custom agent where selectable and native Kiro primitives
-  -> PK-Stack skills and steering
+  -> native Spec / Quick Spec / Bug Fix planning artifacts
+  -> PK-Stack upstream-derived skills and steering
   -> repo-local .pstack/bin/projectctl
        -> DO: stable project commands
-       -> PROVE: feature contracts and bounded verified-goal state
-       -> KNOW: feature map, with canonical OKF tooling when installed
+       -> PROVE: spec-linked feature contracts and bounded verified-goal state
+       -> KNOW: source-controlled OKF queried and checked by canonical okn
   -> project-specific interfaces such as ./labctl
 ```
 
 Kiro retains execution and orchestration: `/spec`, workspace skills, custom agents, native
 sub-agents, `/spawn`, hooks, permissions, steering, and `/knowledge` are used where appropriate.
-PK-Stack contributes the workflow contract around those primitives. The generated `pstack` agent
+For nontrivial features and bugs, native Spec, Quick Spec, or Bug Fix owns requirements or bug
+analysis, design, tasks, dependency waves, and parallel task execution. PK-Stack does not recreate
+that planner. Kiro does not document a supported Agent Skill or custom-agent tool for changing the
+active workflow, so the honest integration is a visible handoff inside the same IDE/CLI conversation:
+enter or resume the native workflow, then reselect `pstack` after its artifacts are ready. Web uses
+its native Spec picker and built-in primary agent; Crew may consume committed specs through its
+Task Runner, without a claim that either surface reproduces the local custom-agent transition.
+
+PK-Stack contributes the upstream-derived workflow contract around those primitives. It binds a
+completed native spec to a published feature verifier with `projectctl goal bind-spec`, preserving
+both provenance values in goal state. Goal start snapshots the native intent, design, and bridge;
+every verification checks them before and after proof while leaving Kiro's `tasks.md` mutable. The
+feature map is the first, narrow context surface. Only
+questions about architecture, decisions, concepts, or operations descend into broader
+source-controlled OKF through canonical `okn`; native `/knowledge` may index those records but does
+not replace them. The Kiro-native `/okf` skill supplies bounded produce, maintain, and consume
+semantics without duplicating `okn` or Kiro's knowledge runtime. The generated `pstack` agent
 is deliberately permission-scoped and selects trusted PK-Stack sub-agents on IDE and CLI. Kiro
 Web cannot select that project agent as primary and does not reproduce its local permission
 boundary; its built-in primary agent can still activate the committed workspace skills. `/spawn`
@@ -113,12 +130,15 @@ Schema v2 contains two different histories:
 observed task-definition revision, then freezes that exact plan with the claim ID, ledger head,
 ledger hash, the original run's Compose-definition digest, target identities, cleanup strategy,
 ordered phases, and a plan hash. The current direct `compose.yaml` must still match that original
-digest immediately before any first-pass or resumed Compose teardown mutation. Artifact and
-deployment activation are forbidden after the plan is frozen. Each successfully reproved phase is
-durably appended to the completed ordered prefix. After interruption, `down` resumes from the
-first incomplete phase instead of rebuilding target scope. The manifest remains until AWS compute
-and data, definitions and cluster, task containers, the outer Floci container, local data, images,
-network, and final local postconditions are all proved according to the frozen mode.
+digest immediately before any first-pass or resumed outer-object deletion. Teardown re-proves the
+claim labels, removes only the exact outer Floci container, and then asks Docker to remove only the
+exact lab network; an attached foreign container makes that network removal fail closed. It does
+not invoke project-wide `docker compose down`. Artifact and deployment activation are forbidden
+after the plan is frozen. Each successfully reproved phase is durably appended to the completed
+ordered prefix. After interruption, `down` resumes from the first incomplete phase instead of
+rebuilding target scope. The manifest remains until AWS compute and data, definitions and cluster,
+task containers, the outer Floci container, local data, images, network, and final local
+postconditions are all proved according to the frozen mode.
 
 ## Security and non-goals
 

@@ -102,7 +102,12 @@ def test_goal_spec_bridge_and_transition_errors(tmp_path: Path) -> None:
     (tmp_path / "pass.py").write_text("pass\n", encoding="utf-8")
     bridge = tmp_path / ".kiro" / "specs" / "health" / "pstack-verification.json"
     bridge.parent.mkdir(parents=True)
-    bridge.write_text(json.dumps({"command": f"{sys.executable} pass.py"}), encoding="utf-8")
+    for name in ("requirements.md", "design.md", "tasks.md"):
+        (bridge.parent / name).write_text(f"# {name}\n\nBounded artifact.\n", encoding="utf-8")
+    bridge.write_text(
+        json.dumps({"schema_version": 1, "command": [sys.executable, "pass.py"]}),
+        encoding="utf-8",
+    )
 
     contract = resolve_contract(tmp_path, spec="health")
     assert contract.source == "spec"
@@ -124,7 +129,7 @@ def test_goal_spec_bridge_and_transition_errors(tmp_path: Path) -> None:
         start_goal(tmp_path / "budget", "Bad budget", command="true", max_attempts=21)
     with pytest.raises(GoalError, match="no executable"):
         resolve_contract(tmp_path)
-    with pytest.raises(GoalError, match="no executable bridge"):
+    with pytest.raises(GoalError, match="does not exist"):
         resolve_contract(tmp_path, spec="missing")
     assert get_goal(tmp_path).goal_id == state.goal_id
 
@@ -158,17 +163,40 @@ def test_knowledge_delegates_to_available_okn(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    okn = tmp_path / "okn"
-    okn.write_text('#!/bin/sh\ntest "$1" = validate -o "$1" = search\n', encoding="utf-8")
+    workspace = tmp_path / "workspace"
+    (workspace / "Wiki/features").mkdir(parents=True)
+    okn = tmp_path / "tools" / "okn"
+    okn.parent.mkdir()
+    okn.write_text(
+        "#!/usr/bin/env python3\n"
+        "import json, sys\n"
+        "args = sys.argv[1:]\n"
+        "if args == ['version']:\n"
+        "    print('0.13.0')\n"
+        "elif 'validate' in args:\n"
+        f"    print(json.dumps({{'schemaVersion': '1', 'root': {str(workspace / 'Wiki')!r}, "
+        "'specVersion': '0.2', 'profile': 'okf', 'files': 1, 'concepts': 0, "
+        "'indexes': 1, 'logs': 0, 'summary': {'status': 'pass', 'errorCount': 0, "
+        "'warningCount': 0, 'issueCount': 0}, 'issues': []}))\n"
+        "elif 'search' in args:\n"
+        f"    print(json.dumps({{'schemaVersion': '1', 'root': {str(workspace / 'Wiki')!r}, "
+        "'revision': "
+        "{'specVersion': '0.2', 'indexSha256': '0' * 64}, 'query': args[-1], "
+        "'budget': int(args[args.index('--budget') + 1]), 'estimatedTokens': 0, "
+        "'limit': 12, 'route': ['bm25'], 'sources': [], 'issues': []}))\n"
+        "else:\n"
+        "    raise SystemExit(83)\n",
+        encoding="utf-8",
+    )
     okn.chmod(0o755)
     monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _name: str(okn))
 
-    assert validate_knowledge(tmp_path)["mode"] == "canonical-okn"
-    assert search_knowledge(tmp_path, "account")["ok"] is True
+    assert validate_knowledge(workspace)["mode"] == "canonical-okn"
+    assert search_knowledge(workspace, "account")["ok"] is True
     with pytest.raises(KnowledgeError, match="non-empty"):
-        search_knowledge(tmp_path, " ")
+        search_knowledge(workspace, " ")
     with pytest.raises(KnowledgeError, match="must not begin"):
-        search_knowledge(tmp_path, "--help")
+        search_knowledge(workspace, "--help")
 
 
 def test_bootstrap_main_and_missing_asset_paths(

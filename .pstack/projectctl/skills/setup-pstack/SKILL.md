@@ -42,8 +42,15 @@ is missing, report that exact prerequisite and stop.
 3. Treat the JSON result as the authoritative inventory of created, updated, preserved, skipped, or conflicting paths.
 4. Run `<runner> doctor --output json`.
 5. Resolve only setup defects that are within the requested workspace. Re-run `doctor` after each material repair.
-6. If the project already has features, run `<runner> feature validate --output json` and `<runner> knowledge validate --output json`.
-7. If no project-local verification workflow covers the product's real user surface, offer
+6. Report DO (`projectctl` and project levers), PROVE (feature records), and KNOW (`Wiki/`, canonical
+   `okn` availability, and degraded mode) separately. Also report discovered `.kiro/specs/`.
+   Existing native specs remain Kiro-owned planning artifacts; setup never rewrites them.
+7. Run `<runner> feature validate --output json`. Whenever `Wiki/` exists, independently run
+   `<runner> knowledge validate --output json`, even when no feature records exist. The knowledge
+   result must compose the feature-map verdict with broader OKF conformance through canonical `okn`
+   when available. Missing `okn` is an explicit degraded-mode warning; setup never installs it or
+   edits global Kiro `/knowledge` settings.
+8. If no project-local verification workflow covers the product's real user surface, offer
    `create-verification-skill` as the next explicit step. Do not silently generate one during setup;
    its repository interview and live proof need their own bounded run.
 

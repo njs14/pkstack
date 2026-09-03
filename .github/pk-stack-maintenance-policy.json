@@ -35,6 +35,8 @@
     "write_patterns": [
       ".pk-stack-maintenance/proposal.json",
       "powers/pk-stack/README.md",
+      "powers/pk-stack/docs/okf-skills-parity.json",
+      "powers/pk-stack/docs/okf-spec-source-parity.json",
       "powers/pk-stack/docs/upstream-skill-parity.json",
       "powers/pk-stack/dev.kiro/**/*.md",
       "powers/pk-stack/docs/**/*.md",
@@ -106,6 +108,8 @@
   "agent_allowed_exact": [
     ".pk-stack-maintenance/proposal.json",
     "powers/pk-stack/README.md",
+    "powers/pk-stack/docs/okf-skills-parity.json",
+    "powers/pk-stack/docs/okf-spec-source-parity.json",
     "powers/pk-stack/docs/upstream-skill-parity.json"
   ],
   "agent_allowed_prefixes": {
@@ -123,6 +127,8 @@
     "maintenance/upstream-reviews.json",
     "maintenance/upstreams.json",
     "powers/pk-stack/README.md",
+    "powers/pk-stack/docs/okf-skills-parity.json",
+    "powers/pk-stack/docs/okf-spec-source-parity.json",
     "powers/pk-stack/docs/upstream-skill-parity.json",
     "projectctl"
   ],

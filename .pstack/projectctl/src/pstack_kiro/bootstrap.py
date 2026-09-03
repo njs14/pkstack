@@ -134,7 +134,27 @@ Power-local `/setup-pstack` skill, or an explicitly reviewed `--power-root`;
 Runtime goal state lives in `.pstack/state/` and is intentionally ignored.
 """
 
-FEATURE_README = """# Feature map
+WIKI_INDEX = """---
+okf_version: "0.2"
+---
+
+# Project knowledge
+
+This source-controlled OKF bundle is the project's **KNOW** interface. Keep broader architecture,
+decisions, concepts, and operations here. PK-Stack starts with the narrow feature map and follows
+explicit links into this material only when the task needs deeper context.
+
+- [Feature contracts](features/README.md) are the narrow **PROVE** interface.
+"""
+
+FEATURE_README = """---
+type: Guide
+title: Feature map
+description: PK-Stack executable feature-contract index.
+tags: [pk-stack, verification, feature-map]
+---
+
+# Feature map
 
 This directory is the narrow **PROVE** interface. Each feature file describes
 one user-observable behavior and binds it to one explicitly reviewed executable
@@ -321,6 +341,7 @@ def _bootstrap_project_locked(
         Path(".pstack/projectctl/templates/projectctl/uv.lock"): projectctl_lock.read_bytes(),
         Path(".pstack/projectctl/README.md"): TARGET_README.encode(),
         Path(".pstack/bin/projectctl"): INTERNAL_WRAPPER.encode(),
+        Path("Wiki/index.md"): WIKI_INDEX.encode(),
         Path("Wiki/features/README.md"): FEATURE_README.encode(),
     }
     for relative, content in generated.items():

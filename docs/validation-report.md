@@ -1,14 +1,23 @@
 # Validation report
 
-This report separates deterministic local checks, controller proof, the live Docker-backed Floci
-campaign, Kiro-session evidence, and model-council acceptance. A pass at one boundary is not
-reported as a pass at another. Fable round 4 reviewed combined commit `ced867c` and found two
-material gaps: the API-idempotency oracle was incomplete, and the live evidence was not bound to
-that combined tree. Both are now locally closed on executable commit
-`cb2cb0905687c3e94e539333d8945c37109f6189` by strengthened tests and the fresh exact-executable
-`fable-r5-902` lifecycle plus external judge. This remains candidate evidence until Fable reviews
-an immutable snapshot containing its record. The earlier `live-council-902` and selected-profile
-Kiro campaigns remain separately labeled historical lifecycle and current-session evidence.
+This report separates deterministic local checks, controller proof, Docker-backed Floci evidence,
+Kiro-session evidence, and model-council acceptance. A pass at one boundary is not reported as a
+pass at another. In particular, evidence-carrier commits are not described as though every byte in
+them was executed retrospectively.
+
+The current candidate lineage is:
+
+| Role | Commit and tree | Evidence boundary |
+| --- | --- | --- |
+| Historical round-4 remediation | commit `cb2cb0905687c3e94e539333d8945c37109f6189`, tree `c28e71a050185f19befb3832e865c4e54f2bcf03` | Closed the then-current Fable findings and powered the superseded `fable-r5-902` run. It is not the final executable candidate. |
+| Final executable candidate A | commit `28b918268104cbcd19b18486dcb4134213c6351a`, tree `72fe6177d20eea67b6580899c1134d586be987c0` | Exact executable tree exercised by `final-floci-902`. |
+| Floci evidence carrier / Kiro executable candidate B | commit `2a1afb8a301c952b655ffe9e8a0981adff3c324c`, tree `c0a2f4b84f169d86d2295f15dbbf9b5a37e98b4e` | Adds only the normalized final-Floci records to A; exact tree exercised by `kiro-final-902`. |
+| Round-5 council-review candidate C | commit `491bfdafc94832c6624ed86051955b1067245979`, tree `e314bd4ab33e492b905a080b43c4ea8bdfba6828` | Carries the final Kiro records and review-contract documentation. Fable 5.1 reviewed this exact immutable tree at `xhigh`; no live campaign is retroactively claimed against C. |
+
+The older `live-final-902`, `live-council-902`, `fable-r5-902`, and `kiro-v3-accept-902`
+campaigns remain below as explicitly historical evidence. The current campaign records are
+[`final-floci-902`](../reviews/final-floci-campaign.md) and
+[`kiro-final-902`](../reviews/final-kiro-v3-campaign.md).
 
 ## Bootstrap and controller provenance
 
@@ -16,10 +25,11 @@ The canonical installable package is committed at `powers/pk-stack/`. It was imp
 from the independently accepted source commit `191997501c41ae078b6548b9d6c898aadf2907ae`, after
 which the pre-Fable audit added one centralized draft-publication guard and regressions. The
 original source checkout remained clean and unchanged. The current canonical package suite passed
-**509 tests**. Its Power-local setup shim regenerated this fixture's controller; source, skills,
+**759 tests**. Its Power-local setup shim regenerated this fixture's controller; source, skills,
 steering, templates, and the runtime lock are parity-tested byte-for-byte.
 
-The generated fixture retains a 49-file ownership receipt in `.pstack/bootstrap.json`.
+The generated fixture currently retains a 156-file ownership receipt in
+`.pstack/bootstrap.json`.
 
 The repository-local generated controller currently reports:
 
@@ -29,15 +39,144 @@ The repository-local generated controller currently reports:
 .pstack/bin/projectctl knowledge validate --output json
 ```
 
-Observed result: 39 doctor checks passed, zero failed, and one optional warning reported that
-canonical `okn` is unavailable. All 49 receipt-managed files matched their recorded hashes. The
+Observed result: 130 doctor checks passed, zero failed, and one optional warning reported that
+canonical `okn` was unavailable on the ordinary shell `PATH`. All 156 receipt-managed files
+matched their recorded hashes. The
 one ready `document-export` feature contract had zero errors and warnings. Knowledge validation
-passed in explicit `feature-map-only` mode; strict broader OKF validation was not claimed.
+passed in explicit `feature-map-only` mode on that ordinary path. A separate checksum-verified
+canonical `okn` 0.13.0 campaign validated the seven-file Wiki and composed feature map with zero
+issues, then returned bounded ranked context with content-addressed provenance; that probe remains
+dirty-tree architectural evidence until its immutable-candidate rerun is recorded.
 
 An isolated temporary repository also exercised ready feature generation, validation, execution,
 and a bounded stored goal. Goal `4360c683-7cc7-4bda-b0a5-c2b70b009735` recorded attempt 1 as a
 real failure and attempt 2 as passed after the smallest fixture repair. That proves controller
 state transitions, not a Kiro session.
+
+## Current deterministic static gate
+
+The following commands were rerun in the candidate-C remediation worktree:
+
+```sh
+env PYTHONDONTWRITEBYTECODE=1 \
+  uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q
+
+(cd powers/pk-stack && env PYTHONDONTWRITEBYTECODE=1 \
+  uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q)
+
+.pstack/bin/projectctl doctor --output json
+```
+
+The root suite passed 302 tests, the canonical Power suite passed 759 tests, and doctor returned
+`ok: true` with 130 pass, zero fail, and the single disclosed optional `okn` warning. These
+deterministic checks supplement, rather than replace, the candidate-A Floci and candidate-B Kiro
+campaigns below.
+
+## Final immutable Floci campaign: `final-floci-902`
+
+The final Floci lifecycle exercised candidate A, commit
+`28b918268104cbcd19b18486dcb4134213c6351a`, from a detached archive with SHA-256
+`fa952d459574bd811c093af13c0771339ea49344f26f6105d6c66780b77cf90c`. Candidate B adds the
+normalized record only; this report does not claim that B was the executable used for this run.
+
+The public lifecycle sequence was:
+
+```sh
+./labctl doctor --output json
+./labctl up --run-id final-floci-902 --acknowledge-docker-socket --output json
+# Add one controlled comment to src/pk_stack_lab/runtime.py with apply_patch.
+./labctl deploy --output json
+./labctl status --output json
+./labctl evidence --output json
+# Restore runtime.py exactly to candidate A with apply_patch and recheck all 14 frozen hashes.
+./labctl deploy --output json
+./labctl status --output json
+./labctl verify --output json
+./labctl evidence --output json
+/usr/bin/python3 -I -B /path/to/frozen/verify_feature_contract.py \
+  --repo /path/to/detached/candidate \
+  --expected-contract-sha256 fc4c32e718f7e4ea2aa0369c24f0bca25d7cfc5af8f64990caf34fdd2214605a \
+  --control-manifest /path/to/frozen/control-manifest.json
+./labctl down --output json
+```
+
+Both services converged on two generations:
+
+| Generation | Source digest | Image ID | API/worker revisions | Operation ID |
+| --- | --- | --- | --- | --- |
+| controlled marker | `bc4e31fb91605ba5b8c49d3abc5b24be647763e13a6844beb7a37868bc1d677a` | `sha256:c156b1d9e3573d43fdccfbaa87be79b544c298362c320963c17f280b48db6abf` | `:1` / `:1` | `f0c84db3f2b734f7ad576866d4be82f7` |
+| restored candidate A | `5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6` | `sha256:97d0151ea4bc6b357c6d8f5428d499997da0f06bf7d5286a350bf8a2f07186b6` | `:2` / `:2` | `ee0b785291220f882338032de8e8e423` |
+
+The bounded verifier and frozen external judge both returned `ok: true`. The business proof
+included tenant-key partition separation, the strengthened API-idempotency contract, exact S3
+content, duplicate-worker no-op behavior, current-invocation DLQ evidence, and post-business
+identity reproof. Normal teardown accounted for four tasks and four images, completed all eight
+phases, and left the complete image, container, and network inventories byte-identical; all 18
+foreign `pklab-*` image records were preserved.
+
+This is local ECS-like evidence on pinned Floci 2.0.1, Docker Engine 29.7.2, and Compose 5.5.0. It
+does not test Fargate, cloud IAM, VPCs, cross-account behavior, or the AWS production control
+plane. Floci did not propagate the requested read-only-root, drop-all-capabilities, or
+no-new-privileges settings, although the two task processes ran as UID/GID 65532 without mounts.
+The full normalized result and 14-path frozen control map are in
+[`reviews/final-floci-campaign.md`](../reviews/final-floci-campaign.md),
+[`reviews/final-floci-campaign.json`](../reviews/final-floci-campaign.json), and
+[`reviews/final-floci-control-manifest.json`](../reviews/final-floci-control-manifest.json).
+
+## Final Kiro CLI v3 current-session campaign: `kiro-final-902`
+
+The fresh current-session campaign exercised candidate B, commit
+`2a1afb8a301c952b655ffe9e8a0981adff3c324c`. An isolated clone first committed one controlled
+tenant-key defect and deployed API/worker revision 1. The harness then launched exactly one
+ordinary interactive Kiro CLI v3 process:
+
+```sh
+/usr/bin/script -q -F /private/tmp/pk-stack-final-kiro.qL6A0S/raw/kiro.typescript \
+  /bin/zsh -c 'umask 077; print -r -- "$$" > /private/tmp/pk-stack-final-kiro.qL6A0S/raw/kiro.pid; exec /Users/noahsutter/.local/bin/kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max'
+```
+
+Within that one selected session, `/verified-goal` caused these completed shell commands, in order:
+
+```text
+.pstack/bin/projectctl goal status --output json
+.pstack/bin/projectctl feature list --output json
+.pstack/bin/projectctl feature show document-export --output json
+.pstack/bin/projectctl goal start "Repair the deployed document-export tenant-key partition-separation regression in this isolated local Floci lab." --feature document-export --max-attempts 4 --output json
+.pstack/bin/projectctl goal verify --output json
+./labctl deploy --output json
+.pstack/bin/projectctl goal verify --output json
+.pstack/bin/projectctl goal status --output json
+```
+
+Goal `96e0d0a9-2366-42e9-8869-ca3ffc58e4ed` retained the unchanged feature-map contract
+`./labctl verify --output json`. Attempt 1 ran before any source write and failed only on
+`tenant-key partition separation check failed`. Kiro invoked native `pstack-verifier` exactly once
+read-only, repaired the one runtime line with its file-edit tool, redeployed exactly once, and
+passed attempt 2. No third verification, goal replacement/resume, `/spawn`, nested Kiro, native
+`/goal` claim, or user-selected ACP path occurred. The worktree then matched candidate B exactly.
+
+The restored deployment reached API/worker revision 2 and the strengthened full business contract
+passed. A frozen external judge independently returned `ok: true` while the deployment remained
+live; sequential status and evidence calls passed; then normal teardown accounted for four task
+instances and four images and completed all eight phases. Kiro reported 559,068 ms (9m19s) and
+3.461648 credits with `pstack`, `gpt-5.6-sol`, and `max` retained through goal completion.
+
+The campaign was deliberately realistic rather than configuration-hermetic: the user's configured
+Kiro memory hooks and steering were present and wrote ordinary memory. Exact-value scanning found
+no supplied secret in the worktree or retained evidence. Docker Desktop Resource Saver also
+recreated its built-in `bridge` ID during startup, so containers, images, and all 18 foreign
+`pklab` image records were byte-identical while the network inventory was semantically, not
+byte-for-byte, identical. Kiro's compact logs contain internal ACP/event-adapter labels, but the
+user-facing launch and workflow remained the ordinary CLI v3 current session. This campaign did
+not test Web or establish a native `/goal` command. Candidate C carries the normalized evidence
+and was not retrospectively exercised.
+
+See [`reviews/final-kiro-v3-campaign.md`](../reviews/final-kiro-v3-campaign.md),
+[`reviews/final-kiro-v3-campaign.json`](../reviews/final-kiro-v3-campaign.json), the exact
+[`input history`](../reviews/final-kiro-v3-campaign-history.txt), and the bounded
+[`session projection`](../reviews/final-kiro-v3-campaign-session.jsonl). Raw terminal and complete
+client records remain owner-controlled outside Git because they contain local paths, request
+metadata, and opaque reasoning signatures.
 
 ## Historical pre-round-4 static gate
 
@@ -78,7 +217,7 @@ schema-v2 teardown journals and tightened discard authorization to typed transpo
 than HTTP or malformed-response failures. The 285-test result above covers those changes; it is
 static evidence and is kept distinct from the live proof reported below.
 
-## Combined Power-package closure
+## Historical combined Power-package closure
 
 After the selected-profile campaign, an independent Codex pre-Fable audit found that the combined
 snapshot lacked an installable package root and that draft features with commands could still be
@@ -107,14 +246,15 @@ uvx --from check-jsonschema check-jsonschema \
 # ok -- validation done
 ```
 
-Canonical and combined Ruff checks, the canonical format and `ty` checks, both lock checks, all
-four `kiro-cli agent validate` commands, the 39-pass/zero-fail generated-controller doctor, feature
-and knowledge validation, shell syntax, JSON parsing, and `labctl doctor` also exited zero. The
-single controller warning remains the disclosed optional absence of canonical `okn`.
+Canonical and combined Ruff checks, the canonical format and `ty` checks, both lock checks, the
+then-current `kiro-cli agent validate` commands, generated-controller doctor, feature and
+knowledge validation, shell syntax, JSON parsing, and `labctl doctor` also exited zero. The single
+controller warning was the disclosed optional absence of canonical `okn`; current counts are
+reported in the deterministic gate above.
 
-## Current executable candidate and static suites
+## Historical Fable round-4 executable and static suites
 
-The Fable round-4 remediation was committed before the final live campaign:
+The Fable round-4 remediation was committed before the historical `fable-r5-902` campaign:
 
 ```text
 commit  cb2cb0905687c3e94e539333d8945c37109f6189
@@ -138,7 +278,7 @@ stable export ID, exact durable idempotency key, confirmed enqueue, and exactly 
 It also closes the round-4 root-controller, exact-network, real-producer/judge-payload, and exact
 build-backend-pin low findings with executable regressions.
 
-## Fresh exact-executable Floci campaign: `fable-r5-902`
+## Historical Fable round-5 Floci campaign: `fable-r5-902`
 
 The lifecycle used only the public control surface on executable commit `cb2cb09`:
 
@@ -187,8 +327,9 @@ hash map is retained in `reviews/fable-r5-live-proof.md`.
 
 Normal `./labctl down --output json` then accounted for four ECS tasks and four immutable image
 references, completed all eight frozen phases, and left every exact local postcondition clean. The
-full foreign-image inventory was unchanged. These results close `FBL-028` and `FBL-029` locally;
-independent Fable acceptance remains the next gate.
+full foreign-image inventory was unchanged. At that point these results closed `FBL-028` and
+`FBL-029` locally. The later final campaigns below supersede this run as current executable
+evidence.
 
 ## Historical pre-combination live Floci campaign: `live-council-902`
 
@@ -282,7 +423,7 @@ pklab-live-r2-902-api:d8f448b8302cb827d588aabe    250c0499c7c0
 pklab-live-r2-902-worker:d8f448b8302cb827d588aabe 250c0499c7c0
 ```
 
-## Current-session Kiro v3 campaign: `kiro-v3-accept-902`
+## Historical Kiro v3 campaign: `kiro-v3-accept-902`
 
 The controller seeded one deliberate GET partition-key defect in an isolated clone of candidate
 `d9b1e0d`; red commit `052b64f565a2d91a67098ac416c6d53481284cb3` changed only
@@ -455,11 +596,23 @@ findings. Round 3 inspected immutable commit `d9b1e0d` read-only at max effort b
 five-hour account rate limit before returning the required report. It has **no verdict, no
 acceptance value, and no finding disposition**. Round 4 reviewed immutable combined commit
 `ced867c4814ef722441215bd4d33ac30769868ec` and returned `REQUEST CHANGES` with material findings
-`FBL-028` and `FBL-029`; see `reviews/fable-round-4.md`. Both are closed locally by executable
-commit `cb2cb09` and `reviews/fable-r5-live-proof.md`. A later Fable round must inspect the exact
-remediated bytes and fresh live evidence before acceptance.
+`FBL-028` and `FBL-029`; see `reviews/fable-round-4.md`.
+
+Commit `cb2cb09` closed those findings and supported the now-historical `fable-r5-902` proof.
+Candidate A `28b9182` is the executable proven by the final immutable Floci campaign. Candidate B
+`2a1afb8` carries that Floci evidence and is the executable proven by the fresh current-session
+Kiro campaign. Candidate C `491bfda` carries both normalized campaign records and was the exact
+immutable target for Fable round 5 at `xhigh`. Round 5 returned `REQUEST CHANGES` with material
+findings `FBL-037`, `FBL-038`, and `FBL-039`; this report and the README address the documentation
+portion of `FBL-039`, while the acceptance ledger and executable hardening are tracked separately.
+Those boundaries are intentional: no report claims that a later evidence-carrier commit was the
+executable in an earlier campaign. Prospective Fable 5.1 peer and acceptance runs use `xhigh`;
+historical `max` runs remain labeled as such. This report does not claim final Fable acceptance
+until the exact post-remediation review tree receives `ACCEPT` with zero material unresolved
+findings.
 
 The optional Archify status flow, `npx skills use tt-a1i/archify@archify --agent codex`, reached its
 interactive trust TUI under `TERM=dumb` and was not activated; it produced no authoritative
 architecture artifact and changed no repository file. Grok 4.6 `xhigh` remains the final sweeper
-only after clean Fable acceptance. Private GitHub publication is likewise not claimed yet.
+after clean Fable acceptance, with another Fable pass required if the sweep drives a material tree
+change. Private GitHub publication is likewise not claimed here.

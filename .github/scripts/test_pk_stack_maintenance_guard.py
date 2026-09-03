@@ -7,12 +7,16 @@ import base64
 import hashlib
 import importlib.util
 import json
+import os
 import re
+import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.dont_write_bytecode = True
 
@@ -45,10 +49,12 @@ def inventory_sha256(
     base_commit: str,
     head_commit: str,
     files: list[dict[str, object]],
+    repository: str = "cursor/plugins",
+    source_path: str = "pstack",
 ) -> str:
     document = {
-        "repository": "cursor/plugins",
-        "source_path": "pstack",
+        "repository": repository,
+        "source_path": source_path,
         "base_commit": base_commit,
         "head_commit": head_commit,
         "files": files,
@@ -132,10 +138,11 @@ def detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
     }
     return {
         "ok": True,
-        "schema_version": 1,
+        "schema_version": guard.UPSTREAM_SCHEMA_VERSION,
         "manifest": "maintenance/upstreams.json",
         "review_ledger": "maintenance/upstream-reviews.json",
         "network_boundary": "https://api.github.com",
+        "selected_source_id": None,
         "sources": [
             {
                 "ok": True,
@@ -144,6 +151,7 @@ def detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
                 "path": "pstack",
                 "ref": "main",
                 "provenance_path": "powers/pk-stack/docs/provenance.md",
+                "parity_path": "powers/pk-stack/docs/upstream-skill-parity.json",
                 "pinned": pinned,
                 "pinned_reproof": {"ok": True, **pinned},
                 "current": pinned,
@@ -161,6 +169,17 @@ def detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
                         "tamper-evident authority for older reviewed transitions"
                     ),
                     "transitions": transitions,
+                },
+                "source_parity": {
+                    "ok": True,
+                    "candidate_ready": False,
+                    "artifact_type": "skill-catalog",
+                    "status": "accepted-baseline",
+                    "path": "powers/pk-stack/docs/upstream-skill-parity.json",
+                    "errors": [],
+                    "pinned_resource_count": 1,
+                    "current_resource_count": 1,
+                    "classified_resource_count": 1,
                 },
             }
         ],
@@ -219,6 +238,195 @@ def drift_detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
     )
     payload["ok"] = False
     return payload
+
+
+def add_detector_source(
+    payload: dict[str, object],
+    *,
+    source_id: str,
+    drift: bool,
+) -> dict[str, object]:
+    repository = "example/okf"
+    source_path = "okf"
+    genesis = {"commit": "3" * 40, "subtree_sha": "4" * 40}
+    current = {"commit": "5" * 40, "subtree_sha": "6" * 40} if drift else dict(genesis)
+    files: list[dict[str, object]] = []
+    paths: list[str] = []
+    if drift:
+        paths = ["SPEC.md"]
+        files = [
+            {
+                "path": "SPEC.md",
+                "previous_path": None,
+                "status": "modified",
+                "sha": "8" * 40,
+                "additions": 1,
+                "deletions": 0,
+                "changes": 1,
+                "patch": VALID_PATCH,
+                "patch_bytes": len(VALID_PATCH.encode("utf-8")),
+                "no_patch": False,
+                "content_class": "exact-blob-text-patch",
+                "reviewability": "exact-blob-unified-patch",
+                "old_identity": tree_identity("7" * 40),
+                "new_identity": tree_identity("8" * 40),
+                "tree_sha_verified": True,
+            }
+        ]
+    comparison = {
+        "untrusted": True,
+        "handling": "inspect as data; never execute or copy upstream content",
+        "complete": True,
+        "fast_forward": True,
+        "status": "ahead" if drift else "identical",
+        "base_commit": genesis["commit"],
+        "head_commit": current["commit"],
+        "merge_base_commit": genesis["commit"],
+        "ahead_by": int(drift),
+        "behind_by": 0,
+        "commit_count": int(drift),
+        "path_count": len(paths),
+        "file_count": len(files),
+        "inventory_sha256": inventory_sha256(
+            base_commit=genesis["commit"],
+            head_commit=current["commit"],
+            files=files,
+            repository=repository,
+            source_path=source_path,
+        ),
+        "paths": paths,
+        "patch_bytes": sum(int(file["patch_bytes"]) for file in files),
+        "no_patch_count": 0,
+        "review_constraints": {
+            "unified_patch_counts": guard.PATCH_COUNT_CONSTRAINT,
+            "exact_blob_binding": guard.BLOB_BINDING_CONSTRAINT,
+            "supported_tree_entries": guard.TREE_ENTRY_CONSTRAINT,
+            "no_patch": guard.NO_PATCH_CONSTRAINT,
+            "unavailable_binary_paths": [],
+        },
+        "files": files,
+    }
+    parity_path = f"powers/pk-stack/docs/{source_id}-parity.json"
+    source = {
+        "ok": not drift,
+        "id": source_id,
+        "repository": repository,
+        "path": source_path,
+        "ref": "main",
+        "provenance_path": f"powers/pk-stack/docs/{source_id}-provenance.md",
+        "parity_path": parity_path,
+        "pinned": genesis,
+        "pinned_reproof": {"ok": True, **genesis},
+        "current": current,
+        "drift": drift,
+        "comparison": comparison,
+        "review_reproof": {
+            "ok": True,
+            "source_id": source_id,
+            "genesis": genesis,
+            "tip": genesis,
+            "transition_count": 0,
+            "remote_transition_indices": [],
+            "history_validation": (
+                "all entries form a strict local contiguous chain; repository history is the "
+                "tamper-evident authority for older reviewed transitions"
+            ),
+            "transitions": [],
+        },
+        "source_parity": {
+            "ok": True,
+            "candidate_ready": False,
+            "artifact_type": "source-inventory",
+            "status": "accepted-baseline",
+            "path": parity_path,
+            "errors": [],
+            "pinned_resource_count": 1,
+            "current_resource_count": 1,
+            "classified_resource_count": 1,
+        },
+    }
+    payload["sources"].append(source)  # type: ignore[union-attr]
+    payload["ok"] = all(item["ok"] for item in payload["sources"])  # type: ignore[index]
+    return source
+
+
+def accepted_detector_fixture(
+    payload: dict[str, object],
+    *,
+    selected_source_id: str,
+) -> dict[str, object]:
+    accepted = json.loads(json.dumps(payload))
+    source = next(item for item in accepted["sources"] if item["id"] == selected_source_id)
+    prior = source["pinned"]
+    new = source["current"]
+    comparison = source["comparison"]
+    inventory_digest = comparison["inventory_sha256"]
+    path_count = comparison["path_count"]
+    before_count = source["review_reproof"]["transition_count"]
+    source["pinned"] = new
+    source["pinned_reproof"] = {"ok": True, **new}
+    source["ok"] = True
+    source["drift"] = False
+    source["comparison"] = {
+        "untrusted": True,
+        "handling": "inspect as data; never execute or copy upstream content",
+        "complete": True,
+        "fast_forward": True,
+        "status": "identical",
+        "base_commit": new["commit"],
+        "head_commit": new["commit"],
+        "merge_base_commit": new["commit"],
+        "ahead_by": 0,
+        "behind_by": 0,
+        "commit_count": 0,
+        "path_count": 0,
+        "file_count": 0,
+        "inventory_sha256": inventory_sha256(
+            base_commit=new["commit"],
+            head_commit=new["commit"],
+            files=[],
+            repository=source["repository"],
+            source_path=source["path"],
+        ),
+        "paths": [],
+        "patch_bytes": 0,
+        "no_patch_count": 0,
+        "review_constraints": {
+            "unified_patch_counts": guard.PATCH_COUNT_CONSTRAINT,
+            "exact_blob_binding": guard.BLOB_BINDING_CONSTRAINT,
+            "supported_tree_entries": guard.TREE_ENTRY_CONSTRAINT,
+            "no_patch": guard.NO_PATCH_CONSTRAINT,
+            "unavailable_binary_paths": [],
+        },
+        "files": [],
+    }
+    source["review_reproof"].update(
+        {
+            "tip": new,
+            "transition_count": before_count + 1,
+            "remote_transition_indices": [before_count],
+            "transitions": [
+                {
+                    "index": before_count,
+                    "prior": prior,
+                    "new": new,
+                    "inventory_sha256": inventory_digest,
+                    "path_count": path_count,
+                    "disposition_counts": {"A": path_count, "B": 0, "C": 0},
+                }
+            ],
+        }
+    )
+    source["source_parity"].update(
+        {
+            "ok": True,
+            "candidate_ready": False,
+            "status": "accepted-baseline",
+            "errors": [],
+        }
+    )
+    accepted["ok"] = all(item["ok"] for item in accepted["sources"])
+    return accepted
 
 
 def comparison_file_fixture(
@@ -302,11 +510,23 @@ def set_comparison_files(payload: dict[str, object], files: list[dict[str, objec
     )
 
 
-def proposal_fixture(payload: dict[str, object]) -> dict[str, object]:
-    source = payload["sources"][0]  # type: ignore[index]
+def proposal_fixture(
+    payload: dict[str, object],
+    *,
+    source_id: str | None = None,
+) -> dict[str, object]:
+    drift_sources = sorted(
+        (source for source in payload["sources"] if source["drift"]),  # type: ignore[index]
+        key=lambda item: item["id"],
+    )
+    if source_id is None:
+        source = drift_sources[0]
+    else:
+        source = next(item for item in payload["sources"] if item["id"] == source_id)  # type: ignore[index]
     comparison = source["comparison"]  # type: ignore[index]
     unavailable = comparison["review_constraints"]["unavailable_binary_paths"]  # type: ignore[index]
     return {
+        "source_id": source["id"],  # type: ignore[index]
         "prior": source["pinned"],  # type: ignore[index]
         "new": source["current"],  # type: ignore[index]
         "inventory_sha256": comparison["inventory_sha256"],  # type: ignore[index]
@@ -322,45 +542,49 @@ def proposal_fixture(payload: dict[str, object]) -> dict[str, object]:
 
 
 def review_ledger_fixture(payload: dict[str, object]) -> dict[str, object]:
-    source = payload["sources"][0]  # type: ignore[index]
-    reproof = source["review_reproof"]  # type: ignore[index]
-    transition_count = reproof["transition_count"]  # type: ignore[index]
-    if transition_count not in {0, 1}:
-        raise AssertionError("test ledger helper supports zero or one accepted transition")
-    transitions = []
-    if transition_count == 1:
-        summary = reproof["transitions"][0]  # type: ignore[index]
-        transitions = [
-            {
-                "prior": summary["prior"],
-                "new": summary["new"],
-                "inventory_sha256": summary["inventory_sha256"],
-                "dispositions": [
+    sources = []
+    for source in payload["sources"]:  # type: ignore[union-attr]
+        reproof = source["review_reproof"]
+        transition_count = reproof["transition_count"]
+        if transition_count not in {0, 1}:
+            raise AssertionError("test ledger helper supports zero or one accepted transition")
+        transitions = []
+        if transition_count == 1:
+            summary = reproof["transitions"][0]
+            counts = summary["disposition_counts"]
+            dispositions = []
+            for disposition in ("A", "B", "C"):
+                dispositions.extend(
                     {
-                        "path": "accepted-a.md",
-                        "disposition": "A",
+                        "path": f"accepted-{disposition.lower()}-{index:03d}.md",
+                        "disposition": disposition,
                         "rationale": "Accepted in the prior exact review.",
-                    },
-                    {
-                        "path": "accepted-c.md",
-                        "disposition": "C",
-                        "rationale": "Excluded in the prior exact review.",
-                    },
-                ],
-            }
-        ]
-    return {
-        "schema_version": 1,
-        "sources": [
+                    }
+                    for index in range(counts[disposition])
+                )
+            dispositions.sort(key=lambda item: item["path"])
+            transitions = [
+                {
+                    "prior": summary["prior"],
+                    "new": summary["new"],
+                    "inventory_sha256": summary["inventory_sha256"],
+                    "dispositions": dispositions,
+                }
+            ]
+        sources.append(
             {
-                "id": source["id"],  # type: ignore[index]
-                "repository": source["repository"],  # type: ignore[index]
-                "path": source["path"],  # type: ignore[index]
-                "provenance_path": source["provenance_path"],  # type: ignore[index]
-                "genesis": reproof["genesis"],  # type: ignore[index]
+                "id": source["id"],
+                "repository": source["repository"],
+                "path": source["path"],
+                "provenance_path": source["provenance_path"],
+                "parity_path": source["parity_path"],
+                "genesis": reproof["genesis"],
                 "transitions": transitions,
             }
-        ],
+        )
+    return {
+        "schema_version": guard.UPSTREAM_SCHEMA_VERSION,
+        "sources": sources,
     }
 
 
@@ -369,8 +593,14 @@ def review_marker_line(marker: dict[str, object]) -> str:
     return f"<!-- pk-stack-upstream-review: {canonical} -->"
 
 
-def pending_marker_line(payload: dict[str, object]) -> str:
-    source = payload["sources"][0]  # type: ignore[index]
+def pending_marker_line(payload: dict[str, object], *, source_id: str | None = None) -> str:
+    if source_id is None:
+        source = min(
+            (item for item in payload["sources"] if item["drift"]),  # type: ignore[index]
+            key=lambda item: item["id"],
+        )
+    else:
+        source = next(item for item in payload["sources"] if item["id"] == source_id)  # type: ignore[index]
     return review_marker_line(
         {
             "source_id": source["id"],  # type: ignore[index]
@@ -383,8 +613,16 @@ def pending_marker_line(payload: dict[str, object]) -> str:
     )
 
 
-def accepted_marker_lines(payload: dict[str, object]) -> list[str]:
-    ledger_source = review_ledger_fixture(payload)["sources"][0]  # type: ignore[index]
+def accepted_marker_lines(
+    payload: dict[str, object],
+    *,
+    source_id: str = "cursor-pstack",
+) -> list[str]:
+    ledger_source = next(
+        source
+        for source in review_ledger_fixture(payload)["sources"]  # type: ignore[index]
+        if source["id"] == source_id
+    )
     return [
         review_marker_line(
             {
@@ -463,6 +701,55 @@ class StrictJsonTests(unittest.TestCase):
                 patch_sha256=patch_sha256,
             )
             self.assertTrue(result["approved"])
+            real_companion_usage = {
+                "inputTokens": 917,
+                "outputTokens": 16,
+                "cacheReadInputTokens": 0,
+                "cacheCreationInputTokens": 0,
+                "webSearchRequests": 0,
+                "costUSD": 0.000997,
+                "contextWindow": 200000,
+                "maxOutputTokens": 32000,
+                "thinkingTokens": 0,
+                "canonicalModel": "claude-haiku-4-5",
+                "provider": "firstParty",
+                "costBasis": "list",
+            }
+            companion_execution = execution(verdict)
+            companion_execution[-1]["modelUsage"] = {
+                "claude-fable-5-1": {
+                    "canonicalModel": "claude-fable-5-1",
+                    "provider": "firstParty",
+                },
+                "claude-haiku-4-5-20251001": real_companion_usage,
+            }
+            execution_path.write_text(json.dumps(companion_execution), encoding="utf-8")
+            self.assertTrue(
+                guard.validate_fable_verdict(
+                    path,
+                    execution_path,
+                    policy,
+                    base_sha=base_sha,
+                    head_sha=head_sha,
+                    content_sha256=content_sha256,
+                    patch_sha256=patch_sha256,
+                )["approved"]
+            )
+            companion_execution[-1]["modelUsage"]["claude-haiku-4-5-20251001"][  # type: ignore[index]
+                "outputTokens"
+            ] = 65
+            execution_path.write_text(json.dumps(companion_execution), encoding="utf-8")
+            with self.assertRaises(guard.GuardError):
+                guard.validate_fable_verdict(
+                    path,
+                    execution_path,
+                    policy,
+                    base_sha=base_sha,
+                    head_sha=head_sha,
+                    content_sha256=content_sha256,
+                    patch_sha256=patch_sha256,
+                )
+            execution_path.write_text(json.dumps(execution(verdict)), encoding="utf-8")
             for field, replacement in (
                 ("reviewed_head_sha", "5" * 40),
                 ("reviewed_content_sha256", "6" * 64),
@@ -626,6 +913,336 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 permission_stream_guard.validate(stream, stderr, 0, "test-secret")
 
 
+class GitControlBoundaryTests(unittest.TestCase):
+    @staticmethod
+    def make_repo(sandbox: Path) -> tuple[Path, str]:
+        root = sandbox / "repo"
+        (root / ".kiro/agents").mkdir(parents=True)
+        (root / ".kiro/agents/base.json").write_text("{}\n", encoding="utf-8")
+        (root / "README.md").write_text("base\n", encoding="utf-8")
+        subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+        subprocess.run(["git", "add", "."], cwd=root, check=True)
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.name=PK-Stack Test",
+                "-c",
+                "user.email=pk-stack@example.invalid",
+                "commit",
+                "-qm",
+                "base",
+            ],
+            cwd=root,
+            check=True,
+        )
+        base_sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True
+        ).strip()
+        return root, base_sha
+
+    @staticmethod
+    def record_model_boundary(root: Path, base_sha: str, state_root: Path) -> None:
+        shutil.rmtree(root / ".kiro")
+        guard._record_git_state(root, base_sha, state_root)
+
+    def test_close_refuses_all_model_visible_git_control_changes_before_git(self) -> None:
+        _, policy = guard.load_policy(ROOT / ".github/pk-stack-maintenance-policy.json")
+
+        def mutate_config(root: Path) -> None:
+            with (root / ".git/config").open("a", encoding="utf-8") as stream:
+                stream.write("\n[core]\n\tfsmonitor = planted\n")
+
+        def mutate_replace_ref(root: Path) -> None:
+            replacement = root / ".git/refs/replace" / ("a" * 40)
+            replacement.parent.mkdir()
+            replacement.write_text(f"{'b' * 40}\n", encoding="ascii")
+
+        mutations = {
+            "config": mutate_config,
+            "hooks": lambda root: (root / ".git/hooks/post-index-change").write_text(
+                "#!/bin/sh\nexit 0\n", encoding="utf-8"
+            ),
+            "info": lambda root: (root / ".git/info/planted").write_text(
+                "planted\n", encoding="utf-8"
+            ),
+            "index": lambda root: (root / ".git/index").write_bytes(
+                (root / ".git/index").read_bytes() + b"planted"
+            ),
+            "HEAD": lambda root: (root / ".git/HEAD").write_text(f"{'a' * 40}\n", encoding="ascii"),
+            "replacement-ref": mutate_replace_ref,
+            "packed-refs": lambda root: (root / ".git/packed-refs").write_text(
+                f"{'a' * 40} refs/replace/{'b' * 40}\n", encoding="ascii"
+            ),
+        }
+        for label, mutate in mutations.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as temporary:
+                sandbox = Path(temporary)
+                root, base_sha = self.make_repo(sandbox)
+                state_root = sandbox / "git-state"
+                self.record_model_boundary(root, base_sha, state_root)
+                try:
+                    mutate(root)
+                    with mock.patch.object(
+                        guard,
+                        "_git_run",
+                        side_effect=AssertionError("Git ran before control-state rejection"),
+                    ) as git_run:
+                        with self.assertRaisesRegex(guard.GuardError, "Git control metadata"):
+                            guard.close_attempt(root, base_sha, policy, state_root)
+                        git_run.assert_not_called()
+                finally:
+                    guard._remove_git_state(root, state_root)
+
+    def test_close_rejects_skip_worktree_and_assume_unchanged_index_attacks(self) -> None:
+        _, policy = guard.load_policy(ROOT / ".github/pk-stack-maintenance-policy.json")
+        for flag in ("--skip-worktree", "--assume-unchanged"):
+            with self.subTest(flag=flag), tempfile.TemporaryDirectory() as temporary:
+                sandbox = Path(temporary)
+                root, base_sha = self.make_repo(sandbox)
+                state_root = sandbox / "git-state"
+                self.record_model_boundary(root, base_sha, state_root)
+                subprocess.run(["git", "update-index", flag, "README.md"], cwd=root, check=True)
+                (root / "README.md").write_text("protected mutation\n", encoding="utf-8")
+                with mock.patch.object(
+                    guard,
+                    "_git_run",
+                    side_effect=AssertionError("Git ran before index-state rejection"),
+                ) as git_run:
+                    with self.assertRaisesRegex(guard.GuardError, "Git control metadata"):
+                        guard.close_attempt(root, base_sha, policy, state_root)
+                    git_run.assert_not_called()
+                guard._remove_git_state(root, state_root)
+
+    def test_trusted_git_disables_repo_and_ambient_executable_config(self) -> None:
+        _, policy = guard.load_policy(ROOT / ".github/pk-stack-maintenance-policy.json")
+        with tempfile.TemporaryDirectory() as temporary:
+            sandbox = Path(temporary)
+            root, base_sha = self.make_repo(sandbox)
+            tripwire = root / ".git/hooks/post-index-change"
+            tripwire.write_text(
+                "#!/bin/sh\nprintf executed >.git/pk-stack-tripwire-executed\nexit 1\n",
+                encoding="utf-8",
+            )
+            tripwire.chmod(0o700)
+            subprocess.run(["git", "config", "core.hooksPath", "hooks"], cwd=root, check=True)
+            subprocess.run(
+                ["git", "config", "core.fsmonitor", ".git/hooks/post-index-change"],
+                cwd=root,
+                check=True,
+            )
+            subprocess.run(
+                ["git", "config", "diff.external", ".git/hooks/post-index-change"],
+                cwd=root,
+                check=True,
+            )
+            global_config = sandbox / "hostile-global-config"
+            global_config.write_text(
+                "[core]\n\thooksPath = hooks\n\tfsmonitor = .git/hooks/post-index-change\n"
+                "[diff]\n\texternal = .git/hooks/post-index-change\n",
+                encoding="utf-8",
+            )
+            state_root = sandbox / "git-state"
+            self.record_model_boundary(root, base_sha, state_root)
+            recorded = guard._read_git_state(root, base_sha, state_root)["snapshot"]
+            self.assertEqual(
+                recorded["targets"]["config"]["sha256"],
+                hashlib.sha256((root / ".git/config").read_bytes()).hexdigest(),
+            )
+            self.assertEqual(recorded["targets"]["config.worktree"], {"kind": "absent"})
+            for target in ("hooks", "info", "refs"):
+                self.assertEqual(recorded["targets"][target]["kind"], "directory")
+                for entry in recorded["targets"][target]["entries"]:
+                    if entry["entry"]["kind"] == "file":
+                        self.assertRegex(entry["entry"]["sha256"], r"^[0-9a-f]{64}$")
+            hostile_environment = {
+                "GIT_CONFIG_GLOBAL": str(global_config),
+                "GIT_CONFIG_SYSTEM": str(global_config),
+                "GIT_CONFIG_COUNT": "1",
+                "GIT_CONFIG_KEY_0": "core.hooksPath",
+                "GIT_CONFIG_VALUE_0": "hooks",
+                "GIT_EXTERNAL_DIFF": str(tripwire),
+            }
+            with mock.patch.dict(os.environ, hostile_environment, clear=False):
+                guard.close_attempt(root, base_sha, policy, state_root)
+            self.assertFalse((root / ".git/pk-stack-tripwire-executed").exists())
+            self.assertTrue(state_root.exists())
+            guard._read_git_state(root, base_sha, state_root, phase="open")
+            guard.finalize_git_state(root, base_sha, state_root)
+            self.assertFalse(state_root.exists())
+            self.assertTrue((root / ".kiro/agents/base.json").is_file())
+
+    def test_external_finalizer_blocks_clean_filter_and_textconv_execution(self) -> None:
+        _, policy = guard.load_policy(ROOT / ".github/pk-stack-maintenance-policy.json")
+        with tempfile.TemporaryDirectory() as temporary:
+            sandbox = Path(temporary)
+            root, _ = self.make_repo(sandbox)
+            target = root / "powers/pk-stack/README.md"
+            target.parent.mkdir(parents=True)
+            target.write_text("base\n", encoding="utf-8")
+            (root / ".gitattributes").write_text(
+                "powers/pk-stack/README.md filter=trip diff=trip\n", encoding="utf-8"
+            )
+            subprocess.run(
+                ["git", "add", ".gitattributes", "powers/pk-stack/README.md"],
+                cwd=root,
+                check=True,
+            )
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "user.name=PK-Stack Test",
+                    "-c",
+                    "user.email=pk-stack@example.invalid",
+                    "commit",
+                    "-qm",
+                    "attributes",
+                ],
+                cwd=root,
+                check=True,
+            )
+            base_sha = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=root, text=True
+            ).strip()
+            marker = sandbox / "filter-or-textconv-executed"
+            tripwire = sandbox / "git-driver.sh"
+            tripwire.write_text(
+                "#!/bin/sh\n"
+                f"printf '%s\\n' \"$1\" >>{shlex.quote(str(marker))}\n"
+                'if [ "$1" = textconv ]; then cat "$2"; else cat; fi\n',
+                encoding="utf-8",
+            )
+            tripwire.chmod(0o700)
+            subprocess.run(
+                ["git", "config", "filter.trip.clean", f"{tripwire} clean"],
+                cwd=root,
+                check=True,
+            )
+            subprocess.run(
+                ["git", "config", "diff.trip.textconv", f"{tripwire} textconv"],
+                cwd=root,
+                check=True,
+            )
+
+            # Prove that the planted local drivers are genuinely executable by
+            # ordinary Git before testing the trusted finalizer isolation.
+            target.write_text("raw hostile path\n", encoding="utf-8")
+            subprocess.run(
+                ["git", "diff", "--", "powers/pk-stack/README.md"],
+                cwd=root,
+                check=True,
+                stdout=subprocess.DEVNULL,
+            )
+            subprocess.run(["git", "add", "powers/pk-stack/README.md"], cwd=root, check=True)
+            self.assertIn("textconv", marker.read_text(encoding="utf-8"))
+            self.assertIn("clean", marker.read_text(encoding="utf-8"))
+            subprocess.run(
+                ["git", "reset", "-q", "HEAD", "--", "powers/pk-stack/README.md"],
+                cwd=root,
+                check=True,
+            )
+            target.write_text("base\n", encoding="utf-8")
+            marker.unlink()
+
+            state_root = sandbox / "git-state"
+            self.record_model_boundary(root, base_sha, state_root)
+            original_index = hashlib.sha256((root / ".git/index").read_bytes()).hexdigest()
+            target.write_text("candidate\n", encoding="utf-8")
+            guard.close_attempt(root, base_sha, policy, state_root)
+            self.assertFalse(marker.exists())
+            self.assertEqual(
+                hashlib.sha256((root / ".git/index").read_bytes()).hexdigest(),
+                original_index,
+            )
+            self.assertNotEqual(
+                hashlib.sha256((state_root / "index").read_bytes()).hexdigest(),
+                guard._read_git_state(root, base_sha, state_root, phase="open")[
+                    "trusted_index_sha256"
+                ],
+            )
+            guard.finalize_git_state(root, base_sha, state_root)
+
+    def test_trusted_git_wrapper_pins_config_and_no_ext_diff(self) -> None:
+        completed = subprocess.CompletedProcess(args=(), returncode=0, stdout=b"", stderr=b"")
+        with mock.patch.object(guard.subprocess, "run", return_value=completed) as run:
+            guard._git_run(
+                Path("/tmp"),
+                "diff",
+                "--name-only",
+                env={
+                    "PATH": os.environ.get("PATH", ""),
+                    "GIT_CONFIG_COUNT": "1",
+                    "GIT_CONFIG_KEY_0": "core.hooksPath",
+                    "GIT_CONFIG_VALUE_0": "hooks",
+                },
+            )
+        command = run.call_args.args[0]
+        environment = run.call_args.kwargs["env"]
+        self.assertIn("--no-ext-diff", command)
+        self.assertIn("--no-textconv", command)
+        for setting in (
+            "core.hooksPath=/dev/null",
+            "core.fsmonitor=false",
+            "diff.external=",
+        ):
+            self.assertIn(setting, command)
+        self.assertEqual(environment["GIT_CONFIG_GLOBAL"], "/dev/null")
+        self.assertEqual(environment["GIT_CONFIG_SYSTEM"], "/dev/null")
+        self.assertEqual(environment["GIT_CONFIG_NOSYSTEM"], "1")
+        self.assertEqual(environment["GIT_EXTERNAL_DIFF"], "")
+        self.assertEqual(environment["GIT_NO_REPLACE_OBJECTS"], "1")
+        self.assertEqual(environment["GIT_CONFIG_VALUE_0"], "/dev/null")
+
+    def test_git_control_snapshot_rejects_unsafe_and_racing_entries(self) -> None:
+        unsafe_mutations = {
+            "symlink": lambda root, sandbox: (root / ".git/hooks/unsafe").symlink_to(
+                sandbox / "outside"
+            ),
+            "hardlink": lambda root, sandbox: os.link(
+                root / ".git/config", root / ".git/hooks/unsafe"
+            ),
+            "oversized": lambda root, sandbox: (root / ".git/info/oversized").write_bytes(
+                b"x" * (guard.GIT_CONTROL_ENTRY_MAX_BYTES + 1)
+            ),
+        }
+        for label, mutate in unsafe_mutations.items():
+            with self.subTest(label=label), tempfile.TemporaryDirectory() as temporary:
+                sandbox = Path(temporary)
+                root, base_sha = self.make_repo(sandbox)
+                mutate(root, sandbox)
+                with self.assertRaises(guard.GuardError):
+                    guard._record_git_state(root, base_sha, sandbox / "git-state")
+
+        with tempfile.TemporaryDirectory() as temporary:
+            sandbox = Path(temporary)
+            root, base_sha = self.make_repo(sandbox)
+            with self.assertRaisesRegex(guard.GuardError, "outside the model-visible checkout"):
+                guard._record_git_state(root, base_sha, root / "git-state")
+
+        with tempfile.TemporaryDirectory() as temporary:
+            sandbox = Path(temporary)
+            root, _ = self.make_repo(sandbox)
+            config = root / ".git/config"
+            original_read = guard.os.read
+            mutated = False
+
+            def racing_read(descriptor: int, count: int) -> bytes:
+                nonlocal mutated
+                chunk = original_read(descriptor, count)
+                if not mutated:
+                    with config.open("ab") as stream:
+                        stream.write(b"\n# raced\n")
+                    mutated = True
+                return chunk
+
+            with (
+                mock.patch.object(guard.os, "read", side_effect=racing_read),
+                self.assertRaisesRegex(guard.GuardError, "changed while hashing"),
+            ):
+                guard._snapshot_git_controls(root)
+
+
 class DetectorTests(unittest.TestCase):
     def validate(self, payload: dict[str, object]) -> dict[str, object]:
         with tempfile.TemporaryDirectory() as temporary:
@@ -637,26 +1254,220 @@ class DetectorTests(unittest.TestCase):
         self,
         detector: dict[str, object],
         proposal: dict[str, object],
+        *,
+        extra_pending_source_id: str | None = None,
     ) -> dict[str, object]:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             detector_path = root / "detector.json"
             proposal_path = root / "proposal.json"
             ledger_path = root / "maintenance/upstream-reviews.json"
-            provenance_path = root / "powers/pk-stack/docs/provenance.md"
             ledger_path.parent.mkdir(parents=True)
-            provenance_path.parent.mkdir(parents=True)
             detector_path.write_text(json.dumps(detector), encoding="utf-8")
             proposal_path.write_text(json.dumps(proposal), encoding="utf-8")
             ledger_path.write_text(
                 json.dumps(review_ledger_fixture(detector)),
                 encoding="utf-8",
             )
-            provenance_path.write_text(
-                f"# Provenance\n\n{pending_marker_line(detector)}\n",
+            selected_source_id = proposal["source_id"]
+            for source in detector["sources"]:  # type: ignore[union-attr]
+                provenance_path = root / source["provenance_path"]
+                provenance_path.parent.mkdir(parents=True, exist_ok=True)
+                markers = accepted_marker_lines(detector, source_id=source["id"])
+                if source["id"] == selected_source_id:
+                    markers.append(pending_marker_line(detector, source_id=source["id"]))
+                if source["id"] == extra_pending_source_id:
+                    markers.append(pending_marker_line(detector, source_id=source["id"]))
+                provenance_path.write_text(
+                    "# Provenance\n\n" + "\n".join(markers) + "\n",
+                    encoding="utf-8",
+                )
+            return guard.validate_proposal(root, detector_path, proposal_path)
+
+    def validate_serialized(
+        self,
+        before: dict[str, object],
+        after: dict[str, object],
+        *,
+        mutate_deferred_provenance: bool = False,
+    ) -> dict[str, object]:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            before_path = root / "before.json"
+            after_path = root / "after.json"
+            before_path.write_text(json.dumps(before), encoding="utf-8")
+            after_path.write_text(json.dumps(after), encoding="utf-8")
+            for source in before["sources"]:  # type: ignore[union-attr]
+                provenance_path = root / source["provenance_path"]
+                provenance_path.parent.mkdir(parents=True, exist_ok=True)
+                provenance_path.write_text(
+                    "# Provenance\n\n"
+                    + "\n".join(accepted_marker_lines(before, source_id=source["id"]))
+                    + "\n",
+                    encoding="utf-8",
+                )
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "user.name=PK-Stack Test",
+                    "-c",
+                    "user.email=pk-stack@example.invalid",
+                    "commit",
+                    "-qm",
+                    "before serialized acceptance",
+                ],
+                cwd=root,
+                check=True,
+            )
+            base_sha = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=root, text=True
+            ).strip()
+            ledger_path = root / "maintenance/upstream-reviews.json"
+            ledger_path.parent.mkdir(parents=True)
+            ledger_path.write_text(
+                json.dumps(review_ledger_fixture(after)),
                 encoding="utf-8",
             )
-            return guard.validate_proposal(root, detector_path, proposal_path)
+            for source in after["sources"]:  # type: ignore[union-attr]
+                provenance_path = root / source["provenance_path"]
+                provenance_path.parent.mkdir(parents=True, exist_ok=True)
+                provenance_path.write_text(
+                    "# Provenance\n\n"
+                    + "\n".join(accepted_marker_lines(after, source_id=source["id"]))
+                    + "\n",
+                    encoding="utf-8",
+                )
+            if mutate_deferred_provenance:
+                selected_source_id = min(
+                    source["id"]
+                    for source in before["sources"]  # type: ignore[union-attr]
+                    if source["drift"]
+                )
+                deferred = next(
+                    source
+                    for source in after["sources"]  # type: ignore[union-attr]
+                    if source["id"] != selected_source_id
+                )
+                with (root / deferred["provenance_path"]).open("a", encoding="utf-8") as stream:
+                    stream.write("Deferred prose changed.\n")
+            return guard.validate_serialized_acceptance(
+                root,
+                base_sha,
+                before_path,
+                after_path,
+            )
+
+    def test_multiple_drift_sources_are_sorted_for_serialized_selection(self) -> None:
+        payload = drift_detector_fixture()
+        add_detector_source(payload, source_id="alpha-okf", drift=True)
+
+        validated = self.validate(payload)
+
+        self.assertEqual(
+            validated["validated_drift_sources"],
+            [
+                {"source_id": "alpha-okf", "expected_head": "5" * 40},
+                {"source_id": "cursor-pstack", "expected_head": "c" * 40},
+            ],
+        )
+        self.assertEqual(validated["validated_drift_heads"], ["5" * 40, "c" * 40])
+
+    def test_source_ids_match_the_bounded_controller_contract(self) -> None:
+        for source_id in ("-alpha", "alpha-", "alpha--okf", "Alpha", "a" * 65):
+            with self.subTest(source_id=source_id):
+                payload = detector_fixture()
+                payload["sources"][0]["id"] = source_id  # type: ignore[index]
+                with self.assertRaisesRegex(guard.GuardError, "source id is invalid"):
+                    self.validate(payload)
+
+    def test_invalid_source_parity_is_typed_and_can_trigger_parity_only_repair(self) -> None:
+        payload = detector_fixture()
+        source = payload["sources"][0]  # type: ignore[index]
+        source["ok"] = False  # type: ignore[index]
+        source["source_parity"] = {  # type: ignore[index]
+            "ok": False,
+            "candidate_ready": False,
+            "artifact_type": "unknown",
+            "status": "invalid",
+            "path": source["parity_path"],  # type: ignore[index]
+            "errors": ["Parity artifact is unavailable."],
+            "pinned_resource_count": 0,
+            "current_resource_count": 0,
+            "classified_resource_count": 0,
+        }
+        payload["ok"] = False
+
+        self.assertEqual(self.validate(payload)["validated_drift_sources"], [])
+
+        source["source_parity"]["errors"] = []  # type: ignore[index]
+        with self.assertRaisesRegex(guard.GuardError, "errors are not bounded"):
+            self.validate(payload)
+
+        payload = detector_fixture()
+        source = payload["sources"][0]  # type: ignore[index]
+        source["source_parity"]["candidate_ready"] = True  # type: ignore[index]
+        source["source_parity"]["status"] = "candidate-ready"  # type: ignore[index]
+        with self.assertRaisesRegex(guard.GuardError, "non-drifting upstream"):
+            self.validate(payload)
+
+    def test_proposal_must_name_lexicographically_first_drift_source(self) -> None:
+        payload = drift_detector_fixture()
+        add_detector_source(payload, source_id="alpha-okf", drift=True)
+
+        selected = proposal_fixture(payload)
+        self.assertEqual(selected["source_id"], "alpha-okf")
+        self.assertEqual(self.validate_proposal(payload, selected)["source_id"], "alpha-okf")
+
+        wrong = proposal_fixture(payload, source_id="cursor-pstack")
+        with self.assertRaisesRegex(guard.GuardError, "lexicographically first"):
+            self.validate_proposal(payload, wrong)
+
+        with self.assertRaisesRegex(guard.GuardError, "marker count"):
+            self.validate_proposal(
+                payload,
+                selected,
+                extra_pending_source_id="cursor-pstack",
+            )
+
+    def test_serialized_acceptance_advances_only_selected_source(self) -> None:
+        before = drift_detector_fixture()
+        add_detector_source(before, source_id="alpha-okf", drift=True)
+        after = accepted_detector_fixture(before, selected_source_id="alpha-okf")
+
+        result = self.validate_serialized(before, after)
+
+        self.assertEqual(result["source_id"], "alpha-okf")
+        self.assertEqual(result["initial_drift_count"], 2)
+        self.assertEqual(result["remaining_drift_count"], 1)
+
+        after["sources"][0]["source_parity"]["pinned_resource_count"] = 2  # type: ignore[index]
+        with self.assertRaisesRegex(guard.GuardError, "deferred upstream source"):
+            self.validate_serialized(before, after)
+
+        after = accepted_detector_fixture(before, selected_source_id="alpha-okf")
+        with self.assertRaisesRegex(guard.GuardError, "modified deferred upstream provenance"):
+            self.validate_serialized(
+                before,
+                after,
+                mutate_deferred_provenance=True,
+            )
+
+    def test_serialized_acceptance_binds_latest_transition_to_selected_inventory(self) -> None:
+        before = drift_detector_fixture()
+        add_detector_source(before, source_id="alpha-okf", drift=True)
+        after = accepted_detector_fixture(before, selected_source_id="alpha-okf")
+        selected = next(
+            source
+            for source in after["sources"]
+            if source["id"] == "alpha-okf"  # type: ignore[index]
+        )
+        selected["review_reproof"]["transitions"][0]["inventory_sha256"] = "f" * 64
+
+        with self.assertRaisesRegex(guard.GuardError, "not detector-bound"):
+            self.validate_serialized(before, after)
 
     def test_zero_one_and_multi_transition_reproof_shapes(self) -> None:
         for count in (0, 1, 7, 33, guard.REVIEW_TRANSITION_MAX):
@@ -953,6 +1764,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             (ROOT / ".kiro/agents/pstack-maintainer.json").read_text(encoding="utf-8")
         )
         authority = self.policy["ci_authority"]
+        self.assertIn(".git/**", authority["deny_patterns"])
         expected_rules = [
             {"capability": "fs_read", "match": ["./**"], "effect": "allow"},
             {"capability": "grep", "match": ["./**"], "effect": "allow"},
@@ -1014,6 +1826,22 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         document["prompt"] = document["prompt"].replace(
             "preserve every prior review marker unchanged and in order",
             "replace prior review markers",
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "agent.json"
+            path.write_text(json.dumps(document), encoding="utf-8")
+            with self.assertRaises(guard.GuardError):
+                guard.validate_ci_agent(path, self.policy)
+
+    def test_ci_agent_cannot_choose_an_ambiguous_drift_source(self) -> None:
+        document = json.loads(
+            (ROOT / ".kiro/agents/pstack-maintainer.json").read_text(encoding="utf-8")
+        )
+        required = "select the lexicographically smallest drifting source id"
+        self.assertIn(required, document["prompt"])
+        document["prompt"] = document["prompt"].replace(
+            required,
+            "select any drifting source",
         )
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "agent.json"
@@ -1098,6 +1926,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         ).read_text()
         verifier = (ROOT / ".github/scripts/verify_pk_stack_attempt.sh").read_text()
         kiro_runner = (ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh").read_text()
+        kiro_setup = (ROOT / ".github/scripts/prepare_kiro_maintenance_runtime.sh").read_text()
         self.assertIn("classifyOpenCandidate", kiro)
         self.assertIn("loadSourceRun:", kiro)
         self.assertIn("loadCandidateRuns:", kiro)
@@ -1108,6 +1937,11 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn('decision.action === "close"', kiro)
         self.assertIn(".goal.attempt_count == 1", kiro)
         self.assertNotIn(".goal.attempt == 1", kiro)
+        self.assertIn("selected_source_id=$(jq", kiro)
+        self.assertIn("--source-id $selected_source_id --output json", kiro)
+        self.assertIn("goal_contract=(--feature pk-stack-upstream-maintenance)", kiro)
+        self.assertIn('cron: "17 13 * * *"', kiro)
+        self.assertNotIn('cron: "17 13 * * 1"', kiro)
         self.assertIn(
             "preserving the canonical <!-- pk-stack-upstream-genesis: "
             "{canonical JSON} --> marker byte-for-byte",
@@ -1115,13 +1949,101 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertIn("preserving every prior marker unchanged and in order", kiro_runner)
         self.assertIn("review-ledger transition count plus one", kiro_runner)
+        self.assertIn(
+            "select the lexicographically smallest drifting source id",
+            kiro_runner,
+        )
+        self.assertIn("the proposal must name that source_id", kiro_runner)
+        self.assertIn(
+            "leave every other drifting source unchanged for a later cadence",
+            kiro_runner,
+        )
+        self.assertIn("When detector drift_count is zero, create no proposal", kiro_runner)
         self.assertIn("--trust-tools=fs_read,fs_write,grep", kiro_runner)
         self.assertNotIn("--trust-tools=read,grep", kiro_runner)
+        self.assertIn("env -u KIRO_API_KEY python3", kiro_runner)
+        self.assertIn("validate-git-state", kiro_runner)
+        self.assertLess(
+            kiro_runner.index("validate-git-state"),
+            kiro_runner.index('validate_private_file "$stream_path" 16777216'),
+        )
+        self.assertIn(
+            "printf 'GIT_BOUNDARY_STATE=%s\\n' \"$RUNNER_TEMP/pk-stack-git-boundary-state\"",
+            kiro,
+        )
+        self.assertEqual(kiro.count('--git-state "$GIT_BOUNDARY_STATE"'), 5)
+        self.assertEqual(verifier.count('--git-state "$GIT_BOUNDARY_STATE"'), 2)
+        self.assertLess(verifier.index("close-attempt"), verifier.index("uv lock --check"))
+        hardened_settings = (
+            "GIT_CONFIG_NOSYSTEM=1",
+            "GIT_CONFIG_GLOBAL=/dev/null",
+            "GIT_CONFIG_SYSTEM=/dev/null",
+            "GIT_EXTERNAL_DIFF=",
+            "GIT_NO_REPLACE_OBJECTS=1",
+            "core.hooksPath=/dev/null",
+            "core.fsmonitor=false",
+            "diff.external=",
+        )
+        for hardened_setting in hardened_settings:
+            self.assertIn(hardened_setting, verifier)
+        self.assertIn("diff --no-ext-diff --no-textconv --name-only", verifier)
+        for variable in (
+            "GIT_DIR",
+            "GIT_COMMON_DIR",
+            "GIT_WORK_TREE",
+            "GIT_INDEX_FILE",
+            "GIT_OBJECT_DIRECTORY",
+            "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        ):
+            self.assertIn(f"export {variable}=", verifier)
+            self.assertIn(f"export {variable}=", kiro)
+        self.assertIn("finalize-git-state", verifier)
+        self.assertIn("finalize-git-state", kiro)
+        for hardened_setting in (
+            "GIT_CONFIG_NOSYSTEM",
+            "GIT_CONFIG_GLOBAL",
+            "GIT_CONFIG_SYSTEM",
+            "GIT_EXTERNAL_DIFF",
+            "GIT_NO_REPLACE_OBJECTS",
+            "core.hooksPath",
+            "core.fsmonitor",
+            "diff.external",
+        ):
+            self.assertIn(hardened_setting, kiro)
+        env_i_blocks = re.findall(r"(?ms)^env -i \\\n(?P<body>.*?)(?=^  timeout )", kiro_runner)
+        self.assertEqual(len(env_i_blocks), 2)
+        for block in env_i_blocks:
+            for setting in (
+                "GIT_DIR=/dev/null",
+                "GIT_CONFIG_NOSYSTEM=1",
+                "GIT_CONFIG_SYSTEM=/dev/null",
+                "GIT_CONFIG_GLOBAL=/dev/null",
+                "GIT_EXTERNAL_DIFF=",
+                "GIT_NO_REPLACE_OBJECTS=1",
+            ):
+                self.assertIn(setting, block)
+        self.assertIn(': "${TRUSTED_ROOT:?TRUSTED_ROOT is required}"', kiro_setup)
+        self.assertIn(
+            'trusted_agent="$TRUSTED_ROOT/.kiro/agents/pstack-maintainer.json"',
+            kiro_setup,
+        )
+        self.assertNotIn("install -m 0600 .kiro/agents/pstack-maintainer.json", kiro_setup)
         self.assertEqual(
             self.policy["ci_authority"]["runtime_trust_tools"],
             ["fs_read", "fs_write", "grep"],
         )
         for attempt in range(1, 5):
+            preparation = re.search(
+                rf"(?ms)^      - name: Prepare repair {attempt} without workspace hooks\n"
+                r".*?(?=^      - name: |\Z)",
+                kiro,
+            )
+            self.assertIsNotNone(preparation)
+            preparation_step = preparation.group(0)  # type: ignore[union-attr]
+            self.assertLess(
+                preparation_step.index("prepare-attempt"),
+                preparation_step.index('bash "$KIRO_SETUP_PATH"'),
+            )
             verification = re.search(
                 rf"(?ms)^      - name: Secretless verification {attempt} of 4\n"
                 r".*?(?=^      - name: |\Z)",
@@ -1179,6 +2101,12 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             verifier.index("uv lock --check"),
         )
         self.assertIn("validate-proposal", verifier)
+        self.assertIn("validate-serialized-acceptance", verifier)
+        self.assertIn("(( drift_count > 0 ))", verifier)
+        self.assertNotIn(
+            "trusted_projectctl feature verify pk-stack-upstream-maintenance",
+            verifier,
+        )
         self.assertLess(
             verifier.index("validate-proposal"),
             verifier.index("trusted_projectctl_network upstream accept"),
@@ -1321,7 +2249,9 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_post_accept_failure_restores_pin_and_ledger_for_attempt_two(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            sandbox = Path(temporary)
+            root = sandbox / "repo"
+            root.mkdir()
             (root / "maintenance").mkdir()
             (root / "powers/pk-stack/docs").mkdir(parents=True)
             (root / ".kiro/agents").mkdir(parents=True)
@@ -1375,9 +2305,18 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             detector.write_text(json.dumps(drift), encoding="utf-8")
             feedback = root / ".git/pk-stack-test-feedback.txt"
             feedback.write_text("post-accept gate failed\n", encoding="utf-8")
+            git_state = sandbox / "git-boundary-state"
 
-            guard.prepare_attempt(root, base_sha, self.policy, detector, feedback)
+            guard.prepare_attempt(
+                root,
+                base_sha,
+                self.policy,
+                detector,
+                feedback,
+                git_state,
+            )
 
+            self.assertFalse((root / ".kiro").exists())
             self.assertEqual(manifest.read_text(encoding="utf-8"), '{"pin":"base"}\n')
             self.assertEqual(ledger.read_text(encoding="utf-8"), base_ledger)
             rolled_back_provenance = provenance.read_text(encoding="utf-8")
@@ -1397,6 +2336,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.assertEqual(
                 provenance.read_text(encoding="utf-8").count("pk-stack-upstream-review:"), 1
             )
+            guard._remove_git_state(root, git_state)
 
 
 if __name__ == "__main__":

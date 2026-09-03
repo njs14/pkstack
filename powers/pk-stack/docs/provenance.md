@@ -17,13 +17,19 @@ retrieved on 2026-09-01. The pinned manifest identified upstream pstack as
 version `0.14.5`. On 2026-09-02, the first self-maintenance campaign reviewed
 all 27 paths in a seven-commit fast-forward and accepted
 [`efa2a531985e0a8084d36ff3cf87233be8a9f34b`](https://github.com/cursor/plugins/commit/efa2a531985e0a8084d36ff3cf87233be8a9f34b),
-whose upstream manifest identifies pstack as version `0.14.7`.
+whose upstream manifest identifies pstack as version `0.14.7`. On 2026-09-03, a second campaign
+reviewed the next one-commit fast-forward. Its only changes were the Cursor manifest version and
+an upstream raster logo, so PK-Stack retained its Kiro-native metadata and independently generated
+potato-ghost mascot while accepting
+[`7314f723a487ec406b6369fe5865ba034cfed166`](https://github.com/cursor/plugins/commit/7314f723a487ec406b6369fe5865ba034cfed166),
+version `0.14.8`.
 
 <!-- pk-stack-upstream-genesis: {"commit":"b9ddc83c32972210b8a94d389130713e8eed346e","path":"pstack","repository":"cursor/plugins","source_id":"cursor-pstack","subtree_sha":"950b90234c17babd00c43e32b19ae50abb4720f5"} -->
 <!-- pk-stack-upstream-review: {"inventory_sha256":"e45d7eff5baa59e8b73399b615741c4183c577ec372f8b7b33d28b7e2216caa6","new":{"commit":"efa2a531985e0a8084d36ff3cf87233be8a9f34b","subtree_sha":"1c625329e71538629f087374daa71293a498089f"},"path":"pstack","prior":{"commit":"b9ddc83c32972210b8a94d389130713e8eed346e","subtree_sha":"950b90234c17babd00c43e32b19ae50abb4720f5"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->
+<!-- pk-stack-upstream-review: {"inventory_sha256":"cb3f7506f1af19f3cc2a06518e8524f54d414dc769b353edef30807ff1d79638","new":{"commit":"7314f723a487ec406b6369fe5865ba034cfed166","subtree_sha":"ae6fff5803260f38f075feb8c3b008ed68153fa0"},"path":"pstack","prior":{"commit":"efa2a531985e0a8084d36ff3cf87233be8a9f34b","subtree_sha":"1c625329e71538629f087374daa71293a498089f"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->
 
-The machine-readable maintenance pin in `maintenance/upstreams.json` now records
-that accepted commit and subtree tree `1c625329e71538629f087374daa71293a498089f`.
+The machine-readable maintenance pin in `maintenance/upstreams.json` now records the latest
+accepted commit and subtree tree `ae6fff5803260f38f075feb8c3b008ed68153fa0`.
 After clean-room adaptation and all pre-pin gates pass, the trusted acceptance
 command advances the commit, subtree SHA, review ledger, and already-staged
 machine provenance marker together. The subsequent immutable-goal verification
@@ -32,8 +38,9 @@ workflow restores the prior pin and ledger and removes exactly the one unaccepte
 tail marker before the next repair attempt, preserving the accepted marker prefix
 and surrounding provenance prose. An accepted pin alone is never a passing
 maintenance result.
-The companion `maintenance/upstream-reviews.json` ledger establishes that same commit and subtree
-as its genesis. The one canonical `pk-stack-upstream-genesis` comment above binds the source id,
+The companion `maintenance/upstream-reviews.json` ledger retains the original `b9ddc83c...`
+commit and `950b9023...` subtree as genesis, followed by both accepted transitions to the current
+manifest pin. The one canonical `pk-stack-upstream-genesis` comment above binds the source id,
 repository, path, commit, and subtree to that ledger genesis. Future pins require an append-only
 transition bound to the exact remote inventory digest and one reviewed A/B/C disposition with
 rationale for every changed path. The full chain is validated locally; its latest transition is
@@ -89,7 +96,7 @@ file was consulted; they do not imply that its expression was copied.
 The selected examples below are not the inventory boundary. The
 [machine-readable skill parity catalog](upstream-skill-parity.json) binds all 45
 top-level packages and all 122 package files at both the reviewed genesis and
-live head `efa2a531985e0a8084d36ff3cf87233be8a9f34b`, including package trees,
+live head `7314f723a487ec406b6369fe5865ba034cfed166`, including package trees,
 blob SHAs, modes, sizes, and per-resource handling. That live-head record is
 clean-room review input; it does not advance the accepted pin or genesis-only
 review ledger.

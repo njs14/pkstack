@@ -182,7 +182,7 @@ The two settings commands returned `true` and
 
 | Capability | Current Kiro contract | PK-Stack use |
 | --- | --- | --- |
-| Specs | Native `/spec`, including `new`, `run`, `view`, and `analyze_requirements`; `--mode spec` is exposed by local help | Keep native requirements/design/task flow; accept only a small executable bridge for projectctl proof |
+| Specs | Feature Spec, Bugfix Spec, Quick Spec, and parallel task execution span IDE, CLI, and Web; CLI exposes `/spec new <name>`, `/spec <name>`, and `/spec run <name>` | Use native requirements or bug analysis, design, tasks, and dependency waves as the planning spine; after a visible same-conversation return to `pstack`, bind the native package to one published feature verifier rather than recreating a planner |
 | Agent Skills | Workspace `.kiro/skills/<name>/SKILL.md` and global `~/.kiro/skills/`; slash invocation accepts trailing request text across IDE, CLI, and Web | Materialize `/verified-goal`, architecture, arena, swarm, maintenance, and advisory council workflows without CLI-only placeholder substitution; keep `/setup-pstack` Power-local as an IDE/CLI bootstrap exception |
 | Powers | Agent Plugins layout with root `plugin.json`, optional `skills/`, `mcp.json`, and `dev.kiro/` | Package and distribute PK-Stack guidance and its Power-local setup shim |
 | Custom agents | Workspace `.kiro/agents/` or global `~/.kiro/agents/`; current docs accept JSON and Markdown; IDE and CLI can select a primary agent while Web can only delegate to project agents | Ship four Power JSON profiles plus the repository's isolated CI maintainer; require both installed-CLI validation and exact Workspace discovery; select `pstack` as primary only where Kiro supports it |
@@ -191,7 +191,7 @@ The two settings commands returned `true` and
 | Hooks | Standalone `.kiro/hooks/*.json`, `version: "v1"`, PascalCase triggers, command or agent actions | Static SessionStart orientation plus a disabled advisory Stop probe |
 | Permissions | Capability rules with `allow`, `ask`, and `deny`; the most restrictive result wins | Allow workspace reads, ask for Git/writes/projectctl commands, and deny destructive patterns |
 | Steering | `.kiro/steering/*.md` with `always`, `auto`, `fileMatch`, or `manual` inclusion | Three small always-on architecture/safety/prose invariants plus TypeScript guidance selected by `fileMatch` for `**/*.ts` and `**/*.tsx` |
-| Knowledge | `/knowledge` and the `knowledge` tool are experimental; local knowledge is enabled | Preserve native knowledge as optional and delegate canonical Wiki operations to `okn` when installed |
+| Knowledge | `/knowledge` and the `knowledge` tool are experimental; local knowledge is enabled | Keep the source-controlled OKF Wiki authoritative, use the spec-linked feature map first, and delegate deeper validation/search to canonical `okn`; native knowledge may index the same files but does not replace them |
 | Goal | Native `/goal` is documented as a self-verifying loop with five iterations by default and configurable `--max` | Keep `/verified-goal` separate and projectctl-backed; do not depend on native availability or claim this Mac exposes it without an interactive probe |
 
 Primary references:
@@ -200,7 +200,8 @@ Primary references:
 - [Kiro IDE chat and agent selection](https://kiro.dev/docs/ide/chat/)
 - [Experimental Agent Focus Mode](https://kiro.dev/docs/ide/experimental/focus-mode/)
 - [How Kiro works across surfaces](https://kiro.dev/docs/how-kiro-works/)
-- [Specs in CLI](https://kiro.dev/docs/cli/v3/specs/)
+- [Specs across Kiro surfaces](https://kiro.dev/docs/specs/) and [Quick Spec](https://kiro.dev/docs/specs/quick-spec/)
+- [Built-in Spec, Quick Spec, Bug Fix, and Plan agents](https://kiro.dev/docs/custom-agents/built-in/)
 - [Agent Skills](https://kiro.dev/docs/skills/)
 - [Powers](https://kiro.dev/docs/powers/) and [Create powers](https://kiro.dev/docs/powers/create/)
 - [Custom agents](https://kiro.dev/docs/custom-agents/) and [configuration reference](https://kiro.dev/docs/cli/custom-agents/configuration-reference/)
@@ -238,7 +239,7 @@ After bootstrap, skills use `.pstack/bin/projectctl`, never repository
 Setup remains Power-local and is cached under
 `.pstack/projectctl/skills/setup-pstack/`; bootstrap deliberately does not copy
 it to `.kiro/skills/`, where an older workspace copy could shadow an upgraded
-Power. The other 47 workflow skills are materialized in the workspace. Kiro's
+Power. The other 48 workflow skills are materialized in the workspace. Kiro's
 current [Agent Skills documentation](https://kiro.dev/docs/skills/) describes
 progressive disclosure: metadata is discovered first and the full skill body is
 loaded only when activated. It documents workspace skills across IDE, CLI, Web,

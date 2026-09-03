@@ -11,6 +11,8 @@ verification:
     - --output
     - json
 related:
+  - ../architecture/native-kiro-composition.md
+  - ../operations/context-depth.md
   - ../../docs/architecture.md
   - ../../docs/test-strategy.md
 ---
@@ -29,7 +31,9 @@ configured DLQ boundary.
 ## Expected path
 
 Deployed API ECS task -> DynamoDB and SQS -> deployed worker ECS task -> S3 result and terminal
-DynamoDB state; a distinct tenant key cannot retrieve that row.
+DynamoDB state; a distinct tenant key cannot retrieve that row. The verifier follows the
+[native Kiro composition boundary](../architecture/native-kiro-composition.md) and the
+[task-driven context-depth runbook](../operations/context-depth.md).
 
 ## Sub-features
 

@@ -89,7 +89,7 @@ jobs:
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            516d4a8da6eab3effc5f04d42388dc84659c02716a0859f0f0eca1f42a5ebd50 \
+            5bb13e43f63c47c9437816cd14462743b1c8b069d50a04887ac6d8f51feed9f5 \
             "$SMOKE_ROOT/kiro-home/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \

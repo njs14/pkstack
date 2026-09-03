@@ -1,0 +1,427 @@
+{
+  "schema_version": 2,
+  "campaign_id": "pk-stack-self-maintenance-2026-09-03-cursor-0.14.8",
+  "recorded_at": "2026-09-03T05:20:33Z",
+  "decision": "passed",
+  "scope": "Bounded evidence for the latest source-scoped PK-Stack upstream self-maintenance campaign, with the preceding campaign retained as a summary.",
+  "execution_surface": {
+    "primary": "Codex harness invoking repository-local projectctl commands",
+    "kiro_executed": false,
+    "kiro_session_id": null,
+    "acp_used": false,
+    "claim": "This campaign is controller and harness evidence, not a Kiro CLI v3, Kiro IDE, or Kiro Web session transcript."
+  },
+  "git_binding": {
+    "head_commit_during_recording": "491bfdafc94832c6624ed86051955b1067245979",
+    "head_tree": "e314bd4ab33e492b905a080b43c4ea8bdfba6828",
+    "exact_goal_attempt_worktree_tree": null,
+    "binding_kind": "head-and-bounded-controller-artifact",
+    "limitation": "The goal ran in a dirty worktree. HEAD remained at the recorded commit through evidence capture, but neither Git identity is an exact byte binding for either goal attempt. The ignored goal record is separately bound by byte count and SHA-256."
+  },
+  "goal": {
+    "state_path": ".pstack/state/goal.json",
+    "committed": false,
+    "file_mode": "0600",
+    "bytes": 61441,
+    "sha256": "3fe511da6dd3bd0f9207e248525ef6979597b7e5e7c4e80362a86bdfeee7348e",
+    "schema_version": 2,
+    "goal_id": "efe929d9-9945-4c97-866b-a8f414b9ef97",
+    "objective": "Reconcile PK-Stack with selected upstream source cursor-pstack",
+    "status": "passed",
+    "attempt_count": 2,
+    "max_attempts": 5,
+    "created_at": "2026-09-03T05:08:43.036864+00:00",
+    "updated_at": "2026-09-03T05:13:45.031637+00:00",
+    "contract_digest": "59f08f943111cf645d05dc4962912fa81c3bf20e26b879c6ef6f7c4e21f76b5a",
+    "contract": {
+      "argv": [
+        ".pstack/bin/projectctl",
+        "upstream",
+        "check",
+        "--manifest",
+        "maintenance/upstreams.json",
+        "--power-root",
+        "powers/pk-stack",
+        "--source-id",
+        "cursor-pstack",
+        "--output",
+        "json"
+      ],
+      "display": ".pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --source-id cursor-pstack --output json",
+      "feature": null,
+      "source": "explicit",
+      "spec": null
+    }
+  },
+  "attempts": [
+    {
+      "ordinal": 1,
+      "ordinal_source": "position in the goal history array",
+      "started_at": "2026-09-03T05:08:57.199423+00:00",
+      "duration_ms": 17653,
+      "exit_code": 1,
+      "passed": false,
+      "timed_out": false,
+      "truncated": false,
+      "error": null,
+      "stderr_bytes": 0,
+      "stdout_bytes": 20200,
+      "stdout_sha256": "605f66514c392951b731cb3258df9a9f07eaa5f41a4fc2a44210ce61378366a2",
+      "stdout_strict_json_parseable": true,
+      "facts": {
+        "ok": false,
+        "selected_source_id": "cursor-pstack",
+        "bootstrap_preview": {
+          "ok": true,
+          "dry_run": true,
+          "update_managed": true,
+          "created": 0,
+          "updated": 0,
+          "unchanged": 157,
+          "pending_updates": 0,
+          "stale_managed": 0,
+          "conflicts": 0,
+          "notes": 0
+        },
+        "generated_parity": {
+          "ok": true,
+          "dry_run": true,
+          "update_managed": true,
+          "differences": {}
+        },
+        "source": {
+          "id": "cursor-pstack",
+          "ok": false,
+          "drift": true,
+          "pinned": {
+            "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+            "subtree_sha": "1c625329e71538629f087374daa71293a498089f"
+          },
+          "current": {
+            "commit": "7314f723a487ec406b6369fe5865ba034cfed166",
+            "subtree_sha": "ae6fff5803260f38f075feb8c3b008ed68153fa0"
+          },
+          "comparison": {
+            "status": "ahead",
+            "base_commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+            "head_commit": "7314f723a487ec406b6369fe5865ba034cfed166",
+            "merge_base_commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+            "ahead_by": 1,
+            "behind_by": 0,
+            "commit_count": 1,
+            "file_count": 2,
+            "path_count": 2,
+            "no_patch_count": 1,
+            "patch_bytes": 324,
+            "inventory_sha256": "cb3f7506f1af19f3cc2a06518e8524f54d414dc769b353edef30807ff1d79638",
+            "complete": true,
+            "fast_forward": true,
+            "paths": [
+              ".cursor-plugin/plugin.json",
+              "assets/logo.png"
+            ]
+          },
+          "pinned_reproof_ok": true,
+          "prior_review_reproof": {
+            "ok": true,
+            "transition_count": 1,
+            "tip_commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+            "tip_subtree_sha": "1c625329e71538629f087374daa71293a498089f"
+          },
+          "source_parity": {
+            "ok": true,
+            "status": "accepted-baseline",
+            "artifact_type": "skill-catalog",
+            "current_resource_count": 122,
+            "pinned_resource_count": 122,
+            "classified_resource_count": 122,
+            "candidate_ready": false,
+            "errors": []
+          }
+        }
+      }
+    },
+    {
+      "ordinal": 2,
+      "ordinal_source": "position in the goal history array",
+      "started_at": "2026-09-03T05:13:39.444267+00:00",
+      "duration_ms": 5585,
+      "exit_code": 0,
+      "passed": true,
+      "timed_out": false,
+      "truncated": false,
+      "error": null,
+      "stderr_bytes": 0,
+      "stdout_bytes": 17857,
+      "stdout_sha256": "d4fe5bfad683ba72d24e6caa5b864a753d41a2bedd00c9b58a017a5793199e04",
+      "stdout_strict_json_parseable": true,
+      "facts": {
+        "ok": true,
+        "selected_source_id": "cursor-pstack",
+        "bootstrap_preview": {
+          "ok": true,
+          "dry_run": true,
+          "update_managed": true,
+          "created": 0,
+          "updated": 0,
+          "unchanged": 157,
+          "pending_updates": 0,
+          "stale_managed": 0,
+          "conflicts": 0,
+          "notes": 0
+        },
+        "generated_parity": {
+          "ok": true,
+          "dry_run": true,
+          "update_managed": true,
+          "differences": {}
+        },
+        "source": {
+          "id": "cursor-pstack",
+          "ok": true,
+          "drift": false,
+          "pinned_equals_current": true,
+          "comparison_status": "identical",
+          "comparison_inventory_sha256": "5fadd3052cf91bfb2adf74b0ceb9415284280338c213b62cdb929cf31c73eebd",
+          "pinned_reproof_ok": true
+        },
+        "review_reproof": {
+          "ok": true,
+          "transition_count": 2,
+          "latest_transition_index": 1,
+          "latest_inventory_sha256": "cb3f7506f1af19f3cc2a06518e8524f54d414dc769b353edef30807ff1d79638",
+          "latest_path_count": 2,
+          "latest_disposition_counts": {
+            "A": 0,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "source_parity": {
+          "ok": true,
+          "status": "accepted-baseline",
+          "artifact_type": "skill-catalog",
+          "current_resource_count": 122,
+          "pinned_resource_count": 122,
+          "classified_resource_count": 122,
+          "candidate_ready": false,
+          "errors": []
+        }
+      }
+    }
+  ],
+  "drift_inventory": {
+    "detector_inventory_sha256": "cb3f7506f1af19f3cc2a06518e8524f54d414dc769b353edef30807ff1d79638",
+    "accepted_inventory_sha256": "cb3f7506f1af19f3cc2a06518e8524f54d414dc769b353edef30807ff1d79638",
+    "path_count": 2,
+    "complete": true,
+    "files": [
+      {
+        "path": ".cursor-plugin/plugin.json",
+        "status": "modified",
+        "content_class": "exact-blob-text-patch",
+        "reviewability": "exact-blob-unified-patch",
+        "old_blob_sha": "07c09c54a254c5310ecad703aae1b33724687c82",
+        "new_blob_sha": "469c2d534b44cce593759f8ac8c8aced710130b9",
+        "old_size": 721,
+        "new_size": 721,
+        "changes": 2,
+        "semantic_change": "Cursor plugin version 0.14.7 to 0.14.8"
+      },
+      {
+        "path": "assets/logo.png",
+        "status": "modified",
+        "content_class": "binary-or-patch-unavailable",
+        "reviewability": "unavailable-nonsemantic-image",
+        "old_blob_sha": "d52edb8948594d8ecf9f4e3b1b8efada07421001",
+        "new_blob_sha": "3754e87cb0e1362f17428bc84c661166ee145156",
+        "old_size": 1966011,
+        "new_size": 361140,
+        "changes": 0
+      }
+    ]
+  },
+  "accepted_transition": {
+    "ledger_transition_index": 1,
+    "ledger_path": "maintenance/upstream-reviews.json",
+    "source_id": "cursor-pstack",
+    "repository": "cursor/plugins",
+    "path": "pstack",
+    "provenance_path": "powers/pk-stack/docs/provenance.md",
+    "prior": {
+      "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+      "subtree_sha": "1c625329e71538629f087374daa71293a498089f"
+    },
+    "new": {
+      "commit": "7314f723a487ec406b6369fe5865ba034cfed166",
+      "subtree_sha": "ae6fff5803260f38f075feb8c3b008ed68153fa0"
+    },
+    "inventory_sha256": "cb3f7506f1af19f3cc2a06518e8524f54d414dc769b353edef30807ff1d79638",
+    "path_count": 2,
+    "disposition_counts": {
+      "A": 0,
+      "B": 2,
+      "C": 0
+    },
+    "dispositions": [
+      {
+        "path": ".cursor-plugin/plugin.json",
+        "disposition": "B"
+      },
+      {
+        "path": "assets/logo.png",
+        "disposition": "B"
+      }
+    ]
+  },
+  "acceptance": {
+    "proof_class": "committed manifest, review-ledger transition, provenance marker, accepted-baseline parity, and passing second goal attempt",
+    "expected_head": "7314f723a487ec406b6369fe5865ba034cfed166",
+    "proposal_workspace_present_after_accept": false,
+    "exact_accept_invocation_retained": false,
+    "limitation": "The acceptance dry-run and apply completed before attempt 2, but their raw command outputs were not retained in this bounded artifact. This record therefore relies on the canonical transition and post-accept reproof and does not invent call ids, output hashes, or a command spelling."
+  },
+  "parity": {
+    "path": "powers/pk-stack/docs/upstream-skill-parity.json",
+    "source_pinned": {
+      "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+      "pstack_subtree_sha": "1c625329e71538629f087374daa71293a498089f"
+    },
+    "source_current": {
+      "commit": "7314f723a487ec406b6369fe5865ba034cfed166",
+      "pstack_subtree_sha": "ae6fff5803260f38f075feb8c3b008ed68153fa0"
+    },
+    "retrieved_on": "2026-09-03",
+    "upstream_skill_count": 45,
+    "routed_upstream_name_count": 44,
+    "shipped_skill_directory_count": 49,
+    "pinned_resource_count": 122,
+    "current_resource_count": 122,
+    "all_skill_pins_equal_current": true,
+    "note": "The source identity pair records the reviewed comparison. Per-skill pinned and current resource identities are equal after acceptance because the changed paths were outside the skills catalog."
+  },
+  "final_check": {
+    "evidence_class": "strictly parsed attempt 2 stdout stored in the ignored goal state",
+    "goal_status": "passed",
+    "attempt_ordinal": 2,
+    "exit_code": 0,
+    "ok": true,
+    "bootstrap_preview": {
+      "ok": true,
+      "dry_run": true,
+      "update_managed": true,
+      "created": 0,
+      "updated": 0,
+      "unchanged": 157,
+      "pending_updates": 0,
+      "stale_managed": 0,
+      "conflicts": 0,
+      "notes": 0
+    },
+    "generated_parity": {
+      "ok": true,
+      "dry_run": true,
+      "update_managed": true,
+      "differences": {}
+    },
+    "source": {
+      "id": "cursor-pstack",
+      "ok": true,
+      "drift": false,
+      "pinned_equals_current": true,
+      "comparison_status": "identical",
+      "comparison_inventory_sha256": "5fadd3052cf91bfb2adf74b0ceb9415284280338c213b62cdb929cf31c73eebd",
+      "pinned_reproof_ok": true
+    },
+    "review_reproof": {
+      "ok": true,
+      "transition_count": 2,
+      "latest_transition_index": 1,
+      "latest_inventory_sha256": "cb3f7506f1af19f3cc2a06518e8524f54d414dc769b353edef30807ff1d79638",
+      "latest_path_count": 2,
+      "latest_disposition_counts": {
+        "A": 0,
+        "B": 2,
+        "C": 0
+      }
+    },
+    "skill_parity": {
+      "ok": true,
+      "status": "accepted-baseline",
+      "current_resource_count": 122,
+      "pinned_resource_count": 122,
+      "classified_resource_count": 122,
+      "candidate_ready": false,
+      "errors": []
+    }
+  },
+  "aggregate_post_check": {
+    "recorded_after_goal": true,
+    "command": ".pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --output json",
+    "exit_code": 0,
+    "output_bytes": 23995,
+    "output_sha256": "3e0b91991ddc162d83f9701f3fe63d57e5c26ba1143b9f0f1aa96cc269c87c6f",
+    "ok": true,
+    "selected_source_id": null,
+    "bootstrap_unchanged": 157,
+    "generated_parity_ok": true,
+    "sources": [
+      {
+        "id": "cursor-pstack",
+        "ok": true,
+        "drift": false,
+        "comparison_status": "identical",
+        "review_reproof_ok": true,
+        "source_parity_ok": true
+      },
+      {
+        "id": "google-okf-spec",
+        "ok": true,
+        "drift": false,
+        "comparison_status": "identical",
+        "review_reproof_ok": true,
+        "source_parity_ok": true
+      },
+      {
+        "id": "okf-skills",
+        "ok": true,
+        "drift": false,
+        "comparison_status": "identical",
+        "review_reproof_ok": true,
+        "source_parity_ok": true
+      }
+    ]
+  },
+  "prior_campaign": {
+    "campaign_id": "pk-stack-self-maintenance-2026-09-02",
+    "goal_id": "395bd46c-f889-4fbc-8933-187ab0e88441",
+    "contract_digest": "bae5cdd382fc4d779a3f1b5004a8a6bd743f4162e095931edcc38e5c6d91170f",
+    "decision": "passed",
+    "attempt_count": 2,
+    "accepted_transition_index": 0,
+    "prior": {
+      "commit": "b9ddc83c32972210b8a94d389130713e8eed346e",
+      "subtree_sha": "950b90234c17babd00c43e32b19ae50abb4720f5"
+    },
+    "new": {
+      "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
+      "subtree_sha": "1c625329e71538629f087374daa71293a498089f"
+    },
+    "inventory_sha256": "e45d7eff5baa59e8b73399b615741c4183c577ec372f8b7b33d28b7e2216caa6",
+    "path_count": 27,
+    "disposition_counts": {
+      "A": 23,
+      "B": 3,
+      "C": 1
+    },
+    "evidence_note": "The preceding primary artifact recorded richer local transcript and controller details. This version retains the durable identity and verdict summary while the canonical ledger remains authoritative for its complete dispositions."
+  },
+  "evidence_boundaries": [
+    "The committed manifest, review ledger, provenance markers, and parity artifact are the authority for accepted source identities and dispositions.",
+    "The ignored goal file was raw controller evidence available on this workstation at recording time; this JSON commits only bounded fields and hashes.",
+    "Goal-attempt ordinals are array positions because schema-version-2 history entries do not store an ordinal field.",
+    "No exact Git tree represents either dirty-worktree goal attempt.",
+    "No Kiro session id or Kiro-authored transcript exists for this campaign.",
+    "The aggregate post-check is a separate read-only command after the goal; it proves all three configured sources were clean at that check, not that the source-scoped goal verified all three."
+  ]
+}

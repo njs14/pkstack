@@ -17,6 +17,7 @@ from pstack_kiro.runner import CommandRejected, enforce_verification_policy
 from pstack_kiro.upstreams import UpstreamError, check_upstreams, load_upstream_manifest
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = POWER_ROOT.parents[1]
 PIN = "b9ddc83c32972210b8a94d389130713e8eed346e"
 PIN_TREE = "950b90234c17babd00c43e32b19ae50abb4720f5"
 HEAD = "efa2a531985e0a8084d36ff3cf87233be8a9f34b"
@@ -56,9 +57,69 @@ CHANGED_PATHS = (
 )
 
 
+def test_committed_maintenance_campaign_matches_recorded_transition_and_manifest_tip() -> None:
+    campaign = json.loads(
+        (REPOSITORY_ROOT / "reviews" / "pk-stack-maintenance-campaign.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    ledger = json.loads(
+        (REPOSITORY_ROOT / "maintenance" / "upstream-reviews.json").read_text(encoding="utf-8")
+    )
+    manifest = json.loads(
+        (REPOSITORY_ROOT / "maintenance" / "upstreams.json").read_text(encoding="utf-8")
+    )
+
+    evidence = campaign["accepted_transition"]
+    source_id = evidence["source_id"]
+    ledger_source = next(source for source in ledger["sources"] if source["id"] == source_id)
+    manifest_source = next(source for source in manifest["sources"] if source["id"] == source_id)
+    transition_index = evidence["ledger_transition_index"]
+    assert type(transition_index) is int and 0 <= transition_index < len(
+        ledger_source["transitions"]
+    )
+    recorded_transition = ledger_source["transitions"][transition_index]
+    latest_transition = ledger_source["transitions"][-1]
+    projected_dispositions = [
+        {"path": item["path"], "disposition": item["disposition"]}
+        for item in recorded_transition["dispositions"]
+    ]
+    disposition_counts = {
+        disposition: sum(
+            item["disposition"] == disposition for item in recorded_transition["dispositions"]
+        )
+        for disposition in ("A", "B", "C")
+    }
+
+    assert campaign["decision"] == "passed"
+    assert evidence["ledger_path"] == manifest["review_ledger_path"]
+    assert evidence["repository"] == ledger_source["repository"]
+    assert evidence["path"] == ledger_source["path"]
+    assert evidence["provenance_path"] == ledger_source["provenance_path"]
+    assert evidence["prior"] == recorded_transition["prior"]
+    assert evidence["new"] == recorded_transition["new"]
+    assert evidence["inventory_sha256"] == recorded_transition["inventory_sha256"]
+    assert evidence["path_count"] == len(recorded_transition["dispositions"])
+    assert evidence["disposition_counts"] == disposition_counts
+    assert evidence["dispositions"] == projected_dispositions
+    assert {
+        "commit": manifest_source["commit"],
+        "subtree_sha": manifest_source["subtree_sha"],
+    } == latest_transition["new"]
+    assert (
+        campaign["final_check"]["review_reproof"]["latest_inventory_sha256"]
+        == evidence["inventory_sha256"]
+    )
+    assert campaign["final_check"]["review_reproof"]["latest_path_count"] == evidence["path_count"]
+    assert (
+        campaign["final_check"]["review_reproof"]["latest_disposition_counts"]
+        == evidence["disposition_counts"]
+    )
+
+
 def _manifest() -> dict[str, Any]:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "review_ledger_path": "maintenance/upstream-reviews.json",
         "sources": [
             {
@@ -69,6 +130,7 @@ def _manifest() -> dict[str, Any]:
                 "commit": PIN,
                 "subtree_sha": PIN_TREE,
                 "provenance_path": "powers/pk-stack/docs/provenance.md",
+                "parity_path": "powers/pk-stack/docs/upstream-skill-parity.json",
             }
         ],
     }
@@ -76,13 +138,14 @@ def _manifest() -> dict[str, Any]:
 
 def _ledger() -> dict[str, Any]:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "sources": [
             {
                 "id": "cursor-pstack",
                 "repository": "cursor/plugins",
                 "path": "pstack",
                 "provenance_path": "powers/pk-stack/docs/provenance.md",
+                "parity_path": "powers/pk-stack/docs/upstream-skill-parity.json",
                 "genesis": {"commit": PIN, "subtree_sha": PIN_TREE},
                 "transitions": [],
             }
@@ -225,7 +288,12 @@ def _rewrite_provenance_markers(
 def _write_proposal(root: Path, document: Any, *, bind_provenance: bool = True) -> Path:
     path = root / ".pk-stack-maintenance" / "proposal.json"
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(document), encoding="utf-8")
+    proposal = (
+        {"source_id": "cursor-pstack", **document}
+        if isinstance(document, dict) and "source_id" not in document
+        else document
+    )
+    path.write_text(json.dumps(proposal), encoding="utf-8")
     if bind_provenance:
         _write_provenance_marker(root, document)
     return path
@@ -587,6 +655,161 @@ class FakeFetch:
     def __call__(self, url: str, token: str | None, timeout: float) -> Any:
         self.calls.append((url, token, timeout))
         return self.responses[url]
+
+
+def _add_parallel_source(root: Path, *, source_id: str = "alpha-source") -> dict[str, Path]:
+    manifest_path = root / "maintenance" / "upstreams.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    source = copy.deepcopy(manifest["sources"][0])
+    source.update(
+        id=source_id,
+        provenance_path=f"powers/pk-stack/docs/{source_id}-provenance.md",
+        parity_path=f"powers/pk-stack/docs/{source_id}-parity.json",
+    )
+    manifest["sources"].append(source)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    ledger_path = root / "maintenance" / "upstream-reviews.json"
+    ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    review = copy.deepcopy(ledger["sources"][0])
+    review.update(
+        id=source_id,
+        provenance_path=source["provenance_path"],
+        parity_path=source["parity_path"],
+    )
+    ledger["sources"].append(review)
+    ledger_path.write_text(json.dumps(ledger), encoding="utf-8")
+
+    default_parity = root / manifest["sources"][0]["parity_path"]
+    parity = json.loads(default_parity.read_text(encoding="utf-8"))
+    parity["source"]["id"] = source_id
+    parity_path = root / source["parity_path"]
+    parity_path.write_text(json.dumps(parity), encoding="utf-8")
+
+    genesis = {
+        "source_id": source_id,
+        "repository": source["repository"],
+        "path": source["path"],
+        "commit": source["commit"],
+        "subtree_sha": source["subtree_sha"],
+    }
+    provenance_path = root / source["provenance_path"]
+    provenance_path.write_text(
+        "# Parallel source provenance\n" + _marker_line("genesis", genesis) + "\n",
+        encoding="utf-8",
+    )
+    return {"parity": parity_path, "provenance": provenance_path}
+
+
+def _append_source_review_marker(
+    path: Path,
+    *,
+    source_id: str,
+    transition: dict[str, Any],
+) -> None:
+    payload = {
+        "source_id": source_id,
+        "repository": "cursor/plugins",
+        "path": "pstack",
+        "prior": transition["prior"],
+        "new": transition["new"],
+        "inventory_sha256": transition["inventory_sha256"],
+    }
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(_marker_line("review", payload) + "\n")
+
+
+def test_source_inventory_parity_is_exact_and_fully_classified() -> None:
+    pinned: dict[str, tuple[str, str, str, int | None]] = {
+        "SPEC.md": ("blob", "100644", "a" * 40, 11)
+    }
+    current: dict[str, tuple[str, str, str, int | None]] = {
+        "docs/guide.md": ("blob", "100644", "b" * 40, 19),
+        "SPEC.md": ("blob", "100644", "c" * 40, 13),
+    }
+    document: dict[str, Any] = {
+        "schema_version": 1,
+        "artifact_type": "source-inventory",
+        "source": {},
+        "allowed_dispositions": ["A", "B", "C"],
+        "summary": {"A": 1, "B": 1, "C": 0, "pinned_files": 1, "current_files": 2},
+        "files": [
+            {
+                "path": "docs/guide.md",
+                "pinned": None,
+                "current": {
+                    "type": "blob",
+                    "mode": "100644",
+                    "object_sha": "b" * 40,
+                    "size": 19,
+                },
+                "disposition": "B",
+                "rationale": "Methodology reference retained without redistributing its source.",
+            },
+            {
+                "path": "SPEC.md",
+                "pinned": {
+                    "type": "blob",
+                    "mode": "100644",
+                    "object_sha": "a" * 40,
+                    "size": 11,
+                },
+                "current": {
+                    "type": "blob",
+                    "mode": "100644",
+                    "object_sha": "c" * 40,
+                    "size": 13,
+                },
+                "disposition": "A",
+                "rationale": "Normative specification semantics are incorporated by reference.",
+            },
+        ],
+    }
+
+    assert upstreams._validate_source_inventory_document(
+        document,
+        expected_pinned=pinned,
+        expected_current=current,
+    ) == {
+        "pinned_resource_count": 1,
+        "current_resource_count": 2,
+        "classified_resource_count": 2,
+    }
+
+    tampered: dict[str, Any] = copy.deepcopy(document)
+    tampered["files"][1]["current"]["object_sha"] = "d" * 40
+    with pytest.raises(UpstreamError, match="identity does not match upstream"):
+        upstreams._validate_source_inventory_document(
+            tampered,
+            expected_pinned=pinned,
+            expected_current=current,
+        )
+
+
+def test_source_scoped_check_uses_the_selected_sources_own_parity(tmp_path: Path) -> None:
+    _write_manifest(tmp_path)
+    paths = _add_parallel_source(tmp_path)
+    payload = check_upstreams(
+        tmp_path,
+        source_id="alpha-source",
+        fetch_json=FakeFetch(),
+        environ={},
+    )
+
+    assert payload["selected_source_id"] == "alpha-source"
+    assert [source["id"] for source in payload["sources"]] == ["alpha-source"]
+    source = payload["sources"][0]
+    assert source["parity_path"] == paths["parity"].relative_to(tmp_path).as_posix()
+    assert source["source_parity"]["ok"] is True
+    assert source["source_parity"]["candidate_ready"] is True
+
+    with pytest.raises(UpstreamError, match="not present in the manifest"):
+        check_upstreams(
+            tmp_path,
+            source_id="missing-source",
+            fetch_json=FakeFetch(),
+            environ={},
+        )
 
 
 def test_skill_parity_blocks_remote_catalog_drift_and_accepts_exact_repair() -> None:
@@ -1560,6 +1783,7 @@ def test_provenance_markers_bind_full_ordered_transition_history(tmp_path: Path)
         commit="c" * 40,
         subtree_sha="d" * 40,
         provenance_path="powers/pk-stack/docs/provenance.md",
+        parity_path="powers/pk-stack/docs/upstream-skill-parity.json",
     )
     provenance = tmp_path / source.provenance_path
 
@@ -1692,12 +1916,14 @@ def test_remote_review_reproof_cost_is_constant_at_maximum_history() -> None:
             commit=commits[-1],
             subtree_sha=subtrees[-1],
             provenance_path="powers/pk-stack/docs/provenance.md",
+            parity_path="powers/pk-stack/docs/upstream-skill-parity.json",
         )
         review = upstreams.UpstreamReview(
             source_id=source.source_id,
             repository=source.repository,
             path=source.path,
             provenance_path=source.provenance_path,
+            parity_path=source.parity_path,
             genesis_commit=commits[0],
             genesis_subtree_sha=subtrees[0],
             transitions=transitions,
@@ -2004,10 +2230,10 @@ def test_accept_dry_run_then_atomic_accept_leaves_no_ephemeral_residue(tmp_path:
         fetch_json=FakeFetch(responses),
         environ={},
     )
-    skill_parity = collapsed_history["sources"][0]["skill_parity"]
-    assert skill_parity["ok"] is False
-    assert skill_parity["candidate_ready"] is False
-    assert "does not match review history" in skill_parity["errors"][0]
+    source_parity = collapsed_history["sources"][0]["source_parity"]
+    assert source_parity["ok"] is False
+    assert source_parity["candidate_ready"] is False
+    assert "does not match review history" in source_parity["errors"][0]
     parity_path.write_bytes(parity_before)
 
     _write_proposal(tmp_path, transition, bind_provenance=False)
@@ -2019,6 +2245,90 @@ def test_accept_dry_run_then_atomic_accept_leaves_no_ephemeral_residue(tmp_path:
             fetch_json=FakeFetch(responses),
             environ={},
         )
+
+
+def test_multisource_accept_serializes_one_source_without_mutating_the_other(
+    tmp_path: Path,
+) -> None:
+    canonical_power = _prepare_accept_root(tmp_path)
+    paths = _add_parallel_source(tmp_path)
+    responses = _fake_responses()
+    baseline = check_upstreams(
+        tmp_path,
+        power_root=canonical_power,
+        fetch_json=FakeFetch(responses),
+        environ={},
+    )
+    assert sorted(source["id"] for source in baseline["sources"] if source["drift"]) == [
+        "alpha-source",
+        "cursor-pstack",
+    ]
+    selected = next(source for source in baseline["sources"] if source["id"] == "alpha-source")
+    transition = _transition(selected["comparison"]["inventory_sha256"])
+    proposal = {"source_id": "alpha-source", **transition}
+    proposal_path = tmp_path / ".pk-stack-maintenance" / "proposal.json"
+    proposal_path.parent.mkdir(parents=True)
+    proposal_path.write_text(json.dumps(proposal), encoding="utf-8")
+    _append_source_review_marker(
+        paths["provenance"],
+        source_id="alpha-source",
+        transition=transition,
+    )
+
+    manifest_path = tmp_path / "maintenance" / "upstreams.json"
+    ledger_path = tmp_path / "maintenance" / "upstream-reviews.json"
+    before_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    before_ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    other_manifest = copy.deepcopy(before_manifest["sources"][0])
+    other_review = copy.deepcopy(before_ledger["sources"][0])
+    other_provenance = (tmp_path / other_manifest["provenance_path"]).read_bytes()
+    other_parity = (tmp_path / other_manifest["parity_path"]).read_bytes()
+
+    accepted = upstreams.accept_upstream(
+        tmp_path,
+        expected_head=HEAD,
+        power_root=canonical_power,
+        fetch_json=FakeFetch(responses),
+        environ={},
+    )
+
+    assert accepted["ok"] is accepted["accepted"] is True
+    assert accepted["source_id"] == "alpha-source"
+    after_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    after_ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    assert after_manifest["sources"][0] == other_manifest
+    assert after_ledger["sources"][0] == other_review
+    assert (tmp_path / other_manifest["provenance_path"]).read_bytes() == other_provenance
+    assert (tmp_path / other_manifest["parity_path"]).read_bytes() == other_parity
+    advanced = next(
+        source for source in after_manifest["sources"] if source["id"] == "alpha-source"
+    )
+    assert {"commit": advanced["commit"], "subtree_sha": advanced["subtree_sha"]} == {
+        "commit": HEAD,
+        "subtree_sha": HEAD_TREE,
+    }
+    advanced_review = next(
+        source for source in after_ledger["sources"] if source["id"] == "alpha-source"
+    )
+    assert advanced_review["transitions"] == [transition]
+
+    selected_final = check_upstreams(
+        tmp_path,
+        power_root=canonical_power,
+        source_id="alpha-source",
+        fetch_json=FakeFetch(responses),
+        environ={},
+    )
+    assert selected_final["ok"] is True
+    full_final = check_upstreams(
+        tmp_path,
+        power_root=canonical_power,
+        fetch_json=FakeFetch(responses),
+        environ={},
+    )
+    assert full_final["ok"] is False
+    remaining = next(source for source in full_final["sources"] if source["id"] == "cursor-pstack")
+    assert remaining["drift"] is True
 
 
 def test_second_transition_accepts_one_proposal_bound_marker_tail(tmp_path: Path) -> None:
@@ -2047,7 +2357,7 @@ def test_second_transition_accepts_one_proposal_bound_marker_tail(tmp_path: Path
         fetch_json=FakeFetch(future_responses),
         environ={},
     )
-    assert second_proof["sources"][0]["skill_parity"]["candidate_ready"] is False
+    assert second_proof["sources"][0]["source_parity"]["candidate_ready"] is False
     second = _future_transition(second_proof["sources"][0]["comparison"]["inventory_sha256"])
     proposal = _write_proposal(tmp_path, second)
     ledger_path = tmp_path / "maintenance" / "upstream-reviews.json"
@@ -2409,6 +2719,7 @@ def test_accept_recovers_completed_journal_without_remaining_proposal(tmp_path: 
         before_ledger=before_ledger,
         after_manifest=after_manifest,
         after_ledger=after_ledger,
+        source_id="cursor-pstack",
         expected_head=HEAD,
     )
     assert (tmp_path / ".pk-stack-maintenance" / "accept-transaction.json").is_file()
@@ -2493,6 +2804,7 @@ def test_near_limit_ledgers_fit_bounded_accept_journal_and_recover(tmp_path: Pat
         before_ledger=before_ledger,
         after_manifest=after_manifest,
         after_ledger=after_ledger,
+        source_id="cursor-pstack",
         expected_head=after_manifest["sources"][0]["commit"],
     )
 
@@ -2528,6 +2840,7 @@ def test_accept_recovery_preserves_committed_transition_when_ref_advances(tmp_pa
         before_ledger=before_ledger,
         after_manifest=after_manifest,
         after_ledger=after_ledger,
+        source_id="cursor-pstack",
         expected_head=HEAD,
     )
 
@@ -2597,6 +2910,8 @@ def test_cyclopts_routes_upstream_check_with_explicit_arguments(
                 "maintenance/custom.json",
                 "--power-root",
                 "powers/pk-stack",
+                "--source-id",
+                "okf-skills",
                 "--root",
                 ".",
                 "--timeout-seconds",
@@ -2610,6 +2925,7 @@ def test_cyclopts_routes_upstream_check_with_explicit_arguments(
     assert captured["kwargs"] == {
         "manifest": Path("maintenance/custom.json"),
         "power_root": Path("powers/pk-stack"),
+        "source_id": "okf-skills",
         "timeout_seconds": 4.0,
     }
 
@@ -2685,6 +3001,10 @@ def test_runner_allows_only_the_exact_managed_upstream_predicate(tmp_path: Path)
     command = _managed_command(tmp_path)
 
     enforce_verification_policy(command, root=tmp_path)
+    enforce_verification_policy(
+        [*command, "--source-id", "google-okf-spec"],
+        root=tmp_path,
+    )
 
     rejected = [
         command[:-2],
@@ -2696,6 +3016,9 @@ def test_runner_allows_only_the_exact_managed_upstream_predicate(tmp_path: Path)
         [*command[:4], "maintenance/other.json", *command[5:]],
         [*command[:6], "powers/other", *command[7:]],
         [*command, "--timeout-seconds", "31"],
+        [*command, "--source-id", "Google-OKF"],
+        [*command, "--source-id", "google--okf"],
+        [*command, "--source-id", "google-okf", "--source-id", "okf-skills"],
         ["projectctl", *command[1:]],
         [command[0], "version"],
     ]

@@ -172,7 +172,7 @@ def test_resumed_outer_teardown_refuses_unbound_compose_before_execution(
 ) -> None:
     state = RunState.create("ci-compose-resume-drift", compose_sha256="a" * 64)
     plan = _teardown_plan(state)
-    compose_calls: list[tuple[object, ...]] = []
+    docker_calls: list[list[str]] = []
     monkeypatch.setattr(
         cli,
         "_exact_docker_object_exists",
@@ -189,13 +189,11 @@ def test_resumed_outer_teardown_refuses_unbound_compose_before_execution(
     monkeypatch.setattr(cli, "_aws_postcondition", lambda *_args: None)
     monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(cli, "compose_digest", lambda _root: "b" * 64)
-    monkeypatch.setattr(
-        cli, "_compose", lambda *args, **kwargs: compose_calls.append((*args, kwargs))
-    )
+    monkeypatch.setattr(cli, "_run", lambda args, **_kwargs: docker_calls.append(args) or "")
 
     with pytest.raises(cli.LabError, match="frozen teardown plan"):
         cli._phase_docker_outer_absent(state, plan, "unix:///test/docker.sock")
-    assert compose_calls == []
+    assert docker_calls == []
 
 
 def _record_complete_deployment(
@@ -1151,7 +1149,7 @@ def test_outer_phase_reproves_aws_before_any_docker_mutation(
         cli._phase_docker_outer_absent(state, plan, "unix:///test/docker.sock")
 
 
-def test_outer_phase_resumes_after_compose_down_without_calling_dead_aws(
+def test_outer_phase_resumes_after_exact_removal_without_calling_dead_aws(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     state = RunState.create("ci-outer-resume")
@@ -1162,14 +1160,14 @@ def test_outer_phase_resumes_after_compose_down_without_calling_dead_aws(
         cli,
         "_aws_postcondition",
         lambda *_args: (_ for _ in ()).throw(
-            AssertionError("resume after Compose down must not call dead AWS")
+            AssertionError("resume after outer removal must not call dead AWS")
         ),
     )
     monkeypatch.setattr(
         cli,
-        "_compose",
+        "_run",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(
-            AssertionError("already-absent Compose objects must not be mutated")
+            AssertionError("already-absent outer objects must not be mutated")
         ),
     )
 
@@ -1943,31 +1941,33 @@ def test_definition_cluster_phase_retries_after_each_mutation_and_converges(
     assert calls == {"deregister": 1, "definition_delete": 1, "cluster_delete": 1}
 
 
-def test_docker_outer_phase_retries_after_compose_down_and_converges(
+def test_docker_outer_phase_retries_after_exact_removal_and_converges(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    state = RunState.create("ci-compose-down-crash")
+    state = RunState.create("ci-outer-removal-crash")
     plan = _teardown_plan(state)
     present = {
         ("container", plan.docker.outer_container),
         ("network", plan.docker.network),
     }
     injected = False
-    compose_calls = 0
+    docker_calls: list[tuple[str, ...]] = []
     aws_checks = 0
 
-    def compose(socket: str, action: str, *, claim_id: str) -> None:
-        nonlocal compose_calls, injected
-        assert (socket, action, claim_id) == (
-            "unix:///test/docker.sock",
-            "down",
-            state.claim_id,
-        )
-        compose_calls += 1
-        present.clear()
-        if not injected:
+    def run(args: list[str], **_: object) -> str:
+        nonlocal injected
+        command = tuple(args)
+        docker_calls.append(command)
+        if command == ("docker", "container", "rm", "-f", plan.docker.outer_container):
+            present.discard(("container", plan.docker.outer_container))
+        elif command == ("docker", "network", "rm", plan.docker.network):
+            present.discard(("network", plan.docker.network))
+        else:
+            raise AssertionError(f"unexpected Docker mutation: {command}")
+        if not injected and command[1] == "container":
             injected = True
-            raise InjectedCrash("after Compose down")
+            raise InjectedCrash("after exact outer-container removal")
+        return ""
 
     def aws_postcondition(*_: object) -> None:
         nonlocal aws_checks
@@ -1981,18 +1981,66 @@ def test_docker_outer_phase_retries_after_compose_down_and_converges(
     monkeypatch.setattr(cli, "_task_container_postcondition", lambda *_args: True)
     monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args: None)
     monkeypatch.setattr(cli, "_aws_postcondition", aws_postcondition)
-    monkeypatch.setattr(cli, "_compose", compose)
+    monkeypatch.setattr(cli, "_run", run)
     monkeypatch.setattr(cli, "compose_digest", lambda _root: plan.compose_sha256)
 
-    with pytest.raises(InjectedCrash, match="after Compose down"):
+    with pytest.raises(InjectedCrash, match="after exact outer-container removal"):
         cli._phase_docker_outer_absent(state, plan, "unix:///test/docker.sock")
 
-    assert present == set()
+    assert present == {("network", plan.docker.network)}
     cli._phase_docker_outer_absent(state, plan, "unix:///test/docker.sock")
 
     assert cli._docker_outer_postcondition(state, plan) is True
-    assert compose_calls == 1
+    assert docker_calls == [
+        ("docker", "container", "rm", "-f", plan.docker.outer_container),
+        ("docker", "network", "rm", plan.docker.network),
+    ]
     assert aws_checks == 1
+
+
+def test_outer_phase_never_targets_foreign_compose_project_member(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    state = RunState.create("ci-foreign-compose-member")
+    plan = _teardown_plan(state)
+    foreign = "foreign-container-with-compose-project-label"
+    present = {
+        ("container", plan.docker.outer_container),
+        ("container", foreign),
+        ("network", plan.docker.network),
+    }
+    docker_calls: list[tuple[str, ...]] = []
+
+    def exists(kind: str, name: str) -> bool:
+        return (kind, name) in present
+
+    def run(args: list[str], **_: object) -> str:
+        command = tuple(args)
+        docker_calls.append(command)
+        if command == ("docker", "container", "rm", "-f", plan.docker.outer_container):
+            present.remove(("container", plan.docker.outer_container))
+            return ""
+        if command == ("docker", "network", "rm", plan.docker.network):
+            raise cli.LabError("network has active endpoints")
+        raise AssertionError(f"foreign Compose member was targeted: {command}")
+
+    monkeypatch.setattr(cli, "_exact_docker_object_exists", exists)
+    monkeypatch.setattr(cli, "_inspect_labels", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(cli, "_remove_frozen_task_containers", lambda *_args: None)
+    monkeypatch.setattr(cli, "_aws_postcondition", lambda *_args: None)
+    monkeypatch.setattr(cli, "_assert_outer_ownership", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(cli, "compose_digest", lambda _root: plan.compose_sha256)
+    monkeypatch.setattr(cli, "_run", run)
+
+    with pytest.raises(cli.LabError, match="active endpoints"):
+        cli._phase_docker_outer_absent(state, plan, "unix:///test/docker.sock")
+
+    assert ("container", foreign) in present
+    assert all(foreign not in command for command in docker_calls)
+    assert docker_calls == [
+        ("docker", "container", "rm", "-f", plan.docker.outer_container),
+        ("docker", "network", "rm", plan.docker.network),
+    ]
 
 
 def test_floci_data_phase_retries_after_directory_removal_and_converges(

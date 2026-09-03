@@ -20,7 +20,13 @@ IDE agent picker or CLI /agent swap pstack
         -- attach repo-local prompt, tools, and permissions
         |
         v
-feature contract -- draft, or --ready after a passing proof
+native Spec / Quick Spec / Bug Fix -- Kiro owns requirements, design, tasks
+        |
+        v
+CLI /agent swap pstack or IDE reselect pstack
+        |
+        v
+feature contract + goal bind-spec -- executable proof and dual provenance
         |
         v
 /verified-goal <objective> -- same-session implement/verify/repair loop
@@ -34,6 +40,16 @@ PK-Stack neither invokes nor depends on it. See
 [Architecture](architecture.md) for the trust boundaries and
 [Kiro surface compatibility](kiro-v3-compatibility.md) for the support/evidence
 matrix, September 1-2, 2026 change inventory, and inspected builds.
+
+The native transition is deliberately visible: Kiro does not document a supported Agent Skill or
+custom-agent tool for changing the active workflow. In CLI v3, use `/spec new <name>` (Feature,
+Quick Spec, or Bug), `/spec <name>`
+to resume, and `/spec run <name>` for Kiro's native task execution, then `/agent swap pstack`. In
+the IDE, use **Build with spec** or the workflow picker, then reselect `pstack` in the same
+conversation. Standard Spec is preferred for unfamiliar, cross-boundary, high-risk, or
+requirements-sensitive work; Quick Spec is for bounded, well-understood work. Web uses its native
+Spec picker and built-in primary agent. Crew may consume committed specs in its Task Runner, but
+PK-Stack does not claim Crew reproduces the local built-in-agent transition.
 
 ## Prerequisites
 
@@ -233,7 +249,7 @@ project content.
 Before target preflight, setup also verifies that the loaded Power contains all
 required Python modules, the complete inventory-bound source skill catalog,
 steering, agent/hook templates, and the runtime lock. The current catalog has
-48 source skill directories. A missing required Power asset returns a
+49 source skill directories. A missing required Power asset returns a
 structured error before any target file is written.
 
 Repository discovery records sorted project-relative paths and always stores
@@ -283,8 +299,9 @@ Doctor checks:
 - the ownership receipt plus every receipt-managed path and SHA-256 digest;
 - the internal wrapper, `package = false` project metadata, live lock, and
   cached lock for exact runtime integrity;
-- four agents, all 47 live workspace skills, four steering files, and two hook
-  files;
+- four Power-managed agents, all 48 live workspace skills, four steering files,
+  and two hook files; the PK-Stack repository separately carries the
+  `pstack-maintainer` CI agent outside the reusable Power;
 - live Kiro assets against their cached managed copies;
 - JSON shape, plus `kiro-cli agent validate` when Kiro is installed;
 - feature-map validity;
@@ -299,8 +316,8 @@ who can change both managed content and its recorded digest.
 
 The setup skill is deliberately absent from the live workspace skill checks.
 It remains supplied by the loaded Power and is cached for bootstrap packaging;
-doctor checks every one of the other 47 skills materialized in `.kiro/skills/`.
-The controller cache retains the complete 48-skill source tree, including the
+doctor checks every one of the other 48 skills materialized in `.kiro/skills/`.
+The controller cache retains the complete 49-skill source tree, including the
 setup shim.
 
 Also inspect the narrow and broad knowledge surfaces:
@@ -364,7 +381,7 @@ rules alone are not treated as a sandbox.
 Do not bypass these prompts with broad trust switches. Review the exact argv,
 especially when it comes from repository-controlled feature metadata.
 
-## Check the pinned upstream
+## Check the pinned upstreams
 
 In the combined PK-Stack source repository, requested or scheduled maintenance stays in the
 current session through `/maintain-pk-stack`. Its deterministic first predicate is:
@@ -382,9 +399,24 @@ optional `GITHUB_TOKEN` only as the HTTP Authorization value. The ledger binds t
 identity, genesis, a contiguous prior/new commit-and-subtree chain, each transition's
 `inventory_sha256`, and one A/B/C disposition with a nonempty bounded rationale for every changed
 path. A pin-only manifest edit, stale chain, wrong identity or digest, or missing, duplicate, extra,
-or malformed disposition fails before it can claim the source is current.
+or malformed disposition fails before it can claim a source is current. The aggregate response
+accounts for every configured source and deterministically names the first source eligible for a
+serialized maintenance transaction. A focused reproof uses that exact identifier:
 
-The service reproofs the pinned and current commit/subtree identities, requires a bounded
+```bash
+.pstack/bin/projectctl upstream check \
+  --manifest maintenance/upstreams.json \
+  --power-root powers/pk-stack \
+  --source-id <source-id> \
+  --output json
+```
+
+Each source owns a distinct pin, parity artifact, genesis/transition chain, and provenance file.
+One proposal and acceptance transaction may advance only one source; every other source remains
+byte-for-byte unchanged. A later run selects the next drifted source.
+
+For each selected source, the service reproofs the pinned and current commit/subtree identities,
+requires a bounded
 fast-forward, reconciles GitHub's compare records against exact recursive subtree trees, and
 returns a bounded untrusted text-patch inventory. A canonical `inventory_sha256` binds that
 inventory to its base and head. Unified patch hunk and body counts must exactly match GitHub's
@@ -406,7 +438,7 @@ Supplying `--power-root` also runs an
 ownership-aware `--dry-run --update-managed` bootstrap preview and reports canonical/generated
 parity without writing.
 
-Drift exits 1 and is the expected baseline for a maintenance goal. Malformed or oversized data,
+Drift exits 1 and is the expected baseline for a source-scoped maintenance goal. Malformed or oversized data,
 truncation, a missing comparison page, identity disagreement, non-fast-forward history, unsafe
 paths, a network failure, or generated drift fails closed. The skill classifies every path as
 adapt, exclude, or provenance-only, updates canonical sources before regeneration, and stages
@@ -435,8 +467,9 @@ service re-fetches the proof, appends the normalized transition and advances the
 recoverable journaled update, then removes `.pk-stack-maintenance`. It does not edit provenance or
 Power files. A stale, replayed, future, malformed, or symlinked proposal fails closed. The
 five-attempt goal budget uses attempt 1 for the mandatory pre-edit failure, leaving four bounded
-repair-and-secretless-verify pairs. Only the subsequent feature-goal pass permits a claim that the
-source is current.
+repair-and-secretless-verify pairs. Only a later pass of the same source-bound command permits a
+claim that selected source is current. The aggregate command must pass before claiming that all
+configured sources are current.
 
 ## Create and prove feature contracts
 
@@ -749,14 +782,27 @@ Start with exactly one acceptance source:
   --output json
 ```
 
-A Kiro spec can supply a third bridge. Create
-`.kiro/specs/account-lookup/pstack-verification.json`:
+A completed native Kiro spec can supply a third bridge after it has non-empty requirements or bug
+analysis, design, and tasks. Prefer binding it to an already published feature verifier:
+
+```bash
+.pstack/bin/projectctl goal bind-spec account-lookup \
+  --feature account-lookup \
+  --output json
+```
+
+That creates `.kiro/specs/account-lookup/pstack-verification.json`:
 
 ```json
 {
-  "command": ["uv", "run", "pytest", "tests/test_account_lookup.py", "-q"]
+  "feature": "account-lookup",
+  "schema_version": 1
 }
 ```
+
+If no reusable feature applies, bind one reviewed command with `goal bind-spec --command`; do not
+choose that shortcut merely to avoid creating the feature map. An identical binding is idempotent,
+while replacement requires `--overwrite` after reviewing both contracts.
 
 Then start it:
 
@@ -769,7 +815,11 @@ Then start it:
 ```
 
 Do not combine `--feature`, `--command`, and `--spec`. Spec names cannot contain
-path separators or traversal. Attempt budgets are 1 through 20.
+path separators or traversal. At start, projectctl snapshots the selected intent artifact
+(`requirements.md` or `bugfix.md`), `design.md`, and the bridge. It checks all three before and
+after every verifier invocation; drift rejects or discards proof without consuming an attempt.
+`tasks.md` must exist and be non-empty at binding time but is deliberately not hashed, so Kiro can
+continue updating its native task state. Attempt budgets are 1 through 20.
 
 Any existing goal state blocks a new start, including passed or exhausted
 state. Projectctl has no state-replacement shortcut. Inspect and clear prior
@@ -796,8 +846,8 @@ launch failure records 127. The outer goal command exits 1 whenever the goal did
 not pass.
 
 Goal state schema version 2 stores the objective, immutable contract and
-provenance, a contract digest, attempt budget, last result, and append-only
-history. The digest and semantic checks detect command/history tampering; they
+provenance, spec artifact snapshots when applicable, a contract digest, attempt budget, last
+result, and append-only history. The digest and semantic checks detect command/history tampering; they
 are integrity checks, not cryptographic authorization. State is mode `0600`
 under ignored `.pstack/state/`. Never place credentials in objectives or
 commands, and keep verifier output free of secrets.
@@ -870,7 +920,8 @@ Require broad OKF validation when it is part of acceptance:
 .pstack/bin/projectctl knowledge validate --require-okn --output json
 ```
 
-With `okn` installed, validation delegates to `okn validate Wiki`. Broad search
+With `okn` installed, validation composes feature-map validation with `okn validate Wiki`; a pass
+requires both. Broad search
 also requires it:
 
 ```bash
@@ -878,7 +929,16 @@ also requires it:
 ```
 
 That delegates to `okn search Wiki <query>`. PK-Stack does not implement a
-fallback OKF graph or broad text index.
+fallback OKF graph or broad text index. The feature map is the first context layer; use broad OKF
+search only for architecture, decisions, concepts, or operations that the narrow record cannot
+answer. Native `/knowledge` may index the same Wiki, but it is not the canonical source or checker.
+`okfcli/okf` is an optional independent CI conformance/SARIF oracle, never a transparent runtime
+fallback for `okn` search or lifecycle behavior.
+
+Use `/okf` for one explicit Wiki mode: produce new durable knowledge, maintain concepts affected by
+a current change, or consume bounded context. The skill adapts the method from
+`scaccogatto/okf-skills` to Kiro and PK-Stack's trust boundary. It does not execute the upstream
+Claude hooks, mine agent transcripts, or install a second validator, MCP server, or visualizer.
 
 ## Recovery runbook
 

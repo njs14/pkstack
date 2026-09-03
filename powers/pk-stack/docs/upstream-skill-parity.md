@@ -2,7 +2,7 @@
 
 This is the human-readable view of [the bounded machine inventory](upstream-skill-parity.json).
 It accounts for the complete package beneath every top-level `pstack/skills/*/SKILL.md` in the
-immutable pinned and current `cursor/plugins` trees retrieved on 2026-09-02. The inventory contains
+immutable pinned and current `cursor/plugins` trees retrieved on 2026-09-03. The inventory contains
 122 files at each revision, including referenced playbooks, templates, data, and helpers. Per-package
 tree hashes and every resource path, blob identity, size, and handling decision live in the JSON
 file. The matrix records semantic adaptation, not copied upstream implementation.
@@ -15,9 +15,10 @@ file. The matrix records semantic adaptation, not copied upstream implementation
 | Explicit exclusion | 1 |
 | **Upstream total** | **45** |
 
-Forty-four upstream names remain individually discoverable. PK-Stack also ships the aggregate
-`principles` skill and its three PK-only workflows—`maintain-pk-stack`, `model-council`, and
-`verified-goal`—for 48 skill directories in total.
+Forty-four upstream names remain individually discoverable. Relative to the Cursor source,
+PK-Stack also ships the aggregate `principles` skill and four PK-only workflows—`maintain-pk-stack`,
+`model-council`, `okf`, and `verified-goal`—for 49 skill directories in total. The separate
+OKF-skills provenance inventory records `okf`'s independently adapted methodology.
 
 ## Nested resource handling
 

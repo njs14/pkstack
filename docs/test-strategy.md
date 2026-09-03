@@ -181,5 +181,5 @@ independent acceptance actions, not a second Kiro session or a substitute for se
 Sol Advisor may advise the implementation phase, but its output is design input rather than an
 acceptance verdict. Fable 5.1 is the peer reviewer throughout candidate development and must review
 the final immutable candidate plus Kiro evidence. Material findings become explicit fixes and the
-Fable gate repeats. Grok 4.6 at very high reasoning is the final DRY/naming and low-level sweeper;
+Fable gate repeats. Grok 4.6 at `xhigh` reasoning is the final DRY/naming and low-level sweeper;
 any material Grok-driven code change returns to Fable before acceptance.

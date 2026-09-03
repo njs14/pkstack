@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import importlib
 import json
 import os
@@ -38,19 +39,38 @@ def controller() -> SimpleNamespace:
     def unused_find_feature(*_args: Any, **_kwargs: Any) -> Any:
         raise AssertionError("feature-map resolution is outside this controller regression suite")
 
-    def find_verifiable_feature(root: Path, slug: str) -> Any:
-        item = feature_stub.find_feature(root, slug)  # type: ignore[attr-defined]
-        if item.draft:
-            raise ValueError(
-                f"feature {slug!r} is still a draft; publish it before using it as "
-                "verification evidence"
-            )
-        if not item.command:
-            raise ValueError(f"feature {slug!r} has no executable verification command")
-        return item
-
     feature_stub.find_feature = unused_find_feature  # type: ignore[attr-defined]
-    feature_stub.find_verifiable_feature = find_verifiable_feature  # type: ignore[attr-defined]
+
+    # The root suite intentionally avoids adding PyYAML solely to import the
+    # otherwise-unused feature parser. Execute the canonical helper's own AST
+    # instead of copying its draft/command rule into a test stub that could
+    # silently diverge from the Power implementation.
+    feature_source = POWER_ROOT / "src" / "pstack_kiro" / "features.py"
+    parsed = ast.parse(feature_source.read_text(encoding="utf-8"), filename=str(feature_source))
+    helpers = [
+        node
+        for node in parsed.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "find_verifiable_feature"
+    ]
+    assert len(helpers) == 1
+
+    def delegated_find_feature(root: Path, slug: str) -> Any:
+        return feature_stub.find_feature(root, slug)  # type: ignore[attr-defined]
+
+    helper_namespace: dict[str, Any] = {
+        "FeatureMapError": ValueError,
+        "FeatureSpec": Any,
+        "Path": Path,
+        "find_feature": delegated_find_feature,
+    }
+    exec(  # noqa: S102 - execute only the named helper AST from the tracked canonical source
+        compile(ast.Module(body=helpers, type_ignores=[]), str(feature_source), "exec"),
+        helper_namespace,
+    )
+    feature_stub.find_verifiable_feature = helper_namespace[  # type: ignore[attr-defined]
+        "find_verifiable_feature"
+    ]
     sys.path.insert(0, str(CONTROLLER_SOURCE))
     sys.modules[feature_stub.__name__] = feature_stub
     try:

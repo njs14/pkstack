@@ -62,19 +62,30 @@ Repair the document-export tenant-key partition-separation regression, then run
 ./labctl verify --output json.
 ```
 
-With PK-Stack, the ordinary CLI process is still interactive Kiro v3; only the agent profile and
-workspace skill are added. The IDE uses the equivalent agent picker and skill invocation:
+With PK-Stack, the ordinary CLI process is still interactive Kiro v3. Nontrivial work first uses
+Kiro's native planning spine, then returns to the project agent in the same conversation:
 
 ```sh
-kiro-cli chat --v3 --agent pstack
+kiro-cli chat --v3
 ```
 
 ```text
+/spec new document-export-partition-fix
+# choose Bug Fix, review Kiro's native bugfix/design/tasks artifacts, then:
+/agent swap pstack
 /verified-goal Repair the document-export tenant-key partition-separation regression.
 ```
 
-The skill stays in that session, displays the exact stored feature contract and its provenance,
-and uses `.pstack/bin/projectctl goal verify --output json` for every attempt. A failing verifier
+In the IDE, **Build with spec** and the workflow picker replace the first command; reselect
+`pstack` afterward. Quick Spec is the native choice for bounded, well-understood feature work;
+standard Spec keeps phase approvals for unfamiliar or high-risk changes. Kiro owns task planning
+and dependency waves. PK-Stack binds the native package to a published feature verifier, applies
+the upstream-derived workflow skills, and does not create another task graph.
+
+The skill stays in that session, displays the exact stored spec-linked feature contract and its provenance,
+and uses `.pstack/bin/projectctl goal verify --output json` for every attempt. Intent, design, and
+bridge hashes are fixed at goal start and checked on both sides of every verifier run; Kiro may
+continue updating `tasks.md`. A failing verifier
 keeps the goal `active` until its budget is exhausted; a passing invocation records `passed`.
 `/verified-goal` is separate from documented native `/goal`. A sterile interactive Kiro CLI 2.21.0
 V3 probe treated `/goal clear` as ordinary prompt text, so the tested runtime does not expose that
@@ -88,9 +99,12 @@ The deterministic surface is also usable directly:
 .pstack/bin/projectctl feature show document-export --output json
 .pstack/bin/projectctl feature validate --output json
 .pstack/bin/projectctl knowledge validate --output json
+.pstack/bin/projectctl goal bind-spec document-export-partition-fix \
+  --feature document-export \
+  --output json
 .pstack/bin/projectctl goal start \
   "Repair tenant-key partition separation" \
-  --feature document-export \
+  --spec document-export-partition-fix \
   --max-attempts 4 \
   --output json
 .pstack/bin/projectctl goal verify --output json
@@ -118,7 +132,11 @@ Use the canonical `.pstack/bin/projectctl`, not an ambient root `./projectctl` o
 `uv run projectctl`. Do not hand-edit `.pstack/state/goal.json`, weaken its verifier, automatically
 add attempts, or force-clear active evidence. `goal resume --add-attempts N` is reserved for an
 explicit user extension after exhaustion. Broader `knowledge search` and strict OKF validation
-require the canonical `okn` command; feature-map validation remains available without it.
+require the canonical `okn` command; feature-map validation remains available without it and is
+still included when `okn` is present. `okfcli/okf` may be used as an explicitly named independent
+CI conformance check, but never silently substitutes for `okn`. Invoke `/okf` when the task is to
+produce, maintain, or consume broader Wiki knowledge; it follows the same feature-first, linked-
+concept, then bounded-search context ladder.
 
 ## Floci lab lifecycle
 

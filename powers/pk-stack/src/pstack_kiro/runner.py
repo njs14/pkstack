@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import os
+import re
 import shlex
 import shutil
 import signal
@@ -26,6 +27,7 @@ DEFAULT_OUTPUT_LIMIT = 64_000
 _CALLER_PYTHONPATH_SET = "PSTACK_KIRO_CALLER_PYTHONPATH_SET"
 _CALLER_PYTHONPATH = "PSTACK_KIRO_CALLER_PYTHONPATH"
 _UV_CONTEXT_ENVIRONMENT = {"UV_CONFIG_FILE", "UV_ENV_FILE", "UV_PROJECT", "UV_WORKING_DIR"}
+_UPSTREAM_SOURCE_ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 _NON_EVIDENTIARY_EXECUTABLES = {
     ":",
@@ -871,7 +873,13 @@ def _is_managed_upstream_check(argv: Sequence[str], *, root: Path) -> bool:
     if not os.access(candidate, os.X_OK):
         raise CommandRejected("the managed upstream verifier entrypoint is not executable")
 
-    allowed_options = {"--manifest", "--output", "--power-root", "--timeout-seconds"}
+    allowed_options = {
+        "--manifest",
+        "--output",
+        "--power-root",
+        "--source-id",
+        "--timeout-seconds",
+    }
     values: dict[str, str] = {}
     index = 3
     while index < len(argv):
@@ -908,6 +916,10 @@ def _is_managed_upstream_check(argv: Sequence[str], *, root: Path) -> bool:
         raise CommandRejected("managed upstream verifier must use maintenance/upstreams.json")
     if values["--power-root"] != "powers/pk-stack":
         raise CommandRejected("managed upstream verifier must use powers/pk-stack")
+    if "--source-id" in values and (
+        len(values["--source-id"]) > 64 or not _UPSTREAM_SOURCE_ID.fullmatch(values["--source-id"])
+    ):
+        raise CommandRejected("managed upstream verifier source id is invalid")
     for option in ("--manifest", "--power-root"):
         _reject_path_escape(values[option], root=resolved_root)
     if "--timeout-seconds" in values:

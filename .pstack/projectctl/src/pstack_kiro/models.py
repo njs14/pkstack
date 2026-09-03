@@ -17,6 +17,25 @@ EvidenceVerdict = Literal["VERIFIED", "NOT VERIFIED", "INCONCLUSIVE"]
 
 
 @dataclass(frozen=True, slots=True)
+class SpecArtifactDigest:
+    """One immutable native-spec artifact bound into a verifier contract."""
+
+    path: str
+    sha256: str
+
+    def to_dict(self) -> dict[str, str]:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> SpecArtifactDigest:
+        if not isinstance(data, dict) or set(data) != {"path", "sha256"}:
+            raise TypeError("spec artifact digest must contain exactly path and sha256")
+        if type(data["path"]) is not str or type(data["sha256"]) is not str:
+            raise TypeError("spec artifact path and sha256 must be strings")
+        return cls(path=data["path"], sha256=data["sha256"])
+
+
+@dataclass(frozen=True, slots=True)
 class CommandSpec:
     """A shell-free command plus provenance for an executable contract."""
 
@@ -25,10 +44,17 @@ class CommandSpec:
     source: ContractSource
     feature: str | None = None
     spec: str | None = None
+    spec_artifacts: tuple[SpecArtifactDigest, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
         data["argv"] = list(self.argv)
+        if self.spec_artifacts:
+            data["spec_artifacts"] = [item.to_dict() for item in self.spec_artifacts]
+        else:
+            # Preserve schema-2 digests for non-spec goal records created before
+            # native-spec content binding was introduced.
+            data.pop("spec_artifacts")
         return data
 
     @classmethod
@@ -50,12 +76,16 @@ class CommandSpec:
             raise TypeError("command feature provenance must be a string or null")
         if spec is not None and type(spec) is not str:
             raise TypeError("command spec provenance must be a string or null")
+        spec_artifacts = data.get("spec_artifacts", [])
+        if not isinstance(spec_artifacts, list):
+            raise TypeError("command spec artifacts must be a list")
         return cls(
             argv=tuple(argv),
             display=display,
             source=source,
             feature=feature,
             spec=spec,
+            spec_artifacts=tuple(SpecArtifactDigest.from_dict(item) for item in spec_artifacts),
         )
 
 

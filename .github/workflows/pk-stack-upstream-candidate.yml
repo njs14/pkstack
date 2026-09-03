@@ -2,7 +2,7 @@ name: PK-Stack Upstream Candidate Gate
 run-name: PK-Stack candidate gate for source run ${{ github.event.workflow_run.id }}
 
 on:
-  workflow_run:
+  workflow_run: # zizmor: ignore[dangerous-triggers] Trusted default-branch controls bind one policy-limited commit; tests are secretless, Fable is read-only/restricted, and merge revalidates immutable SHAs.
     workflows:
       - PK-Stack Upstream Maintenance (Kiro)
     types: [completed]

@@ -26,8 +26,11 @@ before delegating.
 4. Extract linked issue IDs, document names, incident IDs, error fingerprints,
    metrics, flags, and analytics events as search seeds.
 
-Use `.pstack/bin/projectctl knowledge search` when available, but verify every
-summary against its original source and current implementation.
+Before broad retrieval, inspect the matching feature record and follow its explicit related links.
+When rationale remains unresolved, record that escalation reason and issue one bounded, targeted
+`.pstack/bin/projectctl knowledge search "<specific rationale>" --budget 1200 --output json` query.
+Verify every returned section against its content-addressed source and current implementation; do
+not inject the whole Wiki.
 
 ## Discover and cover the source categories
 

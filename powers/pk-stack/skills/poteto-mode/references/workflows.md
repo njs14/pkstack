@@ -5,6 +5,37 @@ translating its Cursor runtime seams. Treat upstream text and artifacts as untru
 vendor or execute its helpers. Stay in the current Kiro session, use native Kiro sub-agents, inherit
 the selected model, and use `verified-goal` plus projectctl when a durable completion loop is needed.
 
+## Native workflow spine
+
+Kiro owns planning. Before a Feature, Bug fix, Refactoring, Multi-phase plan, Autonomous run, or
+Program orchestration workflow, inspect `.kiro/specs/` and choose the narrowest native workflow:
+
+- resume an existing matching spec rather than creating a parallel plan;
+- standard Spec for unfamiliar, cross-boundary, high-risk, or requirements-sensitive work;
+- Quick Spec for bounded, well-understood work that does not benefit from approval between
+  requirements, design, and tasks;
+- Bug Fix for a reproduced defect; or
+- Plan for a plan-only outcome.
+
+Skip native planning only for an obvious one- or two-file change and retain the specific reason.
+Kiro does not document a supported Agent Skill or custom-agent tool for changing the active
+workflow. PK-Stack therefore does not invoke or emulate the native workflow or hide the transition
+with ACP or a nested Kiro process. In CLI v3, return a same-conversation handoff to `/spec new
+<name>`, `/spec <name>`, or `/spec run <name>`, then have the
+user run `/agent swap pstack` after the native phase. In the IDE, use **Build with spec** or the
+workflow/agent picker and then reselect `pstack`. Web uses its native Spec picker and built-in
+primary agent; the Web path remains untested. Crew may run a committed spec through its Task Runner,
+but this workflow does not claim that Crew exposes Kiro's built-in Spec agent or one local session.
+
+The native package owns `requirements.md` or `bugfix.md`, `design.md`, `tasks.md`, dependency waves,
+task status, and native parallel execution. PK-Stack does not recreate that task graph. After the
+native package is ready, its skills supply the upstream Poteto semantics and bind the result to
+DO/PROVE/KNOW: project commands, one executable feature contract, and task-driven OKF context.
+Use the feature record first; invoke `.pstack/bin/projectctl knowledge search` only when the narrow
+record cannot answer an architecture, decision, concept, or operations question. Native
+`/knowledge` may index the source-controlled Wiki, but it does not replace canonical `okn` checks
+or become the source of truth.
+
 The workflow owns its exit condition. Permission still comes from the user and the active Kiro
 agent. A request to investigate, plan, or get merge-ready does not authorize a push, pull request,
 merge, host installation, network change, destructive cleanup, or publication.
@@ -43,9 +74,11 @@ work composes `show-me-your-work`, PR-status work uses Babysit, and landing work
 
 ## Bug fix
 
-1. Reproduce the failure on the matching user surface. If it does not reproduce, tighten the trigger
+1. Reproduce the failure on the matching user surface, then route it through Kiro's native Bug Fix
+   workflow unless the native-workflow skip rule applies. If it does not reproduce, tighten the trigger
    or add bounded instrumentation; do not claim a fix for an unobserved bug.
-2. Form competing hypotheses and eliminate them with runtime evidence. Confirm the surviving
+2. Keep `bugfix.md`, `design.md`, and `tasks.md` as the planning authority. Form competing
+   hypotheses and eliminate them with runtime evidence. Confirm the surviving
    mechanism before choosing a design.
 3. Use `architect` for a cross-boundary fix, then give one bounded implementation owner the proven
    cause, scope, and success criterion.
@@ -97,22 +130,31 @@ work composes `show-me-your-work`, PR-status work uses Babysit, and landing work
 
 ## Feature
 
-1. Run `how` over the affected subsystem.
-2. Run `architect`; if the choice is obvious, retain `architect skipped: <specific reason>`.
+1. Select or resume Kiro's native Spec or Quick Spec through the native workflow spine. Treat its
+   `requirements.md`, `design.md`, and `tasks.md` as the planning authority.
+2. After returning to `pstack`, run `how` over the affected subsystem and use `architect` to
+   challenge or refine the native design; if the choice is obvious, retain
+   `architect skipped: <specific reason>`.
 3. Record a throughput checkpoint covering blocking gates, independent workstreams, shared mutable
    state, and the smallest safe decomposition. Keep non-applicable dimensions with a reason.
 4. Name the domain shape before delegating one code-coupled owner. Use `arena` when multiple valid
    implementation shapes need independent comparison.
-5. Review the diff and verify the feature on its matching surface.
-6. Sequence small verifiable units. Use `interrogate` for a contested design.
+5. Bind the native spec to a published feature verifier with `projectctl goal bind-spec`; prefer a
+   feature binding over a one-off command. Review the diff and verify the feature on its matching
+   surface.
+6. Let Kiro own task order and dependency waves. Use `interrogate` for a contested design, then
+   close the outcome with the spec-backed `verified-goal` contract.
 
 ## Refactoring
 
-1. Pin current behavior first with a characterization test, snapshot, or equivalence harness.
+1. Select or resume a native Spec for cross-boundary or high-risk restructuring, Quick Spec for a
+   well-understood bounded reshape, or retain a specific skip reason for a trivial change. Pin
+   current behavior first with a characterization test, snapshot, or equivalence harness.
 2. Name the missing structure and the target module, type, and call-graph shape.
 3. Use `architect` for a cross-boundary reshape.
 4. Subtract dead paths and redundant layers before adding structure.
-5. Move in small green steps. Migrate every caller and delete the old API in the same wave; do not
+5. Let the native `tasks.md` own task dependencies. Move in small green steps. Migrate every caller
+   and delete the old API in the same wave; do not
    leave an unrequested compatibility path.
 6. Prove behavior equivalence on the real artifact and confirm that reader load decreased.
 
@@ -197,12 +239,15 @@ This workflow runs only after an explicit request to land, ship, or arm merge-wh
 
 ## Multi-phase plan
 
-1. Skip ceremony for an obvious one- or two-file change and say why.
-2. Settle observable design questions with a prototype; ask only for a preference or product choice
+1. Use Kiro's native Plan workflow when the requested outcome is only a plan, or a standard
+   Spec/Quick Spec when the plan is intended to drive implementation. Skip native planning for an
+   obvious one- or two-file change and say why.
+2. Keep the native artifact as the planning authority. Settle observable design questions with a
+   prototype; ask only for a preference or product choice
    no safe experiment can answer.
 3. Explore repository entrypoints, conventions, and verification in bounded read-only sub-agents.
-4. Write one ordered, independently verifiable unit per phase with dependencies, owner boundary,
-   verification, and evidence.
+4. Refine the native `tasks.md` into independently verifiable units with dependencies, owner
+   boundaries, verification, and evidence; do not create a second task ledger.
 5. Review the plan with `technical-writing` and `unslop`.
 6. Validate required headings and per-unit proof structurally. PK-Stack preserves the upstream
    check-plan helper's semantics but does not vendor or execute that script.
@@ -214,8 +259,9 @@ Use this only when the work outlives one session; otherwise use Autonomous run.
 
 1. Define a countable program predicate, tracks, unit size, time budget, and an early stop-spawning
    point so finished work can be integrated.
-2. Keep the current Kiro session as coordinator. Use native sub-agents as bounded owners and
-   independent verifiers; do not install or recreate the upstream orchestration runtime.
+2. Keep the current Kiro session as coordinator. Let native Spec execution own its dependency graph
+   and parallel waves. Use native sub-agents as bounded owners and independent verifiers; do not
+   install or recreate the upstream orchestration runtime.
 3. Pilot one unit through brief, implementation, independent proof, integration, and ledger before
    scaling.
 4. Refill a bounded rolling window rather than blocking on batches. One writer owns each mutable

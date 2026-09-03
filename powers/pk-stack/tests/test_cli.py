@@ -72,6 +72,76 @@ def test_cli_feature_and_goal_json_round_trip(tmp_path: Path) -> None:
     assert json.loads(verified.stdout)["goal"]["status"] == "passed"
 
 
+def test_cli_binds_native_spec_to_feature_before_verified_goal(tmp_path: Path) -> None:
+    (tmp_path / "check.py").write_text("print('healthy')\n", encoding="utf-8")
+    generated = _cli(
+        "feature",
+        "generate",
+        "native-health",
+        "--title",
+        "Native health",
+        "--behavior",
+        "A caller observes health through the planned native feature.",
+        "--expected-path",
+        "Kiro Spec to feature contract to public verifier",
+        "--command",
+        f"{sys.executable} check.py",
+        "--sub-feature",
+        "health-check=The public health result is observable.",
+        "--entrypoint",
+        "cli=Run the public health command.",
+        "--drive",
+        f"cli=Run {sys.executable} check.py.",
+        "--entrypoint-proof",
+        "cli=The command exits zero and prints healthy.",
+        "--gotcha",
+        "A task checkbox alone is not executable acceptance evidence.",
+        "--evidence-boundary",
+        "Capture bounded public output and exit status.",
+        "--cleanup-boundary",
+        "The check owns no persistent state.",
+        "--ready",
+        "--output",
+        "json",
+        cwd=tmp_path,
+    )
+    spec = tmp_path / ".kiro/specs/native-health"
+    spec.mkdir(parents=True)
+    for name in ("requirements.md", "design.md", "tasks.md"):
+        (spec / name).write_text(f"# {name}\n\nNative Kiro artifact.\n", encoding="utf-8")
+
+    bound = _cli(
+        "goal",
+        "bind-spec",
+        "native-health",
+        "--feature",
+        "native-health",
+        "--output",
+        "json",
+        cwd=tmp_path,
+    )
+    started = _cli(
+        "goal",
+        "start",
+        "Prove the native health spec",
+        "--spec",
+        "native-health",
+        "--output",
+        "json",
+        cwd=tmp_path,
+    )
+    verified = _cli("goal", "verify", "--output", "json", cwd=tmp_path)
+
+    assert generated.returncode == 0, generated.stdout
+    assert bound.returncode == 0, bound.stdout
+    assert started.returncode == 0, started.stdout
+    assert verified.returncode == 0, verified.stdout
+    contract = json.loads(started.stdout)["goal"]["contract"]
+    assert contract["source"] == "spec"
+    assert contract["spec"] == "native-health"
+    assert contract["feature"] == "native-health"
+
+
 def test_cli_failure_returns_structured_json_and_nonzero(tmp_path: Path) -> None:
     result = _cli("goal", "status", "--output", "json", cwd=tmp_path)
 

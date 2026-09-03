@@ -3208,7 +3208,7 @@ def _docker_outer_postcondition(state: RunState, plan: TeardownPlan) -> bool:
     )
 
 
-def _phase_docker_outer_absent(state: RunState, plan: TeardownPlan, socket: str) -> None:
+def _phase_docker_outer_absent(state: RunState, plan: TeardownPlan, _socket: str) -> None:
     outer_present = _exact_docker_object_exists("container", plan.docker.outer_container)
     network_present = _exact_docker_object_exists("network", plan.docker.network)
     if plan.aws_mode == "reachable" and outer_present:
@@ -3232,7 +3232,17 @@ def _phase_docker_outer_absent(state: RunState, plan: TeardownPlan, socket: str)
         _assert_outer_ownership(state)
         if compose_digest(ROOT) != plan.compose_sha256:
             raise LabError("Compose definition drifted from the frozen teardown plan")
-        _compose(socket, "down", claim_id=state.claim_id)
+        # Do not use whole-project `docker compose down` here. Compose selects
+        # resources by its project labels, which are not PK-Stack ownership
+        # claims; a foreign container carrying the same project label could be
+        # swept into that operation. Remove only the two frozen, claim-checked
+        # outer objects. Docker itself refuses the network removal if any
+        # unplanned container is still attached, leaving that foreign object
+        # untouched and making teardown fail closed.
+        if outer_present:
+            _run(["docker", "container", "rm", "-f", plan.docker.outer_container])
+        if _exact_docker_object_exists("network", plan.docker.network):
+            _run(["docker", "network", "rm", plan.docker.network])
     if not _docker_outer_postcondition(state, plan):
         raise LabError("frozen Docker container or network target remains")
 

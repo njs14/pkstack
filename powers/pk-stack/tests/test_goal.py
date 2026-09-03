@@ -12,6 +12,7 @@ from pstack_kiro.features import FeatureMapError, generate_feature
 from pstack_kiro.goal import (
     GoalError,
     GoalStore,
+    bind_spec_contract,
     clear_goal,
     get_goal,
     resolve_contract,
@@ -40,6 +41,16 @@ def _sentinel_command(tmp_path: Path) -> str:
         encoding="utf-8",
     )
     return f"{sys.executable} check.py"
+
+
+def _write_native_spec(root: Path, name: str, *, bugfix: bool = False) -> Path:
+    directory = root / ".kiro" / "specs" / name
+    directory.mkdir(parents=True)
+    intent = "bugfix.md" if bugfix else "requirements.md"
+    (directory / intent).write_text("# Intent\n\nObservable acceptance.\n", encoding="utf-8")
+    (directory / "design.md").write_text("# Design\n\nA bounded design.\n", encoding="utf-8")
+    (directory / "tasks.md").write_text("# Tasks\n\n- [ ] Implement.\n", encoding="utf-8")
+    return directory
 
 
 def test_goal_failure_repair_success_path(tmp_path: Path) -> None:
@@ -115,12 +126,175 @@ def test_goal_rejects_draft_feature_with_command_before_creating_state(tmp_path:
 
 
 def test_spec_bridge_rejects_non_string_argv_elements(tmp_path: Path) -> None:
-    bridge = tmp_path / ".kiro" / "specs" / "typed" / "pstack-verification.json"
-    bridge.parent.mkdir(parents=True)
-    bridge.write_text('{"command":["pytest",true]}\n', encoding="utf-8")
+    bridge = _write_native_spec(tmp_path, "typed") / "pstack-verification.json"
+    bridge.write_text('{"schema_version":1,"command":["pytest",true]}\n', encoding="utf-8")
 
     with pytest.raises(GoalError, match="argv must contain only strings"):
         resolve_contract(tmp_path, spec="typed")
+
+
+def test_spec_bridge_rejects_schema_free_legacy_shape(tmp_path: Path) -> None:
+    bridge = _write_native_spec(tmp_path, "legacy") / "pstack-verification.json"
+    bridge.write_text('{"command":["pytest"]}\n', encoding="utf-8")
+
+    with pytest.raises(GoalError, match="schema_version 1"):
+        resolve_contract(tmp_path, spec="legacy")
+
+
+def test_spec_binding_prefers_published_feature_and_preserves_both_provenances(
+    tmp_path: Path,
+) -> None:
+    _write_native_spec(tmp_path, "account-lookup")
+    (tmp_path / "health.py").write_text("print('healthy')\n", encoding="utf-8")
+    generate_feature(
+        tmp_path,
+        "account-lookup",
+        title="Account lookup",
+        behavior="A caller can retrieve account health.",
+        expected_path="Spec -> feature -> public verifier",
+        command=[sys.executable, "health.py"],
+        draft=False,
+    )
+
+    first = bind_spec_contract(tmp_path, "account-lookup", feature="account-lookup")
+    second = bind_spec_contract(tmp_path, "account-lookup", feature="account-lookup")
+    contract = resolve_contract(tmp_path, spec="account-lookup")
+
+    assert first["changed"] is True
+    assert second["changed"] is False
+    assert first["kind"] == "feature"
+    assert contract.source == "spec"
+    assert contract.spec == "account-lookup"
+    assert contract.feature == "account-lookup"
+    assert contract.argv == (sys.executable, "health.py")
+    assert {Path(item.path).name for item in contract.spec_artifacts} == {
+        "requirements.md",
+        "design.md",
+        "pstack-verification.json",
+    }
+    assert all(len(item.sha256) == 64 for item in contract.spec_artifacts)
+    assert json.loads(
+        (tmp_path / ".kiro/specs/account-lookup/pstack-verification.json").read_text()
+    ) == {"schema_version": 1, "feature": "account-lookup"}
+
+
+def test_spec_binding_supports_reviewed_command_only_when_no_feature_applies(
+    tmp_path: Path,
+) -> None:
+    _write_native_spec(tmp_path, "one-off", bugfix=True)
+    checker = _sentinel_command(tmp_path)
+
+    result = bind_spec_contract(tmp_path, "one-off", command=checker)
+    contract = resolve_contract(tmp_path, spec="one-off")
+
+    assert result["kind"] == "bugfix"
+    assert contract.source == "spec"
+    assert contract.spec == "one-off"
+    assert contract.feature is None
+    assert contract.argv == (sys.executable, "check.py")
+
+
+def test_spec_binding_requires_complete_native_artifacts_and_exact_source(
+    tmp_path: Path,
+) -> None:
+    directory = tmp_path / ".kiro/specs/incomplete"
+    directory.mkdir(parents=True)
+    (directory / "requirements.md").write_text("# Requirements\n", encoding="utf-8")
+
+    with pytest.raises(GoalError, match=r"missing design\.md"):
+        bind_spec_contract(tmp_path, "incomplete", command=f"{sys.executable} check.py")
+    assert not (directory / "pstack-verification.json").exists()
+
+    _write_native_spec(tmp_path, "ambiguous")
+    (tmp_path / ".kiro/specs/ambiguous/bugfix.md").write_text("# Bug\n", encoding="utf-8")
+    with pytest.raises(GoalError, match="exactly one"):
+        bind_spec_contract(tmp_path, "ambiguous", command=f"{sys.executable} check.py")
+
+
+def test_spec_binding_refuses_changed_bridge_without_explicit_overwrite(tmp_path: Path) -> None:
+    directory = _write_native_spec(tmp_path, "stable")
+    (tmp_path / "one.py").write_text("pass\n", encoding="utf-8")
+    (tmp_path / "two.py").write_text("pass\n", encoding="utf-8")
+    bind_spec_contract(tmp_path, "stable", command=f"{sys.executable} one.py")
+    before = (directory / "pstack-verification.json").read_bytes()
+
+    with pytest.raises(GoalError, match="without --overwrite"):
+        bind_spec_contract(tmp_path, "stable", command=f"{sys.executable} two.py")
+    assert (directory / "pstack-verification.json").read_bytes() == before
+
+    replaced = bind_spec_contract(
+        tmp_path,
+        "stable",
+        command=f"{sys.executable} two.py",
+        overwrite=True,
+    )
+    assert replaced["changed"] is True
+    assert resolve_contract(tmp_path, spec="stable").argv == (sys.executable, "two.py")
+
+
+@pytest.mark.parametrize(
+    "artifact",
+    ["requirements.md", "design.md", "pstack-verification.json"],
+)
+def test_spec_goal_rejects_bound_artifact_drift_without_consuming_attempt(
+    tmp_path: Path,
+    artifact: str,
+) -> None:
+    directory = _write_native_spec(tmp_path, "drift")
+    bind_spec_contract(tmp_path, "drift", command=_sentinel_command(tmp_path))
+    start_goal(tmp_path, "Keep native acceptance bound", spec="drift")
+    before = GoalStore(tmp_path).path.read_bytes()
+    with (directory / artifact).open("a", encoding="utf-8") as handle:
+        handle.write("\nchanged after goal start\n")
+
+    with pytest.raises(GoalError, match="changed after goal start"):
+        verify_goal(tmp_path)
+
+    assert GoalStore(tmp_path).path.read_bytes() == before
+    state = get_goal(tmp_path)
+    assert state.attempt_count == 0
+    assert state.history == []
+
+
+def test_spec_goal_allows_mutable_task_progress(tmp_path: Path) -> None:
+    directory = _write_native_spec(tmp_path, "task-progress")
+    bind_spec_contract(tmp_path, "task-progress", command=_sentinel_command(tmp_path))
+    start_goal(tmp_path, "Allow native task progress", spec="task-progress")
+    (directory / "tasks.md").write_text("# Tasks\n\n- [x] Implement.\n", encoding="utf-8")
+    (tmp_path / "fixed.txt").write_text("done\n", encoding="utf-8")
+
+    result = verify_goal(tmp_path)
+
+    assert result.status == "passed"
+    assert result.attempt_count == 1
+
+
+def test_spec_goal_discards_result_when_artifact_drifts_during_verification(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    directory = _write_native_spec(tmp_path, "racing-spec")
+    bind_spec_contract(tmp_path, "racing-spec", command=_sentinel_command(tmp_path))
+    start_goal(tmp_path, "Discard proof after spec drift", spec="racing-spec")
+
+    def drift_during_verification(*_args: object, **_kwargs: object) -> VerificationResult:
+        (directory / "design.md").write_text("# Design\n\nChanged during proof.\n")
+        return VerificationResult(
+            passed=True,
+            exit_code=0,
+            stdout="stale proof\n",
+            stderr="",
+            duration_ms=0,
+        )
+
+    monkeypatch.setattr("pstack_kiro.goal.run_command", drift_during_verification)
+    with pytest.raises(GoalError, match="changed after goal start"):
+        verify_goal(tmp_path)
+
+    state = get_goal(tmp_path)
+    assert state.status == "active"
+    assert state.attempt_count == 0
+    assert state.history == []
 
 
 def test_goal_state_is_atomic_private_and_tripwire_is_advisory(tmp_path: Path) -> None:
@@ -302,8 +476,7 @@ def test_goal_contract_and_store_error_boundaries(tmp_path: Path) -> None:
     with pytest.raises(FeatureMapError, match="still a draft"):
         resolve_contract(tmp_path, feature="draft-only")
 
-    bridge = tmp_path / ".kiro" / "specs" / "broken" / "pstack-verification.json"
-    bridge.parent.mkdir(parents=True)
+    bridge = _write_native_spec(tmp_path, "broken") / "pstack-verification.json"
     bridge.write_text("{broken", encoding="utf-8")
     with pytest.raises(GoalError, match="invalid spec verification bridge"):
         resolve_contract(tmp_path, spec="broken")

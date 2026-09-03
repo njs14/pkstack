@@ -11,7 +11,7 @@ repository-owned checks. Kiro CLI v3 and Kiro IDE 1.x chat/Agent Focus are the f
 surfaces; Kiro Crew is a compatible optional orchestrator; Kiro Web is supported through committed
 workspace assets by design but remains untested. Kiro owns execution and orchestration; PK-Stack
 owns workflow semantics; the repo-local `projectctl` owns deterministic project operations and
-verification; OKF is the optional interface for broader project knowledge.
+verification; source-controlled OKF plus canonical `okn` is the deeper project-knowledge interface.
 
 The acceptance fixture is a two-service document-export
 application running through Floci's Docker-backed ECS subset. The API writes a tenant-keyed
@@ -45,6 +45,15 @@ campaign deliberately used Sol/max, but `--effort` persists for that model and h
 more credits, so that validation configuration is not a neutral quick-start command. See the
 [versioned model and surface guidance](powers/pk-stack/docs/kiro-v3-compatibility.md#models-effort-and-verification-methodology).
 
+For nontrivial feature or bug work, start with Kiro's native planning workflow. In CLI v3, use
+`/spec new <name>` and choose Feature, Quick Spec, or Bug; in the IDE, use **Build with spec** or
+the workflow picker. Standard Spec is for unfamiliar or high-risk work, while Quick Spec is for a
+bounded, well-understood change. Kiro owns the resulting requirements or bug analysis, design,
+tasks, and native dependency waves. When those artifacts are ready, reselect `pstack` in the same
+IDE/CLI conversation and let PK-Stack bind the spec to a published feature verifier. Kiro does not
+document a supported Agent Skill or custom-agent tool for changing the active workflow, so
+PK-Stack neither invokes nor emulates that client action.
+
 Then invoke the workspace skill in that same Kiro agent session:
 
 ```text
@@ -61,7 +70,13 @@ the agent in the current session while
 `.pstack/bin/projectctl` stores a bounded objective, its exact executable acceptance contract,
 attempts, and results. ACP is not the default path. Kiro Crew may use ACP internally when it owns a
 session, but Crew remains optional. Native Kiro skills, custom agents, sub-agents, permissions,
-hooks, steering, `/spec`, and `/knowledge` remain available where they fit.
+hooks, steering, native Spec/Quick Spec/Bug Fix workflows, and `/knowledge` remain available where
+they fit. PK-Stack starts context at the spec-linked feature map and descends into canonical `okn`
+only for broader architecture, decisions, concepts, or operations. Native `/knowledge` may index
+the same source-controlled Wiki but does not replace it. The `/okf` skill supplies Kiro-native
+produce, maintain, and consume workflows for that Wiki; it selectively adapts the useful method
+from `scaccogatto/okf-skills` without installing its Claude-specific hooks, transcript backfill,
+validator, MCP server, or visualizer.
 
 Kiro Web's honest path is a repository that already commits its bootstrapped `.kiro` and `.pstack`
 assets. Web can activate `/verified-goal`, but project custom agents are delegation-only there and
@@ -78,10 +93,15 @@ commands, and recovery procedures.
 
 The combined repository uses the same levers it ships: a ready feature contract, a bounded
 `projectctl` goal, the `/maintain-pk-stack` skill, a checksum-pinned Kiro CLI, canonical-Power
-regeneration, and deterministic verification. The scheduled Kiro workflow checks the hash-pinned
-`cursor/plugins/pstack` source each Monday. Real drift must fail attempt 1, receive one exhaustive
-A/B/C path review and provenance record, and pass a later attempt before the workflow can publish
-one non-draft bot PR.
+regeneration, and deterministic verification. The scheduled Kiro workflow checks every hash-pinned
+source daily: Cursor pstack for workflow semantics, `scaccogatto/okf-skills` for OKF workflow
+methodology, and Google Knowledge Catalog for the normative OKF specification. When several sources
+move together, it selects and reviews exactly one source per transaction so pins, inventories,
+provenance, and acceptance never become ambiguous. Real drift must fail attempt 1, receive one
+exhaustive A/B/C path review and provenance record, and pass a later attempt before the workflow can
+publish one non-draft bot PR; the next daily run then picks up any remaining source. A no-drift run
+stops before Kiro or Fable is invoked, so faster backlog draining does not spend model credits on a
+clean repository.
 
 The candidate workflow independently tests the unchanged base and exact candidate, then requires
 Fable 5.1 at `xhigh` to approve the exact base/head/content/patch identity before an API-only squash
@@ -141,8 +161,12 @@ The emulator is unauthenticated while running. Port 4566 is bound to loopback, b
 network is not an egress-isolation boundary. Use a disposable Docker daemon and read the
 [limitations](docs/limitations.md) before treating the lab as production evidence.
 
-The candidate implementation, automated/lab evidence, and local current-session Kiro campaign are
-documented. Independent Fable acceptance, the final Grok sweep, and private-repository publication
-remain gated until their evidence exists. See [architecture](docs/architecture.md),
-[test strategy](docs/test-strategy.md), the [Kiro campaign record](reviews/kiro-v3-campaign.md),
-and the [validation report](docs/validation-report.md).
+The candidate implementation, final Docker-backed lab evidence, and final local current-session
+Kiro campaign are documented separately from model-council acceptance. See
+[architecture](docs/architecture.md), [test strategy](docs/test-strategy.md), the
+[final Floci campaign](reviews/final-floci-campaign.md)
+([machine-readable record](reviews/final-floci-campaign.json)), the
+[final Kiro CLI v3 campaign](reviews/final-kiro-v3-campaign.md)
+([machine-readable record](reviews/final-kiro-v3-campaign.json)), and the
+[validation report](docs/validation-report.md). Independent Fable acceptance, the final Grok
+sweep, and private-repository publication remain gated until their own evidence exists.

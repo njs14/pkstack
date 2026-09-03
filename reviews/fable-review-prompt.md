@@ -16,8 +16,30 @@ defects. Verify claims against implementation and tests. Do not reward volume or
 - The combined repository ships exactly one canonical installable Agent Plugins Power under
   `powers/pk-stack/`; root `.pstack/projectctl/` is parity-checked generated fixture output, not a
   second setup authority.
-- Kiro owns execution/orchestration; PK-Stack owns workflow semantics; `projectctl` owns project
-  operability; OKF or `/knowledge` owns broader project knowledge when available.
+- Kiro owns execution and native planning; PK-Stack owns workflow semantics; `projectctl` owns
+  project operability and proof. Native Spec, Quick Spec, or Bug Fix owns requirements or bug
+  analysis, design, tasks, dependency waves, and parallel execution. PK-Stack must not recreate
+  that task graph or treat a completed task as executable proof.
+- The integration is an honest user-mediated same-conversation handoff because Kiro does not
+  document a supported workspace-skill or custom-agent tool for executing client slash commands or
+  changing the active workflow. CLI v3 and IDE return to `pstack` after
+  native planning; Web uses its built-in primary/native Spec picker and remains untested; Crew may
+  consume committed specs without a false claim that it exposes the local built-in-agent switch.
+- A thin `projectctl goal bind-spec` seam must require complete native artifacts, preferentially
+  bind a published feature verifier, preserve both spec and feature provenance, and refuse silent
+  replacement. Goal start must snapshot native intent, design, and bridge bytes and reject drift on
+  both sides of proof without freezing Kiro-owned task progress. A prose criterion or task checkbox
+  is not proof.
+- The context ladder starts at the spec-linked feature map and uses canonical `okn` only for deeper
+  architecture, decisions, concepts, or operations. The source-controlled OKF Wiki is authoritative;
+  native `/knowledge` may index it but cannot replace it. Feature-map and broader OKF validation
+  must compose when `okn` is installed.
+- `okfcli/okf` may be assessed as an explicit independent CI conformance/SARIF oracle, but it must
+  never silently substitute for canonical `okn` retrieval, query, lifecycle, or safety semantics.
+- The Kiro-native `/okf` skill may selectively adapt `scaccogatto/okf-skills` produce, maintain, and
+  consume methodology, but must not execute or vendor its Claude-specific hooks, transcript
+  backfill, validator, MCP server, visualizer, action, or stale specification snapshot. The current
+  Google OKF 0.2 specification wins semantic conflicts, including explicit-offset timestamps.
 - Do not claim Kiro v3 has native `/goal`. `/verified-goal` must be a thin current-session skill and
   deterministic `projectctl` state/verification seam, not a replacement agent runtime or ACP-first
   workflow.
@@ -48,8 +70,11 @@ defects. Verify claims against implementation and tests. Do not reward volume or
 - `projectctl`/Cyclopts, setup/bootstrap provenance and idempotence, OKF integration, feature-map
   generation/validation, hooks/permissions, and the verified-goal current-session loop must be
   coherent and tested. Do not confuse configuration validation with a real Kiro workflow run.
-- Self-maintenance must use a strict, hash-pinned upstream manifest, contiguous reviewed-transition
-  ledger, full ordered provenance binding, and one narrow transactional `upstream accept` path. A
+- Self-maintenance must use a strict, independently hash-pinned multi-source manifest, per-source
+  parity evidence, contiguous per-source reviewed-transition ledgers, full ordered provenance
+  binding, and one narrow serialized transactional `upstream accept` path. Cursor pstack,
+  `okf-skills`, and the Google OKF specification tree must not share or overwrite a source's pin,
+  parity, proposal, or provenance state. A
   pin-only change, stale/replayed proposal, incomplete compare, history rewrite, path mismatch,
   provenance mismatch, or generated-copy mismatch must fail closed.
 - Upstream skill coverage must be exhaustive rather than implicit. Every top-level skill at the
@@ -125,7 +150,7 @@ attention to:
     Kiro `fileMatch` steering, and upstream always-applied prose rules must remain always applied,
     rather than being weakened into optional on-demand skill text or copied as unsupported Cursor
     frontmatter.
-20. exact 48 canonical / 47 live / 48 projectctl-cache skill distribution, all nested semantic
+20. exact 49 canonical / 48 live / 49 projectctl-cache skill distribution, all nested semantic
     resources, the setup-only omission, managed-path permissions, foreign user-skill approval, and
     byte-for-byte generated parity;
 21. feature/evidence concurrency, no-clobber/CAS behavior, batch rollback, bounded reads, strict
@@ -136,13 +161,14 @@ attention to:
     fixed role models from normal interactive operation;
 23. final PK-Stack/Poteto Kiro naming and DRY structure across source, generated assets,
     documentation, workflows, package metadata, and artwork provenance;
-24. every terminal `SELF-*`, `KMG-*`, and `SKL-*` acceptance item against implementation and
-    evidence, disregarding the ledger's own status labels.
+24. every terminal `SELF-*`, `KMG-*`, `SKL-*`, `PLOT-*`, and `OKFS-*` acceptance item against
+    implementation and evidence, disregarding the ledger's own status labels.
 
-Re-evaluate `FBL-001` through `FBL-008`, `FBL-021`, and round-4 findings `FBL-028` through
-`FBL-036` directly against source and executable evidence. Do not trust the acceptance ledger's
-status labels or a prior reviewer disposition. Reuse the original ID when a prior finding recurs;
-allocate new findings after the highest existing FBL number.
+Re-evaluate `FBL-001` through `FBL-008`, `FBL-021`, round-4 findings `FBL-028` through `FBL-036`,
+and round-5 findings `FBL-037` through `FBL-045` directly against source and executable evidence.
+Do not trust the acceptance ledger's status labels or a prior reviewer disposition. Reuse the
+original ID when a prior finding recurs; allocate new findings after the highest existing FBL
+number.
 
 In particular, verify all of the following rather than inferring them from prose:
 
@@ -154,10 +180,13 @@ In particular, verify all of the following rather than inferring them from prose
   every observed image/task-definition generation survives until frozen teardown, and partial
   build or registration hard exits resume without changing immutable identity;
 - hard exits inside each destructive teardown phase converge on retry, including after service,
-  queue/table/bucket, task-definition, cluster, Compose, local-data, and first-image mutations;
-- Compose-down-before-checkpoint and fully-checkpointed-before-manifest-unlink resumes work, safe
-  atomic-write temporaries are recovered, unsafe state-directory entries fail closed, and terminal
-  success leaves a reusable local state boundary;
+  queue/table/bucket, task-definition, cluster, exact outer-container/network, local-data, and
+  first-image mutations;
+- exact outer-container/network deletion before checkpoint and fully-checkpointed-before-manifest-
+  unlink resumes work, the original Compose-definition digest and claim labels are re-proved before
+  direct deletion, foreign containers attached to the exact network remain untouched and make
+  cleanup fail closed, safe atomic-write temporaries are recovered, unsafe state-directory entries
+  fail closed, and terminal success leaves a reusable local state boundary;
 - cluster-wide service/task and exact claim-bound task-container absence precedes data deletion,
   including on resumed teardown when the outer Floci container is already absent;
 - a fresh final-tree live lifecycle proves two deployment generations, bounded external judging,
@@ -204,6 +233,16 @@ In particular, verify all of the following rather than inferring them from prose
 - the `poteto-mode`, `create-verification-skill`, `maintain-verification-skill`, and `setup-pstack`
   packages preserve their upstream `SKILL.md` and load-bearing referenced-resource semantics,
   including all 23 Poteto playbook routes, rather than merely reusing their names;
+- nontrivial feature/bug/refactor routes actually select native Spec, Quick Spec, or Bug Fix before
+  PK-Stack composition; the same-conversation return is accurate on CLI/IDE and does not invent
+  equivalent primary-agent behavior on Crew/Web; `goal bind-spec` rejects incomplete, ambiguous,
+  oversized, linked, malformed, draft-feature, and racing bridges while retaining dual provenance;
+  and a real final-tree native-spec campaign reaches a spec-backed verified-goal pass;
+- canonical `okn` validation cannot hide a failed feature map or vice versa, ranked search reaches
+  committed architecture/decision knowledge beyond the feature record, and any `okfcli/okf`
+  evidence remains an independent explicitly named cross-check rather than a fallback; audit the
+  new `/okf` skill and the exact `okf-skills`/Google source inventories, exclusions, timestamp rule,
+  symlink boundary, and generated parity rather than trusting their documentation;
 - feature batch installation cannot clobber a concurrently planted path when overwrite is false,
   publish proves and flips only the exact draft bytes it reviewed, migration refuses any
   unmodeled legacy content, all feature reads are bounded, and evidence artifact aliases cannot

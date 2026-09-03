@@ -1,3 +1,10 @@
+---
+type: Guide
+title: Feature map
+description: PK-Stack executable feature-contract index.
+tags: [pk-stack, verification, feature-map]
+---
+
 # Feature map
 
 This directory is the narrow **PROVE** interface. Each feature file describes

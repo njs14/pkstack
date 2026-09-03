@@ -17,6 +17,10 @@ Do not assume a passing old check still covers current behavior. Preserve this s
    <slug> --output json` before publication; do not discard unknown extensions to force migration.
 2. **Check index hygiene.** Reconcile the index, feature files, and user-visible surface. Record
    missing, stale, duplicate, or orphaned entries before editing.
+   Also find native `.kiro/specs/*/pstack-verification.json` bridges. Treat their
+   `requirements.md` or `bugfix.md`, `design.md`, and `tasks.md` as Kiro-owned planning artifacts;
+   reconcile each bridge to its exact published feature or reviewed command without rewriting the
+   native plan.
 3. **Run independent source audits.** Keep one live coordinator responsible for the shared runtime
    and evidence surface. Assign one read-only native Kiro sub-agent per feature when the
    records are independent. Each compares the claimed behavior and path with current code and real
@@ -44,6 +48,10 @@ Do not assume a passing old check still covers current behavior. Preserve this s
    verifier assets changed and the user separately authorized a pull request, group the maintenance
    result into one reviewed pull request rather than one per feature. Without that authorization,
    leave the local result and report the exact next action.
+8. **Refresh spec bindings last.** After a changed feature passes its required proof, rerun
+   `.pstack/bin/projectctl goal bind-spec <spec-name> --feature <slug> --output json`. An identical
+   bridge is a no-op. A changed bridge requires explicit `--overwrite` only after comparing the old
+   and new contracts. Never preserve green output by pointing a spec at a weaker verifier.
 
 Keep scratch audit notes uncommitted. Return the index reconciliation, per-feature outcome, changed
 contracts, exact live runs, recovery and residue results, observed side effects, and unverified gaps.

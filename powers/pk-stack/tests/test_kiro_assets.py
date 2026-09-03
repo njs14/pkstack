@@ -456,8 +456,65 @@ def test_poteto_router_preserves_package_wide_triggers_and_playbook_routes() -> 
         "explicit absolute behavior budget",
         "PK-Stack preserves the upstream check-plan helper's semantics",
         "upstream cleanup helper is semantics-only",
+        "## Native workflow spine",
+        "standard Spec for unfamiliar, cross-boundary, high-risk",
+        "Quick Spec for bounded, well-understood work",
+        "Kiro does not document a supported Agent Skill or custom-agent tool",
+        "/spec new <name>",
+        "/spec run <name>",
+        "/agent swap pstack",
+        "PK-Stack does not recreate that task graph",
+        "projectctl goal bind-spec",
+        "Use the feature record first",
+        "Crew may run a committed spec through its Task Runner",
     ):
         assert phrase in workflows
+
+
+def test_poteto_primary_router_uses_native_specs_as_the_planning_spine() -> None:
+    router = " ".join((SKILLS / "poteto-mode" / "SKILL.md").read_text(encoding="utf-8").split())
+    for phrase in (
+        "## Use Kiro's native planning spine",
+        "standard **Spec**",
+        "**Quick Spec**",
+        "**Bug Fix**",
+        "native **Plan**",
+        "Kiro does not document a supported Agent Skill or custom-agent tool",
+        "/spec new <name>",
+        "/agent swap pstack",
+        "Kiro owns `requirements.md` or `bugfix.md`, `design.md`, `tasks.md`",
+        "never creates a second task graph",
+        "through canonical `okn`",
+    ):
+        assert phrase in router
+
+
+def test_okf_skill_is_kiro_native_bounded_and_uses_canonical_runtime() -> None:
+    text = (SKILLS / "okf" / "SKILL.md").read_text(encoding="utf-8")
+    normalized = " ".join(text.split())
+    for phrase in (
+        "**produce**, **maintain**, or **consume**",
+        "Store project knowledge in `Wiki/`",
+        "projectctl knowledge search",
+        "--budget 1200",
+        "content-addressed locators",
+        "projectctl knowledge validate",
+        "mode: canonical-okn",
+        "explicit UTC offset",
+        "Attested Computation",
+        "Do not crawl editor or agent transcripts",
+        "substitute `okfcli/okf`",
+    ):
+        assert phrase in normalized
+    for residue in (
+        "${CLAUDE_SKILL_DIR}",
+        "${CLAUDE_PLUGIN_ROOT}",
+        "/okf:",
+        "user-invocable:",
+        "argument-hint:",
+        "~/.claude",
+    ):
+        assert residue not in text
 
 
 def test_nested_workflow_ports_preserve_semantics_without_cursor_runtime_seams() -> None:
@@ -653,6 +710,12 @@ def test_maintenance_skill_preserves_current_session_and_clean_room_contract() -
     assert "A adapt" in text
     assert "B explicitly exclude" in text
     assert "C provenance" in text
+    assert "--source-id <source-id>" in text
+    assert "exactly one source for this transaction" in text
+    assert "Never combine transitions from different sources" in text
+    assert "passing that exact scoped command to `goal start --command`" in text
+    assert "Google OKF wins" in text
+    assert "Claude transcript mining" in text
     assert "--max-attempts 5" in text
     assert "mandatory first attempt" in text
     assert "four bounded" in text
@@ -675,7 +738,7 @@ def test_maintenance_skill_preserves_current_session_and_clean_room_contract() -
     assert "current no-op" in text
     assert "unrelated goal" in text
     assert "Git history is the tamper-evident authority" in text
-    assert "Only report the source as current" in text
+    assert "Only report all upstreams current" in text
 
     agent = json.loads((AGENTS / "pstack.json").read_text(encoding="utf-8"))
     assert "/maintain-pk-stack" in agent["prompt"]
@@ -766,6 +829,11 @@ def test_verified_goal_is_current_session_and_deterministically_verified() -> No
     assert "current Kiro agent session" in text
     assert "Kiro Crew may own the session" in text
     assert "executable verifier" in text
+    assert "goal bind-spec <spec-name> --feature <slug>" in text
+    assert 'goal start "<objective>" --spec <spec-name>' in text
+    assert "requirements.md" in text and "bugfix.md" in text
+    assert "completed task checkboxes" in text
+    assert "If a native spec exists but has no executable bridge" in text
     assert "Do not automatically run `goal resume`" in text
     assert "/spawn" not in text
     assert "kiro-cli" not in text.lower()
@@ -904,6 +972,10 @@ def test_primary_agent_copy_is_surface_neutral_and_keeps_cli_and_crew_boundaries
     assert "Kiro IDE 1.x and Kiro CLI v3 are the primary surfaces" in primary["prompt"]
     assert "Kiro Crew is optional and may use ACP internally" in primary["prompt"]
     assert "do not make ACP the default PK-Stack path" in primary["prompt"]
+    assert "native Spec, Quick Spec, or Bug Fix workflow" in primary["prompt"]
+    assert "bind the spec to a feature verifier" in primary["prompt"]
+    assert "Do not recreate Kiro's task graph" in primary["prompt"]
+    assert "use canonical okn only for deeper" in primary["prompt"]
     assert "On Kiro Web this profile is delegation-only" in primary["prompt"]
     assert (
         "do not claim it is the primary agent or that IDE/CLI permissions apply"
@@ -1021,6 +1093,7 @@ def test_primary_profile_asks_for_every_canonical_controller_route() -> None:
         ".pstack/bin/projectctl feature verify sample --output json",
         ".pstack/bin/projectctl verify sample --output json",
         ".pstack/bin/projectctl goal start objective --command verifier",
+        ".pstack/bin/projectctl goal bind-spec sample --feature sample --output json",
         ".pstack/bin/projectctl goal status --output json",
         ".pstack/bin/projectctl goal verify --output json",
         ".pstack/bin/projectctl goal resume --add-attempts 1",

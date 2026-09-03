@@ -32,6 +32,7 @@ from pstack_kiro.features import (
 )
 from pstack_kiro.goal import (
     GoalError,
+    bind_spec_contract,
     clear_goal,
     get_goal,
     resume_goal,
@@ -744,6 +745,31 @@ def goal_start(
     _emit({"ok": True, "goal": state_payload(state)}, output)
 
 
+@goal_app.command(name="bind-spec")
+def goal_bind_spec(
+    spec: str,
+    *,
+    feature: str | None = None,
+    command: str | None = None,
+    overwrite: bool = False,
+    root: Path = Path("."),
+    output: Output = "text",
+) -> None:
+    """Bind completed native Kiro Spec artifacts to one executable verifier."""
+
+    try:
+        payload = bind_spec_contract(
+            root,
+            spec,
+            feature=feature,
+            command=command,
+            overwrite=overwrite,
+        )
+    except (GoalError, FeatureMapError, CommandRejected, OSError, ValueError) as exc:
+        _fail(exc, output)
+    _emit(payload, output)
+
+
 @goal_app.command(name="status")
 def goal_status(*, root: Path = Path("."), output: Output = "text") -> None:
     """Read the current goal state without changing it."""
@@ -848,13 +874,14 @@ def knowledge_validate_command(
 def knowledge_search_command(
     query: str,
     *,
+    budget: int = 1_200,
     root: Path = Path("."),
     output: Output = "text",
 ) -> None:
     """Delegate broad project-knowledge search to okn."""
 
     try:
-        payload = search_knowledge(root, query)
+        payload = search_knowledge(root, query, budget=budget)
     except (KnowledgeError, CommandRejected, OSError, ValueError) as exc:
         _fail(exc, output)
     _emit(payload, output)
@@ -867,6 +894,7 @@ def upstream_check_command(
     *,
     manifest: Path = DEFAULT_MANIFEST,
     power_root: Path | None = None,
+    source_id: str | None = None,
     root: Path = Path("."),
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
     output: Output = "text",
@@ -878,6 +906,7 @@ def upstream_check_command(
             root,
             manifest=manifest,
             power_root=power_root,
+            source_id=source_id,
             timeout_seconds=timeout_seconds,
         )
     except (OSError, UpstreamError, ValueError) as exc:

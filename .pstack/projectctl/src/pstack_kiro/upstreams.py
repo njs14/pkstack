@@ -30,8 +30,8 @@ from urllib.request import (
 from pstack_kiro.bootstrap import BootstrapResult, bootstrap_project
 from pstack_kiro.paths import WorkspacePathError, workspace_path
 
-UPSTREAM_SCHEMA_VERSION = 1
-UPSTREAM_REVIEW_SCHEMA_VERSION = 1
+UPSTREAM_SCHEMA_VERSION = 2
+UPSTREAM_REVIEW_SCHEMA_VERSION = 2
 DEFAULT_MANIFEST = Path("maintenance/upstreams.json")
 DEFAULT_PROPOSAL = Path(".pk-stack-maintenance/proposal.json")
 DEFAULT_POWER_ROOT = Path("powers/pk-stack")
@@ -56,7 +56,8 @@ MAX_REVIEW_LEDGER_BYTES = 8 * 1024 * 1024
 MAX_REVIEW_TRANSITIONS = 512
 MAX_RATIONALE_BYTES = 2048
 MAX_PROPOSAL_BYTES = 512 * 1024
-MAX_SKILL_PARITY_BYTES = 512 * 1024
+MAX_SOURCE_PARITY_BYTES = 512 * 1024
+MAX_SKILL_PARITY_BYTES = MAX_SOURCE_PARITY_BYTES
 MAX_PROVENANCE_BYTES = 8 * 1024 * 1024
 MAX_ACCEPT_TRANSACTION_BYTES = 20 * 1024 * 1024
 PATCH_COUNT_CONSTRAINT = "unified-patch-body-matches-reported-additions-and-deletions"
@@ -77,12 +78,14 @@ _SOURCE_KEYS = {
     "commit",
     "subtree_sha",
     "provenance_path",
+    "parity_path",
 }
 _LEDGER_SOURCE_KEYS = {
     "id",
     "repository",
     "path",
     "provenance_path",
+    "parity_path",
     "genesis",
     "transitions",
 }
@@ -120,6 +123,29 @@ _SKILL_PARITY_SUMMARY_KEYS = {
     "helper_semantics_only_files",
     "runtime_specific_exclusion_files",
 }
+_SOURCE_INVENTORY_PARITY_KEYS = {
+    "schema_version",
+    "artifact_type",
+    "source",
+    "allowed_dispositions",
+    "summary",
+    "files",
+}
+_SOURCE_INVENTORY_PARITY_SOURCE_KEYS = {
+    "id",
+    "repository",
+    "path",
+    "pinned",
+    "current",
+    "retrieved_on",
+}
+_SOURCE_INVENTORY_PARITY_SUMMARY_KEYS = {
+    "A",
+    "B",
+    "C",
+    "pinned_files",
+    "current_files",
+}
 _SKILL_DISPOSITIONS = {
     "direct-port",
     "alias-consolidation",
@@ -132,6 +158,7 @@ _SKILL_RESOURCE_HANDLING = {
     "runtime-specific-exclusion",
 }
 _TRANSITION_KEYS = {"prior", "new", "inventory_sha256", "dispositions"}
+_PROPOSAL_KEYS = {*_TRANSITION_KEYS, "source_id"}
 _DISPOSITION_KEYS = {"path", "disposition", "rationale"}
 _REPOSITORY = re.compile(
     r"^[A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9])?/"
@@ -163,6 +190,7 @@ class UpstreamSource:
     commit: str
     subtree_sha: str
     provenance_path: str
+    parity_path: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -212,6 +240,7 @@ class UpstreamReview:
     repository: str
     path: str
     provenance_path: str
+    parity_path: str
     genesis_commit: str
     genesis_subtree_sha: str
     transitions: tuple[ReviewTransition, ...]
@@ -394,6 +423,7 @@ def _parse_review_source(
         ("repository", manifest_source.repository),
         ("path", manifest_source.path),
         ("provenance_path", manifest_source.provenance_path),
+        ("parity_path", manifest_source.parity_path),
     ):
         actual = _require_string(value, key, context)
         if actual != expected:
@@ -437,6 +467,7 @@ def _parse_review_source(
         repository=manifest_source.repository,
         path=manifest_source.path,
         provenance_path=manifest_source.provenance_path,
+        parity_path=manifest_source.parity_path,
         genesis_commit=genesis_commit,
         genesis_subtree_sha=genesis_subtree,
         transitions=tuple(transitions),
@@ -491,6 +522,23 @@ def _parse_review_transition(value: Any, *, context: str) -> ReviewTransition:
     )
 
 
+def _parse_acceptance_proposal(value: Any) -> tuple[str, ReviewTransition]:
+    """Parse one source-bound proposal without adding source identity to ledger entries."""
+
+    context = "upstream acceptance proposal"
+    if not isinstance(value, dict):
+        raise UpstreamError(f"{context} must be a JSON object")
+    _require_exact_keys(value, _PROPOSAL_KEYS, context)
+    source_id = _require_string(value, "source_id", context)
+    if len(source_id) > 64 or not _SOURCE_ID.fullmatch(source_id):
+        raise UpstreamError(f"{context} source_id must be a lowercase hyphenated identifier")
+    transition = _parse_review_transition(
+        {key: value[key] for key in _TRANSITION_KEYS},
+        context=context,
+    )
+    return source_id, transition
+
+
 def _parse_review_disposition(value: Any, *, context: str) -> ReviewDisposition:
     if not isinstance(value, dict):
         raise UpstreamError(f"{context} must be a JSON object")
@@ -513,6 +561,7 @@ def check_upstreams(
     *,
     manifest: Path = DEFAULT_MANIFEST,
     power_root: Path | None = None,
+    source_id: str | None = None,
     timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
     fetch_json: FetchJSON | None = None,
     environ: Mapping[str, str] | None = None,
@@ -523,6 +572,7 @@ def check_upstreams(
         root,
         manifest=manifest,
         power_root=power_root,
+        source_id=source_id,
         timeout_seconds=timeout_seconds,
         fetch_json=fetch_json,
         environ=environ,
@@ -535,10 +585,11 @@ def _check_upstreams(
     *,
     manifest: Path,
     power_root: Path | None,
+    source_id: str | None,
     timeout_seconds: float,
     fetch_json: FetchJSON | None,
     environ: Mapping[str, str] | None,
-    provenance_tail: ReviewTransition | None,
+    provenance_tail: tuple[str, ReviewTransition] | None,
 ) -> dict[str, Any]:
     """Internal checker with a proposal-bound provenance tail for acceptance preflight."""
 
@@ -549,8 +600,20 @@ def _check_upstreams(
     token = _github_token(os.environ if environ is None else environ)
     parsed = load_upstream_manifest(project_root, manifest)
     review_ledger = load_upstream_review_ledger(project_root, parsed)
-    if provenance_tail is not None and len(parsed.sources) != 1:
-        raise UpstreamError("upstream acceptance preproof requires exactly one source")
+    if source_id is not None:
+        if len(source_id) > 64 or not _SOURCE_ID.fullmatch(source_id):
+            raise UpstreamError("upstream source_id must be a lowercase hyphenated identifier")
+        selected_sources = tuple(
+            source for source in parsed.sources if source.source_id == source_id
+        )
+        if not selected_sources:
+            raise UpstreamError(f"upstream source_id is not present in the manifest: {source_id}")
+    else:
+        selected_sources = parsed.sources
+    if provenance_tail is not None and provenance_tail[0] not in {
+        source.source_id for source in selected_sources
+    }:
+        raise UpstreamError("upstream acceptance preproof source is not selected")
     reviews = {review.source_id: review for review in review_ledger.sources}
     raw_fetch = _fetch_json if fetch_json is None else fetch_json
     deadline = time.monotonic() + timeout
@@ -563,11 +626,11 @@ def _check_upstreams(
 
     results: list[dict[str, Any]] = []
     blob_cache: dict[str, bytes] = {}
-    for source in parsed.sources:
+    for source in selected_sources:
         review = reviews[source.source_id]
         expected_markers = review.transitions
-        if provenance_tail is not None:
-            expected_markers = (*expected_markers, provenance_tail)
+        if provenance_tail is not None and provenance_tail[0] == source.source_id:
+            expected_markers = (*expected_markers, provenance_tail[1])
         _require_provenance_review_markers(
             project_root,
             source,
@@ -628,7 +691,7 @@ def _check_upstreams(
             blob_cache=blob_cache,
             latest_inventory_capture=reviewed_inventory,
         )
-        skill_parity = _skill_parity_status(
+        source_parity = _source_parity_status(
             project_root,
             source=source,
             review=review,
@@ -641,12 +704,13 @@ def _check_upstreams(
         drift = current_commit != source.commit or current_subtree != source.subtree_sha
         results.append(
             {
-                "ok": pin_reproof_ok and not drift and skill_parity["ok"],
+                "ok": pin_reproof_ok and not drift and source_parity["ok"],
                 "id": source.source_id,
                 "repository": source.repository,
                 "path": source.path,
                 "ref": source.ref,
                 "provenance_path": source.provenance_path,
+                "parity_path": source.parity_path,
                 "pinned": {
                     "commit": source.commit,
                     "subtree_sha": source.subtree_sha,
@@ -663,7 +727,7 @@ def _check_upstreams(
                 "drift": drift,
                 "comparison": comparison,
                 "review_reproof": review_reproof,
-                "skill_parity": skill_parity,
+                "source_parity": source_parity,
             }
         )
 
@@ -672,6 +736,7 @@ def _check_upstreams(
         "schema_version": UPSTREAM_SCHEMA_VERSION,
         "manifest": parsed.path,
         "review_ledger": review_ledger.path,
+        "selected_source_id": source_id,
         "network_boundary": GITHUB_API_ORIGIN,
         "sources": results,
     }
@@ -733,21 +798,26 @@ def accept_upstream(
         raise UpstreamError(str(exc)) from exc
     with _accept_locked(project_root):
         _validate_accept_directory(project_root)
-        recovered = _recover_accept_transaction(
+        recovered_source_id = _recover_accept_transaction(
             project_root,
             expected_head=expected_head,
         )
-        if recovered:
+        if recovered_source_id is not None:
             try:
                 final = check_upstreams(
                     project_root,
                     manifest=manifest,
                     power_root=canonical_power_root,
+                    source_id=recovered_source_id,
                     timeout_seconds=timeout_seconds,
                     fetch_json=fetch_json,
                     environ=environ,
                 )
-                if not _recovered_acceptance_is_valid(final, expected_head=expected_head):
+                if not _recovered_acceptance_is_valid(
+                    final,
+                    expected_head=expected_head,
+                    source_id=recovered_source_id,
+                ):
                     raise UpstreamError("recovered upstream acceptance did not pass final reproof")
             except BaseException:
                 _rollback_accept_transaction(project_root)
@@ -759,6 +829,7 @@ def accept_upstream(
                 "accepted": True,
                 "dry_run": False,
                 "recovered": True,
+                "source_id": recovered_source_id,
                 "expected_head": expected_head,
                 "final": final,
             }
@@ -772,14 +843,15 @@ def accept_upstream(
             context="upstream acceptance proposal",
             max_bytes=MAX_PROPOSAL_BYTES,
         )
-        transition = _parse_review_transition(
-            raw_proposal,
-            context="upstream acceptance proposal",
-        )
+        proposal_source_id, transition = _parse_acceptance_proposal(raw_proposal)
         preflight_manifest = load_upstream_manifest(project_root, manifest)
-        if len(preflight_manifest.sources) != 1:
-            raise UpstreamError("upstream accept requires a manifest with exactly one source")
-        preflight_source = preflight_manifest.sources[0]
+        preflight_sources = {source.source_id: source for source in preflight_manifest.sources}
+        try:
+            preflight_source = preflight_sources[proposal_source_id]
+        except KeyError as exc:
+            raise UpstreamError(
+                "upstream acceptance proposal source_id is not present in the manifest"
+            ) from exc
         if (
             transition.prior_commit != preflight_source.commit
             or transition.prior_subtree_sha != preflight_source.subtree_sha
@@ -795,16 +867,27 @@ def accept_upstream(
             timeout_seconds=timeout_seconds,
             fetch_json=fetch_json,
             environ=environ,
-            provenance_tail=transition,
+            source_id=None,
+            provenance_tail=(proposal_source_id, transition),
         )
-        if len(proof["sources"]) != 1:
-            raise UpstreamError("upstream accept requires a manifest with exactly one source")
         if not proof.get("generated_parity", {}).get("ok"):
             raise UpstreamError("upstream accept requires canonical/generated Power parity")
-        source_result = proof["sources"][0]
-        if not source_result.get("skill_parity", {}).get("candidate_ready"):
+        drift_source_ids = sorted(
+            result["id"] for result in proof["sources"] if result["drift"] is True
+        )
+        if not drift_source_ids:
+            raise UpstreamError("upstream accept proposal is stale or already applied")
+        if proposal_source_id != drift_source_ids[0]:
             raise UpstreamError(
-                "upstream accept requires a complete source-bound candidate skill parity catalog"
+                "upstream acceptance proposal must select the lexicographically first "
+                "drifting source"
+            )
+        source_result = next(
+            result for result in proof["sources"] if result["id"] == proposal_source_id
+        )
+        if not source_result.get("source_parity", {}).get("candidate_ready"):
+            raise UpstreamError(
+                "upstream accept requires a complete source-bound candidate parity artifact"
             )
         if not source_result["pinned_reproof"]["ok"]:
             raise UpstreamError("upstream accept requires an exactly re-proved current pin")
@@ -823,16 +906,28 @@ def accept_upstream(
         )
         parsed_manifest = load_upstream_manifest(project_root, manifest)
         parsed_ledger = load_upstream_review_ledger(project_root, parsed_manifest)
-        if len(parsed_ledger.sources[0].transitions) >= MAX_REVIEW_TRANSITIONS:
+        manifest_index = next(
+            index
+            for index, source in enumerate(parsed_manifest.sources)
+            if source.source_id == proposal_source_id
+        )
+        ledger_index = next(
+            index
+            for index, review in enumerate(parsed_ledger.sources)
+            if review.source_id == proposal_source_id
+        )
+        selected_manifest_source = parsed_manifest.sources[manifest_index]
+        selected_review = parsed_ledger.sources[ledger_index]
+        if len(selected_review.transitions) >= MAX_REVIEW_TRANSITIONS:
             raise UpstreamError(
                 f"upstream review ledger already has the {MAX_REVIEW_TRANSITIONS}-transition limit"
             )
         _require_provenance_review_markers(
             project_root,
-            parsed_manifest.sources[0],
-            (*parsed_ledger.sources[0].transitions, transition),
-            genesis_commit=parsed_ledger.sources[0].genesis_commit,
-            genesis_subtree_sha=parsed_ledger.sources[0].genesis_subtree_sha,
+            selected_manifest_source,
+            (*selected_review.transitions, transition),
+            genesis_commit=selected_review.genesis_commit,
+            genesis_subtree_sha=selected_review.genesis_subtree_sha,
         )
         normalized_transition = _transition_document(transition)
         manifest_path = workspace_path(project_root, manifest)
@@ -851,9 +946,9 @@ def accept_upstream(
         assert isinstance(ledger_document, dict)
         next_manifest = json.loads(json.dumps(manifest_document))
         next_ledger = json.loads(json.dumps(ledger_document))
-        next_manifest["sources"][0]["commit"] = transition.new_commit
-        next_manifest["sources"][0]["subtree_sha"] = transition.new_subtree_sha
-        next_ledger["sources"][0]["transitions"].append(normalized_transition)
+        next_manifest["sources"][manifest_index]["commit"] = transition.new_commit
+        next_manifest["sources"][manifest_index]["subtree_sha"] = transition.new_subtree_sha
+        next_ledger["sources"][ledger_index]["transitions"].append(normalized_transition)
         if len(_canonical_json_bytes(next_manifest)) > MAX_MANIFEST_BYTES:
             raise UpstreamError("accepted upstream manifest would exceed its byte limit")
         if len(_canonical_json_bytes(next_ledger)) > MAX_REVIEW_LEDGER_BYTES:
@@ -882,13 +977,19 @@ def accept_upstream(
             before_ledger=ledger_document,
             after_manifest=next_manifest,
             after_ledger=next_ledger,
+            source_id=proposal_source_id,
             expected_head=expected_head,
         )
         _cleanup_acceptance_inputs(project_root, proposal_path)
         return candidate
 
 
-def _recovered_acceptance_is_valid(payload: dict[str, Any], *, expected_head: str) -> bool:
+def _recovered_acceptance_is_valid(
+    payload: dict[str, Any],
+    *,
+    expected_head: str,
+    source_id: str,
+) -> bool:
     """Validate the committed transition while permitting newer fast-forward drift."""
 
     try:
@@ -903,7 +1004,7 @@ def _recovered_acceptance_is_valid(payload: dict[str, Any], *, expected_head: st
         if not isinstance(sources, list) or len(sources) != 1:
             return False
         source = sources[0]
-        if source.get("skill_parity", {}).get("ok") is not True:
+        if source.get("id") != source_id or source.get("source_parity", {}).get("ok") is not True:
             return False
         pinned = source["pinned"]
         pinned_reproof = source["pinned_reproof"]
@@ -1161,6 +1262,17 @@ def _parse_source(root: Path, value: Any, *, index: int) -> UpstreamSource:
     if not provenance_file.is_file():
         raise UpstreamError(f"{context} provenance_path is missing or not a file: {provenance}")
 
+    parity = fields["parity_path"]
+    _validate_posix_relative(parity, context=f"{context} parity_path", max_length=512)
+    if not parity.endswith(".json"):
+        raise UpstreamError(f"{context} parity_path must identify a JSON file")
+    try:
+        parity_file = workspace_path(root, Path(parity))
+    except WorkspacePathError as exc:
+        raise UpstreamError(str(exc)) from exc
+    if not parity_file.is_file():
+        raise UpstreamError(f"{context} parity_path is missing or not a file: {parity}")
+
     return UpstreamSource(
         source_id=source_id,
         repository=repository,
@@ -1169,6 +1281,7 @@ def _parse_source(root: Path, value: Any, *, index: int) -> UpstreamSource:
         commit=fields["commit"],
         subtree_sha=fields["subtree_sha"],
         provenance_path=provenance,
+        parity_path=parity,
     )
 
 
@@ -1231,7 +1344,7 @@ def _validated_timeout(value: float) -> float:
     return timeout
 
 
-def _skill_parity_status(
+def _source_parity_status(
     root: Path,
     *,
     source: UpstreamSource,
@@ -1241,102 +1354,54 @@ def _skill_parity_status(
     current_inventory: dict[str, Any],
     reviewed_inventory: dict[str, Any],
 ) -> dict[str, Any]:
-    """Validate the authored skill catalog against exact already-fetched Git trees."""
+    """Validate one source-scoped parity artifact against exact fetched Git trees."""
 
     result: dict[str, Any] = {
         "ok": False,
         "candidate_ready": False,
+        "artifact_type": "unknown",
         "status": "invalid",
-        "path": DEFAULT_SKILL_PARITY.as_posix(),
+        "path": source.parity_path,
         "errors": [],
+        "pinned_resource_count": 0,
+        "current_resource_count": 0,
+        "classified_resource_count": 0,
     }
     try:
-        path = workspace_path(root, DEFAULT_SKILL_PARITY)
+        path = workspace_path(root, Path(source.parity_path))
         if not path.is_file():
-            raise UpstreamError(f"upstream skill parity catalog is missing or not a file: {path}")
+            raise UpstreamError(f"upstream source parity artifact is missing or not a file: {path}")
         document = _read_json_path(
             path,
-            context="upstream skill parity catalog",
-            max_bytes=MAX_SKILL_PARITY_BYTES,
+            context="upstream source parity artifact",
+            max_bytes=MAX_SOURCE_PARITY_BYTES,
         )
         if not isinstance(document, dict):
-            raise UpstreamError("upstream skill parity catalog must be a JSON object")
-        _require_exact_keys(document, _SKILL_PARITY_KEYS, "upstream skill parity catalog")
-        raw_source = document["source"]
-        if not isinstance(raw_source, dict):
-            raise UpstreamError("upstream skill parity source must be a JSON object")
-        _require_exact_keys(
-            raw_source,
-            _SKILL_PARITY_SOURCE_KEYS,
-            "upstream skill parity source",
-        )
-        if raw_source.get("id") != source.source_id:
-            raise UpstreamError("upstream skill parity source id does not match the manifest")
-        if raw_source.get("repository") != source.repository:
-            raise UpstreamError("upstream skill parity repository does not match the manifest")
-        if raw_source.get("path") != source.path:
-            raise UpstreamError("upstream skill parity path does not match the manifest")
-        if raw_source.get("catalog_path") != "skills":
-            raise UpstreamError("upstream skill parity catalog_path must be 'skills'")
-        retrieved_on = raw_source.get("retrieved_on")
-        if type(retrieved_on) is not str or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", retrieved_on):
-            raise UpstreamError("upstream skill parity retrieved_on must be an ISO date")
-
-        matrix_pinned = _skill_parity_identity(raw_source.get("pinned"), "pinned")
-        matrix_current = _skill_parity_identity(raw_source.get("current"), "current")
-        active = {
-            "commit": source.commit,
-            "pstack_subtree_sha": source.subtree_sha,
-        }
-        remote = {
-            "commit": current_commit,
-            "pstack_subtree_sha": current_subtree,
-        }
-        if matrix_pinned == active and matrix_current == remote and remote != active:
-            status = "candidate-ready"
-            expected_pinned = _skill_packages_from_inventory(
-                current_inventory,
-                revision="pinned",
+            raise UpstreamError("upstream source parity artifact must be a JSON object")
+        if set(document) == _SKILL_PARITY_KEYS:
+            result["artifact_type"] = "skill-catalog"
+            counts, status, candidate_ready = _validate_skill_catalog_parity(
+                document,
+                source=source,
+                review=review,
+                current_commit=current_commit,
+                current_subtree=current_subtree,
+                current_inventory=current_inventory,
+                reviewed_inventory=reviewed_inventory,
             )
-            expected_current = _skill_packages_from_inventory(
-                current_inventory,
-                revision="current",
+        elif document.get("artifact_type") == "source-inventory":
+            result["artifact_type"] = "source-inventory"
+            counts, status, candidate_ready = _validate_source_inventory_parity(
+                document,
+                source=source,
+                review=review,
+                current_commit=current_commit,
+                current_subtree=current_subtree,
+                current_inventory=current_inventory,
+                reviewed_inventory=reviewed_inventory,
             )
-            candidate_ready = True
-        elif matrix_current == active:
-            prior = (
-                {
-                    "commit": review.transitions[-1].prior_commit,
-                    "pstack_subtree_sha": review.transitions[-1].prior_subtree_sha,
-                }
-                if review.transitions
-                else {
-                    "commit": review.genesis_commit,
-                    "pstack_subtree_sha": review.genesis_subtree_sha,
-                }
-            )
-            if matrix_pinned != prior:
-                raise UpstreamError(
-                    "accepted upstream skill parity pinned identity does not match review history"
-                )
-            status = "accepted-baseline"
-            inventory = reviewed_inventory if review.transitions else current_inventory
-            expected_pinned = _skill_packages_from_inventory(inventory, revision="pinned")
-            if review.transitions:
-                expected_current = _skill_packages_from_inventory(inventory, revision="current")
-            else:
-                expected_current = expected_pinned
-            candidate_ready = False
         else:
-            raise UpstreamError(
-                "upstream skill parity identities are stale or do not bind the active review"
-            )
-
-        counts = _validate_skill_parity_document(
-            document,
-            expected_pinned=expected_pinned,
-            expected_current=expected_current,
-        )
+            raise UpstreamError("upstream source parity artifact has an unsupported shape")
         result.update(
             {
                 "ok": True,
@@ -1349,6 +1414,295 @@ def _skill_parity_status(
     except (OSError, KeyError, TypeError, WorkspacePathError, UpstreamError) as exc:
         result["errors"] = [str(exc)]
     return result
+
+
+def _validate_skill_catalog_parity(
+    document: dict[str, Any],
+    *,
+    source: UpstreamSource,
+    review: UpstreamReview,
+    current_commit: str,
+    current_subtree: str,
+    current_inventory: dict[str, Any],
+    reviewed_inventory: dict[str, Any],
+) -> tuple[dict[str, int], str, bool]:
+    """Validate the historical Cursor-style package catalog for one bound source."""
+
+    _require_exact_keys(document, _SKILL_PARITY_KEYS, "upstream skill parity catalog")
+    raw_source = document["source"]
+    if not isinstance(raw_source, dict):
+        raise UpstreamError("upstream skill parity source must be a JSON object")
+    _require_exact_keys(raw_source, _SKILL_PARITY_SOURCE_KEYS, "upstream skill parity source")
+    _bind_parity_source(raw_source, source=source, context="upstream skill parity source")
+    if raw_source.get("catalog_path") != "skills":
+        raise UpstreamError("upstream skill parity catalog_path must be 'skills'")
+    _validate_retrieved_on(raw_source.get("retrieved_on"), context="upstream skill parity source")
+
+    matrix_pinned = _skill_parity_identity(raw_source.get("pinned"), "pinned")
+    matrix_current = _skill_parity_identity(raw_source.get("current"), "current")
+    active = {"commit": source.commit, "pstack_subtree_sha": source.subtree_sha}
+    remote = {"commit": current_commit, "pstack_subtree_sha": current_subtree}
+    status, candidate_ready, inventory = _resolve_parity_state(
+        matrix_pinned,
+        matrix_current,
+        active=active,
+        remote=remote,
+        review=review,
+        subtree_key="pstack_subtree_sha",
+        current_inventory=current_inventory,
+        reviewed_inventory=reviewed_inventory,
+        context="upstream skill parity",
+    )
+    expected_pinned = _skill_packages_from_inventory(inventory, revision="pinned")
+    expected_current = (
+        _skill_packages_from_inventory(inventory, revision="current")
+        if candidate_ready or review.transitions
+        else expected_pinned
+    )
+    counts = _validate_skill_parity_document(
+        document,
+        expected_pinned=expected_pinned,
+        expected_current=expected_current,
+    )
+    return (
+        {
+            "pinned_resource_count": counts["pinned_resource_count"],
+            "current_resource_count": counts["current_resource_count"],
+            "classified_resource_count": counts["classified_resource_count"],
+        },
+        status,
+        candidate_ready,
+    )
+
+
+def _bind_parity_source(
+    raw_source: dict[str, Any],
+    *,
+    source: UpstreamSource,
+    context: str,
+) -> None:
+    for key, expected in (
+        ("id", source.source_id),
+        ("repository", source.repository),
+        ("path", source.path),
+    ):
+        if raw_source.get(key) != expected:
+            raise UpstreamError(f"{context} {key} does not match the manifest")
+
+
+def _validate_retrieved_on(value: Any, *, context: str) -> None:
+    if type(value) is not str or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        raise UpstreamError(f"{context} retrieved_on must be an ISO date")
+
+
+def _resolve_parity_state(
+    matrix_pinned: dict[str, str],
+    matrix_current: dict[str, str],
+    *,
+    active: dict[str, str],
+    remote: dict[str, str],
+    review: UpstreamReview,
+    subtree_key: str,
+    current_inventory: dict[str, Any],
+    reviewed_inventory: dict[str, Any],
+    context: str,
+) -> tuple[str, bool, dict[str, Any]]:
+    if matrix_pinned == active and matrix_current == remote and remote != active:
+        return "candidate-ready", True, current_inventory
+    if matrix_current == active:
+        prior = (
+            {
+                "commit": review.transitions[-1].prior_commit,
+                subtree_key: review.transitions[-1].prior_subtree_sha,
+            }
+            if review.transitions
+            else {"commit": review.genesis_commit, subtree_key: review.genesis_subtree_sha}
+        )
+        if matrix_pinned != prior:
+            raise UpstreamError(f"accepted {context} pinned identity does not match review history")
+        inventory = reviewed_inventory if review.transitions else current_inventory
+        return "accepted-baseline", False, inventory
+    raise UpstreamError(f"{context} identities are stale or do not bind the active review")
+
+
+def _validate_source_inventory_parity(
+    document: dict[str, Any],
+    *,
+    source: UpstreamSource,
+    review: UpstreamReview,
+    current_commit: str,
+    current_subtree: str,
+    current_inventory: dict[str, Any],
+    reviewed_inventory: dict[str, Any],
+) -> tuple[dict[str, int], str, bool]:
+    """Validate a generic file-by-file source inventory and semantic disposition."""
+
+    context = "upstream source inventory parity"
+    _require_exact_keys(document, _SOURCE_INVENTORY_PARITY_KEYS, context)
+    if document.get("schema_version") != 1 or document.get("artifact_type") != "source-inventory":
+        raise UpstreamError(f"{context} has an unsupported schema or artifact type")
+    raw_source = document["source"]
+    if not isinstance(raw_source, dict):
+        raise UpstreamError(f"{context} source must be a JSON object")
+    _require_exact_keys(raw_source, _SOURCE_INVENTORY_PARITY_SOURCE_KEYS, f"{context} source")
+    _bind_parity_source(raw_source, source=source, context=f"{context} source")
+    _validate_retrieved_on(raw_source.get("retrieved_on"), context=f"{context} source")
+
+    matrix_pinned = _source_parity_identity(raw_source.get("pinned"), "pinned")
+    matrix_current = _source_parity_identity(raw_source.get("current"), "current")
+    active = {"commit": source.commit, "subtree_sha": source.subtree_sha}
+    remote = {"commit": current_commit, "subtree_sha": current_subtree}
+    status, candidate_ready, inventory = _resolve_parity_state(
+        matrix_pinned,
+        matrix_current,
+        active=active,
+        remote=remote,
+        review=review,
+        subtree_key="subtree_sha",
+        current_inventory=current_inventory,
+        reviewed_inventory=reviewed_inventory,
+        context=context,
+    )
+    expected_pinned = _inventory_file_identities(inventory, revision="pinned")
+    expected_current = (
+        _inventory_file_identities(inventory, revision="current")
+        if candidate_ready or review.transitions
+        else expected_pinned
+    )
+    counts = _validate_source_inventory_document(
+        document,
+        expected_pinned=expected_pinned,
+        expected_current=expected_current,
+    )
+    return counts, status, candidate_ready
+
+
+def _source_parity_identity(value: Any, revision: str) -> dict[str, str]:
+    context = f"upstream source parity {revision} identity"
+    if not isinstance(value, dict):
+        raise UpstreamError(f"{context} must be a JSON object")
+    _require_exact_keys(value, _IDENTITY_KEYS, context)
+    commit, subtree_sha = _parse_review_identity(value, context=context)
+    return {"commit": commit, "subtree_sha": subtree_sha}
+
+
+def _inventory_file_identities(
+    inventory: dict[str, Any],
+    *,
+    revision: str,
+) -> dict[str, tuple[str, str, str, int | None]]:
+    raw_files = inventory.get(f"{revision}_files")
+    if not isinstance(raw_files, dict):
+        raise UpstreamError(f"upstream {revision} source inventory was not captured")
+    validated: dict[str, tuple[str, str, str, int | None]] = {}
+    for path, identity in raw_files.items():
+        if type(path) is not str:
+            raise UpstreamError(f"upstream {revision} source inventory path is invalid")
+        _validate_posix_relative(
+            path,
+            context=f"upstream {revision} source inventory path",
+            max_length=1024,
+        )
+        if (
+            not isinstance(identity, tuple)
+            or len(identity) != 4
+            or identity[0] not in {"blob", "commit"}
+            or type(identity[1]) is not str
+            or not re.fullmatch(r"[0-7]{6}", identity[1])
+            or type(identity[2]) is not str
+            or not _FULL_SHA.fullmatch(identity[2])
+            or (identity[3] is not None and type(identity[3]) is not int)
+        ):
+            raise UpstreamError(f"upstream {revision} source inventory identity is invalid")
+        validated[path] = identity
+    return validated
+
+
+def _validate_source_inventory_document(
+    document: dict[str, Any],
+    *,
+    expected_pinned: dict[str, tuple[str, str, str, int | None]],
+    expected_current: dict[str, tuple[str, str, str, int | None]],
+) -> dict[str, int]:
+    context = "upstream source inventory parity"
+    allowed = document.get("allowed_dispositions")
+    if not isinstance(allowed, list) or allowed != ["A", "B", "C"]:
+        raise UpstreamError(f"{context} dispositions must be the canonical A/B/C order")
+    raw_files = document.get("files")
+    if not isinstance(raw_files, list):
+        raise UpstreamError(f"{context} files must be a list")
+    expected_paths = sorted(expected_pinned.keys() | expected_current.keys(), key=str.casefold)
+    paths = [item.get("path") for item in raw_files if isinstance(item, dict)]
+    if len(paths) != len(raw_files) or paths != expected_paths:
+        raise UpstreamError(f"{context} files do not exactly match the remote tree")
+
+    disposition_counts = {value: 0 for value in allowed}
+    for index, item in enumerate(raw_files):
+        assert isinstance(item, dict)
+        item_context = f"{context} file {index}"
+        _require_exact_keys(
+            item,
+            {"path", "pinned", "current", "disposition", "rationale"},
+            item_context,
+        )
+        path = item["path"]
+        _validate_posix_relative(path, context=f"{item_context} path", max_length=1024)
+        for revision, expected in (
+            ("pinned", expected_pinned.get(path)),
+            ("current", expected_current.get(path)),
+        ):
+            _validate_source_inventory_file_identity(
+                item[revision],
+                expected=expected,
+                context=f"{item_context} {revision}",
+            )
+        disposition = item["disposition"]
+        if disposition not in disposition_counts:
+            raise UpstreamError(f"{item_context} disposition is invalid")
+        rationale = item["rationale"]
+        if (
+            type(rationale) is not str
+            or not rationale
+            or rationale != rationale.strip()
+            or len(rationale.encode("utf-8")) > MAX_RATIONALE_BYTES
+        ):
+            raise UpstreamError(f"{item_context} rationale must be specific and bounded")
+        disposition_counts[disposition] += 1
+
+    summary = document.get("summary")
+    if not isinstance(summary, dict):
+        raise UpstreamError(f"{context} summary must be a JSON object")
+    _require_exact_keys(summary, _SOURCE_INVENTORY_PARITY_SUMMARY_KEYS, f"{context} summary")
+    expected_summary = {
+        **disposition_counts,
+        "pinned_files": len(expected_pinned),
+        "current_files": len(expected_current),
+    }
+    if summary != expected_summary:
+        raise UpstreamError(f"{context} summary is not derived from its inventory")
+    return {
+        "pinned_resource_count": len(expected_pinned),
+        "current_resource_count": len(expected_current),
+        "classified_resource_count": len(expected_paths),
+    }
+
+
+def _validate_source_inventory_file_identity(
+    value: Any,
+    *,
+    expected: tuple[str, str, str, int | None] | None,
+    context: str,
+) -> None:
+    if expected is None:
+        if value is not None:
+            raise UpstreamError(f"{context} identity must be null")
+        return
+    if not isinstance(value, dict):
+        raise UpstreamError(f"{context} identity must be a JSON object")
+    _require_exact_keys(value, {"type", "mode", "object_sha", "size"}, f"{context} identity")
+    actual = (value["type"], value["mode"], value["object_sha"], value["size"])
+    if actual != expected:
+        raise UpstreamError(f"{context} identity does not match upstream")
 
 
 def _skill_parity_identity(value: Any, revision: str) -> dict[str, str]:
@@ -1460,6 +1814,7 @@ def _validate_skill_parity_document(
     routed_names: set[str] = set()
     pinned_file_count = 0
     current_file_count = 0
+    classified_resources: set[tuple[str, str]] = set()
     for index, entry in enumerate(raw_skills):
         assert isinstance(entry, dict)
         context = f"upstream skill parity entry {index}"
@@ -1547,6 +1902,7 @@ def _validate_skill_parity_document(
                 pinned_file_count += len(raw_files)
             else:
                 current_file_count += len(raw_files)
+            classified_resources.update((name, path) for path in resource_paths)
 
     if set(raw_pk_only) & set(names):
         raise UpstreamError("PK-only skills must not shadow upstream skill names")
@@ -1574,6 +1930,7 @@ def _validate_skill_parity_document(
         "routed_skill_count": len(routed_names),
         "pinned_resource_count": pinned_file_count,
         "current_resource_count": current_file_count,
+        "classified_resource_count": len(classified_resources),
     }
 
 
@@ -2837,13 +3194,25 @@ def _write_accept_transaction(
     before_ledger: dict[str, Any],
     after_manifest: dict[str, Any],
     after_ledger: dict[str, Any],
+    source_id: str,
     expected_head: str,
 ) -> None:
+    if not _SOURCE_ID.fullmatch(source_id):
+        raise UpstreamError("upstream acceptance transaction source_id is invalid")
+    _validate_serialized_accept_snapshots(
+        before_manifest=before_manifest,
+        before_ledger=before_ledger,
+        after_manifest=after_manifest,
+        after_ledger=after_ledger,
+        source_id=source_id,
+        expected_head=expected_head,
+    )
     transaction_path = workspace_path(root, _ACCEPT_TRANSACTION)
     transaction = {
-        "schema_version": 1,
+        "schema_version": 2,
         "manifest_path": manifest_path.relative_to(root).as_posix(),
         "review_ledger_path": ledger_path.relative_to(root).as_posix(),
+        "source_id": source_id,
         "expected_head": expected_head,
         "before": {"manifest": before_manifest, "review_ledger": before_ledger},
         "after": {"manifest": after_manifest, "review_ledger": after_ledger},
@@ -2886,10 +3255,10 @@ def _write_accept_transaction(
     # be completed by rerunning the same expected-head-bound accept command.
 
 
-def _recover_accept_transaction(root: Path, *, expected_head: str) -> bool:
+def _recover_accept_transaction(root: Path, *, expected_head: str) -> str | None:
     transaction_path = workspace_path(root, _ACCEPT_TRANSACTION)
     if not transaction_path.exists():
-        return False
+        return None
     if not transaction_path.is_file() or transaction_path.is_symlink():
         raise UpstreamError("upstream acceptance transaction path is unsafe")
     document = _read_json_path(
@@ -2905,14 +3274,18 @@ def _recover_accept_transaction(root: Path, *, expected_head: str) -> bool:
             "schema_version",
             "manifest_path",
             "review_ledger_path",
+            "source_id",
             "expected_head",
             "before",
             "after",
         },
         "upstream acceptance transaction",
     )
-    if document["schema_version"] != 1 or document["expected_head"] != expected_head:
+    if document["schema_version"] != 2 or document["expected_head"] != expected_head:
         raise UpstreamError("upstream acceptance transaction does not match this invocation")
+    source_id = document["source_id"]
+    if type(source_id) is not str or not _SOURCE_ID.fullmatch(source_id):
+        raise UpstreamError("upstream acceptance transaction source_id is invalid")
     if document["manifest_path"] != DEFAULT_MANIFEST.as_posix():
         raise UpstreamError("upstream acceptance transaction manifest path is invalid")
     if document["review_ledger_path"] != "maintenance/upstream-reviews.json":
@@ -2923,6 +3296,14 @@ def _recover_accept_transaction(root: Path, *, expected_head: str) -> bool:
         raise UpstreamError("upstream acceptance transaction snapshots must be objects")
     _require_exact_keys(before, {"manifest", "review_ledger"}, "transaction before snapshot")
     _require_exact_keys(after, {"manifest", "review_ledger"}, "transaction after snapshot")
+    _validate_serialized_accept_snapshots(
+        before_manifest=before["manifest"],
+        before_ledger=before["review_ledger"],
+        after_manifest=after["manifest"],
+        after_ledger=after["review_ledger"],
+        source_id=source_id,
+        expected_head=expected_head,
+    )
     manifest_path = workspace_path(root, DEFAULT_MANIFEST)
     ledger_path = workspace_path(root, Path("maintenance/upstream-reviews.json"))
     current_manifest = _read_json_path(
@@ -2949,7 +3330,219 @@ def _recover_accept_transaction(root: Path, *, expected_head: str) -> bool:
         after["manifest"],
         mode=manifest_path.stat().st_mode & 0o777,
     )
-    return True
+    return source_id
+
+
+def _validate_serialized_accept_snapshots(
+    *,
+    before_manifest: Any,
+    before_ledger: Any,
+    after_manifest: Any,
+    after_ledger: Any,
+    source_id: str,
+    expected_head: str,
+) -> None:
+    """Prove that an acceptance journal advances exactly one named source."""
+
+    if not _FULL_SHA.fullmatch(expected_head):
+        raise UpstreamError("transaction expected_head is invalid")
+    if len(source_id) > 64 or not _SOURCE_ID.fullmatch(source_id):
+        raise UpstreamError("transaction source_id is invalid")
+
+    documents = {
+        "before manifest": before_manifest,
+        "after manifest": after_manifest,
+        "before review ledger": before_ledger,
+        "after review ledger": after_ledger,
+    }
+    if not all(isinstance(value, dict) for value in documents.values()):
+        raise UpstreamError("upstream acceptance transaction snapshots must be JSON objects")
+    assert isinstance(before_manifest, dict)
+    assert isinstance(after_manifest, dict)
+    assert isinstance(before_ledger, dict)
+    assert isinstance(after_ledger, dict)
+    for label, document, expected_keys, expected_schema in (
+        (
+            "manifest",
+            before_manifest,
+            {"schema_version", "review_ledger_path", "sources"},
+            UPSTREAM_SCHEMA_VERSION,
+        ),
+        (
+            "manifest",
+            after_manifest,
+            {"schema_version", "review_ledger_path", "sources"},
+            UPSTREAM_SCHEMA_VERSION,
+        ),
+        (
+            "review ledger",
+            before_ledger,
+            {"schema_version", "sources"},
+            UPSTREAM_REVIEW_SCHEMA_VERSION,
+        ),
+        (
+            "review ledger",
+            after_ledger,
+            {"schema_version", "sources"},
+            UPSTREAM_REVIEW_SCHEMA_VERSION,
+        ),
+    ):
+        _require_exact_keys(document, expected_keys, f"transaction {label}")
+        if document["schema_version"] != expected_schema:
+            raise UpstreamError(f"transaction {label} schema_version is invalid")
+    if (
+        before_manifest["review_ledger_path"] != "maintenance/upstream-reviews.json"
+        or after_manifest["review_ledger_path"] != "maintenance/upstream-reviews.json"
+    ):
+        raise UpstreamError("transaction changed the upstream review ledger path")
+
+    before_manifest_sources = _transaction_sources(before_manifest, label="before manifest")
+    after_manifest_sources = _transaction_sources(after_manifest, label="after manifest")
+    before_review_sources = _transaction_sources(before_ledger, label="before review ledger")
+    after_review_sources = _transaction_sources(after_ledger, label="after review ledger")
+    expected_ids = set(before_manifest_sources)
+    if (
+        set(after_manifest_sources) != expected_ids
+        or set(before_review_sources) != expected_ids
+        or set(after_review_sources) != expected_ids
+        or source_id not in expected_ids
+    ):
+        raise UpstreamError("transaction source ids do not match across snapshots")
+    if list(before_manifest_sources) != list(after_manifest_sources):
+        raise UpstreamError("transaction reordered manifest sources")
+    if list(before_review_sources) != list(after_review_sources):
+        raise UpstreamError("transaction reordered review sources")
+
+    _validate_transaction_source_chains(
+        before_manifest_sources,
+        before_review_sources,
+        label="before",
+    )
+    _validate_transaction_source_chains(
+        after_manifest_sources,
+        after_review_sources,
+        label="after",
+    )
+
+    for other_id in expected_ids - {source_id}:
+        if before_manifest_sources[other_id] != after_manifest_sources[other_id]:
+            raise UpstreamError("transaction changed a nonselected manifest source")
+        if before_review_sources[other_id] != after_review_sources[other_id]:
+            raise UpstreamError("transaction changed a nonselected review source")
+
+    before_source = before_manifest_sources[source_id]
+    after_source = after_manifest_sources[source_id]
+    _require_exact_keys(before_source, _SOURCE_KEYS, "transaction selected manifest source")
+    _require_exact_keys(after_source, _SOURCE_KEYS, "transaction selected manifest source")
+    immutable_source = _SOURCE_KEYS - {"commit", "subtree_sha"}
+    if any(before_source[key] != after_source[key] for key in immutable_source):
+        raise UpstreamError("transaction changed selected source metadata")
+    if after_source["commit"] != expected_head:
+        raise UpstreamError("transaction selected source does not advance to expected_head")
+
+    before_review = before_review_sources[source_id]
+    after_review = after_review_sources[source_id]
+    _require_exact_keys(before_review, _LEDGER_SOURCE_KEYS, "transaction selected review source")
+    _require_exact_keys(after_review, _LEDGER_SOURCE_KEYS, "transaction selected review source")
+    for key in ("id", "repository", "path", "provenance_path", "parity_path"):
+        if before_source[key] != before_review[key] or after_source[key] != after_review[key]:
+            raise UpstreamError("transaction selected source and review metadata do not match")
+    immutable_review = _LEDGER_SOURCE_KEYS - {"transitions"}
+    if any(before_review[key] != after_review[key] for key in immutable_review):
+        raise UpstreamError("transaction changed selected review metadata")
+    before_transitions = before_review["transitions"]
+    after_transitions = after_review["transitions"]
+    if (
+        not isinstance(before_transitions, list)
+        or not isinstance(after_transitions, list)
+        or after_transitions[:-1] != before_transitions
+        or len(after_transitions) != len(before_transitions) + 1
+    ):
+        raise UpstreamError("transaction must append exactly one selected review transition")
+    transition = _parse_review_transition(
+        after_transitions[-1],
+        context="transaction appended review transition",
+    )
+    if (
+        transition.prior_commit != before_source["commit"]
+        or transition.prior_subtree_sha != before_source["subtree_sha"]
+        or transition.new_commit != after_source["commit"]
+        or transition.new_subtree_sha != after_source["subtree_sha"]
+    ):
+        raise UpstreamError(
+            "transaction appended transition does not bind the selected pin advance"
+        )
+
+
+def _transaction_sources(document: dict[str, Any], *, label: str) -> dict[str, dict[str, Any]]:
+    raw_sources = document.get("sources")
+    if not isinstance(raw_sources, list) or not raw_sources:
+        raise UpstreamError(f"transaction {label} sources must be a non-empty list")
+    result: dict[str, dict[str, Any]] = {}
+    for index, value in enumerate(raw_sources):
+        if not isinstance(value, dict):
+            raise UpstreamError(f"transaction {label} source {index} must be an object")
+        value_source_id = value.get("id")
+        if type(value_source_id) is not str or not _SOURCE_ID.fullmatch(value_source_id):
+            raise UpstreamError(f"transaction {label} source {index} id is invalid")
+        if value_source_id in result:
+            raise UpstreamError(f"transaction {label} source ids are duplicated")
+        result[value_source_id] = value
+    return result
+
+
+def _validate_transaction_source_chains(
+    manifest_sources: dict[str, dict[str, Any]],
+    review_sources: dict[str, dict[str, Any]],
+    *,
+    label: str,
+) -> None:
+    """Validate every journal source and its complete append-only review chain."""
+
+    for source_id, source in manifest_sources.items():
+        review = review_sources[source_id]
+        _require_exact_keys(source, _SOURCE_KEYS, f"transaction {label} manifest source")
+        _require_exact_keys(review, _LEDGER_SOURCE_KEYS, f"transaction {label} review source")
+        for key in ("id", "repository", "path", "provenance_path", "parity_path"):
+            if source.get(key) != review.get(key):
+                raise UpstreamError(f"transaction {label} source and review metadata do not match")
+        if source.get("id") != source_id:
+            raise UpstreamError(f"transaction {label} manifest source id is invalid")
+        commit = source.get("commit")
+        subtree_sha = source.get("subtree_sha")
+        if (
+            type(commit) is not str
+            or not _FULL_SHA.fullmatch(commit)
+            or type(subtree_sha) is not str
+            or not _FULL_SHA.fullmatch(subtree_sha)
+        ):
+            raise UpstreamError(f"transaction {label} manifest pin is invalid")
+        prior_commit, prior_subtree = _parse_review_identity(
+            review.get("genesis"),
+            context=f"transaction {label} review genesis",
+        )
+        raw_transitions = review.get("transitions")
+        if not isinstance(raw_transitions, list) or len(raw_transitions) > MAX_REVIEW_TRANSITIONS:
+            raise UpstreamError(f"transaction {label} review transitions are invalid")
+        for index, raw_transition in enumerate(raw_transitions):
+            transition = _parse_review_transition(
+                raw_transition,
+                context=f"transaction {label} review transition {index}",
+            )
+            if (
+                transition.prior_commit != prior_commit
+                or transition.prior_subtree_sha != prior_subtree
+            ):
+                raise UpstreamError(f"transaction {label} review chain is not contiguous")
+            if (
+                transition.new_commit == transition.prior_commit
+                and transition.new_subtree_sha == transition.prior_subtree_sha
+            ):
+                raise UpstreamError(f"transaction {label} review transition does not advance")
+            prior_commit = transition.new_commit
+            prior_subtree = transition.new_subtree_sha
+        if prior_commit != commit or prior_subtree != subtree_sha:
+            raise UpstreamError(f"transaction {label} review tip does not match its pin")
 
 
 def _rollback_accept_transaction(root: Path) -> None:

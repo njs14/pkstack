@@ -16,9 +16,9 @@ repo-local control surface; it does not launch an external ACP host or the
 
 The ownership rule is:
 
-> Kiro owns execution. PK-Stack owns workflow semantics. `projectctl` owns
-> project operability and executable evidence. OKF, when installed, owns broad
-> project knowledge.
+> Kiro owns execution and native planning. PK-Stack owns workflow semantics.
+> `projectctl` owns project operability and executable evidence. Source-controlled
+> OKF plus canonical `okn` owns broad project knowledge.
 
 ## Names and compatibility
 
@@ -119,6 +119,32 @@ Use the previously selected Power-enabled agent if its local name differs.
 The cached `.pstack/bin/projectctl setup` command is not upgrade authority and
 fails unless a reviewed `--power-root` is supplied explicitly.
 
+For a nontrivial feature or bug, let Kiro create the plan before PK-Stack drives implementation.
+In CLI v3, run `/spec new <name>` and choose Feature, Quick Spec, or Bug, or resume with `/spec
+<name>`. In the IDE, use **Build with spec** or the Spec, Quick Spec, or Bug Fix workflow in the
+agent picker. Use standard Spec for unfamiliar, cross-boundary, high-risk, or requirements-sensitive
+work and Quick Spec for a bounded, well-understood change. Kiro owns the requirements or bug
+analysis, design, tasks, dependency waves, and native parallel execution.
+
+After those artifacts are ready, reselect `pstack` in the same IDE/CLI conversation. Kiro does not
+document a supported Agent Skill or custom-agent tool for changing the active workflow, so this is
+an explicit same-conversation handoff. PK-Stack then applies its upstream-derived skills, creates or maintains the narrow feature
+contract, and binds the native package to it:
+
+```bash
+.pstack/bin/projectctl goal bind-spec account-lookup \
+  --feature account-lookup \
+  --output json
+```
+
+The bridge retains both native-spec and feature provenance; it does not copy the plan, create a
+second task graph, or treat checked tasks as executable proof. Starting the goal snapshots the
+native intent, design, and verification bridge; verification rejects drift before consuming an
+attempt and rechecks after the command. `tasks.md` remains mutable so Kiro can own task progress.
+Start with the feature record for context and use `.pstack/bin/projectctl knowledge search` only
+for deeper architecture, decisions, concepts, or operations. Use `/okf` to produce, maintain, or
+consume that source-controlled knowledge through the same bounded interfaces.
+
 If the newly created profile or slash skills are not discoverable yet, open
 one fresh pre-goal IDE chat/Agent Focus session and choose the workspace
 **pstack** agent. In CLI v3, exit normally and restart the same repository
@@ -167,9 +193,9 @@ completion evidence.
 
 ## Workflow catalog
 
-The Power contains 48 source skill directories. Setup remains Power-local; the
-other 47 are installed into `.kiro/skills`, while the controller cache retains
-all 48. They cover architecture, investigation and explanation, verification
+The Power contains 49 source skill directories. Setup remains Power-local; the
+other 48 are installed into `.kiro/skills`, while the controller cache retains
+all 49. They cover architecture, investigation and explanation, verification
 lifecycle, TDD, technical writing, TypeScript, cleanup, teaching, context
 recovery, advisory review, and individually discoverable engineering
 principles. See the [complete upstream skill parity
@@ -211,6 +237,8 @@ and the September 1-2, 2026 Kiro change inventory.
 - [Architecture and trust boundaries](docs/architecture.md)
 - [Kiro surface compatibility](docs/kiro-v3-compatibility.md)
 - [Upstream skill parity catalog](docs/upstream-skill-parity.md)
+- [OKF-skills methodology inventory](docs/okf-skills-parity.md)
+- [Authoritative OKF source inventory](docs/okf-spec-source-parity.md)
 - [Provenance and porting boundary](docs/provenance.md)
 - [Validation report](docs/validation-report.md)
 

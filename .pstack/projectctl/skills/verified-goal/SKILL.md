@@ -14,6 +14,11 @@ agent owns the goal and its evidence.
 
 Treat the request text that activated this skill as the objective and acceptance context.
 
+This is a PROVE + DO workflow. Start from the stored feature/spec verifier and its executable
+evidence; do not run broad KNOW retrieval by default. Escalate to one bounded, targeted knowledge
+query only when failure evidence exposes a concrete architecture, decision, concept, or operations
+question that the feature record and its related links cannot answer. Record that reason.
+
 ## Resolve the controller once
 
 Use `.pstack/bin/projectctl` for the entire loop. It is the bootstrap-managed
@@ -31,16 +36,41 @@ create an ad hoc state file.
    A structured `no goal state exists` error means there is no active state and
    a new goal may be started.
 2. If another objective is active, do not overwrite or clear it. Continue only when it is the same objective and the stored verifier remains valid; otherwise report the conflict.
-3. Prefer an existing feature verifier after inspecting `<runner> feature list --output json` and `<runner> feature show <slug> --output json`.
-4. When no feature applies, identify one explicit, repeatable verification command from the repository's actual test, build, lint, type-check, or domain validation interface.
-5. Do not weaken a verifier to obtain a pass. If no checkable predicate can be established, ask one targeted question rather than claiming success.
+3. Inspect `.kiro/specs/` as well as `<runner> feature list --output json`. A matching native Spec
+   package is planning provenance, not proof. It is ready to bind only when it has non-empty
+   `requirements.md` or `bugfix.md`, `design.md`, and `tasks.md`.
+4. Prefer an existing published feature verifier after inspecting `<runner> feature show <slug>
+   --output json`. If the request continues a matching native spec, bind that spec to the feature
+   so the goal retains both proven feature and native planning provenance:
+
+   ```text
+   <runner> goal bind-spec <spec-name> --feature <slug> --output json
+   ```
+
+   Reusing an identical bridge is idempotent. Never pass `--overwrite` until the existing bridge
+   and replacement have both been reviewed.
+5. When no feature applies, use `create-verification-skill` or `maintain-verification-skill` to
+   establish one. Only when a feature map would add no useful reusable behavior contract may a
+   reviewed repository test, build, lint, type-check, or domain command be bound directly with
+   `<runner> goal bind-spec <spec-name> --command "<command>" --output json` or used as an explicit
+   goal command.
+6. Do not create a fake spec directory, edit native requirements/design/tasks merely to make the
+   bridge pass, infer Quick Spec provenance from filenames, or treat completed task checkboxes as
+   executable evidence. Do not weaken a verifier to obtain a pass. If no checkable predicate can
+   be established, ask one targeted question rather than claiming success.
 
 Start new state with exactly one verifier:
 
 ```text
 <runner> goal start "<objective>" --feature <slug> --max-attempts 4 --output json
+<runner> goal start "<objective>" --spec <spec-name> --max-attempts 4 --output json
 <runner> goal start "<objective>" --command "<verification command>" --max-attempts 4 --output json
 ```
+
+Use `--spec` when a matching native package and bridge exist. That bridge should normally point to
+the published feature verifier; it does not replace Kiro's planning artifacts or introduce another
+task runner. If a native spec exists but has no executable bridge, stop and bind/prove its
+verification contract instead of silently dropping its provenance.
 
 Before the first verification attempt in every skill invocation, display
 `goal.contract.display` and its provenance from the latest status or start

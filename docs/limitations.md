@@ -33,6 +33,11 @@ advisory, not a blocker. The normal workflow is ordinary interactive Kiro IDE ch
 Feature-map validation and feature-backed goals do not require OKF. Broader project-knowledge
 search and `knowledge validate --require-okn` require the canonical `okn` executable. When it is
 absent, `doctor` reports a warning and PK-Stack remains in feature-map-only knowledge mode.
+The `/okf` skill is workflow guidance, not a bundled validator or search engine. PK-Stack does not
+install or activate `scaccogatto/okf-skills` scripts, hooks, transcript backfill, MCP server,
+visualizer, or GitHub Action. A controlled comparison found that `okfcli/okf` 0.4.0 followed a
+Markdown symlink outside its bundle where canonical `okn` 0.13.0 rejected it, so `okfcli/okf` is
+limited to an explicitly named, isolated secondary conformance check and is never a fallback.
 
 The real selected-profile Kiro campaign is retained as a bounded committed chronology plus an
 owner-only externally hashed raw transcript. Its 12-line client-log projection contains Kiro's
@@ -124,8 +129,10 @@ which is the application idempotency property checked here.
 
 The schema-v2 ledger and frozen teardown journal make interrupted local cleanup resumable; they do
 not make arbitrary state loss recoverable. The run claim and teardown plan bind the original
-Compose-definition digest, so restore an edited `compose.yaml` before normal cleanup can invoke
-Compose. Never delete or reconstruct `.lab-state/run.json` by guessing.
+Compose-definition digest, so restore an edited `compose.yaml` before normal cleanup can delete the
+exact claim-owned outer container and network. Teardown does not run project-wide `docker compose
+down`; a foreign attachment to the lab network is preserved and makes the exact network deletion
+fail closed. Never delete or reconstruct `.lab-state/run.json` by guessing.
 
 Before creating that claim, `up` inspects the exact content-addressed Floci dependency and, only if
 needed, performs a quiet ten-minute-bounded pull of that same digest. Compose then runs with

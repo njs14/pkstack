@@ -20,6 +20,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -60,11 +61,49 @@ TRUSTED_SNAPSHOT_PREFIXES = (
 CANDIDATE_PACKAGE_MAX_BYTES = 33_554_432
 REVIEW_LEDGER_MAX_BYTES = 8 * 1024 * 1024
 REVIEW_TRANSITION_MAX = 512
+UPSTREAM_SCHEMA_VERSION = 2
+GIT_CONTROL_STATE_SCHEMA = 2
+GIT_CONTROL_STATE_MAX_BYTES = 256 * 1024
+GIT_CONTROL_ENTRY_MAX_BYTES = 1024 * 1024
+GIT_CONTROL_TOTAL_MAX_BYTES = 4 * 1024 * 1024
+GIT_CONTROL_MAX_ENTRIES = 512
+GIT_CONTROL_MAX_DEPTH = 8
+GIT_CONTROL_TARGETS = (
+    "config",
+    "config.worktree",
+    "hooks",
+    "info",
+    "index",
+    "HEAD",
+    "refs",
+    "packed-refs",
+)
+GIT_FINALIZER_INDEX_MAX_BYTES = 16 * 1024 * 1024
+GIT_FINALIZER_OBJECT_MAX_BYTES = 64 * 1024 * 1024
+GIT_FINALIZER_OBJECT_MAX_ENTRIES = 8192
+GIT_FINALIZER_MARKER = b"pk-stack-trusted-git-finalizer-v1\n"
+GIT_FINALIZER_CONFIG = (
+    b"[core]\n"
+    b"\trepositoryformatversion = 0\n"
+    b"\tbare = false\n"
+    b"[gc]\n"
+    b"\tauto = 0\n"
+    b"[maintenance]\n"
+    b"\tauto = false\n"
+)
+FABLE_INTERNAL_COMPANION_MODEL = "claude-haiku-4-5-20251001"
+_TRUSTED_GIT_CONFIG = (
+    ("core.hooksPath", "/dev/null"),
+    ("core.fsmonitor", "false"),
+    ("diff.external", ""),
+    ("core.attributesFile", "/dev/null"),
+)
 PATCH_COUNT_CONSTRAINT = "unified-patch-body-matches-reported-additions-and-deletions"
 BLOB_BINDING_CONSTRAINT = "old-blob-plus-patch-result-matches-exact-git-blob-identities"
 TREE_ENTRY_CONSTRAINT = "regular-blob-modes-100644-or-100755-only"
 NO_PATCH_CONSTRAINT = "zero-count-top-level-raster-asset-or-exact-blob-rename-or-mode-change-only"
 _NONSEMANTIC_IMAGE_PATH = re.compile(r"^assets/[a-z0-9][a-z0-9_-]{0,127}\.(?:png|jpe?g|gif|webp)$")
+_SOURCE_ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 _UNIFIED_HUNK = re.compile(
     r"^@@ -(?P<old_start>\d+)(?:,(?P<old_count>\d+))? "
     r"\+(?P<new_start>\d+)(?:,(?P<new_count>\d+))? @@(?: .*)?$"
@@ -109,12 +148,661 @@ def _run(
     return completed
 
 
+def _trusted_git_env(env: dict[str, str] | None = None) -> dict[str, str]:
+    """Return a deterministic Git environment that cannot inherit executable config."""
+
+    sanitized = (os.environ if env is None else env).copy()
+    for key in tuple(sanitized):
+        if key == "GIT_CONFIG_PARAMETERS" or key.startswith(
+            ("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_")
+        ):
+            sanitized.pop(key)
+    sanitized.update(
+        {
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_SYSTEM": "/dev/null",
+            "GIT_CONFIG_GLOBAL": "/dev/null",
+            "GIT_ATTR_NOSYSTEM": "1",
+            "GIT_EXTERNAL_DIFF": "",
+            "GIT_NO_REPLACE_OBJECTS": "1",
+            "GIT_PAGER": "cat",
+            "GIT_TERMINAL_PROMPT": "0",
+            "GIT_CONFIG_COUNT": str(len(_TRUSTED_GIT_CONFIG)),
+        }
+    )
+    for index, (key, value) in enumerate(_TRUSTED_GIT_CONFIG):
+        sanitized[f"GIT_CONFIG_KEY_{index}"] = key
+        sanitized[f"GIT_CONFIG_VALUE_{index}"] = value
+    return sanitized
+
+
+def _git_run(
+    root: Path,
+    *args: str,
+    env: dict[str, str] | None = None,
+    input_bytes: bytes | None = None,
+    check: bool = True,
+) -> subprocess.CompletedProcess[bytes]:
+    """Run Git with hooks, fsmonitor, and external diff execution disabled."""
+
+    normalized = args
+    if normalized and normalized[0] == "diff":
+        forced_options = tuple(
+            option for option in ("--no-ext-diff", "--no-textconv") if option not in normalized
+        )
+        normalized = (normalized[0], *forced_options, *normalized[1:])
+    config_args = tuple(
+        argument for key, value in _TRUSTED_GIT_CONFIG for argument in ("-c", f"{key}={value}")
+    )
+    return _run(
+        "git",
+        *config_args,
+        *normalized,
+        cwd=root,
+        env=_trusted_git_env(env),
+        input_bytes=input_bytes,
+        check=check,
+    )
+
+
 def _git_bytes(root: Path, *args: str, env: dict[str, str] | None = None) -> bytes:
-    return _run("git", *args, cwd=root, env=env).stdout
+    return _git_run(root, *args, env=env).stdout
 
 
 def _git_text(root: Path, *args: str, env: dict[str, str] | None = None) -> str:
     return _git_bytes(root, *args, env=env).decode("utf-8", errors="strict")
+
+
+def _control_metadata(value: os.stat_result) -> dict[str, int]:
+    return {
+        "device": value.st_dev,
+        "inode": value.st_ino,
+        "mode": stat.S_IMODE(value.st_mode),
+        "uid": value.st_uid,
+        "gid": value.st_gid,
+        "links": value.st_nlink,
+        "size": value.st_size,
+        "mtime_ns": value.st_mtime_ns,
+        "ctime_ns": value.st_ctime_ns,
+    }
+
+
+def _control_directory_identity(value: os.stat_result) -> dict[str, int]:
+    """Bind the .git directory without rejecting harmless index-lock churn."""
+
+    return {
+        key: item
+        for key, item in _control_metadata(value).items()
+        if key not in {"size", "mtime_ns", "ctime_ns", "links"}
+    }
+
+
+def _same_control_object(left: os.stat_result, right: os.stat_result) -> bool:
+    return _control_metadata(left) == _control_metadata(right)
+
+
+def _validate_control_metadata(value: os.stat_result, *, label: str) -> None:
+    if value.st_uid != os.getuid():
+        raise GuardError(f"Git control entry is not owned by the runner: {label}")
+    if stat.S_IMODE(value.st_mode) & 0o022:
+        raise GuardError(f"Git control entry is group/other writable: {label}")
+
+
+def _snapshot_control_entry(
+    parent_descriptor: int,
+    name: str,
+    *,
+    label: str,
+    depth: int,
+    budget: dict[str, int],
+    allow_absent: bool,
+) -> dict[str, Any]:
+    if depth > GIT_CONTROL_MAX_DEPTH:
+        raise GuardError(f"Git control tree exceeds its depth limit: {label}")
+    try:
+        before = os.stat(name, dir_fd=parent_descriptor, follow_symlinks=False)
+    except FileNotFoundError:
+        if allow_absent:
+            return {"kind": "absent"}
+        raise GuardError(f"Git control entry disappeared while hashing: {label}") from None
+    budget["entries"] += 1
+    if budget["entries"] > GIT_CONTROL_MAX_ENTRIES:
+        raise GuardError("Git control tree exceeds its entry-count limit")
+    if stat.S_ISLNK(before.st_mode):
+        raise GuardError(f"Git control entry may not be a symlink: {label}")
+    _validate_control_metadata(before, label=label)
+    common = {"metadata": _control_metadata(before)}
+    if stat.S_ISREG(before.st_mode):
+        if before.st_nlink != 1:
+            raise GuardError(f"Git control file may not be hard-linked: {label}")
+        flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+        descriptor = os.open(name, flags, dir_fd=parent_descriptor)
+        try:
+            opened = os.fstat(descriptor)
+            if not stat.S_ISREG(opened.st_mode) or not _same_control_object(before, opened):
+                raise GuardError(f"Git control file changed before hashing: {label}")
+            chunks: list[bytes] = []
+            total = 0
+            while True:
+                chunk = os.read(descriptor, 65_536)
+                if not chunk:
+                    break
+                total += len(chunk)
+                if total > GIT_CONTROL_ENTRY_MAX_BYTES:
+                    raise GuardError(f"Git control file exceeds its byte limit: {label}")
+                chunks.append(chunk)
+            after = os.fstat(descriptor)
+            if not _same_control_object(opened, after) or total != opened.st_size:
+                raise GuardError(f"Git control file changed while hashing: {label}")
+        finally:
+            os.close(descriptor)
+        budget["bytes"] += total
+        if budget["bytes"] > GIT_CONTROL_TOTAL_MAX_BYTES:
+            raise GuardError("Git control tree exceeds its total byte limit")
+        return {
+            "kind": "file",
+            **common,
+            "sha256": hashlib.sha256(b"".join(chunks)).hexdigest(),
+        }
+    if stat.S_ISDIR(before.st_mode):
+        flags = (
+            os.O_RDONLY
+            | getattr(os, "O_CLOEXEC", 0)
+            | getattr(os, "O_NOFOLLOW", 0)
+            | getattr(os, "O_DIRECTORY", 0)
+        )
+        descriptor = os.open(name, flags, dir_fd=parent_descriptor)
+        try:
+            opened = os.fstat(descriptor)
+            if not stat.S_ISDIR(opened.st_mode) or not _same_control_object(before, opened):
+                raise GuardError(f"Git control directory changed before hashing: {label}")
+            names = sorted(os.listdir(descriptor))
+            entries: list[dict[str, Any]] = []
+            for child in names:
+                if (
+                    not child
+                    or child in {".", ".."}
+                    or "/" in child
+                    or "\0" in child
+                    or any(ord(character) < 32 for character in child)
+                ):
+                    raise GuardError(f"Git control directory contains an unsafe name: {label}")
+                entries.append(
+                    {
+                        "name": child,
+                        "entry": _snapshot_control_entry(
+                            descriptor,
+                            child,
+                            label=f"{label}/{child}",
+                            depth=depth + 1,
+                            budget=budget,
+                            allow_absent=False,
+                        ),
+                    }
+                )
+            after = os.fstat(descriptor)
+            if not _same_control_object(opened, after):
+                raise GuardError(f"Git control directory changed while hashing: {label}")
+        finally:
+            os.close(descriptor)
+        return {"kind": "directory", **common, "entries": entries}
+    raise GuardError(f"Git control entry is not a regular file or directory: {label}")
+
+
+def _snapshot_git_controls(root: Path) -> dict[str, Any]:
+    git_path = root / ".git"
+    try:
+        before = os.lstat(git_path)
+    except FileNotFoundError:
+        raise GuardError("maintenance checkout has no .git directory") from None
+    if not stat.S_ISDIR(before.st_mode) or stat.S_ISLNK(before.st_mode):
+        raise GuardError("maintenance checkout .git must be a real directory")
+    _validate_control_metadata(before, label=".git")
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+        | getattr(os, "O_DIRECTORY", 0)
+    )
+    descriptor = os.open(git_path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        if not stat.S_ISDIR(opened.st_mode) or not _same_control_object(before, opened):
+            raise GuardError("maintenance checkout .git changed before hashing")
+        budget = {"entries": 0, "bytes": 0}
+        targets = {
+            name: _snapshot_control_entry(
+                descriptor,
+                name,
+                label=f".git/{name}",
+                depth=0,
+                budget=budget,
+                allow_absent=True,
+            )
+            for name in GIT_CONTROL_TARGETS
+        }
+        after = os.fstat(descriptor)
+        if not _same_control_object(opened, after):
+            raise GuardError("maintenance checkout .git changed while hashing")
+    finally:
+        os.close(descriptor)
+    return {
+        "git_dir": _control_directory_identity(opened),
+        "targets": targets,
+        "entry_count": budget["entries"],
+        "total_bytes": budget["bytes"],
+    }
+
+
+def _resolve_git_state_root(root: Path, state_root: Path) -> Path:
+    if not state_root.is_absolute() or state_root.name in {"", ".", ".."}:
+        raise GuardError("Git control state path must be an absolute dedicated directory")
+    try:
+        parent = state_root.parent.resolve(strict=True)
+    except (FileNotFoundError, RuntimeError) as exc:
+        raise GuardError("Git control state parent must be an existing directory") from exc
+    candidate = parent / state_root.name
+    canonical_root = root.resolve()
+    if candidate == canonical_root or candidate.is_relative_to(canonical_root):
+        raise GuardError("Git control state must be outside the model-visible checkout")
+    return candidate
+
+
+def _read_owned_file(path: Path, *, mode: int, maximum: int, label: str) -> bytes:
+    try:
+        descriptor = os.open(
+            path,
+            os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0),
+        )
+    except OSError as exc:
+        raise GuardError(f"{label} is missing or unsafe") from exc
+    try:
+        before = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(before.st_mode)
+            or before.st_uid != os.getuid()
+            or before.st_nlink != 1
+            or stat.S_IMODE(before.st_mode) != mode
+            or before.st_size > maximum
+        ):
+            raise GuardError(f"{label} is missing or unsafe")
+        raw = b""
+        while len(raw) <= maximum:
+            chunk = os.read(descriptor, 65_536)
+            if not chunk:
+                break
+            raw += chunk
+        after = os.fstat(descriptor)
+        if len(raw) > maximum or not _same_control_object(before, after):
+            raise GuardError(f"{label} changed while reading")
+        return raw
+    finally:
+        os.close(descriptor)
+
+
+def _validate_owned_directory(path: Path, *, mode: int, label: str) -> None:
+    try:
+        metadata = os.lstat(path)
+    except FileNotFoundError:
+        raise GuardError(f"{label} is missing or unsafe") from None
+    if (
+        not stat.S_ISDIR(metadata.st_mode)
+        or stat.S_ISLNK(metadata.st_mode)
+        or metadata.st_uid != os.getuid()
+        or stat.S_IMODE(metadata.st_mode) != mode
+    ):
+        raise GuardError(f"{label} is missing or unsafe")
+
+
+def _chmod_owned_nofollow(path: Path, mode: int, *, label: str) -> None:
+    metadata = os.lstat(path)
+    if metadata.st_uid != os.getuid() or stat.S_ISLNK(metadata.st_mode):
+        raise GuardError(f"{label} is missing or unsafe")
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+    if stat.S_ISDIR(metadata.st_mode):
+        flags |= getattr(os, "O_DIRECTORY", 0)
+    elif not stat.S_ISREG(metadata.st_mode):
+        raise GuardError(f"{label} is missing or unsafe")
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        if not _same_control_object(metadata, opened):
+            raise GuardError(f"{label} changed before chmod")
+        os.fchmod(descriptor, mode)
+    finally:
+        os.close(descriptor)
+
+
+def _validate_finalizer_objects(path: Path, *, sealed: bool) -> None:
+    _validate_owned_directory(
+        path,
+        mode=0o500 if sealed else 0o700,
+        label="trusted Git object directory",
+    )
+    entry_count = 0
+    total_bytes = 0
+    for directory, names, files in os.walk(path, topdown=True, followlinks=False):
+        directory_path = Path(directory)
+        relative_depth = len(directory_path.relative_to(path).parts)
+        if relative_depth > 3:
+            raise GuardError("trusted Git object directory exceeds its depth limit")
+        for name in [*names, *files]:
+            candidate = directory_path / name
+            metadata = os.lstat(candidate)
+            entry_count += 1
+            if entry_count > GIT_FINALIZER_OBJECT_MAX_ENTRIES:
+                raise GuardError("trusted Git object directory exceeds its entry limit")
+            if metadata.st_uid != os.getuid() or stat.S_IMODE(metadata.st_mode) & 0o022:
+                raise GuardError("trusted Git object entry has unsafe ownership or mode")
+            if stat.S_ISLNK(metadata.st_mode):
+                raise GuardError("trusted Git object entry may not be a symlink")
+            if stat.S_ISREG(metadata.st_mode):
+                if metadata.st_nlink != 1:
+                    raise GuardError("trusted Git object file may not be hard-linked")
+                total_bytes += metadata.st_size
+                if total_bytes > GIT_FINALIZER_OBJECT_MAX_BYTES:
+                    raise GuardError("trusted Git objects exceed their byte limit")
+            elif not stat.S_ISDIR(metadata.st_mode):
+                raise GuardError("trusted Git object entry has an unsafe type")
+    if sealed and entry_count:
+        raise GuardError("sealed trusted Git object directory must be empty")
+
+
+def _validate_external_git_tree(
+    root: Path,
+    base_sha: str,
+    state_root: Path,
+    *,
+    phase: str,
+    trusted_index_sha256: str,
+) -> None:
+    sealed = phase == "sealed"
+    expected_root_entries = {"git", "index", "objects", "state.json"}
+    if not sealed:
+        expected_root_entries.add("finalizer-open")
+    if set(os.listdir(state_root)) != expected_root_entries:
+        raise GuardError("Git control state directory contains unexpected entries")
+    git_dir = state_root / "git"
+    _validate_owned_directory(git_dir, mode=0o500, label="trusted Git metadata directory")
+    if set(os.listdir(git_dir)) != {"HEAD", "config", "refs"}:
+        raise GuardError("trusted Git metadata directory contains unexpected entries")
+    refs = git_dir / "refs"
+    _validate_owned_directory(refs, mode=0o500, label="trusted Git refs directory")
+    if os.listdir(refs):
+        raise GuardError("trusted Git refs directory must be empty")
+    if _read_owned_file(
+        git_dir / "HEAD",
+        mode=0o400,
+        maximum=128,
+        label="trusted Git HEAD",
+    ) != f"{base_sha}\n".encode("ascii"):
+        raise GuardError("trusted Git HEAD changed")
+    if (
+        _read_owned_file(
+            git_dir / "config",
+            mode=0o400,
+            maximum=4096,
+            label="trusted Git config",
+        )
+        != GIT_FINALIZER_CONFIG
+    ):
+        raise GuardError("trusted Git config changed")
+    index = _read_owned_file(
+        state_root / "index",
+        mode=0o400 if sealed else 0o600,
+        maximum=GIT_FINALIZER_INDEX_MAX_BYTES,
+        label="trusted Git index",
+    )
+    if sealed and hashlib.sha256(index).hexdigest() != trusted_index_sha256:
+        raise GuardError("sealed trusted Git index changed")
+    _validate_finalizer_objects(state_root / "objects", sealed=sealed)
+    if (
+        not sealed
+        and _read_owned_file(
+            state_root / "finalizer-open",
+            mode=0o400,
+            maximum=128,
+            label="trusted Git finalizer marker",
+        )
+        != GIT_FINALIZER_MARKER
+    ):
+        raise GuardError("trusted Git finalizer marker changed")
+
+
+def _read_git_state(
+    root: Path,
+    base_sha: str,
+    state_root: Path,
+    *,
+    phase: str = "sealed",
+) -> dict[str, Any]:
+    if phase not in {"sealed", "open"}:
+        raise GuardError("invalid trusted Git state phase")
+    state_root = _resolve_git_state_root(root, state_root)
+    _validate_owned_directory(
+        state_root,
+        mode=0o500 if phase == "sealed" else 0o700,
+        label="Git control state directory",
+    )
+    raw = _read_owned_file(
+        state_root / "state.json",
+        mode=0o400,
+        maximum=GIT_CONTROL_STATE_MAX_BYTES,
+        label="Git control state file",
+    )
+    try:
+        value = json.loads(
+            raw.decode("utf-8"),
+            object_pairs_hook=_strict_object,
+            parse_constant=_reject_json_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise GuardError(f"Git control state is not strict UTF-8 JSON: {exc}") from exc
+    if not isinstance(value, dict) or set(value) != {
+        "schema_version",
+        "root",
+        "base_sha",
+        "snapshot",
+        "trusted_index_sha256",
+    }:
+        raise GuardError("Git control state has an invalid envelope")
+    trusted_index_sha256 = value["trusted_index_sha256"]
+    if (
+        value["schema_version"] != GIT_CONTROL_STATE_SCHEMA
+        or value["root"] != root.as_posix()
+        or value["base_sha"] != base_sha
+        or not isinstance(value["snapshot"], dict)
+        or not isinstance(trusted_index_sha256, str)
+        or re.fullmatch(r"[0-9a-f]{64}", trusted_index_sha256) is None
+    ):
+        raise GuardError("Git control state does not match this attempt")
+    _validate_external_git_tree(
+        root,
+        base_sha,
+        state_root,
+        phase=phase,
+        trusted_index_sha256=trusted_index_sha256,
+    )
+    return value
+
+
+def _external_git_environment(root: Path, state_root: Path) -> dict[str, str]:
+    state_root = _resolve_git_state_root(root, state_root)
+    git_dir = state_root / "git"
+    return {
+        "GIT_DIR": git_dir.as_posix(),
+        "GIT_COMMON_DIR": git_dir.as_posix(),
+        "GIT_WORK_TREE": root.as_posix(),
+        "GIT_INDEX_FILE": (state_root / "index").as_posix(),
+        "GIT_OBJECT_DIRECTORY": (state_root / "objects").as_posix(),
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES": (root / ".git/objects").as_posix(),
+        "GIT_NO_REPLACE_OBJECTS": "1",
+    }
+
+
+@contextmanager
+def _temporary_environment(updates: dict[str, str]) -> Any:
+    previous = {key: os.environ.get(key) for key in updates}
+    os.environ.update(updates)
+    try:
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+@contextmanager
+def _temporary_umask(mode: int) -> Any:
+    previous = os.umask(mode)
+    try:
+        yield
+    finally:
+        os.umask(previous)
+
+
+def _write_exclusive(path: Path, raw: bytes, *, mode: int) -> None:
+    descriptor = os.open(
+        path,
+        os.O_WRONLY
+        | os.O_CREAT
+        | os.O_EXCL
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0),
+        mode,
+    )
+    try:
+        view = memoryview(raw)
+        while view:
+            written = os.write(descriptor, view)
+            if written <= 0:
+                raise GuardError(f"failed to write trusted Git state: {path.name}")
+            view = view[written:]
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _remove_git_state(root: Path, state_root: Path, *, phase: str = "sealed") -> None:
+    state_root = _resolve_git_state_root(root, state_root)
+    _read_git_state(root, _read_git_state_base(root, state_root), state_root, phase=phase)
+    for directory, _, _ in os.walk(state_root, topdown=False, followlinks=False):
+        _chmod_owned_nofollow(Path(directory), 0o700, label="trusted Git state directory")
+    shutil.rmtree(state_root)
+
+
+def _read_git_state_base(root: Path, state_root: Path) -> str:
+    """Read only the bound base identity for internal state cleanup."""
+
+    state_root = _resolve_git_state_root(root, state_root)
+    raw = _read_owned_file(
+        state_root / "state.json",
+        mode=0o400,
+        maximum=GIT_CONTROL_STATE_MAX_BYTES,
+        label="Git control state file",
+    )
+    try:
+        value = json.loads(raw.decode("utf-8"), object_pairs_hook=_strict_object)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise GuardError(f"Git control state is not strict UTF-8 JSON: {exc}") from exc
+    base_sha = value.get("base_sha") if isinstance(value, dict) else None
+    if not isinstance(base_sha, str) or re.fullmatch(r"[0-9a-f]{40}", base_sha) is None:
+        raise GuardError("Git control state has an invalid base identity")
+    return base_sha
+
+
+def _record_git_state(root: Path, base_sha: str, state_root: Path) -> None:
+    if re.fullmatch(r"[0-9a-f]{40}", base_sha) is None:
+        raise GuardError("Git control state base must be a full SHA-1")
+    state_root = _resolve_git_state_root(root, state_root)
+    if state_root.exists() or state_root.is_symlink():
+        prior = _read_git_state(root, base_sha, state_root)
+        if prior["snapshot"] != _snapshot_git_controls(root):
+            raise GuardError("Git control state changed after the prior maintenance attempt")
+        _remove_git_state(root, state_root)
+    snapshot = _snapshot_git_controls(root)
+    state_root.mkdir(mode=0o700)
+    try:
+        git_dir = state_root / "git"
+        refs = git_dir / "refs"
+        objects = state_root / "objects"
+        git_dir.mkdir(mode=0o700)
+        refs.mkdir(mode=0o700)
+        objects.mkdir(mode=0o700)
+        _write_exclusive(git_dir / "HEAD", f"{base_sha}\n".encode("ascii"), mode=0o600)
+        _write_exclusive(git_dir / "config", GIT_FINALIZER_CONFIG, mode=0o600)
+        external_environment = {**os.environ, **_external_git_environment(root, state_root)}
+        _git_run(root, "read-tree", "--reset", base_sha, env=external_environment)
+        index_path = state_root / "index"
+        _chmod_owned_nofollow(index_path, 0o600, label="trusted Git index")
+        index = _read_owned_file(
+            index_path,
+            mode=0o600,
+            maximum=GIT_FINALIZER_INDEX_MAX_BYTES,
+            label="trusted Git index",
+        )
+        document = {
+            "schema_version": GIT_CONTROL_STATE_SCHEMA,
+            "root": root.as_posix(),
+            "base_sha": base_sha,
+            "snapshot": snapshot,
+            "trusted_index_sha256": hashlib.sha256(index).hexdigest(),
+        }
+        raw = (json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n").encode()
+        if len(raw) > GIT_CONTROL_STATE_MAX_BYTES:
+            raise GuardError("Git control state exceeds its byte limit")
+        _write_exclusive(state_root / "state.json", raw, mode=0o400)
+        for path in (git_dir / "HEAD", git_dir / "config", index_path):
+            _chmod_owned_nofollow(path, 0o400, label="trusted Git state file")
+        for path in (refs, git_dir, objects, state_root):
+            _chmod_owned_nofollow(path, 0o500, label="trusted Git state directory")
+        _read_git_state(root, base_sha, state_root)
+    except Exception:
+        if state_root.exists() and not state_root.is_symlink():
+            for directory, _, _ in os.walk(state_root, topdown=False, followlinks=False):
+                _chmod_owned_nofollow(
+                    Path(directory), 0o700, label="new trusted Git state directory"
+                )
+            shutil.rmtree(state_root)
+        raise
+
+
+def _assert_git_state_unchanged(root: Path, base_sha: str, state_root: Path) -> None:
+    recorded = _read_git_state(root, base_sha, state_root)
+    if recorded["snapshot"] != _snapshot_git_controls(root):
+        raise GuardError("Git control metadata changed during the model attempt")
+
+
+def _open_git_finalizer(root: Path, base_sha: str, state_root: Path) -> dict[str, str]:
+    # This is intentionally filesystem-only. The external metadata is opened
+    # only after the complete model-visible Git control plane has been rebound.
+    _assert_git_state_unchanged(root, base_sha, state_root)
+    state_root = _resolve_git_state_root(root, state_root)
+    _chmod_owned_nofollow(state_root, 0o700, label="Git control state directory")
+    _chmod_owned_nofollow(state_root / "index", 0o600, label="trusted Git index")
+    _chmod_owned_nofollow(state_root / "objects", 0o700, label="trusted Git object directory")
+    try:
+        _write_exclusive(state_root / "finalizer-open", GIT_FINALIZER_MARKER, mode=0o400)
+        _read_git_state(root, base_sha, state_root, phase="open")
+    except Exception:
+        marker = state_root / "finalizer-open"
+        if marker.exists() and not marker.is_symlink():
+            _chmod_owned_nofollow(marker, 0o600, label="trusted Git finalizer marker")
+            marker.unlink()
+        _chmod_owned_nofollow(state_root / "index", 0o400, label="trusted Git index")
+        _chmod_owned_nofollow(state_root / "objects", 0o500, label="trusted Git object directory")
+        _chmod_owned_nofollow(state_root, 0o500, label="Git control state directory")
+        raise
+    return _external_git_environment(root, state_root)
+
+
+def finalize_git_state(root: Path, base_sha: str, state_root: Path) -> None:
+    # No Git command is permitted here. Deleting the dedicated external state
+    # restores the checkout to its untouched repository metadata and index.
+    _read_git_state(root, base_sha, state_root, phase="open")
+    _remove_git_state(root, state_root, phase="open")
 
 
 def _load_json(path: Path, *, maximum: int, label: str) -> tuple[bytes, dict[str, Any]]:
@@ -468,13 +1156,12 @@ def _validate_staged_diff(
     )
     if len(patch) > policy["limits"]["max_patch_bytes"]:
         raise GuardError("maintenance candidate exceeds the patch-byte limit")
-    checked = _run(
-        "git",
+    checked = _git_run(
+        root,
         "diff",
         "--cached",
         "--check",
         base_sha,
-        cwd=root,
         env=index_env,
         check=False,
     )
@@ -500,7 +1187,7 @@ def validate_boundary(
     paths = _validate_worktree_paths(root, base_sha, policy, scope=scope)
     if not stage:
         return {"paths": paths, "changed_files": len(paths)}
-    _run("git", "add", "-A", "--", ".", cwd=root)
+    _git_run(root, "add", "-A", "--", ".")
     if _git_bytes(root, "diff", "--name-only", "-z"):
         raise GuardError("maintenance candidate contains unstaged tracked changes")
     if _git_bytes(root, "ls-files", "--others", "--exclude-standard", "-z"):
@@ -525,8 +1212,7 @@ def _remove_untracked_generated(root: Path, base_sha: str) -> None:
     tracked.update(
         path
         for path in GENERATED_EXACT
-        if _run("git", "cat-file", "-e", f"{base_sha}:{path}", cwd=root, check=False).returncode
-        == 0
+        if _git_run(root, "cat-file", "-e", f"{base_sha}:{path}", check=False).returncode == 0
     )
     roots = [root / prefix.rstrip("/") for prefix in GENERATED_PREFIXES]
     for generated_root in roots:
@@ -562,12 +1248,11 @@ def restore_generated(root: Path, base_sha: str) -> None:
     existing_at_base = [
         path
         for path in pathspecs
-        if _run("git", "cat-file", "-e", f"{base_sha}:{path}", cwd=root, check=False).returncode
-        == 0
+        if _git_run(root, "cat-file", "-e", f"{base_sha}:{path}", check=False).returncode == 0
     ]
     if existing_at_base:
-        _run(
-            "git",
+        _git_run(
+            root,
             "restore",
             "--source",
             base_sha,
@@ -575,7 +1260,6 @@ def restore_generated(root: Path, base_sha: str) -> None:
             "--worktree",
             "--",
             *existing_at_base,
-            cwd=root,
         )
 
 
@@ -638,7 +1322,11 @@ def prepare_attempt(
     policy: dict[str, Any],
     detector_path: Path,
     feedback_path: Path,
+    git_state_root: Path,
 ) -> None:
+    if git_state_root.exists() or git_state_root.is_symlink():
+        _assert_git_state_unchanged(root, base_sha, git_state_root)
+        _remove_git_state(root, git_state_root)
     detector = validate_detector(detector_path)
     restore_generated(root, base_sha)
     _cleanup_unaccepted_provenance_tail(root, detector)
@@ -665,25 +1353,44 @@ def prepare_attempt(
     context.mkdir(mode=0o700)
     shutil.copyfile(detector_path, context / "upstream-delta.json")
     shutil.copyfile(feedback_path, context / "verification-feedback.txt")
+    _record_git_state(root, base_sha, git_state_root)
 
 
-def close_attempt(root: Path, base_sha: str, policy: dict[str, Any]) -> None:
+def close_attempt(
+    root: Path,
+    base_sha: str,
+    policy: dict[str, Any],
+    git_state_root: Path,
+) -> None:
+    # This check is deliberately the first close operation. If model-visible
+    # Git controls changed, no Git subprocess is started at all.
+    _assert_git_state_unchanged(root, base_sha, git_state_root)
     workspace_kiro = root / ".kiro"
     if workspace_kiro.exists() or workspace_kiro.is_symlink():
         raise GuardError("Kiro attempt recreated the removed workspace .kiro directory")
     _remove_context(root)
-    _run(
-        "git",
-        "restore",
-        "--source",
-        base_sha,
-        "--staged",
-        "--worktree",
-        "--",
-        ".kiro",
-        cwd=root,
-    )
-    validate_boundary(root, base_sha, policy, scope="agent", stage=True)
+    finalizer_environment = _open_git_finalizer(root, base_sha, git_state_root)
+    try:
+        with (
+            _temporary_environment(finalizer_environment),
+            _temporary_umask(0o077),
+        ):
+            _git_run(
+                root,
+                "restore",
+                "--source",
+                base_sha,
+                "--staged",
+                "--worktree",
+                "--",
+                ".kiro",
+            )
+            validate_boundary(root, base_sha, policy, scope="agent", stage=True)
+    except Exception:
+        # The checkout's own index and config were never touched. Discarding the
+        # failed external finalizer makes the next bounded attempt start clean.
+        _remove_git_state(root, git_state_root, phase="open")
+        raise
 
 
 def validate_ci_agent(agent_path: Path, policy: dict[str, Any]) -> None:
@@ -710,6 +1417,9 @@ def validate_ci_agent(agent_path: Path, policy: dict[str, Any]) -> None:
         raise GuardError("CI agent resources differ from the immutable policy")
     prompt = agent.get("prompt")
     marker_requirements = (
+        "select the lexicographically smallest drifting source id",
+        "proposal must name that source_id",
+        "leave every other drifting source unchanged for a later cadence",
         "append exactly one new final pk-stack-upstream-review HTML comment",
         "preserve every prior review marker unchanged and in order",
         "marker count equals the existing review-ledger transition count plus one",
@@ -1177,13 +1887,17 @@ def validate_detector(path: Path) -> dict[str, Any]:
             "manifest",
             "review_ledger",
             "network_boundary",
+            "selected_source_id",
             "sources",
             "bootstrap_preview",
             "generated_parity",
         },
         "upstream detector output",
     )
-    if detector["schema_version"] != 1 or detector["network_boundary"] != "https://api.github.com":
+    if (
+        detector["schema_version"] != UPSTREAM_SCHEMA_VERSION
+        or detector["network_boundary"] != "https://api.github.com"
+    ):
         raise GuardError("upstream detector output has an invalid schema or network boundary")
     if detector["manifest"] != "maintenance/upstreams.json":
         raise GuardError("upstream detector used an unexpected manifest")
@@ -1194,7 +1908,7 @@ def validate_detector(path: Path) -> dict[str, Any]:
     if not isinstance(sources, list) or not 1 <= len(sources) <= 16:
         raise GuardError("upstream detector output must have a bounded non-empty source list")
     seen_ids: set[str] = set()
-    drift_heads: list[str] = []
+    drift_sources: list[dict[str, str]] = []
     source_results: list[bool] = []
     for source_index, source_value in enumerate(sources):
         source = _exact_keys(
@@ -1206,12 +1920,14 @@ def validate_detector(path: Path) -> dict[str, Any]:
                 "path",
                 "ref",
                 "provenance_path",
+                "parity_path",
                 "pinned",
                 "pinned_reproof",
                 "current",
                 "drift",
                 "comparison",
                 "review_reproof",
+                "source_parity",
             },
             f"upstream detector source {source_index}",
         )
@@ -1219,10 +1935,9 @@ def validate_detector(path: Path) -> dict[str, Any]:
         if (
             not isinstance(source_id, str)
             or not source_id
+            or len(source_id) > 64
             or source_id in seen_ids
-            or any(
-                character not in "abcdefghijklmnopqrstuvwxyz0123456789-" for character in source_id
-            )
+            or _SOURCE_ID.fullmatch(source_id) is None
         ):
             raise GuardError("upstream detector source id is invalid or duplicated")
         seen_ids.add(source_id)
@@ -1238,6 +1953,11 @@ def validate_detector(path: Path) -> dict[str, Any]:
             source["provenance_path"],
             "upstream detector provenance_path",
             suffix=".md",
+        )
+        parity_path = _normalized_path(
+            source["parity_path"],
+            "upstream detector parity_path",
+            suffix=".json",
         )
         if not isinstance(source["ref"], str) or not source["ref"]:
             raise GuardError("upstream detector ref is invalid")
@@ -1431,7 +2151,12 @@ def validate_detector(path: Path) -> dict[str, Any]:
         if drift:
             if comparison["status"] != "ahead" or behind != 0 or not (ahead == commits >= 1):
                 raise GuardError("upstream drift is not a bounded fast-forward")
-            drift_heads.append(current["commit"])
+            drift_sources.append(
+                {
+                    "source_id": source_id,
+                    "expected_head": current["commit"],
+                }
+            )
         elif (
             comparison["status"] != "identical"
             or ahead != 0
@@ -1442,10 +2167,81 @@ def validate_detector(path: Path) -> dict[str, Any]:
         ):
             raise GuardError("identical upstream comparison contains drift metadata")
         source_ok = _boolean(source["ok"], "upstream detector source ok")
-        if source_ok != (not drift):
-            raise GuardError("upstream detector source ok disagrees with drift")
-        source_results.append(source_ok)
         _validate_review_reproof(source["review_reproof"], source_id=source_id, pinned=pinned)
+        source_parity = _exact_keys(
+            source["source_parity"],
+            {
+                "ok",
+                "candidate_ready",
+                "artifact_type",
+                "status",
+                "path",
+                "errors",
+                "pinned_resource_count",
+                "current_resource_count",
+                "classified_resource_count",
+            },
+            "upstream detector source_parity",
+        )
+        parity_ok = _boolean(source_parity["ok"], "upstream detector source_parity ok")
+        candidate_ready = _boolean(
+            source_parity["candidate_ready"],
+            "upstream detector source_parity candidate_ready",
+        )
+        parity_status = source_parity["status"]
+        artifact_type = source_parity["artifact_type"]
+        if parity_status not in {"invalid", "candidate-ready", "accepted-baseline"}:
+            raise GuardError("upstream detector source_parity status is invalid")
+        if artifact_type not in {"skill-catalog", "source-inventory", "unknown"}:
+            raise GuardError("upstream detector source_parity artifact_type is invalid")
+        if artifact_type == "unknown" and parity_status != "invalid":
+            raise GuardError("unknown source_parity artifact_type must be invalid")
+        if source_parity["path"] != parity_path:
+            raise GuardError("upstream detector source_parity path disagrees with its source")
+        counts = [
+            _count(
+                source_parity[key],
+                f"upstream detector source_parity {key}",
+                maximum=100_000,
+            )
+            for key in (
+                "pinned_resource_count",
+                "current_resource_count",
+                "classified_resource_count",
+            )
+        ]
+        parity_errors = source_parity["errors"]
+        if parity_status == "invalid":
+            if parity_ok or candidate_ready or counts != [0, 0, 0]:
+                raise GuardError("invalid upstream source_parity has contradictory status")
+            if (
+                not isinstance(parity_errors, list)
+                or len(parity_errors) != 1
+                or not isinstance(parity_errors[0], str)
+                or not parity_errors[0]
+                or parity_errors[0].strip() != parity_errors[0]
+                or any(character in parity_errors[0] for character in ("\0", "\r", "\n"))
+                or len(parity_errors[0].encode("utf-8")) > 2048
+            ):
+                raise GuardError("invalid upstream source_parity errors are not bounded")
+        elif (
+            not parity_ok
+            or candidate_ready != (parity_status == "candidate-ready")
+            or parity_errors != []
+        ):
+            raise GuardError("valid upstream source_parity has contradictory status")
+        if parity_ok and not drift and parity_status != "accepted-baseline":
+            raise GuardError("non-drifting upstream source lacks an accepted parity baseline")
+        if source_ok != (not drift and parity_ok):
+            raise GuardError("upstream detector source ok disagrees with drift or source parity")
+        source_results.append(source_ok)
+
+    requested_source_id = detector["selected_source_id"]
+    if requested_source_id is not None:
+        if not isinstance(requested_source_id, str) or requested_source_id not in seen_ids:
+            raise GuardError("upstream detector selected_source_id is invalid")
+        if len(sources) != 1 or sources[0]["id"] != requested_source_id:
+            raise GuardError("source-scoped detector returned an ambiguous source inventory")
 
     preview = _exact_keys(
         detector["bootstrap_preview"],
@@ -1510,9 +2306,9 @@ def validate_detector(path: Path) -> dict[str, Any]:
         raise GuardError("upstream detector generated parity result disagrees")
     if overall_ok != (all(source_results) and parity_ok):
         raise GuardError("upstream detector overall result disagrees")
-    if len(drift_heads) > 1:
-        raise GuardError("one maintenance run may advance at most one upstream source")
-    detector["validated_drift_heads"] = drift_heads
+    drift_sources.sort(key=lambda item: item["source_id"])
+    detector["validated_drift_sources"] = drift_sources
+    detector["validated_drift_heads"] = [item["expected_head"] for item in drift_sources]
     return detector
 
 
@@ -1527,7 +2323,7 @@ def _accepted_review_markers(
         label="upstream review ledger",
     )
     _exact_keys(ledger, {"schema_version", "sources"}, "upstream review ledger")
-    if ledger["schema_version"] != 1:
+    if ledger["schema_version"] != UPSTREAM_SCHEMA_VERSION:
         raise GuardError("upstream review ledger schema_version changed")
     ledger_sources = ledger["sources"]
     if not isinstance(ledger_sources, list) or len(ledger_sources) != len(detector["sources"]):
@@ -1541,6 +2337,7 @@ def _accepted_review_markers(
                 "repository",
                 "path",
                 "provenance_path",
+                "parity_path",
                 "genesis",
                 "transitions",
             },
@@ -1557,7 +2354,7 @@ def _accepted_review_markers(
         source = sources_by_id.get(source_id)
         if source is None:
             raise GuardError("upstream review ledger is missing a detector source")
-        for key in ("repository", "path", "provenance_path"):
+        for key in ("repository", "path", "provenance_path", "parity_path"):
             if source[key] != detector_source[key]:
                 raise GuardError(f"upstream review ledger source {key} disagrees with detector")
         genesis = _identity(source["genesis"], f"upstream review ledger {source_id} genesis")
@@ -1723,12 +2520,19 @@ def _cleanup_unaccepted_provenance_tail(root: Path, detector: dict[str, Any]) ->
         path.write_bytes("".join(lines).encode("utf-8"))
 
 
-def _require_pending_provenance_marker(root: Path, detector: dict[str, Any]) -> None:
+def _require_provenance_markers(
+    root: Path,
+    detector: dict[str, Any],
+    *,
+    selected_source_id: str | None,
+) -> None:
     accepted = _accepted_review_markers(root, detector)
     for source in detector["sources"]:
         _, marker_lines = _provenance_marker_lines(root / source["provenance_path"])
         expected = list(accepted[source["id"]])
-        if source["drift"] is True:
+        if selected_source_id is not None and source["id"] == selected_source_id:
+            if source["drift"] is not True:
+                raise GuardError("selected upstream source no longer has detected drift")
             expected.append(_pending_review_marker(source))
         if len(marker_lines) != len(expected):
             raise GuardError("upstream provenance marker count disagrees with review state")
@@ -1747,10 +2551,12 @@ def validate_proposal(root: Path, detector_path: Path, proposal_path: Path) -> d
     """Independently bind an untrusted proposal to the exact detector inventory."""
 
     detector = validate_detector(detector_path)
-    drift_sources = [source for source in detector["sources"] if source["drift"] is True]
-    if len(drift_sources) != 1:
-        raise GuardError("an acceptance proposal requires exactly one detected drift source")
-    source = drift_sources[0]
+    drift_sources = sorted(
+        (source for source in detector["sources"] if source["drift"] is True),
+        key=lambda item: item["id"],
+    )
+    if not drift_sources:
+        raise GuardError("an acceptance proposal requires detected upstream drift")
     _, proposal = _load_json(
         proposal_path,
         maximum=512 * 1024,
@@ -1758,9 +2564,17 @@ def validate_proposal(root: Path, detector_path: Path, proposal_path: Path) -> d
     )
     _exact_keys(
         proposal,
-        {"prior", "new", "inventory_sha256", "dispositions"},
+        {"source_id", "prior", "new", "inventory_sha256", "dispositions"},
         "upstream acceptance proposal",
     )
+    source_id = proposal["source_id"]
+    if not isinstance(source_id, str) or not source_id:
+        raise GuardError("upstream acceptance proposal source_id is invalid")
+    source = drift_sources[0]
+    if source_id != source["id"]:
+        raise GuardError(
+            "upstream acceptance proposal did not select the lexicographically first drift source"
+        )
     prior = _identity(proposal["prior"], "upstream acceptance proposal prior")
     new = _identity(proposal["new"], "upstream acceptance proposal new")
     if prior != source["pinned"]:
@@ -1811,11 +2625,109 @@ def validate_proposal(root: Path, detector_path: Path, proposal_path: Path) -> d
     unavailable = comparison["review_constraints"]["unavailable_binary_paths"]
     if any(by_path.get(path) != "B" for path in unavailable):
         raise GuardError("unavailable binary paths require disposition B")
-    _require_pending_provenance_marker(root, detector)
+    _require_provenance_markers(
+        root,
+        detector,
+        selected_source_id=source_id,
+    )
     return {
         "source_id": source["id"],
         "expected_head": new["commit"],
         "disposition_count": len(dispositions),
+    }
+
+
+def validate_serialized_acceptance(
+    root: Path,
+    base_sha: str,
+    before_path: Path,
+    after_path: Path,
+) -> dict[str, Any]:
+    """Prove exactly the deterministically selected source advanced once."""
+
+    _sha1(base_sha, "serialized acceptance base")
+    before = validate_detector(before_path)
+    after = validate_detector(after_path)
+    before_drift = before["validated_drift_sources"]
+    if not before_drift:
+        raise GuardError("serialized acceptance requires initial upstream drift")
+    if before["selected_source_id"] is not None or after["selected_source_id"] is not None:
+        raise GuardError("serialized acceptance requires full-manifest detector evidence")
+    selected_id = before_drift[0]["source_id"]
+    selected_head = before_drift[0]["expected_head"]
+    before_sources = {source["id"]: source for source in before["sources"]}
+    after_sources = {source["id"]: source for source in after["sources"]}
+    if set(after_sources) != set(before_sources):
+        raise GuardError("serialized acceptance changed the upstream source inventory")
+
+    stable_fields = ("repository", "path", "ref", "provenance_path", "parity_path")
+    for source_id, before_source in before_sources.items():
+        after_source = after_sources[source_id]
+        if any(after_source[key] != before_source[key] for key in stable_fields):
+            raise GuardError("serialized acceptance changed upstream source metadata")
+        before_review = before_source["review_reproof"]
+        after_review = after_source["review_reproof"]
+        if source_id != selected_id:
+            if (
+                after_source["pinned"] != before_source["pinned"]
+                or after_review != before_review
+                or after_source["source_parity"] != before_source["source_parity"]
+            ):
+                raise GuardError("serialized acceptance modified a deferred upstream source")
+            continue
+
+        if after_source["pinned"] != before_source["current"]:
+            raise GuardError("serialized acceptance did not advance the selected pin exactly")
+        if after_source["pinned"]["commit"] != selected_head:
+            raise GuardError("serialized acceptance selected head changed")
+        if after_review["genesis"] != before_review["genesis"]:
+            raise GuardError("serialized acceptance changed selected source genesis")
+        before_count = before_review["transition_count"]
+        if after_review["transition_count"] != before_count + 1:
+            raise GuardError("serialized acceptance did not append exactly one review transition")
+        transitions = after_review["transitions"]
+        if len(transitions) != 1:
+            raise GuardError("serialized acceptance is missing its latest transition reproof")
+        latest = transitions[0]
+        if (
+            latest["index"] != before_count
+            or latest["prior"] != before_source["pinned"]
+            or latest["new"] != before_source["current"]
+            or latest["inventory_sha256"] != before_source["comparison"]["inventory_sha256"]
+            or latest["path_count"] != before_source["comparison"]["path_count"]
+        ):
+            raise GuardError("serialized acceptance latest transition is not detector-bound")
+        selected_parity = after_source["source_parity"]
+        if (
+            selected_parity["ok"] is not True
+            or selected_parity["candidate_ready"] is not False
+            or selected_parity["status"] != "accepted-baseline"
+        ):
+            raise GuardError("serialized acceptance did not establish selected parity baseline")
+
+    _require_provenance_markers(
+        root,
+        after,
+        selected_source_id=None,
+    )
+    for source_id, source in before_sources.items():
+        if source_id == selected_id:
+            continue
+        provenance_path = source["provenance_path"]
+        candidate = root / provenance_path
+        try:
+            base_provenance = _git_bytes(root, "show", f"{base_sha}:{provenance_path}")
+        except subprocess.CalledProcessError as exc:
+            raise GuardError(
+                "deferred upstream provenance is missing from the base commit"
+            ) from exc
+        if candidate.read_bytes() != base_provenance:
+            raise GuardError("serialized acceptance modified deferred upstream provenance")
+    return {
+        "source_id": selected_id,
+        "accepted_head": selected_head,
+        "initial_drift_count": len(before_drift),
+        "remaining_drift_count": len(after["validated_drift_sources"]),
     }
 
 
@@ -2077,38 +2989,35 @@ def validate_package(
         index_path = Path(temporary) / "index"
         index_env = os.environ.copy()
         index_env["GIT_INDEX_FILE"] = str(index_path)
-        _run("git", "read-tree", base_sha, cwd=root, env=index_env)
+        _git_run(root, "read-tree", base_sha, env=index_env)
         for path, mode, content in decoded:
             if content is None:
-                _run(
-                    "git",
+                _git_run(
+                    root,
                     "update-index",
                     "--force-remove",
                     "--",
                     path,
-                    cwd=root,
                     env=index_env,
                 )
                 continue
             object_sha = (
-                _run(
-                    "git",
+                _git_run(
+                    root,
                     "hash-object",
                     "-w",
                     "--stdin",
-                    cwd=root,
                     input_bytes=content,
                 )
                 .stdout.decode("ascii")
                 .strip()
             )
-            _run(
-                "git",
+            _git_run(
+                root,
                 "update-index",
                 "--add",
                 "--cacheinfo",
                 f"{mode},{object_sha},{path}",
-                cwd=root,
                 env=index_env,
             )
         summary = _validate_staged_diff(
@@ -2169,7 +3078,7 @@ def build_fable_review_bundle(
         _validate_path(path)
         if _is_protected(path, policy) or not _matches(path, exact, prefixes):
             raise GuardError(f"Fable review path is outside final policy: {path}")
-        exists = _run("git", "cat-file", "-e", f"{head_sha}:{path}", cwd=root, check=False)
+        exists = _git_run(root, "cat-file", "-e", f"{head_sha}:{path}", check=False)
         if exists.returncode != 0:
             continue
         record = _git_bytes(root, "ls-tree", "-z", head_sha, "--", path).rstrip(b"\0")
@@ -2318,10 +3227,71 @@ def validate_fable_verdict(
     if result.get("subtype") != "success" or result.get("is_error") is not False:
         raise GuardError("Fable execution result was not successful")
     model_usage = result.get("modelUsage")
-    if not isinstance(model_usage, dict) or set(model_usage) != {expected_model}:
+    allowed_usage_models = {expected_model, FABLE_INTERNAL_COMPANION_MODEL}
+    if (
+        not isinstance(model_usage, dict)
+        or expected_model not in model_usage
+        or not set(model_usage) <= allowed_usage_models
+    ):
         raise GuardError("Fable execution modelUsage is missing, mixed, or unexpected")
-    if not isinstance(model_usage[expected_model], dict):
+    reviewer_usage = model_usage[expected_model]
+    if not isinstance(reviewer_usage, dict):
         raise GuardError("Fable execution modelUsage entry is malformed")
+    if reviewer_usage.get("canonicalModel", expected_model) != expected_model:
+        raise GuardError("Fable reviewer usage did not resolve the required canonical model")
+    companion_usage = model_usage.get(FABLE_INTERNAL_COMPANION_MODEL)
+    if companion_usage is not None:
+        # Claude Code 2.1.258 emits this tiny first-party routing/classification
+        # companion beside the requested reviewer. Bind its exact version and
+        # keep it decisively below a substantive review turn; every other model
+        # key remains forbidden.
+        if not isinstance(companion_usage, dict):
+            raise GuardError("Fable internal companion usage entry is malformed")
+        allowed_companion_fields = {
+            "inputTokens",
+            "outputTokens",
+            "cacheReadInputTokens",
+            "cacheCreationInputTokens",
+            "webSearchRequests",
+            "costUSD",
+            "contextWindow",
+            "maxOutputTokens",
+            "thinkingTokens",
+            "canonicalModel",
+            "provider",
+            "costBasis",
+        }
+        required_companion_fields = {
+            "inputTokens",
+            "outputTokens",
+            "cacheReadInputTokens",
+            "cacheCreationInputTokens",
+            "webSearchRequests",
+            "costUSD",
+            "canonicalModel",
+            "provider",
+        }
+        if (
+            not required_companion_fields <= set(companion_usage) <= allowed_companion_fields
+            or companion_usage.get("canonicalModel") != "claude-haiku-4-5"
+            or companion_usage.get("provider") != "firstParty"
+        ):
+            raise GuardError("Fable internal companion identity is unexpected")
+        bounded_counts = {
+            "inputTokens": 2048,
+            "outputTokens": 64,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0,
+            "webSearchRequests": 0,
+            "thinkingTokens": 0,
+        }
+        for field, maximum in bounded_counts.items():
+            value = companion_usage.get(field, 0)
+            if type(value) is not int or not 0 <= value <= maximum:
+                raise GuardError("Fable internal companion usage exceeded its inert bound")
+        cost = companion_usage["costUSD"]
+        if isinstance(cost, bool) or not isinstance(cost, (int, float)) or not 0 <= cost <= 0.01:
+            raise GuardError("Fable internal companion cost exceeded its inert bound")
     if result.get("structured_output") != verdict:
         raise GuardError("Fable execution evidence does not contain the exact structured verdict")
     execution_sha256 = hashlib.sha256(execution_raw).hexdigest()
@@ -2396,9 +3366,19 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--base", required=True)
     prepare.add_argument("--detector", type=Path, required=True)
     prepare.add_argument("--feedback", type=Path, required=True)
+    prepare.add_argument("--git-state", type=Path, required=True)
 
     close = commands.add_parser("close-attempt")
     close.add_argument("--base", required=True)
+    close.add_argument("--git-state", type=Path, required=True)
+
+    git_state = commands.add_parser("validate-git-state")
+    git_state.add_argument("--base", required=True)
+    git_state.add_argument("--git-state", type=Path, required=True)
+
+    finalize_git = commands.add_parser("finalize-git-state")
+    finalize_git.add_argument("--base", required=True)
+    finalize_git.add_argument("--git-state", type=Path, required=True)
 
     detector = commands.add_parser("validate-detector")
     detector.add_argument("--detector", type=Path, required=True)
@@ -2406,6 +3386,11 @@ def _parser() -> argparse.ArgumentParser:
     proposal = commands.add_parser("validate-proposal")
     proposal.add_argument("--detector", type=Path, required=True)
     proposal.add_argument("--proposal", type=Path, required=True)
+
+    serialized = commands.add_parser("validate-serialized-acceptance")
+    serialized.add_argument("--base", required=True)
+    serialized.add_argument("--before-detector", type=Path, required=True)
+    serialized.add_argument("--after-detector", type=Path, required=True)
 
     package = commands.add_parser("package")
     package.add_argument("--base", required=True)
@@ -2470,22 +3455,46 @@ def main() -> int:
         validate_trusted_snapshot(root, args.base, trusted_root.resolve())
         result = {"ok": True}
     elif args.command == "prepare-attempt":
-        prepare_attempt(root, args.base, policy, args.detector, args.feedback)
+        prepare_attempt(
+            root,
+            args.base,
+            policy,
+            args.detector,
+            args.feedback,
+            args.git_state,
+        )
         result = {"ok": True}
     elif args.command == "close-attempt":
-        close_attempt(root, args.base, policy)
+        close_attempt(root, args.base, policy, args.git_state)
+        result = {"ok": True}
+    elif args.command == "validate-git-state":
+        _assert_git_state_unchanged(root, args.base, args.git_state)
+        result = {"ok": True}
+    elif args.command == "finalize-git-state":
+        finalize_git_state(root, args.base, args.git_state)
         result = {"ok": True}
     elif args.command == "validate-detector":
         detector = validate_detector(args.detector)
-        drift_heads = detector.pop("validated_drift_heads")
+        drift_sources = detector.pop("validated_drift_sources")
+        detector.pop("validated_drift_heads")
+        selected = drift_sources[0] if drift_sources else None
         result = {
             "ok": True,
             "sources": len(detector["sources"]),
-            "drift_count": len(drift_heads),
-            "expected_head": drift_heads[0] if drift_heads else "",
+            "drift_count": len(drift_sources),
+            "selected_source_id": selected["source_id"] if selected else "",
+            "expected_head": selected["expected_head"] if selected else "",
         }
     elif args.command == "validate-proposal":
         result = validate_proposal(root, args.detector, args.proposal)
+        result["ok"] = True
+    elif args.command == "validate-serialized-acceptance":
+        result = validate_serialized_acceptance(
+            root,
+            args.base,
+            args.before_detector,
+            args.after_detector,
+        )
         result["ok"] = True
     elif args.command == "package":
         result = package_candidate(

@@ -19,9 +19,13 @@ comparing candidates.
 ## Ground the decision
 
 1. Inspect the relevant code, tests, feature record, and repository guidance.
-2. When `<runner>` is available, use `<runner> knowledge search`, `<runner>
-   feature list`, and `<runner> feature show <slug>` to recover existing intent
-   and evidence.
+   If the request is already backed by `.kiro/specs/<name>/`, treat its requirements or bug
+   analysis, design, and tasks as Kiro's planning authority. Challenge or refine that design in the
+   native spec workflow; do not create a competing architecture plan inside this skill.
+2. Record the context depth and why it is needed. For an architecture decision, issue at most one
+   targeted `<runner> knowledge search "<specific decision>" --budget 1200 --output json` when
+   canonical `okn` is available, then reconcile that KNOW result with `<runner> feature list` and
+   `<runner> feature show <slug>`. Follow explicit related links; never inject the whole Wiki.
 3. Use `how` to trace the affected runtime. Use `why` when the proposal changes
    an existing ownership or layering decision. Mark inferred rationale.
 4. At each external-data boundary, find the repository's existing runtime
@@ -35,8 +39,7 @@ Skip this grounding only for genuinely isolated greenfield work.
 
 ## Produce the scaffold before code
 
-Every viable candidate must be a design package that a reader can inspect
-without reading implementation bodies:
+Every viable candidate must be an inspectable usage-first scaffold:
 
 1. Write the caller's usage first, including imports and two or three realistic
    call sites.
@@ -52,6 +55,8 @@ without reading implementation bodies:
 
 The usage, types, signatures, module map, and rationale are one contract. If
 they disagree, reconcile the scaffold to the caller's experience before code.
+When a native spec exists, this output is an advisory delta against its `design.md`, not a second
+design package. Apply each accepted delta back to the native design before Kiro's tasks proceed.
 
 ## Run the architecture arena
 
