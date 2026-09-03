@@ -1,0 +1,16 @@
+{
+  "Dockerfile": "47c93bfcd953e7fe86e646d8716dc7c24a78833066e31a41467d347544c3eb18",
+  "Wiki/features/document-export.md": "fc4c32e718f7e4ea2aa0369c24f0bca25d7cfc5af8f64990caf34fdd2214605a",
+  "compose.yaml": "ffc0ae8024ceb2487f13efc4ee71a0c5c02f89e800e5657bb65783892bd45e38",
+  "judge/verify_feature_contract.py": "73e6b16865381c0475e528d5c87458081d92f213e31811395b4e2ecfad9560d7",
+  "labctl": "46bf7cca6cfbf7087500fb2cf03b2b16aed6cb139f37bcdde6138a0df6817fe1",
+  "projectctl": "93f4462111b4a72c6c4ea5a402d81ff09d621638ae3421b20d7a86b2fd1dbde6",
+  "pyproject.toml": "63deb2783b7d50945fefba4cbe7fd19eff01e6f044801d13476ecca67793bcae",
+  "requirements-runtime.txt": "e73780d0b36142977c667a9082ba1bbc5424001e87b2f734e24d84c25e2bcebe",
+  "src/pk_stack_lab/__init__.py": "f001ea670f453bdb2ce26ce7df9aff77ca260ee74675b292803d1a3a556eab16",
+  "src/pk_stack_lab/aws.py": "dbfdcc821c66026267d9ce97a97d12c5e6b2f6f1c6716089649abd03559ce422",
+  "src/pk_stack_lab/cli.py": "9ebefe70c21ddb09ca955e239e0f63adf247c62ad46079f0400b98d5f39b41c1",
+  "src/pk_stack_lab/config.py": "f93542dfa2dba8f04b3c05691a245f2be25c4cac5e56ab68f798606ef47929e0",
+  "src/pk_stack_lab/runtime.py": "83a05fcc163e8f72b418cb72834967e8d274bebfe872d4608ad393c18469cfe9",
+  "uv.lock": "49c65a6bfc5b6c9c01073feafed8e4cf21c60d222df34e071b8f92c45a9d6dbd"
+}

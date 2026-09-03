@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-03T02:27:47Z",
+  "decision": "pass",
+  "evidence_for": {
+    "commit": "28b918268104cbcd19b18486dcb4134213c6351a",
+    "tree": "72fe6177d20eea67b6580899c1134d586be987c0",
+    "archive_sha256": "fa952d459574bd811c093af13c0771339ea49344f26f6105d6c66780b77cf90c"
+  },
+  "environment": {
+    "run_id": "final-floci-902",
+    "docker_context": "desktop-linux",
+    "docker_server_version": "29.7.2",
+    "compose_version": "5.5.0",
+    "floci_image": "floci/floci:2.0.1@sha256:4e451c39c7bb88e3cd4f87e8fc0c25d5b47695a51185d521e2241fa00486e8eb",
+    "python_image": "python:3.12-slim-bookworm@sha256:782412e85d0f0984994c290652577d4018aff08145c85b262bb63dc0c7522254",
+    "region": "us-east-1"
+  },
+  "frozen_controls": {
+    "path_count": 14,
+    "control_manifest_sha256": "1c59d2d16a7df0af558da86fa5feb30f64e6464e2232f5a7cbc119ea0e64137b",
+    "judge_sha256": "73e6b16865381c0475e528d5c87458081d92f213e31811395b4e2ecfad9560d7",
+    "feature_contract_sha256": "fc4c32e718f7e4ea2aa0369c24f0bca25d7cfc5af8f64990caf34fdd2214605a",
+    "manifest_file": "reviews/final-floci-control-manifest.json"
+  },
+  "generations": [
+    {
+      "number": 1,
+      "kind": "controlled-build-input-marker",
+      "source_digest": "bc4e31fb91605ba5b8c49d3abc5b24be647763e13a6844beb7a37868bc1d677a",
+      "image_id": "sha256:c156b1d9e3573d43fdccfbaa87be79b544c298362c320963c17f280b48db6abf",
+      "api_task_definition_revision": 1,
+      "worker_task_definition_revision": 1,
+      "operation_id": "f0c84db3f2b734f7ad576866d4be82f7"
+    },
+    {
+      "number": 2,
+      "kind": "restored-candidate",
+      "source_digest": "5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6",
+      "image_id": "sha256:97d0151ea4bc6b357c6d8f5428d499997da0f06bf7d5286a350bf8a2f07186b6",
+      "api_task_definition_revision": 2,
+      "worker_task_definition_revision": 2,
+      "operation_id": "ee0b785291220f882338032de8e8e423"
+    }
+  ],
+  "artifact_ledger": {
+    "event_count": 16,
+    "operation_count": 2,
+    "sequence": {
+      "first": 1,
+      "last": 16,
+      "strictly_contiguous": true
+    }
+  },
+  "verification": {
+    "ok": true,
+    "transport": "bounded HTTP from a transient hardened verifier container to the exact real ECS API task",
+    "export_id": "e-89525bdfab9edf74",
+    "terminal_status": "COMPLETE",
+    "tenant_key_partition_separation": true,
+    "api_idempotency": {
+      "attempts": 1,
+      "duplicate_marker": true,
+      "duplicate_status": "COMPLETE",
+      "same_export_id": true,
+      "enqueue_confirmed": true,
+      "row_idempotency_matches": true
+    },
+    "s3_result_exact": true,
+    "worker_duplicate_delivery_noop": true,
+    "dlq_current_invocation": true,
+    "dlq_message_id": "85227e9d-8b28-4564-bf32-68fb24a5dfc3",
+    "post_business_identity_reproof": true
+  },
+  "external_judge": {
+    "ok": true,
+    "contract_sha256": "fc4c32e718f7e4ea2aa0369c24f0bca25d7cfc5af8f64990caf34fdd2214605a",
+    "control_manifest_sha256": "1c59d2d16a7df0af558da86fa5feb30f64e6464e2232f5a7cbc119ea0e64137b",
+    "judge_sha256": "73e6b16865381c0475e528d5c87458081d92f213e31811395b4e2ecfad9560d7"
+  },
+  "teardown": {
+    "ok": true,
+    "aws_mode": "reachable",
+    "accounted_ecs_tasks": 4,
+    "accounted_images": 4,
+    "completed_phases": [
+      "aws_compute_absent",
+      "aws_data_absent",
+      "aws_definitions_cluster_absent",
+      "aws_postconditions_passed",
+      "docker_outer_absent",
+      "floci_data_absent",
+      "docker_images_absent",
+      "local_postconditions_passed"
+    ],
+    "state_manifest_absent": true,
+    "floci_container_absent": true,
+    "dedicated_network_absent": true
+  },
+  "inventory_noninterference": {
+    "foreign_pklab_entry_count": 18,
+    "images_before_sha256": "533bc29d82f10b82fd4817be8e985eb036a12249a76b417e19ec5d7559ffd675",
+    "images_after_sha256": "533bc29d82f10b82fd4817be8e985eb036a12249a76b417e19ec5d7559ffd675",
+    "containers_before_sha256": "ef13f64486d0af29888be4f45216a221097bfefaf823231b913219abe0900230",
+    "containers_after_sha256": "ef13f64486d0af29888be4f45216a221097bfefaf823231b913219abe0900230",
+    "networks_before_sha256": "c69c375ff2c1e6071baa84bd27fbc4a3a77bfb7b4c40c76ec09d060fb9a74012",
+    "networks_after_sha256": "c69c375ff2c1e6071baa84bd27fbc4a3a77bfb7b4c40c76ec09d060fb9a74012",
+    "foreign_pklab_before_sha256": "4d6bc3e1d5a3665280921a971e988ea6dd62e8f05b1bc86a59a3a9278bfe3460",
+    "foreign_pklab_after_sha256": "4d6bc3e1d5a3665280921a971e988ea6dd62e8f05b1bc86a59a3a9278bfe3460",
+    "byte_for_byte_unchanged": true
+  },
+  "limitations": [
+    "Floci is an ECS-like local emulator, not AWS Fargate.",
+    "Cloud IAM, VPC networking, cross-account behavior, and production AWS control-plane behavior were not tested.",
+    "Floci 2.0.1 did not enforce requested readonly-root-filesystem, drop-all-capabilities, or no-new-privileges task fields, although both task processes ran as UID/GID 65532 with no mounts.",
+    "Raw Docker and emulator evidence remains owner-controlled outside Git; this record contains the bounded non-secret projection."
+  ]
+}
