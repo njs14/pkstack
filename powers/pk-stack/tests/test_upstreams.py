@@ -117,6 +117,91 @@ def test_committed_maintenance_campaign_matches_recorded_transition_and_manifest
     )
 
 
+def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_scoped() -> None:
+    manifest = json.loads(
+        (REPOSITORY_ROOT / "maintenance" / "upstreams.json").read_text(encoding="utf-8")
+    )
+    ledger = json.loads(
+        (REPOSITORY_ROOT / "maintenance" / "upstream-reviews.json").read_text(encoding="utf-8")
+    )
+    parity = json.loads(
+        (REPOSITORY_ROOT / "powers/pk-stack/docs/openknowledge-cli-contract-parity.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    provenance = (
+        REPOSITORY_ROOT / "powers/pk-stack/docs/openknowledge-cli-contract-provenance.md"
+    ).read_text(encoding="utf-8")
+    source_id = "openknowledge-cli-contract"
+    expected_identity = {
+        "commit": "6e8bbe026448fd890ace9293bcfe89b53363cd1f",
+        "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf",
+    }
+    manifest_source = next(source for source in manifest["sources"] if source["id"] == source_id)
+    ledger_source = next(source for source in ledger["sources"] if source["id"] == source_id)
+
+    assert manifest_source == {
+        **expected_identity,
+        "id": source_id,
+        "parity_path": "powers/pk-stack/docs/openknowledge-cli-contract-parity.json",
+        "path": "packages/cli/schemas/v1",
+        "provenance_path": "powers/pk-stack/docs/openknowledge-cli-contract-provenance.md",
+        "ref": "main",
+        "repository": "openknowledge-sh/openknowledge",
+    }
+    assert ledger_source == {
+        "genesis": expected_identity,
+        "id": source_id,
+        "parity_path": manifest_source["parity_path"],
+        "path": manifest_source["path"],
+        "provenance_path": manifest_source["provenance_path"],
+        "repository": manifest_source["repository"],
+        "transitions": [],
+    }
+    assert parity["source"]["pinned"] == parity["source"]["current"] == expected_identity
+    assert len(parity["files"]) == 63
+    assert [entry["path"] for entry in parity["files"]] == sorted(
+        (entry["path"] for entry in parity["files"]), key=str.casefold
+    )
+    assert all(entry["pinned"] == entry["current"] for entry in parity["files"])
+    by_disposition = {
+        disposition: {
+            entry["path"] for entry in parity["files"] if entry["disposition"] == disposition
+        }
+        for disposition in ("A", "B", "C")
+    }
+    assert by_disposition["A"] == {
+        "cli-error.schema.json",
+        "common.schema.json",
+        "search-context.schema.json",
+        "validation.schema.json",
+    }
+    assert by_disposition["B"] == {
+        entry["path"]
+        for entry in parity["files"]
+        if entry["path"].startswith(("deploy-", "job-", "runtime-"))
+    }
+    assert parity["summary"] == {
+        "A": 4,
+        "B": 19,
+        "C": 40,
+        "pinned_files": 63,
+        "current_files": 63,
+    }
+    assert (
+        _marker_line(
+            "genesis",
+            {
+                "source_id": source_id,
+                "repository": manifest_source["repository"],
+                "path": manifest_source["path"],
+                **expected_identity,
+            },
+        )
+        in provenance
+    )
+
+
 def _manifest() -> dict[str, Any]:
     return {
         "schema_version": 2,
@@ -657,6 +742,53 @@ class FakeFetch:
         return self.responses[url]
 
 
+def _compare_source() -> upstreams.UpstreamSource:
+    return upstreams.UpstreamSource(
+        source_id="cursor-pstack",
+        repository="cursor/plugins",
+        path="pstack",
+        ref="main",
+        commit=PIN,
+        subtree_sha=PIN_TREE,
+        provenance_path="powers/pk-stack/docs/provenance.md",
+        parity_path="powers/pk-stack/docs/upstream-skill-parity.json",
+    )
+
+
+def _external_comparison_files(count: int) -> list[dict[str, Any]]:
+    return [
+        {
+            "filename": f"outside/generated-{index:03}.md",
+            "status": "modified",
+            "sha": f"{10_000 + index:040x}",
+            "additions": 1,
+            "deletions": 1,
+            "changes": 2,
+            "patch": "@@ -1 +1 @@\n-old\n+new",
+        }
+        for index in range(count)
+    ]
+
+
+def _single_tracked_change_responses() -> tuple[dict[str, Any], str]:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    pin_tree_url = next(url for url in responses if PIN_TREE in url and "recursive" in url)
+    head_tree_url = next(url for url in responses if HEAD_TREE in url and "recursive" in url)
+    tracked_filename = "pstack/README.md"
+    tracked_file = next(
+        item for item in responses[compare_url]["files"] if item["filename"] == tracked_filename
+    )
+    responses[pin_tree_url]["tree"] = [
+        item for item in responses[pin_tree_url]["tree"] if item["path"] == "README.md"
+    ]
+    responses[head_tree_url]["tree"] = [
+        item for item in responses[head_tree_url]["tree"] if item["path"] == "README.md"
+    ]
+    responses[compare_url]["files"] = [tracked_file]
+    return responses, compare_url
+
+
 def _add_parallel_source(root: Path, *, source_id: str = "alpha-source") -> dict[str, Path]:
     manifest_path = root / "maintenance" / "upstreams.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -1011,6 +1143,148 @@ def test_check_reports_exact_bounded_27_path_drift_inventory(tmp_path: Path) -> 
     reordered_comparison = reordered_payload["sources"][0]["comparison"]
     assert reordered_comparison["files"] == comparison["files"]
     assert reordered_comparison["inventory_sha256"] == comparison["inventory_sha256"]
+
+
+def test_compare_bounds_tracked_subtree_not_unrelated_repository_files() -> None:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    responses[compare_url]["files"] = _external_comparison_files(101)
+    fetch = FakeFetch(responses)
+
+    comparison = upstreams._compare_inventory(
+        _compare_source(),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=PIN_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=fetch,
+        blob_cache={},
+    )
+
+    assert comparison["complete"] is True
+    assert comparison["status"] == "ahead"
+    assert comparison["path_count"] == comparison["file_count"] == 0
+    assert comparison["paths"] == comparison["files"] == []
+
+
+def test_compare_keeps_source_delta_among_more_than_100_unrelated_files() -> None:
+    responses, compare_url = _single_tracked_change_responses()
+    responses[compare_url]["files"] = [
+        *_external_comparison_files(101),
+        *responses[compare_url]["files"],
+    ]
+
+    comparison = upstreams._compare_inventory(
+        _compare_source(),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=HEAD_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=FakeFetch(responses),
+        blob_cache={},
+    )
+
+    assert comparison["paths"] == ["README.md"]
+    assert comparison["path_count"] == comparison["file_count"] == 1
+    assert comparison["files"][0]["reviewability"] == "exact-blob-unified-patch"
+
+
+def test_compare_fails_when_large_repository_page_omits_source_delta() -> None:
+    responses, compare_url = _single_tracked_change_responses()
+    responses[compare_url]["files"] = _external_comparison_files(101)
+
+    with pytest.raises(UpstreamError, match="incomplete or disagrees"):
+        upstreams._compare_inventory(
+            _compare_source(),
+            base_commit=PIN,
+            base_subtree=PIN_TREE,
+            head_commit=HEAD,
+            head_subtree=HEAD_TREE,
+            token=None,
+            timeout_seconds=3,
+            fetch_json=FakeFetch(responses),
+            blob_cache={},
+        )
+
+
+def test_compare_fails_when_large_repository_page_omits_source_patch() -> None:
+    responses, compare_url = _single_tracked_change_responses()
+    tracked_file = responses[compare_url]["files"][0]
+    tracked_file.pop("patch")
+    responses[compare_url]["files"] = [
+        *_external_comparison_files(101),
+        tracked_file,
+    ]
+
+    with pytest.raises(UpstreamError, match="without a patch"):
+        upstreams._compare_inventory(
+            _compare_source(),
+            base_commit=PIN,
+            base_subtree=PIN_TREE,
+            head_commit=HEAD,
+            head_subtree=HEAD_TREE,
+            token=None,
+            timeout_seconds=3,
+            fetch_json=FakeFetch(responses),
+            blob_cache={},
+        )
+
+
+def test_compare_fails_closed_at_github_file_response_cap() -> None:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
+
+    with pytest.raises(UpstreamError, match=r"300-file response cap.*truncated"):
+        upstreams._compare_inventory(
+            _compare_source(),
+            base_commit=PIN,
+            base_subtree=PIN_TREE,
+            head_commit=HEAD,
+            head_subtree=PIN_TREE,
+            token=None,
+            timeout_seconds=3,
+            fetch_json=FakeFetch(responses),
+            blob_cache={},
+        )
+
+
+def test_compare_rejects_more_than_100_tracked_subtree_paths_before_fetching_patches() -> None:
+    pin_url = upstreams._api_url(
+        "cursor/plugins", "git", "trees", PIN_TREE, query=(("recursive", "1"),)
+    )
+    head_url = upstreams._api_url(
+        "cursor/plugins", "git", "trees", HEAD_TREE, query=(("recursive", "1"),)
+    )
+    responses = {
+        pin_url: _tree(PIN_TREE, []),
+        head_url: _tree(
+            HEAD_TREE,
+            [
+                _blob(f"changed-{index:03}.md", f"{20_000 + index:040x}")
+                for index in range(upstreams.MAX_COMPARE_FILES + 1)
+            ],
+        ),
+    }
+    fetch = FakeFetch(responses)
+
+    with pytest.raises(UpstreamError, match="exceeds the 100-file limit"):
+        upstreams._compare_inventory(
+            _compare_source(),
+            base_commit=PIN,
+            base_subtree=PIN_TREE,
+            head_commit=HEAD,
+            head_subtree=HEAD_TREE,
+            token=None,
+            timeout_seconds=3,
+            fetch_json=fetch,
+            blob_cache={},
+        )
+    assert [call[0] for call in fetch.calls] == [pin_url, head_url]
 
 
 def test_check_fails_closed_on_non_fast_forward_or_incomplete_compare(tmp_path: Path) -> None:

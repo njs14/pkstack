@@ -95,9 +95,11 @@ The combined repository uses the same levers it ships: a ready feature contract,
 `projectctl` goal, the `/maintain-pk-stack` skill, a checksum-pinned Kiro CLI, canonical-Power
 regeneration, and deterministic verification. The scheduled Kiro workflow checks every hash-pinned
 source daily: Cursor pstack for workflow semantics, `scaccogatto/okf-skills` for OKF workflow
-methodology, and Google Knowledge Catalog for the normative OKF specification. When several sources
-move together, it selects and reviews exactly one source per transaction so pins, inventories,
-provenance, and acceptance never become ambiguous. Real drift must fail attempt 1, receive one
+methodology, Google Knowledge Catalog for the normative OKF specification, and OpenKnowledge's
+versioned CLI-schema subtree for the optional `okn` machine boundary. The broader OpenKnowledge
+runtime is not imported. When several sources move together, the workflow selects and reviews
+exactly one source per transaction so pins, inventories, provenance, and acceptance never become
+ambiguous. Real drift must fail attempt 1, receive one
 exhaustive A/B/C path review and provenance record, and pass a later attempt before the workflow can
 publish one non-draft bot PR; the next daily run then picks up any remaining source. A no-drift run
 stops before Kiro or Fable is invoked, so faster backlog draining does not spend model credits on a

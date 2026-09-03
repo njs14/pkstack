@@ -126,6 +126,13 @@ its host-specific runtime or weakening PK-Stack's established KNOW boundary.
   reproof. The separate immutable OKF/OKN campaign passed the candidate's resulting Wiki and
   canonical runtime boundary. Hosted cadence proof remains a release gate; the immutable knowledge
   campaign does not substitute for a GitHub-hosted updater run.
+- `OKFS-012` — Track the canonical OpenKnowledge CLI machine contract independently of the Google
+  OKF specification and third-party workflow methodology. Scope the source to the versioned
+  `packages/cli/schemas/v1` tree, adapt only the bounded validation/search boundary, and exclude
+  deployment, job, runtime, and release-management interfaces. Preserve compatibility with pinned
+  `okn` 0.13.0 responses that omit search `status`; when a newer response emits it, require exactly
+  `managed` before trusting sources. Status: implemented with a 63-file content-addressed parity
+  inventory, live source reproof, and managed/unmanaged protocol regressions.
 
 ## Fable round 1 material criteria
 

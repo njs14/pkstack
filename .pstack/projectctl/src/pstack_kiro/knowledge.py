@@ -107,6 +107,8 @@ def _search_protocol_error(
         return "okn search returned a query that does not match the requested query"
     if report.get("budget") != budget:
         return "okn search returned a budget that does not match the requested budget"
+    if "status" in report and report["status"] != "managed":
+        return "okn search returned a status that is not managed"
     revision = report.get("revision")
     if not isinstance(revision, dict):
         return "okn search returned an invalid revision"

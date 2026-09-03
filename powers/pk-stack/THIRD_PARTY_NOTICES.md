@@ -83,6 +83,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## OpenKnowledge CLI contract reference
+
+PK-Stack tracks Git object identities for OpenKnowledge's public versioned CLI schema subtree to
+detect changes at its optional `okn` process boundary. It does not vendor or execute those schemas
+or the OpenKnowledge runtime.
+
+- Project: `openknowledge-sh/openknowledge`, `packages/cli/schemas/v1/` subtree
+- Source: <https://github.com/openknowledge-sh/openknowledge/tree/6e8bbe026448fd890ace9293bcfe89b53363cd1f/packages/cli/schemas/v1>
+- Pinned commit: `6e8bbe026448fd890ace9293bcfe89b53363cd1f`
+- License: Apache License 2.0
+- Detailed provenance: [`docs/openknowledge-cli-contract-provenance.md`](docs/openknowledge-cli-contract-provenance.md)
+
+The schemas are not redistributed. The root `LICENSE` contains the Apache License 2.0 text but
+licenses PK-Stack rather than transferring ownership of OpenKnowledge.
+
 ## Cyclopts
 
 Cyclopts is a direct runtime dependency used to expose the `projectctl` command

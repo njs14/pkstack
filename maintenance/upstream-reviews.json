@@ -208,6 +208,18 @@
       "provenance_path": "powers/pk-stack/docs/okf-skills-provenance.md",
       "repository": "scaccogatto/okf-skills",
       "transitions": []
+    },
+    {
+      "genesis": {
+        "commit": "6e8bbe026448fd890ace9293bcfe89b53363cd1f",
+        "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf"
+      },
+      "id": "openknowledge-cli-contract",
+      "parity_path": "powers/pk-stack/docs/openknowledge-cli-contract-parity.json",
+      "path": "packages/cli/schemas/v1",
+      "provenance_path": "powers/pk-stack/docs/openknowledge-cli-contract-provenance.md",
+      "repository": "openknowledge-sh/openknowledge",
+      "transitions": []
     }
   ]
 }

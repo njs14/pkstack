@@ -105,7 +105,10 @@ without that exact explanation, or a changed base/head/path set, is a blocker.
    progressive-disclosure semantics; exclude Claude transcript mining, hooks, bundled validation,
    MCP, and CDN visualization. For `google-okf-spec`, treat the current specification as normative
    but do not vendor its sample agent/runtime. In semantic conflicts, Google OKF wins over the
-   older specification bundled by `okf-skills`.
+   older specification bundled by `okf-skills`. For `openknowledge-cli-contract`, adapt only the
+   bounded validation, search-context, common, and CLI-error schemas used at the optional `okn`
+   process boundary. Exclude deployment, job-control, runtime, release-action, and release-management
+   interfaces; leave all other unadopted schemas provenance-only.
 4. Exclude runtime-specific model slugs, frontmatter, commands, permissions, branding, and logo
    assets that do not belong in Kiro. Do not vendor upstream implementation or turn PK-Stack into
    another runtime.

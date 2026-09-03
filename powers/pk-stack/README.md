@@ -239,6 +239,7 @@ and the September 1-2, 2026 Kiro change inventory.
 - [Upstream skill parity catalog](docs/upstream-skill-parity.md)
 - [OKF-skills methodology inventory](docs/okf-skills-parity.md)
 - [Authoritative OKF source inventory](docs/okf-spec-source-parity.md)
+- [OpenKnowledge CLI contract provenance](docs/openknowledge-cli-contract-provenance.md)
 - [Provenance and porting boundary](docs/provenance.md)
 - [Validation report](docs/validation-report.md)
 

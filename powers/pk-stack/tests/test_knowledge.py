@@ -116,6 +116,12 @@ def _fake_okn(
         "        search_result['estimatedTokens'] = 24\n"
         "    elif protocol_mutation == 'bad-route':\n"
         "        search_result['route'] = ['bm25', 'bm25']\n"
+        "    elif protocol_mutation == 'search-status-managed':\n"
+        "        search_result['status'] = 'managed'\n"
+        "    elif protocol_mutation == 'search-status-unmanaged':\n"
+        "        search_result['status'] = 'unmanaged'\n"
+        "    elif protocol_mutation == 'search-status-null':\n"
+        "        search_result['status'] = None\n"
         "    print('[]' if malformed == 'search' else json.dumps(search_result))\n"
         "    raise SystemExit(0)\n"
         "raise SystemExit(83)\n",
@@ -194,6 +200,19 @@ def test_canonical_search_validates_versioned_provenance_and_budget(
         search(workspace, "native planning", budget=True)
 
 
+def test_canonical_search_accepts_managed_status_from_newer_okn(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    workspace, okn = _fake_okn(tmp_path, protocol_mutation="search-status-managed")
+    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    (workspace / "Wiki").mkdir()
+
+    result = search(workspace, "native planning", budget=512)
+
+    assert result["ok"] is True
+    assert result["context"]["status"] == "managed"
+
+
 @pytest.mark.parametrize("operation", ["validate", "search"])
 def test_malformed_okn_machine_contract_fails_closed(
     tmp_path: Path,
@@ -268,6 +287,8 @@ def test_validation_protocol_binds_the_requested_wiki_root(
         ("token-mismatch", "does not match"),
         ("duplicate-source", "duplicate source"),
         ("bad-route", "retrieval route"),
+        ("search-status-unmanaged", "not managed"),
+        ("search-status-null", "not managed"),
     ],
 )
 def test_search_protocol_binds_root_budget_and_source_identity(

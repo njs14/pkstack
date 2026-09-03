@@ -430,6 +430,11 @@ lists unavailable raster paths under `review_constraints.unavailable_binary_path
 requires disposition B for each. No upstream content is fetched outside the bounded API evidence or
 executed. The whole ledger chain is checked locally and only its latest transition is remotely re-proved, so the
 request budget stays constant; committed Git history is the older-ledger tamper authority.
+The 100-file review ceiling applies to the exact changed paths in the configured source subtree,
+not unrelated repository-wide compare records. Those unrelated records are ignored only after the
+exact pinned/current subtree inventories establish the source-scoped path set. GitHub exposes at
+most 300 files for a comparison; a response at that ceiling is ambiguous and fails closed, as does
+any response that omits one of the independently derived source paths or its required patch.
 The ledger is capped at both 8 MiB and 512 transitions. The representative 27-path, 400-byte-rationale
 shape supports the full 512 entries (about 9.8 years weekly); maximum-length rationales can reach
 the byte limit around 2.7 years. An explicit reviewed, tamper-evident archive migration is required
@@ -934,6 +939,14 @@ search only for architecture, decisions, concepts, or operations that the narrow
 answer. Native `/knowledge` may index the same Wiki, but it is not the canonical source or checker.
 `okfcli/okf` is an optional independent CI conformance/SARIF oracle, never a transparent runtime
 fallback for `okn` search or lifecycle behavior.
+
+PK-Stack accepts the pinned `okn` 0.13.0 search response, which has no top-level management status,
+and newer compatible responses only when an emitted `status` is exactly `managed`. An explicit
+`unmanaged` or unknown status fails before returned sources are trusted. Self-maintenance tracks
+OpenKnowledge's versioned `packages/cli/schemas/v1` tree as `openknowledge-cli-contract`; it does
+not track or import the broader runtime implementation. Validation, search-context, common, and
+CLI-error schemas may inform the process boundary, while deployment, job, runtime, and release
+interfaces remain excluded.
 
 Use `/okf` for one explicit Wiki mode: produce new durable knowledge, maintain concepts affected by
 a current change, or consume bounded context. The skill adapts the method from

@@ -47,6 +47,7 @@ MAX_RESPONSE_BYTES = 1024 * 1024
 MAX_SOURCES = 16
 MAX_COMPARE_COMMITS = 100
 MAX_COMPARE_FILES = 100
+GITHUB_COMPARE_FILE_CAP = 300
 MAX_COMPARE_PATCH_BYTES = 256 * 1024
 MAX_FILE_PATCH_BYTES = 64 * 1024
 MAX_TEXT_BLOB_BYTES = 512 * 1024
@@ -2144,9 +2145,16 @@ def _compare_inventory(
         raise UpstreamError("GitHub comparison commits are duplicate or do not end at head")
 
     raw_files = document.get("files")
-    if not isinstance(raw_files, list) or len(raw_files) > MAX_COMPARE_FILES:
+    if not isinstance(raw_files, list):
+        raise UpstreamError("GitHub comparison files must be a list")
+    # GitHub's compare endpoint returns repository-wide changes but exposes at
+    # most 300 file records.  The review bound applies to the configured source
+    # subtree, whose exact changed paths were derived independently above.  A
+    # response at the API ceiling is ambiguous, so fail closed rather than risk
+    # omitting a source-scoped record that fell beyond GitHub's file page.
+    if len(raw_files) >= GITHUB_COMPARE_FILE_CAP:
         raise UpstreamError(
-            f"GitHub comparison files must be a list of at most {MAX_COMPARE_FILES} entries"
+            "GitHub comparison reached the 300-file response cap and may be truncated"
         )
     files: list[dict[str, Any]] = []
     accounted_paths: set[str] = set()
@@ -3644,6 +3652,7 @@ __all__ = [
     "DEFAULT_PROPOSAL",
     "DEFAULT_TIMEOUT_SECONDS",
     "GITHUB_API_ORIGIN",
+    "GITHUB_COMPARE_FILE_CAP",
     "MAX_COMPARE_BLOB_BYTES",
     "MAX_COMPARE_COMMITS",
     "MAX_COMPARE_FILES",

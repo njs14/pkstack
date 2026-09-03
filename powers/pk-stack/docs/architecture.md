@@ -283,6 +283,12 @@ Authorization header. Timeouts, each response body, commit count, file count, tr
 patch, and aggregate patch bytes are bounded; the timeout is one aggregate network budget rather
 than a fresh allowance for every request.
 
+The changed-path ceiling is 100 paths in the configured source subtree, independently derived from
+the pinned and current recursive trees. Repository-wide compare records outside that subtree do not
+consume the review bound. They are still bounded by GitHub's documented 300-file compare ceiling;
+a response at that ceiling fails as potentially truncated, and exact tree reconciliation rejects a
+missing source-scoped record or patch.
+
 For each source, the service resolves the pinned commit and current ref, walks the configured
 subtree by content-addressed tree SHA, and reproofs the manifest pin. A changing ref must compare
 as a bounded fast-forward whose base and merge base equal the pin and whose complete commit page
@@ -300,10 +306,13 @@ reviewability class, and content. A missing patch fails for semantic content cha
 zero-count top-level raster asset, an exact-blob pure rename, or an exact-blob mode-only change is
 permitted without one. Unavailable raster paths are machine-listed and require disposition B.
 Nothing from upstream is executed. Each source also names one machine-validated parity artifact.
-Cursor pstack uses the complete skill-package catalog; OKF methodology and specification sources
-use exhaustive regular-blob inventories with A/B/C dispositions. An aggregate check validates every
-source and reports all drift. `--source-id` retains the full local manifest/ledger validation but
-fetches and reports only that exact source. Scheduled maintenance deterministically selects the
+Cursor pstack uses the complete skill-package catalog; OKF methodology, normative specification,
+and OpenKnowledge CLI-contract sources use exhaustive regular-blob inventories with A/B/C
+dispositions. The OpenKnowledge source is deliberately limited to the public versioned schema tree;
+its deployment, job, runtime, and release interfaces are tracked but excluded rather than imported.
+An aggregate check validates every source and reports all drift. `--source-id` retains the full
+local manifest/ledger validation but fetches and reports only that exact source. Scheduled
+maintenance deterministically selects the
 lexicographically first drifting source, and one proposal may advance only that source; the
 transaction proves every deferred pin, ledger, parity result, and provenance file unchanged for a
 later cadence.
