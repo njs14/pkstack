@@ -90,8 +90,10 @@ the same gates using repository-scoped credentials and permissions.
 
 ### `manual-dispatch`
 
-An authorized maintainer may dispatch the maintenance workflow and separately authorize proposal
-acceptance or PR landing after inspecting its durable evidence.
+An authorized maintainer may dispatch the same hands-off maintenance workflow outside its cadence.
+After the repository's one-time permissions and credentials are configured, that run follows the
+same bounded proposal, candidate gates, Fable acceptance, exact-SHA merge, and fail-closed policy as
+the scheduled run; it does not require a second per-run landing approval.
 
 ## Driving it
 
@@ -138,13 +140,18 @@ moving the pin.
 
 #### Recipe
 
-Use the workflow's authorized manual-dispatch entrypoint, inspect the candidate and its Fable 5.1
-`xhigh` review, then grant PR creation or landing authority separately if the result is acceptable.
+Use the workflow's authorized manual-dispatch entrypoint. The workflow automatically creates only
+its own exact-head candidate PR, runs its bound Fable 5.1 `xhigh` review, and squash-merges that
+exact SHA only when every policy gate accepts. Inspect the durable evidence afterward or while a
+failed run is awaiting remediation; no model output or upstream text receives independent landing
+authority.
 
 #### Observable proof
 
 The workflow identifies the triggering run and candidate, preserves every prior marker and ledger
 entry byte-for-byte, and changes the accepted pin only after the exact proposal passes fresh gates.
+A rejected, stale, foreign, or ambiguous candidate remains unmerged without asking a model to
+override policy.
 
 ## Evidence boundary
 
