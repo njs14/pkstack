@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,8 @@ _SESSION_UPDATE_KINDS = {
 }
 _CLOUD_CONFIG_TITLE = "Fetching your cloud config"
 _CLOUD_CONFIG_TOOL_ID = "fetch_cloud_config"
+_REQUIRED_SMOKE_MODEL = "gpt-5.6-sol"
+_REQUIRED_REVIEW_MODEL = "claude-opus-5"
 _UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
 _TOOL_CALL_ID = re.compile(_UUID)
 _SESSION_ID = re.compile(rf"sess_{_UUID}")
@@ -259,7 +262,14 @@ def _bootstrap_tool_event(event: dict[str, Any]) -> tuple[str, str, str]:
                 raise StreamError("Kiro emitted an invalid failed cloud-config bootstrap terminal")
             return "terminal", session_id, call_id
         if status == "completed":
-            if set(update) != {"sessionUpdate", "status", "toolCallId"}:
+            base_keys = {"sessionUpdate", "status", "toolCallId"}
+            if set(update) == base_keys:
+                return "terminal", session_id, call_id
+            if (
+                set(update) != base_keys | {"rawOutput"}
+                or update.get("rawOutput")
+                != {"kind": "notEnabled", "retracted": False}
+            ):
                 raise StreamError(
                     "Kiro emitted a malformed completed cloud-config bootstrap terminal"
                 )
@@ -379,7 +389,11 @@ def _validate_run_finished(event: dict[str, Any]) -> tuple[str, str, dict[str, A
     return session_id, final_text, data
 
 
-def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
+def _validated_assistant_text(
+    events: list[dict[str, Any]],
+    *,
+    response_validator: Callable[[str], bool] = _is_bounded_challenge_response,
+) -> str:
     if len(events) < 3:
         raise StreamError("Kiro stream is too short for a complete authenticated turn")
     _validate_run_started(events[0])
@@ -468,34 +482,28 @@ def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
     assistant_text = "".join(chunks)
     if finished_session != agent_session:
         raise StreamError("Kiro runFinished does not match the agent-message session")
-    if finished_text != assistant_text or not _is_bounded_challenge_response(assistant_text):
+    if finished_text != assistant_text or not response_validator(assistant_text):
         _raise_run_finished_failure(finished_data, assistant_text=assistant_text)
     if bootstrap_session is not None and bootstrap_session != finished_session:
         raise StreamError("Kiro bootstrap and runFinished sessions do not match")
     return assistant_text
 
 
-def validate_stream_bytes(
+def parse_no_tool_stream_bytes(
     stream_raw: bytes,
-    stderr_raw: bytes,
     *,
-    return_code: int,
-    api_key: str,
-) -> dict[str, int | bool]:
-    if not api_key:
-        raise StreamError("KIRO_API_KEY is empty")
-    if len(stream_raw) > MAX_OUTPUT_BYTES or len(stderr_raw) > MAX_OUTPUT_BYTES:
-        raise StreamError("Kiro output exceeded the 2 MiB per-file bound")
-    encoded_key = api_key.encode("utf-8")
-    if encoded_key in stream_raw or encoded_key in stderr_raw:
-        raise StreamError("Kiro output contained the API key")
-    if return_code != 0:
-        raise StreamError(f"Kiro credential smoke failed with exit code {return_code}")
+    maximum_bytes: int,
+    maximum_events: int = MAX_EVENTS,
+    response_validator: Callable[[str], bool],
+) -> tuple[str, list[dict[str, Any]]]:
+    """Parse one successful v3 turn that used no agent-visible tools."""
+
+    if not stream_raw or len(stream_raw) > maximum_bytes:
+        raise StreamError("Kiro stream is empty or exceeds its byte limit")
     try:
         stream = stream_raw.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise StreamError("Kiro stream is not UTF-8") from exc
-
     events: list[dict[str, Any]] = []
     try:
         for line in stream.splitlines():
@@ -509,15 +517,86 @@ def validate_stream_bytes(
             if not isinstance(value, dict):
                 raise StreamError("Kiro stream-json line was not an object")
             events.append(value)
-            if len(events) > MAX_EVENTS:
+            if len(events) > maximum_events:
                 raise StreamError("Kiro stream exceeded the event-count bound")
     except json.JSONDecodeError as exc:
         raise StreamError(f"Kiro stream contains malformed JSON: {exc}") from exc
     if not events:
         raise StreamError("Kiro emitted no stream-json events")
+    return (
+        _validated_assistant_text(events, response_validator=response_validator),
+        events,
+    )
 
-    _validated_assistant_text(events)
-    return {"ok": True, "events": len(events)}
+
+def _validate_review_model_advertised(events: list[dict[str, Any]]) -> None:
+    current_models: list[str] = []
+    review_advertised = False
+    for event in events:
+        update = event.get("data", {}).get("update", {})
+        if not isinstance(update, dict):
+            continue
+        for option in update.get("configOptions", []):
+            if not isinstance(option, dict) or option.get("id") != "model":
+                continue
+            current = option.get("currentValue")
+            if isinstance(current, str):
+                current_models.append(current)
+            choices = option.get("options")
+            if not isinstance(choices, list):
+                continue
+            for choice in choices:
+                if not isinstance(choice, dict) or choice.get("value") != _REQUIRED_REVIEW_MODEL:
+                    continue
+                kiro = choice.get("_meta", {}).get("kiro", {})
+                if (
+                    isinstance(kiro, dict)
+                    and kiro.get("hasEffort") is True
+                    and isinstance(kiro.get("effortLevels"), list)
+                    and "xhigh" in kiro["effortLevels"]
+                ):
+                    review_advertised = True
+    if (
+        not current_models
+        or current_models[-1] != _REQUIRED_SMOKE_MODEL
+        or _REQUIRED_SMOKE_MODEL not in current_models
+        or any(model not in {"auto", _REQUIRED_SMOKE_MODEL} for model in current_models)
+        or not review_advertised
+    ):
+        raise StreamError(
+            "Kiro credential stream did not advertise the required peer-review model"
+        )
+
+
+def validate_stream_bytes(
+    stream_raw: bytes,
+    stderr_raw: bytes,
+    *,
+    return_code: int,
+    api_key: str,
+    require_review_model: bool = False,
+) -> dict[str, int | bool]:
+    if not api_key:
+        raise StreamError("KIRO_API_KEY is empty")
+    if len(stream_raw) > MAX_OUTPUT_BYTES or len(stderr_raw) > MAX_OUTPUT_BYTES:
+        raise StreamError("Kiro output exceeded the 2 MiB per-file bound")
+    encoded_key = api_key.encode("utf-8")
+    if encoded_key in stream_raw or encoded_key in stderr_raw:
+        raise StreamError("Kiro output contained the API key")
+    if return_code != 0:
+        raise StreamError(f"Kiro credential smoke failed with exit code {return_code}")
+    _, events = parse_no_tool_stream_bytes(
+        stream_raw,
+        maximum_bytes=MAX_OUTPUT_BYTES,
+        response_validator=_is_bounded_challenge_response,
+    )
+    if require_review_model:
+        _validate_review_model_advertised(events)
+    return {
+        "ok": True,
+        "events": len(events),
+        **({"peer_review_model_advertised": True} if require_review_model else {}),
+    }
 
 
 def validate_stream_paths(
@@ -526,6 +605,7 @@ def validate_stream_paths(
     *,
     return_code: int,
     api_key: str,
+    require_review_model: bool = False,
 ) -> dict[str, int | bool]:
     for path in (stream_path, stderr_path):
         if path.is_symlink() or not path.is_file():
@@ -535,6 +615,7 @@ def validate_stream_paths(
         stderr_path.read_bytes(),
         return_code=return_code,
         api_key=api_key,
+        require_review_model=require_review_model,
     )
 
 
@@ -543,12 +624,14 @@ def main() -> int:
     parser.add_argument("--stream", type=Path, required=True)
     parser.add_argument("--stderr", type=Path, required=True)
     parser.add_argument("--return-code", type=int, required=True)
+    parser.add_argument("--require-review-model", action="store_true")
     args = parser.parse_args()
     result = validate_stream_paths(
         args.stream,
         args.stderr,
         return_code=args.return_code,
         api_key=os.environ.get("KIRO_API_KEY", ""),
+        require_review_model=args.require_review_model,
     )
     print(json.dumps(result, sort_keys=True))
     return 0

@@ -70,6 +70,14 @@ class ModelInventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(validator.InventoryError, "duplicate"):
             validator.validate_inventory_bytes(encoded(inventory))
 
+    def test_review_preflight_requires_exact_opus_5_contract(self) -> None:
+        inventory = valid_inventory()
+        inventory["models"].append(copy.deepcopy(validator.EXPECTED_REVIEW_MODEL))  # type: ignore[union-attr]
+        validator.validate_inventory_bytes(encoded(inventory), require_review_model=True)
+        inventory["models"][1]["rate_multiplier"] = 2.1  # type: ignore[index,union-attr]
+        with self.assertRaisesRegex(validator.InventoryError, "review contract"):
+            validator.validate_inventory_bytes(encoded(inventory), require_review_model=True)
+
     def test_rejects_malformed_entries_and_json(self) -> None:
         inventory = valid_inventory()
         del inventory["models"][0]["context_window_tokens"]  # type: ignore[index,union-attr]
@@ -114,15 +122,6 @@ class ModelInventoryTests(unittest.TestCase):
             'python3 "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_model_inventory.py"',
             workflow,
         )
-
-    def test_maintenance_guidance_records_experimental_processing_boundary(self) -> None:
-        guidance = (ROOT / ".github/workflows/pk-stack-upstream-maintenance.md").read_text()
-        self.assertIn("high-risk scheduled semantic-maintenance", guidance)
-        self.assertIn("Kiro currently marks Sol experimental", guidance)
-        self.assertIn("US-served regardless of profile geography", guidance)
-        self.assertIn("commercial AWS Regions worldwide", guidance)
-        self.assertIn("makes no claim about storage location", guidance)
-
 
 if __name__ == "__main__":
     unittest.main()

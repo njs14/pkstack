@@ -26,7 +26,7 @@ function sourceBindingFromBranch(headRef, policy) {
   assert(typeof headRef === "string" && headRef.startsWith(prefix),
     "maintenance candidate branch is outside the configured prefix");
   const suffix = headRef.slice(prefix.length);
-  const match = /^(kiro|copilot)-([1-9][0-9]*)$/.exec(suffix);
+  const match = /^(kiro)-([1-9][0-9]*)$/.exec(suffix);
   assert(match, "maintenance candidate branch does not bind one provider and source run id");
   const runId = Number(match[2]);
   assert(Number.isSafeInteger(runId), "maintenance source run id exceeds JavaScript precision");

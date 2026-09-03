@@ -28,11 +28,6 @@ const policy = {
       provider: "kiro",
       path: ".github/workflows/pk-stack-upstream-maintenance-kiro.yml",
     },
-    {
-      name: "PK-Stack Upstream Maintenance (Copilot fallback)",
-      provider: "copilot",
-      path: ".github/workflows/pk-stack-upstream-maintenance.lock.yml",
-    },
   ],
   pull_request: {
     author_id: 41898282,
@@ -153,21 +148,6 @@ test("resolves policy name, provider, workflow path, run id, and exact branch to
   });
 });
 
-test("read-only Copilot fallback cannot adopt a Kiro candidate branch", () => {
-  const fallback = sourceRun({
-    name: "PK-Stack Upstream Maintenance (Copilot fallback)",
-    path: ".github/workflows/pk-stack-upstream-maintenance.lock.yml@main",
-  });
-  assert.throws(
-    () => resolveSourceCandidate([pull()], fallback),
-    /exact successful default-branch authority/,
-  );
-  assert.throws(
-    () => resolveSourceCandidate([pull()], fallback, null),
-    /not bound to this exact base, provider, and source run/,
-  );
-});
-
 test("one Kiro source run cannot adopt another Kiro run's branch", () => {
   const otherRun = sourceRun({ id: SOURCE_RUN_ID + 1 });
   assert.throws(
@@ -176,10 +156,9 @@ test("one Kiro source run cannot adopt another Kiro run's branch", () => {
   );
 });
 
-test("candidate gate is not triggered by the read-only Copilot fallback", () => {
+test("candidate gate is triggered only by Kiro maintenance", () => {
   const trigger = candidateWorkflow.split("\npermissions:", 1)[0];
   assert.match(trigger, /- PK-Stack Upstream Maintenance \(Kiro\)/);
-  assert.doesNotMatch(trigger, /Copilot fallback/);
 });
 
 test("candidate workflow carries the resolved source authority through merge", () => {
@@ -231,7 +210,7 @@ test("skips only a fresh active candidate run bound to exact bot, base, head, an
   });
 });
 
-for (const scenario of ["Fable rejection", "Claude credential outage", "candidate-test failure"]) {
+for (const scenario of ["peer-review rejection", "Kiro outage", "candidate-test failure"]) {
   test(`${scenario} terminal failure closes the exact owned PR for cadence recovery`, async () => {
     const { result } = await classify([pull()], {
       runs: [candidateRun({ status: "completed", conclusion: "failure" })],

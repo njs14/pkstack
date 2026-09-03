@@ -185,11 +185,6 @@ set +e
   # Only immutable base code is executable here. The candidate is constrained
   # to Markdown/JSON data, Kiro runtime state is gone, and no token is exported.
   without_finalizer_git_metadata python3 .github/scripts/test_pk_stack_maintenance_guard.py
-  uv lock --check
-  env PYTHONDONTWRITEBYTECODE=1 \
-    uv run --locked --no-config --no-sync ruff check .
-  without_finalizer_git_metadata env PYTHONDONTWRITEBYTECODE=1 \
-    uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q
   (
     unset GIT_DIR GIT_COMMON_DIR GIT_WORK_TREE GIT_INDEX_FILE
     unset GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES

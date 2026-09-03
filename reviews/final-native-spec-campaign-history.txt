@@ -1,8 +1,0 @@
-/spec
-Fix a Bug
-Start a new spec called "document-export-partition-fix". Create the .kiro/specs/document-export-partition-fix/ directory and draft the initial requirements document.
-Continue to design phase
-Continue to tasks phase
-Not now
-/verified-goal Repair the deployed document-export tenant-key partition-separation regression in this isolated local Floci lab.
-/quit

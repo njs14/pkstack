@@ -90,7 +90,7 @@ boundary](kiro-v3-compatibility.md#models-effort-and-verification-methodology).
 ## Import the Power and start a primary surface
 
 The package root is an Agent Plugins Power (`plugin.json`) with manifest ID
-`pk-stack`. In the combined repository it is `powers/pk-stack/`. Import that local folder through
+`pk-stack`. In the source repository it is `powers/pk-stack/`. Import that local folder through
 Kiro's Power management interface and review it before enabling it. An earlier pre-release
 import under `pstack-kiro` may remain a separate Power and should be removed
 through that interface before importing `pk-stack`. The project does not
@@ -383,7 +383,7 @@ especially when it comes from repository-controlled feature metadata.
 
 ## Check the pinned upstreams
 
-In the combined PK-Stack source repository, requested or scheduled maintenance stays in the
+In the PK-Stack source repository, requested or scheduled maintenance stays in the
 current session through `/maintain-pk-stack`. Its deterministic first predicate is:
 
 ```bash

@@ -34,7 +34,7 @@ migration:
 | Expansion | **Poteto Kiro** |
 | Power manifest identifier | `pk-stack` |
 | Python distribution and receipt manager | `pstack-kiro` |
-| Combined repository | `pk-stack` |
+| Source repository | `pk-stack` |
 | Python package | `pstack_kiro` |
 | Primary agent and delegated-agent prefix | `pstack` |
 | State/cache directory | `.pstack` |
@@ -62,8 +62,8 @@ That produces three deliberately separate interfaces:
 
 Prerequisites are Kiro IDE 1.x or Kiro CLI with v3, `uv`, and Python 3.11 or
 newer. Import this package directory as a Kiro Power and review it. In the
-combined PK-Stack repository the package directory is `powers/pk-stack/`; do
-not import its generated `.pstack/projectctl/` acceptance-fixture cache.
+PK-Stack source repository the package directory is `powers/pk-stack/`; do
+not import the repository root or its generated `.pstack/projectctl/` cache.
 
 In Kiro IDE, open the repository and use the chat panel or Agent Focus. In
 Kiro CLI, start an ordinary v3 chat:

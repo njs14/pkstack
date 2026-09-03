@@ -9,11 +9,9 @@ import io
 import json
 import os
 import re
-import subprocess
 import sys
 import tarfile
 import tempfile
-import textwrap
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -615,54 +613,21 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
             inventory_source.index('os.environ.pop("KIRO_API_KEY"'),
         )
 
-    def test_fable_readiness_runs_only_after_real_drift_and_preserves_candidate_gate(self) -> None:
+    def test_candidate_review_uses_only_kiro_hosted_claude(self) -> None:
         maintenance = (
             ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml"
         ).read_text()
         candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
-        readiness = re.search(
-            r"(?ms)^  reviewer_readiness:\n(?P<body>.*?)(?=^  maintain:)", maintenance
-        )
-        self.assertIsNotNone(readiness)
-        body = readiness.group("body")  # type: ignore[union-attr]
-        self.assertIn("needs: [plan, detect]", body)
-        self.assertIn("if: needs.detect.outputs.needs_maintenance == 'true'", body)
-        self.assertEqual(body.count("secrets.ANTHROPIC_API_KEY"), 1)
-        self.assertEqual(body.count("secrets.CLAUDE_CODE_OAUTH_TOKEN"), 1)
-        self.assertIn('-z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN"', body)
-        self.assertIn('-n "$ANTHROPIC_API_KEY" && -n "$CLAUDE_CODE_OAUTH_TOKEN"', body)
-        self.assertNotIn("KIRO_API_KEY", body)
-        self.assertIn("needs: [plan, detect, reviewer_readiness]", maintenance)
-        run_script = re.search(r"(?ms)^        run: \|\n(?P<body>.*)\Z", body)
-        self.assertIsNotNone(run_script)
-        script = textwrap.dedent(run_script.group("body"))  # type: ignore[union-attr]
-        for anthropic, oauth, expected in (
-            ("", "", 1),
-            ("one", "", 0),
-            ("", "one", 0),
-            ("one", "two", 1),
-        ):
-            completed = subprocess.run(
-                ["/bin/bash", "-c", script],
-                env={
-                    "ANTHROPIC_API_KEY": anthropic,
-                    "CLAUDE_CODE_OAUTH_TOKEN": oauth,
-                    "PATH": "/usr/bin:/bin",
-                },
-                capture_output=True,
-                check=False,
-            )
-            self.assertEqual(completed.returncode, expected)
-
-        candidate_gate = re.search(
-            r"(?ms)^      - name: Require one explicitly provisioned Claude CI credential\n"
-            r"(?P<body>.*?)(?=^      - name: Independent Fable)",
+        self.assertNotIn("reviewer_readiness:", maintenance)
+        self.assertIn("needs: [plan, detect]", maintenance)
+        self.assertIn("REVIEW_MODEL: claude-opus-5", candidate)
+        self.assertIn("REVIEW_EFFORT: xhigh", candidate)
+        self.assertIn("--agent pstack-ci-reviewer", candidate)
+        self.assertEqual(candidate.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 2)
+        self.assertNotRegex(
             candidate,
+            r"ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|OPENAI_API_KEY|XAI_API_KEY|copilot",
         )
-        self.assertIsNotNone(candidate_gate)
-        candidate_body = candidate_gate.group("body")  # type: ignore[union-attr]
-        self.assertIn('-z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN"', candidate_body)
-        self.assertIn('-n "$ANTHROPIC_API_KEY" && -n "$CLAUDE_CODE_OAUTH_TOKEN"', candidate_body)
 
     def test_all_active_cli_pin_copies_are_one_derived_tuple(self) -> None:
         version = canary.PINNED_CLI_VERSION
@@ -670,6 +635,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         url = canary.PINNED_CLI_URL
         sources = {
             "maintenance": ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml",
+            "candidate": ROOT / ".github/workflows/pk-stack-upstream-candidate.yml",
             "credential-smoke": ROOT / ".github/workflows/pk-stack-kiro-credential-smoke.yml",
             "permission-smoke": ROOT / ".github/workflows/pk-stack-kiro-permission-smoke.yml",
             "runtime-setup": ROOT / ".github/scripts/prepare_kiro_maintenance_runtime.sh",
@@ -677,7 +643,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         }
         texts = {label: path.read_text() for label, path in sources.items()}
         assert_pin_contract(texts)
-        for label in ("maintenance", "credential-smoke", "permission-smoke"):
+        for label in ("maintenance", "candidate", "credential-smoke", "permission-smoke"):
             with self.subTest(label=label):
                 self.assertEqual(
                     set(

@@ -228,41 +228,12 @@ jobs:
           retention-days: 1
           compression-level: 9
 
-  reviewer_readiness:
-    needs: [plan, detect]
-    if: needs.detect.outputs.needs_maintenance == 'true'
-    runs-on: ubuntu-24.04
-    permissions: {}
-    steps:
-      - name: Harden runner networking
-        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
-        with:
-          egress-policy: block
-          disable-sudo: true
-          allowed-endpoints: |
-            results-receiver.actions.githubusercontent.com:443
-      - name: Fail fast unless exactly one Fable credential is configured
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ -z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then
-            echo 'Fable review is mandatory; provision ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN before spending Kiro credits.' >&2
-            exit 1
-          fi
-          if [[ -n "$ANTHROPIC_API_KEY" && -n "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then
-            echo 'Configure exactly one Claude CI credential so reviewer authentication is unambiguous.' >&2
-            exit 1
-          fi
-
   # This high-risk scheduled lane deliberately uses experimental Sol/max. Each
   # credential-bearing repair invocation revalidates the live model inventory
   # before a model turn and fails closed rather than substituting another model.
   maintain:
-    needs: [plan, detect, reviewer_readiness]
-    if: needs.reviewer_readiness.result == 'success' && needs.detect.outputs.needs_maintenance == 'true'
+    needs: [plan, detect]
+    if: needs.detect.outputs.needs_maintenance == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     permissions:
@@ -345,21 +316,21 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: |
-            uv.lock
-            powers/pk-stack/uv.lock
+          cache-dependency-glob: powers/pk-stack/uv.lock
       - name: Materialize locked environments and trusted scripts
         run: |
           set -euo pipefail
           mkdir -p "$TRUSTED_ROOT"
           git archive "$BASE_SHA" \
+            Wiki/features/pk-stack-upstream-maintenance.md \
             .pstack/projectctl \
+            .github/fixtures \
             .github/pk-stack-maintenance-policy.json \
             .github/scripts \
             .github/workflows \
-            .kiro/agents/pstack-maintainer.json \
+            .kiro/agents \
+            reviews \
             | tar -x -C "$TRUSTED_ROOT"
-          uv sync --quiet --locked --no-config
           uv sync --quiet --locked --all-groups --project powers/pk-stack
           uv sync --quiet --locked --no-config --project "$TRUSTED_PROJECTCTL_ROOT"
           python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH"

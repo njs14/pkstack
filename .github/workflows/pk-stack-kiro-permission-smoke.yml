@@ -89,11 +89,11 @@ jobs:
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            15572aafc98c55bc38a4d792ef5d847effc300fd1d7ab2ccc1bcff9cf68f4ee6 \
+            68ed07338a1dfb0466aad7616b06707bec2a3c400f68be781109e79e4c386345 \
             "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            be5dd7ee6c329870706c625ab2a785323ab64340c22b1ec11bc50c41e1242669 \
+            82d9ae9ee035c9c86ec0e07589483a1bfc6d5141234472ca0937044f612bf972 \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
           python3 - "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
           import json
@@ -208,9 +208,17 @@ jobs:
             local case_id="$1"
             local case_root="$SMOKE_ROOT/cases/$case_id"
             test ! -e "$case_root"
-            mkdir -m 0700 -p \
+            mkdir -p \
               "$case_root/workspace" \
               "$case_root/user-home" \
+              "$case_root/kiro-home/settings" \
+              "$case_root/runtime" \
+              "$case_root/logs"
+            chmod 0700 \
+              "$case_root" \
+              "$case_root/workspace" \
+              "$case_root/user-home" \
+              "$case_root/kiro-home" \
               "$case_root/kiro-home/settings" \
               "$case_root/runtime" \
               "$case_root/logs"
@@ -224,7 +232,7 @@ jobs:
             test ! -e "$case_root/user-home/.kiro"
             test ! -e "$case_root/kiro-home/settings/mcp.json"
             printf '%s  %s\n' \
-              15572aafc98c55bc38a4d792ef5d847effc300fd1d7ab2ccc1bcff9cf68f4ee6 \
+              68ed07338a1dfb0466aad7616b06707bec2a3c400f68be781109e79e4c386345 \
               "$case_root/workspace/.kiro/agents/pk-stack-permission-fixture.json" \
               | sha256sum --check
           }

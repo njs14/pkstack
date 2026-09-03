@@ -382,7 +382,14 @@ def _validate_cloud_config_group(group: list[tuple[int, dict[str, Any]]]) -> Non
             raise StreamError("Kiro failed cloud-config terminal shape is invalid")
         _bounded_text(terminal.get("rawOutput"), label="cloud-config failure")
     elif status == "completed":
-        if set(terminal) != {"sessionUpdate", "status", "toolCallId"}:
+        base_keys = {"sessionUpdate", "status", "toolCallId"}
+        if set(terminal) == base_keys:
+            return
+        if (
+            set(terminal) != base_keys | {"rawOutput"}
+            or terminal.get("rawOutput")
+            != {"kind": "notEnabled", "retracted": False}
+        ):
             raise StreamError("Kiro completed cloud-config terminal shape is invalid")
     else:
         raise StreamError("Kiro cloud-config bootstrap did not reach an allowed terminal state")

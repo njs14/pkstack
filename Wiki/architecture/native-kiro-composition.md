@@ -38,5 +38,5 @@ its Task Runner and does not imply the local IDE/CLI same-session transition.
   visible and why canonical `okn` remains the KNOW runtime.
 - The [context-depth runbook](../operations/context-depth.md) defines when an agent may expand from
   a feature record into broader knowledge.
-- The [document-export feature](../features/document-export.md) demonstrates the feature-to-knowledge
-  connection used by the acceptance fixture.
+- The separate private `njs14/pk-stack-floci-lab` repository exercises this boundary against a
+  deployed application without placing demo code in the Power repository.

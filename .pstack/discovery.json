@@ -10,6 +10,7 @@
   "kiro": {
     "agents": [
       ".kiro/agents/pstack-architect.json",
+      ".kiro/agents/pstack-ci-reviewer.json",
       ".kiro/agents/pstack-maintainer.json",
       ".kiro/agents/pstack-reviewer.json",
       ".kiro/agents/pstack-verifier.json",
@@ -92,15 +93,9 @@
     ],
     "wiki": true
   },
-  "languages": {
-    "python": [
-      "pyproject.toml"
-    ]
-  },
+  "languages": {},
   "root": ".",
-  "tests": [
-    "tests"
-  ],
+  "tests": [],
   "verification_surfaces": [
     ".github/workflows",
     "Wiki/features"

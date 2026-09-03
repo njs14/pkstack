@@ -289,7 +289,7 @@ Kiro agent session.
 ### Custom agents
 
 PK-Stack uses JSON profiles because all four Power profiles validate with the
-installed `kiro-cli agent validate`; the combined repository also has the
+installed `kiro-cli agent validate`; the source repository also has the
 separately constrained `pstack-maintainer` CI profile. Every repository
 workspace profile must both validate and appear in `agent list`. Each Power
 profile explicitly declares:
