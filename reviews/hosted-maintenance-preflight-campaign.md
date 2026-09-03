@@ -48,6 +48,8 @@ GitHub recorded the exact source-job conclusions as follows:
 | `maintain` | `skipped` |
 | `publish` | `skipped` |
 
+Taken alone, this manual dispatch is not cron-cadence proof; the separate natural run below is.
+
 ## Natural scheduled execution
 
 [GitHub Actions run 33761288363](https://github.com/njs14/pk-stack/actions/runs/33761288363)
@@ -109,8 +111,9 @@ acceptance/finalization, candidate publication, Fable review, or exact-SHA merge
 
 The current workflow also requires
 `needs.reviewer_readiness.result == 'success'` before `maintain`. That explicit success condition
-postdates the first manual target and was exercised by the scheduled run: readiness failed and both
-downstream source-workflow jobs were skipped.
+postdates the first manual target; at that immutable manual checkpoint it has not yet run in hosted Actions.
+The later scheduled run exercised it: readiness failed and both downstream source-workflow jobs
+were skipped.
 
 The one external prerequisite is one valid CI-capable Fable credential configured under exactly one
 accepted repository-secret name. Readiness checks only presence and exclusivity; validity is proven
@@ -123,9 +126,11 @@ trigger-only cadence proof, but a successful scheduled repair/review/merge lifec
 
 Both downloaded detector payloads were byte-identical: 29,170 bytes with SHA-256
 `311bc1cc1e260356dcfde329748be875d623177c73ef00b29606c529e052b3b3`; each GitHub artifact archive
-reported 4,842 bytes. The scheduled payload was replayed through the guard from a clean archive of
-its exact target commit and passed. The replay console result is recorded here, but a standalone
-machine-readable replay artifact is not committed.
+reported 4,842 bytes. For the first manual run, no machine-readable validator result was retained,
+so this record does not claim durable local validation proof for that run. The scheduled payload
+was replayed through the guard from a clean archive of its exact target commit and passed. The
+replay console result is recorded here, but a standalone machine-readable scheduled-replay artifact
+is not committed.
 
 The machine-readable companion is
 [`hosted-maintenance-preflight-campaign.json`](hosted-maintenance-preflight-campaign.json).

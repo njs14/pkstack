@@ -154,7 +154,8 @@
   },
   "post_run_hardening": {
     "explicit_reviewer_success_condition": "needs.reviewer_readiness.result == 'success'",
-    "hosted_execution_observed": true,
+    "hosted_execution_observed": false,
+    "scheduled_execution_observed": true,
     "observed_on_run": 33761288363
   },
   "external_prerequisite": "Configure one valid CI credential under exactly one accepted repository-secret name: CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY.",
