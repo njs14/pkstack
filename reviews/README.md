@@ -60,6 +60,15 @@ The canary's bounded record is in
 `7ce09e3`; the retained failed-safe precursor documents why the initial executable-member bound
 was raised and then pinned to the reviewed archive's exact two member sizes.
 
+The bounded [KiroCrew Nightly smoke record](kirocrew-nightly-smoke-campaign.md) and its
+[JSON companion](kirocrew-nightly-smoke-campaign.json) cover the signed Sep. 3 Nightly package,
+`--version`, `--help`, and `doctor`. Those checks passed, but invoking the packaged CLI rewrote
+bundled `.pyc` files and invalidated the post-launch signed seal. The mutated copy was retained in
+Trash and a fresh exact, signature-verified bundle was restored without another invocation. This
+is external command-surface compatibility evidence only: no PK-Stack workflow, Crew end-to-end,
+or release gate was exercised, and Crew's configured ACP provider does not become PK-Stack's
+default entrypoint.
+
 The bounded [hosted maintenance preflight record](hosted-maintenance-preflight-campaign.md) and its
 [JSON companion](hosted-maintenance-preflight-campaign.json) cover maintenance
 [run 33743730700](https://github.com/njs14/pk-stack/actions/runs/33743730700) on exact commit
@@ -75,14 +84,24 @@ The focused [Fable reviewer-readiness peer record](fable-fbl046-peer-review.md) 
 [JSON companion](fable-fbl046-peer-review.json) then preserve the independent review of the
 explicit success gate. Fable closed the execution-order premise but found a valid YAML
 anchor/alias route that expanded four textual Kiro bindings into five effective secret scopes.
-`FBL-046-R1` is implemented locally with parser-aware static regressions; a fresh immutable Fable
-re-review is required before that focused criterion closes. This remains separate from final
-24-area release acceptance.
+`FBL-046-R1` reached remediation commit `f6e3440c6a6c6faab1030501baa3c193535207e1`, but neither
+subsequent re-review attempt closes the criterion: the first report became inadmissible after a
+Fable-to-Opus model fallback, and the second remained Fable-only but produced no report before the
+five-hour session cap. That `f6e3440` target carried 67 passing guard tests. The three actionable
+LOW defenses then passed 69 of 69 tests in an intermediate local state. A subsequent Codex
+read-only conformance review found `FBL-046-R2-C1`, a HIGH finding with two actionlint-valid YAML
+quote-decoding false accepts. The current unnamed candidate adds the stateful quote prepass and
+passes 70 of 70 direct guard tests plus the static checks without changing the production
+workflow. A post-fix auxiliary re-review was classifier-blocked and produced no verdict or
+acceptance value. No new commit or tree is claimed; the former 64-test history remains preserved,
+and the parent-tree observation requires only its existing disclosure. Focused Fable acceptance
+remains pending, separately from final 24-area release acceptance.
 
-Release therefore still requires one successful hosted maintenance lifecycle, the final native
-Spec-to-current-session verified-goal campaign on its exact candidate, Fable 5.1 `xhigh`
-acceptance with zero material unresolved findings, and the Grok 4.6 `xhigh` sweep followed by
-Fable reacceptance if that sweep drives a material change.
+Release therefore still requires one successful hosted maintenance lifecycle; every deterministic
+static, packaging, policy, and regression gate plus canonical OKF/OKN on the final functional tree;
+the final native Spec-to-current-session verified-goal campaign on its exact candidate; Fable 5.1
+`xhigh` acceptance with zero material unresolved findings; and the Grok 4.6 `xhigh` sweep followed
+by Fable reacceptance if that sweep drives a material change.
 
 Committed review Markdown is normalized output plus execution metadata. Raw model output is kept
 outside the repository only when a report explicitly names its location and SHA-256; otherwise it

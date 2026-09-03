@@ -138,8 +138,9 @@ The authorized repository has been created and verified private. Hosted credenti
 exact-permission-matrix, and read-only runtime-canary proofs now pass. The first authenticated
 [maintenance preflight](reviews/hosted-maintenance-preflight-campaign.md) detected real
 `okf-skills` drift and then stopped before Kiro or publication because the required Fable Actions
-credential is not yet configured. One successful maintenance lifecycle, the final native-Spec
-campaign, and final Fable/Grok council acceptance remain open.
+credential is not yet configured. One successful maintenance lifecycle, final exact-tree
+deterministic and canonical OKF/OKN reproof, the final native-Spec campaign, and final Fable/Grok
+council acceptance remain open.
 
 ## Run the Floci acceptance fixture
 
@@ -201,5 +202,6 @@ for its own older executable commit, not for `8806fa6`.
 See [architecture](docs/architecture.md), [test strategy](docs/test-strategy.md), and the full
 [validation report](docs/validation-report.md). The repository exists and is private, and its
 credential, permission, canary, and fail-closed maintenance-entry proofs are retained. A successful
-maintenance lifecycle, final native-Spec current-session campaign, independent Fable acceptance,
-and final Grok sweep remain gated until their own evidence exists.
+maintenance lifecycle, final exact-tree deterministic and canonical OKF/OKN reproof, final
+native-Spec current-session campaign, independent Fable acceptance, and final Grok sweep remain
+gated until their own evidence exists.

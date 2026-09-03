@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 3,
   "scope": "focused reviewer-readiness peer review, not final release acceptance",
   "reviewed_target": {
     "commit": "347d461a097f5d26e084f10958641fc4aa70ce07",
@@ -47,7 +47,7 @@
     {
       "id": "FBL-046-R1",
       "severity": "MEDIUM",
-      "status": "remediated locally; immutable Fable re-review pending",
+      "status": "R1 remediation and three LOW follow-ups implemented locally; subsequent R2-C1 implemented on current unnamed candidate; immutable Fable re-review pending",
       "title": "YAML alias can multiply or relocate KIRO_API_KEY scope",
       "former_guard_tests_passed": 64,
       "effective_secret_scopes": 5,
@@ -62,5 +62,287 @@
       ]
     }
   ],
+  "remediation_target": {
+    "commit": "f6e3440c6a6c6faab1030501baa3c193535207e1",
+    "tree": "f8f28bc5142e6ac67c06dfe0f7a60a9b9fdb752d",
+    "parent": "347d461a097f5d26e084f10958641fc4aa70ce07",
+    "archive_sha256": "9c9ac3fe3dd48b71edbaf0055423a469e0de1ad9475e102b2597a68df76dfbaf",
+    "guard_tests_passed": 67,
+    "guard_tests_total": 67
+  },
+  "remediation_re_review_attempts": [
+    {
+      "attempt": 1,
+      "status": "rejected_mixed_model",
+      "admissible_fable_acceptance_evidence": false,
+      "snapshot": "/private/tmp/pk-stack-fable-fbl046r1-snapshot.lmA09s",
+      "controls_directory": "/private/tmp/pk-stack-fable-fbl046r1-controls.ZBGxZp",
+      "reviewer": {
+        "client": "Claude Code 2.1.258",
+        "requested_model": "claude-fable-5-1",
+        "requested_effort": "xhigh",
+        "initial_model": "claude-fable-5-1",
+        "assistant_events": {
+          "claude-fable-5-1": 44,
+          "claude-opus-4-8": 13
+        },
+        "model_usage": [
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "output_tokens": 19,
+            "assistant_events": 0
+          },
+          {
+            "model": "claude-fable-5-1",
+            "output_tokens": 7052,
+            "assistant_events": 44
+          },
+          {
+            "model": "claude-opus-5",
+            "output_tokens": 22738,
+            "assistant_events": 0
+          },
+          {
+            "model": "claude-opus-4-8",
+            "output_tokens": 5852,
+            "assistant_events": 13
+          }
+        ],
+        "fallback": {
+          "event": "model_refusal_fallback",
+          "trigger": "refusal",
+          "category": "cyber",
+          "original_model": "claude-fable-5-1",
+          "fallback_model": "claude-opus-4-8"
+        },
+        "tools": {
+          "Read": 22,
+          "Grep": 19
+        },
+        "forbidden_activity_observed": false,
+        "permission_denials": 0
+      },
+      "terminal": {
+        "result_subtype": "success",
+        "is_error": false,
+        "stop_reason": "end_turn",
+        "terminal_reason": "completed",
+        "stderr_empty": true
+      },
+      "artifacts": {
+        "contract": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-controls.ZBGxZp/system-prompt.md",
+          "sha256": "0030cf3a4129e380e23e069ec5f5ff41dd9c585b78d14154da613cb313b4b137"
+        },
+        "invocation": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-controls.ZBGxZp/invocation.txt",
+          "sha256": "b90f23969d0c3bbd0ce3c91de7169b5bd60acdda5608de92fc0853a6b8a5bf66"
+        },
+        "envelope": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-controls.ZBGxZp/fable-envelope.json",
+          "sha256": "250b9d471be73fcdae961d47d1ef5d6604fa4a9883304dd10581dc6ebba81d33"
+        },
+        "rejected_report": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-controls.ZBGxZp/rejected-mixed-model-report.md",
+          "sha256": "15171b9ece9eed7759f24c8acf1fcb6921d85d8d1231e09fa1decda4f671a910"
+        },
+        "stderr": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-controls.ZBGxZp/fable-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "rejected_report_claim": {
+        "verdict": "CLEAN_FOR_NEXT_STEP",
+        "material_unresolved": 0,
+        "acceptance_value": false,
+        "reason": "the final report was authored by claude-opus-4-8 after model_refusal_fallback"
+      },
+      "material_advisory_findings": [],
+      "low_advisory_findings": [
+        {
+          "id": "FBL-046-R2-L1",
+          "disposition": "remediated locally on next candidate; immutable review pending",
+          "summary": "align the YAML indirection name model with its stated contract"
+        },
+        {
+          "id": "FBL-046-R2-L2",
+          "disposition": "remediated locally on next candidate; immutable review pending",
+          "summary": "make whole-secrets-context confinement self-contained in the structural scanner"
+        },
+        {
+          "id": "FBL-046-R2-L3",
+          "disposition": "remediated locally on next candidate; immutable review pending",
+          "summary": "make the scanner carry exact execution-order values, not only property names"
+        },
+        {
+          "id": "FBL-046-R2-L4",
+          "disposition": "existing disclosure is sufficient",
+          "summary": "child-commit evidence explicitly identifies its reviewed parent tree"
+        }
+      ]
+    },
+    {
+      "attempt": 2,
+      "status": "incomplete_session_limit",
+      "admissible_fable_acceptance_evidence": false,
+      "snapshot": "/private/tmp/pk-stack-fable-fbl046r1-retry-snapshot.dPPJay",
+      "controls_directory": "/private/tmp/pk-stack-fable-fbl046r1-retry-controls.9pPObb",
+      "reviewer": {
+        "client": "Claude Code 2.1.258",
+        "requested_model": "claude-fable-5-1",
+        "requested_effort": "xhigh",
+        "initial_model": "claude-fable-5-1",
+        "assistant_events": {
+          "claude-fable-5-1": 25,
+          "synthetic_terminal_error": 1
+        },
+        "model_usage": [
+          {
+            "model": "claude-haiku-4-5-20251001",
+            "output_tokens": 14,
+            "assistant_events": 0
+          },
+          {
+            "model": "claude-fable-5-1",
+            "output_tokens": 2551,
+            "assistant_events": 25
+          }
+        ],
+        "tools": {
+          "Read": 12,
+          "Glob": 3,
+          "Grep": 2
+        },
+        "forbidden_activity_observed": false,
+        "permission_denials": 0,
+        "opus_usage_observed": false
+      },
+      "terminal": {
+        "result_subtype": "success",
+        "is_error": true,
+        "stop_reason": "stop_sequence",
+        "terminal_reason": "api_error",
+        "message": "You've hit your session limit · resets 10:10am (America/New_York)",
+        "rate_limit_type": "five_hour",
+        "rate_limit_status": "rejected",
+        "reset_epoch": 1788444600,
+        "stderr_empty": true
+      },
+      "artifacts": {
+        "contract": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-retry-controls.9pPObb/system-prompt.md",
+          "sha256": "0a086743b8fb9c5b76ad08e83f6b8e6c99cc249c5550148d4f21b95e4d109f60"
+        },
+        "invocation": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-retry-controls.9pPObb/invocation.txt",
+          "sha256": "73398d8c5e043909b4e321e738adfa3c4ec251e950f65a8feb0c49e947ca6cbb"
+        },
+        "envelope": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-retry-controls.9pPObb/fable-envelope.json",
+          "sha256": "8e60fd3f60f3eb41b39e11ccbb2abfb40f5bdf9b398d5b9ee4630eb212c46900"
+        },
+        "stderr": {
+          "path": "/private/tmp/pk-stack-fable-fbl046r1-retry-controls.9pPObb/fable-stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "report_generated": false,
+      "acceptance_value": false
+    }
+  ],
+  "parent_conformance_findings": [
+    {
+      "id": "FBL-046-R2-C1",
+      "severity": "HIGH",
+      "source": "Codex read-only conformance review",
+      "title": "YAML quote decoding can synthesize a secret expression after raw scanning",
+      "status": "implemented locally on current unnamed candidate; immutable Fable review pending",
+      "false_accepts": [
+        {
+          "yaml_source": "\"\\u0024{{ toJSON(se\\u0063rets) }}\"",
+          "decoded_scalar": "${{ toJSON(secrets) }}",
+          "actionlint_valid": true,
+          "raw_scanner_before_fix": "accepted",
+          "post_fix_parent_replay": "rejected"
+        },
+        {
+          "yaml_source": "'${{ ''}}'' && toJSON(secrets) }}'",
+          "decoded_scalar": "${{ '}}' && toJSON(secrets) }}",
+          "actionlint_valid": true,
+          "raw_scanner_before_fix": "accepted",
+          "post_fix_parent_replay": "rejected"
+        }
+      ],
+      "acceptance": [
+        "reject scalar token-changing escape forms without a general YAML loader",
+        "retain both exact actionlint-valid reproductions as regressions",
+        "preserve inert occurrences in comments, plain scalars, and block scalars",
+        "pass the complete direct guard suite and static checks",
+        "obtain a fresh Fable 5.1 xhigh verdict on an immutable candidate"
+      ],
+      "implementation": {
+        "control": "stateful non-block YAML quote prepass",
+        "rejects": [
+          "double-quoted backslash escapes",
+          "single-quoted doubled-quote escapes"
+        ],
+        "quote_state_across_lines": true,
+        "general_yaml_loader_added": false,
+        "inert_forms_preserved": [
+          "comments",
+          "plain scalars",
+          "block scalars"
+        ]
+      }
+    }
+  ],
+  "next_immutable_review_prerequisites": {
+    "actionable_low_items": [
+      "FBL-046-R2-L1",
+      "FBL-046-R2-L2",
+      "FBL-046-R2-L3"
+    ],
+    "material_conformance_items": [
+      "FBL-046-R2-C1"
+    ],
+    "disclosure_only_item": "FBL-046-R2-L4",
+    "status": "implemented; immutable review pending"
+  },
+  "post_hardening_intermediate": {
+    "evidence_role": "intermediate local state after three LOW remediations and before FBL-046-R2-C1",
+    "identity_status": "no commit or tree assigned",
+    "guard_tests_passed": 69,
+    "guard_tests_total": 69,
+    "validation": {
+      "py_compile": "passed",
+      "ruff": "passed",
+      "actionlint": "passed",
+      "diff_check": "passed"
+    },
+    "production_workflow_changed": false
+  },
+  "current_local_candidate": {
+    "evidence_role": "current local state after FBL-046-R2-C1 remediation",
+    "identity_status": "commit and tree not yet assigned",
+    "guard_tests_passed": 70,
+    "guard_tests_total": 70,
+    "parent_replayed_exact_false_accepts": 2,
+    "parent_replayed_exact_rejects": 2,
+    "validation": {
+      "py_compile": "passed",
+      "ruff": "passed",
+      "actionlint": "passed",
+      "diff_check": "passed"
+    },
+    "production_workflow_changed": false
+  },
+  "post_fix_auxiliary_re_review": {
+    "status": "classifier_blocked",
+    "report_generated": false,
+    "verdict": null,
+    "acceptance_value": false,
+    "disposition": "not approval"
+  },
+  "focused_fable_acceptance": "pending",
   "final_release_acceptance": false
 }

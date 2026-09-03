@@ -69,6 +69,33 @@ MAINTENANCE_JOB_PROPERTIES = {
     ),
     "publish": ("needs", "if", "runs-on", "permissions", "steps"),
 }
+MAINTENANCE_JOB_CONTROL_FLOW = {
+    "plan": {"needs": None, "if": None},
+    "detect": {
+        "needs": "plan",
+        "if": "needs.plan.outputs.should_run == 'true'",
+    },
+    "reviewer_readiness": {
+        "needs": "[plan, detect]",
+        "if": "needs.detect.outputs.needs_maintenance == 'true'",
+    },
+    "maintain": {
+        "needs": "[plan, detect, reviewer_readiness]",
+        "if": (
+            "needs.reviewer_readiness.result == 'success' "
+            "&& needs.detect.outputs.needs_maintenance == 'true'"
+        ),
+    },
+    "publish": {
+        "needs": "[plan, detect, maintain]",
+        "if": "needs.maintain.outputs.has_changes == 'true'",
+    },
+}
+EXPECTED_SECRET_CONTEXT_EXPRESSIONS = (
+    "${{ secrets.ANTHROPIC_API_KEY }}",
+    "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}",
+    *("${{ secrets.KIRO_API_KEY }}",) * 4,
+)
 REVIEWER_READINESS_STEPS = (
     ("Harden runner networking", ("uses", "with")),
     (
@@ -233,12 +260,25 @@ def _yaml_structural_lines(source: str) -> list[_YamlLine]:
     return result
 
 
+def _yaml_node_can_start_at(text: str, index: int) -> bool:
+    """Return whether ``index`` can begin a YAML node in the current line."""
+
+    prefix = text[:index].rstrip()
+    if not prefix or prefix in {"---", "..."}:
+        return True
+    if prefix[-1] in ":[{,":
+        return True
+    if prefix[-1] not in "-?":
+        return False
+    before_indicator = prefix[:-1].rstrip()
+    return not before_indicator or before_indicator[-1] in ":[{,"
+
+
 def _reject_yaml_indirection(lines: list[_YamlLine]) -> None:
     """Reject YAML features that can synthesize mappings outside static review."""
 
     merge_key = re.compile(r"(?:^|[\s\[{,?-])<<\s*:")
-    indicator_boundary = "[{,:?-"
-    indicator_terminators = " \t[]{} ,&*!"
+
     for line in lines:
         if line.block_scalar or not line.code.strip():
             continue
@@ -250,17 +290,286 @@ def _reject_yaml_indirection(lines: list[_YamlLine]) -> None:
         if merge_key.search(line.code):
             raise WorkflowContractError(f"line {line.number}: YAML merge keys are forbidden")
         for index, character in enumerate(line.code):
-            if character not in {"&", "*"}:
+            inside_expression = line.code.rfind("${{", 0, index) > line.code.rfind(
+                "}}", 0, index
+            )
+            if (
+                character not in {"&", "*", "!"}
+                or inside_expression
+                or not _yaml_node_can_start_at(line.code, index)
+            ):
                 continue
-            previous = line.code[index - 1] if index else ""
             following = line.code[index + 1] if index + 1 < len(line.code) else ""
-            at_boundary = index == 0 or previous.isspace() or previous in indicator_boundary
-            has_name = bool(following) and following not in indicator_terminators
-            if at_boundary and has_name:
-                construct = "anchor" if character == "&" else "alias"
+            if character in {"&", "*"} and (
+                not following or following.isspace() or following in "[]{},"
+            ):
+                continue
+            construct = {"&": "anchor", "*": "alias", "!": "tag"}[character]
+            raise WorkflowContractError(
+                f"line {line.number}: YAML {construct} syntax is forbidden"
+            )
+
+
+def _reject_yaml_scalar_decoding_escapes(lines: list[_YamlLine]) -> None:
+    """Reject YAML quote escapes that can synthesize expression tokens."""
+
+    yaml_quote: str | None = None
+    github_expression = False
+    github_quote = False
+    for line in lines:
+        if line.block_scalar and yaml_quote is None and not github_expression:
+            continue
+        index = 0
+        while index < len(line.raw):
+            character = line.raw[index]
+            if yaml_quote == '"':
+                if character == "\\":
+                    raise WorkflowContractError(
+                        f"line {line.number}: YAML double-quoted backslash escapes are forbidden"
+                    )
+                if character == '"':
+                    yaml_quote = None
+                index += 1
+                continue
+            if yaml_quote == "'":
+                if character == "'":
+                    if index + 1 < len(line.raw) and line.raw[index + 1] == "'":
+                        raise WorkflowContractError(
+                            f"line {line.number}: YAML doubled single-quote escapes are forbidden"
+                        )
+                    yaml_quote = None
+                index += 1
+                continue
+
+            if github_expression:
+                if github_quote:
+                    if character == "'":
+                        if (
+                            index + 1 < len(line.raw)
+                            and line.raw[index + 1] == "'"
+                        ):
+                            index += 2
+                            continue
+                        github_quote = False
+                    index += 1
+                    continue
+                if character == "'":
+                    github_quote = True
+                    index += 1
+                    continue
+                if line.raw.startswith("}}", index):
+                    github_expression = False
+                    index += 2
+                    continue
+                index += 1
+                continue
+
+            if character == "#" and (
+                index == 0 or line.raw[index - 1].isspace()
+            ):
+                break
+            if line.raw.startswith("${{", index):
+                github_expression = True
+                index += 3
+                continue
+            if character in {"'", '"'} and _yaml_node_can_start_at(
+                line.raw, index
+            ):
+                yaml_quote = character
+            index += 1
+
+
+def _mask_yaml_comment_only(line: str) -> str:
+    """Mask a YAML comment without hiding executable scalar contents."""
+
+    masked = list(line)
+    quote: str | None = None
+    index = 0
+    while index < len(line):
+        character = line[index]
+        if quote == "'":
+            if character == "'":
+                if index + 1 < len(line) and line[index + 1] == "'":
+                    index += 2
+                    continue
+                quote = None
+            index += 1
+            continue
+        if quote == '"':
+            if character == "\\":
+                index += 2
+                continue
+            if character == '"':
+                quote = None
+            index += 1
+            continue
+        quote_can_start = (
+            index == 0
+            or line[index - 1].isspace()
+            or line[index - 1] in "[{,:?-"
+        )
+        if character in {"'", '"'} and quote_can_start:
+            quote = character
+            index += 1
+            continue
+        if character == "#" and (index == 0 or line[index - 1].isspace()):
+            masked[index:] = " " * (len(line) - index)
+            break
+        index += 1
+    return "".join(masked)
+
+
+def _mask_expression_string_literals(expression: str) -> str:
+    """Mask strings inside a GitHub expression before context-token checks."""
+
+    masked = list(expression)
+    quote: str | None = None
+    index = 0
+    while index < len(expression):
+        character = expression[index]
+        if quote is None:
+            if character in {"'", '"'}:
+                quote = character
+                masked[index] = " "
+            index += 1
+            continue
+        masked[index] = " "
+        if quote == "'" and character == "'":
+            if index + 1 < len(expression) and expression[index + 1] == "'":
+                masked[index + 1] = " "
+                index += 2
+                continue
+            quote = None
+        elif quote == '"' and character == "\\":
+            if index + 1 < len(expression):
+                masked[index + 1] = " "
+                index += 2
+                continue
+        elif quote == '"' and character == '"':
+            quote = None
+        index += 1
+    return "".join(masked)
+
+
+def _unwrap_yaml_scalar_quotes(value: str) -> str:
+    """Remove one YAML scalar quote layer before implicit-expression checks."""
+
+    if len(value) < 2 or value[0] != value[-1] or value[0] not in {"'", '"'}:
+        return value
+    inner = value[1:-1]
+    if value[0] == "'":
+        return inner.replace("''", "'")
+    return inner
+
+
+def _github_expressions(text: str) -> tuple[str, ...]:
+    """Extract GitHub expressions while respecting strings in their bodies."""
+
+    expressions: list[str] = []
+    cursor = 0
+    while True:
+        start = text.find("${{", cursor)
+        if start < 0:
+            return tuple(expressions)
+        index = start + 3
+        quote: str | None = None
+        while index < len(text):
+            character = text[index]
+            if quote is None:
+                if character in {"'", '"'}:
+                    quote = character
+                    index += 1
+                    continue
+                if text.startswith("}}", index):
+                    end = index + 2
+                    expressions.append(text[start:end])
+                    cursor = end
+                    break
+                index += 1
+                continue
+            if quote == "'" and character == "'":
+                if index + 1 < len(text) and text[index + 1] == "'":
+                    index += 2
+                    continue
+                quote = None
+            elif quote == '"' and character == "\\":
+                index += 2
+                continue
+            elif quote == '"' and character == '"':
+                quote = None
+            index += 1
+        else:
+            return tuple(expressions)
+
+
+def _secret_context_expressions(lines: list[_YamlLine]) -> tuple[str, ...]:
+    """Return active GitHub expressions that access the secrets context."""
+
+    executable_text = "\n".join(
+        line.raw if line.block_scalar else _mask_yaml_comment_only(line.raw)
+        for line in lines
+    )
+    return tuple(
+        expression
+        for expression in _github_expressions(executable_text)
+        if re.search(
+            r"\bsecrets\b",
+            _mask_expression_string_literals(expression[3:-2]),
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _reject_implicit_if_secret_context(lines: list[_YamlLine]) -> None:
+    """Reject the secrets context in GitHub's implicit-expression ``if`` form."""
+
+    block_body: list[str] | None = None
+    for line in lines:
+        if block_body is not None:
+            if line.block_scalar:
+                block_body.append(line.raw)
+                continue
+            body = "\n".join(block_body)
+            if re.search(
+                r"\bsecrets\b",
+                _mask_expression_string_literals(body),
+                flags=re.IGNORECASE,
+            ):
                 raise WorkflowContractError(
-                    f"line {line.number}: YAML {construct} syntax is forbidden"
+                    "secrets context is forbidden in implicit if expressions"
                 )
+            block_body = None
+
+        if line.block_scalar or not line.code.strip():
+            continue
+        active = _mask_yaml_comment_only(line.raw)
+        match = re.match(r"^\s*(?:-\s+)?if:\s*(?P<body>.*?)\s*$", active)
+        if match is None:
+            continue
+        body = match.group("body")
+        if re.fullmatch(r"[|>](?:[1-9][+-]?|[+-][1-9]?|[+-])?", body):
+            block_body = []
+            continue
+        body = _unwrap_yaml_scalar_quotes(body)
+        if re.search(
+            r"\bsecrets\b",
+            _mask_expression_string_literals(body),
+            flags=re.IGNORECASE,
+        ):
+            raise WorkflowContractError(
+                f"line {line.number}: secrets context is forbidden in implicit if expressions"
+            )
+
+    if block_body is not None:
+        body = "\n".join(block_body)
+        if re.search(
+            r"\bsecrets\b",
+            _mask_expression_string_literals(body),
+            flags=re.IGNORECASE,
+        ):
+            raise WorkflowContractError(
+                "secrets context is forbidden in implicit if expressions"
+            )
 
 
 def _bare_mapping_keys(
@@ -283,6 +592,42 @@ def _bare_mapping_keys(
             )
         keys.append(match.group(1))
     return tuple(keys)
+
+
+def _require_job_control_flow(
+    lines: list[_YamlLine],
+    *,
+    job: str,
+    start: int,
+    end: int,
+) -> None:
+    """Pin a job's dependency edge and gate as exact scalar values."""
+
+    for property_name, expected in MAINTENANCE_JOB_CONTROL_FLOW[job].items():
+        pattern = re.compile(
+            rf"^    {re.escape(property_name)}:(?: (?P<value>.*))?$"
+        )
+        matches = [
+            match
+            for line in lines[start:end]
+            if not line.block_scalar and line.indent == 4
+            if (
+                match := pattern.fullmatch(
+                    _mask_yaml_comment_only(line.raw).rstrip()
+                )
+            )
+            is not None
+        ]
+        if expected is None:
+            if matches:
+                raise WorkflowContractError(
+                    f"{job} must not define a {property_name} control-flow value"
+                )
+            continue
+        if len(matches) != 1 or matches[0].group("value") != expected:
+            raise WorkflowContractError(
+                f"{job} {property_name} control-flow value must be exactly {expected!r}"
+            )
 
 
 def _maintenance_job_ranges(lines: list[_YamlLine]) -> dict[str, tuple[int, int]]:
@@ -405,6 +750,13 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
     source_lines = source.splitlines(keepends=True)
     lines = _yaml_structural_lines(source)
     _reject_yaml_indirection(lines)
+    _reject_yaml_scalar_decoding_escapes(lines)
+    _reject_implicit_if_secret_context(lines)
+    secret_expressions = _secret_context_expressions(lines)
+    if secret_expressions != EXPECTED_SECRET_CONTEXT_EXPRESSIONS:
+        raise WorkflowContractError(
+            "secret context expressions must be exactly the six approved bindings"
+        )
     job_ranges = _maintenance_job_ranges(lines)
     step_ranges_by_job: dict[str, list[tuple[str, int, int]]] = {}
     for job, (start, end) in job_ranges.items():
@@ -420,6 +772,12 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
             raise WorkflowContractError(
                 f"{job} properties must be exactly {expected_properties!r}"
             )
+        _require_job_control_flow(
+            lines,
+            job=job,
+            start=start,
+            end=end,
+        )
         step_ranges_by_job[job] = _named_step_ranges(
             lines,
             job=job,
@@ -4149,6 +4507,26 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 "permissions: *workflow_permissions\n",
                 1,
             ),
+            "anchor-name-leading-ampersand": workflow.replace(
+                "permissions: {}\n",
+                "permissions: &&workflow_permissions {}\n",
+                1,
+            ),
+            "alias-name-leading-asterisk": workflow.replace(
+                "permissions: {}\n",
+                "permissions: **workflow_permissions\n",
+                1,
+            ),
+            "primary-tag": workflow.replace(
+                "permissions: {}\n",
+                "permissions: !workflow_permissions {}\n",
+                1,
+            ),
+            "secondary-tag": workflow.replace(
+                "permissions: {}\n",
+                "permissions: !!map {}\n",
+                1,
+            ),
             "merge": workflow.replace(
                 "permissions: {}\n",
                 "permissions:\n  <<: {}\n",
@@ -4202,6 +4580,248 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 ):
                     validate_maintenance_workflow_security_contract(mutated)
 
+        control_flow_mutations = {
+            "detect-needs": (
+                "    needs: plan\n",
+                "    needs: [plan]\n",
+            ),
+            "detect-if": (
+                "    if: needs.plan.outputs.should_run == 'true'\n",
+                "    if: always()\n",
+            ),
+            "reviewer-readiness-needs": (
+                "    needs: [plan, detect]\n",
+                "    needs: detect\n",
+            ),
+            "reviewer-readiness-if": (
+                "    if: needs.detect.outputs.needs_maintenance == 'true'\n",
+                "    if: always()\n",
+            ),
+            "maintain-needs": (
+                "    needs: [plan, detect, reviewer_readiness]\n",
+                "    needs: [plan, detect]\n",
+            ),
+            "maintain-if": (
+                (
+                    "    if: needs.reviewer_readiness.result == 'success' "
+                    "&& needs.detect.outputs.needs_maintenance == 'true'\n"
+                ),
+                "    if: needs.detect.outputs.needs_maintenance == 'true'\n",
+            ),
+            "publish-needs": (
+                "    needs: [plan, detect, maintain]\n",
+                "    needs: maintain\n",
+            ),
+            "publish-if": (
+                "    if: needs.maintain.outputs.has_changes == 'true'\n",
+                "    if: always()\n",
+            ),
+        }
+        for label, (before, after) in control_flow_mutations.items():
+            with self.subTest(mutation=label):
+                mutated = workflow.replace(before, after, 1)
+                self.assertNotEqual(mutated, workflow)
+                with self.assertRaisesRegex(WorkflowContractError, "control-flow value"):
+                    validate_maintenance_workflow_security_contract(mutated)
+
+    def test_actionlint_valid_yaml_scalar_decoding_bypasses_are_rejected(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        plan_step = (
+            "      - name: Harden runner networking\n"
+            "        uses: step-security/harden-runner@"
+        )
+        self.assertEqual(workflow.count(plan_step), 5)
+        self.assertLess(workflow.index(plan_step), workflow.index("\n  detect:\n"))
+
+        def add_plan_step_env(value: str) -> str:
+            return workflow.replace(
+                plan_step,
+                "      - name: Harden runner networking\n"
+                "        env:\n"
+                f"          UNAPPROVED: {value}\n"
+                "        uses: step-security/harden-runner@",
+                1,
+            )
+
+        unicode_escape = r'"\u0024{{ toJSON(se\u0063rets) }}"'
+        doubled_single_quote = "'${{ ''}}'' && toJSON(secrets) }}'"
+        # Actionlint 1.7.7 accepts both full-workflow mutations. Decode the
+        # relevant YAML scalar semantics here without requiring Go at unit-test
+        # runtime, then require the source-level guard to reject each document.
+        self.assertEqual(json.loads(unicode_escape), "${{ toJSON(secrets) }}")
+        self.assertEqual(
+            doubled_single_quote[1:-1].replace("''", "'"),
+            "${{ '}}' && toJSON(secrets) }}",
+        )
+
+        decoding_escapes = {
+            "exact-unicode-counterexample": unicode_escape,
+            "exact-doubled-quote-counterexample": doubled_single_quote,
+            "hex-escape": r'"\x24{{ toJSON(secrets) }}"',
+            "long-unicode-escape": r'"\U00000024{{ toJSON(secrets) }}"',
+            "multiline-backslash-continuation": (
+                '"${{ toJSON(se\\\n'
+                "            crets) }}\""
+            ),
+            "multiline-double-quoted-escape": (
+                '"prefix\n'
+                r'            \u0024{{ toJSON(secrets) }}"'
+            ),
+            "multiline-single-quoted-escape": (
+                "'prefix\n"
+                "            ${{ ''}}'' && toJSON(secrets) }}'"
+            ),
+        }
+        for label, value in decoding_escapes.items():
+            with self.subTest(yaml_escape=label), self.assertRaisesRegex(
+                WorkflowContractError,
+                r"YAML .* escapes are forbidden",
+            ):
+                validate_maintenance_workflow_security_contract(
+                    add_plan_step_env(value)
+                )
+
+        inert_comment = (
+            "# inert YAML comment: "
+            + unicode_escape
+            + " and "
+            + doubled_single_quote
+            + "\n"
+            + workflow
+        )
+        inert_plain_scalar = workflow.replace(
+            "name: PK-Stack Upstream Maintenance (Kiro)\n",
+            r"name: literal \u0024 and '' are not decoded here" + "\n",
+            1,
+        )
+        inert_block_scalar = workflow.replace(
+            "            api.github.com:443\n",
+            "            api.github.com:443\n"
+            r"            literal \u0024 and '' stay bytes in a block scalar"
+            + "\n",
+            1,
+        )
+        for label, mutated in {
+            "yaml-comment": inert_comment,
+            "plain-scalar": inert_plain_scalar,
+            "block-scalar": inert_block_scalar,
+        }.items():
+            with self.subTest(inert_escape=label):
+                validate_maintenance_workflow_security_contract(mutated)
+
+    def test_maintenance_validator_owns_secret_context_allowlist(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        validate_maintenance_workflow_security_contract(workflow)
+
+        insertion_point = "      - name: Resolve trusted base and open-PR guard\n"
+        secret_payloads = {
+            "whole-context": "${{ secrets }}",
+            "serialized-context": "${{ toJSON(secrets) }}",
+            "dot-member": "${{ secrets.KIRO_API_KEY }}",
+            "single-quoted-bracket-member": "${{ secrets['KIRO_API_KEY'] }}",
+            "double-quoted-bracket-member": '${{ secrets["KIRO_API_KEY"] }}',
+            "computed-bracket-member": "${{ secrets[format('{0}', 'KIRO_API_KEY')] }}",
+            "case-variant": "${{ toJson(SeCrEtS) }}",
+        }
+        for label, payload in secret_payloads.items():
+            with self.subTest(secret_access=label):
+                mutated = workflow.replace(
+                    insertion_point,
+                    "      - name: Unapproved credential context\n"
+                    "        env:\n"
+                    f"          UNAPPROVED: {payload}\n"
+                    "        run: echo guarded\n"
+                    + insertion_point,
+                    1,
+                )
+                self.assertNotEqual(mutated, workflow)
+                with self.assertRaisesRegex(
+                    WorkflowContractError,
+                    "secret context expressions must be exactly",
+                ):
+                    validate_maintenance_workflow_security_contract(mutated)
+
+        quoted_expression = workflow.replace(
+            insertion_point,
+            '      - name: "${{ toJSON(secrets) }}"\n'
+            "        run: echo guarded\n"
+            + insertion_point,
+            1,
+        )
+        block_scalar_expression = workflow.replace(
+            "          set -euo pipefail\n",
+            "          set -euo pipefail\n"
+            "          # GitHub expands this before the shell sees its comment.\n"
+            "          # ${{ toJSON(secrets) }}\n",
+            1,
+        )
+        for label, mutated in {
+            "quoted-yaml-scalar": quoted_expression,
+            "block-scalar-shell-comment": block_scalar_expression,
+        }.items():
+            with self.subTest(secret_access=label), self.assertRaisesRegex(
+                WorkflowContractError,
+                "secret context expressions must be exactly",
+            ):
+                validate_maintenance_workflow_security_contract(mutated)
+
+        implicit_if_mutations = {
+            "plain": "secrets.KIRO_API_KEY != ''",
+            "bracket": "secrets['KIRO_API_KEY'] != ''",
+            "serialized": "fromJSON(toJSON(secrets)).KIRO_API_KEY != ''",
+            "yaml-quoted": '"secrets[\'KIRO_API_KEY\'] != \'\'"',
+        }
+        for label, condition in implicit_if_mutations.items():
+            with self.subTest(implicit_if=label):
+                mutated = workflow.replace(
+                    insertion_point,
+                    "      - name: Unapproved implicit secret condition\n"
+                    f"        if: {condition}\n"
+                    "        run: echo guarded\n"
+                    + insertion_point,
+                    1,
+                )
+                with self.assertRaisesRegex(
+                    WorkflowContractError,
+                    "secrets context is forbidden in implicit if expressions",
+                ):
+                    validate_maintenance_workflow_security_contract(mutated)
+
+        block_implicit_if = workflow.replace(
+            insertion_point,
+            "      - name: Unapproved multiline secret condition\n"
+            "        if: |\n"
+            "          fromJSON(toJSON(secrets)).KIRO_API_KEY != ''\n"
+            "        run: echo guarded\n"
+            + insertion_point,
+            1,
+        )
+        with self.assertRaisesRegex(
+            WorkflowContractError,
+            "secrets context is forbidden in implicit if expressions",
+        ):
+            validate_maintenance_workflow_security_contract(block_implicit_if)
+
+        inert_variants = (
+            "# ${{ toJSON(secrets) }} is inert YAML commentary.\n" + workflow,
+            workflow.replace(
+                "name: PK-Stack Upstream Maintenance (Kiro)\n",
+                'name: "PK-Stack literal toJSON(secrets) documentation"\n',
+                1,
+            ),
+            workflow.replace(
+                insertion_point,
+                "      - name: ${{ 'literal toJSON(secrets)' }}\n"
+                "        run: |\n"
+                "          printf '%s\\n' 'literal toJSON(secrets)'\n"
+                + insertion_point,
+                1,
+            ),
+        )
+        for index, mutated in enumerate(inert_variants, start=1):
+            with self.subTest(inert_variant=index):
+                validate_maintenance_workflow_security_contract(mutated)
+
     def test_yaml_indirection_scanner_ignores_inert_text(self) -> None:
         inert = textwrap.dedent(
             """\
@@ -4209,12 +4829,47 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             single: '&anchor *alias <<: *merge'
             # &comment_anchor *comment_alias <<: *comment_merge
             if: left && right
+            expression: ${{ !cancelled() }}
+            comparison: left != right
+            glob: path/**/file
             run: |
               background_task &
-              printf '%s\\n' '*alias <<: &anchor'
+              printf '%s\\n' '*alias <<: &anchor !tag'
             """
         )
         _reject_yaml_indirection(_yaml_structural_lines(inert))
+
+    def test_yaml_indirection_scanner_rejects_indicator_prefixed_names_and_tags(
+        self,
+    ) -> None:
+        active_constructs = {
+            "anchor-name-leading-ampersand": "node: &&edge {}\n",
+            "anchor-name-leading-asterisk": "node: &*edge {}\n",
+            "alias-name-leading-asterisk": "node: **edge\n",
+            "alias-name-leading-ampersand": "node: *&edge\n",
+            "anchor-name-leading-tag": "node: &!edge {}\n",
+            "alias-name-leading-tag": "node: *!edge\n",
+            "primary-tag": "node: !edge value\n",
+            "secondary-tag": "node: !!str value\n",
+            "verbatim-tag": "node: !<tag:yaml.org,2002:str> value\n",
+        }
+        expected_construct = {
+            "anchor-name-leading-ampersand": "anchor",
+            "anchor-name-leading-asterisk": "anchor",
+            "alias-name-leading-asterisk": "alias",
+            "alias-name-leading-ampersand": "alias",
+            "anchor-name-leading-tag": "anchor",
+            "alias-name-leading-tag": "alias",
+            "primary-tag": "tag",
+            "secondary-tag": "tag",
+            "verbatim-tag": "tag",
+        }
+        for label, source in active_constructs.items():
+            with self.subTest(indirection=label), self.assertRaisesRegex(
+                WorkflowContractError,
+                rf"YAML {expected_construct[label]} syntax is forbidden",
+            ):
+                _reject_yaml_indirection(_yaml_structural_lines(source))
 
     def test_hosted_preflight_record_matches_workflow_and_does_not_overclaim(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()

@@ -11,9 +11,18 @@ an end user must still complete and confirm the graphical Power import manually.
 
 Kiro IDE 1.x chat/Agent Focus is a first-class target and the installed 1.0.437 build plus shared
 workspace assets are structurally validated, but this snapshot has no separate GUI end-to-end
-repair campaign. Kiro Crew compatibility is required while Crew itself remains optional; no Crew
-end-to-end verified-goal campaign is claimed here. Crew's internal Kiro CLI/ACP transport is not
-PK-Stack's normal launcher.
+repair campaign. Kiro Crew compatibility is required while Crew itself remains optional. A
+checksum- and signature-verified `0.6.0-nightly.20260903t061110` installation passed only the
+public `--version`, `--help`, and `doctor` surfaces; no Crew end-to-end verified-goal campaign is
+claimed. Crew's internal Kiro CLI/ACP transport is not PK-Stack's normal launcher.
+
+That bounded Crew smoke exposed an upstream packaging limitation. Invoking the Nightly CLI
+rewrote bundled Python `.pyc` files and invalidated the signed application seal even with
+`PYTHONDONTWRITEBYTECODE=1`. The mutated copy was moved recoverably to Trash and a fresh exact
+bundle was restored and re-verified without another invocation. A later CLI invocation may
+reproduce the mutation until upstream packaging moves runtime caches outside the signed bundle.
+This does not indicate a PK-Stack source mutation, but it prevents treating one pre-launch
+signature check as durable post-launch integrity evidence.
 
 Kiro Web is supported by design and explicitly untested. Its honest path is an already
 bootstrapped repository with committed `.kiro` and `.pstack` assets. Web cannot select a project
@@ -38,10 +47,11 @@ five-agent schema/discovery, and requests the live model inventory without sendi
 URL, and size exactly match the reviewed pin; an unpinned binary never receives the credential.
 The canary does not invoke Anthropic.
 IDE metadata, Kiro Crew Nightly feeds, the changelog, `llms.txt`, and relevant documentation hashes
-are bounded non-gating observations: they do not prove an IDE, Crew, or Web workflow campaign. A
-new stable CLI or regression fails red, but promoting the checksum/version tuple remains manual
-because the workflows and protected controller files that carry it are trust roots. The four
-configured GitHub source repositories are the only autonomous update sources.
+are bounded non-gating observations. The separate Crew command-surface/doctor smoke still does not
+prove an IDE, Crew PK-Stack workflow, or Web campaign. A new stable CLI or regression fails red,
+but promoting the checksum/version tuple remains manual because the workflows and protected
+controller files that carry it are trust roots. The four configured GitHub source repositories
+are the only autonomous update sources.
 
 Feature-map validation and feature-backed goals do not require OKF. Broader project-knowledge
 search and `knowledge validate --require-okn` require the canonical `okn` executable. When it is

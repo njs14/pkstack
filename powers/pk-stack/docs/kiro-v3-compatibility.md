@@ -1,6 +1,6 @@
 # Kiro surface compatibility
 
-This is a point-in-time compatibility snapshot from **2026-09-02**. It records
+This is a point-in-time compatibility snapshot through **2026-09-03**. It records
 the Kiro product contract PK-Stack targets and the evidence collected on the
 target Mac; it is not a guarantee for every account or later release. Re-run
 the checks at the end after a Kiro update.
@@ -22,7 +22,7 @@ workflow actually run. Those are deliberately separate claims.
 | --- | --- | --- | --- | --- |
 | CLI v3 (`kiro-cli` 2.21.0) | Primary | Ordinary `kiro-cli chat --v3`; select workspace agent `pstack`; invoke `/verified-goal` in that chat | Real current-session fail/repair/pass campaign, four product-agent schema validations, a five-profile repository discovery sentinel, generated-asset parity, automated tests, and a sterile interactive native-goal probe | **First-class and exercised.** ACP, classic/V2, nested Kiro, and `/spawn` were not used. This runtime treated `/goal clear` as ordinary prompt text rather than a slash command. |
 | IDE 1.x (`Kiro.app` 1.0.437) | Primary | Open the repository in Kiro, use ordinary chat or experimental Agent Focus Mode, select the workspace `pstack` agent in the agent picker, and invoke the same skills | Installed build verified; official shared-harness, workspace-agent, workspace-skill, and Agent Focus contracts; the same JSON assets validate with the installed Kiro CLI | **First-class and structurally validated.** Ordinary IDE chat is stable; Kiro currently lists Agent Focus Mode as experimental. The GUI path has not received a separate end-to-end repair campaign in this snapshot. |
-| Kiro Crew | Optional orchestrator | Open the trusted repository through Crew so its Kiro-backed session reads committed `.kiro`; keep one `/verified-goal` loop in the Crew-owned session | Official Crew contract says it runs Kiro CLI over ACP and reads existing `.kiro` agents, skills, and steering; signed current Nightly installed; package assets avoid client-only argument substitution | **Compatibility required; orchestration optional.** Crew's internal ACP transport does not make ACP PK-Stack's default entrypoint, and no Crew end-to-end goal campaign is claimed here. |
+| Kiro Crew | Optional orchestrator | Open the trusted repository through Crew so its Kiro-backed session reads committed `.kiro`; keep one `/verified-goal` loop in the Crew-owned session | Official Crew contract says it runs Kiro CLI over ACP and reads existing `.kiro` agents, skills, and steering; signed feed-current Sep. 3 Nightly passed `--version`, `--help`, and `doctor`; package assets avoid client-only argument substitution | **Compatibility required; orchestration optional.** The bounded smoke did not open a project or run PK-Stack. Crew's internal ACP transport does not make ACP PK-Stack's default entrypoint, and no Crew end-to-end goal campaign is claimed here. |
 | Kiro Web (GA) | Supported secondary surface | Start from a repository that already commits the bootstrapped `.kiro` and `.pstack` assets; invoke `/verified-goal` from the Web session's primary agent | Official Web support for project skills, agents, hooks, steering, and MCP plus static repository/path tests | **Supported by design, explicitly untested.** Web cannot select a project custom agent as primary, does not provide the local permission/approval surface, and still needs Python 3.11+ plus `uv` in its sandbox. |
 | External ACP client | Optional integration boundary | Client-owned `kiro-cli acp` integration | Kiro documents the protocol; PK-Stack does not launch or test it | Not a primary or default PK-Stack path. Crew's use of ACP is a product implementation detail, not authorization to substitute an external host. |
 
@@ -163,7 +163,7 @@ engine/configuration generation, not Kiro IDE's
 | Later selected-profile validation | Kiro CLI `2.21.0` on 2026-09-02 |
 | Kiro CLI macOS app build | `20260831.180303` |
 | Kiro IDE installation | `/Applications/Kiro.app`, version/build `1.0.437` |
-| Kiro Crew installation | `/Applications/KiroCrew Nightly.app` and `kirocrew` version `0.6.0-nightly.20260902t061347`; official Nightly DMG SHA-256 `8f8ed4bcd93d1b88d5327daf77e3d1b01a4abfb2afc377d0ef9b941ea94b7e8b`; deep/strict code signature and Gatekeeper notarization accepted; installation is not a workflow pass |
+| Kiro Crew installation | `/Applications/KiroCrew Nightly.app` version `0.6.0-nightly.20260903t061110`; official Nightly feed SHA-256 `0274b7299b26c292cb173685a546598f34f10e7af167f64dfe3a7fa2e4aef4f9`; downloaded DMG SHA-256 `d11e6e50925ae2cb1c824465352063664a492fe799789f4a612b58d2c1cca4fa`; exact bundle ID/version, deep/strict signature, and Gatekeeper notarization accepted; `--version`, `--help`, and `doctor` passed, but no PK-Stack workflow was exercised |
 | Bundle identifier | `com.amazon.codewhisperer` |
 | V3 selection | `kiro-cli chat --v3` or top-level `kiro-cli --v3` |
 | V3 modes | `default`, `spec` |
@@ -478,6 +478,15 @@ post-compaction parity claim. Alternate Crew agent harnesses are likewise
 capability-dependent; PK-Stack's required compatibility target is the current
 Kiro CLI-backed path.
 
+The bounded [KiroCrew Nightly smoke record](../../../reviews/kirocrew-nightly-smoke-campaign.md)
+verified the Sep. 3 package source, bundle identity, signature, notarization, public version/help
+surface, and doctor dependencies. It did not exercise `.kiro` ingestion, Task Runner, skill
+reinjection, Spec, or `/verified-goal`. The smoke also found that a CLI invocation rewrote bundled
+Python `.pyc` files and invalidated the post-launch signed seal despite
+`PYTHONDONTWRITEBYTECODE=1`. The mutated copy was retained recoverably and a fresh exact signed
+bundle was restored without another invocation. This is an upstream packaging limitation, not a
+PK-Stack source mutation.
+
 The selected-profile V3 campaign also exposed Kiro's internal implementation
 naming: its logs label session creation/prompt and policy evaluation with ACP
 terms, route ordinary `KIRO_CLI` turns through an `ACPEventAdapter`, and export
@@ -585,8 +594,10 @@ the portable completion predicate on every supported path.
   PK-Stack does not invoke or depend on it.
 - The IDE 1.0.437 path is first-class and structurally validated, but this
   snapshot does not claim a separate GUI end-to-end repair campaign.
-- Crew compatibility is required, but Crew is optional and no Crew
-  end-to-end verified-goal campaign is claimed in this snapshot.
+- Crew compatibility is required, but Crew is optional. The current signed Nightly passed a
+  bounded command-surface/doctor smoke; no Crew project, Spec, skill, or end-to-end verified-goal
+  campaign is claimed. Invoking that package may also rewrite bundled `.pyc` files and invalidate
+  its signed seal until upstream moves runtime caches outside the signed bundle.
 - Kiro Web is supported through committed project assets by design and remains
   explicitly untested. Its primary-agent and permission differences apply.
 - Full custom-Power upload through Configuration Sync is unsupported: custom

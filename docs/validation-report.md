@@ -41,7 +41,38 @@ detection passed, then reviewer readiness failed safely because no credential wa
 either accepted Fable secret name. No Kiro repair turn or publish step ran, and candidate-gate
 [run 33743818713](https://github.com/njs14/pk-stack/actions/runs/33743818713) was skipped. This is
 fail-closed safety evidence, not a successful autonomous upstream-maintenance lifecycle. Successful
-maintenance, native-Spec proof, and exact-tree model-council acceptance remain separate open gates.
+maintenance, exact-tree deterministic and canonical OKF/OKN reproof, native-Spec proof, and
+exact-tree model-council acceptance remain separate open gates.
+
+## Bounded KiroCrew Nightly compatibility smoke
+
+The [KiroCrew Nightly smoke record](../reviews/kirocrew-nightly-smoke-campaign.md) and its
+[machine-readable companion](../reviews/kirocrew-nightly-smoke-campaign.json) cover the Nightly
+listed by the official feed at `2026-09-03T12:02:57Z`, version
+`0.6.0-nightly.20260903t061110`. The feed, DMG, exact bundle ID/version, Developer ID Team
+`94KV3E626L`, deep signature, and Gatekeeper notarization were verified. The following bounded
+commands then passed:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 /Users/noahsutter/.local/bin/kirocrew --version
+PYTHONDONTWRITEBYTECODE=1 /Users/noahsutter/.local/bin/kirocrew --help
+PYTHONDONTWRITEBYTECODE=1 /Users/noahsutter/.local/bin/kirocrew doctor
+```
+
+Doctor concluded `Kiro Crew is ready!` with Kiro CLI `2.21.0`, login/runtime, dependencies, and
+MCP tools available; the gateway was not running. The global Crew provider was `acp`, which is a
+Crew-owned transport choice and does not alter PK-Stack's ordinary IDE or interactive
+`kiro-cli --v3` entrypoint.
+
+The smoke also exposed a material upstream package-integrity limitation: CLI launch rewrote
+bundled Python `.pyc` files and invalidated the signed seal even with bytecode writes disabled in
+the environment. The mutated application was moved recoverably to Trash, and a fresh exact Sep. 3
+bundle was restored and re-verified without another invocation. The repository was at commit
+`f6e3440c6a6c6faab1030501baa3c193535207e1`, tree
+`f8f28bc5142e6ac67c06dfe0f7a60a9b9fdb752d`, only as worktree context; no immutable PK-Stack tree
+was executed. This is command-surface/doctor compatibility evidence, not a Crew GUI, project
+trust, PK-Stack workflow, Spec, verified-goal, Task Runner, compaction, model-turn, or release-gate
+pass.
 
 ## Bootstrap and controller provenance
 
@@ -719,4 +750,5 @@ architecture artifact and changed no repository file. Grok 4.6 `xhigh` remains t
 after clean Fable acceptance, with another Fable pass required if the sweep drives a material tree
 change. The private GitHub repository is real and verified private; hosted credential, exact
 permission-matrix, and read-only canary proof now exist. A successful hosted maintenance lifecycle,
-the final native-Spec current-session campaign, and exact-tree Fable/Grok acceptance remain open.
+final exact-tree deterministic and canonical OKF/OKN reproof, the final native-Spec current-session
+campaign, and exact-tree Fable/Grok acceptance remain open.

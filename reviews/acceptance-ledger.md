@@ -48,7 +48,11 @@ implementation as the design authority.
   same-conversation handoff; Web uses its built-in primary/native Spec picker and remains untested;
   Crew may consume a committed spec through Task Runner without a false built-in-agent/session
   claim. Status: closed locally in skills, architecture, surface docs, and static wording gates;
-  Web and Crew runtime behavior remain explicitly untested.
+  Web runtime and Crew end-to-end PK-Stack behavior remain explicitly untested. A separate bounded
+  [Crew Nightly smoke](kirocrew-nightly-smoke-campaign.md) passed the signed package's public
+  `--version`, `--help`, and `doctor` surfaces but did not open the project or exercise a PK-Stack
+  workflow. Its observed global `acp` provider remains Crew-owned transport and does not change
+  PK-Stack's normal IDE/CLI v3 entrypoint.
 - `PLOT-004` — Provide one thin deterministic spec-to-proof lever. It must require a complete native
   artifact package, prefer a published feature contract, preserve both `spec` and `feature`
   provenance, allow a reviewed command only when no reusable feature applies, and refuse silent
@@ -165,8 +169,10 @@ returned `REQUEST CHANGES` with eight material findings. The normalized report i
   verifier proof remained incomplete; see the narrowed round-2 criterion below.
 - `FBL-008` — Prove controller generation/transitions and one real same-session Kiro v3
   fail-repair-pass run. Local disposition: controller source/vendored/isolated proof is complete,
-  and the selected-profile Kiro campaign passed locally. Fable has not yet reviewed its committed
-  evidence, so this criterion is not independently accepted.
+  and the selected-profile Kiro campaign passed locally. Fable round 5 later reviewed candidate C,
+  which carried the committed current-session evidence, and retained Kiro fail-repair-pass behavior
+  as a proven strength. That is historical FBL-008 evidence only: `PLOT-008` remains open because the
+  campaign did not exercise native Spec artifacts or the final executable tree.
 
 ## Fable round 2 criteria
 
@@ -185,7 +191,9 @@ returned `REQUEST CHANGES` with three material findings. The normalized report i
   unsafe rejections, plus bootstrap idempotence and receipt integrity. The one-process Kiro
   campaign then passed the same feature contract on attempt 2 of 4 after one real fail, one native
   verifier subagent, one source repair, and one redeploy. See `reviews/kiro-v3-campaign.md`.
-  Fable must still review that evidence commit before this criterion is accepted.
+  Fable round 5 reviewed the later candidate C carrying this evidence and retained Kiro
+  current-session fail-repair-pass behavior as a proven strength. That review does not substitute
+  for the still-pending `PLOT-008` native-Spec campaign on the final executable tree.
 - `FBL-021` — Support an explicit durable reachable-to-discard transition when a previously frozen
   reachable teardown loses Floci. Local disposition: implemented as a canonical hash-bound one-way
   transition that preserves the prior plan, completed prefix, and all frozen targets; reachable
@@ -259,16 +267,18 @@ returned `REQUEST CHANGES` with two material findings. The normalized report is
   Local disposition: **closed locally** on executable commit
   `cb2cb0905687c3e94e539333d8945c37109f6189`. Implementation and named negative/consumer
   regressions pass; the fresh `fable-r5-902` verifier and frozen external judge also passed the
-  strengthened contract. Fable must independently accept this disposition.
+  strengthened contract. Fable round 5 later retained strengthened idempotency as a proven
+  historical strength; current exact-tree live reproof remains a separate release gate.
 - `FBL-029` — Bind final live evidence to the exact remediated combined commit. Run a fresh
   `doctor -> up -> deploy -> deploy -> verify -> evidence -> down` lifecycle with the
   owner-controlled external judge, two retained generations, explicit source identity, complete
   cleanup, and foreign-image noninterference. Local disposition: **closed locally** by
   `fable-r5-902` on executable commit `cb2cb0905687c3e94e539333d8945c37109f6189`, tree
   `c28e71a050185f19befb3832e865c4e54f2bcf03`; see `reviews/fable-r5-live-proof.md` for the two
-  generations, frozen 14-path map, judge result, teardown, and postconditions. Fable must
-  independently accept this disposition. `live-council-902` and `kiro-v3-accept-902` remain honest
-  earlier-source evidence and are not substituted for this gate.
+  generations, frozen 14-path map, judge result, teardown, and postconditions. Fable round 5 did
+  not reopen `FBL-029` and explicitly retained external-judge closure as a proven historical
+  strength. `live-council-902` and `kiro-v3-accept-902` remain honest earlier-source evidence; none
+  of these older campaigns substitutes for current exact-tree live reproof.
 
 Fable's low-severity round-4 findings are retained as explicit hardening work:
 
@@ -289,8 +299,9 @@ Fable's low-severity round-4 findings are retained as explicit hardening work:
 - `FBL-034` — correct historical/current evidence language and Docker-label ambiguity; keep the
   not-yet-created private repository explicit; align or document the nested build-backend policy.
   Local disposition: **closed locally**; documentation is clarified and the canonical Power pins
-  Hatchling 1.32.0. Private publication remains intentionally sequenced after council acceptance
-  and is not claimed early.
+  Hatchling 1.32.0. The private repository has since been created and verified under `FBL-040` and
+  `SELF-007`; publication of the exact final release tip remains sequenced after the remaining
+  acceptance gates and is not claimed early.
 - `FBL-035` — document the manual exact-digest Floci image-pull fallback while retaining the
   automatic preflight's fail-closed diagnostic match. Local disposition: **closed locally** and
   documented.
@@ -406,9 +417,10 @@ proofs named below.
   pending**; mocked policy regressions pass, but live private-repository behavior remains required.
 - `SELF-006` — Keep the GitHub Agentic Workflows/Copilot path manual-only and independently locked,
   with the same immutable candidate contract. It may assist recovery but must never silently
-  replace Kiro or weaken the Fable gate. Status: **closed locally, hosted proof pending** as a
-  manually dispatched fallback; it remains uninvoked on GitHub and cannot substitute for the
-  primary Kiro workflow.
+  replace Kiro or weaken the Fable gate. Status: **closed locally and explicitly non-gating**. It
+  remains an uninvoked, separately authorized recovery fallback; release acceptance requires the
+  hosted primary Kiro lifecycle, not a fallback dispatch that could be mistaken for proof of the
+  normal path.
 - `SELF-007` — Create only the authorized private `njs14/pk-stack` repository, configure the Kiro
   secret without printing it, verify repository/action privacy and permissions, and run a hosted
   workflow proof. Status: **closed**. The authorized repository exists and was verified private;
@@ -489,8 +501,8 @@ a focused peer review of the hosted-maintenance checkpoint, not the final 24-are
   readiness fails. `maintain` must explicitly require a successful `reviewer_readiness` result;
   regression coverage must pin the exact five-job graph and dependency edges, the explicit
   success condition, and exactly four `KIRO_API_KEY` bindings confined to `maintain`. Status:
-  **execution semantics peer-verified; binding confinement remediated locally, Fable re-review
-  pending**. The focused Fable pass on commit `347d461a097f5d26e084f10958641fc4aa70ce07`
+  **execution semantics peer-verified; focused Fable acceptance pending**. The focused Fable pass
+  on commit `347d461a097f5d26e084f10958641fc4aa70ce07`
   found no route past failed, skipped, cancelled, or absent readiness, but opened the material
   subfinding below. The remediation also makes script extraction line-bounded, hardens the
   readiness runner's network, records the absent-credential branch and downloaded detector
@@ -498,13 +510,38 @@ a focused peer review of the hosted-maintenance checkpoint, not the final 24-are
   credential proof.
 - `FBL-046-R1` — Reject parser-level secret-scope multiplication. A YAML anchor on one repair
   `env` mapping plus an alias on another step produced five effective `KIRO_API_KEY` scopes while
-  the former 64 textual guard tests still passed. Status: **remediated locally, immutable Fable
-  re-review pending**. The workflow contract now forbids active anchors, aliases, merge keys, and
-  explicit mapping keys; requires bare exact credential environments; closes all five job
-  property sets; enumerates the readiness, maintain, and publish steps; confines the secret to the
-  four named repairs; and retains valid env-map and whole-step alias counterexamples. The bounded
-  [peer record](fable-fbl046-peer-review.md) preserves the finding and exact external evidence
-  hashes.
+  the former 64 textual guard tests still passed. Status: **remediation reached commit
+  `f6e3440c6a6c6faab1030501baa3c193535207e1` with 67 passing guard tests; the three LOW
+  defense-in-depth follow-ups were then implemented in an intermediate 69-test worktree state,
+  and immutable Fable re-review remains pending**. The `f6e3440` candidate forbids active anchors,
+  aliases, merge keys, and explicit mapping keys; requires bare exact credential environments;
+  closes all five job property sets; enumerates the readiness, maintain, and publish steps;
+  confines the secret to the four named repairs; and retains valid env-map and whole-step alias
+  counterexamples. The intermediate state also closes the three LOW scanner-self-containment
+  observations and passes 69 of 69 direct guard tests without changing the production workflow.
+  The bounded [peer record](fable-fbl046-peer-review.md) preserves the finding and exact external
+  evidence hashes.
+- `FBL-046-R2-C1` — **HIGH**, from a Codex read-only conformance review. Two actionlint-valid YAML
+  scalars were false accepts for the raw scanner: double-quoted
+  `"\u0024{{ toJSON(se\u0063rets) }}"` decodes to `${{ toJSON(secrets) }}`, while single-quoted
+  `'${{ ''}}'' && toJSON(secrets) }}'` decodes to `${{ '}}' && toJSON(secrets) }}`. Acceptance
+  requires rejecting scalar token-changing quote escapes without a general YAML loader, retaining
+  both exact actionlint-valid reproductions, and preserving inert comments, plain scalars, and
+  block scalars. Status: **implemented locally on the current unnamed candidate; immutable Fable
+  review pending**. A stateful non-block quote prepass rejects double-quoted backslash escapes and
+  single-quoted doubled-quote escapes across lines; Codex independently replayed both exact rejects;
+  the direct suite passes 70 of 70 tests; `py_compile`, Ruff, actionlint, and diff checks pass; and
+  the production workflow remains unchanged. No new commit or tree is claimed yet.
+
+Two attempted re-reviews of the immutable `f6e3440` target carry no acceptance value. Attempt 1
+ended with a nominal clean report authored by Opus 4.8 after a Fable `model_refusal_fallback`, so
+that report is inadmissible. Attempt 2 retained Fable identity but hit the five-hour session cap
+and produced no report; its reset epoch was `1788444600`. The rejected mixed-model report supplied
+no material counterexample. Its three actionable LOW scanner-hardening observations are now
+implemented in the retained 69-test intermediate state, while its parent-tree-reference observation
+requires only the existing disclosure. The later post-`FBL-046-R2-C1` auxiliary re-review was
+classifier-blocked and produced no verdict or acceptance value; it is not approval. Focused Fable
+acceptance and final release acceptance both remain pending.
 
 ## Kiro model and methodology criteria
 

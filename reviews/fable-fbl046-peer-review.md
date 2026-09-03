@@ -87,5 +87,107 @@ no shell or network. This review does not prove a valid hosted Fable credential,
 repair, candidate publication, Fable candidate review, exact-SHA merge, cron cadence, native Spec
 campaign, or final model-council acceptance.
 
-The remediation was implemented after this reviewed checkpoint. Its passing local tests are
-candidate evidence only until a fresh immutable Fable pass is appended to this record.
+The remediation was implemented after this reviewed checkpoint. The `f6e3440` candidate carried
+67 passing guard tests; that remains candidate evidence only until a fresh immutable Fable pass is
+appended to this record.
+
+## Remediation re-review attempts
+
+The remediation target for both attempted re-reviews was immutable commit
+`f6e3440c6a6c6faab1030501baa3c193535207e1`, tree
+`f8f28bc5142e6ac67c06dfe0f7a60a9b9fdb752d`, with parent
+`347d461a097f5d26e084f10958641fc4aa70ce07`. Its deterministic `git archive` SHA-256 was
+`9c9ac3fe3dd48b71edbaf0055423a469e0de1ad9475e102b2597a68df76dfbaf`. Neither attempt is
+admissible focused Fable acceptance evidence.
+
+### Attempt 1 — rejected mixed-model report
+
+The first snapshot was `/private/tmp/pk-stack-fable-fbl046r1-snapshot.lmA09s`; owner-only
+controls remain in `/private/tmp/pk-stack-fable-fbl046r1-controls.ZBGxZp`. Claude Code 2.1.258
+started with canonical `claude-fable-5-1` at caller-requested `xhigh` and used only 22 `Read` and
+19 `Grep` calls. MCP, plugins, skills, slash commands, browser, shell, writes, web search,
+subagents, and permission denials were absent.
+
+After 44 Fable assistant events, a provider `model_refusal_fallback` in category `cyber` changed
+the active model from `claude-fable-5-1` to `claude-opus-4-8`. The final 13 assistant events and
+the report were therefore authored by Opus 4.8. Provider usage also recorded a 19-output-token
+internal Haiku 4.5 companion, 7,052 Fable output tokens, 22,738 internal Opus 5 output tokens, and
+5,852 Opus 4.8 output tokens. The run itself ended successfully with `end_turn`, but no identity
+can repair the missing Fable-only final report. Although the rejected report ended with
+`CLEAN_FOR_NEXT_STEP` and `MATERIAL_UNRESOLVED: 0`, that text is inadmissible as a Fable
+acceptance verdict.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| External review contract | `0030cf3a4129e380e23e069ec5f5ff41dd9c585b78d14154da613cb313b4b137` |
+| Invocation | `b90f23969d0c3bbd0ce3c91de7169b5bd60acdda5608de92fc0853a6b8a5bf66` |
+| Mixed-model envelope | `250b9d471be73fcdae961d47d1ef5d6604fa4a9883304dd10581dc6ebba81d33` |
+| Rejected mixed-model report | `15171b9ece9eed7759f24c8acf1fcb6921d85d8d1231e09fa1decda4f671a910` |
+| Empty stderr | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+The rejected report supplied no material counterexample. Its three actionable LOW
+defense-in-depth observations were implemented in the next local worktree state: the
+YAML-indirection name model matched its stated contract; whole-`secrets`-context confinement became
+self-contained in the structural scanner; and the scanner itself carried the exact execution-order
+values rather than relying only on its companion pin test. That intermediate state passed 69 of 69
+direct guard tests, `py_compile`, Ruff, actionlint, and diff checks without changing the production
+workflow. It is retained as intermediate evidence rather than the current unnamed candidate. The
+fourth LOW observation—that evidence committed in the child names its reviewed parent
+tree—requires no new control; the existing evidence already discloses that historical
+relationship.
+
+### Attempt 2 — incomplete Fable-only run
+
+The second snapshot was `/private/tmp/pk-stack-fable-fbl046r1-retry-snapshot.dPPJay`; owner-only
+controls remain in `/private/tmp/pk-stack-fable-fbl046r1-retry-controls.9pPObb`. Claude Code
+2.1.258 again started with canonical `claude-fable-5-1` at caller-requested `xhigh`. Its 25
+substantive assistant events all named Fable, with one synthetic terminal-error event and a
+14-output-token internal Haiku 4.5 companion; Fable produced 2,551 output tokens before the cap.
+It used only 12 `Read`, three `Glob`, and two `Grep` calls, with no Opus use, MCP, plugins, skills,
+slash commands, browser, shell, writes, web search, subagents, or permission denials.
+
+This attempt exhausted the five-hour session window and ended with `stop_reason: stop_sequence`,
+`terminal_reason: api_error`, and `is_error: true`; the service reported `You've hit your session
+limit · resets 10:10am (America/New_York)` with reset epoch `1788444600`. It produced no report
+and no verdict lines. Its Fable-only partial events therefore carry no acceptance value.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| External review contract | `0a086743b8fb9c5b76ad08e83f6b8e6c99cc249c5550148d4f21b95e4d109f60` |
+| Invocation | `73398d8c5e043909b4e321e738adfa3c4ec251e950f65a8feb0c49e947ca6cbb` |
+| Incomplete Fable envelope | `8e60fd3f60f3eb41b39e11ccbb2abfb40f5bdf9b398d5b9ee4630eb212c46900` |
+| Empty stderr | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+
+## Parent conformance finding and remediation
+
+### FBL-046-R2-C1 — HIGH — YAML quote decoding can synthesize a secret expression
+
+Source: Codex read-only conformance review of the parent worktree after the rejected Fable
+attempts. This is an independently reproduced implementation finding, not a Fable verdict.
+
+Two actionlint-valid workflow mutations were false accepts before the fix:
+
+- YAML double-quoted `"\u0024{{ toJSON(se\u0063rets) }}"` decodes to
+  `${{ toJSON(secrets) }}`.
+- YAML single-quoted `'${{ ''}}'' && toJSON(secrets) }}'` decodes to
+  `${{ '}}' && toJSON(secrets) }}`.
+
+The former raw scanner accepted both source forms because YAML scalar decoding changed the token
+stream after its quote masking and expression extraction. Acceptance therefore required a
+no-general-loader control that rejects scalar token-changing escape forms, retains exact
+actionlint-valid reproductions as regressions, and still permits inert occurrences in comments,
+plain scalars, and block scalars.
+
+Disposition: **implemented locally on the current unnamed candidate; immutable Fable review
+pending**. A stateful non-block YAML quote prepass now rejects double-quoted backslash escapes and
+single-quoted doubled-quote escapes, including forms continued across lines. Codex independently
+replayed both exact counterexamples and observed both rejects. The direct guard suite passes 70 of 70
+tests; `py_compile`, Ruff, actionlint, and diff checks pass; and the production workflow remains
+unchanged. No commit or tree is claimed for this current candidate yet.
+
+An attempted post-fix auxiliary re-review was classifier-blocked. It produced no verdict and has
+no focused or final acceptance value; it is not approval.
+
+Focused Fable acceptance remains pending. Final 24-area release acceptance remains false and is
+not implied by the original review, either rejected re-review attempt, or the locally implemented
+post-hardening defenses, Codex conformance review, or classifier-blocked auxiliary attempt.
