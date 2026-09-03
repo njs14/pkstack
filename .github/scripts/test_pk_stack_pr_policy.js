@@ -21,6 +21,14 @@ const candidateWorkflow = fs.readFileSync(
   path.join(__dirname, "../workflows/pk-stack-upstream-candidate.yml"),
   "utf8",
 );
+const sourceRunFixture = JSON.parse(fs.readFileSync(
+  path.join(__dirname, "../fixtures/github-actions-run-33761288363.json"),
+  "utf8",
+));
+const candidateRunFixture = JSON.parse(fs.readFileSync(
+  path.join(__dirname, "../fixtures/github-actions-run-33761403736.json"),
+  "utf8",
+));
 const policy = {
   source_workflows: [
     {
@@ -64,7 +72,7 @@ function sourceRun(overrides = {}) {
   return {
     id: SOURCE_RUN_ID,
     name: "PK-Stack Upstream Maintenance (Kiro)",
-    path: ".github/workflows/pk-stack-upstream-maintenance-kiro.yml@main",
+    path: ".github/workflows/pk-stack-upstream-maintenance-kiro.yml",
     event: "schedule",
     status: "completed",
     conclusion: "success",
@@ -78,8 +86,8 @@ function sourceRun(overrides = {}) {
 function candidateRun(overrides = {}) {
   return {
     id: CANDIDATE_RUN_ID,
-    name: policy.candidate_lifecycle.workflow_name,
-    path: `${policy.candidate_lifecycle.workflow_path}@main`,
+    name: `${policy.candidate_lifecycle.run_title_prefix}${SOURCE_RUN_ID}`,
+    path: policy.candidate_lifecycle.workflow_path,
     display_title: `${policy.candidate_lifecycle.run_title_prefix}${SOURCE_RUN_ID}`,
     event: "workflow_run",
     status: "in_progress",
@@ -143,9 +151,40 @@ test("resolves policy name, provider, workflow path, run id, and exact branch to
     runIdText: String(SOURCE_RUN_ID),
     workflowName: "PK-Stack Upstream Maintenance (Kiro)",
     workflowPath: ".github/workflows/pk-stack-upstream-maintenance-kiro.yml",
-    workflowRunPath: ".github/workflows/pk-stack-upstream-maintenance-kiro.yml@main",
+    workflowRunPath: ".github/workflows/pk-stack-upstream-maintenance-kiro.yml",
     expectedHeadRef: `pk-stack-upstream/kiro-${SOURCE_RUN_ID}`,
   });
+});
+
+test("matches captured GitHub Actions REST run shapes exactly", () => {
+  assert.equal(sourceRunFixture.id, 33761288363);
+  assert.equal(
+    sourceRunFixture.path,
+    ".github/workflows/pk-stack-upstream-maintenance-kiro.yml",
+  );
+  assert.equal(sourceRunFixture.name, "PK-Stack Upstream Maintenance (Kiro)");
+  assert.equal(sourceRunFixture.display_title, "PK-Stack Upstream Maintenance (Kiro)");
+  assert.equal(candidateRunFixture.id, 33761403736);
+  assert.equal(candidateRunFixture.path, ".github/workflows/pk-stack-upstream-candidate.yml");
+  assert.equal(candidateRunFixture.name, "PK-Stack candidate gate for source run 33761288363");
+  assert.equal(
+    candidateRunFixture.display_title,
+    "PK-Stack candidate gate for source run 33761288363",
+  );
+  // These are the real observed terminal records.  The source failure and
+  // candidate skip must remain fail-closed rather than being treated as a
+  // successful maintenance authority.
+  assert.throws(
+    () => resolveCandidateForSource({
+      pulls: [],
+      sourceRun: sourceRunFixture,
+      policy,
+      baseSha: sourceRunFixture.head_sha,
+      defaultBranch: sourceRunFixture.head_branch,
+      repositoryFullName: sourceRunFixture.repository.full_name,
+    }),
+    /exact successful default-branch authority/,
+  );
 });
 
 test("one Kiro source run cannot adopt another Kiro run's branch", () => {
@@ -274,7 +313,7 @@ test("source and candidate workflow identity mismatches fail closed", async () =
   );
   await assert.rejects(
     () => classify([pull()], {
-      runs: [candidateRun({ path: ".github/workflows/other.yml@main" })],
+      runs: [candidateRun({ path: ".github/workflows/other.yml" })],
     }),
     /exact source\/base\/workflow identity/,
   );

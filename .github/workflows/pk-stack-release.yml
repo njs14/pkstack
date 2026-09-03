@@ -1,0 +1,98 @@
+name: PK-Stack v0.2 Release
+
+on:
+  push:
+    tags:
+      - v0.2.0
+
+permissions: {}
+
+concurrency:
+  group: pk-stack-release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      EXPECTED_TAG: v0.2.0
+      REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - name: Check out the exact release tag without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify private repository, tag identity, and v0.2 metadata
+        env:
+          RELEASE_SHA: ${{ github.sha }}
+          RELEASE_REF: ${{ github.ref }}
+          RELEASE_REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          test "$REPOSITORY_PRIVATE" = "true"
+          test "$RELEASE_REF" = "refs/tags/$EXPECTED_TAG"
+          test "$RELEASE_REF_NAME" = "$EXPECTED_TAG"
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          test "$(git rev-parse --verify "$EXPECTED_TAG^{commit}")" = "$RELEASE_SHA"
+          test "$(git describe --exact-match --tags "$RELEASE_SHA")" = "$EXPECTED_TAG"
+          python3 - "$EXPECTED_TAG" <<'PY'
+          import json
+          import re
+          import sys
+          import tomllib
+          from pathlib import Path
+
+          tag = sys.argv[1]
+          expected = tag.removeprefix("v")
+          power = Path("powers/pk-stack")
+          pyproject = tomllib.loads((power / "pyproject.toml").read_text(encoding="utf-8"))
+          manifest = json.loads((power / "plugin.json").read_text(encoding="utf-8"))
+          source = (power / "src/pstack_kiro/__init__.py").read_text(encoding="utf-8")
+          version = pyproject["project"].get("version")
+          runtime = re.search(r'^__version__ = "([^"]+)"$', source, re.MULTILINE)
+          if version != expected or manifest.get("version") != expected:
+              raise SystemExit("tag does not match package and plugin versions")
+          if runtime is None or runtime.group(1) != expected:
+              raise SystemExit("tag does not match the Power runtime version")
+          PY
+      - name: Build deterministic PK-Stack Power archive and SHA-256
+        env:
+          RELEASE_VERSION: 0.2.0
+        run: |
+          set -euo pipefail
+          umask 077
+          ARCHIVE_DIR="$RUNNER_TEMP/pk-stack-release"
+          test ! -e "$ARCHIVE_DIR"
+          mkdir -m 0700 "$ARCHIVE_DIR"
+          raw_archive="$ARCHIVE_DIR/pk-stack-v${RELEASE_VERSION}.tar"
+          archive="$ARCHIVE_DIR/pk-stack-v${RELEASE_VERSION}.tar.gz"
+          checksum="$ARCHIVE_DIR/pk-stack-v${RELEASE_VERSION}.tar.gz.sha256"
+          tar --create --file "$raw_archive" \
+            --directory powers \
+            --sort=name \
+            --mtime='UTC 1970-01-01' \
+            --owner=0 --group=0 --numeric-owner \
+            pk-stack
+          gzip --no-name --stdout "$raw_archive" >"$archive"
+          sha256sum "$archive" >"$checksum"
+          test -s "$archive"
+          test -s "$checksum"
+          sha256sum --check "$checksum"
+          printf 'ARCHIVE=%s\n' "$archive" >>"$GITHUB_ENV"
+          printf 'CHECKSUM=%s\n' "$checksum" >>"$GITHUB_ENV"
+      - name: Create the private GitHub Release with the repository token
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "$EXPECTED_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "PK-Stack v0.2.0" \
+            --notes "PK-Stack v0.2.0 Power archive. The repository is private; assets are published only to its private GitHub Release." \
+            "$ARCHIVE" "$CHECKSUM"

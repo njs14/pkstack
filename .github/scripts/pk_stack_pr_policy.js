@@ -50,10 +50,10 @@ function sourceAuthorityFromRun({
     "maintenance source run does not name exactly one configured workflow");
   const configured = configuredMatches[0];
   const runId = Number(sourceRun?.id);
-  const expectedWorkflowRunPath = workflowPathAtDefaultBranch(
-    configured.path,
-    defaultBranch,
-  );
+  // GitHub's workflow-run REST resource reports `path` as the repository
+  // relative workflow filename.  The `@branch` suffix belongs to a few
+  // repository-content URLs, not to this resource's identity field.
+  const expectedWorkflowRunPath = workflowPathAtDefaultBranch(configured.path);
   assert(Number.isSafeInteger(runId)
       && runId > 0
       && (expectedProvider === null || configured.provider === expectedProvider)
@@ -114,8 +114,8 @@ function candidateRunTitle(policy, sourceRunId) {
   return `${policy.candidate_lifecycle.run_title_prefix}${sourceRunId}`;
 }
 
-function workflowPathAtDefaultBranch(path, defaultBranch) {
-  return `${path}@${defaultBranch}`;
+function workflowPathAtDefaultBranch(path) {
+  return path;
 }
 
 /**
@@ -164,13 +164,18 @@ function resolveCandidateForSource({
 
 function validateCandidateRun({ run, policy, sourceRunId, baseSha, defaultBranch,
   repositoryFullName }) {
+  const expectedRunTitle = candidateRunTitle(policy, sourceRunId);
   assert(Number.isSafeInteger(run?.id)
-      && run.name === policy.candidate_lifecycle.workflow_name
+      && run.id > 0
+      // For a workflow_run resource GitHub populates both `name` and
+      // `display_title` from the configured run-name.  Bind both fields to
+      // the source run id so a same-workflow run cannot be adopted by a
+      // different candidate.
+      && run.name === expectedRunTitle
       && run.path === workflowPathAtDefaultBranch(
         policy.candidate_lifecycle.workflow_path,
-        defaultBranch,
       )
-      && run.display_title === candidateRunTitle(policy, sourceRunId)
+      && run.display_title === expectedRunTitle
       && run.event === "workflow_run"
       && run.head_branch === defaultBranch
       && run.head_sha === baseSha

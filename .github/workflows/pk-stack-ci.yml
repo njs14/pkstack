@@ -1,0 +1,131 @@
+name: PK-Stack CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions: {}
+
+concurrency:
+  group: pk-stack-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Harden read-only CI networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: powers/pk-stack/uv.lock
+      - name: Install checksum-pinned static analyzers
+        env:
+          ACTIONLINT_VERSION: 1.7.7
+          ACTIONLINT_SHA256: 023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757
+          SHELLCHECK_VERSION: 0.11.0
+          SHELLCHECK_SHA256: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+          STATIC_TOOLS: ${{ runner.temp }}/pk-stack-static-tools
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$STATIC_TOOLS/bin"
+          actionlint_archive="$STATIC_TOOLS/actionlint.tar.gz"
+          shellcheck_archive="$STATIC_TOOLS/shellcheck.tar.xz"
+          curl --proto '=https' --tlsv1.2 --fail --location \
+            --retry 3 --retry-all-errors --output "$actionlint_archive" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          printf '%s  %s\n' "$ACTIONLINT_SHA256" "$actionlint_archive" | sha256sum --check
+          tar --extract --gzip --file "$actionlint_archive" --directory "$STATIC_TOOLS/bin" \
+            actionlint
+          curl --proto '=https' --tlsv1.2 --fail --location \
+            --retry 3 --retry-all-errors --output "$shellcheck_archive" \
+            "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"
+          printf '%s  %s\n' "$SHELLCHECK_SHA256" "$shellcheck_archive" | sha256sum --check
+          tar --extract --xz --file "$shellcheck_archive" --directory "$STATIC_TOOLS/bin" \
+            --strip-components=1 "shellcheck-v${SHELLCHECK_VERSION}/shellcheck"
+          chmod 0555 "$STATIC_TOOLS/bin/actionlint" "$STATIC_TOOLS/bin/shellcheck"
+          printf '%s\n' "$STATIC_TOOLS/bin" >>"$GITHUB_PATH"
+          actionlint -version
+          shellcheck --version | sed -n '1,4p'
+      - name: Run workflow and shell-script static checks
+        run: |
+          set -euo pipefail
+          actionlint .github/workflows/*.yml
+          shellcheck .github/scripts/*.sh
+      - name: Run repository policy and stream regressions
+        run: |
+          set -euo pipefail
+          python3 -B .github/scripts/test_pk_stack_maintenance_guard.py
+          python3 -B .github/scripts/test_kiro_runtime_canary.py
+          python3 -B .github/scripts/test_validate_kiro_model_inventory.py
+          python3 -B .github/scripts/test_validate_kiro_review_stream.py
+          node --test .github/scripts/test_pk_stack_pr_policy.js
+      - name: Materialize the locked Power environment
+        run: uv sync --quiet --locked --all-groups --project powers/pk-stack
+      - name: Run full deterministic Power gates
+        working-directory: powers/pk-stack
+        run: |
+          set -euo pipefail
+          uv lock --check
+          uv run --frozen ruff check src tests skills/setup-pstack/scripts/setup_pstack.py
+          uv run --frozen ruff format --check src tests skills/setup-pstack/scripts/setup_pstack.py
+          uv run --frozen ty check
+          uv run --frozen pytest -q
+      - name: Run version, documentation, and curated bundle checks
+        run: |
+          set -euo pipefail
+          ./.pstack/bin/projectctl version --output json
+          ./.pstack/bin/projectctl feature validate --output json
+          if command -v openknowledge >/dev/null 2>&1; then
+            ./.pstack/bin/projectctl knowledge validate --require-okn --output json
+          else
+            ./.pstack/bin/projectctl knowledge validate --output json
+          fi
+          (
+            cd powers/pk-stack
+            uv run --frozen pytest tests/test_branding.py tests/test_distribution.py tests/test_kiro_assets.py -q
+          )
+          python3 - <<'PY'
+          import json
+          import re
+          import tomllib
+          from pathlib import Path
+
+          power = Path("powers/pk-stack")
+          pyproject = tomllib.loads((power / "pyproject.toml").read_text(encoding="utf-8"))
+          manifest = json.loads((power / "plugin.json").read_text(encoding="utf-8"))
+          source = (power / "src/pstack_kiro/__init__.py").read_text(encoding="utf-8")
+          version = pyproject["project"]["version"]
+          if version != "0.2.0" or manifest.get("version") != version:
+              raise SystemExit("Power package and plugin versions are not v0.2.0")
+          match = re.search(r'^__version__ = "([^"]+)"$', source, re.MULTILINE)
+          if match is None or match.group(1) != version:
+              raise SystemExit("Power runtime version does not match its package metadata")
+          PY

@@ -1,0 +1,23 @@
+{
+  "id": 33761403736,
+  "name": "PK-Stack candidate gate for source run 33761288363",
+  "head_branch": "main",
+  "head_sha": "9fc846884fb897b592d40366430d77d692aee72b",
+  "path": ".github/workflows/pk-stack-upstream-candidate.yml",
+  "display_title": "PK-Stack candidate gate for source run 33761288363",
+  "run_number": 2,
+  "event": "workflow_run",
+  "status": "completed",
+  "conclusion": "skipped",
+  "workflow_id": 349041526,
+  "created_at": "2026-09-03T13:29:05Z",
+  "updated_at": "2026-09-03T13:29:07Z",
+  "run_attempt": 1,
+  "run_started_at": "2026-09-03T13:29:05Z",
+  "repository": {
+    "full_name": "njs14/pk-stack"
+  },
+  "head_repository": {
+    "full_name": "njs14/pk-stack"
+  }
+}
