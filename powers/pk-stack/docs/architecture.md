@@ -617,9 +617,12 @@ reports `feature-map-only`, `knowledge validate` validates only `Wiki/features/`
 missing broad check, `--require-okn` fails, and `knowledge search` fails. A
 symlinked or escaping `Wiki` path is rejected before delegation.
 
-The separate `okfcli/okf` project is not a transparent fallback. It can serve as an optional
-independent CI conformance/SARIF check, but its result never silently substitutes for `okn` search,
-query, lifecycle, or safety semantics.
+The separate `okfcli/okf` project is not a transparent fallback. A checksum-verified v0.5.0
+comparison found that it still follows symlinked Markdown outside a bundle and rejects the
+authoritative OKF 0.2 explicit-offset `stale_after` form. It can serve only as an explicitly named
+advisory CI/SARIF check over a disposable, immutable, symlink-free copy. Its result never silently
+substitutes for `okn` validation, search, query, provenance, lifecycle, or safety semantics, and it
+cannot gate normative `stale_after` conformance.
 
 ## Kiro-native assets and permissions
 

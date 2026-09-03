@@ -17,6 +17,7 @@ import tempfile
 import textwrap
 import unittest
 from pathlib import Path
+from typing import NamedTuple
 from unittest import mock
 
 sys.dont_write_bytecode = True
@@ -51,6 +52,489 @@ KIRO_ISOLATED_SETTINGS = (
     b'}\n'
 )
 KIRO_ISOLATED_SETTINGS_SHA256 = hashlib.sha256(KIRO_ISOLATED_SETTINGS).hexdigest()
+
+MAINTENANCE_JOB_PROPERTIES = {
+    "plan": ("runs-on", "permissions", "outputs", "steps"),
+    "detect": ("needs", "if", "runs-on", "permissions", "outputs", "steps"),
+    "reviewer_readiness": ("needs", "if", "runs-on", "permissions", "steps"),
+    "maintain": (
+        "needs",
+        "if",
+        "runs-on",
+        "timeout-minutes",
+        "permissions",
+        "outputs",
+        "env",
+        "steps",
+    ),
+    "publish": ("needs", "if", "runs-on", "permissions", "steps"),
+}
+REVIEWER_READINESS_STEPS = (
+    ("Harden runner networking", ("uses", "with")),
+    (
+        "Fail fast unless exactly one Fable credential is configured",
+        ("env", "shell", "run"),
+    ),
+)
+MAINTENANCE_MAINTAIN_STEPS = (
+    ("Harden runner networking", ("uses", "with")),
+    ("Bind ephemeral maintenance paths", ("run",)),
+    ("Check out immutable source", ("uses", "with")),
+    ("Download detector evidence", ("uses", "with")),
+    ("Verify detector artifact identity", ("env", "run")),
+    ("Install uv and materialize protected lockfiles", ("uses", "with")),
+    ("Materialize locked environments and trusted scripts", ("run",)),
+    ("Restore pinned Kiro CLI archive", ("uses", "with")),
+    ("Verify checksum-pinned Kiro CLI 2.21.0 archive", ("run",)),
+    ("Start immutable goal and record the required pre-edit failure", ("env", "run")),
+    ("Prepare repair 1 without workspace hooks", ("run",)),
+    ("Kiro repair 1 of 4", ("env", "run")),
+    ("Secretless verification 1 of 4", ("id", "env", "run")),
+    ("Prepare repair 2 without workspace hooks", ("if", "run")),
+    ("Kiro repair 2 of 4", ("if", "env", "run")),
+    ("Secretless verification 2 of 4", ("id", "if", "env", "run")),
+    ("Prepare repair 3 without workspace hooks", ("if", "run")),
+    ("Kiro repair 3 of 4", ("if", "env", "run")),
+    ("Secretless verification 3 of 4", ("id", "if", "env", "run")),
+    ("Prepare repair 4 without workspace hooks", ("if", "run")),
+    ("Kiro repair 4 of 4", ("if", "env", "run")),
+    ("Secretless verification 4 of 4", ("id", "if", "env", "run")),
+    ("Require a terminal verified candidate", ("env", "run")),
+    ("Package the immutable candidate", ("id", "env", "run")),
+    ("Close the trusted Git finalizer boundary", ("if", "run")),
+    ("Upload verified candidate package", ("id", "if", "uses", "with")),
+)
+MAINTENANCE_PUBLISH_STEPS = (
+    ("Harden runner networking", ("uses", "with")),
+    ("Check out trusted base only", ("uses", "with")),
+    ("Download candidate package", ("uses", "with")),
+    ("Reconstruct and validate candidate without executing it", ("env", "run")),
+    (
+        "Create one exact candidate commit and non-draft PR through the API",
+        ("uses", "env", "with"),
+    ),
+)
+REVIEWER_READINESS_HARDEN_STEP = (
+    "      - name: Harden runner networking\n"
+    "        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1\n"
+    "        with:\n"
+    "          egress-policy: block\n"
+    "          disable-sudo: true\n"
+    "          allowed-endpoints: |\n"
+    "            results-receiver.actions.githubusercontent.com:443\n"
+)
+REVIEWER_READINESS_HARDEN_STEP_SHA256 = (
+    "c48b6735210074a694b9736a32f2c584a705e2ad587b95c6b7db471cd287d8aa"
+)
+REVIEWER_READINESS_ABSENT_STDERR = (
+    "Fable review is mandatory; provision ANTHROPIC_API_KEY or "
+    "CLAUDE_CODE_OAUTH_TOKEN before spending Kiro credits."
+)
+HOSTED_PREFLIGHT_JOB_RESULTS = {
+    "plan": "success",
+    "detect": "success",
+    "reviewer_readiness": "failure",
+    "maintain": "skipped",
+    "publish": "skipped",
+}
+REVIEWER_READINESS_SCRIPT = (
+    "set -euo pipefail\n"
+    'if [[ -z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then\n'
+    f"  echo '{REVIEWER_READINESS_ABSENT_STDERR}' >&2\n"
+    "  exit 1\n"
+    "fi\n"
+    'if [[ -n "$ANTHROPIC_API_KEY" && -n "$CLAUDE_CODE_OAUTH_TOKEN" ]]; then\n'
+    "  echo 'Configure exactly one Claude CI credential so reviewer "
+    "authentication is unambiguous.' >&2\n"
+    "  exit 1\n"
+    "fi\n"
+)
+REVIEWER_READINESS_SCRIPT_SHA256 = (
+    "05315e69ea60aa0bf68047a1f43b1b323542f3d0f99980b5f90e8a234ee50b2e"
+)
+
+
+class WorkflowContractError(ValueError):
+    """The security-sensitive workflow no longer has its closed static shape."""
+
+
+class _YamlLine(NamedTuple):
+    number: int
+    raw: str
+    code: str
+    indent: int
+    block_scalar: bool
+
+
+def _mask_yaml_comments_and_quotes(line: str) -> str:
+    """Mask YAML comments and quoted scalars while preserving source columns."""
+
+    masked = list(line)
+    index = 0
+    while index < len(line):
+        character = line[index]
+        if character == "#" and (index == 0 or line[index - 1].isspace()):
+            masked[index:] = " " * (len(line) - index)
+            break
+        quote_can_start = (
+            index == 0
+            or line[index - 1].isspace()
+            or line[index - 1] in "[{,:?-"
+        )
+        if character not in {"'", '"'} or not quote_can_start:
+            index += 1
+            continue
+        quote = character
+        masked[index] = " "
+        index += 1
+        while index < len(line):
+            masked[index] = " "
+            if quote == "'" and line[index] == "'":
+                if index + 1 < len(line) and line[index + 1] == "'":
+                    masked[index + 1] = " "
+                    index += 2
+                    continue
+                index += 1
+                break
+            if quote == '"' and line[index] == "\\":
+                if index + 1 < len(line):
+                    masked[index + 1] = " "
+                    index += 2
+                    continue
+            elif quote == '"' and line[index] == '"':
+                index += 1
+                break
+            index += 1
+    return "".join(masked)
+
+
+def _yaml_structural_lines(source: str) -> list[_YamlLine]:
+    """Return YAML structure while excluding literal/folded scalar payloads."""
+
+    result: list[_YamlLine] = []
+    block_header_indent: int | None = None
+    block_indicator = re.compile(
+        r"(?:^|:\s+|-\s+)[|>](?:[1-9][+-]?|[+-][1-9]?|[+-])?\s*$"
+    )
+    for number, raw in enumerate(source.splitlines(), start=1):
+        leading = raw[: len(raw) - len(raw.lstrip(" \t"))]
+        if "\t" in leading:
+            raise WorkflowContractError(f"line {number}: tab indentation is forbidden")
+        indent = len(leading)
+        if block_header_indent is not None:
+            if not raw.strip() or indent > block_header_indent:
+                result.append(_YamlLine(number, raw, "", indent, True))
+                continue
+            block_header_indent = None
+        code = _mask_yaml_comments_and_quotes(raw)
+        result.append(_YamlLine(number, raw, code, indent, False))
+        if code.strip() and block_indicator.search(code.rstrip()):
+            block_header_indent = indent
+    return result
+
+
+def _reject_yaml_indirection(lines: list[_YamlLine]) -> None:
+    """Reject YAML features that can synthesize mappings outside static review."""
+
+    merge_key = re.compile(r"(?:^|[\s\[{,?-])<<\s*:")
+    indicator_boundary = "[{,:?-"
+    indicator_terminators = " \t[]{} ,&*!"
+    for line in lines:
+        if line.block_scalar or not line.code.strip():
+            continue
+        stripped = line.code.lstrip()
+        if re.match(r"^[?:](?:\s|$)", stripped):
+            raise WorkflowContractError(
+                f"line {line.number}: explicit YAML mapping syntax is forbidden"
+            )
+        if merge_key.search(line.code):
+            raise WorkflowContractError(f"line {line.number}: YAML merge keys are forbidden")
+        for index, character in enumerate(line.code):
+            if character not in {"&", "*"}:
+                continue
+            previous = line.code[index - 1] if index else ""
+            following = line.code[index + 1] if index + 1 < len(line.code) else ""
+            at_boundary = index == 0 or previous.isspace() or previous in indicator_boundary
+            has_name = bool(following) and following not in indicator_terminators
+            if at_boundary and has_name:
+                construct = "anchor" if character == "&" else "alias"
+                raise WorkflowContractError(
+                    f"line {line.number}: YAML {construct} syntax is forbidden"
+                )
+
+
+def _bare_mapping_keys(
+    lines: list[_YamlLine],
+    *,
+    start: int,
+    end: int,
+    indent: int,
+    context: str,
+) -> tuple[str, ...]:
+    keys: list[str] = []
+    pattern = re.compile(rf"^ {{{indent}}}([A-Za-z_][A-Za-z0-9_-]*):(?:\s.*)?$")
+    for line in lines[start:end]:
+        if line.block_scalar or not line.code.strip() or line.indent != indent:
+            continue
+        match = pattern.fullmatch(line.code.rstrip())
+        if match is None:
+            raise WorkflowContractError(
+                f"line {line.number}: {context} requires a bare mapping key"
+            )
+        keys.append(match.group(1))
+    return tuple(keys)
+
+
+def _maintenance_job_ranges(lines: list[_YamlLine]) -> dict[str, tuple[int, int]]:
+    jobs_headers = [
+        index
+        for index, line in enumerate(lines)
+        if not line.block_scalar and line.indent == 0 and line.code.rstrip() == "jobs:"
+    ]
+    if len(jobs_headers) != 1:
+        raise WorkflowContractError("workflow must contain one bare jobs mapping")
+    jobs_start = jobs_headers[0] + 1
+    jobs_end = len(lines)
+    for index in range(jobs_start, len(lines)):
+        line = lines[index]
+        if not line.block_scalar and line.code.strip() and line.indent == 0:
+            jobs_end = index
+            break
+
+    header_pattern = re.compile(r"^  ([A-Za-z_][A-Za-z0-9_-]*):$")
+    headers: list[tuple[str, int]] = []
+    for index in range(jobs_start, jobs_end):
+        line = lines[index]
+        if line.block_scalar or not line.code.strip() or line.indent != 2:
+            continue
+        match = header_pattern.fullmatch(line.code.rstrip())
+        if match is None:
+            raise WorkflowContractError(
+                f"line {line.number}: jobs require bare, empty mapping headers"
+            )
+        headers.append((match.group(1), index))
+    expected = tuple(MAINTENANCE_JOB_PROPERTIES)
+    if tuple(name for name, _ in headers) != expected:
+        raise WorkflowContractError(
+            f"workflow jobs must be exactly {expected!r} in order"
+        )
+    ranges: dict[str, tuple[int, int]] = {}
+    for position, (name, index) in enumerate(headers):
+        end = headers[position + 1][1] if position + 1 < len(headers) else jobs_end
+        ranges[name] = (index + 1, end)
+    return ranges
+
+
+def _named_step_ranges(
+    lines: list[_YamlLine],
+    *,
+    job: str,
+    start: int,
+    end: int,
+) -> list[tuple[str, int, int]]:
+    steps_headers = [
+        index
+        for index in range(start, end)
+        if not lines[index].block_scalar
+        and lines[index].indent == 4
+        and lines[index].code.rstrip() == "    steps:"
+    ]
+    if len(steps_headers) != 1:
+        raise WorkflowContractError(f"{job} must contain one bare steps mapping")
+    first = steps_headers[0] + 1
+    header_pattern = re.compile(r"^      - name: (\S(?:.*\S)?)$")
+    headers: list[tuple[str, int]] = []
+    for index in range(first, end):
+        line = lines[index]
+        if line.block_scalar or not line.code.strip() or line.indent != 6:
+            continue
+        match = header_pattern.fullmatch(line.code.rstrip())
+        if match is None:
+            raise WorkflowContractError(
+                f"line {line.number}: {job} steps require bare '- name:' headers"
+            )
+        headers.append((match.group(1), index))
+    ranges: list[tuple[str, int, int]] = []
+    for position, (name, index) in enumerate(headers):
+        step_end = headers[position + 1][1] if position + 1 < len(headers) else end
+        ranges.append((name, index, step_end))
+    return ranges
+
+
+def _raw_source_range(source_lines: list[str], start: int, end: int) -> str:
+    return "".join(source_lines[start:end])
+
+
+def _protected_env_block(
+    source_lines: list[str],
+    lines: list[_YamlLine],
+    *,
+    step_name: str,
+    start: int,
+    end: int,
+) -> str:
+    env_headers = [
+        index
+        for index in range(start + 1, end)
+        if not lines[index].block_scalar
+        and lines[index].indent == 8
+        and lines[index].code.rstrip() == "        env:"
+    ]
+    if len(env_headers) != 1:
+        raise WorkflowContractError(f"{step_name} must contain one bare env mapping")
+    env_start = env_headers[0]
+    env_end = end
+    for index in range(env_start + 1, end):
+        line = lines[index]
+        if not line.block_scalar and line.code.strip() and line.indent == 8:
+            env_end = index
+            break
+    _bare_mapping_keys(
+        lines,
+        start=env_start + 1,
+        end=env_end,
+        indent=10,
+        context=f"{step_name} environment",
+    )
+    return _raw_source_range(source_lines, env_start, env_end)
+
+
+def validate_maintenance_workflow_security_contract(source: str) -> None:
+    """Enforce the closed static workflow shape that guards repair credentials."""
+
+    source_lines = source.splitlines(keepends=True)
+    lines = _yaml_structural_lines(source)
+    _reject_yaml_indirection(lines)
+    job_ranges = _maintenance_job_ranges(lines)
+    step_ranges_by_job: dict[str, list[tuple[str, int, int]]] = {}
+    for job, (start, end) in job_ranges.items():
+        properties = _bare_mapping_keys(
+            lines,
+            start=start,
+            end=end,
+            indent=4,
+            context=f"{job} job",
+        )
+        expected_properties = MAINTENANCE_JOB_PROPERTIES[job]
+        if properties != expected_properties:
+            raise WorkflowContractError(
+                f"{job} properties must be exactly {expected_properties!r}"
+            )
+        step_ranges_by_job[job] = _named_step_ranges(
+            lines,
+            job=job,
+            start=start,
+            end=end,
+        )
+
+    expected_steps = {
+        "reviewer_readiness": REVIEWER_READINESS_STEPS,
+        "maintain": MAINTENANCE_MAINTAIN_STEPS,
+        "publish": MAINTENANCE_PUBLISH_STEPS,
+    }
+    for job, expected in expected_steps.items():
+        actual: list[tuple[str, tuple[str, ...]]] = []
+        for name, start, end in step_ranges_by_job[job]:
+            properties = _bare_mapping_keys(
+                lines,
+                start=start + 1,
+                end=end,
+                indent=8,
+                context=f"{job} step {name!r}",
+            )
+            actual.append((name, properties))
+        if tuple(actual) != expected:
+            raise WorkflowContractError(
+                f"{job} step names and properties must be exactly enumerated"
+            )
+
+    reviewer_steps = step_ranges_by_job["reviewer_readiness"]
+    harden_name, harden_start, harden_end = reviewer_steps[0]
+    harden_step = _raw_source_range(source_lines, harden_start, harden_end)
+    if harden_name != "Harden runner networking" or harden_step != REVIEWER_READINESS_HARDEN_STEP:
+        raise WorkflowContractError("reviewer harden-runner step bytes changed")
+    if hashlib.sha256(harden_step.encode()).hexdigest() != REVIEWER_READINESS_HARDEN_STEP_SHA256:
+        raise WorkflowContractError("reviewer harden-runner byte pin changed")
+
+    guard_name, guard_start, guard_end = reviewer_steps[1]
+    reviewer_env = _protected_env_block(
+        source_lines,
+        lines,
+        step_name=guard_name,
+        start=guard_start,
+        end=guard_end,
+    )
+    expected_reviewer_env = (
+        "        env:\n"
+        "          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n"
+        "          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}\n"
+    )
+    if reviewer_env != expected_reviewer_env:
+        raise WorkflowContractError("reviewer readiness env mapping changed")
+    run_headers = [
+        index
+        for index in range(guard_start + 1, guard_end)
+        if not lines[index].block_scalar
+        and lines[index].indent == 8
+        and lines[index].code.rstrip() == "        run: |"
+    ]
+    if len(run_headers) != 1:
+        raise WorkflowContractError("reviewer readiness requires one literal run body")
+    script_start = run_headers[0] + 1
+    script_line_indices = [
+        index
+        for index in range(script_start, guard_end)
+        if lines[index].block_scalar and lines[index].raw.strip()
+    ]
+    if not script_line_indices:
+        raise WorkflowContractError("reviewer readiness script body is empty")
+    script_end = script_line_indices[-1] + 1
+    script = textwrap.dedent(_raw_source_range(source_lines, script_start, script_end))
+    if script != REVIEWER_READINESS_SCRIPT:
+        raise WorkflowContractError("reviewer readiness script bytes changed")
+    if hashlib.sha256(script.encode()).hexdigest() != REVIEWER_READINESS_SCRIPT_SHA256:
+        raise WorkflowContractError("reviewer readiness script byte pin changed")
+
+    repair_steps = {
+        name: (start, end)
+        for name, start, end in step_ranges_by_job["maintain"]
+        if re.fullmatch(r"Kiro repair [1-4] of 4", name)
+    }
+    expected_repair_names = tuple(f"Kiro repair {attempt} of 4" for attempt in range(1, 5))
+    if tuple(repair_steps) != expected_repair_names:
+        raise WorkflowContractError("exactly four ordered Kiro repair steps are required")
+    secret_line_numbers: set[int] = set()
+    for attempt, name in enumerate(expected_repair_names, start=1):
+        start, end = repair_steps[name]
+        actual_env = _protected_env_block(
+            source_lines,
+            lines,
+            step_name=name,
+            start=start,
+            end=end,
+        )
+        expected_env = (
+            "        env:\n"
+            f'          ATTEMPT_NUMBER: "{attempt}"\n'
+            "          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}\n"
+        )
+        if actual_env != expected_env:
+            raise WorkflowContractError(f"{name} env mapping changed")
+        secret_line_numbers.update(
+            lines[index].number
+            for index in range(start, end)
+            if re.search(r"KIRO_API_KEY", lines[index].raw, flags=re.IGNORECASE)
+        )
+
+    all_secret_lines = {
+        line.number
+        for line in lines
+        if re.search(r"KIRO_API_KEY", line.raw, flags=re.IGNORECASE)
+    }
+    if all_secret_lines != secret_line_numbers or len(all_secret_lines) != 4:
+        raise WorkflowContractError(
+            "only the four enumerated Kiro repair env mappings may hold KIRO_API_KEY"
+        )
 
 
 def inventory_sha256(
@@ -3393,6 +3877,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_reviewer_readiness_fails_closed_before_kiro_maintenance(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        validate_maintenance_workflow_security_contract(workflow)
         readiness_match = re.search(
             r"(?ms)^  reviewer_readiness:\n(?P<body>.*?)(?=^  maintain:\n)",
             workflow,
@@ -3497,6 +3982,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                     env={
                         "ANTHROPIC_API_KEY": anthropic,
                         "CLAUDE_CODE_OAUTH_TOKEN": oauth,
+                        "CI": "true",
+                        "GITHUB_ACTIONS": "true",
                     },
                 )
                 self.assertEqual(result.returncode, expected_rc)
@@ -3611,6 +4098,167 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 re.findall(r"(?m)^    if: ([^\n]+)$", block),
                 expected_job_if[job_id],
             )
+
+    def test_maintenance_workflow_rejects_yaml_indirection_and_scope_bypasses(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        validate_maintenance_workflow_security_contract(workflow)
+
+        anchored_repair = workflow.replace(
+            "      - name: Kiro repair 1 of 4\n        env:\n",
+            "      - name: Kiro repair 1 of 4\n        env: &kiro_env\n",
+            1,
+        )
+        exact_bypass = anchored_repair.replace(
+            "      - name: Prepare repair 2 without workspace hooks\n",
+            "      - name: Fifth effective Kiro credential scope\n"
+            "        env: *kiro_env\n"
+            "        run: echo bypass\n"
+            "      - name: Prepare repair 2 without workspace hooks\n",
+            1,
+        )
+        anchored_step = workflow.replace(
+            "      - name: Kiro repair 1 of 4\n",
+            "      - &kiro_repair_step\n        name: Kiro repair 1 of 4\n",
+            1,
+        )
+        whole_step_bypass = anchored_step.replace(
+            "      - name: Prepare repair 2 without workspace hooks\n",
+            "      - *kiro_repair_step\n"
+            "      - name: Prepare repair 2 without workspace hooks\n",
+            1,
+        )
+        for bypass in (exact_bypass, whole_step_bypass):
+            # Both are valid YAML graphs with five effective Kiro-secret scopes,
+            # yet retain the legacy guard's four literal bindings/eight names.
+            self.assertEqual(
+                bypass.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"),
+                4,
+            )
+            self.assertEqual(bypass.count("KIRO_API_KEY"), 8)
+            with self.assertRaisesRegex(WorkflowContractError, "YAML anchor"):
+                validate_maintenance_workflow_security_contract(bypass)
+
+        mutations = {
+            "anchor": workflow.replace(
+                "permissions: {}\n",
+                "permissions: &workflow_permissions {}\n",
+                1,
+            ),
+            "alias": workflow.replace(
+                "permissions: {}\n",
+                "permissions: *workflow_permissions\n",
+                1,
+            ),
+            "merge": workflow.replace(
+                "permissions: {}\n",
+                "permissions:\n  <<: {}\n",
+                1,
+            ),
+            "explicit-key": workflow.replace(
+                "permissions: {}\n",
+                "? permissions\n: {}\n",
+                1,
+            ),
+            "quoted-protected-env": workflow.replace(
+                "      - name: Kiro repair 1 of 4\n        env:\n",
+                '      - name: Kiro repair 1 of 4\n        "env":\n',
+                1,
+            ),
+            "fifth-secret-scope": workflow.replace(
+                "          READONLY_GITHUB_TOKEN: ${{ github.token }}\n",
+                "          READONLY_GITHUB_TOKEN: ${{ github.token }}\n"
+                "          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}\n",
+                1,
+            ),
+            "maintain-extra-property": workflow.replace(
+                "      - name: Prepare repair 1 without workspace hooks\n",
+                "      - name: Prepare repair 1 without workspace hooks\n"
+                "        timeout-minutes: 1\n",
+                1,
+            ),
+            "publish-renamed-step": workflow.replace(
+                "      - name: Download candidate package\n",
+                "      - name: Download aliased candidate package\n",
+                1,
+            ),
+        }
+        for label, mutated in mutations.items():
+            with self.subTest(mutation=label):
+                self.assertNotEqual(mutated, workflow)
+                with self.assertRaises(WorkflowContractError):
+                    validate_maintenance_workflow_security_contract(mutated)
+
+        for job in MAINTENANCE_JOB_PROPERTIES:
+            with self.subTest(job=job, mutation="extra-job-property"):
+                mutated = workflow.replace(
+                    f"  {job}:\n",
+                    f"  {job}:\n    continue-on-error: false\n",
+                    1,
+                )
+                self.assertNotEqual(mutated, workflow)
+                with self.assertRaisesRegex(
+                    WorkflowContractError,
+                    rf"{job} properties must be exactly",
+                ):
+                    validate_maintenance_workflow_security_contract(mutated)
+
+    def test_yaml_indirection_scanner_ignores_inert_text(self) -> None:
+        inert = textwrap.dedent(
+            """\
+            name: "literal &anchor *alias <<: *merge"
+            single: '&anchor *alias <<: *merge'
+            # &comment_anchor *comment_alias <<: *comment_merge
+            if: left && right
+            run: |
+              background_task &
+              printf '%s\\n' '*alias <<: &anchor'
+            """
+        )
+        _reject_yaml_indirection(_yaml_structural_lines(inert))
+
+    def test_hosted_preflight_record_matches_workflow_and_does_not_overclaim(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        markdown = (ROOT / "reviews/hosted-maintenance-preflight-campaign.md").read_text()
+        record = json.loads(
+            (ROOT / "reviews/hosted-maintenance-preflight-campaign.json").read_text()
+        )
+
+        self.assertEqual(record["source_run"]["event"], "workflow_dispatch")
+        self.assertEqual(record["source_run"]["jobs"], HOSTED_PREFLIGHT_JOB_RESULTS)
+        self.assertEqual(
+            record["reviewer_readiness_failure"]["stderr"],
+            REVIEWER_READINESS_ABSENT_STDERR,
+        )
+        self.assertIn(
+            f"echo '{REVIEWER_READINESS_ABSENT_STDERR}' >&2",
+            workflow,
+        )
+        self.assertIn(
+            f"```text\n{REVIEWER_READINESS_ABSENT_STDERR}\n```",
+            markdown,
+        )
+        for job, result in HOSTED_PREFLIGHT_JOB_RESULTS.items():
+            self.assertIn(f"| `{job}` | `{result}` |", markdown)
+
+        local_validation = record["local_payload_validation"]
+        self.assertTrue(local_validation["reported"])
+        self.assertFalse(local_validation["machine_record_retained"])
+        self.assertEqual(local_validation["proof_status"], "not-claimed")
+        self.assertIn("no machine-readable validator result was retained", markdown)
+        self.assertRegex(
+            markdown,
+            r"does\s+not claim durable local validation proof",
+        )
+
+        hardening = record["post_run_hardening"]
+        success_condition = "needs.reviewer_readiness.result == 'success'"
+        self.assertEqual(hardening["explicit_reviewer_success_condition"], success_condition)
+        self.assertFalse(hardening["hosted_execution_observed"])
+        self.assertIn(success_condition, workflow)
+        self.assertRegex(markdown, r"has not\s+yet run in hosted Actions")
+        self.assertIn("manual-dispatch controls", markdown)
+        self.assertNotIn("proves private-repository scheduling controls", markdown)
+        self.assertRegex(markdown, r"not\s+cron-cadence proof")
 
     def test_workflow_contracts_are_statically_bound(self) -> None:
         kiro = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()

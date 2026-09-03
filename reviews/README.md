@@ -71,6 +71,14 @@ candidate-gate
 the pre-credit fail-closed ordering only; it is not a successful maintenance lifecycle, candidate
 review, or merge.
 
+The focused [Fable reviewer-readiness peer record](fable-fbl046-peer-review.md) and its
+[JSON companion](fable-fbl046-peer-review.json) then preserve the independent review of the
+explicit success gate. Fable closed the execution-order premise but found a valid YAML
+anchor/alias route that expanded four textual Kiro bindings into five effective secret scopes.
+`FBL-046-R1` is implemented locally with parser-aware static regressions; a fresh immutable Fable
+re-review is required before that focused criterion closes. This remains separate from final
+24-area release acceptance.
+
 Release therefore still requires one successful hosted maintenance lifecycle, the final native
 Spec-to-current-session verified-goal campaign on its exact candidate, Fable 5.1 `xhigh`
 acceptance with zero material unresolved findings, and the Grok 4.6 `xhigh` sweep followed by

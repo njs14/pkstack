@@ -36,6 +36,11 @@
     "created_at": "2026-09-03T10:20:51Z",
     "expires_at": "2026-09-04T10:20:51Z"
   },
+  "local_payload_validation": {
+    "reported": true,
+    "machine_record_retained": false,
+    "proof_status": "not-claimed"
+  },
   "reviewer_readiness_failure": {
     "branch": "absent",
     "stderr": "Fable review is mandatory; provision ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN before spending Kiro credits.",
@@ -79,6 +84,10 @@
     "head_sha": "6e8d4bbe25d549faa5f07378139d92de60294410",
     "conclusion": "skipped",
     "all_jobs_skipped": true
+  },
+  "post_run_hardening": {
+    "explicit_reviewer_success_condition": "needs.reviewer_readiness.result == 'success'",
+    "hosted_execution_observed": false
   },
   "external_prerequisite": "Configure one valid CI credential under exactly one accepted repository-secret name: CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY.",
   "terminal_status": "blocked-before-model-as-designed"

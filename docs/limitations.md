@@ -48,9 +48,12 @@ search and `knowledge validate --require-okn` require the canonical `okn` execut
 absent, `doctor` reports a warning and PK-Stack remains in feature-map-only knowledge mode.
 The `/okf` skill is workflow guidance, not a bundled validator or search engine. PK-Stack does not
 install or activate `scaccogatto/okf-skills` scripts, hooks, transcript backfill, MCP server,
-visualizer, or GitHub Action. A controlled comparison found that `okfcli/okf` 0.4.0 followed a
-Markdown symlink outside its bundle where canonical `okn` 0.13.0 rejected it, so `okfcli/okf` is
-limited to an explicitly named, isolated secondary conformance check and is never a fallback.
+visualizer, or GitHub Action. A checksum-verified comparison found that `okfcli/okf` 0.5.0 still
+followed a Markdown symlink outside its bundle where canonical `okn` 0.13.0 rejected it. Version
+0.5.0 also accepts date-only `stale_after` values while rejecting the authoritative OKF 0.2
+explicit-offset datetime form. It is therefore limited to an explicitly named advisory check over
+a disposable, immutable, symlink-free copy. It is never a runtime fallback or a normative
+`stale_after` gate.
 
 The real selected-profile Kiro campaign is retained as a bounded committed chronology plus an
 owner-only externally hashed raw transcript. Its 12-line client-log projection contains Kiro's

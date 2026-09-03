@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "scope": "focused reviewer-readiness peer review, not final release acceptance",
+  "reviewed_target": {
+    "commit": "347d461a097f5d26e084f10958641fc4aa70ce07",
+    "tree": "78e5b4e3c1f934486ce2e24707c8ecbbdae7b92a",
+    "parent": "dfbcfa82b37401e673b8441b25f1569a8fed51d4",
+    "snapshot": "/private/tmp/pk-stack-fable-fbl046-snapshot.c1nXvb",
+    "archive_sha256": "d9c874e95c8e1782caa3e3243463a532bdc402e520da7940cb4c6294715961a3"
+  },
+  "reviewer": {
+    "client": "Claude Code 2.1.258",
+    "model": "claude-fable-5-1",
+    "requested_effort": "xhigh",
+    "assistant_event_count": 47,
+    "assistant_models": [
+      "claude-fable-5-1"
+    ],
+    "internal_companion": {
+      "model": "claude-haiku-4-5-20251001",
+      "output_tokens": 19,
+      "produced_review_messages": false
+    },
+    "tools": {
+      "Read": 15,
+      "Grep": 16
+    },
+    "forbidden_activity_observed": false,
+    "terminal_stop_reason": "end_turn",
+    "stderr_empty": true
+  },
+  "artifacts": {
+    "invocation_sha256": "f81c9c6c1abb1f3c7f76c1750150228786501aa3c332643f197f4705f7ac4086",
+    "contract_sha256": "5ad131d4ab5804cdf82b601152ff3a8eb6ada65a201ef456f02951310e4d8162",
+    "report_sha256": "ada1a37a8313d8c62f89a85e74669a2fd4b550702b6bc0bf6ef5bbd8e2e379da",
+    "envelope_sha256": "31c0d462194ae83ed9cae2f527250607222948551599661e687fa94b87855175",
+    "projection_sha256": "50690e8799caa2e052c3e81f721e96b6e593e68cac76deacdeb80168fc149b88",
+    "counterexample_patch_sha256": "69b99581daecdbd7c06243733acb5ad3c06a9eb9d8fd3e5d0c779e11eec86c5a",
+    "counterexample_validation_sha256": "8d99ffdfb5256a8515898340060ea6d440e074ce5fc34f728411365928e05252"
+  },
+  "verdict": "REMEDIATE_FIRST",
+  "material_unresolved": 1,
+  "closed_by_review": [
+    "FBL-046 execution ordering"
+  ],
+  "findings": [
+    {
+      "id": "FBL-046-R1",
+      "severity": "MEDIUM",
+      "status": "remediated locally; immutable Fable re-review pending",
+      "title": "YAML alias can multiply or relocate KIRO_API_KEY scope",
+      "former_guard_tests_passed": 64,
+      "effective_secret_scopes": 5,
+      "acceptance": [
+        "forbid active YAML anchors, aliases, merge keys, and explicit mapping keys",
+        "require bare and exact protected env mappings",
+        "close all five job property sets",
+        "enumerate reviewer_readiness, maintain, and publish steps and properties",
+        "confine KIRO_API_KEY to four named repair steps",
+        "retain valid env-map and whole-step alias regressions",
+        "obtain a fresh Fable 5.1 xhigh verdict on the immutable remediation"
+      ]
+    }
+  ],
+  "final_release_acceptance": false
+}

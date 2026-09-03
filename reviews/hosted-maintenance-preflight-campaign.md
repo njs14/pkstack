@@ -38,6 +38,16 @@ the unrelated Dependabot pull requests were untouched. The downstream
 was created by `workflow_run` but every job was skipped because the source workflow did not
 succeed.
 
+GitHub recorded the exact source-job conclusions as follows:
+
+| Job | Conclusion |
+| --- | --- |
+| `plan` | `success` |
+| `detect` | `success` |
+| `reviewer_readiness` | `failure` |
+| `maintain` | `skipped` |
+| `publish` | `skipped` |
+
 ## Detected transition
 
 Exactly one of four configured sources had drift:
@@ -59,9 +69,16 @@ available.
 
 ## Boundary and remaining prerequisite
 
-This run proves private-repository scheduling controls, authenticated four-source drift detection,
-artifact handoff, and fail-fast reviewer readiness. It does not prove the Kiro repair invocation,
-secretless acceptance/finalization, candidate publication, Fable review, or exact-SHA merge.
+This run proves private-repository manual-dispatch controls, authenticated four-source drift
+detection, artifact handoff, and fail-fast reviewer readiness. The committed workflow also contains
+the daily schedule, but this dispatch did not exercise it. It does not prove the Kiro repair
+invocation, secretless acceptance/finalization, candidate publication, Fable review, or exact-SHA
+merge.
+
+The current workflow also requires
+`needs.reviewer_readiness.result == 'success'` before `maintain`. That explicit success condition
+postdates the immutable hosted target above and has passed local static validation, but it has not
+yet run in hosted Actions.
 
 The one external prerequisite is one valid CI-capable Fable credential configured under exactly one
 accepted repository-secret name. Readiness checks only presence and exclusivity; validity is proven
@@ -74,8 +91,9 @@ cron-cadence proof.
 
 The downloaded `upstream-check.json` payload was 29,170 bytes with SHA-256
 `311bc1cc1e260356dcfde329748be875d623177c73ef00b29606c529e052b3b3`; the GitHub artifact archive
-reported 4,842 bytes. The local maintenance guard revalidated the downloaded payload before it was
-discarded.
+reported 4,842 bytes. A local maintenance-guard replay was reported as passing before the payload
+was discarded, but no machine-readable validator result was retained. This record therefore does
+not claim durable local validation proof.
 
 The machine-readable companion is
 [`hosted-maintenance-preflight-campaign.json`](hosted-maintenance-preflight-campaign.json).

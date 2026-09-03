@@ -118,6 +118,32 @@ This is local Darwin arm64 evidence. It does not exercise the OKN registry, MCP,
 remote knowledge, a Kiro UI/session, Crew, Web, Floci, or application business behavior. It also
 does not promote `okfcli/okf` into the runtime path.
 
+## Fresh `okfcli/okf` v0.5.0 comparison: worktree evidence only
+
+The bounded [OKF integration comparison](../reviews/okf-integration-evidence.md) was refreshed
+after `okfcli/okf` v0.5.0 shipped. Official Darwin arm64 release archives for `okf` v0.5.0 and
+canonical `okn` v0.13.0 were downloaded into an owner-only temporary directory, inspected before
+extraction, and matched against both GitHub asset digests and publisher checksums. Nothing was
+installed globally and no credential was used.
+
+The refresh re-ran the prior symlink fixture. Canonical `okn` rejected the linked concept with exit
+2. `okf` returned exit 0 with zero errors and warnings, and both `show` and `search` returned the
+outside body. It also exposed an inverse `stale_after` incompatibility: `okn` passed the
+authoritative explicit-offset value `2027-01-01T00:00:00Z`, while `okf` rejected it with
+`okf/lifecycle/stale-after-invalid`; `okf` instead accepted the nonconforming date-only value
+without a finding. Version 0.5.0 adds useful broken-link, duplicate-source, duplicate-footnote, and
+SARIF diagnostics, but it still lacks the ranked, budgeted, revision-bound provenance contract
+used by PK-Stack search.
+
+The decision therefore remains unchanged. Canonical `okn` 0.13.0 is the KNOW runtime.
+`okfcli/okf` may be an explicitly named advisory CI/SARIF oracle only over a disposable,
+immutable, symlink-free copy; it is never a fallback or a normative `stale_after` gate. This probe
+was recorded from the clean pre-documentation worktree at commit
+`347d461a097f5d26e084f10958641fc4aa70ce07`, tree
+`78e5b4e3c1f934486ce2e24707c8ecbbdae7b92a`. It is architecture evidence, not a new immutable
+candidate campaign, and it does not close the native-Spec, successful maintenance-lifecycle, or
+final model-council gates.
+
 ## Retained immutable Floci exact-deletion campaign: `final-floci-903`
 
 The [`final-floci-903` campaign](../reviews/final-floci-deletion-campaign.md) independently executed

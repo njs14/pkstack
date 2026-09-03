@@ -1,9 +1,12 @@
 {
-  "schema_version": 1,
-  "observed_at": "2026-09-03T04:44:00Z",
-  "worktree_base_commit": "491bfdafc94832c6624ed86051955b1067245979",
-  "worktree_dirty": true,
-  "purpose": "Architectural selection evidence, not immutable release acceptance",
+  "schema_version": 2,
+  "observed_at": "2026-09-03T11:32:13Z",
+  "worktree_snapshot": {
+    "commit": "347d461a097f5d26e084f10958641fc4aa70ce07",
+    "tree": "78e5b4e3c1f934486ce2e24707c8ecbbdae7b92a",
+    "dirty_before_documentation_refresh": false
+  },
+  "purpose": "Current-worktree architecture and runtime comparison, not immutable release acceptance",
   "sources": {
     "okf_specification": {
       "repository": "GoogleCloudPlatform/knowledge-catalog",
@@ -12,6 +15,8 @@
       "root_tree": "e27e2f6cc9804a2dce5ca5ba59b8e3c94d71b18f",
       "subtree": "a8cc7ed0f4ec6bb6019da9b8ace51e3e6dafd06f",
       "spec_version": "0.2",
+      "spec_url": "https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/fbbc7975388288244dfc62aea0066600b25b7c47/okf/SPEC.md?plain=1",
+      "stale_after_contract": "ISO 8601 datetime with an explicit UTC offset representing an absolute instant",
       "recursive_inventory": {
         "truncated": false,
         "tree_entries": 40,
@@ -62,29 +67,57 @@
     "canonical_okn": {
       "repository": "openknowledge-sh/openknowledge",
       "release": "v0.13.0",
+      "release_url": "https://github.com/openknowledge-sh/openknowledge/releases/tag/v0.13.0",
+      "release_commit": "801b54d6da1abf69428ed7e85f7ea56b20e17552",
+      "annotated_tag_object": "74da1da22d9348b3c33173037eeeb3b5c65713e9",
+      "checksums_asset_sha256": "5ce2d253ec4787cb70fd7c68d21c6fa99044d0c157b92fbccd2f6172826ee0d3",
       "archive_sha256": "d1350fd0e434d5231d49263981b35a1d0219d333ec167cadf605f7800d0f7b78",
       "binary_sha256": "f331ba6ea6c1cf7ea4f8903059c46647ff5118ce93440015a219006500aec4e2",
-      "role": "canonical bounded validation, retrieval, and provenance runtime"
+      "binary_format": "Mach-O 64-bit executable arm64",
+      "role": "canonical bounded validation, retrieval, provenance, query, and lifecycle runtime"
     },
     "secondary_okf_cli": {
       "repository": "okfcli/okf",
-      "release": "v0.4.0",
-      "reported_commit": "346788d",
-      "archive_sha256": "7665632742a2ba5e9f9833fdd318ae9778ae8089dbe8c2b0a3bfe3c56248260e",
-      "binary_sha256": "52720c54b84e533e6dd165b15ec8067af5776f33ea7c5003ac8df0e5dfeba068",
-      "role": "optional explicitly named isolated conformance or SARIF oracle only"
+      "release": "v0.5.0",
+      "release_url": "https://github.com/okfcli/okf/releases/tag/v0.5.0",
+      "compare_url": "https://github.com/okfcli/okf/compare/v0.4.0...v0.5.0",
+      "published_at": "2026-09-03T05:27:23Z",
+      "release_commit": "9985a55e986bf2c0ab39040fec4e4a0a24895ab0",
+      "annotated_tag_object": "d754f3efa49c783facd3f3214c73d29f9c903880",
+      "checksums_asset_sha256": "4fec614da31b29a4ddad774e912ad3265518a5724261d997d9a4813171d4e8ab",
+      "archive_sha256": "fef958317c8c498374c3870d3adbe039cad6db2d6aa1ceb45c13ee1e759a0e41",
+      "binary_sha256": "c0afa856024bc4322f1f7c079495c47dc1ec2ccc75c5a29bf9a6a2059f9bed4c",
+      "binary_format": "Mach-O 64-bit executable arm64",
+      "version_output": {
+        "commit": "9985a55",
+        "date": "2026-09-03T05:26:41Z",
+        "name": "okf",
+        "version": "0.5.0"
+      },
+      "role": "optional explicitly named advisory CI or SARIF oracle over a disposable immutable symlink-free copy only"
     }
+  },
+  "supply_chain_probe": {
+    "temporary_root_mode": "0700",
+    "download_protocol": "HTTPS with TLS 1.2 minimum",
+    "archive_members_listed_before_extraction": true,
+    "github_asset_digests_matched": true,
+    "publisher_checksums_matched": true,
+    "checksum_signature_independently_verified": false,
+    "installed_globally": false,
+    "credentials_used": false
   },
   "canonical_okn_campaign": {
     "commands": [
-      "env PATH=<verified-okn-directory>:$PATH uv run --project powers/pk-stack projectctl knowledge status --output json",
-      "env PATH=<verified-okn-directory>:$PATH uv run --project powers/pk-stack projectctl knowledge validate --require-okn --output json",
-      "env PATH=<verified-okn-directory>:$PATH uv run --project powers/pk-stack projectctl knowledge search 'why native Kiro planning remains authoritative' --budget 900 --output json"
+      "env PYTHONDONTWRITEBYTECODE=1 OPENKNOWLEDGE_TELEMETRY=off PATH=<verified-okn-directory>:$PATH .pstack/bin/projectctl knowledge status --output json",
+      "env PYTHONDONTWRITEBYTECODE=1 OPENKNOWLEDGE_TELEMETRY=off PATH=<verified-okn-directory>:$PATH .pstack/bin/projectctl knowledge validate --require-okn --output json",
+      "env PYTHONDONTWRITEBYTECODE=1 OPENKNOWLEDGE_TELEMETRY=off PATH=<verified-okn-directory>:$PATH .pstack/bin/projectctl knowledge search 'why native Kiro planning remains authoritative' --budget 900 --output json"
     ],
     "status": {
       "ok": true,
       "mode": "canonical-okn",
-      "version": "0.13.0"
+      "version": "0.13.0",
+      "workspace_safe": true
     },
     "validation": {
       "ok": true,
@@ -93,17 +126,20 @@
       "okf_concepts": 6,
       "okf_indexes": 1,
       "okf_errors": 0,
-      "okf_warnings": 0
+      "okf_warnings": 0,
+      "protocol_error": null
     },
     "search": {
       "ok": true,
       "budget": 900,
       "estimated_tokens": 879,
-      "index_sha256": "7b282a5bcdbaead66774b1f51db5e6bcf207fc269384af021c06e48cbde13a71",
-      "returned_non_feature_paths": [
-        "architecture/native-kiro-composition.md",
-        "decisions/native-spec-and-okn.md",
-        "operations/context-depth.md"
+      "source_count": 6,
+      "index_sha256": "ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64",
+      "returned_path_groups": [
+        "architecture",
+        "decisions",
+        "operations",
+        "features"
       ],
       "provenance_fields_checked": [
         "revision",
@@ -112,28 +148,173 @@
         "lineEnd",
         "locator",
         "contentSha256"
-      ]
+      ],
+      "protocol_error": null
     }
   },
-  "comparative_safety_probe": {
-    "fixture": "A Markdown concept inside Wiki was a symlink to a regular file outside Wiki.",
-    "canonical_okn": {
-      "accepted": false,
-      "exit_code": 2,
-      "message": "symbolic links are not supported inside knowledge bundles: escape.md"
+  "comparative_probe": {
+    "symlink_escape": {
+      "fixture": "escape.md inside the bundle was a symlink to a regular Markdown concept outside the bundle containing OUTSIDE_BODY_SENTINEL_V050",
+      "canonical_okn": {
+        "accepted": false,
+        "exit_code": 2,
+        "message": "symbolic links are not supported inside knowledge bundles: escape.md"
+      },
+      "secondary_okf_cli": {
+        "accepted": true,
+        "exit_code": 0,
+        "errors": 0,
+        "warnings": 0,
+        "outside_body_returned_by_show": true,
+        "outside_body_returned_by_search": true
+      }
     },
-    "secondary_okf_cli": {
-      "accepted": true,
-      "errors": 0,
-      "warnings": 2,
-      "outside_body_returned_by_show": true
+    "stale_after": {
+      "authoritative_contract": "ISO 8601 datetime with an explicit UTC offset",
+      "date_only": {
+        "value": "2027-01-01",
+        "canonical_okn": {
+          "exit_code": 0,
+          "status": "warn",
+          "issue_count": 1,
+          "finding": "stale_after should be an ISO 8601 datetime with an explicit offset"
+        },
+        "secondary_okf_cli": {
+          "exit_code": 0,
+          "valid": true,
+          "errors": 0,
+          "warnings": 0
+        }
+      },
+      "explicit_offset": {
+        "value": "2027-01-01T00:00:00Z",
+        "canonical_okn": {
+          "exit_code": 0,
+          "status": "pass",
+          "issue_count": 0
+        },
+        "secondary_okf_cli": {
+          "exit_code": 1,
+          "valid": false,
+          "errors": 1,
+          "warnings": 0,
+          "rule": "okf/lifecycle/stale-after-invalid",
+          "sarif_version": "2.1.0",
+          "sarif_error_results": 1
+        }
+      }
+    },
+    "broken_link": {
+      "canonical_okn": {
+        "exit_code": 0,
+        "status": "warn",
+        "rule": "link-target"
+      },
+      "secondary_okf_cli": {
+        "exit_code": 0,
+        "valid": true,
+        "level": "warning",
+        "rule": "okf/links/broken"
+      }
+    },
+    "duplicate_source_and_footnote": {
+      "canonical_okn": {
+        "exit_code": 0,
+        "status": "warn",
+        "warnings": 1,
+        "duplicate_source_id_detected": true,
+        "duplicate_footnote_definition_detected": false
+      },
+      "secondary_okf_cli": {
+        "exit_code": 0,
+        "valid": true,
+        "warnings": 2,
+        "duplicate_source_id_detected": true,
+        "duplicate_footnote_definition_detected": true
+      }
+    },
+    "current_pk_stack_wiki": {
+      "canonical_okn": {
+        "exit_code": 0,
+        "status": "pass",
+        "files": 7,
+        "concepts": 6,
+        "indexes": 1,
+        "issues": 0
+      },
+      "secondary_okf_cli": {
+        "exit_code": 0,
+        "valid": true,
+        "errors": 0,
+        "warnings": 4,
+        "warning_scope": "recommended description and tag metadata on two PK-Stack feature records"
+      }
+    },
+    "search": {
+      "query": "native planning",
+      "budget": 300,
+      "canonical_okn": {
+        "exit_code": 0,
+        "source_count": 3,
+        "estimated_tokens": 128,
+        "route": [
+          "bm25",
+          "vector",
+          "rerank",
+          "link_expansion"
+        ],
+        "revision_and_content_provenance": true
+      },
+      "secondary_okf_cli": {
+        "exit_code": 0,
+        "concept_count": 1,
+        "passage_content": false,
+        "ranking_score": false,
+        "token_budget": false,
+        "revision_and_content_provenance": false
+      }
     }
+  },
+  "v0_5_improvements": [
+    "stray dash-prefixed arguments are usage errors",
+    "broken links are warnings rather than errors",
+    "duplicate source IDs and duplicate footnote definitions are reported",
+    "validation and lint can emit SARIF 2.1.0 with stable rule IDs",
+    "release workflow pins actions and applies least privilege and timeouts"
+  ],
+  "capability_boundary": {
+    "secondary_okf_cli_commands": [
+      "schema",
+      "init",
+      "validate",
+      "lint",
+      "index",
+      "list",
+      "show",
+      "search",
+      "backlinks",
+      "graph",
+      "version"
+    ],
+    "canonical_okn_required_capabilities": [
+      "ranked token-budgeted search",
+      "revision-bound paths, locators, hashes, and line ranges",
+      "strict versioned output schemas",
+      "read-only query and proof paths",
+      "registry and lifecycle interfaces"
+    ]
   },
   "decision": {
     "workflow_skill": "PK-Stack ships one Kiro-native /okf skill adapted from okf-skills semantics.",
-    "runtime": "Canonical okn remains the only projectctl KNOW runtime.",
-    "secondary_cli": "okfcli/okf is never an automatic fallback.",
+    "runtime": "Canonical okn 0.13.0 remains the only projectctl KNOW runtime.",
+    "secondary_cli": "okfcli/okf 0.5.0 may be used only as an explicitly selected advisory CI or SARIF oracle over a disposable immutable symlink-free copy with bounded read-only validate or lint commands.",
+    "stale_after": "okfcli/okf cannot gate normative stale_after conformance while it rejects the authoritative explicit-offset datetime form.",
+    "maintenance": "okfcli/okf is not an autonomous maintenance source or runtime dependency.",
     "native_kiro": "Kiro Spec, Quick Spec, Bug Fix, and Plan remain authoritative for planning; OKF supplies bounded context, not a second plan."
   },
-  "release_gate": "Repeat the canonical validation and retrieval campaign from the immutable final candidate and subject this record and implementation to Fable 5.1 xhigh review."
+  "release_gates": [
+    "Repeat canonical okn validation and retrieval against the frozen release candidate.",
+    "Complete the native Spec or Quick Spec current-session campaign against that candidate.",
+    "Complete final Fable 5.1 xhigh council acceptance against the exact release candidate."
+  ]
 }

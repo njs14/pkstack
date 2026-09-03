@@ -133,10 +133,11 @@ Use the canonical `.pstack/bin/projectctl`, not an ambient root `./projectctl` o
 add attempts, or force-clear active evidence. `goal resume --add-attempts N` is reserved for an
 explicit user extension after exhaustion. Broader `knowledge search` and strict OKF validation
 require the canonical `okn` command; feature-map validation remains available without it and is
-still included when `okn` is present. `okfcli/okf` may be used as an explicitly named independent
-CI conformance check, but never silently substitutes for `okn`. Invoke `/okf` when the task is to
-produce, maintain, or consume broader Wiki knowledge; it follows the same feature-first, linked-
-concept, then bounded-search context ladder.
+still included when `okn` is present. `okfcli/okf` may be used only as an explicitly named advisory
+CI/SARIF check over a disposable, immutable, symlink-free copy. It never silently substitutes for
+`okn` and cannot be a normative `stale_after` gate while it rejects the OKF 0.2 explicit-offset
+datetime form. Invoke `/okf` when the task is to produce, maintain, or consume broader Wiki
+knowledge; it follows the same feature-first, linked-concept, then bounded-search context ladder.
 
 ## Floci lab lifecycle
 

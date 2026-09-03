@@ -937,8 +937,10 @@ That delegates to `okn search Wiki <query>`. PK-Stack does not implement a
 fallback OKF graph or broad text index. The feature map is the first context layer; use broad OKF
 search only for architecture, decisions, concepts, or operations that the narrow record cannot
 answer. Native `/knowledge` may index the same Wiki, but it is not the canonical source or checker.
-`okfcli/okf` is an optional independent CI conformance/SARIF oracle, never a transparent runtime
-fallback for `okn` search or lifecycle behavior.
+`okfcli/okf` is an optional explicitly named advisory CI/SARIF oracle over a disposable,
+immutable, symlink-free copy, never a transparent runtime fallback for `okn` validation, search,
+provenance, or lifecycle behavior. Version 0.5.0 rejects the authoritative OKF 0.2 explicit-offset
+`stale_after` form, so its result cannot gate normative conformance.
 
 PK-Stack accepts the pinned `okn` 0.13.0 search response, which has no top-level management status,
 and newer compatible responses only when an emitted `status` is exactly `managed`. An explicit

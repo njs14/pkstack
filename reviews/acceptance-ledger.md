@@ -70,13 +70,15 @@ implementation as the design authority.
   checks, zero errors, zero warnings, and zero issues; its
   [machine-readable record](final-okf-campaign.json) preserves the exact command and result bounds.
 - `PLOT-007` — Evaluate `okfcli/okf` rather than silently substituting it. It may be an explicitly
-  named independent CI conformance/SARIF oracle only if its bounded safety assumptions are met; it
-  must never transparently replace canonical `okn` search, query, lifecycle, or safety behavior.
-  Status: **closed locally** by the bounded [comparison record](okf-integration-evidence.md), final
-  architecture/usage guidance, and the immutable canonical-runtime campaign. The comparison
-  confirmed `okfcli/okf` 0.4.0 follows an in-bundle Markdown symlink outside the bundle while
-  canonical `okn` rejects it, so it is not on the runtime path. The final immutable campaign
-  re-proved canonical `okn`; it did not rerun or promote the optional `okfcli/okf` oracle.
+  named advisory CI/SARIF oracle only over a disposable, immutable, symlink-free bundle copy; it
+  must never transparently replace canonical `okn` search, query, lifecycle, or safety behavior or
+  act as a normative `stale_after` gate. Status: **closed locally** by the bounded
+  [comparison record](okf-integration-evidence.md), final architecture/usage guidance, and the
+  immutable canonical-runtime campaign. The checksum-verified v0.5.0 re-evaluation confirmed that
+  `okfcli/okf` still follows an in-bundle Markdown symlink outside the bundle and now rejects the
+  authoritative explicit-offset `stale_after` form, while canonical `okn` rejects the symlink and
+  accepts that form. The fresh comparison is worktree architecture evidence. The older immutable
+  campaign re-proved canonical `okn`; it did not execute or promote the optional oracle.
 - `PLOT-008` — Exercise the final integration through real native Kiro Spec or Quick Spec artifacts,
   return to `pstack`, bind a published feature, and complete a spec-backed verified goal without
   ACP, a nested Kiro process, `/spawn`, or a native `/goal` claim. Status: pending after the final
@@ -116,9 +118,11 @@ its host-specific runtime or weakening PK-Stack's established KNOW boundary.
 - `OKFS-009` — Preserve unknown metadata and user-authored concepts; never bulk-migrate, delete,
   deprecate, publish, or auto-open content merely to satisfy a check. Status: implemented as
   workflow policy; destructive and publication paths remain separately authorized.
-- `OKFS-010` — Keep `okfcli/okf` as an optional explicitly named conformance/SARIF oracle only. It
-  must never substitute for canonical `okn` retrieval, provenance, lifecycle, or symlink safety.
-  Status: implemented in architecture, usage, and runtime selection.
+- `OKFS-010` — Keep `okfcli/okf` as an optional explicitly named advisory CI/SARIF oracle only. It
+  may run only against a disposable, immutable, symlink-free copy and must never substitute for
+  canonical `okn` retrieval, provenance, lifecycle, or safety. Until it accepts the authoritative
+  explicit-offset OKF 0.2 `stale_after` form, it must not gate normative conformance. Status:
+  implemented in architecture, usage, runtime selection, and the v0.5.0 comparison record.
 - `OKFS-011` — Apply PK-Stack's self-maintenance contract to the OKF sources themselves: track the
   exact `okf-skills` skills subtree and authoritative Google OKF specification tree independently,
   with per-source pins, genesis, parity, proposals, and serialized acceptance. Status: **closed
@@ -485,10 +489,22 @@ a focused peer review of the hosted-maintenance checkpoint, not the final 24-are
   readiness fails. `maintain` must explicitly require a successful `reviewer_readiness` result;
   regression coverage must pin the exact five-job graph and dependency edges, the explicit
   success condition, and exactly four `KIRO_API_KEY` bindings confined to `maintain`. Status:
-  **implemented locally, Fable re-review pending**. The remediation also makes script extraction
-  line-bounded, hardens the readiness runner's network, records the absent-credential branch and
-  downloaded detector digest, and requires a hosted drift lifecycle rather than accepting a no-op
-  as reviewer-credential proof.
+  **execution semantics peer-verified; binding confinement remediated locally, Fable re-review
+  pending**. The focused Fable pass on commit `347d461a097f5d26e084f10958641fc4aa70ce07`
+  found no route past failed, skipped, cancelled, or absent readiness, but opened the material
+  subfinding below. The remediation also makes script extraction line-bounded, hardens the
+  readiness runner's network, records the absent-credential branch and downloaded detector
+  digest, and requires a hosted drift lifecycle rather than accepting a no-op as reviewer-
+  credential proof.
+- `FBL-046-R1` — Reject parser-level secret-scope multiplication. A YAML anchor on one repair
+  `env` mapping plus an alias on another step produced five effective `KIRO_API_KEY` scopes while
+  the former 64 textual guard tests still passed. Status: **remediated locally, immutable Fable
+  re-review pending**. The workflow contract now forbids active anchors, aliases, merge keys, and
+  explicit mapping keys; requires bare exact credential environments; closes all five job
+  property sets; enumerates the readiness, maintain, and publish steps; confines the secret to the
+  four named repairs; and retains valid env-map and whole-step alias counterexamples. The bounded
+  [peer record](fable-fbl046-peer-review.md) preserves the finding and exact external evidence
+  hashes.
 
 ## Kiro model and methodology criteria
 
