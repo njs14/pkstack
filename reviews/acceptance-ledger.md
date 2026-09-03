@@ -167,7 +167,10 @@ The first fresh Sol Advisor audit reviewed diff
   remove/add pair ambiguous. Status: implemented with a capped duplicate-identity regression while
   retaining the unique-identity rename regression.
 
-A fresh Sol audit and Fable peer acceptance remain required after these remediations.
+A fresh Sol audit accepted implementation commit
+`441ccae81ee6dcda68c987a06aadcb3139357d7c` with no material findings and explicitly closed
+`SOL-001` and `SOL-002`; see [`sol-compare-cap-audit.md`](sol-compare-cap-audit.md). Fable peer
+acceptance remains required.
 
 ## Fable round 1 material criteria
 

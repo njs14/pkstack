@@ -80,6 +80,20 @@ candidate-gate
 the pre-credit fail-closed ordering only; it is not a successful maintenance lifecycle, candidate
 review, or merge.
 
+The same record now also preserves the first natural scheduled execution,
+[run 33761288363](https://github.com/njs14/pk-stack/actions/runs/33761288363), on exact commit
+`9fc846884fb897b592d40366430d77d692aee72b`. Its authenticated detector and immutable planning
+passed, reviewer readiness again failed before Kiro, and downstream
+[candidate run 33761403736](https://github.com/njs14/pk-stack/actions/runs/33761403736) skipped all
+jobs. This closes trigger-only cadence proof, not a successful repair/review/merge lifecycle.
+
+The [Sol compare-cap audit](sol-compare-cap-audit.md) records the fresh `gpt-5.6-sol`/high review of
+the exact 300-file reconstruction change. The first audit found unbounded diff work and incomplete
+rename-ambiguity detection. Implementation commit
+`441ccae81ee6dcda68c987a06aadcb3139357d7c` adds explicit work limits and whole-subtree identity
+uniqueness; a fresh audit accepted that exact diff with no material findings. Fable acceptance is
+still required.
+
 The focused [Fable reviewer-readiness peer record](fable-fbl046-peer-review.md) and its
 [JSON companion](fable-fbl046-peer-review.json) then preserve the independent review of the
 explicit success gate. Fable closed the execution-order premise but found a valid YAML
