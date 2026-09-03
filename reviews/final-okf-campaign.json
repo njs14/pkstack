@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-03T05:33:13Z",
+  "purpose": "Immutable-candidate acceptance evidence for PK-Stack feature and canonical OKF/OKN behavior",
+  "candidate": {
+    "commit": "8806fa607b991d8e3ca9d004f2724412596f715d",
+    "tree": "bd0488dc2b184c39c0a6c538d5f2d2ebf73375cf",
+    "commit_subject": "Complete native Kiro and OKF integration",
+    "archive": {
+      "format": "git archive --format=tar",
+      "sha256": "998708506c9e1eb951848c2df205ab439a238699312aa3866e4dcca65076517f",
+      "bytes": 5928960,
+      "embedded_commit": "8806fa607b991d8e3ca9d004f2724412596f715d"
+    },
+    "execution_root": "<isolated-git-archive>/worktree",
+    "tracked_source": "exact committed archive; no live-worktree source was executed"
+  },
+  "canonical_okn": {
+    "repository": "openknowledge-sh/openknowledge",
+    "release": "v0.13.0",
+    "platform": "darwin-arm64",
+    "release_archive_sha256": "d1350fd0e434d5231d49263981b35a1d0219d333ec167cadf605f7800d0f7b78",
+    "observed_release_archive_sha256": "d1350fd0e434d5231d49263981b35a1d0219d333ec167cadf605f7800d0f7b78",
+    "binary_sha256": "f331ba6ea6c1cf7ea4f8903059c46647ff5118ce93440015a219006500aec4e2",
+    "observed_binary_sha256": "f331ba6ea6c1cf7ea4f8903059c46647ff5118ce93440015a219006500aec4e2",
+    "version": "0.13.0",
+    "digest_match": true,
+    "path_contract": {
+      "path": "<verified-okn-bin>:$PATH",
+      "directory_mode": "0700",
+      "binary_mode": "0700",
+      "alias": "okn -> openknowledge",
+      "outside_candidate_root": true
+    }
+  },
+  "execution": {
+    "working_directory": "<isolated-git-archive>/worktree",
+    "environment_prefix": "env PATH=<verified-okn-bin>:$PATH UV_PROJECT_ENVIRONMENT=<isolated-venv> UV_CACHE_DIR=<isolated-uv-cache> PYTHONDONTWRITEBYTECODE=1",
+    "commands": [
+      {
+        "id": "knowledge-status",
+        "command": "env PATH=<verified-okn-bin>:$PATH UV_PROJECT_ENVIRONMENT=<isolated-venv> UV_CACHE_DIR=<isolated-uv-cache> PYTHONDONTWRITEBYTECODE=1 uv run --project powers/pk-stack --locked --no-config projectctl knowledge status --output json",
+        "exit_code": 0,
+        "ok": true
+      },
+      {
+        "id": "feature-validate",
+        "command": "env PATH=<verified-okn-bin>:$PATH UV_PROJECT_ENVIRONMENT=<isolated-venv> UV_CACHE_DIR=<isolated-uv-cache> PYTHONDONTWRITEBYTECODE=1 uv run --project powers/pk-stack --locked --no-config projectctl feature validate --output json",
+        "exit_code": 0,
+        "ok": true
+      },
+      {
+        "id": "knowledge-validate-strict",
+        "command": "env PATH=<verified-okn-bin>:$PATH UV_PROJECT_ENVIRONMENT=<isolated-venv> UV_CACHE_DIR=<isolated-uv-cache> PYTHONDONTWRITEBYTECODE=1 uv run --project powers/pk-stack --locked --no-config projectctl knowledge validate --require-okn --output json",
+        "exit_code": 0,
+        "ok": true
+      },
+      {
+        "id": "knowledge-search-bounded",
+        "command": "env PATH=<verified-okn-bin>:$PATH UV_PROJECT_ENVIRONMENT=<isolated-venv> UV_CACHE_DIR=<isolated-uv-cache> PYTHONDONTWRITEBYTECODE=1 uv run --project powers/pk-stack --locked --no-config projectctl knowledge search \"why native Kiro planning remains authoritative\" --budget 900 --output json",
+        "exit_code": 0,
+        "ok": true
+      }
+    ]
+  },
+  "results": {
+    "status": {
+      "ok": true,
+      "mode": "canonical-okn",
+      "workspace_safe": true,
+      "wiki_present": true,
+      "okn_available": true,
+      "okn_executable_name": "okn",
+      "okn_version": "0.13.0",
+      "path_error": null,
+      "okn_error": null
+    },
+    "feature_validation": {
+      "ok": true,
+      "feature_count": 2,
+      "feature_slugs": [
+        "document-export",
+        "pk-stack-upstream-maintenance"
+      ],
+      "errors": 0,
+      "warnings": 0
+    },
+    "strict_knowledge_validation": {
+      "ok": true,
+      "mode": "canonical-okn",
+      "okn_version": "0.13.0",
+      "schema_version": "1",
+      "spec_version": "0.2",
+      "profile": "okf",
+      "files": 7,
+      "concepts": 6,
+      "indexes": 1,
+      "logs": 0,
+      "checks": 10,
+      "errors": 0,
+      "warnings": 0,
+      "issues": 0,
+      "feature_count": 2,
+      "feature_errors": 0,
+      "feature_warnings": 0,
+      "timed_out": false,
+      "truncated": false
+    },
+    "bounded_search": {
+      "ok": true,
+      "mode": "canonical-okn",
+      "query": "why native Kiro planning remains authoritative",
+      "budget": 900,
+      "estimated_tokens": 879,
+      "limit": 12,
+      "source_count": 6,
+      "issue_count": 0,
+      "schema_version": "1",
+      "spec_version": "0.2",
+      "index_sha256": "485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284",
+      "route": [
+        "bm25",
+        "vector",
+        "rerank",
+        "link_expansion"
+      ],
+      "sources": [
+        {
+          "id": "architecture/native-kiro-composition#related-knowledge",
+          "path": "architecture/native-kiro-composition.md",
+          "line_start": 35,
+          "line_end": 43,
+          "content_sha256": "cd60cf3edf81e5733b59228977d2c3020ab55d262bb42c520f21ccf82b807b7d",
+          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/architecture%2Fnative-kiro-composition.md#cd60cf3edf81e5733b59228977d2c3020ab55d262bb42c520f21ccf82b807b7d"
+        },
+        {
+          "id": "decisions/native-spec-and-okn#consequences",
+          "path": "decisions/native-spec-and-okn.md",
+          "line_start": 22,
+          "line_end": 34,
+          "content_sha256": "1e1b85cc0a70002cf69aba400ec13d623105756647337b298987a6ce13cf2757",
+          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/decisions%2Fnative-spec-and-okn.md#1e1b85cc0a70002cf69aba400ec13d623105756647337b298987a6ce13cf2757"
+        },
+        {
+          "id": "operations/context-depth#architecture-rationale-or-native-planning",
+          "path": "operations/context-depth.md",
+          "line_start": 23,
+          "line_end": 33,
+          "content_sha256": "7d6f7500af4b5b0e2779e092e85e7d7e0048a5bedb2de10b4e9a5759e59bceba",
+          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/operations%2Fcontext-depth.md#7d6f7500af4b5b0e2779e092e85e7d7e0048a5bedb2de10b4e9a5759e59bceba"
+        },
+        {
+          "id": "decisions/native-spec-and-okn#decision",
+          "path": "decisions/native-spec-and-okn.md",
+          "line_start": 10,
+          "line_end": 21,
+          "content_sha256": "b4d20e989688bbbf2a8e2b320eeaa2a4a00f5f6f70f14e73600723881abda581",
+          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/decisions%2Fnative-spec-and-okn.md#b4d20e989688bbbf2a8e2b320eeaa2a4a00f5f6f70f14e73600723881abda581"
+        },
+        {
+          "id": "features/document-export#user-behavior",
+          "path": "features/document-export.md",
+          "line_start": 22,
+          "line_end": 30,
+          "content_sha256": "070b656194252cddcff557ee0e8f4605d057f8dadc1208b33e27db4182608d0a",
+          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/features%2Fdocument-export.md#070b656194252cddcff557ee0e8f4605d057f8dadc1208b33e27db4182608d0a"
+        },
+        {
+          "id": "architecture/native-kiro-composition#ownership",
+          "path": "architecture/native-kiro-composition.md",
+          "line_start": 10,
+          "line_end": 18,
+          "content_sha256": "f8cb50e16f35c364226a69c92efc75f31309b6b33361e5e904122941b3b172b7",
+          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/architecture%2Fnative-kiro-composition.md#f8cb50e16f35c364226a69c92efc75f31309b6b33361e5e904122941b3b172b7"
+        }
+      ],
+      "provenance_fields_checked_per_source": [
+        "id",
+        "path",
+        "lineStart",
+        "lineEnd",
+        "contentSha256",
+        "locator"
+      ],
+      "locator_revision_matches_index": true,
+      "locator_content_matches_source": true,
+      "budget_respected": true,
+      "timed_out": false,
+      "truncated": false
+    }
+  },
+  "harness_safety": {
+    "wiki_symlinks": 0,
+    "workspace_local_okn_allowed": false,
+    "external_executable_requires_resolved_name_on_path": true,
+    "policy_relaxed": false
+  },
+  "limitations": [
+    "This is local darwin-arm64 evidence for one immutable commit; it is not a cross-platform claim.",
+    "The campaign validates the committed feature map and seven-file Wiki through projectctl and canonical okn; it does not exercise OKN registry, MCP, publishing, or remote knowledge sources.",
+    "The campaign does not test Kiro IDE, CLI conversation behavior, Crew, Web, Floci, or application business paths.",
+    "Private temporary paths and raw command payloads are intentionally normalized or omitted; content-addressed provenance and bounded summaries are retained."
+  ],
+  "verdict": "pass"
+}

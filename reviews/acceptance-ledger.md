@@ -59,21 +59,24 @@ implementation as the design authority.
   campaign remains the separate `PLOT-008` gate.
 - `PLOT-005` — Restore the context-depth ladder as product behavior: use the spec-linked feature map
   first, then canonical `okn` for broader architecture, decisions, concepts, and operations. Native
-  `/knowledge` may index the source-controlled Wiki but does not replace it. Status: implemented in
-  workflow guidance and a seven-file linked Wiki; a real canonical `okn` 0.13.0 validation and
-  provenance-bearing bounded search passed locally. Immutable-candidate reproof is pending.
+  `/knowledge` may index the source-controlled Wiki but does not replace it. Status: **closed on
+  immutable candidate `8806fa607b991d8e3ca9d004f2724412596f715d`**. The isolated
+  [`final-okf-campaign`](final-okf-campaign.md) validated the seven-file linked Wiki with canonical
+  `okn` 0.13.0 and returned six provenance-bearing passages within the 900-token budget.
 - `PLOT-006` — `knowledge validate` must always retain the PROVE feature-map verdict when canonical
   `okn` is installed; one validator cannot hide failure in the other. Status: implemented with
-  positive and negative composition regressions. A real canonical `okn` 0.13.0 invocation passed
-  with both the two-record feature map and the broader OKF 0.2 bundle clean; immutable-candidate
-  reproof is pending.
+  positive and negative composition regressions and **closed on immutable candidate `8806fa6`**.
+  The strict canonical campaign passed both feature records and the broader OKF 0.2 bundle with 10
+  checks, zero errors, zero warnings, and zero issues; its
+  [machine-readable record](final-okf-campaign.json) preserves the exact command and result bounds.
 - `PLOT-007` — Evaluate `okfcli/okf` rather than silently substituting it. It may be an explicitly
   named independent CI conformance/SARIF oracle only if its bounded safety assumptions are met; it
   must never transparently replace canonical `okn` search, query, lifecycle, or safety behavior.
-  Status: comparative isolated probes and final architecture/usage guidance completed. The probe
+  Status: **closed locally** by the bounded [comparison record](okf-integration-evidence.md), final
+  architecture/usage guidance, and the immutable canonical-runtime campaign. The comparison
   confirmed `okfcli/okf` 0.4.0 follows an in-bundle Markdown symlink outside the bundle while
-  canonical `okn` rejects it, so it is not on the runtime path. A bounded committed evidence record
-  and immutable-candidate reproof remain pending.
+  canonical `okn` rejects it, so it is not on the runtime path. The final immutable campaign
+  re-proved canonical `okn`; it did not rerun or promote the optional `okfcli/okf` oracle.
 - `PLOT-008` — Exercise the final integration through real native Kiro Spec or Quick Spec artifacts,
   return to `pstack`, bind a published feature, and complete a spec-backed verified goal without
   ACP, a nested Kiro process, `/spawn`, or a native `/goal` claim. Status: pending after the final
@@ -118,9 +121,11 @@ its host-specific runtime or weakening PK-Stack's established KNOW boundary.
   Status: implemented in architecture, usage, and runtime selection.
 - `OKFS-011` — Apply PK-Stack's self-maintenance contract to the OKF sources themselves: track the
   exact `okf-skills` skills subtree and authoritative Google OKF specification tree independently,
-  with per-source pins, genesis, parity, proposals, and serialized acceptance. Status: closed
-  locally with three-source no-drift reproof; immutable-candidate and hosted cadence proof remain
-  release gates.
+  with per-source pins, genesis, parity, proposals, and serialized acceptance. Status: **closed
+  locally** in candidate `8806fa6` with per-source state and the retained three-source no-drift
+  reproof. The separate immutable OKF/OKN campaign passed the candidate's resulting Wiki and
+  canonical runtime boundary. Hosted cadence proof remains a release gate; the immutable knowledge
+  campaign does not substitute for a GitHub-hosted updater run.
 
 ## Fable round 1 material criteria
 
@@ -307,15 +312,19 @@ returned `REQUEST CHANGES` with three material findings. The normalized report i
   `docs/validation-report.md`, and this ledger, with historical and current evidence roles kept
   distinct.
 - `FBL-040` — Create the authorized private repository before treating its plugin URL as live.
-  Disposition: **pending publication** of `njs14/pk-stack` and exact privacy/URL verification.
+  Disposition: **closed**. The authorized [`njs14/pk-stack`](https://github.com/njs14/pk-stack)
+  repository was created and its visibility verified as private. This closes the URL/publication
+  identity finding only; hosted workflow evidence and final council acceptance remain pending.
 - `FBL-041` — Remove the misleading null Kiro evidence-carrier field and state whether the source
   write preceded attempt 2. Local disposition: **closed locally** in the final Kiro JSON and prose
   evidence.
 - `FBL-042` — Ensure teardown cannot sweep a foreign object that merely shares the Compose project
   identity. Local disposition: **closed locally** by deleting only the frozen claim-checked outer
-  container and network and by a planted-foreign-member fail-closed regression. A fresh live Floci
-  lifecycle on this exact code remains required because the prior final campaign predates the
-  deletion-path change.
+  container and network and by a planted-foreign-member fail-closed regression. The fresh
+  [`final-floci-903` campaign](final-floci-deletion-campaign.md) exercised the exact revised path on
+  immutable candidate `8806fa6`: all eight teardown phases passed, the campaign objects were absent,
+  and a running foreign container carrying the same Compose project label retained the same ID and
+  bounded inspect hash. Its [JSON record](final-floci-deletion-campaign.json) is the bounded proof.
 - `FBL-043` — Exercise representative direct, consolidated, native-replacement, and excluded skill
   routes and retain the remaining hosted/publication gates. Local route disposition:
   **closed locally** by `reviews/skill-route-campaign.md`, its JSON companion, and the bound
@@ -382,7 +391,10 @@ proofs named below.
   primary Kiro workflow.
 - `SELF-007` — Create only the authorized private `njs14/pk-stack` repository, configure the Kiro
   secret without printing it, verify repository/action privacy and permissions, and run a hosted
-  workflow proof. Status: pending council acceptance and publication.
+  workflow proof. Status: **partially closed**. The authorized repository now exists and was
+  verified private; repository creation is no longer a pending publication claim. A successful
+  bounded hosted credential/permission/maintenance proof and final council acceptance remain open,
+  so private-repository existence is not treated as hosted liveness.
 - `SELF-008` — Ship a documented, decodable RGBA potato-ghost mascot with an OKF scholar's
   mortarboard, transparent outer corners, and an honest visual-reference notice. Status:
   implemented; the asset checksum and decoded alpha behavior are regressed.
@@ -547,11 +559,12 @@ different skill.
 
 ## Remaining acceptance sequence
 
-1. Finish the trusted-Git audit and run every local static, packaging, policy, and regression gate.
-2. Create the authorized private repository and run the exact hosted credential, permission, and
-   maintenance smokes; retain only bounded, secret-free evidence.
-3. Run and commit a fresh exact-code Floci lifecycle and external-judge proof after the
-   claim-bound Docker deletion change.
+1. Commit the bounded `8806fa6` OKF/OKN and Floci exact-deletion records as evidence-carrier bytes,
+   then rerun every deterministic static, packaging, policy, and regression gate. Do not claim that
+   the later evidence carrier was the executable used by either campaign.
+2. Run the exact hosted credential, permission, and maintenance smokes in the already-created
+   private repository; retain only bounded, secret-free evidence.
+3. Exercise the final native-Spec-to-verified-goal integration on its exact immutable candidate.
 4. Repeat Fable 5.1 at `xhigh` on immutable candidates until it returns acceptance with zero
    material unresolved findings.
 5. Run the final Grok 4.6 `xhigh` read-only sweep on the Fable-accepted commit.

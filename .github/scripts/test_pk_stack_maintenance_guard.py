@@ -42,6 +42,14 @@ permission_stream_guard = importlib.util.module_from_spec(PERMISSION_STREAM_SPEC
 PERMISSION_STREAM_SPEC.loader.exec_module(permission_stream_guard)
 
 VALID_PATCH = "@@ -0,0 +1 @@\n+new"
+KIRO_ISOLATED_SETTINGS = (
+    b'{\n'
+    b'  "app.disableAutoupdates": true,\n'
+    b'  "chat.disableInheritingDefaultResources": true,\n'
+    b'  "telemetry.enabled": false\n'
+    b'}\n'
+)
+KIRO_ISOLATED_SETTINGS_SHA256 = hashlib.sha256(KIRO_ISOLATED_SETTINGS).hexdigest()
 
 
 def inventory_sha256(
@@ -1913,6 +1921,56 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             )
             self.assertEqual(guard._goal_status(status)["attempt_count"], 2)
 
+    def test_isolated_kiro_settings_are_exact_and_never_written_via_cli(self) -> None:
+        sources = {
+            "maintenance setup": (
+                ROOT / ".github/scripts/prepare_kiro_maintenance_runtime.sh"
+            ).read_text(),
+            "credential smoke": (
+                ROOT / ".github/workflows/pk-stack-kiro-credential-smoke.yml"
+            ).read_text(),
+            "permission smoke": (
+                ROOT / ".github/workflows/pk-stack-kiro-permission-smoke.yml"
+            ).read_text(),
+        }
+        payload_pattern = re.compile(
+            r"(?m)^\s*printf '%s\\n' \\\n"
+            r'(?P<lines>(?:^\s*\'[^\']*\'(?: \\| >"\$settings_path")\n)+)'
+        )
+        for label, source in sources.items():
+            with self.subTest(label=label):
+                payload_match = payload_pattern.search(source)
+                self.assertIsNotNone(payload_match)
+                values = re.findall(
+                    r'(?m)^\s*\'([^\']*)\'(?: \\| >"\$settings_path")$',
+                    payload_match.group("lines"),  # type: ignore[union-attr]
+                )
+                payload = ("\n".join(values) + "\n").encode()
+                self.assertEqual(payload, KIRO_ISOLATED_SETTINGS)
+                self.assertEqual(
+                    json.loads(payload),
+                    {
+                        "app.disableAutoupdates": True,
+                        "chat.disableInheritingDefaultResources": True,
+                        "telemetry.enabled": False,
+                    },
+                )
+                self.assertIn(KIRO_ISOLATED_SETTINGS_SHA256, source)
+                self.assertIn('install -m 0600 /dev/null "$settings_path"', source)
+                self.assertIn("stat -c '%a'", source)
+                self.assertIn("settings/mcp.json", source)
+                self.assertTrue(
+                    'test ! -e "$KIRO_USER_HOME/.kiro"' in source
+                    or 'test ! -e "$SMOKE_ROOT/user-home/.kiro"' in source
+                )
+                for key in (
+                    "app.disableAutoupdates",
+                    "chat.disableInheritingDefaultResources",
+                    "telemetry.enabled",
+                ):
+                    self.assertEqual(source.count(f'"{key}"'), 1)
+                    self.assertNotIn(f" settings {key} ", source)
+
     def test_workflow_contracts_are_statically_bound(self) -> None:
         kiro = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
@@ -2134,6 +2192,30 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("--trust-tools=", smoke)
         self.assertIn("chmod -R a-w", smoke)
         self.assertIn("if: always()", smoke)
+        credential_prepare = re.search(
+            r"(?ms)^      - name: Prepare checksum-pinned isolated Kiro runtime\n"
+            r".*?(?=^      - name: Invoke one bounded no-tool Sol credential smoke)",
+            smoke,
+        )
+        credential_invoke = re.search(
+            r"(?ms)^      - name: Invoke one bounded no-tool Sol credential smoke\n"
+            r".*?(?=^      - name: Remove every credential-smoke runtime and log)",
+            smoke,
+        )
+        self.assertIsNotNone(credential_prepare)
+        self.assertIsNotNone(credential_invoke)
+        self.assertNotIn(
+            "agent validate",
+            credential_prepare.group(0),  # type: ignore[union-attr]
+        )
+        self.assertIn(
+            "agent validate",
+            credential_invoke.group(0),  # type: ignore[union-attr]
+        )
+        self.assertIn(
+            'KIRO_API_KEY="$KIRO_API_KEY"',
+            credential_invoke.group(0),  # type: ignore[union-attr]
+        )
         embedded_agent = re.search(
             r"(?ms)^          CI_AGENT_BASE64: \|-\n"
             r"(?P<body>(?:^            [A-Za-z0-9+/=]+\n)+)"

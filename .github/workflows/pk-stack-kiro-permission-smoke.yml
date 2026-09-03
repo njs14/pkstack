@@ -169,15 +169,21 @@ jobs:
           powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json
           powers/pk-stack/tests/protected.py
           EOF
-          (
-            cd "$SMOKE_ROOT"
-            HOME="$SMOKE_ROOT/user-home" KIRO_HOME="$SMOKE_ROOT/kiro-home" \
-              "$SMOKE_ROOT/bin/kiro-cli" settings chat.disableInheritingDefaultResources true
-            HOME="$SMOKE_ROOT/user-home" KIRO_HOME="$SMOKE_ROOT/kiro-home" \
-              "$SMOKE_ROOT/bin/kiro-cli" settings app.disableAutoupdates true
-            HOME="$SMOKE_ROOT/user-home" KIRO_HOME="$SMOKE_ROOT/kiro-home" \
-              "$SMOKE_ROOT/bin/kiro-cli" settings telemetry.enabled false
-          )
+          mkdir -m 0700 "$SMOKE_ROOT/kiro-home/settings"
+          settings_path="$SMOKE_ROOT/kiro-home/settings/cli.json"
+          install -m 0600 /dev/null "$settings_path"
+          printf '%s\n' \
+            '{' \
+            '  "app.disableAutoupdates": true,' \
+            '  "chat.disableInheritingDefaultResources": true,' \
+            '  "telemetry.enabled": false' \
+            '}' >"$settings_path"
+          printf '%s  %s\n' \
+            81d98ac813691c26f18f797ca5126c5150125cf74d2f6d413e152290074a6bd0 \
+            "$settings_path" | sha256sum --check
+          test "$(stat -c '%a' "$settings_path")" = 600
+          test ! -e "$SMOKE_ROOT/kiro-home/settings/mcp.json"
+          test ! -e "$SMOKE_ROOT/user-home/.kiro"
           chmod -R a-w "$GITHUB_WORKSPACE"
       - name: Invoke exact production permission matrix
         env:

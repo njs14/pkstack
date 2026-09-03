@@ -25,11 +25,11 @@ It does not use Kubernetes, a mock ECS implementation, AWS Fargate, or a real AW
 
 ## Use PK-Stack in Kiro
 
-Clone this private repository, then import the local `powers/pk-stack/` directory through Kiro's
-Powers panel. That directory has the Agent Plugins `plugin.json`, source, lock, skills, and
-templates. The root `.pstack/projectctl/` directory is generated fixture output and is never an
-installation or upgrade authority. Keeping one canonical Power source plus parity-checked output
-avoids a second hand-maintained implementation.
+Clone the private [`njs14/pk-stack`](https://github.com/njs14/pk-stack) repository, then import the
+local `powers/pk-stack/` directory through Kiro's Powers panel. That directory has the Agent Plugins
+`plugin.json`, source, lock, skills, and templates. The root `.pstack/projectctl/` directory is
+generated fixture output and is never an installation or upgrade authority. Keeping one canonical
+Power source plus parity-checked output avoids a second hand-maintained implementation.
 
 In Kiro IDE 1.x, open chat or Agent Focus and choose the workspace `pstack` agent from the agent
 picker. In Kiro CLI, start an ordinary interactive v3 session with the same generated profile:
@@ -116,6 +116,10 @@ of shipping an unreviewed operational change. See the [maintenance feature
 contract](Wiki/features/pk-stack-upstream-maintenance.md), [architecture](docs/architecture.md),
 and [review ledger](reviews/acceptance-ledger.md).
 
+The authorized repository has been created and verified private. That establishes the real clone
+URL, not hosted liveness: successful bounded credential, permission, and maintenance workflow
+evidence, followed by final Fable/Grok council acceptance, is still pending.
+
 ## Run the Floci acceptance fixture
 
 Prerequisites are macOS on ARM64, `uv`, and a running Docker daemon. The lifecycle is:
@@ -161,12 +165,19 @@ The emulator is unauthenticated while running. Port 4566 is bound to loopback, b
 network is not an egress-isolation boundary. Use a disposable Docker daemon and read the
 [limitations](docs/limitations.md) before treating the lab as production evidence.
 
-The candidate implementation, final Docker-backed lab evidence, and final local current-session
-Kiro campaign are documented separately from model-council acceptance. See
-[architecture](docs/architecture.md), [test strategy](docs/test-strategy.md), the
-[final Floci campaign](reviews/final-floci-campaign.md)
-([machine-readable record](reviews/final-floci-campaign.json)), the
-[final Kiro CLI v3 campaign](reviews/final-kiro-v3-campaign.md)
-([machine-readable record](reviews/final-kiro-v3-campaign.json)), and the
-[validation report](docs/validation-report.md). Independent Fable acceptance, the final Grok
-sweep, and private-repository publication remain gated until their own evidence exists.
+The current immutable executable candidate is commit
+`8806fa607b991d8e3ca9d004f2724412596f715d`. Its detached archive passed the
+[canonical OKF/OKN campaign](reviews/final-okf-campaign.md)
+([machine-readable record](reviews/final-okf-campaign.json)) and the
+[Floci exact-deletion campaign](reviews/final-floci-deletion-campaign.md)
+([machine-readable record](reviews/final-floci-deletion-campaign.json)), including preservation of
+a foreign same-project-label sentinel. Those records were produced after the candidate; no later
+evidence-carrier bytes are claimed as executed. The earlier
+[Kiro CLI v3 campaign](reviews/final-kiro-v3-campaign.md)
+([machine-readable record](reviews/final-kiro-v3-campaign.json)) remains current-session evidence
+for its own older executable commit, not for `8806fa6`.
+
+See [architecture](docs/architecture.md), [test strategy](docs/test-strategy.md), and the full
+[validation report](docs/validation-report.md). The repository exists and is private, but hosted
+workflow proof, a final native-Spec current-session campaign, independent Fable acceptance, and the
+final Grok sweep remain gated until their own evidence exists.

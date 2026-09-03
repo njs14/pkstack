@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-03T05:38:08Z",
+  "decision": "pass",
+  "purpose": "Close FBL-042 against the exact-object outer-container and network deletion path that replaced project-wide Compose teardown.",
+  "evidence_for": {
+    "commit": "8806fa607b991d8e3ca9d004f2724412596f715d",
+    "tree": "bd0488dc2b184c39c0a6c538d5f2d2ebf73375cf",
+    "archive_sha256": "cc14e34967b9132f985bdc99da92f4ba2b2e713b8077894a3b8b0b7db8a76cfb",
+    "archive_embedded_commit": "8806fa607b991d8e3ca9d004f2724412596f715d",
+    "tracked_file_count": 390,
+    "tracked_bytes_unchanged_after_campaign": true,
+    "protected_control_manifest_matches_after_campaign": true
+  },
+  "environment": {
+    "run_id": "final-floci-903",
+    "docker_context": "desktop-linux",
+    "docker_daemon_id": "fabba3a8-3367-4971-9e85-efbdb563f86f",
+    "docker_server_version": "29.7.2",
+    "compose_version": "5.5.0",
+    "floci_image": "floci/floci:2.0.1@sha256:4e451c39c7bb88e3cd4f87e8fc0c25d5b47695a51185d521e2241fa00486e8eb",
+    "python_image": "python:3.12-slim-bookworm@sha256:782412e85d0f0984994c290652577d4018aff08145c85b262bb63dc0c7522254",
+    "region": "us-east-1"
+  },
+  "frozen_controls": {
+    "path_count": 14,
+    "control_manifest_sha256": "d35c86b45b640d817f57b7bfd5bc61c36b42e7cd4d4bdcfc32c6bd64f6d48aa7",
+    "judge_sha256": "73e6b16865381c0475e528d5c87458081d92f213e31811395b4e2ecfad9560d7",
+    "feature_contract_sha256": "37203aba7f6404e0a820fcacbca770857070c77a6e161d9622d9011e85c80d80",
+    "lifecycle_source_sha256": "5e85a0d8a39d8963b36aa3e59b8ae0c43482d53b34b865a0e828c47834d7710b",
+    "state_before_down_sha256": "2e05142a615834cb41cb618ec4d6c0b043622832a358185f327dd5eb28caf823"
+  },
+  "commands": [
+    {
+      "ordinal": 1,
+      "argv": ["./labctl", "doctor", "--output", "json"],
+      "exit_code": 0,
+      "output_sha256": "9527a011a51d9df5fb8783b2fbcb89644e9cb1e5c7084102437264b47f685735"
+    },
+    {
+      "ordinal": 2,
+      "argv": ["./labctl", "up", "--run-id", "final-floci-903", "--acknowledge-docker-socket", "--output", "json"],
+      "exit_code": 0,
+      "output_sha256": "836963af930bdf9a20edfbad4ed17917997cb60408c4c7373ab44daf58f04438"
+    },
+    {
+      "ordinal": 3,
+      "argv": ["./labctl", "deploy", "--output", "json"],
+      "exit_code": 0,
+      "output_sha256": "f73c48ae0a14a4af3be1362b97f7a87431da06d576edb2f7395384a085047e16"
+    },
+    {
+      "ordinal": 4,
+      "argv": ["./labctl", "status", "--output", "json"],
+      "exit_code": 0,
+      "output_sha256": "3a6a17fc3a2b193c68883d6176d8e57e6153afdd8aeeecc787364a6114ab161d"
+    },
+    {
+      "ordinal": 5,
+      "argv": ["./labctl", "verify", "--output", "json"],
+      "exit_code": 0,
+      "output_sha256": "1caebcf05bcd610e308441c524ea6318b1362eb8477090e740f90080db8c9a50"
+    },
+    {
+      "ordinal": 6,
+      "argv": ["./labctl", "evidence", "--output", "json"],
+      "exit_code": 0,
+      "output_sha256": "ad2458546bb57b8de30850afb324f6cfaa6c241db9074f51df4e2f81ffe64623"
+    },
+    {
+      "ordinal": 7,
+      "argv": [
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "<frozen-external-judge>",
+        "--repo",
+        "<detached-candidate>",
+        "--expected-contract-sha256",
+        "37203aba7f6404e0a820fcacbca770857070c77a6e161d9622d9011e85c80d80",
+        "--control-manifest",
+        "<frozen-external-control-manifest>"
+      ],
+      "exit_code": 0,
+      "output_sha256": "d9e24fd0f51c178f1beede6c086ed8dcc316818a7816689edc1feea663881371"
+    },
+    {
+      "ordinal": 8,
+      "argv": ["./labctl", "down", "--output", "json"],
+      "exit_code": 0,
+      "output_sha256": "8ea4ab5fe736d57654352474045a49fc7ce9eccc66470fd083b291fc6ba93b2c"
+    }
+  ],
+  "deployment": {
+    "claim_id": "e89b523c70021ff20c4e7433be011293",
+    "operation_id": "f34f304fc37725791caca61803e520fc",
+    "source_digest": "5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6",
+    "image_id": "sha256:a8bcf12e649d324f60a25a7f402f27fe22e3b1125ca63d1266004f19c79cad8b",
+    "api_task_definition": "arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-final-floci-903-api:1",
+    "worker_task_definition": "arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-final-floci-903-worker:1",
+    "api_task": "arn:aws:ecs:us-east-1:000000000000:task/pklab-final-floci-903-cluster/72ef9b9a785240189d653ee9f60299d1",
+    "worker_task": "arn:aws:ecs:us-east-1:000000000000:task/pklab-final-floci-903-cluster/a821cbbba66646d3b1d877e91200ba54",
+    "api_status_before_verification": "RUNNING",
+    "worker_status_before_verification": "RUNNING",
+    "deploy_count": 1
+  },
+  "artifact_ledger": {
+    "event_count": 8,
+    "operation_count": 1,
+    "sequence": {
+      "first": 1,
+      "last": 8,
+      "strictly_contiguous": true
+    }
+  },
+  "verification": {
+    "ok": true,
+    "transport": "bounded HTTP from a transient hardened verifier container to the exact real ECS API task",
+    "export_id": "e-74216228444e90e7",
+    "terminal_status": "COMPLETE",
+    "tenant_key_partition_separation": true,
+    "api_idempotency": {
+      "attempts": 1,
+      "duplicate_marker": true,
+      "duplicate_status": "COMPLETE",
+      "same_export_id": true,
+      "enqueue_confirmed": true,
+      "row_idempotency_matches": true
+    },
+    "s3_result_exact": true,
+    "worker_duplicate_delivery_noop": true,
+    "dlq_current_invocation": true,
+    "dlq_message_id": "2df342e5-ad70-4e1a-805e-666844a7e4ce",
+    "post_business_identity_reproof": true
+  },
+  "external_judge": {
+    "ok": true,
+    "contract_sha256": "37203aba7f6404e0a820fcacbca770857070c77a6e161d9622d9011e85c80d80",
+    "control_manifest_sha256": "d35c86b45b640d817f57b7bfd5bc61c36b42e7cd4d4bdcfc32c6bd64f6d48aa7",
+    "judge_sha256": "73e6b16865381c0475e528d5c87458081d92f213e31811395b4e2ecfad9560d7"
+  },
+  "teardown": {
+    "ok": true,
+    "aws_mode": "reachable",
+    "reported_ecs_tasks": 2,
+    "reported_images": 2,
+    "completed_phases": [
+      "aws_compute_absent",
+      "aws_data_absent",
+      "aws_definitions_cluster_absent",
+      "aws_postconditions_passed",
+      "docker_outer_absent",
+      "floci_data_absent",
+      "docker_images_absent",
+      "local_postconditions_passed"
+    ],
+    "state_manifest_absent": true,
+    "floci_data_absent": true,
+    "floci_container_absent": true,
+    "dedicated_network_absent": true,
+    "current_claim_container_count": 0,
+    "exact_task_containers_absent": true,
+    "exact_run_image_refs_absent": true,
+    "outer_container_id_before_down": "7bd140fdeec03673bef96eaf2659def418d3eace189170d90f6b27dd23594e56",
+    "dedicated_network_id_before_down": "4481c5bfdff0a41c899c97968ef2da4fa6d2cf27c89475a098c77d6d4a1a3788"
+  },
+  "deletion_regression_proof": {
+    "sentinel": {
+      "name": "pklab-final-floci-903-foreign-sentinel",
+      "container_id": "7af98305fffde923cab3431371e4aebfdcc91749487509523f5f24bf01420ff6",
+      "compose_project_label": "pk-stack-lab",
+      "compose_service_label": "foreign-sentinel",
+      "pk_stack_managed_label": "false",
+      "pk_stack_ownership_claim_present": false,
+      "network_mode": "none",
+      "read_only_root": true,
+      "cap_drop_all": true,
+      "no_new_privileges": true,
+      "user": "65532:65532",
+      "inspect_before_sha256": "a34f1613263d6a8a4c0647804b23baaf2887c1cfefd67dd238feaa7e24824381",
+      "inspect_after_sha256": "a34f1613263d6a8a4c0647804b23baaf2887c1cfefd67dd238feaa7e24824381",
+      "same_id_and_bytes_after_labctl_down": true,
+      "running_after_labctl_down": true,
+      "removed_after_proof_by_exact_validated_id": true,
+      "absent_after_exact_sentinel_cleanup": true
+    },
+    "exact_outer_container_absent_after_down": true,
+    "exact_dedicated_network_absent_after_down": true,
+    "foreign_same_project_container_preserved": true
+  },
+  "inventory_noninterference": {
+    "projection": "Sorted static Docker image, container, and network identity metadata; runtime-relative status text is excluded.",
+    "foreign_pklab_entry_count_in_campaign_baseline": 8,
+    "images_before_sha256": "dfcae27a5737f2223a2249cb68233b276e7b10c742422185c66ae1885378b1e3",
+    "images_after_sha256": "dfcae27a5737f2223a2249cb68233b276e7b10c742422185c66ae1885378b1e3",
+    "containers_before_sha256": "71b711c798f21b261aab951b3ad314d77b48efabbade4aa16815a6af56e26cb5",
+    "containers_after_sha256": "71b711c798f21b261aab951b3ad314d77b48efabbade4aa16815a6af56e26cb5",
+    "networks_before_sha256": "384658cb8385afa8c7edea8145606540e47044d2d131a2da8043722281f9c447",
+    "networks_after_sha256": "384658cb8385afa8c7edea8145606540e47044d2d131a2da8043722281f9c447",
+    "foreign_pklab_before_sha256": "a580915e8f8e38ebc23e33e7e9125826726500645a506de08bc255c38d879670",
+    "foreign_pklab_after_sha256": "a580915e8f8e38ebc23e33e7e9125826726500645a506de08bc255c38d879670",
+    "campaign_before_after_byte_for_byte_unchanged": true,
+    "pre_sentinel_images_sha256": "dfcae27a5737f2223a2249cb68233b276e7b10c742422185c66ae1885378b1e3",
+    "post_sentinel_images_sha256": "dfcae27a5737f2223a2249cb68233b276e7b10c742422185c66ae1885378b1e3",
+    "pre_sentinel_containers_sha256": "e538b4c26f324c0c1f0fcd8993c3d58f8819add4595ce32f2de478051cfe942c",
+    "post_sentinel_containers_sha256": "e538b4c26f324c0c1f0fcd8993c3d58f8819add4595ce32f2de478051cfe942c",
+    "pre_sentinel_networks_sha256": "2751b04fcae3e91bd46c8d3a64ff4078363d11c29228a4e58a07f932e400f1a9",
+    "post_sentinel_networks_sha256": "2751b04fcae3e91bd46c8d3a64ff4078363d11c29228a4e58a07f932e400f1a9",
+    "pre_sentinel_foreign_pklab_sha256": "6b77f7fcaea7265a080e06649d9775c183fc804569aa6cd1e6b770e4633a91c7",
+    "post_sentinel_foreign_pklab_sha256": "6b77f7fcaea7265a080e06649d9775c183fc804569aa6cd1e6b770e4633a91c7",
+    "host_restored_after_exact_sentinel_cleanup": true
+  },
+  "raw_evidence": {
+    "retained_outside_git": true,
+    "retention": "owner-only temporary campaign directory",
+    "bounded_projection_only_committed": true
+  },
+  "limitations": [
+    "Floci is an ECS-like local emulator, not AWS Fargate; cloud IAM, VPC networking, cross-account behavior, and the production AWS control plane were not tested.",
+    "Floci 2.0.1 did not enforce requested readonly-root-filesystem, drop-all-capabilities, or no-new-privileges task fields, although both task processes ran as UID/GID 65532 with no mounts.",
+    "This focused deletion campaign used one exact-code deployment generation; the built-in verifier and external judge each exercised the live business contract without changing tracked source.",
+    "The foreign sentinel deliberately used Docker network mode none so the successful path could prove same-project-label preservation. The fail-closed behavior for an unplanned attachment to the dedicated network is not a live claim in this record.",
+    "Raw Docker and emulator output remains owner-controlled outside Git; this file is a bounded, non-secret projection."
+  ]
+}

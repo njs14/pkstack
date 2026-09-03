@@ -17,7 +17,7 @@ done
 printf '%s  %s\n' "$expected_sha256" "$KIRO_ARCHIVE" | sha256sum --check
 
 mkdir -m 0700 "$KIRO_BIN_DIR" "$KIRO_HOME" "$KIRO_USER_HOME"
-mkdir -m 0700 "$KIRO_HOME/agents"
+mkdir -m 0700 "$KIRO_HOME/agents" "$KIRO_HOME/settings"
 tar --extract --xz --file "$KIRO_ARCHIVE" --directory "$KIRO_BIN_DIR" \
   --strip-components=2 \
   kirocli/bin/kiro-cli \
@@ -28,14 +28,18 @@ trusted_agent="$TRUSTED_ROOT/.kiro/agents/pstack-maintainer.json"
 install -m 0600 "$trusted_agent" \
   "$KIRO_HOME/agents/pstack-maintainer.json"
 
-(
-  cd "$RUNNER_TEMP"
-  HOME="$KIRO_USER_HOME" KIRO_HOME="$KIRO_HOME" \
-    "$KIRO_BIN_DIR/kiro-cli" settings chat.disableInheritingDefaultResources true
-  HOME="$KIRO_USER_HOME" KIRO_HOME="$KIRO_HOME" \
-    "$KIRO_BIN_DIR/kiro-cli" settings app.disableAutoupdates true
-  HOME="$KIRO_USER_HOME" KIRO_HOME="$KIRO_HOME" \
-    "$KIRO_BIN_DIR/kiro-cli" settings telemetry.enabled false
-)
+settings_path="$KIRO_HOME/settings/cli.json"
+install -m 0600 /dev/null "$settings_path"
+printf '%s\n' \
+  '{' \
+  '  "app.disableAutoupdates": true,' \
+  '  "chat.disableInheritingDefaultResources": true,' \
+  '  "telemetry.enabled": false' \
+  '}' >"$settings_path"
+printf '%s  %s\n' \
+  81d98ac813691c26f18f797ca5126c5150125cf74d2f6d413e152290074a6bd0 \
+  "$settings_path" | sha256sum --check
+test "$(stat -c '%a' "$settings_path")" = 600
 test ! -e "$KIRO_HOME/settings/mcp.json"
+test ! -e "$KIRO_USER_HOME/.kiro"
 test ! -d "$KIRO_HOME/hooks"
