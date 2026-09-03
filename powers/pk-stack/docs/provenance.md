@@ -84,7 +84,7 @@ interfaces, the Cyclopts implementation, and the current-session
 pstack components.
 
 The current name is Kiro-specific branding, not a restoration of upstream
-metadata. The Power manifest identifier and combined-repository name are `pk-stack`; the Python
+metadata. The Power manifest identifier and source-repository name are `pk-stack`; the Python
 distribution, receipt manager, package, agent routes, and on-disk `.pstack` paths retain their
 documented compatibility identifiers.
 

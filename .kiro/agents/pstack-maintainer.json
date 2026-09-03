@@ -68,13 +68,8 @@
           "AGENTS.md",
           "CLAUDE.local.md",
           "CLAUDE.md",
-          "Dockerfile",
           "GEMINI.md",
           "Wiki/**",
-          "compose.yaml",
-          "docs/**",
-          "judge/**",
-          "labctl",
           "maintenance/**",
           "powers/pk-stack/docs/validation-report.md",
           "powers/pk-stack/examples/**",
@@ -84,12 +79,7 @@
           "powers/pk-stack/tests/**",
           "powers/pk-stack/uv.lock",
           "projectctl",
-          "pyproject.toml",
-          "requirements-runtime.txt",
-          "reviews/**",
-          "src/pk_stack_lab/**",
-          "tests/**",
-          "uv.lock"
+          "reviews/**"
         ],
         "effect": "deny"
       }

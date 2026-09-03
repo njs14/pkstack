@@ -186,22 +186,16 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: |
-            uv.lock
-            powers/pk-stack/uv.lock
+          cache-dependency-glob: powers/pk-stack/uv.lock
       - name: Run exact-base static regression gates with no secrets
         env:
           EXPECTED_SHA: ${{ needs.resolve.outputs.base_sha }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          uv sync --quiet --locked --no-config
           uv sync --quiet --locked --all-groups --project powers/pk-stack
           .pstack/bin/projectctl feature validate --output json
           python3 .github/scripts/test_pk_stack_maintenance_guard.py
-          uv lock --check
-          env PYTHONDONTWRITEBYTECODE=1 uv run --locked --no-config --no-sync ruff check .
-          env PYTHONDONTWRITEBYTECODE=1 uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q
           (
             cd powers/pk-stack
             uv lock --check
@@ -232,6 +226,8 @@ jobs:
       review_artifact_id: ${{ steps.upload_review.outputs.artifact-id }}
       review_content_sha256: ${{ steps.review_bundle.outputs.content_sha256 }}
       review_patch_sha256: ${{ steps.review_bundle.outputs.patch_sha256 }}
+      review_paths_sha256: ${{ steps.review_bundle.outputs.paths_sha256 }}
+      review_changed_files: ${{ steps.review_bundle.outputs.changed_files }}
     steps:
       - name: Harden read-only test runner networking
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
@@ -257,9 +253,7 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: |
-            uv.lock
-            powers/pk-stack/uv.lock
+          cache-dependency-glob: powers/pk-stack/uv.lock
       - name: Snapshot immutable base controller and review guards
         env:
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
@@ -292,7 +286,6 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          uv sync --quiet --locked --no-config
           uv sync --quiet --locked --all-groups --project powers/pk-stack
           trusted_projectctl() {
             PYTHONPATH="$TRUSTED_ROOT/.pstack/projectctl/src" \
@@ -308,9 +301,6 @@ jobs:
             pk-stack-upstream-maintenance --output json
           unset READONLY_GITHUB_TOKEN
           python3 "$TRUSTED_ROOT/.github/scripts/test_pk_stack_maintenance_guard.py"
-          uv lock --check
-          env PYTHONDONTWRITEBYTECODE=1 uv run --locked --no-config --no-sync ruff check .
-          env PYTHONDONTWRITEBYTECODE=1 uv run --locked --no-config --no-sync pytest -p no:cacheprovider -q
           (
             cd powers/pk-stack
             uv lock --check
@@ -369,6 +359,11 @@ jobs:
       reviewed_head_sha: ${{ steps.validate.outputs.reviewed_head_sha }}
       reviewed_content_sha256: ${{ steps.validate.outputs.reviewed_content_sha256 }}
       reviewed_patch_sha256: ${{ steps.validate.outputs.reviewed_patch_sha256 }}
+      reviewed_changed_files: ${{ steps.validate.outputs.reviewed_changed_files }}
+      reviewed_paths_sha256: ${{ steps.validate.outputs.reviewed_paths_sha256 }}
+      reviewed_agent: ${{ steps.validate.outputs.reviewed_agent }}
+      reviewed_model: ${{ steps.validate.outputs.reviewed_model }}
+      reviewed_effort: ${{ steps.validate.outputs.reviewed_effort }}
       execution_evidence_sha256: ${{ steps.validate.outputs.execution_evidence_sha256 }}
       verdict_sha256: ${{ steps.validate.outputs.verdict_sha256 }}
       attestation_sha256: ${{ steps.validate.outputs.attestation_sha256 }}
@@ -452,7 +447,7 @@ jobs:
           install -m 0400 "$input" "$REVIEW_WORKSPACE/.pk-stack-ci/review-input.json"
           TRUSTED_ROOT="$TRUSTED_REVIEW_ROOT"             KIRO_AGENT_NAME=pstack-ci-reviewer             bash "$TRUSTED_REVIEW_ROOT/.github/scripts/prepare_kiro_maintenance_runtime.sh"
           env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             "$KIRO_BIN_DIR/kiro-cli" agent validate             --path "$TRUSTED_REVIEW_ROOT/.kiro/agents/pstack-ci-reviewer.json"
-          chmod -R a-w "$REVIEW_WORKSPACE" "$KIRO_HOME" "$KIRO_USER_HOME"
+          chmod -R a-w "$REVIEW_WORKSPACE"
       - name: Independent Kiro-hosted Claude Opus 5 review
         id: invoke
         env:
@@ -467,7 +462,38 @@ jobs:
           stream="$REVIEW_PRIVATE/review-stream.jsonl"
           stderr="$REVIEW_PRIVATE/review.stderr"
           runtime="$REVIEW_PRIVATE/runtime"
+          inventory="$REVIEW_PRIVATE/model-inventory.json"
+          inventory_stderr="$REVIEW_PRIVATE/model-inventory.stderr"
           mkdir -m 0700 "$runtime"
+          set +e
+          env -i \
+            HOME="$KIRO_USER_HOME" \
+            KIRO_HOME="$KIRO_HOME" \
+            PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin" \
+            LANG=C.UTF-8 \
+            CI=true \
+            NO_COLOR=1 \
+            KIRO_LOG_NO_COLOR=1 \
+            XDG_RUNTIME_DIR="$runtime" \
+            SSL_CERT_DIR=/etc/ssl/certs \
+            KIRO_API_KEY="$KIRO_API_KEY" \
+            timeout --signal=TERM --kill-after=5s 60s \
+            "$KIRO_BIN_DIR/kiro-cli" chat --list-models --format json \
+            >"$inventory" 2>"$inventory_stderr"
+          inventory_rc=$?
+          set -e
+          test "$inventory_rc" -eq 0
+          test -f "$inventory" && test ! -L "$inventory"
+          test -f "$inventory_stderr" && test ! -L "$inventory_stderr"
+          test "$(wc -c <"$inventory")" -le 131072
+          test "$(wc -c <"$inventory_stderr")" -le 1048576
+          if grep -aFq -- "$KIRO_API_KEY" "$inventory" "$inventory_stderr"; then
+            echo 'Kiro model inventory contained the API key' >&2
+            exit 1
+          fi
+          python3 "$TRUSTED_REVIEW_ROOT/.github/scripts/validate_kiro_model_inventory.py" \
+            --require-review-model "$inventory"
+          unlink "$inventory" "$inventory_stderr"
           printf -v prompt \
             'Review the attached exact-candidate bundle under the immutable agent contract. Bind the verdict exactly to base %s, head %s, content SHA-256 %s, and patch SHA-256 %s. Return only the required compact JSON verdict.' \
             "$BASE_SHA" "$HEAD_SHA" "$CONTENT_SHA256" "$PATCH_SHA256"
@@ -485,9 +511,21 @@ jobs:
           CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
           PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
           REVIEW_RETURN_CODE: ${{ steps.invoke.outputs.return_code }}
+          REVIEW_BUNDLE: ${{ runner.temp }}/pk-stack-peer-review-workspace/.pk-stack-ci/review-input.json
         run: |
           set -euo pipefail
-          python3 "$TRUSTED_REVIEW_ROOT/.github/scripts/validate_kiro_review_stream.py"             --stream "$REVIEW_PRIVATE/review-stream.jsonl"             --stderr "$REVIEW_PRIVATE/review.stderr"             --return-code "$REVIEW_RETURN_CODE"             --base "$BASE_SHA"             --head "$HEAD_SHA"             --content-sha256 "$CONTENT_SHA256"             --patch-sha256 "$PATCH_SHA256"             --model "$REVIEW_MODEL"             --effort "$REVIEW_EFFORT"             --github-output "$GITHUB_OUTPUT"
+          python3 "$TRUSTED_REVIEW_ROOT/.github/scripts/validate_kiro_review_stream.py" \
+            --stream "$REVIEW_PRIVATE/review-stream.jsonl" \
+            --stderr "$REVIEW_PRIVATE/review.stderr" \
+            --bundle "$REVIEW_BUNDLE" \
+            --return-code "$REVIEW_RETURN_CODE" \
+            --base "$BASE_SHA" \
+            --head "$HEAD_SHA" \
+            --content-sha256 "$CONTENT_SHA256" \
+            --patch-sha256 "$PATCH_SHA256" \
+            --model "$REVIEW_MODEL" \
+            --effort "$REVIEW_EFFORT" \
+            --github-output "$GITHUB_OUTPUT"
       - name: Remove private Kiro review state
         if: always()
         run: |
@@ -540,8 +578,18 @@ jobs:
           REVIEWED_HEAD_SHA: ${{ needs.kiro_peer_review.outputs.reviewed_head_sha }}
           REVIEWED_CONTENT_SHA256: ${{ needs.kiro_peer_review.outputs.reviewed_content_sha256 }}
           REVIEWED_PATCH_SHA256: ${{ needs.kiro_peer_review.outputs.reviewed_patch_sha256 }}
+          REVIEWED_CHANGED_FILES: ${{ needs.kiro_peer_review.outputs.reviewed_changed_files }}
+          REVIEWED_PATHS_SHA256: ${{ needs.kiro_peer_review.outputs.reviewed_paths_sha256 }}
+          REVIEWED_AGENT: ${{ needs.kiro_peer_review.outputs.reviewed_agent }}
+          REVIEWED_MODEL: ${{ needs.kiro_peer_review.outputs.reviewed_model }}
+          REVIEWED_EFFORT: ${{ needs.kiro_peer_review.outputs.reviewed_effort }}
           EXPECTED_REVIEW_CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
           EXPECTED_REVIEW_PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
+          EXPECTED_REVIEW_CHANGED_FILES: ${{ needs.candidate_tests.outputs.review_changed_files }}
+          EXPECTED_REVIEW_PATHS_SHA256: ${{ needs.candidate_tests.outputs.review_paths_sha256 }}
+          EXPECTED_REVIEW_AGENT: pstack-ci-reviewer
+          EXPECTED_REVIEW_MODEL: claude-opus-5
+          EXPECTED_REVIEW_EFFORT: xhigh
           REVIEW_EXECUTION_EVIDENCE_SHA256: ${{ needs.kiro_peer_review.outputs.execution_evidence_sha256 }}
           REVIEW_ATTESTATION_SHA256: ${{ needs.kiro_peer_review.outputs.attestation_sha256 }}
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
@@ -564,7 +612,12 @@ jobs:
             if (process.env.REVIEWED_BASE_SHA !== process.env.BASE_SHA
                 || process.env.REVIEWED_HEAD_SHA !== process.env.TESTED_SHA
                 || process.env.REVIEWED_CONTENT_SHA256 !== process.env.EXPECTED_REVIEW_CONTENT_SHA256
-                || process.env.REVIEWED_PATCH_SHA256 !== process.env.EXPECTED_REVIEW_PATCH_SHA256) {
+                || process.env.REVIEWED_PATCH_SHA256 !== process.env.EXPECTED_REVIEW_PATCH_SHA256
+                || process.env.REVIEWED_CHANGED_FILES !== process.env.EXPECTED_REVIEW_CHANGED_FILES
+                || process.env.REVIEWED_PATHS_SHA256 !== process.env.EXPECTED_REVIEW_PATHS_SHA256
+                || process.env.REVIEWED_AGENT !== process.env.EXPECTED_REVIEW_AGENT
+                || process.env.REVIEWED_MODEL !== process.env.EXPECTED_REVIEW_MODEL
+                || process.env.REVIEWED_EFFORT !== process.env.EXPECTED_REVIEW_EFFORT) {
               core.setFailed("mandatory Kiro peer approval is not bound to the exact tested base, head, and content");
               return;
             }

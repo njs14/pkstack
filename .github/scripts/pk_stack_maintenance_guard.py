@@ -3151,6 +3151,9 @@ def build_candidate_review_bundle(
     except UnicodeDecodeError as exc:
         raise GuardError("candidate review patch is not UTF-8 text") from exc
     patch_sha256 = hashlib.sha256(patch).hexdigest()
+    paths_sha256 = hashlib.sha256(
+        json.dumps(paths, ensure_ascii=False, separators=(",", ":")).encode()
+    ).hexdigest()
     bundle = {
         "schema_version": 1,
         "review_type": "mandatory-independent-exact-candidate",
@@ -3173,6 +3176,7 @@ def build_candidate_review_bundle(
         "head_sha": head_sha,
         "content_sha256": hashlib.sha256(raw).hexdigest(),
         "patch_sha256": patch_sha256,
+        "paths_sha256": paths_sha256,
         "changed_files": len(paths),
     }
 

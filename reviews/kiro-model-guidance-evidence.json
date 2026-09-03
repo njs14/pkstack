@@ -45,6 +45,17 @@
     "cli_version": "2.21.0",
     "default_model": "auto",
     "raw_output_sha256": "a31f58159d05d9372714c287dab39de135812addcb52c85172b9c556768b64ec",
+    "complete_model_count": 19,
+    "models_scope": "Selected GPT-5.6 guidance records from the complete 19-model response; this array is not the full inventory.",
+    "peer_review_model": {
+      "model_name": "claude-opus-5",
+      "model_id": "claude-opus-5",
+      "description": "Claude Opus 5 model with 1M context window",
+      "context_window_tokens": 1000000,
+      "rate_multiplier": 2.2,
+      "rate_unit": "Credit",
+      "required_effort": "xhigh"
+    },
     "models": [
       {
         "model_id": "gpt-5.6-sol",

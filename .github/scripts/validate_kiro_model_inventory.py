@@ -27,6 +27,14 @@ EXPECTED_MODEL = {
     "rate_multiplier": 2.4,
     "rate_unit": "Credit",
 }
+EXPECTED_REVIEW_MODEL = {
+    "model_name": "claude-opus-5",
+    "description": "Claude Opus 5 model with 1M context window",
+    "model_id": "claude-opus-5",
+    "context_window_tokens": 1000000,
+    "rate_multiplier": 2.2,
+    "rate_unit": "Credit",
+}
 
 
 class InventoryError(ValueError):
@@ -52,7 +60,7 @@ def _bounded_string(value: Any, *, label: str, maximum: int) -> str:
     return value
 
 
-def validate_inventory_bytes(raw: bytes) -> None:
+def validate_inventory_bytes(raw: bytes, *, require_review_model: bool = False) -> None:
     if not raw or len(raw) > MAX_INVENTORY_BYTES:
         raise InventoryError("model inventory is empty or exceeds its byte limit")
     try:
@@ -73,6 +81,7 @@ def validate_inventory_bytes(raw: bytes) -> None:
     ids: set[str] = set()
     names: set[str] = set()
     sol_entries: list[dict[str, Any]] = []
+    review_entries: list[dict[str, Any]] = []
     for index, item in enumerate(models):
         if not isinstance(item, dict) or set(item) != MODEL_KEYS:
             raise InventoryError(f"model inventory entry {index} changed schema")
@@ -92,6 +101,8 @@ def validate_inventory_bytes(raw: bytes) -> None:
         names.add(model_name)
         if model_id == EXPECTED_MODEL["model_id"]:
             sol_entries.append(item)
+        if model_id == EXPECTED_REVIEW_MODEL["model_id"]:
+            review_entries.append(item)
 
     if default_model not in ids:
         raise InventoryError("default model is not present in model inventory")
@@ -101,9 +112,16 @@ def validate_inventory_bytes(raw: bytes) -> None:
         raise InventoryError(
             "gpt-5.6-sol no longer matches the approved experimental lifecycle contract"
         )
+    if require_review_model:
+        if len(review_entries) != 1:
+            raise InventoryError(
+                "model inventory must contain exactly one claude-opus-5 entry"
+            )
+        if review_entries[0] != EXPECTED_REVIEW_MODEL:
+            raise InventoryError("claude-opus-5 no longer matches the approved review contract")
 
 
-def validate_inventory_file(path: Path) -> None:
+def validate_inventory_file(path: Path, *, require_review_model: bool = False) -> None:
     try:
         metadata = path.lstat()
     except OSError as exc:
@@ -114,15 +132,24 @@ def validate_inventory_file(path: Path) -> None:
         raw = path.read_bytes()
     except OSError as exc:
         raise InventoryError("model inventory file could not be read") from exc
-    validate_inventory_bytes(raw)
+    validate_inventory_bytes(raw, require_review_model=require_review_model)
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) != 2:
-        print("usage: validate_kiro_model_inventory.py INVENTORY.json", file=sys.stderr)
+    require_review_model = False
+    if len(argv) == 3 and argv[1] == "--require-review-model":
+        require_review_model = True
+        path = argv[2]
+    elif len(argv) == 2:
+        path = argv[1]
+    else:
+        print(
+            "usage: validate_kiro_model_inventory.py [--require-review-model] INVENTORY.json",
+            file=sys.stderr,
+        )
         return 2
     try:
-        validate_inventory_file(Path(argv[1]))
+        validate_inventory_file(Path(path), require_review_model=require_review_model)
     except InventoryError as exc:
         print(f"Kiro model preflight rejected inventory: {exc}", file=sys.stderr)
         return 1

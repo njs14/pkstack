@@ -6,8 +6,8 @@ Candidate: PK-Stack (Poteto Kiro), a Kiro-native verified-development Power
 
 Source lineage: private `njs14/pstack-kiro`
 
-> Historical source report: this file records acceptance of source commit `1919975`. The combined
-> repository subsequently added the centralized draft-publication guard. The current combined
+> Historical source report: this file records acceptance of source commit `1919975`. The source
+> repository subsequently added the centralized draft-publication guard. The current source
 > release is accepted only by the root `reviews/` sequence; this historical verdict is not a
 > verdict on later changes.
 
@@ -625,7 +625,7 @@ required below.
 | Types | `uv run --frozen ty check` | Exit 0; all checks passed |
 | Tests | `uv run --frozen pytest -q` | Exit 0; 508 passed in 34.62s |
 | Snapshot-relative branch coverage | `PKSTACK_COV_DIR=$(mktemp -d /private/tmp/pk-stack-final2-coverage.XXXXXX); COVERAGE_FILE="$PKSTACK_COV_DIR/.coverage" /usr/bin/time -p uv run --frozen pytest -p no:cacheprovider --cov=pstack_kiro --cov-branch --cov-config=pyproject.toml --cov-report=term-missing -q` | Exit 0; 508 passed in 45.01s; 89.22%; configured 85% threshold met; 47.86s wall |
-| Independent combined-diff audit | Codex read-only review plus focused feature/doctor/CLI/branding and bytecode-boundary tests | `ACCEPT`; no blocker, high, or medium finding; bytecode delta passed 44 focused tests and the full 508-test suite |
+| Independent repository-diff audit | Codex read-only review plus focused feature/doctor/CLI/branding and bytecode-boundary tests | `ACCEPT`; no blocker, high, or medium finding; bytecode delta passed 44 focused tests and the full 508-test suite |
 | Naming/DRY audit | Canonical-value scan, 43 focused tests, hook/agent checks, and direct text version probe | `ACCEPT`; one runtime identity source plus one complete identity-tuple test anchor; static human/Kiro assets are mechanically pinned and compatibility names are preserved |
 
 ### Final package and isolated-install audit

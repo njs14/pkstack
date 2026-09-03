@@ -45,6 +45,13 @@ The autonomous acceptance path is limited to the four configured GitHub source r
 separate weekly or manually dispatched Kiro canary observes product/runtime/documentation drift
 without editing the repository or promoting a new CLI pin.
 
+Kiro currently marks Sol experimental, so this high-risk scheduled semantic-maintenance lane
+revalidates the exact model inventory before every turn and never silently substitutes a model.
+Kiro documents GPT-5.6 inference as US-served regardless of profile geography and notes that
+experimental traffic may be processed in commercial AWS Regions worldwide. This processing
+boundary makes no claim about storage location; current Kiro privacy documentation remains the
+authority for storage and retention behavior.
+
 ## Expected path
 
 Strict local manifest and source-scoped contiguous review ledgers -> exactly one genesis marker per
@@ -185,7 +192,7 @@ only to live `--list-models` inventory after the advertised tuple exactly matche
 version, SHA-256, derived URL, and size; an unpinned binary never receives it. The canary neither
 calls Anthropic nor sends a model turn, uploads an artifact, or mutates the checkout. Its
 advertised-binary checksum/version, exact
-five-agent validation/discovery, and strict model-inventory checks are gates; IDE metadata, Kiro
+six-agent validation/discovery, and strict model-inventory checks are gates; IDE metadata, Kiro
 Crew Nightly feeds, the changelog, `llms.txt`, and recorded documentation hashes are bounded
 observations. A maintainer must separately promote a stable pin because workflow and protected
 controller files are trust roots.

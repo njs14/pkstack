@@ -1254,16 +1254,11 @@ def test_shipped_repository_features_are_complete_schema_two_contracts() -> None
 
     assert result["ok"] is True, result["errors"]
     assert result["warnings"] == []
-    assert result["feature_count"] == 2
+    assert result["feature_count"] == 1
     features = {item["slug"]: item for item in result["features"]}
-    assert set(features) == {"document-export", "pk-stack-upstream-maintenance"}
+    assert set(features) == {"pk-stack-upstream-maintenance"}
     assert all(item["schema_version"] == 2 for item in features.values())
     assert all(item["migration_required"] is False for item in features.values())
-    assert {item["identifier"] for item in features["document-export"]["entrypoints"]} == {
-        "submit-export",
-        "retrieve-export",
-        "maintainer-verifier",
-    }
     assert {
         item["identifier"] for item in features["pk-stack-upstream-maintenance"]["entrypoints"]
     } == {"local-check", "current-session-maintenance", "scheduled-cadence", "manual-dispatch"}

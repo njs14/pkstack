@@ -1728,6 +1728,49 @@ class KiroCredentialStreamTests(unittest.TestCase):
         )
         self.assertEqual(self.validate(raw), {"ok": True, "events": 3})
 
+    def test_hosted_smoke_requires_advertised_opus_5_xhigh(self) -> None:
+        config = {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": self.SESSION_ID,
+                "update": {
+                    "sessionUpdate": "config_option_update",
+                    "configOptions": [
+                        {
+                            "id": "model",
+                            "currentValue": "gpt-5.6-sol",
+                            "options": [
+                                {
+                                    "value": "claude-opus-5",
+                                    "_meta": {
+                                        "kiro": {
+                                            "hasEffort": True,
+                                            "effortLevels": [
+                                                "low",
+                                                "medium",
+                                                "high",
+                                                "xhigh",
+                                                "max",
+                                            ],
+                                        }
+                                    },
+                                }
+                            ],
+                        }
+                    ],
+                },
+            },
+        }
+        raw = self.complete(config, self.agent_chunk(stream_guard.MARKER))
+        result = stream_guard.validate_stream_bytes(
+            raw,
+            b"",
+            return_code=0,
+            api_key="not-present-in-stream",
+            require_review_model=True,
+        )
+        self.assertTrue(result["peer_review_model_advertised"])
+
     def test_rejects_missing_duplicate_or_overlong_challenge_response(self) -> None:
         responses = (
             "no challenge present",
@@ -4784,6 +4827,14 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("--trust-tools=", candidate)
         self.assertIn("validate_kiro_review_stream.py", candidate)
         self.assertIn("REVIEWED_CONTENT_SHA256", candidate)
+        self.assertIn("REVIEWED_CHANGED_FILES", candidate)
+        self.assertIn("REVIEWED_PATHS_SHA256", candidate)
+        self.assertIn("REVIEWED_AGENT", candidate)
+        self.assertIn("REVIEWED_MODEL", candidate)
+        self.assertIn("REVIEWED_EFFORT", candidate)
+        self.assertIn("EXPECTED_REVIEW_AGENT: pstack-ci-reviewer", candidate)
+        self.assertIn("EXPECTED_REVIEW_MODEL: claude-opus-5", candidate)
+        self.assertIn("EXPECTED_REVIEW_EFFORT: xhigh", candidate)
         self.assertIn("execution_evidence_sha256", candidate)
         self.assertIn("REVIEW_ATTESTATION_SHA256", candidate)
         self.assertNotRegex(
@@ -5180,6 +5231,20 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             capture_output=True,
             text=True,
         )
+
+    def test_kiro_review_and_model_inventory_contracts(self) -> None:
+        for test_path in (
+            ".github/scripts/test_validate_kiro_review_stream.py",
+            ".github/scripts/test_validate_kiro_model_inventory.py",
+        ):
+            with self.subTest(test_path=test_path):
+                subprocess.run(
+                    [sys.executable, test_path],
+                    cwd=ROOT,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
 
     def test_post_accept_failure_restores_pin_and_ledger_for_attempt_two(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

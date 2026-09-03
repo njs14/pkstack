@@ -25,6 +25,7 @@ SHA1 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_MODEL = "claude-opus-5"
 REQUIRED_EFFORT = "xhigh"
+REQUIRED_AGENT = "pstack-ci-reviewer"
 
 
 class ReviewError(RuntimeError):
@@ -80,7 +81,7 @@ def _validate_model_event(events: list[dict[str, Any]], expected_model: str) -> 
                 current_models.append(current)
             choices = option.get("options")
             if isinstance(choices, list):
-                advertised = any(
+                advertised = advertised or any(
                     isinstance(choice, dict)
                     and choice.get("value") == expected_model
                     and isinstance(choice.get("_meta", {}).get("kiro"), dict)
@@ -97,6 +98,90 @@ def _validate_model_event(events: list[dict[str, Any]], expected_model: str) -> 
         raise ReviewError("Kiro stream did not bind the peer review to the required model")
 
 
+def _validate_agent_event(events: list[dict[str, Any]]) -> None:
+    current_modes: list[str] = []
+    for event in events:
+        update = event.get("data", {}).get("update", {})
+        if not isinstance(update, dict):
+            continue
+        for option in update.get("configOptions", []):
+            if not isinstance(option, dict) or option.get("id") != "mode":
+                continue
+            current = option.get("currentValue")
+            if isinstance(current, str):
+                current_modes.append(current)
+    if (
+        not current_modes
+        or current_modes[-1] != REQUIRED_AGENT
+        or REQUIRED_AGENT not in current_modes
+        or any(mode not in {"vibe", REQUIRED_AGENT} for mode in current_modes)
+    ):
+        raise ReviewError("Kiro stream did not bind the peer review to the required agent")
+
+
+def _validate_bundle(
+    raw: bytes,
+    *,
+    base_sha: str,
+    head_sha: str,
+    content_sha256: str,
+    patch_sha256: str,
+) -> tuple[int, str]:
+    if hashlib.sha256(raw).hexdigest() != content_sha256:
+        raise ReviewError("candidate review bundle content digest changed")
+    try:
+        bundle = json.loads(
+            raw.decode("utf-8"),
+            object_pairs_hook=_strict_object,
+            parse_constant=_reject_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ReviewError("candidate review bundle is not strict UTF-8 JSON") from exc
+    expected_keys = {
+        "schema_version",
+        "review_type",
+        "base_sha",
+        "head_sha",
+        "requires_review",
+        "changed_files",
+        "changed_lines",
+        "paths",
+        "patch_sha256",
+        "patch",
+    }
+    if not isinstance(bundle, dict) or set(bundle) != expected_keys:
+        raise ReviewError("candidate review bundle contract changed")
+    if (
+        bundle.get("schema_version") != 1
+        or bundle.get("review_type") != "mandatory-independent-exact-candidate"
+        or bundle.get("requires_review") is not True
+        or bundle.get("base_sha") != base_sha
+        or bundle.get("head_sha") != head_sha
+        or bundle.get("patch_sha256") != patch_sha256
+    ):
+        raise ReviewError("candidate review bundle identity changed")
+    paths = bundle.get("paths")
+    changed_files = bundle.get("changed_files")
+    changed_lines = bundle.get("changed_lines")
+    patch = bundle.get("patch")
+    if (
+        not isinstance(paths, list)
+        or not paths
+        or paths != sorted(paths)
+        or len(paths) != len(set(paths))
+        or not all(isinstance(path, str) and path for path in paths)
+        or type(changed_files) is not int
+        or changed_files != len(paths)
+        or type(changed_lines) is not int
+        or changed_lines < 1
+        or not isinstance(patch, str)
+        or hashlib.sha256(patch.encode("utf-8")).hexdigest() != patch_sha256
+    ):
+        raise ReviewError("candidate review bundle facts are malformed")
+    paths_raw = json.dumps(paths, ensure_ascii=False, separators=(",", ":")).encode()
+    return changed_files, hashlib.sha256(paths_raw).hexdigest()
+
+
 def _validate_verdict(
     text: str,
     *,
@@ -104,6 +189,8 @@ def _validate_verdict(
     head_sha: str,
     content_sha256: str,
     patch_sha256: str,
+    changed_files: int,
+    paths_sha256: str,
 ) -> tuple[dict[str, Any], bytes]:
     try:
         raw = text.encode("utf-8")
@@ -120,6 +207,8 @@ def _validate_verdict(
         "reviewed_head_sha",
         "reviewed_content_sha256",
         "reviewed_patch_sha256",
+        "reviewed_changed_files",
+        "reviewed_paths_sha256",
         "material_findings",
         "summary",
     }
@@ -130,6 +219,8 @@ def _validate_verdict(
         "reviewed_head_sha": head_sha,
         "reviewed_content_sha256": content_sha256,
         "reviewed_patch_sha256": patch_sha256,
+        "reviewed_changed_files": changed_files,
+        "reviewed_paths_sha256": paths_sha256,
     }
     for key, value in expected.items():
         if verdict.get(key) != value:
@@ -173,12 +264,22 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
             raise ReviewError(f"invalid {label}")
     stream_raw = _read_regular(args.stream, MAX_STREAM_BYTES, "Kiro review stream")
     stderr_raw = _read_regular(args.stderr, MAX_STDERR_BYTES, "Kiro review stderr")
+    bundle_raw = _read_regular(args.bundle, MAX_STREAM_BYTES, "candidate review bundle")
+    changed_files, paths_sha256 = _validate_bundle(
+        bundle_raw,
+        base_sha=args.base,
+        head_sha=args.head,
+        content_sha256=args.content_sha256,
+        patch_sha256=args.patch_sha256,
+    )
     api_key = os.environ.get("KIRO_API_KEY", "")
     if not api_key:
         raise ReviewError("KIRO_API_KEY is empty during review validation")
     encoded_key = api_key.encode("utf-8")
     if encoded_key in stream_raw or encoded_key in stderr_raw:
         raise ReviewError("Kiro review output contained the API key")
+    if b'not found, using "default"' in stderr_raw:
+        raise ReviewError("Kiro fell back from the required reviewer agent")
     if args.return_code != 0:
         raise ReviewError(f"Kiro peer review failed with exit code {args.return_code}")
     try:
@@ -190,12 +291,15 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
     except StreamError as exc:
         raise ReviewError(str(exc)) from exc
     _validate_model_event(events, args.model)
+    _validate_agent_event(events)
     _, verdict_raw = _validate_verdict(
         assistant_text,
         base_sha=args.base,
         head_sha=args.head,
         content_sha256=args.content_sha256,
         patch_sha256=args.patch_sha256,
+        changed_files=changed_files,
+        paths_sha256=paths_sha256,
     )
     stream_sha256 = hashlib.sha256(stream_raw).hexdigest()
     verdict_sha256 = hashlib.sha256(verdict_raw).hexdigest()
@@ -205,10 +309,13 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
             "head_sha": args.head,
             "content_sha256": args.content_sha256,
             "patch_sha256": args.patch_sha256,
+            "changed_files": changed_files,
+            "paths_sha256": paths_sha256,
             "stream_sha256": stream_sha256,
             "verdict_sha256": verdict_sha256,
             "model": args.model,
             "configured_effort": args.effort,
+            "agent": REQUIRED_AGENT,
             "provider": "kiro",
         },
         sort_keys=True,
@@ -219,6 +326,11 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
         "reviewed_head_sha": args.head,
         "reviewed_content_sha256": args.content_sha256,
         "reviewed_patch_sha256": args.patch_sha256,
+        "reviewed_changed_files": str(changed_files),
+        "reviewed_paths_sha256": paths_sha256,
+        "reviewed_agent": REQUIRED_AGENT,
+        "reviewed_model": args.model,
+        "reviewed_effort": args.effort,
         "execution_evidence_sha256": stream_sha256,
         "verdict_sha256": verdict_sha256,
         "attestation_sha256": hashlib.sha256(attestation).hexdigest(),
@@ -229,6 +341,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stream", type=Path, required=True)
     parser.add_argument("--stderr", type=Path, required=True)
+    parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--return-code", type=int, required=True)
     parser.add_argument("--base", required=True)
     parser.add_argument("--head", required=True)

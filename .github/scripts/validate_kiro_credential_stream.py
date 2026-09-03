@@ -29,6 +29,8 @@ _SESSION_UPDATE_KINDS = {
 }
 _CLOUD_CONFIG_TITLE = "Fetching your cloud config"
 _CLOUD_CONFIG_TOOL_ID = "fetch_cloud_config"
+_REQUIRED_SMOKE_MODEL = "gpt-5.6-sol"
+_REQUIRED_REVIEW_MODEL = "claude-opus-5"
 _UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
 _TOOL_CALL_ID = re.compile(_UUID)
 _SESSION_ID = re.compile(rf"sess_{_UUID}")
@@ -527,12 +529,52 @@ def parse_no_tool_stream_bytes(
     )
 
 
+def _validate_review_model_advertised(events: list[dict[str, Any]]) -> None:
+    current_models: list[str] = []
+    review_advertised = False
+    for event in events:
+        update = event.get("data", {}).get("update", {})
+        if not isinstance(update, dict):
+            continue
+        for option in update.get("configOptions", []):
+            if not isinstance(option, dict) or option.get("id") != "model":
+                continue
+            current = option.get("currentValue")
+            if isinstance(current, str):
+                current_models.append(current)
+            choices = option.get("options")
+            if not isinstance(choices, list):
+                continue
+            for choice in choices:
+                if not isinstance(choice, dict) or choice.get("value") != _REQUIRED_REVIEW_MODEL:
+                    continue
+                kiro = choice.get("_meta", {}).get("kiro", {})
+                if (
+                    isinstance(kiro, dict)
+                    and kiro.get("hasEffort") is True
+                    and isinstance(kiro.get("effortLevels"), list)
+                    and "xhigh" in kiro["effortLevels"]
+                ):
+                    review_advertised = True
+    if (
+        not current_models
+        or current_models[-1] != _REQUIRED_SMOKE_MODEL
+        or _REQUIRED_SMOKE_MODEL not in current_models
+        or any(model not in {"auto", _REQUIRED_SMOKE_MODEL} for model in current_models)
+        or not review_advertised
+    ):
+        raise StreamError(
+            "Kiro credential stream did not advertise the required peer-review model"
+        )
+
+
 def validate_stream_bytes(
     stream_raw: bytes,
     stderr_raw: bytes,
     *,
     return_code: int,
     api_key: str,
+    require_review_model: bool = False,
 ) -> dict[str, int | bool]:
     if not api_key:
         raise StreamError("KIRO_API_KEY is empty")
@@ -548,7 +590,13 @@ def validate_stream_bytes(
         maximum_bytes=MAX_OUTPUT_BYTES,
         response_validator=_is_bounded_challenge_response,
     )
-    return {"ok": True, "events": len(events)}
+    if require_review_model:
+        _validate_review_model_advertised(events)
+    return {
+        "ok": True,
+        "events": len(events),
+        **({"peer_review_model_advertised": True} if require_review_model else {}),
+    }
 
 
 def validate_stream_paths(
@@ -557,6 +605,7 @@ def validate_stream_paths(
     *,
     return_code: int,
     api_key: str,
+    require_review_model: bool = False,
 ) -> dict[str, int | bool]:
     for path in (stream_path, stderr_path):
         if path.is_symlink() or not path.is_file():
@@ -566,6 +615,7 @@ def validate_stream_paths(
         stderr_path.read_bytes(),
         return_code=return_code,
         api_key=api_key,
+        require_review_model=require_review_model,
     )
 
 
@@ -574,12 +624,14 @@ def main() -> int:
     parser.add_argument("--stream", type=Path, required=True)
     parser.add_argument("--stderr", type=Path, required=True)
     parser.add_argument("--return-code", type=int, required=True)
+    parser.add_argument("--require-review-model", action="store_true")
     args = parser.parse_args()
     result = validate_stream_paths(
         args.stream,
         args.stderr,
         return_code=args.return_code,
         api_key=os.environ.get("KIRO_API_KEY", ""),
+        require_review_model=args.require_review_model,
     )
     print(json.dumps(result, sort_keys=True))
     return 0

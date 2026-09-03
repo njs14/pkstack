@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-03T18:50:00Z",
+  "cli_version": "2.21.0",
+  "command_model": "gpt-5.6-luna",
+  "command_effort": "low",
+  "projection": "Only mode/model configOptions retained from a successful local no-tool reviewer turn; session IDs and unrelated options removed.",
+  "events": [
+    {
+      "data": {
+        "update": {
+          "configOptions": [
+            {
+              "id": "mode",
+              "currentValue": "vibe"
+            },
+            {
+              "id": "model",
+              "currentValue": "auto",
+              "options": [
+                {
+                  "value": "gpt-5.6-luna",
+                  "_meta": {
+                    "kiro": {
+                      "hasEffort": true,
+                      "effortLevels": [
+                        "none",
+                        "low",
+                        "medium",
+                        "high",
+                        "xhigh",
+                        "max"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "value": "claude-opus-5",
+                  "_meta": {
+                    "kiro": {
+                      "hasEffort": true,
+                      "effortLevels": [
+                        "low",
+                        "medium",
+                        "high",
+                        "xhigh",
+                        "max"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "data": {
+        "update": {
+          "configOptions": [
+            {
+              "id": "model",
+              "currentValue": "auto",
+              "options": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "data": {
+        "update": {
+          "configOptions": [
+            {
+              "id": "mode",
+              "currentValue": "pstack-ci-reviewer"
+            },
+            {
+              "id": "model",
+              "currentValue": "gpt-5.6-luna",
+              "options": [
+                {
+                  "value": "gpt-5.6-luna",
+                  "_meta": {
+                    "kiro": {
+                      "hasEffort": true
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

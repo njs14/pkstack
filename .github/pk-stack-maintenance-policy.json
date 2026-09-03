@@ -59,13 +59,8 @@
       "AGENTS.md",
       "CLAUDE.local.md",
       "CLAUDE.md",
-      "Dockerfile",
       "GEMINI.md",
       "Wiki/**",
-      "compose.yaml",
-      "docs/**",
-      "judge/**",
-      "labctl",
       "maintenance/**",
       "powers/pk-stack/docs/validation-report.md",
       "powers/pk-stack/examples/**",
@@ -75,12 +70,7 @@
       "powers/pk-stack/tests/**",
       "powers/pk-stack/uv.lock",
       "projectctl",
-      "pyproject.toml",
-      "requirements-runtime.txt",
-      "reviews/**",
-      "src/pk_stack_lab/**",
-      "tests/**",
-      "uv.lock"
+      "reviews/**"
     ]
   },
   "pull_request": {
@@ -157,18 +147,8 @@
     ".kiro/agents/pstack-ci-reviewer.json",
     ".kiro/agents/pstack-maintainer.json",
     "AGENTS.md",
-    "Dockerfile",
-    "Wiki/features/document-export.md",
     "Wiki/features/pk-stack-upstream-maintenance.md",
-    "compose.yaml",
-    "judge/verify_feature_contract.py",
-    "labctl",
-    "powers/pk-stack/docs/validation-report.md",
-    "pyproject.toml",
-    "requirements-runtime.txt",
-    "tests/test_power_distribution.py",
-    "tests/test_projectctl_controller.py",
-    "uv.lock"
+    "powers/pk-stack/docs/validation-report.md"
   ],
   "protected_basenames": [
     "AGENTS.md",
@@ -184,14 +164,10 @@
   ],
   "protected_prefixes": [
     ".github/",
-    "docs/",
-    "judge/",
     "powers/pk-stack/examples/",
     "powers/pk-stack/reviews/",
     "powers/pk-stack/src/pstack_kiro/",
     "powers/pk-stack/tests/",
-    "reviews/",
-    "src/pk_stack_lab/",
-    "tests/"
+    "reviews/"
   ]
 }

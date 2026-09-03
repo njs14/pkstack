@@ -524,7 +524,7 @@ def _probe_runtime(root: Path, scratch: Path, version: str) -> dict[str, Any]:
         raise CanaryError("advertised Kiro CLI failed workspace-agent discovery")
     observed = _workspace_agents(output + b"\n" + error_output)
     if observed != tuple(sorted(EXPECTED_AGENTS)):
-        raise CanaryError("advertised Kiro CLI did not discover exactly the five shipped agents")
+        raise CanaryError("advertised Kiro CLI did not discover exactly the six shipped agents")
     return {
         "agent_schema_validated": list(EXPECTED_AGENTS),
         "agent_sha256": agent_hashes,
