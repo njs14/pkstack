@@ -95,9 +95,7 @@
   },
   "languages": {},
   "root": ".",
-  "tests": [
-    "tests"
-  ],
+  "tests": [],
   "verification_surfaces": [
     ".github/workflows",
     "Wiki/features"

@@ -4107,6 +4107,15 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.assertTrue(bundle["requires_review"])
             self.assertEqual(bundle["base_sha"], base_sha)
             self.assertEqual(bundle["head_sha"], head_sha)
+            self.assertEqual(bundle["paths_sha256"], result["paths_sha256"])
+            verdict_echoes = {
+                "base_sha",
+                "head_sha",
+                "patch_sha256",
+                "paths_sha256",
+                "changed_files",
+            }
+            self.assertLessEqual(verdict_echoes, bundle.keys())
             self.assertEqual(
                 result["content_sha256"],
                 hashlib.sha256(bundle_path.read_bytes()).hexdigest(),
@@ -4656,14 +4665,27 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             ):
                 _reject_yaml_indirection(_yaml_structural_lines(source))
 
-    def test_historical_preflight_is_not_current_release_evidence(self) -> None:
-        markdown = (ROOT / "reviews/hosted-maintenance-preflight-campaign.md").read_text()
-        record = json.loads(
-            (ROOT / "reviews/hosted-maintenance-preflight-campaign.json").read_text()
+    def test_retained_review_records_do_not_require_external_model_credentials(self) -> None:
+        forbidden_prerequisites = (
+            "provision ANTHROPIC_API_KEY",
+            "provision CLAUDE_CODE_OAUTH_TOKEN",
+            "Configure one valid CI credential",
         )
-        self.assertEqual(record["source_run"]["event"], "workflow_dispatch")
-        self.assertIn("do not prove", markdown.lower())
-        self.assertFalse(record["local_payload_validation"]["machine_record_retained"])
+        for path in sorted((ROOT / "reviews").glob("*")):
+            if path.suffix not in {".md", ".json"}:
+                continue
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(path=path.name):
+                for phrase in forbidden_prerequisites:
+                    self.assertNotIn(phrase, text)
+
+    def test_maintenance_guidance_records_experimental_processing_boundary(self) -> None:
+        guidance = (ROOT / "Wiki/features/pk-stack-upstream-maintenance.md").read_text()
+        self.assertIn("high-risk scheduled semantic-maintenance", guidance)
+        self.assertIn("Kiro currently marks Sol experimental", guidance)
+        self.assertIn("US-served regardless of profile geography", guidance)
+        self.assertIn("commercial AWS Regions worldwide", guidance)
+        self.assertIn("makes no claim about storage location", guidance)
 
     def test_workflow_contracts_are_statically_bound(self) -> None:
         kiro = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()

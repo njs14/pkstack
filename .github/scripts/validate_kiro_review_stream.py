@@ -146,6 +146,7 @@ def _validate_bundle(
         "changed_files",
         "changed_lines",
         "paths",
+        "paths_sha256",
         "patch_sha256",
         "patch",
     }
@@ -161,6 +162,7 @@ def _validate_bundle(
     ):
         raise ReviewError("candidate review bundle identity changed")
     paths = bundle.get("paths")
+    paths_sha256 = bundle.get("paths_sha256")
     changed_files = bundle.get("changed_files")
     changed_lines = bundle.get("changed_lines")
     patch = bundle.get("patch")
@@ -179,7 +181,10 @@ def _validate_bundle(
     ):
         raise ReviewError("candidate review bundle facts are malformed")
     paths_raw = json.dumps(paths, ensure_ascii=False, separators=(",", ":")).encode()
-    return changed_files, hashlib.sha256(paths_raw).hexdigest()
+    computed_paths_sha256 = hashlib.sha256(paths_raw).hexdigest()
+    if paths_sha256 != computed_paths_sha256:
+        raise ReviewError("candidate review bundle paths digest changed")
+    return changed_files, computed_paths_sha256
 
 
 def _validate_verdict(

@@ -123,14 +123,5 @@ class ModelInventoryTests(unittest.TestCase):
             workflow,
         )
 
-    def test_maintenance_guidance_records_experimental_processing_boundary(self) -> None:
-        guidance = (ROOT / "Wiki/features/pk-stack-upstream-maintenance.md").read_text()
-        self.assertIn("high-risk scheduled semantic-maintenance", guidance)
-        self.assertIn("Kiro currently marks Sol experimental", guidance)
-        self.assertIn("US-served regardless of profile geography", guidance)
-        self.assertIn("commercial AWS Regions worldwide", guidance)
-        self.assertIn("makes no claim about storage location", guidance)
-
-
 if __name__ == "__main__":
     unittest.main()

@@ -263,11 +263,14 @@ jobs:
           git cat-file -e "$BASE_SHA^{commit}"
           mkdir -p "$TRUSTED_ROOT"
           git archive "$BASE_SHA" \
+            Wiki/features/pk-stack-upstream-maintenance.md \
             .pstack/projectctl \
+            .github/fixtures \
             .github/pk-stack-maintenance-policy.json \
             .github/scripts \
             .github/workflows \
-            .kiro/agents/pstack-maintainer.json \
+            .kiro/agents \
+            reviews \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pstack/projectctl"
           python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \

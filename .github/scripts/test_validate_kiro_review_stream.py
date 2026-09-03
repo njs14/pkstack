@@ -31,6 +31,7 @@ BUNDLE = {
     "changed_files": 1,
     "changed_lines": 2,
     "paths": PATHS,
+    "paths_sha256": PATHS_SHA256,
     "patch_sha256": PATCH,
     "patch": PATCH_TEXT,
 }

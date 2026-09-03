@@ -18,9 +18,7 @@ The most useful retained records are:
 - `kiro-runtime-canary-campaign.md` and `.json` for the hosted read-only runtime canary;
 - `kiro-v3-agent-discovery-probe.json` and `kiro-v3-native-goal-probe.json` for bounded CLI observations;
 - `kirocrew-nightly-smoke-campaign.md` and `.json` for the non-gating Nightly command-surface check;
-- `hosted-maintenance-preflight-campaign.md` and `.json` for fail-closed workflow ordering;
 - `pk-stack-maintenance-campaign.md` and `.json` for the maintenance feature contract;
-- `skill-route-campaign.md` and `.json` for upstream skill-route coverage;
 - `okf-integration-evidence.md` and `.json` for the OKF and `okn` boundary.
 
 Each record states the commit or runtime it observed. Evidence from an older commit stays historical.

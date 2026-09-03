@@ -54,11 +54,14 @@ EXECUTABLE_PATHS = {".pstack/bin/projectctl", "projectctl"}
 ALLOWED_PRODUCT_TOOLS = {"read", "write", "shell", "subagent", "knowledge"}
 ALLOWED_HOOKS = {"pstack-session.json", "pstack-tripwire.json"}
 TRUSTED_SNAPSHOT_PREFIXES = (
+    "Wiki/features/pk-stack-upstream-maintenance.md",
+    ".github/fixtures",
     ".github/pk-stack-maintenance-policy.json",
     ".github/scripts",
     ".github/workflows",
-    ".kiro/agents/pstack-maintainer.json",
+    ".kiro/agents",
     ".pstack/projectctl",
+    "reviews",
 )
 CANDIDATE_PACKAGE_MAX_BYTES = 33_554_432
 REVIEW_LEDGER_MAX_BYTES = 8 * 1024 * 1024
@@ -3163,6 +3166,7 @@ def build_candidate_review_bundle(
         "changed_files": len(paths),
         "changed_lines": changed_lines,
         "paths": paths,
+        "paths_sha256": paths_sha256,
         "patch_sha256": patch_sha256,
         "patch": patch_text,
     }
