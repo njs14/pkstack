@@ -37,8 +37,9 @@ implementation as the design authority.
 
 - `PLOT-001` — Make Kiro's native Spec, Quick Spec, and Bug Fix workflows the planning spine for
   nontrivial features and defects; reserve a direct default-agent flow for a genuinely trivial
-  change with a recorded reason. Status: implemented in the primary router, workflow reference,
-  steering, agent prompt, and docs; a native runtime campaign is pending.
+  change with a recorded reason. Status: closed in the primary router, workflow reference,
+  steering, agent prompt, docs, and the candidate-bound native Bug Fix Spec campaign retained in
+  [`final-native-spec-campaign.md`](final-native-spec-campaign.md).
 - `PLOT-002` — Preserve Kiro ownership of requirements or bug analysis, design, tasks, dependency
   waves, task status, and parallel execution. PK-Stack must not build a second planner/task graph or
   treat a task checkbox as proof. Status: implemented in workflow contracts and structural tests.
@@ -58,9 +59,9 @@ implementation as the design authority.
   provenance, allow a reviewed command only when no reusable feature applies, and refuse silent
   bridge replacement. The started contract must bind immutable hashes for intent, design, and the
   bridge, reject drift on both sides of proof without consuming an attempt, and leave Kiro's native
-  task progress mutable. Status: closed locally as `projectctl goal bind-spec` with focused service,
-  race, CLI, immutable-artifact, and generated-controller parity regressions; the real native Spec
-  campaign remains the separate `PLOT-008` gate.
+  task progress mutable. Status: closed as `projectctl goal bind-spec` with focused service, race,
+  CLI, immutable-artifact, and generated-controller parity regressions, plus the real spec-backed
+  goal retained under `PLOT-008`.
 - `PLOT-005` — Restore the context-depth ladder as product behavior: use the spec-linked feature map
   first, then canonical `okn` for broader architecture, decisions, concepts, and operations. Native
   `/knowledge` may index the source-controlled Wiki but does not replace it. Status: **closed on
@@ -85,8 +86,13 @@ implementation as the design authority.
   campaign re-proved canonical `okn`; it did not execute or promote the optional oracle.
 - `PLOT-008` — Exercise the final integration through real native Kiro Spec or Quick Spec artifacts,
   return to `pstack`, bind a published feature, and complete a spec-backed verified goal without
-  ACP, a nested Kiro process, `/spawn`, or a native `/goal` claim. Status: pending after the final
-  executable tree is frozen.
+  ACP, a nested Kiro process, `/spawn`, or a native `/goal` claim. Status: **closed on executable
+  candidate `0dbc53c33b16de426af7e134b5faa7e819b25f97`**. One interactive CLI v3 process completed a
+  native Bug Fix Spec, explicitly deferred its native implementation prompt, returned to `pstack`,
+  bound `document-export` with immutable spec hashes, and passed the unchanged stored contract on
+  attempt 2 after one diagnosis, one-line repair, and one redeploy. The retained
+  [campaign](final-native-spec-campaign.md), [goal state](final-native-spec-goal.json), and exact
+  [Spec artifacts](native-spec-artifacts/document-export-partition-fix/) are the acceptance proof.
 
 ## OKF skill-integration criteria
 
@@ -201,8 +207,8 @@ returned `REQUEST CHANGES` with eight material findings. The normalized report i
   fail-repair-pass run. Local disposition: controller source/vendored/isolated proof is complete,
   and the selected-profile Kiro campaign passed locally. Fable round 5 later reviewed candidate C,
   which carried the committed current-session evidence, and retained Kiro fail-repair-pass behavior
-  as a proven strength. That is historical FBL-008 evidence only: `PLOT-008` remains open because the
-  campaign did not exercise native Spec artifacts or the final executable tree.
+  as a proven strength. That remains historical FBL-008 evidence; the later candidate-bound native
+  Spec campaign separately closes `PLOT-008`.
 
 ## Fable round 2 criteria
 
@@ -223,7 +229,7 @@ returned `REQUEST CHANGES` with three material findings. The normalized report i
   verifier subagent, one source repair, and one redeploy. See `reviews/kiro-v3-campaign.md`.
   Fable round 5 reviewed the later candidate C carrying this evidence and retained Kiro
   current-session fail-repair-pass behavior as a proven strength. That review does not substitute
-  for the still-pending `PLOT-008` native-Spec campaign on the final executable tree.
+  for `PLOT-008`; the later `final-native-spec-campaign` supplies that distinct proof.
 - `FBL-021` — Support an explicit durable reachable-to-discard transition when a previously frozen
   reachable teardown loses Floci. Local disposition: implemented as a canonical hash-bound one-way
   transition that preserves the prior plan, completed prefix, and all frozen targets; reachable

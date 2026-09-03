@@ -44,6 +44,12 @@ Candidate D's later canonical OKF/OKN and exact-deletion proofs are retained in
 `final-okf-campaign.md`/`.json` and `final-floci-deletion-campaign.md`/`.json`. Both executed exact
 older candidate `8806fa607b991d8e3ca9d004f2724412596f715d`; neither is current-tree execution proof.
 
+The [final native Spec campaign](final-native-spec-campaign.md) closes `PLOT-008` on executable
+candidate `0dbc53c33b16de426af7e134b5faa7e819b25f97`. It retains the exact generated Bug Fix Spec,
+spec-backed terminal goal state, one-process CLI v3 chronology, isolated frozen-judge pass, and
+claim-bound teardown. The later commit carrying those evidence files is an evidence tree, not a
+retrospective executable-candidate claim.
+
 Hosted Kiro liveness is independently bounded by three successful runs:
 
 - credential [run 33729855987](https://github.com/njs14/pk-stack/actions/runs/33729855987) on exact
@@ -113,9 +119,9 @@ remains pending, separately from final 24-area release acceptance.
 
 Release therefore still requires one successful hosted maintenance lifecycle; every deterministic
 static, packaging, policy, and regression gate plus canonical OKF/OKN on the final functional tree;
-the final native Spec-to-current-session verified-goal campaign on its exact candidate; Fable 5.1
-`xhigh` acceptance with zero material unresolved findings; and the Grok 4.6 `xhigh` sweep followed
-by Fable reacceptance if that sweep drives a material change.
+Fable 5.1 `xhigh` acceptance with zero material unresolved findings; and the Grok 4.6 `xhigh`
+sweep followed by Fable reacceptance if that sweep drives a material change. The final native
+Spec-to-current-session gate is now complete.
 
 Committed review Markdown is normalized output plus execution metadata. Raw model output is kept
 outside the repository only when a report explicitly names its location and SHA-256; otherwise it

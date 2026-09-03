@@ -16,7 +16,7 @@ Passing one boundary must not be reported as proof of another.
 | Isolated contracts | Feature generation and goal state transitions work outside the fixture | Temporary repository with ready feature and fail-then-pass goal | Required, but not Kiro-session proof |
 | Live Floci | Docker-backed ECS service behavior, repeat deploy, business proof, exact cleanup | `doctor -> up -> deploy -> deploy -> verify -> evidence -> down` | Required on the candidate tree |
 | External judge | A mutation cannot pass by changing its verifier or protected controls | Read-only external judge and control manifest | Required during live mutation campaign |
-| Kiro current session | `/verified-goal` displays and preserves one contract through fail, repair, redeploy, pass | One interactive `kiro-cli chat --v3 --agent pstack` transcript | Historical candidate-B non-Spec proof passed and was retained by Fable round 5; a final exact-tree native-Spec campaign remains required |
+| Kiro current session | Native Bug Fix Spec artifacts bind immutably to one `/verified-goal` contract through fail, repair, redeploy, and pass | One interactive `kiro-cli chat --v3 --agent pstack` campaign plus retained Spec and goal state | Passed on executable candidate `0dbc53c`; later evidence bytes remain a separate review target |
 | Cross-surface contract | IDE/CLI remain primary, Crew stays optional, Web limitations stay explicit, and skills avoid CLI-only request substitution | Kiro asset tests, installed IDE/Crew inventory, official Kiro docs, canonical support matrix | Required; structural evidence never substitutes for a surface campaign |
 | Kiro product canary | The advertised stable Linux CLI still matches the reviewed pin and preserves agent/model-inventory contracts | Weekly/manual read-only GitHub workflow plus strict canary-script tests | Required drift detector; failure opens review work but never promotes a pin |
 | Model council | Architecture/safety acceptance and final low-level sweep | Repeated Fable 5.1 peer reviews, then Grok 4.6 sweeper | Record only after completed cleanly |
@@ -186,29 +186,33 @@ mutable input, not a harmless cache at this trust boundary. Keep bytecode disabl
 campaign rather than excluding it from the source-closure check. Retain the judge JSON, both
 visible control hashes, and exit status.
 
-## Real current-session Kiro campaign
+## Real native-Spec current-session Kiro campaign
 
-The completed workflow campaign used one process launched exactly as an ordinary interactive v3
-session, without an ACP command/launch, native `/goal`, `--no-interactive`, a machine-output
-transport, resume into another session, or `/spawn`:
+The final workflow campaign used one process launched exactly as an ordinary interactive v3
+session, without a user-facing ACP command/launch, native `/goal`, `--no-interactive`, a
+machine-output transport, resume into another process, or `/spawn`:
 
 ```sh
 kiro-cli chat --v3 --agent pstack --model gpt-5.6-sol --effort max
 ```
 
-The seeded defect forced this sequence in that same session:
+The seeded defect forced this sequence in that same conversation:
 
-1. Invoke `/verified-goal` for the document-export feature with a bounded attempt budget.
-2. Display the stored feature contract and feature-map provenance before the first attempt.
-3. Run `projectctl goal verify` before any source edit and retain its failure as attempt 1.
-4. Diagnose and make the smallest permitted application-source repair.
-5. Redeploy with `./labctl deploy --output json`.
-6. Verify the same goal ID and unchanged contract until it records `passed` within budget.
-The committed bounded chronology plus externally hashed raw transcript records that sequence in
-`reviews/kiro-v3-campaign.md`; `reviews/kiro-v3-campaign.json` retains the machine-readable
-projection. After the Kiro process returned, the controlling harness invoked the protected
-external judge, verified its control hashes, and cleanly tore down the live lab. Those are
-independent acceptance actions, not a second Kiro session or a substitute for session evidence.
+1. Complete Kiro's native Bug Fix Spec workflow and select `Not now` at its implementation prompt.
+2. Return to the workspace `pstack` agent and invoke `/verified-goal`.
+3. Bind the complete native artifacts to the published `document-export` feature and display the
+   immutable spec-backed contract before the first attempt.
+4. Run `projectctl goal verify` before any source edit and retain its failure as attempt 1.
+5. Invoke the native verifier once read-only, then make the smallest permitted source repair.
+6. Redeploy once with `./labctl deploy --output json`.
+7. Verify the same goal ID and unchanged contract once more, recording `passed` on attempt 2.
+
+The committed exact artifacts, terminal goal state, and normalized chronology are in
+`reviews/final-native-spec-campaign.md`, its JSON companion, and
+`reviews/native-spec-artifacts/document-export-partition-fix/`. After the Kiro process returned,
+the controlling harness invoked the protected external judge alone, verified its control hashes,
+and cleanly tore down the live lab. Those are independent acceptance actions, not another Kiro
+session or a substitute for session evidence.
 
 Sol Advisor may advise the implementation phase, but its output is design input rather than an
 acceptance verdict. Fable 5.1 is the peer reviewer throughout candidate development and must review

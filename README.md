@@ -199,9 +199,14 @@ evidence-carrier bytes are claimed as executed. The earlier
 ([machine-readable record](reviews/final-kiro-v3-campaign.json)) remains current-session evidence
 for its own older executable commit, not for `8806fa6`.
 
+The later [native Bug Fix Spec campaign](reviews/final-native-spec-campaign.md)
+([machine-readable record](reviews/final-native-spec-campaign.json)) closes the original
+spec-to-current-session plot on executable candidate `0dbc53c`: one CLI v3 conversation generated
+the native planning package, returned to `pstack`, bound it to `document-export`, and completed the
+unchanged verified-goal contract on attempt 2.
+
 See [architecture](docs/architecture.md), [test strategy](docs/test-strategy.md), and the full
 [validation report](docs/validation-report.md). The repository exists and is private, and its
 credential, permission, canary, and fail-closed maintenance-entry proofs are retained. A successful
 maintenance lifecycle, final exact-tree deterministic and canonical OKF/OKN reproof, final
-native-Spec current-session campaign, independent Fable acceptance, and final Grok sweep remain
-gated until their own evidence exists.
+independent Fable acceptance, and final Grok sweep remain gated until their own evidence exists.

@@ -1,0 +1,72 @@
+{
+  "attempt_count": 2,
+  "contract": {
+    "argv": [
+      "./labctl",
+      "verify",
+      "--output",
+      "json"
+    ],
+    "display": "./labctl verify --output json",
+    "feature": "document-export",
+    "source": "spec",
+    "spec": "document-export-partition-fix",
+    "spec_artifacts": [
+      {
+        "path": ".kiro/specs/document-export-partition-fix/bugfix.md",
+        "sha256": "8155df4cf06f34b49216521567abc6608c614965df1586642008a7933d2de868"
+      },
+      {
+        "path": ".kiro/specs/document-export-partition-fix/design.md",
+        "sha256": "94f2bd741e5b5117a87ecd754fb78be2faf75e8a1a193034af718b1a2461ef8e"
+      },
+      {
+        "path": ".kiro/specs/document-export-partition-fix/pstack-verification.json",
+        "sha256": "6d7452e7ca5482ab5e7af1ea1c38aa4761fda058bbd77fba7515fd3827af3cad"
+      }
+    ]
+  },
+  "contract_digest": "dc6adf854ce0cce544b23758ff60227bc18bebba64b2e64e4675db4c640918a0",
+  "created_at": "2026-09-03T15:05:24.499451+00:00",
+  "goal_id": "4bff9b0f-5724-4476-b0d6-28af007e858b",
+  "history": [
+    {
+      "duration_ms": 5829,
+      "error": null,
+      "exit_code": 1,
+      "passed": false,
+      "started_at": "2026-09-03T15:05:56.862693+00:00",
+      "stderr": "",
+      "stdout": "{\"command\": \"verify\", \"error\": \"tenant-key partition separation check failed\", \"ok\": false}\n",
+      "timed_out": false,
+      "truncated": false
+    },
+    {
+      "duration_ms": 24010,
+      "error": null,
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-09-03T16:14:24.791316+00:00",
+      "stderr": "",
+      "stdout": "{\"api_transport\": \"bounded HTTP from a transient hardened verifier container to the exact real ECS API task\", \"business\": {\"api_idempotency\": {\"attempts\": 1, \"duplicate_marker\": true, \"duplicate_status\": \"COMPLETE\", \"enqueue_confirmed\": true, \"row_idempotency_matches\": true, \"same_export_id\": true}, \"dlq\": {\"current_invocation\": true, \"message_id\": \"d992b8f1-b838-44f6-a237-14a93a490f1a\"}, \"export_id\": \"e-fa14ddbe85f2d1d8\", \"s3_result\": {\"body\": {\"export_id\": \"e-fa14ddbe85f2d1d8\", \"tenant\": \"tenant-a\"}, \"content_type\": \"application/json\", \"etag\": \"\\\"bcd896f9f0fb4f9e8e9eb10e7ef6ada8\\\"\", \"key\": \"exports/tenant-a/e-fa14ddbe85f2d1d8.json\"}, \"tenant_key_partition_separation\": true, \"terminal_status\": \"COMPLETE\", \"worker_duplicate_delivery\": {\"attempts\": 1, \"consumed_noop\": true, \"s3_identity_unchanged\": true}}, \"immutable\": {\"api_image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"api_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-native-spec-903-api:2\", \"source_digest\": \"5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6\", \"worker_image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"worker_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-native-spec-903-worker:2\"}, \"ok\": true, \"resources\": {\"api_family\": \"pklab-native-spec-903-api\", \"api_image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"api_service\": \"pklab-native-spec-903-api\", \"api_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-native-spec-903-api:2\", \"bucket\": \"pklab-native-spec-903-results\", \"claim_id\": \"0267f48fe678f37c1e14463a2c311504\", \"cluster\": \"pklab-native-spec-903-cluster\", \"dlq\": \"pklab-native-spec-903-exports-dlq\", \"docker_context\": \"desktop-linux\", \"docker_daemon_id\": \"fabba3a8-3367-4971-9e85-efbdb563f86f\", \"docker_socket\": \"unix:///Users/noahsutter/.docker/run/docker.sock\", \"queue\": \"pklab-native-spec-903-exports\", \"run_id\": \"native-spec-903\", \"source_digest\": \"5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6\", \"table\": \"pklab-native-spec-903-exports\", \"worker_family\": \"pklab-native-spec-903-worker\", \"worker_image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"worker_service\": \"pklab-native-spec-903-worker\", \"worker_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-native-spec-903-worker:2\"}, \"run\": \"native-spec-903\", \"task_proof\": {\"api\": \"arn:aws:ecs:us-east-1:000000000000:task/pklab-native-spec-903-cluster/9e1b23b879c34c7eb3a9d76809d34120\", \"containers\": [{\"image\": \"pklab-native-spec-903-api:5241fe8d4203672be0f5ed57\", \"image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"labels\": {\"floci\": \"true\", \"floci_emulator\": \"floci-aws\", \"io.floci\": \"aws\", \"io.floci.resource-id\": \"9e1b23b879c34c7eb3a9d76809d34120\", \"io.floci.service\": \"ecs\"}, \"name\": \"floci-ecs-9e1b23b879c34c7eb3a9d76809d34120-api\", \"network\": \"pk-stack-lab-net\", \"role\": \"api\", \"security\": {\"effective\": {\"cap_drop_all\": false, \"no_new_privileges\": false, \"readonly_root_filesystem\": false}, \"emulator_limitations\": [\"readonly_root_filesystem\", \"cap_drop_all\", \"no_new_privileges\"], \"mounts\": [], \"non_root\": true, \"requested\": {\"cap_drop_all\": true, \"no_new_privileges\": true, \"readonly_root_filesystem\": true}, \"user\": \"65532:65532\"}}, {\"image\": \"pklab-native-spec-903-worker:5241fe8d4203672be0f5ed57\", \"image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"labels\": {\"floci\": \"true\", \"floci_emulator\": \"floci-aws\", \"io.floci\": \"aws\", \"io.floci.resource-id\": \"99b4280777b24f69a89143eddeb38740\", \"io.floci.service\": \"ecs\"}, \"name\": \"floci-ecs-99b4280777b24f69a89143eddeb38740-worker\", \"network\": \"pk-stack-lab-net\", \"role\": \"worker\", \"security\": {\"effective\": {\"cap_drop_all\": false, \"no_new_privileges\": false, \"readonly_root_filesystem\": false}, \"emulator_limitations\": [\"readonly_root_filesystem\", \"cap_drop_all\", \"no_new_privileges\"], \"mounts\": [], \"non_root\": true, \"requested\": {\"cap_drop_all\": true, \"no_new_privileges\": true, \"readonly_root_filesystem\": true}, \"user\": \"65532:65532\"}}], \"post_business_reproof\": true, \"worker\": \"arn:aws:ecs:us-east-1:000000000000:task/pklab-native-spec-903-cluster/99b4280777b24f69a89143eddeb38740\"}}\n",
+      "timed_out": false,
+      "truncated": false
+    }
+  ],
+  "last_result": {
+    "duration_ms": 24010,
+    "error": null,
+    "exit_code": 0,
+    "passed": true,
+    "started_at": "2026-09-03T16:14:24.791316+00:00",
+    "stderr": "",
+    "stdout": "{\"api_transport\": \"bounded HTTP from a transient hardened verifier container to the exact real ECS API task\", \"business\": {\"api_idempotency\": {\"attempts\": 1, \"duplicate_marker\": true, \"duplicate_status\": \"COMPLETE\", \"enqueue_confirmed\": true, \"row_idempotency_matches\": true, \"same_export_id\": true}, \"dlq\": {\"current_invocation\": true, \"message_id\": \"d992b8f1-b838-44f6-a237-14a93a490f1a\"}, \"export_id\": \"e-fa14ddbe85f2d1d8\", \"s3_result\": {\"body\": {\"export_id\": \"e-fa14ddbe85f2d1d8\", \"tenant\": \"tenant-a\"}, \"content_type\": \"application/json\", \"etag\": \"\\\"bcd896f9f0fb4f9e8e9eb10e7ef6ada8\\\"\", \"key\": \"exports/tenant-a/e-fa14ddbe85f2d1d8.json\"}, \"tenant_key_partition_separation\": true, \"terminal_status\": \"COMPLETE\", \"worker_duplicate_delivery\": {\"attempts\": 1, \"consumed_noop\": true, \"s3_identity_unchanged\": true}}, \"immutable\": {\"api_image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"api_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-native-spec-903-api:2\", \"source_digest\": \"5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6\", \"worker_image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"worker_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-native-spec-903-worker:2\"}, \"ok\": true, \"resources\": {\"api_family\": \"pklab-native-spec-903-api\", \"api_image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"api_service\": \"pklab-native-spec-903-api\", \"api_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-native-spec-903-api:2\", \"bucket\": \"pklab-native-spec-903-results\", \"claim_id\": \"0267f48fe678f37c1e14463a2c311504\", \"cluster\": \"pklab-native-spec-903-cluster\", \"dlq\": \"pklab-native-spec-903-exports-dlq\", \"docker_context\": \"desktop-linux\", \"docker_daemon_id\": \"fabba3a8-3367-4971-9e85-efbdb563f86f\", \"docker_socket\": \"unix:///Users/noahsutter/.docker/run/docker.sock\", \"queue\": \"pklab-native-spec-903-exports\", \"run_id\": \"native-spec-903\", \"source_digest\": \"5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6\", \"table\": \"pklab-native-spec-903-exports\", \"worker_family\": \"pklab-native-spec-903-worker\", \"worker_image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"worker_service\": \"pklab-native-spec-903-worker\", \"worker_task_definition_arn\": \"arn:aws:ecs:us-east-1:000000000000:task-definition/pklab-native-spec-903-worker:2\"}, \"run\": \"native-spec-903\", \"task_proof\": {\"api\": \"arn:aws:ecs:us-east-1:000000000000:task/pklab-native-spec-903-cluster/9e1b23b879c34c7eb3a9d76809d34120\", \"containers\": [{\"image\": \"pklab-native-spec-903-api:5241fe8d4203672be0f5ed57\", \"image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"labels\": {\"floci\": \"true\", \"floci_emulator\": \"floci-aws\", \"io.floci\": \"aws\", \"io.floci.resource-id\": \"9e1b23b879c34c7eb3a9d76809d34120\", \"io.floci.service\": \"ecs\"}, \"name\": \"floci-ecs-9e1b23b879c34c7eb3a9d76809d34120-api\", \"network\": \"pk-stack-lab-net\", \"role\": \"api\", \"security\": {\"effective\": {\"cap_drop_all\": false, \"no_new_privileges\": false, \"readonly_root_filesystem\": false}, \"emulator_limitations\": [\"readonly_root_filesystem\", \"cap_drop_all\", \"no_new_privileges\"], \"mounts\": [], \"non_root\": true, \"requested\": {\"cap_drop_all\": true, \"no_new_privileges\": true, \"readonly_root_filesystem\": true}, \"user\": \"65532:65532\"}}, {\"image\": \"pklab-native-spec-903-worker:5241fe8d4203672be0f5ed57\", \"image_id\": \"sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68\", \"labels\": {\"floci\": \"true\", \"floci_emulator\": \"floci-aws\", \"io.floci\": \"aws\", \"io.floci.resource-id\": \"99b4280777b24f69a89143eddeb38740\", \"io.floci.service\": \"ecs\"}, \"name\": \"floci-ecs-99b4280777b24f69a89143eddeb38740-worker\", \"network\": \"pk-stack-lab-net\", \"role\": \"worker\", \"security\": {\"effective\": {\"cap_drop_all\": false, \"no_new_privileges\": false, \"readonly_root_filesystem\": false}, \"emulator_limitations\": [\"readonly_root_filesystem\", \"cap_drop_all\", \"no_new_privileges\"], \"mounts\": [], \"non_root\": true, \"requested\": {\"cap_drop_all\": true, \"no_new_privileges\": true, \"readonly_root_filesystem\": true}, \"user\": \"65532:65532\"}}], \"post_business_reproof\": true, \"worker\": \"arn:aws:ecs:us-east-1:000000000000:task/pklab-native-spec-903-cluster/99b4280777b24f69a89143eddeb38740\"}}\n",
+    "timed_out": false,
+    "truncated": false
+  },
+  "max_attempts": 4,
+  "objective": "Repair the deployed document-export tenant-key partition-separation regression in this isolated local Floci lab.",
+  "schema_version": 2,
+  "status": "passed",
+  "updated_at": "2026-09-03T16:14:48.805054+00:00"
+}

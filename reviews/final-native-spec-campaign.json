@@ -1,0 +1,99 @@
+{
+  "campaign": "native-spec-903",
+  "candidate": {
+    "archive_bytes": 6471680,
+    "archive_sha256": "efa463676f81af1d5f5a51ce7fec938dba5bb8066641ab678b2c11f4d4d41d09",
+    "commit": "0dbc53c33b16de426af7e134b5faa7e819b25f97",
+    "tracked_bytes_restored": true,
+    "tree": "8ed46899995163d3ef9693ff167d8a9d9bf489ec"
+  },
+  "external_judge": {
+    "concurrent_orchestration_attempt": "invalid_failed_setup",
+    "contract_sha256": "37203aba7f6404e0a820fcacbca770857070c77a6e161d9622d9011e85c80d80",
+    "control_manifest_sha256": "d35c86b45b640d817f57b7bfd5bc61c36b42e7cd4d4bdcfc32c6bd64f6d48aa7",
+    "exit_code": 0,
+    "judge_sha256": "73e6b16865381c0475e528d5c87458081d92f213e31811395b4e2ecfad9560d7",
+    "ok": true,
+    "serialized": true
+  },
+  "goal": {
+    "attempt_count": 2,
+    "contract": "./labctl verify --output json",
+    "contract_digest": "dc6adf854ce0cce544b23758ff60227bc18bebba64b2e64e4675db4c640918a0",
+    "feature": "document-export",
+    "goal_id": "4bff9b0f-5724-4476-b0d6-28af007e858b",
+    "goal_state_sha256": "17c1f93b8559c35aa27a72e0095c695b224a88ceb017fd575e97d44d9e9fe83e",
+    "history": [
+      {
+        "duration_ms": 5829,
+        "exit_code": 1,
+        "failure": "tenant-key partition separation check failed",
+        "passed": false
+      },
+      {
+        "duration_ms": 24010,
+        "exit_code": 0,
+        "passed": true,
+        "tenant_key_partition_separation": true
+      }
+    ],
+    "max_attempts": 4,
+    "source": "spec",
+    "spec": "document-export-partition-fix",
+    "status": "passed"
+  },
+  "kiro": {
+    "agent": "pstack",
+    "effort": "max",
+    "goal_phase_credits_reported": 7.77,
+    "goal_phase_wall_time_reported": "74m44s including machine pause",
+    "model": "gpt-5.6-sol",
+    "native_planning_credits_reported_approx": 49.16,
+    "native_planning_wall_time_reported_approx": "34m",
+    "process_count": 1,
+    "resume_id": "sess_8e7906ef-addf-489d-af87-88f6d8c85887",
+    "surface": "interactive kiro-cli chat --v3"
+  },
+  "red_fixture": {
+    "commit": "7a59f2118bae36b228b341197f011998bd2601df",
+    "parent": "0dbc53c33b16de426af7e134b5faa7e819b25f97",
+    "runtime_sha256": "b4a0091a163077296b408b243215744a952e25985c4a28154a3d023e6b62e3f6",
+    "tree": "ec734e73c590c5a9c28a45b2316ca063f1f855e9"
+  },
+  "repair": {
+    "api_worker_revision": 2,
+    "changed_tracked_files": [
+      "src/pk_stack_lab/runtime.py"
+    ],
+    "deployment_count": 1,
+    "image_id": "sha256:ee4ce92b7732f93058ea09bf5189d75fd6313b0df6395c70fbaa5d7db35e8f68",
+    "runtime_sha256": "83a05fcc163e8f72b418cb72834967e8d274bebfe872d4608ad393c18469cfe9",
+    "source_digest": "5241fe8d4203672be0f5ed57ee9e2b2517919841b0632334b13a14a073727fe6"
+  },
+  "spec": {
+    "artifact_sha256": {
+      ".config.kiro": "53abcf6213fff914f5f58cc214e2994ec40e48c935cc71a0b4ba7834505985e1",
+      "bugfix.md": "8155df4cf06f34b49216521567abc6608c614965df1586642008a7933d2de868",
+      "design.md": "94f2bd741e5b5117a87ecd754fb78be2faf75e8a1a193034af718b1a2461ef8e",
+      "pstack-verification.json": "6d7452e7ca5482ab5e7af1ea1c38aa4761fda058bbd77fba7515fd3827af3cad",
+      "tasks.md": "c7f0f7e603b36b1702b0c4b83ca9137608522c13b7517280c9337bb1d457604c"
+    },
+    "implementation_deferred_in_native_workflow": true,
+    "spec_id": "e5159117-35e7-4652-b8e1-2ad27b789d56",
+    "type": "bugfix",
+    "workflow": "requirements-first"
+  },
+  "teardown": {
+    "completed_phases": 8,
+    "container_inventory_final_sha256": "8b5cae8a076ba4dd089c6940bfc777ea7be029599202cc5963a2d019e915222b",
+    "container_inventory_restored": true,
+    "global_image_inventory_restored": false,
+    "global_image_inventory_drift": "ambient Docker Desktop resource management and volatile age fields",
+    "network_inventory_final_sha256": "c608cd484362c3d5bf0bf8bf172e6cfbe5296d9ab33e7b20c5c0b980e70faaa3",
+    "network_inventory_restored": true,
+    "owned_images_absent": true,
+    "sentinel_id": "7d0d4ec752580f49086499a58d79b6553a3e80095f8fe9837db7bbb96ca6a62a",
+    "sentinel_inspect_sha256": "2c0ee79a3052889cf9a6aca67601bf886019ea5025d6056ccfca08a7fdd8f69d",
+    "sentinel_preserved_before_exact_test_cleanup": true
+  }
+}
