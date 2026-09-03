@@ -93,7 +93,7 @@ jobs:
             "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            c5f4bc094c5a9332991d993d46044ab582bbcc757e4aa227e0f71ec7003a61c1 \
+            38951d0090cfec2801990462d0f4e7cfe6154e825167bb33a02acdf7d9be2d40 \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
           python3 - "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
           import json
@@ -372,7 +372,7 @@ jobs:
             fi
           }
 
-          allowed_prompt='Perform exactly these nine filesystem operations in order. Read fixture-input.txt. Grep fixture-input.txt case-sensitively for ALPHA_TOKEN. Then use Write File once for each path and exact UTF-8 content, including the final newline: .pk-stack-maintenance/proposal.json gets {"permission_smoke":true}; powers/pk-stack/README.md gets AUTHORED_README_OK; powers/pk-stack/dev.kiro/steering/permission-smoke.md gets AUTHORED_STEERING_OK; powers/pk-stack/docs/upstream-skill-parity.json gets {"permission_smoke":true}; powers/pk-stack/docs/smoke/permission.md gets AUTHORED_DOCS_OK; powers/pk-stack/skills/permission-smoke/SKILL.md gets AUTHORED_SKILL_OK; powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json gets {"permission_smoke":true}. Do not perform any other operation and emit no prose.'
+          allowed_prompt='Perform exactly these nine filesystem operations in order. Use Read File exactly once with path exactly fixture-input.txt, offset exactly 0, and limit exactly 2000. Then use Grep Search exactly once with include pattern exactly fixture-input.txt, query exactly ALPHA_TOKEN, and case-sensitive matching. Then use Write File once for each path and exact UTF-8 content, including the final newline: .pk-stack-maintenance/proposal.json gets {"permission_smoke":true}; powers/pk-stack/README.md gets AUTHORED_README_OK; powers/pk-stack/dev.kiro/steering/permission-smoke.md gets AUTHORED_STEERING_OK; powers/pk-stack/docs/upstream-skill-parity.json gets {"permission_smoke":true}; powers/pk-stack/docs/smoke/permission.md gets AUTHORED_DOCS_OK; powers/pk-stack/skills/permission-smoke/SKILL.md gets AUTHORED_SKILL_OK; powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json gets {"permission_smoke":true}. Do not perform any other operation and emit no prose.'
           run_case allowed 180 allowed "$allowed_prompt"
           allowed_root="$SMOKE_ROOT/cases/allowed"
           printf '{"permission_smoke":true}\n' \

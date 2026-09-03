@@ -13,6 +13,7 @@ from typing import Any
 MAX_OUTPUT_BYTES = 4 * 1024 * 1024
 MAX_EVENTS = 8192
 MAX_DIAGNOSTIC_TEXT_BYTES = 8192
+MAX_READ_START_DIAGNOSTIC_BYTES = 4096
 PERMISSION_AGENT_NAME = "pk-stack-permission-fixture"
 PERMISSION_AGENT_DESCRIPTION = (
     "Manual CI-only proof that Kiro 2.21 honors the exact production "
@@ -72,7 +73,7 @@ def _strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     value: dict[str, Any] = {}
     for key, item in pairs:
         if key in value:
-            raise StreamError(f"Kiro stream contains duplicate JSON key: {key!r}")
+            raise StreamError("Kiro stream contains a duplicate JSON key")
         value[key] = item
     return value
 
@@ -412,6 +413,100 @@ def _validate_origin(metadata: Any, *, extra_keys: set[str] | None = None) -> di
 
 def _expected_location(workspace: Path, relative_path: str) -> list[dict[str, str]]:
     return [{"path": str(workspace / relative_path)}]
+
+
+def _diagnostic_type(value: Any) -> str:
+    return {
+        type(None): "null",
+        bool: "boolean",
+        int: "integer",
+        float: "number",
+        str: "string",
+        list: "array",
+        dict: "object",
+    }.get(type(value), "unknown")
+
+
+def _diagnostic_shape(value: Any, expected_keys: set[str]) -> dict[str, Any]:
+    facts: dict[str, Any] = {"type": _diagnostic_type(value)}
+    if not isinstance(value, dict):
+        return facts
+    actual_keys = set(value)
+    facts["key_count"] = len(actual_keys)
+    facts["expected_keys_present"] = {key: key in actual_keys for key in sorted(expected_keys)}
+    facts["unexpected_key_count"] = len(actual_keys - expected_keys)
+    return facts
+
+
+def _diagnostic_integer(value: Any, expected: int) -> dict[str, Any]:
+    facts = {
+        "matches_expected": value == expected,
+        "type": _diagnostic_type(value),
+    }
+    if type(value) is int:
+        if value in {-1, 0, 1, 100, 1_000, 2_000, 10_000}:
+            facts["known_value"] = value
+        else:
+            facts["classification"] = (
+                "other_negative_integer" if value < 0 else "other_positive_integer"
+            )
+    return facts
+
+
+def _diagnostic_path(value: Any, *, workspace: Path) -> dict[str, Any]:
+    if not isinstance(value, str):
+        return {"classification": "non_string", "type": _diagnostic_type(value)}
+    absolute = str(workspace / FIXTURE_INPUT_PATH)
+    classification = {
+        FIXTURE_INPUT_PATH: "exact_relative",
+        f"./{FIXTURE_INPUT_PATH}": "dot_relative",
+        absolute: "exact_workspace_absolute",
+        f"file://{absolute}": "exact_workspace_file_uri",
+    }.get(value, "other_string")
+    return {"classification": classification, "type": "string"}
+
+
+def _read_start_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace: Path) -> str:
+    diagnostic: dict[str, Any] = {
+        "group_event_count": len(group),
+        "schema": "pk-stack-permission-read-start-diagnostic-v1",
+    }
+    start = group[0][1]
+    raw_input = start.get("rawInput")
+    raw_facts = _diagnostic_shape(raw_input, {"limit", "offset", "path"})
+    if isinstance(raw_input, dict):
+        raw_facts["limit"] = _diagnostic_integer(raw_input.get("limit"), 2000)
+        raw_facts["offset"] = _diagnostic_integer(raw_input.get("offset"), 0)
+        raw_facts["path"] = _diagnostic_path(raw_input.get("path"), workspace=workspace)
+    locations = start.get("locations")
+    location_facts: dict[str, Any] = {
+        "matches_expected": locations == _expected_location(workspace, FIXTURE_INPUT_PATH),
+        "type": _diagnostic_type(locations),
+    }
+    if isinstance(locations, list):
+        location_facts["count"] = len(locations)
+        if locations and isinstance(locations[0], dict):
+            location_facts["first_path"] = _diagnostic_path(
+                locations[0].get("path"), workspace=workspace
+            )
+    diagnostic["start"] = {
+        "kind": {
+            "matches_expected": start.get("kind") == "read",
+            "type": _diagnostic_type(start.get("kind")),
+        },
+        "locations": location_facts,
+        "raw_input": raw_facts,
+        "title": {
+            "matches_expected": start.get("title") == "Read File",
+            "type": _diagnostic_type(start.get("title")),
+        },
+    }
+    encoded = json.dumps(diagnostic, separators=(",", ":"), sort_keys=True)
+    if len(encoded.encode("utf-8")) > MAX_READ_START_DIAGNOSTIC_BYTES:
+        return (
+            '{"diagnostic_truncated":true,"schema":"pk-stack-permission-read-start-diagnostic-v1"}'
+        )
+    return encoded
 
 
 def _validate_content_message(
@@ -932,7 +1027,13 @@ def validate_allowed_invocation(
     )
     if len(groups) != 2 + len(ALLOWED_WRITES):
         raise StreamError("Kiro allowed campaign used an unexpected number of tools")
-    _validate_read_group(groups[0], workspace=workspace)
+    try:
+        _validate_read_group(groups[0], workspace=workspace)
+    except StreamError as exc:
+        if str(exc) != "Kiro read start does not match the fixture input":
+            raise
+        diagnostic = _read_start_diagnostic(groups[0], workspace=workspace)
+        raise StreamError(f"{exc}; read_start_diagnostic={diagnostic}") from None
     _validate_grep_group(groups[1])
     for group, (relative_path, expected_text) in zip(groups[2:], ALLOWED_WRITES):
         _validate_write_group(

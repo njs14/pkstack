@@ -2024,6 +2024,94 @@ class KiroPermissionStreamTests(unittest.TestCase):
             self.assertEqual(denied["user_tool_calls"], 1)
             self.assertEqual(denied["resource"], resource)
 
+    @staticmethod
+    def read_start_diagnostic_from_error(
+        error: permission_stream_guard.StreamError,
+    ) -> dict[str, object]:
+        marker = "read_start_diagnostic="
+        message = str(error)
+        if marker not in message:
+            raise AssertionError("read-start diagnostic is missing")
+        return json.loads(message.split(marker, 1)[1])
+
+    def test_read_start_diagnostic_is_bounded_and_never_echoes_values(self) -> None:
+        sensitive = "SENSITIVE-RAW-VALUE-MUST-NEVER-APPEAR"
+        opaque_tool_id = "call_deadbeef-dead-beef-dead-deadbeefdead"
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, _, stream, stderr = self.fixture_workspace(temporary)
+            events = self.complete_events(workspace)
+            for event in events[2:5]:
+                event["data"]["update"]["toolCallId"] = opaque_tool_id  # type: ignore[index]
+            read_start = events[2]["data"]["update"]  # type: ignore[index]
+            read_start["title"] = sensitive
+            read_start["kind"] = sensitive
+            read_start["rawInput"]["path"] = sensitive  # type: ignore[index]
+            read_start["rawInput"]["offset"] = 424242  # type: ignore[index]
+            read_start["rawInput"][sensitive] = sensitive  # type: ignore[index]
+            read_start["locations"] = [{"path": sensitive, sensitive: sensitive}]
+            self.write_stream(stream, events)
+
+            with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                permission_stream_guard.validate_allowed_invocation(
+                    stream,
+                    stderr,
+                    return_code=124,
+                    api_key="test-secret",
+                    workspace=workspace,
+                )
+            message = str(caught.exception)
+            for forbidden in (
+                sensitive,
+                "424242",
+                str(workspace),
+                opaque_tool_id,
+                self.SESSION_ID,
+            ):
+                self.assertNotIn(forbidden, message)
+            self.assertLessEqual(
+                len(message.encode("utf-8")),
+                permission_stream_guard.MAX_READ_START_DIAGNOSTIC_BYTES + 256,
+            )
+            diagnostic = self.read_start_diagnostic_from_error(caught.exception)
+            self.assertEqual(
+                diagnostic["schema"],
+                "pk-stack-permission-read-start-diagnostic-v1",
+            )
+            start = diagnostic["start"]  # type: ignore[assignment]
+            self.assertFalse(start["kind"]["matches_expected"])  # type: ignore[index]
+            self.assertFalse(start["title"]["matches_expected"])  # type: ignore[index]
+            self.assertEqual(
+                start["raw_input"]["path"]["classification"],  # type: ignore[index]
+                "other_string",
+            )
+            self.assertEqual(start["raw_input"]["unexpected_key_count"], 1)  # type: ignore[index]
+            self.assertEqual(
+                start["raw_input"]["offset"]["classification"],  # type: ignore[index]
+                "other_positive_integer",
+            )
+            self.assertFalse(start["locations"]["matches_expected"])  # type: ignore[index]
+            self.assertEqual(
+                start["locations"]["first_path"]["classification"],  # type: ignore[index]
+                "other_string",
+            )
+            expected_classes = {
+                permission_stream_guard.FIXTURE_INPUT_PATH: "exact_relative",
+                f"./{permission_stream_guard.FIXTURE_INPUT_PATH}": "dot_relative",
+                str(workspace / permission_stream_guard.FIXTURE_INPUT_PATH): (
+                    "exact_workspace_absolute"
+                ),
+                f"file://{workspace / permission_stream_guard.FIXTURE_INPUT_PATH}": (
+                    "exact_workspace_file_uri"
+                ),
+            }
+            for value, expected in expected_classes.items():
+                self.assertEqual(
+                    permission_stream_guard._diagnostic_path(
+                        value, workspace=workspace
+                    )["classification"],
+                    expected,
+                )
+
     def test_denied_stream_rejects_policy_and_lifecycle_lookalikes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             workspace, agent, stream, stderr = self.fixture_workspace(temporary)
@@ -3646,6 +3734,14 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("--kind allowed", permission_smoke)
         self.assertIn("--kind denied", permission_smoke)
         self.assertIn('run_case allowed 180 allowed "$allowed_prompt"', permission_smoke)
+        self.assertIn(
+            "path exactly fixture-input.txt, offset exactly 0, and limit exactly 2000",
+            permission_smoke,
+        )
+        self.assertIn(
+            "include pattern exactly fixture-input.txt, query exactly ALPHA_TOKEN",
+            permission_smoke,
+        )
         self.assertIn(
             'run_case "$case_id" 120 denied "$denied_prompt" "$resource"',
             permission_smoke,
