@@ -14,6 +14,7 @@ MAX_OUTPUT_BYTES = 2 * 1024 * 1024
 MAX_EVENTS = 4096
 MAX_MARKER_DIAGNOSTIC_PATHS = 8
 MAX_MARKER_DIAGNOSTIC_PATH_LENGTH = 256
+MAX_FOCUS_TITLE_BYTES = 512
 _AGENT_MESSAGE_TAGS = {"agentmessagechunk", "assistantmessagechunk"}
 _DISCRIMINATOR_KEYS = {"kind", "sessionupdate", "type", "updatetype"}
 _SESSION_UPDATE_KINDS = {
@@ -31,6 +32,11 @@ _TOOL_CALL_ID = re.compile(_UUID)
 _SESSION_ID = re.compile(rf"sess_{_UUID}")
 _REPLAY_ID = re.compile(r"[A-Za-z0-9_-]{40}")
 _SAFE_PATH_KEY = re.compile(r"[A-Za-z_][A-Za-z0-9_-]{0,63}")
+_FOCUS_TITLE_MARKER_PATHS = {
+    "$.data.update._meta.kiro.focus.title",
+    "$.data.update._meta.kiro.title",
+    "$.data.update.title",
+}
 
 
 class StreamError(RuntimeError):
@@ -161,6 +167,33 @@ def _marker_diagnostic(value: Any) -> tuple[list[str], int]:
                 (item, (*path, index)) for index, item in reversed(list(enumerate(current)))
             )
     return paths, match_count
+
+
+def _focus_update_title(event: dict[str, Any]) -> str | None:
+    _, update = _session_envelope(event, label="focus-update")
+    if update.get("sessionUpdate") != "session_info_update":
+        return None
+    metadata = update.get("_meta")
+    if not isinstance(metadata, dict):
+        return None
+    kiro_metadata = metadata.get("kiro")
+    if not isinstance(kiro_metadata, dict) or kiro_metadata.get("kind") != "focus_update":
+        return None
+    if set(update) != {"_meta", "sessionUpdate", "title"}:
+        raise StreamError("Kiro emitted a malformed focus-update event")
+    if set(metadata) != {"kiro"} or set(kiro_metadata) != {"focus", "kind", "title"}:
+        raise StreamError("Kiro emitted malformed focus-update metadata")
+    focus = kiro_metadata.get("focus")
+    if not isinstance(focus, dict) or set(focus) != {"title"}:
+        raise StreamError("Kiro emitted malformed focus-update focus metadata")
+    titles = (update.get("title"), kiro_metadata.get("title"), focus.get("title"))
+    if (
+        any(not isinstance(title, str) or not title for title in titles)
+        or len(set(titles)) != 1
+        or len(titles[0].encode("utf-8")) > MAX_FOCUS_TITLE_BYTES
+    ):
+        raise StreamError("Kiro emitted invalid or mismatched focus-update titles")
+    return titles[0]
 
 
 def _session_envelope(event: dict[str, Any], *, label: str) -> tuple[str, dict[str, Any]]:
@@ -304,6 +337,7 @@ def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
             raise StreamError("Kiro sessionUpdate and runFinished sessions do not match")
         if update.get("sessionUpdate") not in _SESSION_UPDATE_KINDS:
             raise StreamError("Kiro emitted an unknown session-update kind")
+        focus_title = _focus_update_title(event)
         tags = _wire_tags(event)
         tool_event = any(tag.startswith("tool") for tag in tags)
         message_event = any(tag in _AGENT_MESSAGE_TAGS for tag in tags)
@@ -343,6 +377,13 @@ def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
 
         marker_paths, marker_path_count = _marker_diagnostic(event)
         if marker_path_count:
+            if (
+                focus_title is not None
+                and marker_path_count == 3
+                and set(marker_paths) == _FOCUS_TITLE_MARKER_PATHS
+                and focus_title.count(MARKER) == 1
+            ):
+                continue
             diagnostic = {
                 "event_index_0_based": event_index,
                 "marker_path_count": marker_path_count,

@@ -814,6 +814,10 @@ class KiroCredentialStreamTests(unittest.TestCase):
     OTHER_SESSION_ID = "sess_22222222-2222-4222-8222-222222222222"
     CALL_ID = "12345678-1234-4123-8123-123456789abc"
     REPLAY_ID = "sanitizedReplayId_1234567890123456789012"
+    FOCUS_TITLE = (
+        "Authentication smoke only. Invoke no tools and reply exactly "
+        "PK-STACK-KIRO-AUTH-OK."
+    )
 
     @staticmethod
     def stream(*events: dict[str, object]) -> bytes:
@@ -921,6 +925,27 @@ class KiroCredentialStreamTests(unittest.TestCase):
                                     "tokens": 6,
                                 }
                             }
+                        }
+                    },
+                },
+            },
+        }
+
+    @classmethod
+    def focus_update(cls, *, title: str | None = None) -> dict[str, object]:
+        current_title = title or cls.FOCUS_TITLE
+        return {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": cls.SESSION_ID,
+                "update": {
+                    "sessionUpdate": "session_info_update",
+                    "title": current_title,
+                    "_meta": {
+                        "kiro": {
+                            "kind": "focus_update",
+                            "title": current_title,
+                            "focus": {"title": current_title},
                         }
                     },
                 },
@@ -1065,6 +1090,57 @@ class KiroCredentialStreamTests(unittest.TestCase):
         redacted_message = str(redacted_caught.exception)
         self.assertIn("$.data.update._meta.kiro.<redacted-key>", redacted_message)
         self.assertNotIn(long_key, redacted_message)
+
+    def test_accepts_only_exact_focus_update_title_echo_as_non_evidence(self) -> None:
+        raw = self.complete(
+            self.focus_update(), self.agent_chunk(stream_guard.MARKER)
+        )
+        self.assertEqual(self.validate(raw), {"ok": True, "events": 4})
+
+        with self.assertRaises(stream_guard.StreamError):
+            self.validate(self.complete(self.focus_update()))
+
+    def test_rejects_focus_update_title_echo_shape_drift(self) -> None:
+        def clone(event: dict[str, object]) -> dict[str, object]:
+            return json.loads(json.dumps(event))
+
+        extra_update = clone(self.focus_update())
+        extra_update["data"]["update"]["unexpected"] = True
+        extra_metadata = clone(self.focus_update())
+        extra_metadata["data"]["update"]["_meta"]["unexpected"] = True
+        extra_kiro = clone(self.focus_update())
+        extra_kiro["data"]["update"]["_meta"]["kiro"]["unexpected"] = True
+        extra_focus = clone(self.focus_update())
+        extra_focus["data"]["update"]["_meta"]["kiro"]["focus"]["unexpected"] = True
+        mismatched_title = clone(self.focus_update())
+        mismatched_title["data"]["update"]["_meta"]["kiro"]["title"] += " mismatch"
+        wrong_kind = clone(self.focus_update())
+        wrong_kind["data"]["update"]["_meta"]["kiro"]["kind"] = "prompt_echo"
+        wrong_path = clone(self.focus_update())
+        wrong_path["data"]["update"]["_meta"]["kiro"]["other"] = stream_guard.MARKER
+        empty_title = self.focus_update(title="placeholder")
+        empty_title["data"]["update"]["title"] = ""
+        overlong_title = self.focus_update(
+            title="x" * (stream_guard.MAX_FOCUS_TITLE_BYTES + 1)
+        )
+
+        for event in (
+            extra_update,
+            extra_metadata,
+            extra_kiro,
+            extra_focus,
+            mismatched_title,
+            wrong_kind,
+            wrong_path,
+            empty_title,
+            overlong_title,
+        ):
+            with self.subTest(event=event), self.assertRaises(
+                stream_guard.StreamError
+            ):
+                self.validate(
+                    self.complete(event, self.agent_chunk(stream_guard.MARKER))
+                )
 
     def test_rejects_bootstrap_order_and_identity_failures(self) -> None:
         cases = (
