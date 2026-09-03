@@ -810,6 +810,11 @@ class StrictJsonTests(unittest.TestCase):
 
 
 class KiroCredentialStreamTests(unittest.TestCase):
+    SESSION_ID = "sess_11111111-1111-4111-8111-111111111111"
+    OTHER_SESSION_ID = "sess_22222222-2222-4222-8222-222222222222"
+    CALL_ID = "12345678-1234-4123-8123-123456789abc"
+    REPLAY_ID = "sanitizedReplayId_1234567890123456789012"
+
     @staticmethod
     def stream(*events: dict[str, object]) -> bytes:
         return b"".join(
@@ -817,16 +822,113 @@ class KiroCredentialStreamTests(unittest.TestCase):
         )
 
     @staticmethod
-    def update(kind: str, text: str = "") -> dict[str, object]:
+    def run_started() -> dict[str, object]:
         return {
-            "sessionUpdate": {
-                "sessionId": "session",
-                "update": {
-                    "sessionUpdate": kind,
-                    "content": {"type": "text", "text": text},
-                },
-            }
+            "type": "runStarted",
+            "data": {
+                "payloadSchema": "acp",
+                "acpProtocolVersion": 1,
+                "engine": "v3",
+            },
         }
+
+    @classmethod
+    def run_finished(
+        cls, *, session_id: str | None = None, final_text: str | None = None
+    ) -> dict[str, object]:
+        return {
+            "type": "runFinished",
+            "data": {
+                "sessionId": session_id or cls.SESSION_ID,
+                "status": "success",
+                "stopReason": "end_turn",
+                "finalText": final_text or stream_guard.MARKER,
+                "finalTextTruncated": False,
+            },
+        }
+
+    @classmethod
+    def agent_chunk(
+        cls,
+        text: str,
+        *,
+        session_id: str | None = None,
+        replay_id: str | None = None,
+    ) -> dict[str, object]:
+        return {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": session_id or cls.SESSION_ID,
+                "update": {
+                    "_meta": {"kiro": {"replayId": replay_id or cls.REPLAY_ID}},
+                    "content": {"type": "text", "text": text},
+                    "sessionUpdate": "agent_message_chunk",
+                },
+            },
+        }
+
+    @classmethod
+    def cloud_config_start(cls, *, session_id: str | None = None) -> dict[str, object]:
+        return {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": session_id or cls.SESSION_ID,
+                "update": {
+                    "_meta": {"kiro": {"toolId": "fetch_cloud_config"}},
+                    "sessionUpdate": "tool_call",
+                    "status": "in_progress",
+                    "title": "Fetching your cloud config",
+                    "toolCallId": cls.CALL_ID,
+                },
+            },
+        }
+
+    @classmethod
+    def cloud_config_terminal(
+        cls, *, status: str = "failed", session_id: str | None = None
+    ) -> dict[str, object]:
+        update: dict[str, object] = {
+            "sessionUpdate": "tool_call_update",
+            "status": status,
+            "toolCallId": cls.CALL_ID,
+        }
+        if status == "failed":
+            update["rawOutput"] = "sanitized isolated cloud-config lookup failure"
+        return {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": session_id or cls.SESSION_ID,
+                "update": update,
+            },
+        }
+
+    @classmethod
+    def unrelated_update(cls) -> dict[str, object]:
+        return {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": cls.SESSION_ID,
+                "update": {
+                    "sessionUpdate": "session_info_update",
+                    "_meta": {
+                        "kiro": {
+                            "kind": "context_usage",
+                            "breakdown": {
+                                "tools": {
+                                    "builtin": {"percent": 0.6, "tokens": 6},
+                                    "mcp": {"percent": 0, "tokens": 0},
+                                    "percent": 0.0,
+                                    "tokens": 6,
+                                }
+                            }
+                        }
+                    },
+                },
+            },
+        }
+
+    def complete(self, *events: dict[str, object]) -> bytes:
+        return self.stream(self.run_started(), *events, self.run_finished())
 
     def validate(self, raw: bytes) -> dict[str, int | bool]:
         return stream_guard.validate_stream_bytes(
@@ -836,38 +938,300 @@ class KiroCredentialStreamTests(unittest.TestCase):
             api_key="not-present-in-stream",
         )
 
-    def test_accepts_exact_agent_message_marker(self) -> None:
-        raw = self.stream(
-            {"runStarted": {"payloadSchema": 1}},
-            self.update("agent_message_chunk", stream_guard.MARKER),
-            {"runFinished": {"status": "completed"}},
-        )
-        self.assertEqual(self.validate(raw), {"ok": True, "events": 3})
+    def test_accepts_sanitized_real_agent_message_wire_shape(self) -> None:
+        chunks = ["PK", "-", "STACK", "-K", "IRO", "-A", "UTH", "-", "OK"]
+        raw = self.complete(*(self.agent_chunk(chunk) for chunk in chunks))
+        self.assertEqual(self.validate(raw), {"ok": True, "events": 11})
 
-    def test_rejects_marker_echoed_only_in_user_message(self) -> None:
-        raw = self.stream(self.update("user_message_chunk", stream_guard.MARKER))
-        with self.assertRaises(stream_guard.StreamError):
-            self.validate(raw)
+    def test_accepts_exact_failed_and_completed_bootstrap_pairs(self) -> None:
+        for terminal in (
+            self.cloud_config_terminal(status="failed"),
+            self.cloud_config_terminal(status="completed"),
+        ):
+            with self.subTest(status=terminal["data"]["update"]["status"]):
+                raw = self.complete(
+                    self.cloud_config_start(),
+                    self.unrelated_update(),
+                    terminal,
+                    self.agent_chunk(stream_guard.MARKER),
+                )
+                self.assertEqual(self.validate(raw), {"ok": True, "events": 6})
 
-    def test_rejects_nested_tool_call_and_update_events(self) -> None:
-        for tool_event in (
-            self.update("tool_call"),
-            {
-                "method": "session/update",
-                "params": {
-                    "update": {
-                        "sessionUpdate": "tool_call_update",
-                        "toolCallId": "tool-1",
-                    }
+    def test_rejects_nested_legacy_and_user_marker_spoofs(self) -> None:
+        nested = {
+            "type": "telemetry",
+            "data": {
+                "wrapper": {
+                    "sessionUpdate": "agent_message_chunk",
+                    "content": {"type": "text", "text": stream_guard.MARKER},
+                }
+            },
+        }
+        legacy = {
+            "sessionUpdate": {
+                "sessionId": self.SESSION_ID,
+                "update": {
+                    "sessionUpdate": "agent_message_chunk",
+                    "content": {"type": "text", "text": stream_guard.MARKER},
+                },
+            }
+        }
+        user_echo = {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": self.SESSION_ID,
+                "update": {
+                    "sessionUpdate": "user_message_chunk",
+                    "content": {"type": "text", "text": stream_guard.MARKER},
                 },
             },
+        }
+        for spoof in (nested, legacy, user_echo):
+            with self.subTest(spoof=spoof), self.assertRaises(stream_guard.StreamError):
+                self.validate(self.complete(spoof))
+
+    def test_rejects_bootstrap_order_and_identity_failures(self) -> None:
+        cases = (
+            (
+                self.agent_chunk(stream_guard.MARKER),
+                self.cloud_config_start(),
+                self.cloud_config_terminal(),
+            ),
+            (
+                self.cloud_config_start(),
+                self.agent_chunk(stream_guard.MARKER),
+                self.cloud_config_terminal(),
+            ),
+            (
+                self.cloud_config_start(session_id=self.OTHER_SESSION_ID),
+                self.cloud_config_terminal(session_id=self.OTHER_SESSION_ID),
+                self.agent_chunk(stream_guard.MARKER),
+            ),
+            (self.cloud_config_start(),),
+            (self.cloud_config_terminal(), self.agent_chunk(stream_guard.MARKER)),
+            (
+                self.cloud_config_start(),
+                self.cloud_config_start(),
+                self.cloud_config_terminal(),
+                self.agent_chunk(stream_guard.MARKER),
+            ),
+            (
+                self.cloud_config_start(),
+                self.cloud_config_terminal(),
+                self.cloud_config_terminal(),
+                self.agent_chunk(stream_guard.MARKER),
+            ),
+        )
+        for events in cases:
+            with self.subTest(events=events), self.assertRaises(stream_guard.StreamError):
+                self.validate(self.complete(*events))
+
+    def test_rejects_bootstrap_extra_missing_and_status_shape_confusion(self) -> None:
+        def clone(event: dict[str, object]) -> dict[str, object]:
+            return json.loads(json.dumps(event))
+
+        extra_start = clone(self.cloud_config_start())
+        extra_start["data"]["update"]["unexpected"] = True
+        missing_failed = clone(self.cloud_config_terminal())
+        del missing_failed["data"]["update"]["rawOutput"]
+        empty_failed = clone(self.cloud_config_terminal())
+        empty_failed["data"]["update"]["rawOutput"] = ""
+        non_string_failed = clone(self.cloud_config_terminal())
+        non_string_failed["data"]["update"]["rawOutput"] = {"error": "sanitized"}
+        completed_with_output = clone(self.cloud_config_terminal(status="completed"))
+        completed_with_output["data"]["update"]["rawOutput"] = "unexpected"
+        wrong_title = clone(self.cloud_config_start())
+        wrong_title["data"]["update"]["title"] = "Fetching another config"
+        wrong_tool = clone(self.cloud_config_start())
+        wrong_tool["data"]["update"]["_meta"]["kiro"]["toolId"] = "read"
+        mismatched_terminal = clone(self.cloud_config_terminal())
+        mismatched_terminal["data"]["update"]["toolCallId"] = "abcdefab-cdef-4abc-8def-abcdefabcdef"
+
+        cases = (
+            (extra_start, self.cloud_config_terminal()),
+            (self.cloud_config_start(), missing_failed),
+            (self.cloud_config_start(), empty_failed),
+            (self.cloud_config_start(), non_string_failed),
+            (self.cloud_config_start(), completed_with_output),
+            (wrong_title, self.cloud_config_terminal()),
+            (wrong_tool, self.cloud_config_terminal()),
+            (self.cloud_config_start(), mismatched_terminal),
+        )
+        for start, terminal in cases:
+            with self.subTest(start=start, terminal=terminal):
+                raw = self.complete(
+                    start,
+                    terminal,
+                    self.agent_chunk(stream_guard.MARKER),
+                )
+                with self.assertRaises(stream_guard.StreamError):
+                    self.validate(raw)
+
+    def test_rejects_unknown_tool_prefix_discriminators_and_keys(self) -> None:
+        def tool_update(kind: str) -> dict[str, object]:
+            return {
+                "type": "sessionUpdate",
+                "data": {
+                    "sessionId": self.SESSION_ID,
+                    "update": {
+                        "sessionUpdate": kind,
+                        "toolCallId": self.CALL_ID,
+                    },
+                },
+            }
+
+        prefixed_key = self.unrelated_update()
+        prefixed_key["data"]["update"]["toolCallStart"] = {"sanitized": True}
+        arbitrary_tools_key = {
+            "type": "telemetry",
+            "data": {
+                "tools": {
+                    "builtin": {"percent": 0.0, "tokens": 0},
+                    "mcp": {"percent": 0.0, "tokens": 0},
+                    "percent": 0.0,
+                    "tokens": 0,
+                }
+            },
+        }
+        for event in (
+            tool_update("tool_call_start"),
+            tool_update("tool_call_delta"),
+            prefixed_key,
+            {"type": "telemetry", "data": {"toolCallStart": {}}},
+            arbitrary_tools_key,
         ):
-            raw = self.stream(
-                self.update("agent_message_chunk", stream_guard.MARKER),
-                tool_event,
+            with self.subTest(event=event), self.assertRaises(stream_guard.StreamError):
+                self.validate(self.complete(event, self.agent_chunk(stream_guard.MARKER)))
+
+    def test_rejects_unknown_top_level_and_session_update_kinds(self) -> None:
+        def unknown_session_update(kind: str) -> dict[str, object]:
+            return {
+                "type": "sessionUpdate",
+                "data": {
+                    "sessionId": self.SESSION_ID,
+                    "update": {"sessionUpdate": kind},
+                },
+            }
+
+        for event in (
+            {"type": "commandExecution", "data": {}},
+            {"type": "function_call", "data": {}},
+            unknown_session_update("commandExecution"),
+            unknown_session_update("function_call"),
+        ):
+            with self.subTest(event=event), self.assertRaises(
+                stream_guard.StreamError
+            ):
+                self.validate(
+                    self.complete(event, self.agent_chunk(stream_guard.MARKER))
+                )
+
+    def test_rejects_malformed_metrics_and_ignored_session_updates(self) -> None:
+        def clone(event: dict[str, object]) -> dict[str, object]:
+            return json.loads(json.dumps(event))
+
+        wrong_metric_keys = clone(self.unrelated_update())
+        wrong_metric_keys["data"]["update"]["_meta"]["kiro"]["breakdown"]["tools"]["calls"] = 0
+        wrong_metric_type = clone(self.unrelated_update())
+        wrong_metric_type["data"]["update"]["_meta"]["kiro"]["breakdown"]["tools"][
+            "percent"
+        ] = True
+        wrong_metric_kind = clone(self.unrelated_update())
+        wrong_metric_kind["data"]["update"]["_meta"]["kiro"]["kind"] = "other"
+        arbitrary_nested_metric = clone(self.unrelated_update())
+        arbitrary_nested_metric["data"]["update"]["_meta"]["kiro"]["breakdown"][
+            "tools"
+        ]["builtin"]["calls"] = 0
+        invalid_nested_percent = clone(self.unrelated_update())
+        invalid_nested_percent["data"]["update"]["_meta"]["kiro"]["breakdown"][
+            "tools"
+        ]["mcp"]["percent"] = 101
+        invalid_nested_tokens = clone(self.unrelated_update())
+        invalid_nested_tokens["data"]["update"]["_meta"]["kiro"]["breakdown"][
+            "tools"
+        ]["builtin"]["tokens"] = -1
+        wrong_session = clone(self.unrelated_update())
+        wrong_session["data"]["sessionId"] = self.OTHER_SESSION_ID
+        malformed_envelope = clone(self.unrelated_update())
+        malformed_envelope["data"]["unexpected"] = True
+
+        for event in (
+            wrong_metric_keys,
+            wrong_metric_type,
+            wrong_metric_kind,
+            arbitrary_nested_metric,
+            invalid_nested_percent,
+            invalid_nested_tokens,
+            wrong_session,
+            malformed_envelope,
+        ):
+            with self.subTest(event=event), self.assertRaises(stream_guard.StreamError):
+                self.validate(self.complete(event, self.agent_chunk(stream_guard.MARKER)))
+
+    def test_rejects_agent_and_run_boundary_shape_or_identity_drift(self) -> None:
+        def clone(event: dict[str, object]) -> dict[str, object]:
+            return json.loads(json.dumps(event))
+
+        extra_agent = clone(self.agent_chunk(stream_guard.MARKER))
+        extra_agent["data"]["update"]["unexpected"] = True
+        nested_content = clone(self.agent_chunk(stream_guard.MARKER))
+        nested_content["data"]["update"]["content"]["unexpected"] = True
+        changed_replay = self.agent_chunk(
+            "-STACK-KIRO-AUTH-OK",
+            replay_id="otherReplayId_12345678901234567890123456",
+        )
+        identity_cases = (
+            (extra_agent,),
+            (nested_content,),
+            (
+                self.agent_chunk("PK"),
+                self.agent_chunk("-STACK-KIRO-AUTH-OK", session_id=self.OTHER_SESSION_ID),
+            ),
+            (self.agent_chunk("PK"), changed_replay),
+            (self.agent_chunk(stream_guard.MARKER + " "),),
+        )
+        for events in identity_cases:
+            with self.subTest(events=events), self.assertRaises(stream_guard.StreamError):
+                self.validate(self.complete(*events))
+
+        with self.assertRaises(stream_guard.StreamError):
+            self.validate(
+                self.stream(
+                    self.run_started(),
+                    self.agent_chunk(stream_guard.MARKER),
+                    self.run_finished(session_id=self.OTHER_SESSION_ID),
+                )
             )
-            with self.assertRaises(stream_guard.StreamError):
-                self.validate(raw)
+        with self.assertRaises(stream_guard.StreamError):
+            self.validate(
+                self.stream(
+                    self.run_started(),
+                    self.agent_chunk(stream_guard.MARKER),
+                    self.run_finished(),
+                    self.unrelated_update(),
+                )
+            )
+        malformed_start = self.run_started()
+        malformed_start["data"]["unexpected"] = True
+        wrong_protocol_type = self.run_started()
+        wrong_protocol_type["data"]["acpProtocolVersion"] = True
+        malformed_finish = self.run_finished()
+        malformed_finish["data"]["unexpected"] = True
+        for start, finish in (
+            (malformed_start, self.run_finished()),
+            (wrong_protocol_type, self.run_finished()),
+            (self.run_started(), malformed_finish),
+        ):
+            with self.subTest(start=start, finish=finish), self.assertRaises(
+                stream_guard.StreamError
+            ):
+                self.validate(
+                    self.stream(
+                        start,
+                        self.agent_chunk(stream_guard.MARKER),
+                        finish,
+                    )
+                )
 
     def test_rejects_malformed_duplicate_and_non_finite_json(self) -> None:
         for raw in (
@@ -2234,9 +2598,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             credential_agent,
             {
                 "name": "pk-stack-credential-smoke",
-                "description": (
-                    "Immutable CI-only tool-free PK-Stack Kiro credential smoke."
-                ),
+                "description": ("Immutable CI-only tool-free PK-Stack Kiro credential smoke."),
                 "prompt": (
                     "This is an authentication-only smoke. You have no tools or "
                     "resources. Reply exactly PK-STACK-KIRO-AUTH-OK and do nothing else."
@@ -2254,9 +2616,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             credential_agent_raw,
             (ROOT / ".kiro/agents/pstack-maintainer.json").read_bytes(),
         )
-        embedded_agent_sha = re.search(
-            r"(?m)^          CI_AGENT_SHA256: ([0-9a-f]{64})$", smoke
-        )
+        embedded_agent_sha = re.search(r"(?m)^          CI_AGENT_SHA256: ([0-9a-f]{64})$", smoke)
         self.assertIsNotNone(embedded_agent_sha)
         self.assertEqual(
             embedded_agent_sha.group(1),  # type: ignore[union-attr]
@@ -2277,9 +2637,15 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             line.strip()
             for line in embedded_validator.group("body").splitlines()  # type: ignore[union-attr]
         )
+        embedded_validator_raw = base64.b64decode(encoded_validator, validate=True)
+        self.assertEqual(embedded_validator_raw, STREAM_GUARD_PATH.read_bytes())
+        embedded_validator_sha = re.search(
+            r"(?m)^          STREAM_VALIDATOR_SHA256: ([0-9a-f]{64})$", smoke
+        )
+        self.assertIsNotNone(embedded_validator_sha)
         self.assertEqual(
-            base64.b64decode(encoded_validator, validate=True),
-            STREAM_GUARD_PATH.read_bytes(),
+            embedded_validator_sha.group(1),  # type: ignore[union-attr]
+            hashlib.sha256(embedded_validator_raw).hexdigest(),
         )
         self.assertIn("workflow_dispatch:", permission_smoke)
         self.assertNotIn("schedule:", permission_smoke)
@@ -2356,9 +2722,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertNotIn("actions/upload-artifact", permission_smoke)
 
     def test_credential_smoke_cleanup_is_exact_and_restores_owner_write(self) -> None:
-        smoke = (
-            ROOT / ".github/workflows/pk-stack-kiro-credential-smoke.yml"
-        ).read_text()
+        smoke = (ROOT / ".github/workflows/pk-stack-kiro-credential-smoke.yml").read_text()
         cleanup_marker = "      - name: Remove every credential-smoke runtime and log\n"
         self.assertEqual(smoke.count(cleanup_marker), 1)
         cleanup_step = smoke.split(cleanup_marker, maxsplit=1)[1]
@@ -2369,13 +2733,9 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertTrue(
             all(not line.strip() or line.startswith("          ") for line in script_lines)
         )
-        cleanup_script = "".join(
-            line[10:] if line.strip() else line for line in script_lines
-        )
+        cleanup_script = "".join(line[10:] if line.strip() else line for line in script_lines)
 
-        self.assertIn(
-            '"$RUNNER_TEMP"/pk-stack-kiro-credential-smoke) ;;', cleanup_script
-        )
+        self.assertIn('"$RUNNER_TEMP"/pk-stack-kiro-credential-smoke) ;;', cleanup_script)
         self.assertIn('test ! -L "$SMOKE_ROOT"', cleanup_script)
         self.assertIn('test -O "$SMOKE_ROOT"', cleanup_script)
         self.assertEqual(cleanup_script.count('rm -rf -- "$SMOKE_ROOT"'), 1)
