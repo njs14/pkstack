@@ -12,6 +12,8 @@ from typing import Any
 MARKER = "PK-STACK-KIRO-AUTH-OK"
 MAX_OUTPUT_BYTES = 2 * 1024 * 1024
 MAX_EVENTS = 4096
+MAX_MARKER_DIAGNOSTIC_PATHS = 8
+MAX_MARKER_DIAGNOSTIC_PATH_LENGTH = 256
 _AGENT_MESSAGE_TAGS = {"agentmessagechunk", "assistantmessagechunk"}
 _DISCRIMINATOR_KEYS = {"kind", "sessionupdate", "type", "updatetype"}
 _SESSION_UPDATE_KINDS = {
@@ -28,6 +30,7 @@ _UUID = r"[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12
 _TOOL_CALL_ID = re.compile(_UUID)
 _SESSION_ID = re.compile(rf"sess_{_UUID}")
 _REPLAY_ID = re.compile(r"[A-Za-z0-9_-]{40}")
+_SAFE_PATH_KEY = re.compile(r"[A-Za-z_][A-Za-z0-9_-]{0,63}")
 
 
 class StreamError(RuntimeError):
@@ -123,17 +126,41 @@ def _wire_tags(event: dict[str, Any]) -> list[str]:
     return tags
 
 
-def _contains_marker(value: Any) -> bool:
-    pending = [value]
+def _format_marker_path(path: tuple[str | int, ...]) -> str:
+    rendered = "$"
+    for segment in path:
+        if isinstance(segment, int):
+            rendered += f"[{segment}]"
+        elif (
+            _SAFE_PATH_KEY.fullmatch(segment) is not None
+            and _SESSION_ID.fullmatch(segment) is None
+            and _TOOL_CALL_ID.fullmatch(segment) is None
+        ):
+            rendered += f".{segment}"
+        else:
+            rendered += ".<redacted-key>"
+        if len(rendered) > MAX_MARKER_DIAGNOSTIC_PATH_LENGTH:
+            return "$.<path-too-long>"
+    return rendered
+
+
+def _marker_diagnostic(value: Any) -> tuple[list[str], int]:
+    paths: list[str] = []
+    match_count = 0
+    pending: list[tuple[Any, tuple[str | int, ...]]] = [(value, ())]
     while pending:
-        current = pending.pop()
+        current, path = pending.pop()
         if isinstance(current, str) and MARKER in current:
-            return True
+            match_count += 1
+            if len(paths) < MAX_MARKER_DIAGNOSTIC_PATHS:
+                paths.append(_format_marker_path(path))
         if isinstance(current, dict):
-            pending.extend(current.values())
+            pending.extend((item, (*path, key)) for key, item in reversed(list(current.items())))
         elif isinstance(current, list):
-            pending.extend(current)
-    return False
+            pending.extend(
+                (item, (*path, index)) for index, item in reversed(list(enumerate(current)))
+            )
+    return paths, match_count
 
 
 def _session_envelope(event: dict[str, Any], *, label: str) -> tuple[str, dict[str, Any]]:
@@ -267,7 +294,7 @@ def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
     agent_seen = False
     chunks: list[str] = []
 
-    for event in events[1:-1]:
+    for event_index, event in enumerate(events[1:-1], start=1):
         if event.get("type") in {"runStarted", "runFinished"}:
             raise StreamError("Kiro emitted a duplicate or out-of-order run boundary")
         if event.get("type") != "sessionUpdate":
@@ -314,8 +341,18 @@ def _validated_assistant_text(events: list[dict[str, Any]]) -> str:
             chunks.append(text)
             continue
 
-        if _contains_marker(event):
-            raise StreamError("Kiro marker appeared outside an exact agent-message event")
+        marker_paths, marker_path_count = _marker_diagnostic(event)
+        if marker_path_count:
+            diagnostic = {
+                "event_index_0_based": event_index,
+                "marker_path_count": marker_path_count,
+                "marker_paths": marker_paths,
+                "session_update_kind": update.get("sessionUpdate"),
+            }
+            raise StreamError(
+                "Kiro marker appeared outside an exact agent-message event; "
+                f"structural_diagnostic={json.dumps(diagnostic, separators=(',', ':'), sort_keys=True)}"
+            )
 
     if bootstrap_pending is not None:
         raise StreamError("Kiro cloud-config bootstrap did not reach a terminal update")

@@ -990,6 +990,82 @@ class KiroCredentialStreamTests(unittest.TestCase):
             with self.subTest(spoof=spoof), self.assertRaises(stream_guard.StreamError):
                 self.validate(self.complete(spoof))
 
+    def test_marker_rejection_reports_only_bounded_structural_provenance(self) -> None:
+        echoed_prompt = {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": self.SESSION_ID,
+                "update": {
+                    "sessionUpdate": "session_info_update",
+                    "_meta": {
+                        "kiro": {
+                            "kind": "prompt_echo",
+                            "prompt": f"untrusted-prefix {stream_guard.MARKER} untrusted-suffix",
+                        }
+                    },
+                },
+            },
+        }
+        with self.assertRaises(stream_guard.StreamError) as caught:
+            self.validate(self.complete(echoed_prompt))
+
+        message = str(caught.exception)
+        self.assertIn('"event_index_0_based":1', message)
+        self.assertIn('"marker_path_count":1', message)
+        self.assertIn(
+            '"marker_paths":["$.data.update._meta.kiro.prompt"]', message
+        )
+        self.assertIn('"session_update_kind":"session_info_update"', message)
+        self.assertNotIn(self.SESSION_ID, message)
+        self.assertNotIn(stream_guard.MARKER, message)
+        self.assertNotIn("untrusted-prefix", message)
+        self.assertNotIn("untrusted-suffix", message)
+
+        many_echoes = {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": self.SESSION_ID,
+                "update": {
+                    "sessionUpdate": "config_option_update",
+                    "configOptions": [
+                        {"description": stream_guard.MARKER} for _ in range(12)
+                    ],
+                },
+            },
+        }
+        with self.assertRaises(stream_guard.StreamError) as many_caught:
+            self.validate(self.complete(many_echoes))
+        diagnostic = json.loads(
+            str(many_caught.exception).split("structural_diagnostic=", 1)[1]
+        )
+        self.assertEqual(diagnostic["marker_path_count"], 12)
+        self.assertEqual(len(diagnostic["marker_paths"]), 8)
+        self.assertTrue(
+            all(
+                path.startswith("$.data.update.configOptions[")
+                for path in diagnostic["marker_paths"]
+            )
+        )
+
+        long_key = "untrusted-structural-key-" + "x" * 64
+        nonstandard_key_echo = {
+            "type": "sessionUpdate",
+            "data": {
+                "sessionId": self.SESSION_ID,
+                "update": {
+                    "sessionUpdate": "session_info_update",
+                    "_meta": {
+                        "kiro": {"kind": "prompt_echo", long_key: stream_guard.MARKER}
+                    },
+                },
+            },
+        }
+        with self.assertRaises(stream_guard.StreamError) as redacted_caught:
+            self.validate(self.complete(nonstandard_key_echo))
+        redacted_message = str(redacted_caught.exception)
+        self.assertIn("$.data.update._meta.kiro.<redacted-key>", redacted_message)
+        self.assertNotIn(long_key, redacted_message)
+
     def test_rejects_bootstrap_order_and_identity_failures(self) -> None:
         cases = (
             (
