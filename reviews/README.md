@@ -40,6 +40,10 @@ write/deploy evidence boundary are disclosed in the campaign record. The fresh c
 campaign with a PID sidecar, exact action trace, frozen judge, teardown, and explicit ambient-memory
 and Docker-bridge limitations is in `final-kiro-v3-campaign.md`,
 `final-kiro-v3-campaign.json`, and `final-kiro-v3-campaign-history.txt`.
+The first hosted read-only product/runtime canary is recorded in
+`kiro-runtime-canary-campaign.md` and its JSON companion. Run `33743033801` passed on exact commit
+`7ce09e3`; the retained failed-safe precursor documents why the initial executable-member bound
+was raised and then pinned to the reviewed archive's exact two member sizes.
 
 Committed review Markdown is normalized output plus execution metadata. Raw model output is kept
 outside the repository only when a report explicitly names its location and SHA-256; otherwise it

@@ -24,8 +24,11 @@ current-session proof, but it exercised candidate B and is not proof of candidat
 Spec bridge or OKF integration.
 
 The authorized [`njs14/pk-stack`](https://github.com/njs14/pk-stack) repository now exists and its
-visibility was verified as private. That fact does not establish hosted workflow liveness or model-
-council acceptance; both remain pending and require their own bounded evidence.
+visibility was verified as private. Hosted credential, permission-matrix, and read-only Kiro
+runtime-canary evidence now exists, including successful
+[canary run 33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801). The autonomous
+upstream-maintenance lifecycle and exact-tree model-council acceptance remain separate pending
+gates; repository existence and the narrower hosted smokes do not prove either one.
 
 ## Bootstrap and controller provenance
 

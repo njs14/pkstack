@@ -441,9 +441,12 @@ proofs named below.
   clean the isolated runtime. Treat IDE metadata, Kiro Crew Nightly feeds, the changelog,
   `llms.txt`, and recorded relevant documentation hashes as non-gating observations. Any newer
   stable pin or runtime regression must fail red; promotion remains deliberately manual because
-  workflow and protected controller files are trust roots. Status: implemented locally with strict
-  canary and cross-copy pin-contract regressions; the first hosted scheduled/manual proof remains
-  pending.
+  workflow and protected controller files are trust roots. Status: **closed on hosted commit
+  `7ce09e3`**. [Run 33743033801](https://github.com/njs14/pk-stack/actions/runs/33743033801)
+  passed the exact pin, five-agent validation/discovery, live model inventory, all 13 documentation
+  hashes, and cleanup without an uploaded artifact; the bounded
+  [campaign record](kiro-runtime-canary-campaign.md) also retains the prior fail-safe extraction
+  result and its exact-size remediation.
 
 ## Kiro model and methodology criteria
 
