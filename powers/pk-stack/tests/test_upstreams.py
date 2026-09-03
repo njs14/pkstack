@@ -1169,10 +1169,10 @@ def test_compare_bounds_tracked_subtree_not_unrelated_repository_files() -> None
     assert comparison["paths"] == comparison["files"] == []
 
 
-def test_compare_keeps_source_delta_among_more_than_100_unrelated_files() -> None:
+def test_compare_keeps_source_delta_among_297_unrelated_files() -> None:
     responses, compare_url = _single_tracked_change_responses()
     responses[compare_url]["files"] = [
-        *_external_comparison_files(101),
+        *_external_comparison_files(297),
         *responses[compare_url]["files"],
     ]
 
@@ -1234,18 +1234,368 @@ def test_compare_fails_when_large_repository_page_omits_source_patch() -> None:
         )
 
 
-def test_compare_fails_closed_at_github_file_response_cap() -> None:
+def test_compare_reconstructs_one_skill_change_at_github_file_response_cap() -> None:
+    responses, compare_url = _single_tracked_change_responses()
+    path = "README.md"
+    new_content = _new_content(path)
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", _git_blob_sha(new_content))] = (
+        _blob_response(new_content)
+    )
+    responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
+
+    comparison = upstreams._compare_inventory(
+        _compare_source(),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=HEAD_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=FakeFetch(responses),
+        blob_cache={},
+    )
+
+    assert comparison["complete"] is True
+    assert comparison["paths"] == [path]
+    assert comparison["path_count"] == comparison["file_count"] == 1
+    file = comparison["files"][0]
+    assert file["path"] == path
+    assert file["status"] == "modified"
+    assert file["reviewability"] == "exact-blob-unified-patch"
+    assert file["old_identity"]["sha"] == _git_blob_sha(_old_content(path))
+    assert file["new_identity"]["sha"] == _git_blob_sha(new_content)
+    assert file["patch"].startswith("@@ -1 +1 @@ source-tree-exact\n")
+
+
+@pytest.mark.parametrize(
+    ("old_content", "new_content"),
+    [
+        (b"", b"new\n"),
+        (b"old\n", b""),
+        (b"old\n", b"new\n"),
+        (b"old", b"new"),
+        (b"same", b"same\n"),
+        (b"same\n", b"same"),
+        (b"first\nlast", b"changed\nlast"),
+    ],
+)
+def test_source_tree_diff_round_trips_newline_boundaries(
+    old_content: bytes,
+    new_content: bytes,
+) -> None:
+    patch, additions, deletions = upstreams._complete_unified_patch(
+        old_content,
+        new_content,
+    )
+
+    assert (
+        upstreams._apply_patch_to_exact_blob(
+            old_content.decode(),
+            patch,
+            additions=additions,
+            deletions=deletions,
+        )
+        == new_content
+    )
+
+
+def test_capped_compare_uses_compact_patch_for_tiny_change_in_large_blob() -> None:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    pin_tree_url = next(url for url in responses if PIN_TREE in url and "recursive" in url)
+    head_tree_url = next(url for url in responses if HEAD_TREE in url and "recursive" in url)
+    path = "skills/large/SKILL.md"
+    old_lines = [f"stable line {index:05}\n" for index in range(5_000)]
+    new_lines = list(old_lines)
+    new_lines[2_500] = "one reviewed change\n"
+    old_content = "".join(old_lines).encode()
+    new_content = "".join(new_lines).encode()
+    old_sha = _git_blob_sha(old_content)
+    new_sha = _git_blob_sha(new_content)
+    responses[pin_tree_url] = _tree(PIN_TREE, [_blob(path, old_sha, size=len(old_content))])
+    responses[head_tree_url] = _tree(HEAD_TREE, [_blob(path, new_sha, size=len(new_content))])
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", old_sha)] = _blob_response(
+        old_content
+    )
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", new_sha)] = _blob_response(
+        new_content
+    )
+    responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
+
+    comparison = upstreams._compare_inventory(
+        _compare_source(),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=HEAD_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=FakeFetch(responses),
+        blob_cache={},
+    )
+
+    assert len(old_content) > upstreams.MAX_FILE_PATCH_BYTES
+    assert comparison["path_count"] == comparison["file_count"] == 1
+    assert comparison["patch_bytes"] < 1024
+    assert comparison["files"][0]["reviewability"] == "exact-blob-unified-patch"
+
+
+def test_capped_compare_rejects_adversarial_text_above_line_budget() -> None:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    pin_tree_url = next(url for url in responses if PIN_TREE in url and "recursive" in url)
+    head_tree_url = next(url for url in responses if HEAD_TREE in url and "recursive" in url)
+    path = "skills/adversarial/SKILL.md"
+    old_content = b"alpha\nbeta\n" * ((upstreams.MAX_DIFF_LINES // 2) + 1)
+    new_content = b"beta\nalpha\n" * ((upstreams.MAX_DIFF_LINES // 2) + 1)
+    old_sha = _git_blob_sha(old_content)
+    new_sha = _git_blob_sha(new_content)
+    responses[pin_tree_url] = _tree(PIN_TREE, [_blob(path, old_sha, size=len(old_content))])
+    responses[head_tree_url] = _tree(HEAD_TREE, [_blob(path, new_sha, size=len(new_content))])
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", old_sha)] = _blob_response(
+        old_content
+    )
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", new_sha)] = _blob_response(
+        new_content
+    )
+    responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
+
+    with pytest.raises(UpstreamError, match=r"exceeds the 5000-line limit"):
+        upstreams._compare_inventory(
+            _compare_source(),
+            base_commit=PIN,
+            base_subtree=PIN_TREE,
+            head_commit=HEAD,
+            head_subtree=HEAD_TREE,
+            token=None,
+            timeout_seconds=3,
+            fetch_json=FakeFetch(responses),
+            blob_cache={},
+        )
+
+
+def test_source_tree_diff_enforces_aggregate_comparison_work_budget() -> None:
+    line_count = 4_000
+    old_lines = [f"stable-{index}\n" for index in range(line_count)]
+    new_lines = list(old_lines)
+    new_lines[line_count // 2] = "changed\n"
+    old_content = "".join(old_lines).encode()
+    new_content = "".join(new_lines).encode()
+    diff_work_cells = [0]
+
+    upstreams._complete_unified_patch(
+        old_content,
+        new_content,
+        diff_work_cells=diff_work_cells,
+    )
+
+    assert diff_work_cells == [line_count * line_count]
+    with pytest.raises(UpstreamError, match=r"25000000-cell comparison limit"):
+        upstreams._complete_unified_patch(
+            old_content,
+            new_content,
+            diff_work_cells=diff_work_cells,
+        )
+
+
+def test_compare_ignores_a_capped_repository_file_page_when_subtree_is_identical() -> None:
     responses = _fake_responses()
     compare_url = next(url for url in responses if "/compare/" in url)
     responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
 
-    with pytest.raises(UpstreamError, match=r"300-file response cap.*truncated"):
+    comparison = upstreams._compare_inventory(
+        _compare_source(),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=PIN_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=FakeFetch(responses),
+        blob_cache={},
+    )
+
+    assert comparison["paths"] == comparison["files"] == []
+    assert comparison["path_count"] == comparison["file_count"] == 0
+
+
+def test_compare_rejects_more_files_than_github_can_return() -> None:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    responses[compare_url]["files"] = _external_comparison_files(
+        upstreams.GITHUB_COMPARE_FILE_CAP + 1
+    )
+
+    with pytest.raises(UpstreamError, match=r"exceeds the documented 300-file response cap"):
         upstreams._compare_inventory(
             _compare_source(),
             base_commit=PIN,
             base_subtree=PIN_TREE,
             head_commit=HEAD,
             head_subtree=PIN_TREE,
+            token=None,
+            timeout_seconds=3,
+            fetch_json=FakeFetch(responses),
+            blob_cache={},
+        )
+
+
+def test_capped_compare_detects_unique_exact_source_rename() -> None:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    pin_tree_url = next(url for url in responses if PIN_TREE in url and "recursive" in url)
+    head_tree_url = next(url for url in responses if HEAD_TREE in url and "recursive" in url)
+    old_path = "skills/old-name/SKILL.md"
+    new_path = "skills/new-name/SKILL.md"
+    content = b"# Exact rename\n"
+    blob_sha = _git_blob_sha(content)
+    responses[pin_tree_url] = _tree(PIN_TREE, [_blob(old_path, blob_sha, size=len(content))])
+    responses[head_tree_url] = _tree(HEAD_TREE, [_blob(new_path, blob_sha, size=len(content))])
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", blob_sha)] = _blob_response(
+        content
+    )
+    responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
+
+    comparison = upstreams._compare_inventory(
+        _compare_source(),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=HEAD_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=FakeFetch(responses),
+        blob_cache={},
+    )
+
+    assert comparison["paths"] == sorted([old_path, new_path])
+    assert comparison["path_count"] == 2
+    assert comparison["file_count"] == 1
+    assert comparison["files"][0]["status"] == "renamed"
+    assert comparison["files"][0]["previous_path"] == old_path
+    assert comparison["files"][0]["path"] == new_path
+    assert comparison["files"][0]["reviewability"] == "exact-blob-pure-rename"
+
+
+def test_capped_compare_does_not_infer_rename_with_unchanged_duplicate_identity() -> None:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    pin_tree_url = next(url for url in responses if PIN_TREE in url and "recursive" in url)
+    head_tree_url = next(url for url in responses if HEAD_TREE in url and "recursive" in url)
+    unchanged_path = "skills/shared/SKILL.md"
+    removed_path = "skills/old-copy/SKILL.md"
+    added_path = "skills/new-copy/SKILL.md"
+    content = b"# Shared exact content\n"
+    blob_sha = _git_blob_sha(content)
+    unchanged = _blob(unchanged_path, blob_sha, size=len(content))
+    responses[pin_tree_url] = _tree(
+        PIN_TREE,
+        [unchanged, _blob(removed_path, blob_sha, size=len(content))],
+    )
+    responses[head_tree_url] = _tree(
+        HEAD_TREE,
+        [unchanged, _blob(added_path, blob_sha, size=len(content))],
+    )
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", blob_sha)] = _blob_response(
+        content
+    )
+    responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
+
+    comparison = upstreams._compare_inventory(
+        _compare_source(),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=HEAD_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=FakeFetch(responses),
+        blob_cache={},
+    )
+
+    assert comparison["paths"] == sorted([removed_path, added_path])
+    assert comparison["path_count"] == comparison["file_count"] == 2
+    assert {item["status"] for item in comparison["files"]} == {"added", "removed"}
+    assert all(item["previous_path"] is None for item in comparison["files"])
+    assert all(item["reviewability"] == "exact-blob-unified-patch" for item in comparison["files"])
+
+
+@pytest.mark.parametrize("direction", ["out", "in"])
+def test_capped_compare_projects_cross_scope_rename_as_scoped_operation(direction: str) -> None:
+    responses = _fake_responses()
+    compare_url = next(url for url in responses if "/compare/" in url)
+    pin_tree_url = next(url for url in responses if PIN_TREE in url and "recursive" in url)
+    head_tree_url = next(url for url in responses if HEAD_TREE in url and "recursive" in url)
+    path = "skills/renamed/SKILL.md"
+    content = b"# Cross-boundary rename\n"
+    blob_sha = _git_blob_sha(content)
+    entry = _blob(path, blob_sha, size=len(content))
+    if direction == "out":
+        responses[pin_tree_url] = _tree(PIN_TREE, [entry])
+        responses[head_tree_url] = _tree(HEAD_TREE, [])
+        rename = _comparison_value(
+            "outside/SKILL.md",
+            "renamed",
+            blob_sha,
+            previous_filename=f"pstack/{path}",
+        )
+        expected_status = "removed"
+    else:
+        responses[pin_tree_url] = _tree(PIN_TREE, [])
+        responses[head_tree_url] = _tree(HEAD_TREE, [entry])
+        rename = _comparison_value(
+            f"pstack/{path}",
+            "renamed",
+            blob_sha,
+            previous_filename="outside/SKILL.md",
+        )
+        expected_status = "added"
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", blob_sha)] = _blob_response(
+        content
+    )
+    responses[compare_url]["files"] = [
+        *_external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP - 1),
+        rename,
+    ]
+
+    comparison = upstreams._compare_inventory(
+        _compare_source(),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=HEAD_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=FakeFetch(responses),
+        blob_cache={},
+    )
+
+    assert comparison["paths"] == [path]
+    assert comparison["path_count"] == comparison["file_count"] == 1
+    assert comparison["files"][0]["status"] == expected_status
+    assert comparison["files"][0]["previous_path"] is None
+    assert comparison["files"][0]["reviewability"] == "exact-blob-unified-patch"
+
+
+@pytest.mark.parametrize("failure", ["truncated", "wrong-sha"])
+def test_capped_compare_rejects_incomplete_or_unverifiable_exact_subtree(failure: str) -> None:
+    responses, compare_url = _single_tracked_change_responses()
+    head_tree_url = next(url for url in responses if HEAD_TREE in url and "recursive" in url)
+    responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
+    if failure == "truncated":
+        responses[head_tree_url]["truncated"] = True
+        message = "truncated or malformed"
+    else:
+        responses[head_tree_url]["sha"] = "f" * 40
+        message = "does not match the requested SHA"
+
+    with pytest.raises(UpstreamError, match=message):
+        upstreams._compare_inventory(
+            _compare_source(),
+            base_commit=PIN,
+            base_subtree=PIN_TREE,
+            head_commit=HEAD,
+            head_subtree=HEAD_TREE,
             token=None,
             timeout_seconds=3,
             fetch_json=FakeFetch(responses),

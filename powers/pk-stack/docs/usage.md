@@ -417,12 +417,20 @@ byte-for-byte unchanged. A later run selects the next drifted source.
 
 For each selected source, the service reproofs the pinned and current commit/subtree identities,
 requires a bounded
-fast-forward, reconciles GitHub's compare records against exact recursive subtree trees, and
-returns a bounded untrusted text-patch inventory. A canonical `inventory_sha256` binds that
-inventory to its base and head. Unified patch hunk and body counts must exactly match GitHub's
-additions/deletions. Each text patch is then applied to the fetched, Git-OID-verified pinned blob;
-the resulting bytes must hash to the exact current subtree blob (added text starts empty and
-removed text ends empty). Every changed path exposes old/new type, mode, SHA, and size. Regular
+fast-forward, derives the exhaustive changed-path set from exact recursive subtree trees, and
+returns a bounded untrusted text-patch inventory. Below 300 repository-wide compare file records,
+the GitHub records must reconcile exactly with that tree-derived set. At GitHub's 300-file response
+ceiling, the ambiguous repository-wide file page is replaced with deterministic source-scoped
+records built from the exact old/new trees and blobs; the compare endpoint still proves the commit
+chain. An exact identity becomes a rename only when it occurs once in each whole subtree; a duplicate
+identity remains explicit add/remove evidence. A move across the source boundary is conservatively
+exposed as only the in-scope addition or removal, so an outside path can neither enter the inventory
+nor hide a source change. Tree-derived diffing refuses more than 5,000 lines per side or more than
+25,000,000 aggregate line-pair cells before matching. A canonical `inventory_sha256` binds the
+result to its base and head. Each tree-derived or GitHub-supplied text patch is then applied
+to the fetched, Git-OID-verified pinned blob; the resulting bytes must hash to the exact current
+subtree blob (added text starts empty and removed text ends empty). Every changed path exposes
+old/new type, mode, SHA, and size. Regular
 `100644` and `100755` blobs are supported, including executable-mode changes; symlinks and
 submodules fail closed. A missing patch is rejected for semantic content changes; only zero-count
 top-level raster assets, exact-blob pure renames, and exact-blob mode-only changes are permitted. The detector
@@ -431,10 +439,11 @@ requires disposition B for each. No upstream content is fetched outside the boun
 executed. The whole ledger chain is checked locally and only its latest transition is remotely re-proved, so the
 request budget stays constant; committed Git history is the older-ledger tamper authority.
 The 100-file review ceiling applies to the exact changed paths in the configured source subtree,
-not unrelated repository-wide compare records. Those unrelated records are ignored only after the
-exact pinned/current subtree inventories establish the source-scoped path set. GitHub exposes at
-most 300 files for a comparison; a response at that ceiling is ambiguous and fails closed, as does
-any response that omits one of the independently derived source paths or its required patch.
+not unrelated repository-wide compare records. Those unrelated records never supply source
+coverage: exact pinned/current subtree inventories establish the path set first. Missing or
+inconsistent source records below GitHub's cap fail closed; at the cap, incomplete or unverifiable
+trees, unsupported identities, oversized source drift, blob disagreement, an over-limit diff-work
+budget, or an over-limit derived patch fails closed instead.
 The ledger is capped at both 8 MiB and 512 transitions. The representative 27-path, 400-byte-rationale
 shape supports the full 512 entries (about 9.8 years weekly); maximum-length rationales can reach
 the byte limit around 2.7 years. An explicit reviewed, tamper-evident archive migration is required

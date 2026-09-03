@@ -285,20 +285,31 @@ than a fresh allowance for every request.
 
 The changed-path ceiling is 100 paths in the configured source subtree, independently derived from
 the pinned and current recursive trees. Repository-wide compare records outside that subtree do not
-consume the review bound. They are still bounded by GitHub's documented 300-file compare ceiling;
-a response at that ceiling fails as potentially truncated, and exact tree reconciliation rejects a
-missing source-scoped record or patch.
+consume the review bound. GitHub's compare endpoint still proves the exact bounded fast-forward and
+commit chain. Below GitHub's documented 300-file ceiling, its source-scoped file records must
+reconcile exactly with the independent tree inventory. At the ceiling, where the repository-wide
+file page may be truncated, PK-Stack ignores that ambiguous file page and deterministically builds
+only the configured subtree's records from the two exact trees and Git blobs. Tree-derived text
+diffing is bounded to 5,000 lines per side and 25,000,000 aggregate line-pair cells across the
+comparison before `SequenceMatcher` runs. More than 300 returned records is malformed and fails
+closed.
 
 For each source, the service resolves the pinned commit and current ref, walks the configured
 subtree by content-addressed tree SHA, and reproofs the manifest pin. A changing ref must compare
 as a bounded fast-forward whose base and merge base equal the pin and whose complete commit page
-ends at the resolved head. It independently compares recursive pinned/current subtree trees and
-requires GitHub's source-scoped compare records to account for that exact path set. The resulting
-patches are escaped JSON text marked untrusted. Every hunk's actual body additions and deletions
-must match both its hunk header and GitHub's metadata. For text changes, the service fetches only
-the exact pinned blob, recomputes its Git object ID, applies the patch as data, and requires the
-resulting Git object ID and size to equal the current subtree identity. Added text starts from an
-empty byte string and removed text must end as one. Changed entries expose both old and new
+ends at the resolved head. It independently compares recursive pinned/current subtree trees. When
+the compare file page is complete, GitHub's source-scoped records must account for that exact path
+set. At the 300-file ceiling, a source-local move becomes a pure rename only when its exact type,
+mode, blob SHA, and size identity occurs once in each entire subtree; any duplicate makes the change
+an explicit addition and removal. Because Git does not store rename identity, a move across
+`source.path` is conservatively represented by its in-scope addition or removal and never imports
+the out-of-scope name. Reviewable text records use a
+deterministic three-line-context unified diff derived from the exact old/new blobs. The
+resulting patches are escaped JSON text marked untrusted. Every hunk's actual body additions and
+deletions must match its hunk header and metadata. For text changes, the service recomputes exact
+Git object IDs, applies the patch as data, and requires the resulting Git object ID and size to equal
+the current subtree identity. Added text starts from an empty byte string and removed text must end
+as one. Changed entries expose both old and new
 type/mode/SHA/size identities; only regular blobs in mode `100644` or `100755` are supported, so
 executable-bit changes are reviewable while symlinks and submodules fail closed. A canonical
 SHA-256 binds the repository, exact base, head, source path, both identities, metadata,

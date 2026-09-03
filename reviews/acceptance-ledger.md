@@ -141,6 +141,33 @@ its host-specific runtime or weakening PK-Stack's established KNOW boundary.
   `okn` 0.13.0 responses that omit search `status`; when a newer response emits it, require exactly
   `managed` before trusting sources. Status: implemented with a 63-file content-addressed parity
   inventory, live source reproof, and managed/unmanaged protocol regressions.
+- `OKFS-013` — Do not let GitHub's repository-wide 300-file Compare response ceiling turn
+  unrelated upstream churn into an unavailable or incomplete source-scoped review. At exactly the
+  documented ceiling, retain the Compare response only as bounded fast-forward/commit-chain proof
+  and reconstruct the configured subtree delta from the exact pinned and current recursive trees
+  and content-addressed blobs. Preserve the 100-path, per-patch, aggregate-patch, tree-entry,
+  blob-byte, 5,000-line-per-side, and 25,000,000-line-pair limits; fail closed above the ceiling or
+  on any truncated, ambiguous,
+  malformed, oversized, or identity-inconsistent input. Status: implemented with deterministic
+  three-line-context unified patches, whole-subtree unique-rename handling, ambiguous-copy
+  projection, generated controller parity, and focused boundary/adversarial regressions.
+
+## Sol Advisor cap-boundary audit criteria
+
+The first fresh Sol Advisor audit reviewed diff
+`10e9d4aa1ece89821d271dd805e0bf038a92b6da8f370d5d3b455423f4e79322` with
+`gpt-5.6-sol` at high effort and returned `FIX FIRST` with two material findings.
+
+- `SOL-001` — Bound attacker-controlled tree-derived diff work before `difflib.SequenceMatcher`
+  can run. Status: implemented with a 5,000-line ceiling on either blob side and one shared
+  25,000,000-line-pair budget across the entire reconstructed comparison; capped adversarial input
+  and aggregate exhaustion regressions fail before a second over-budget match.
+- `SOL-002` — Infer a pure rename only when the exact identity occurs once in the entire pinned
+  subtree and once in the entire current subtree. An unchanged same-identity path must make a
+  remove/add pair ambiguous. Status: implemented with a capped duplicate-identity regression while
+  retaining the unique-identity rename regression.
+
+A fresh Sol audit and Fable peer acceptance remain required after these remediations.
 
 ## Fable round 1 material criteria
 

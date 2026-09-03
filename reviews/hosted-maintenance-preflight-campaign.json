@@ -85,9 +85,77 @@
     "conclusion": "skipped",
     "all_jobs_skipped": true
   },
+  "scheduled_cadence_proof": {
+    "source_run": {
+      "id": 33761288363,
+      "url": "https://github.com/njs14/pk-stack/actions/runs/33761288363",
+      "event": "schedule",
+      "head_sha": "9fc846884fb897b592d40366430d77d692aee72b",
+      "head_tree": "b760dd5ce4226f9e2d618edb7cdceb0c2211db36",
+      "workflow_sha256": "d82de40f724cc7573b3b08d9a91ae93933780fc836e2cd7a0a4422780277623a",
+      "created_at": "2026-09-03T13:27:49Z",
+      "completed_at": "2026-09-03T13:29:02Z",
+      "conclusion": "failure",
+      "jobs": {
+        "plan": {
+          "id": 100667976298,
+          "conclusion": "success"
+        },
+        "detect": {
+          "id": 100668070026,
+          "conclusion": "success"
+        },
+        "reviewer_readiness": {
+          "id": 100668272180,
+          "conclusion": "failure"
+        },
+        "maintain": {
+          "id": 100668351471,
+          "conclusion": "skipped"
+        },
+        "publish": {
+          "id": 100668351560,
+          "conclusion": "skipped"
+        }
+      }
+    },
+    "detector_artifact": {
+      "id": 9895582864,
+      "name": "pk-stack-detector-33761288363",
+      "archive_size_in_bytes": 4842,
+      "artifact_digest": "sha256:7fe5e1a81f90e016890f3f57c051e849a58452f578c1a29eb5ab0230a7609038",
+      "payload_name": "upstream-check.json",
+      "payload_size_in_bytes": 29170,
+      "payload_sha256": "311bc1cc1e260356dcfde329748be875d623177c73ef00b29606c529e052b3b3",
+      "expires_at": "2026-09-04T13:28:43Z"
+    },
+    "clean_archive_detector_replay": {
+      "command": "UV_NO_CONFIG=1 uv run --directory <exact-9fc8468-archive> python <exact-9fc8468-archive>/.github/scripts/pk_stack_maintenance_guard.py --root <exact-9fc8468-archive> validate-detector --detector <downloaded-upstream-check.json>",
+      "exit_code": 0,
+      "ok": true,
+      "sources": 4,
+      "drift_count": 1,
+      "selected_source_id": "okf-skills",
+      "expected_head": "85db7fd0a8a66d07d984ac6c5f4fbb5063d00357"
+    },
+    "candidate_run": {
+      "id": 33761403736,
+      "url": "https://github.com/njs14/pk-stack/actions/runs/33761403736",
+      "event": "workflow_run",
+      "head_sha": "9fc846884fb897b592d40366430d77d692aee72b",
+      "conclusion": "skipped",
+      "all_six_jobs_skipped": true
+    },
+    "effects": {
+      "kiro_model_turn_sent": false,
+      "candidate_branch_created": false,
+      "maintenance_pull_request_created": false
+    }
+  },
   "post_run_hardening": {
     "explicit_reviewer_success_condition": "needs.reviewer_readiness.result == 'success'",
-    "hosted_execution_observed": false
+    "hosted_execution_observed": true,
+    "observed_on_run": 33761288363
   },
   "external_prerequisite": "Configure one valid CI credential under exactly one accepted repository-secret name: CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY.",
   "terminal_status": "blocked-before-model-as-designed"

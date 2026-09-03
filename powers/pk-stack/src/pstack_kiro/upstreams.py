@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import difflib
 import hashlib
 import json
 import math
@@ -52,6 +53,8 @@ MAX_COMPARE_PATCH_BYTES = 256 * 1024
 MAX_FILE_PATCH_BYTES = 64 * 1024
 MAX_TEXT_BLOB_BYTES = 512 * 1024
 MAX_COMPARE_BLOB_BYTES = 4 * 1024 * 1024
+MAX_DIFF_LINES = 5_000
+MAX_COMPARE_DIFF_CELLS = 25_000_000
 MAX_TREE_ENTRIES = 10_000
 MAX_REVIEW_LEDGER_BYTES = 8 * 1024 * 1024
 MAX_REVIEW_TRANSITIONS = 512
@@ -2148,18 +2151,29 @@ def _compare_inventory(
     if not isinstance(raw_files, list):
         raise UpstreamError("GitHub comparison files must be a list")
     # GitHub's compare endpoint returns repository-wide changes but exposes at
-    # most 300 file records.  The review bound applies to the configured source
-    # subtree, whose exact changed paths were derived independently above.  A
-    # response at the API ceiling is ambiguous, so fail closed rather than risk
-    # omitting a source-scoped record that fell beyond GitHub's file page.
-    if len(raw_files) >= GITHUB_COMPARE_FILE_CAP:
-        raise UpstreamError(
-            "GitHub comparison reached the 300-file response cap and may be truncated"
+    # most 300 file records.  At that exact ceiling its file page is ambiguous,
+    # so reconstruct only the configured source subtree from the independently
+    # fetched, content-addressed trees.  The compare response remains authority
+    # for the bounded fast-forward and exact commit chain, never file coverage.
+    if len(raw_files) > GITHUB_COMPARE_FILE_CAP:
+        raise UpstreamError("GitHub comparison exceeds the documented 300-file response cap")
+    comparison_values = (
+        _source_tree_comparison_values(
+            source,
+            pinned_files=pinned_files,
+            current_files=current_files,
+            token=token,
+            timeout_seconds=timeout_seconds,
+            fetch_json=fetch_json,
+            blob_cache=blob_cache,
         )
+        if len(raw_files) == GITHUB_COMPARE_FILE_CAP
+        else raw_files
+    )
     files: list[dict[str, Any]] = []
     accounted_paths: set[str] = set()
     patch_bytes = 0
-    for index, raw_file in enumerate(raw_files):
+    for index, raw_file in enumerate(comparison_values):
         parsed = _comparison_file(raw_file, source_path=source.path, index=index)
         if parsed is None:
             continue
@@ -2414,6 +2428,300 @@ def _tree_files(
             raise UpstreamError("GitHub recursive tree contains duplicate paths")
         files[path] = (entry_type, mode, sha, size)
     return files
+
+
+def _source_tree_comparison_values(
+    source: UpstreamSource,
+    *,
+    pinned_files: dict[str, tuple[str, str, str, int | None]],
+    current_files: dict[str, tuple[str, str, str, int | None]],
+    token: str | None,
+    timeout_seconds: float,
+    fetch_json: FetchJSON,
+    blob_cache: dict[str, bytes],
+) -> list[dict[str, Any]]:
+    """Build a deterministic source-scoped delta when GitHub's file page is capped."""
+
+    pinned_paths = set(pinned_files)
+    current_paths = set(current_files)
+    removed_paths = pinned_paths - current_paths
+    added_paths = current_paths - pinned_paths
+
+    pinned_by_identity: dict[tuple[str, str, str, int | None], list[str]] = {}
+    current_by_identity: dict[tuple[str, str, str, int | None], list[str]] = {}
+    pinned_identity_counts: dict[tuple[str, str, str, int | None], int] = {}
+    current_identity_counts: dict[tuple[str, str, str, int | None], int] = {}
+    for identity in pinned_files.values():
+        pinned_identity_counts[identity] = pinned_identity_counts.get(identity, 0) + 1
+    for identity in current_files.values():
+        current_identity_counts[identity] = current_identity_counts.get(identity, 0) + 1
+    for path in removed_paths:
+        pinned_by_identity.setdefault(pinned_files[path], []).append(path)
+    for path in added_paths:
+        current_by_identity.setdefault(current_files[path], []).append(path)
+
+    rename_pairs: list[tuple[str, str]] = []
+    for identity in pinned_by_identity.keys() & current_by_identity.keys():
+        old_candidates = sorted(pinned_by_identity[identity])
+        new_candidates = sorted(current_by_identity[identity])
+        # Git does not store renames.  Pair only a unique exact-identity move;
+        # ambiguous duplicate blobs remain explicit removals and additions.
+        if (
+            len(old_candidates) == len(new_candidates) == 1
+            and pinned_identity_counts[identity] == 1
+            and current_identity_counts[identity] == 1
+        ):
+            old_path = old_candidates[0]
+            new_path = new_candidates[0]
+            rename_pairs.append((old_path, new_path))
+            removed_paths.remove(old_path)
+            added_paths.remove(new_path)
+
+    operations: list[tuple[str, str, str | None]] = [
+        ("modified", path, None)
+        for path in pinned_paths & current_paths
+        if pinned_files[path] != current_files[path]
+    ]
+    operations.extend(("renamed", new_path, old_path) for old_path, new_path in rename_pairs)
+    operations.extend(("removed", path, None) for path in removed_paths)
+    operations.extend(("added", path, None) for path in added_paths)
+    operations.sort(key=lambda item: (item[1], item[2] or "", item[0]))
+
+    diff_work_cells = [0]
+    return [
+        _source_tree_comparison_value(
+            source,
+            status=status,
+            path=path,
+            previous_path=previous_path,
+            pinned_files=pinned_files,
+            current_files=current_files,
+            token=token,
+            timeout_seconds=timeout_seconds,
+            fetch_json=fetch_json,
+            blob_cache=blob_cache,
+            diff_work_cells=diff_work_cells,
+        )
+        for status, path, previous_path in operations
+    ]
+
+
+def _source_tree_comparison_value(
+    source: UpstreamSource,
+    *,
+    status: str,
+    path: str,
+    previous_path: str | None,
+    pinned_files: dict[str, tuple[str, str, str, int | None]],
+    current_files: dict[str, tuple[str, str, str, int | None]],
+    token: str | None,
+    timeout_seconds: float,
+    fetch_json: FetchJSON,
+    blob_cache: dict[str, bytes],
+    diff_work_cells: list[int],
+) -> dict[str, Any]:
+    """Render one exact-tree operation into the existing review record shape."""
+
+    old_path = previous_path if status == "renamed" else path
+    old_identity = pinned_files.get(old_path)
+    new_identity = current_files.get(path)
+    for label, identity in (("pinned", old_identity), ("current", new_identity)):
+        if identity is not None:
+            _require_reviewable_tree_identity(identity, context=label)
+
+    identity_paths = [value for value in (path, previous_path) if value is not None]
+    no_patch_image = bool(identity_paths) and all(
+        _NONSEMANTIC_IMAGE_PATH.fullmatch(value) for value in identity_paths
+    )
+    exact_rename = (
+        status == "renamed"
+        and old_identity is not None
+        and new_identity is not None
+        and old_identity == new_identity
+    )
+    exact_mode_change = (
+        status == "modified"
+        and old_identity is not None
+        and new_identity is not None
+        and old_identity[2] == new_identity[2]
+        and old_identity[1] != new_identity[1]
+        and old_identity[3] == new_identity[3]
+    )
+
+    patch: str | None = None
+    additions = 0
+    deletions = 0
+    if exact_rename or exact_mode_change:
+        identity = old_identity
+        assert identity is not None
+        content = _exact_tree_blob_content(
+            source.repository,
+            identity,
+            context="source-tree identity",
+            token=token,
+            timeout_seconds=timeout_seconds,
+            fetch_json=fetch_json,
+            blob_cache=blob_cache,
+        )
+        if (
+            new_identity is not None
+            and new_identity[3] is not None
+            and len(content) != new_identity[3]
+        ):
+            raise UpstreamError("source-tree blob size disagrees across exact identities")
+    elif not no_patch_image:
+        old_content = (
+            b""
+            if old_identity is None
+            else _exact_tree_blob_content(
+                source.repository,
+                old_identity,
+                context=f"pinned source-tree blob {old_path}",
+                token=token,
+                timeout_seconds=timeout_seconds,
+                fetch_json=fetch_json,
+                blob_cache=blob_cache,
+            )
+        )
+        new_content = (
+            b""
+            if new_identity is None
+            else _exact_tree_blob_content(
+                source.repository,
+                new_identity,
+                context=f"current source-tree blob {path}",
+                token=token,
+                timeout_seconds=timeout_seconds,
+                fetch_json=fetch_json,
+                blob_cache=blob_cache,
+            )
+        )
+        patch, additions, deletions = _complete_unified_patch(
+            old_content,
+            new_content,
+            diff_work_cells=diff_work_cells,
+        )
+
+    identity = old_identity if status == "removed" else new_identity
+    if identity is None:  # pragma: no cover - operations are derived from the exact trees
+        raise UpstreamError("source-tree comparison operation has no exact blob identity")
+    value: dict[str, Any] = {
+        "filename": f"{source.path}/{path}",
+        "status": status,
+        "sha": identity[2],
+        "additions": additions,
+        "deletions": deletions,
+        "changes": additions + deletions,
+    }
+    if previous_path is not None:
+        value["previous_filename"] = f"{source.path}/{previous_path}"
+    if patch is not None:
+        value["patch"] = patch
+    return value
+
+
+def _exact_tree_blob_content(
+    repository: str,
+    identity: tuple[str, str, str, int | None],
+    *,
+    context: str,
+    token: str | None,
+    timeout_seconds: float,
+    fetch_json: FetchJSON,
+    blob_cache: dict[str, bytes],
+) -> bytes:
+    content = _blob_content(
+        repository,
+        identity[2],
+        token=token,
+        timeout_seconds=timeout_seconds,
+        fetch_json=fetch_json,
+        blob_cache=blob_cache,
+    )
+    if identity[3] is not None and len(content) != identity[3]:
+        raise UpstreamError(f"{context} size disagrees with its exact tree identity")
+    return content
+
+
+def _complete_unified_patch(
+    old_content: bytes,
+    new_content: bytes,
+    *,
+    diff_work_cells: list[int] | None = None,
+) -> tuple[str, int, int]:
+    """Return a deterministic bounded-context diff for two bounded UTF-8 Git blobs."""
+
+    old_text = _reviewable_text(old_content, context="pinned source-tree blob")
+    new_text = _reviewable_text(new_content, context="current source-tree blob")
+    old_lines, old_final_newline = _text_lines(old_text)
+    new_lines, new_final_newline = _text_lines(new_text)
+    if len(old_lines) > MAX_DIFF_LINES or len(new_lines) > MAX_DIFF_LINES:
+        raise UpstreamError(f"source-tree diff exceeds the {MAX_DIFF_LINES}-line limit")
+    comparison_cells = max(1, len(old_lines)) * max(1, len(new_lines))
+    work_cells = [0] if diff_work_cells is None else diff_work_cells
+    if comparison_cells > MAX_COMPARE_DIFF_CELLS - work_cells[0]:
+        raise UpstreamError(
+            f"source-tree diff work exceeds the {MAX_COMPARE_DIFF_CELLS}-cell comparison limit"
+        )
+    work_cells[0] += comparison_cells
+    old_tokens = [
+        (line, index < len(old_lines) - 1 or old_final_newline)
+        for index, line in enumerate(old_lines)
+    ]
+    new_tokens = [
+        (line, index < len(new_lines) - 1 or new_final_newline)
+        for index, line in enumerate(new_lines)
+    ]
+    matcher = difflib.SequenceMatcher(None, old_tokens, new_tokens)
+    groups = list(matcher.get_grouped_opcodes(n=3))
+    if not groups:
+        raise UpstreamError("source-tree identities changed without a textual difference")
+
+    rendered: list[str] = []
+    additions = 0
+    deletions = 0
+
+    def append_line(prefix: str, token_value: tuple[str, bool]) -> None:
+        line, has_newline = token_value
+        rendered.append(f"{prefix}{line}")
+        if not has_newline:
+            rendered.append("\\ No newline at end of file")
+
+    for group in groups:
+        _, old_start, _, new_start, _ = group[0]
+        _, _, old_stop, _, new_stop = group[-1]
+        rendered.append(
+            "@@ -"
+            f"{_unified_range(old_start, old_stop)} "
+            f"+{_unified_range(new_start, new_stop)} @@ source-tree-exact"
+        )
+        for operation, old_first, old_last, new_first, new_last in group:
+            if operation == "equal":
+                for token_value in old_tokens[old_first:old_last]:
+                    append_line(" ", token_value)
+                continue
+            if operation in {"replace", "delete"}:
+                for token_value in old_tokens[old_first:old_last]:
+                    append_line("-", token_value)
+                    deletions += 1
+            if operation in {"replace", "insert"}:
+                for token_value in new_tokens[new_first:new_last]:
+                    append_line("+", token_value)
+                    additions += 1
+    patch = "\n".join(rendered)
+    return patch, additions, deletions
+
+
+def _unified_range(start: int, stop: int) -> str:
+    """Format one zero-based half-open range using GNU unified-diff rules."""
+
+    beginning = start + 1
+    length = stop - start
+    if length == 1:
+        return str(beginning)
+    if length == 0:
+        beginning -= 1
+    return f"{beginning},{length}"
 
 
 def _comparison_file(
@@ -3655,8 +3963,10 @@ __all__ = [
     "GITHUB_COMPARE_FILE_CAP",
     "MAX_COMPARE_BLOB_BYTES",
     "MAX_COMPARE_COMMITS",
+    "MAX_COMPARE_DIFF_CELLS",
     "MAX_COMPARE_FILES",
     "MAX_COMPARE_PATCH_BYTES",
+    "MAX_DIFF_LINES",
     "MAX_FILE_PATCH_BYTES",
     "MAX_MANIFEST_BYTES",
     "MAX_PROVENANCE_BYTES",

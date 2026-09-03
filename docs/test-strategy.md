@@ -97,6 +97,18 @@ checkout. The directory comparison and these repo-local calls guard that distinc
 The knowledge command may truthfully warn that `okn` is unavailable while still validating the
 feature map. Strict OKF coverage requires a separate environment with canonical `okn` installed.
 
+The upstream suite separately simulates GitHub's repository-wide 300-file compare ceiling. It
+proves that 297 unrelated records plus one source change use the ordinary record path, while a
+capped page is replaced by an exhaustive exact-tree inventory. Adversarial cases cover capped
+single-skill drift, whole-subtree rename uniqueness, ambiguous duplicate identities, cross-boundary
+moves projected as scoped add/remove, malformed response sizes, truncated or SHA-mismatched trees,
+compact-patch round trips including missing final newlines, per-file and aggregate diff-work refusal,
+and more than 100 real source paths. Run the focused boundary with:
+
+```sh
+(cd powers/pk-stack && uv run --frozen pytest tests/test_upstreams.py -q)
+```
+
 In a new temporary repository, generate one ready feature with a harmless executable command,
 validate and verify it, then start a two-attempt goal whose command initially fails. Record attempt
 1 as `active`; make the smallest fixture change and record attempt 2 as `passed`. This proves

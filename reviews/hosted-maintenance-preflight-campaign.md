@@ -1,9 +1,9 @@
-# Hosted maintenance reviewer-readiness campaign
+# Hosted maintenance reviewer-readiness and cadence campaign
 
-This record preserves the first manual dispatch of PK-Stack's private-repository Kiro maintenance
-workflow, whose other trigger is a daily schedule. It is a deliberate fail-closed result, not a
-successful maintenance lifecycle: authenticated detection found one bounded upstream transition,
-then the workflow stopped before Kiro because no Fable CI credential was configured.
+This record preserves both the first manual dispatch and the first natural scheduled execution of
+PK-Stack's private-repository Kiro maintenance workflow. Both are deliberate fail-closed results,
+not successful maintenance lifecycles: authenticated detection found one bounded upstream
+transition, then each workflow stopped before Kiro because no Fable CI credential was configured.
 
 ## Immutable target
 
@@ -48,6 +48,39 @@ GitHub recorded the exact source-job conclusions as follows:
 | `maintain` | `skipped` |
 | `publish` | `skipped` |
 
+## Natural scheduled execution
+
+[GitHub Actions run 33761288363](https://github.com/njs14/pk-stack/actions/runs/33761288363)
+was created by the workflow's `schedule` event at `2026-09-03T13:27:49Z` against exact commit
+`9fc846884fb897b592d40366430d77d692aee72b` and tree
+`b760dd5ce4226f9e2d618edb7cdceb0c2211db36`. It exercised the hardened workflow whose SHA-256 is
+`d82de40f724cc7573b3b08d9a91ae93933780fc836e2cd7a0a4422780277623a`.
+The exact job IDs and conclusions were:
+
+| Job | Job ID | Conclusion |
+| --- | ---: | --- |
+| `plan` | `100667976298` | `success` |
+| `detect` | `100668070026` | `success` |
+| `reviewer_readiness` | `100668272180` | `failure` |
+| `maintain` | `100668351471` | `skipped` |
+| `publish` | `100668351560` | `skipped` |
+
+The scheduled detector artifact is `9895582864`, named
+`pk-stack-detector-33761288363`, with a reported 4,842-byte archive, artifact digest
+`sha256:7fe5e1a81f90e016890f3f57c051e849a58452f578c1a29eb5ab0230a7609038`, and expiry
+`2026-09-04T13:28:43Z`. Its `upstream-check.json` is 29,170 bytes with SHA-256
+`311bc1cc1e260356dcfde329748be875d623177c73ef00b29606c529e052b3b3`. A clean archive of the
+exact target commit replayed the committed `validate-detector` boundary successfully and reported
+four sources, one drift, and expected head
+`85db7fd0a8a66d07d984ac6c5f4fbb5063d00357`.
+
+The downstream
+[candidate run 33761403736](https://github.com/njs14/pk-stack/actions/runs/33761403736)
+was created by `workflow_run` for the same head SHA and correctly concluded `skipped`; all six jobs
+(`resolve`, `base_tests`, `candidate_tests`, `fable_review`, `merge`, and
+`cleanup_failed_candidate`) were skipped because the source workflow had not succeeded. No Kiro
+model or repair ran, and no candidate branch or maintenance pull request was published.
+
 ## Detected transition
 
 Exactly one of four configured sources had drift:
@@ -69,16 +102,15 @@ available.
 
 ## Boundary and remaining prerequisite
 
-This run proves private-repository manual-dispatch controls, authenticated four-source drift
-detection, artifact handoff, and fail-fast reviewer readiness. The committed workflow also contains
-the daily schedule, but this dispatch did not exercise it. It does not prove the Kiro repair
-invocation, secretless acceptance/finalization, candidate publication, Fable review, or exact-SHA
-merge.
+Together the two runs prove private-repository manual-dispatch controls, a natural cadence trigger,
+authenticated four-source drift detection, artifact handoff, downstream skip coupling, and
+fail-fast reviewer readiness. They do not prove the Kiro repair invocation, secretless
+acceptance/finalization, candidate publication, Fable review, or exact-SHA merge.
 
 The current workflow also requires
 `needs.reviewer_readiness.result == 'success'` before `maintain`. That explicit success condition
-postdates the immutable hosted target above and has passed local static validation, but it has not
-yet run in hosted Actions.
+postdates the first manual target and was exercised by the scheduled run: readiness failed and both
+downstream source-workflow jobs were skipped.
 
 The one external prerequisite is one valid CI-capable Fable credential configured under exactly one
 accepted repository-secret name. Readiness checks only presence and exclusivity; validity is proven
@@ -86,14 +118,14 @@ later by the candidate's Fable invocation, so an invalid or revoked value would 
 but might do so after Kiro spends repair credits. Local Claude login state is intentionally not
 copied into GitHub. Once the credential is provisioned, preserving this natural one-file drift gives
 the hosted workflow a real bounded transition to process end to end. A no-drift run would skip
-reviewer readiness and therefore would not prove this credential path. This manual dispatch is not
-cron-cadence proof.
+reviewer readiness and therefore would not prove this credential path. The scheduled run closes
+trigger-only cadence proof, but a successful scheduled repair/review/merge lifecycle remains open.
 
-The downloaded `upstream-check.json` payload was 29,170 bytes with SHA-256
-`311bc1cc1e260356dcfde329748be875d623177c73ef00b29606c529e052b3b3`; the GitHub artifact archive
-reported 4,842 bytes. A local maintenance-guard replay was reported as passing before the payload
-was discarded, but no machine-readable validator result was retained. This record therefore does
-not claim durable local validation proof.
+Both downloaded detector payloads were byte-identical: 29,170 bytes with SHA-256
+`311bc1cc1e260356dcfde329748be875d623177c73ef00b29606c529e052b3b3`; each GitHub artifact archive
+reported 4,842 bytes. The scheduled payload was replayed through the guard from a clean archive of
+its exact target commit and passed. The replay console result is recorded here, but a standalone
+machine-readable replay artifact is not committed.
 
 The machine-readable companion is
 [`hosted-maintenance-preflight-campaign.json`](hosted-maintenance-preflight-campaign.json).
