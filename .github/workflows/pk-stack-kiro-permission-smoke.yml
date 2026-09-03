@@ -93,7 +93,7 @@ jobs:
             "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            38951d0090cfec2801990462d0f4e7cfe6154e825167bb33a02acdf7d9be2d40 \
+            5bd63a3206db3d1c728a282aa72d49d5b38b801b50900e0c10c603c5f4c5e014 \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
           python3 - "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
           import json

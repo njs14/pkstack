@@ -2112,6 +2112,62 @@ class KiroPermissionStreamTests(unittest.TestCase):
                     expected,
                 )
 
+    def test_grep_input_diagnostic_is_bounded_and_never_echoes_values(self) -> None:
+        sensitive = "SENSITIVE-GREP-VALUE-MUST-NEVER-APPEAR"
+        opaque_tool_id = "call_feedface-feed-face-feed-feedfacefeed"
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, _, stream, stderr = self.fixture_workspace(temporary)
+            events = self.complete_events(workspace)
+            for event in events[5:8]:
+                event["data"]["update"]["toolCallId"] = opaque_tool_id  # type: ignore[index]
+            raw_input = events[5]["data"]["update"]["rawInput"]  # type: ignore[index]
+            raw_input.pop("explanation")
+            raw_input["caseSensitive"] = sensitive
+            raw_input["includePattern"] = sensitive
+            raw_input["query"] = sensitive
+            raw_input[sensitive] = sensitive
+            self.write_stream(stream, events)
+
+            with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                permission_stream_guard.validate_allowed_invocation(
+                    stream,
+                    stderr,
+                    return_code=124,
+                    api_key="test-secret",
+                    workspace=workspace,
+                )
+            message = str(caught.exception)
+            for forbidden in (
+                sensitive,
+                "test-secret",
+                str(workspace),
+                opaque_tool_id,
+                self.SESSION_ID,
+            ):
+                self.assertNotIn(forbidden, message)
+            self.assertLessEqual(
+                len(message.encode("utf-8")),
+                permission_stream_guard.MAX_GREP_INPUT_DIAGNOSTIC_BYTES + 256,
+            )
+            diagnostic = json.loads(message.split("grep_input_diagnostic=", 1)[1])
+            self.assertEqual(
+                diagnostic["schema"],
+                "pk-stack-permission-grep-input-diagnostic-v1",
+            )
+            facts = diagnostic["raw_input"]
+            self.assertEqual(facts["key_count"], 4)
+            self.assertFalse(facts["expected_keys_present"]["explanation"])
+            self.assertEqual(facts["unexpected_key_count"], 1)
+            self.assertFalse(facts["case_sensitive"]["matches_expected"])
+            self.assertEqual(facts["case_sensitive"]["type"], "string")
+            self.assertFalse(facts["explanation"]["matches_validator_contract"])
+            self.assertEqual(facts["explanation"]["type"], "null")
+            self.assertEqual(
+                facts["include_pattern"]["classification"], "other_string"
+            )
+            self.assertFalse(facts["query"]["matches_expected"])
+            self.assertEqual(facts["query"]["type"], "string")
+
     def test_denied_stream_rejects_policy_and_lifecycle_lookalikes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             workspace, agent, stream, stderr = self.fixture_workspace(temporary)

@@ -14,6 +14,7 @@ MAX_OUTPUT_BYTES = 4 * 1024 * 1024
 MAX_EVENTS = 8192
 MAX_DIAGNOSTIC_TEXT_BYTES = 8192
 MAX_READ_START_DIAGNOSTIC_BYTES = 4096
+MAX_GREP_INPUT_DIAGNOSTIC_BYTES = 4096
 PERMISSION_AGENT_NAME = "pk-stack-permission-fixture"
 PERMISSION_AGENT_DESCRIPTION = (
     "Manual CI-only proof that Kiro 2.21 honors the exact production "
@@ -505,6 +506,47 @@ def _read_start_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace
     if len(encoded.encode("utf-8")) > MAX_READ_START_DIAGNOSTIC_BYTES:
         return (
             '{"diagnostic_truncated":true,"schema":"pk-stack-permission-read-start-diagnostic-v1"}'
+        )
+    return encoded
+
+
+def _grep_input_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace: Path) -> str:
+    raw_input = group[0][1].get("rawInput")
+    facts = _diagnostic_shape(
+        raw_input, {"caseSensitive", "explanation", "includePattern", "query"}
+    )
+    if isinstance(raw_input, dict):
+        case_sensitive = raw_input.get("caseSensitive")
+        explanation = raw_input.get("explanation")
+        query = raw_input.get("query")
+        facts.update(
+            {
+                "case_sensitive": {
+                    "matches_expected": case_sensitive is True,
+                    "type": _diagnostic_type(case_sensitive),
+                },
+                "explanation": {
+                    "matches_validator_contract": isinstance(explanation, str)
+                    and 0 < len(explanation.encode("utf-8")) <= 512,
+                    "type": _diagnostic_type(explanation),
+                },
+                "include_pattern": _diagnostic_path(
+                    raw_input.get("includePattern"), workspace=workspace
+                ),
+                "query": {
+                    "matches_expected": query == GREP_QUERY,
+                    "type": _diagnostic_type(query),
+                },
+            }
+        )
+    diagnostic = {
+        "raw_input": facts,
+        "schema": "pk-stack-permission-grep-input-diagnostic-v1",
+    }
+    encoded = json.dumps(diagnostic, separators=(",", ":"), sort_keys=True)
+    if len(encoded.encode("utf-8")) > MAX_GREP_INPUT_DIAGNOSTIC_BYTES:
+        return (
+            '{"diagnostic_truncated":true,"schema":"pk-stack-permission-grep-input-diagnostic-v1"}'
         )
     return encoded
 
@@ -1034,7 +1076,13 @@ def validate_allowed_invocation(
             raise
         diagnostic = _read_start_diagnostic(groups[0], workspace=workspace)
         raise StreamError(f"{exc}; read_start_diagnostic={diagnostic}") from None
-    _validate_grep_group(groups[1])
+    try:
+        _validate_grep_group(groups[1])
+    except StreamError as exc:
+        if str(exc) != "Kiro grep input shape is invalid":
+            raise
+        diagnostic = _grep_input_diagnostic(groups[1], workspace=workspace)
+        raise StreamError(f"{exc}; grep_input_diagnostic={diagnostic}") from None
     for group, (relative_path, expected_text) in zip(groups[2:], ALLOWED_WRITES):
         _validate_write_group(
             group,
