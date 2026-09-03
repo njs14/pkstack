@@ -2,10 +2,10 @@
 
 **Verdict:** pass.
 
-This campaign executed PK-Stack commit `8806fa607b991d8e3ca9d004f2724412596f715d`
-(tree `bd0488dc2b184c39c0a6c538d5f2d2ebf73375cf`) from an isolated `git archive`, not
+This campaign executed PK-Stack commit `02ef943085bf5abd7d7245e2c7a3412427d050e9`
+(tree `146e439b9cb1600696960a5dc241e345d13e6c33`) from an isolated `git archive`, not
 from the live worktree. The tar's embedded commit matched the requested commit and its SHA-256 was
-`998708506c9e1eb951848c2df205ab439a238699312aa3866e4dcca65076517f`.
+`113f4b2d97c1d6b6e8de9c1f60e18feb138da6971d4b533ffe5230c333bb8847`.
 
 Canonical `openknowledge-sh/openknowledge` `v0.13.0` supplied the KNOW runtime. Both the release
 archive and executable matched their pinned SHA-256 values:
@@ -41,7 +41,7 @@ exit 0: 6 passages, 879 estimated tokens of 900, 0 issues, output neither timed 
 ```
 
 The bounded search used `bm25`, `vector`, `rerank`, and `link_expansion`. Its index revision was
-`485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284`. It returned grounded
+`ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64`. It returned grounded
 sections from `architecture/native-kiro-composition.md`, `decisions/native-spec-and-okn.md`,
 `operations/context-depth.md`, and `features/document-export.md`. Every source carried a safe
 relative path, exact line range, content SHA-256, and an `okf+sha256` locator whose revision matched

@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "observed_at": "2026-09-03T05:33:13Z",
+  "observed_at": "2026-09-03T14:19:26Z",
   "purpose": "Immutable-candidate acceptance evidence for PK-Stack feature and canonical OKF/OKN behavior",
   "candidate": {
-    "commit": "8806fa607b991d8e3ca9d004f2724412596f715d",
-    "tree": "bd0488dc2b184c39c0a6c538d5f2d2ebf73375cf",
-    "commit_subject": "Complete native Kiro and OKF integration",
+    "commit": "02ef943085bf5abd7d7245e2c7a3412427d050e9",
+    "tree": "146e439b9cb1600696960a5dc241e345d13e6c33",
+    "commit_subject": "Preserve manual and scheduled evidence scopes",
     "archive": {
       "format": "git archive --format=tar",
-      "sha256": "998708506c9e1eb951848c2df205ab439a238699312aa3866e4dcca65076517f",
-      "bytes": 5928960,
-      "embedded_commit": "8806fa607b991d8e3ca9d004f2724412596f715d"
+      "sha256": "113f4b2d97c1d6b6e8de9c1f60e18feb138da6971d4b533ffe5230c333bb8847",
+      "bytes": 6471680,
+      "embedded_commit": "02ef943085bf5abd7d7245e2c7a3412427d050e9"
     },
     "execution_root": "<isolated-git-archive>/worktree",
     "tracked_source": "exact committed archive; no live-worktree source was executed"
@@ -117,7 +117,7 @@
       "issue_count": 0,
       "schema_version": "1",
       "spec_version": "0.2",
-      "index_sha256": "485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284",
+      "index_sha256": "ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64",
       "route": [
         "bm25",
         "vector",
@@ -131,7 +131,7 @@
           "line_start": 35,
           "line_end": 43,
           "content_sha256": "cd60cf3edf81e5733b59228977d2c3020ab55d262bb42c520f21ccf82b807b7d",
-          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/architecture%2Fnative-kiro-composition.md#cd60cf3edf81e5733b59228977d2c3020ab55d262bb42c520f21ccf82b807b7d"
+          "locator": "okf+sha256://ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64/architecture%2Fnative-kiro-composition.md#cd60cf3edf81e5733b59228977d2c3020ab55d262bb42c520f21ccf82b807b7d"
         },
         {
           "id": "decisions/native-spec-and-okn#consequences",
@@ -139,7 +139,7 @@
           "line_start": 22,
           "line_end": 34,
           "content_sha256": "1e1b85cc0a70002cf69aba400ec13d623105756647337b298987a6ce13cf2757",
-          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/decisions%2Fnative-spec-and-okn.md#1e1b85cc0a70002cf69aba400ec13d623105756647337b298987a6ce13cf2757"
+          "locator": "okf+sha256://ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64/decisions%2Fnative-spec-and-okn.md#1e1b85cc0a70002cf69aba400ec13d623105756647337b298987a6ce13cf2757"
         },
         {
           "id": "operations/context-depth#architecture-rationale-or-native-planning",
@@ -147,7 +147,7 @@
           "line_start": 23,
           "line_end": 33,
           "content_sha256": "7d6f7500af4b5b0e2779e092e85e7d7e0048a5bedb2de10b4e9a5759e59bceba",
-          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/operations%2Fcontext-depth.md#7d6f7500af4b5b0e2779e092e85e7d7e0048a5bedb2de10b4e9a5759e59bceba"
+          "locator": "okf+sha256://ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64/operations%2Fcontext-depth.md#7d6f7500af4b5b0e2779e092e85e7d7e0048a5bedb2de10b4e9a5759e59bceba"
         },
         {
           "id": "decisions/native-spec-and-okn#decision",
@@ -155,7 +155,7 @@
           "line_start": 10,
           "line_end": 21,
           "content_sha256": "b4d20e989688bbbf2a8e2b320eeaa2a4a00f5f6f70f14e73600723881abda581",
-          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/decisions%2Fnative-spec-and-okn.md#b4d20e989688bbbf2a8e2b320eeaa2a4a00f5f6f70f14e73600723881abda581"
+          "locator": "okf+sha256://ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64/decisions%2Fnative-spec-and-okn.md#b4d20e989688bbbf2a8e2b320eeaa2a4a00f5f6f70f14e73600723881abda581"
         },
         {
           "id": "features/document-export#user-behavior",
@@ -163,7 +163,7 @@
           "line_start": 22,
           "line_end": 30,
           "content_sha256": "070b656194252cddcff557ee0e8f4605d057f8dadc1208b33e27db4182608d0a",
-          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/features%2Fdocument-export.md#070b656194252cddcff557ee0e8f4605d057f8dadc1208b33e27db4182608d0a"
+          "locator": "okf+sha256://ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64/features%2Fdocument-export.md#070b656194252cddcff557ee0e8f4605d057f8dadc1208b33e27db4182608d0a"
         },
         {
           "id": "architecture/native-kiro-composition#ownership",
@@ -171,7 +171,7 @@
           "line_start": 10,
           "line_end": 18,
           "content_sha256": "f8cb50e16f35c364226a69c92efc75f31309b6b33361e5e904122941b3b172b7",
-          "locator": "okf+sha256://485cfcd7b5893ee9b55cad4b8dbf0136b453427c809256575a207e0138c2f284/architecture%2Fnative-kiro-composition.md#f8cb50e16f35c364226a69c92efc75f31309b6b33361e5e904122941b3b172b7"
+          "locator": "okf+sha256://ebe1021be8d891b225741268c873aab687d623a0871b0d1e3d5e320c21756b64/architecture%2Fnative-kiro-composition.md#f8cb50e16f35c364226a69c92efc75f31309b6b33361e5e904122941b3b172b7"
         }
       ],
       "provenance_fields_checked_per_source": [
