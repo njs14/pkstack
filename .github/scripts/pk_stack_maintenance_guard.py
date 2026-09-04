@@ -56,6 +56,7 @@ ALLOWED_HOOKS = {"pstack-session.json", "pstack-tripwire.json"}
 TRUSTED_SNAPSHOT_PREFIXES = (
     "Wiki/features/pk-stack-upstream-maintenance.md",
     ".github/fixtures",
+    ".github/agent-memory/pk-stack-upstream.md",
     ".github/pk-stack-maintenance-policy.json",
     ".github/scripts",
     ".github/workflows",
@@ -1348,6 +1349,8 @@ def prepare_attempt(
     detector_path: Path,
     feedback_path: Path,
     git_state_root: Path,
+    control_plan_path: Path | None = None,
+    memory_path: Path | None = None,
 ) -> None:
     if git_state_root.exists() or git_state_root.is_symlink():
         _assert_git_state_unchanged(root, base_sha, git_state_root)
@@ -1378,6 +1381,10 @@ def prepare_attempt(
     context.mkdir(mode=0o700)
     shutil.copyfile(detector_path, context / "upstream-delta.json")
     shutil.copyfile(feedback_path, context / "verification-feedback.txt")
+    if control_plan_path is not None:
+        shutil.copyfile(control_plan_path, context / "control-plan.json")
+    if memory_path is not None:
+        shutil.copyfile(memory_path, context / "loop-memory.md")
     _record_git_state(root, base_sha, git_state_root)
 
 
@@ -3397,6 +3404,8 @@ def _parser() -> argparse.ArgumentParser:
     prepare.add_argument("--detector", type=Path, required=True)
     prepare.add_argument("--feedback", type=Path, required=True)
     prepare.add_argument("--git-state", type=Path, required=True)
+    prepare.add_argument("--control-plan", type=Path, required=True)
+    prepare.add_argument("--memory", type=Path, required=True)
 
     close = commands.add_parser("close-attempt")
     close.add_argument("--base", required=True)
@@ -3492,6 +3501,8 @@ def main() -> int:
             args.detector,
             args.feedback,
             args.git_state,
+            args.control_plan,
+            args.memory,
         )
         result = {"ok": True}
     elif args.command == "close-attempt":

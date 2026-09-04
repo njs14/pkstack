@@ -4952,9 +4952,11 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn('decision.action === "close"', kiro)
         self.assertIn(".goal.attempt_count == 1", kiro)
         self.assertNotIn(".goal.attempt == 1", kiro)
-        self.assertIn("selected_source_id=$(jq", kiro)
-        self.assertIn("--source-id $selected_source_id --output json", kiro)
-        self.assertIn("goal_contract=(--feature pk-stack-upstream-maintenance)", kiro)
+        self.assertIn("pk_stack_update_controller.py", kiro)
+        self.assertIn("control_plan_sha256", kiro)
+        self.assertIn("goal_kind=$(jq -er '.goal.kind'", kiro)
+        self.assertIn('feature) goal_contract=(--feature "$goal_value")', kiro)
+        self.assertIn('command) goal_contract=(--command "$goal_value")', kiro)
         self.assertIn('cron: "17 13 * * *"', kiro)
         self.assertNotIn('cron: "17 13 * * 1"', kiro)
         self.assertIn(
@@ -5571,6 +5573,10 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             detector.write_text(json.dumps(drift), encoding="utf-8")
             feedback = root / ".git/pk-stack-test-feedback.txt"
             feedback.write_text("post-accept gate failed\n", encoding="utf-8")
+            control_plan = root / ".git/pk-stack-test-control-plan.json"
+            control_plan.write_text('{"action":"reconcile-source"}\n', encoding="utf-8")
+            memory = root / ".git/pk-stack-test-loop-memory.md"
+            memory.write_text("# Durable loop feedback\n", encoding="utf-8")
             git_state = sandbox / "git-boundary-state"
 
             guard.prepare_attempt(
@@ -5580,9 +5586,19 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 detector,
                 feedback,
                 git_state,
+                control_plan,
+                memory,
             )
 
             self.assertFalse((root / ".kiro").exists())
+            self.assertEqual(
+                (root / ".pk-stack-ci/control-plan.json").read_text(encoding="utf-8"),
+                '{"action":"reconcile-source"}\n',
+            )
+            self.assertEqual(
+                (root / ".pk-stack-ci/loop-memory.md").read_text(encoding="utf-8"),
+                "# Durable loop feedback\n",
+            )
             self.assertEqual(manifest.read_text(encoding="utf-8"), '{"pin":"base"}\n')
             self.assertEqual(ledger.read_text(encoding="utf-8"), base_ledger)
             rolled_back_provenance = provenance.read_text(encoding="utf-8")

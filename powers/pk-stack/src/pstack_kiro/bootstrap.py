@@ -29,9 +29,8 @@ RECEIPT = Path(".pstack/bootstrap.json")
 DISCOVERY = Path(".pstack/discovery.json")
 SKILL_PARITY_ASSET = Path("docs/upstream-skill-parity.json")
 CURATED_SKILLS_ASSET = Path("docs/curated-skills.json")
-CURATED_SHOW_ME_PARITY_ASSET = Path("docs/humanlayer-show-me-source-parity.json")
-CURATED_SHOW_ME_PROVENANCE_ASSET = Path("docs/humanlayer-show-me-provenance.md")
-CURATED_SHOW_ME_BUNDLE_ASSET = Path("docs/humanlayer-show-me-bundle-manifest.json")
+CURATED_HUMANLAYER_PARITY_ASSET = Path("docs/humanlayer-skills-source-parity.json")
+CURATED_HUMANLAYER_PROVENANCE_ASSET = Path("docs/humanlayer-skills-provenance.md")
 CURATED_ARCHIFY_PARITY_ASSET = Path("docs/tt-a1i-archify-source-parity.json")
 CURATED_ARCHIFY_PROVENANCE_ASSET = Path("docs/tt-a1i-archify-provenance.md")
 CURATED_ARCHIFY_BUNDLE_ASSET = Path("docs/tt-a1i-archify-bundle-manifest.json")
@@ -63,9 +62,8 @@ REQUIRED_SOURCE_MODULES = (
 REQUIRED_POWER_ASSETS = (
     SKILL_PARITY_ASSET.as_posix(),
     CURATED_SKILLS_ASSET.as_posix(),
-    CURATED_SHOW_ME_PARITY_ASSET.as_posix(),
-    CURATED_SHOW_ME_PROVENANCE_ASSET.as_posix(),
-    CURATED_SHOW_ME_BUNDLE_ASSET.as_posix(),
+    CURATED_HUMANLAYER_PARITY_ASSET.as_posix(),
+    CURATED_HUMANLAYER_PROVENANCE_ASSET.as_posix(),
     CURATED_ARCHIFY_PARITY_ASSET.as_posix(),
     CURATED_ARCHIFY_PROVENANCE_ASSET.as_posix(),
     CURATED_ARCHIFY_BUNDLE_ASSET.as_posix(),
@@ -876,9 +874,15 @@ def _validate_curated_registry(asset_root: Path, *, forbidden: set[str]) -> tupl
 
     if names != sorted(set(names)):
         raise ValueError(f"{DISPLAY_NAME} curated skill inventory must be sorted and unique")
-    source_ids = {entry.get("source_id") for entry in entries if isinstance(entry, dict)}
-    if len(source_ids) != len(entries):
-        raise ValueError(f"{DISPLAY_NAME} curated skill source ids must be unique")
+    shared_sources: dict[str, tuple[str, str]] = {}
+    for entry in entries:
+        source_id = entry["source_id"]
+        identity = (entry["source_parity"], entry["provenance"])
+        previous = shared_sources.setdefault(source_id, identity)
+        if previous != identity:
+            raise ValueError(
+                f"{DISPLAY_NAME} curated skills sharing a source must share parity and provenance"
+            )
     summary = document.get("summary")
     if not isinstance(summary, dict) or set(summary) != {
         "curated_skill_count",

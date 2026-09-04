@@ -41,7 +41,7 @@ asset is excluded with disposition B; and the canonical Power still matches ever
 bootstrap-managed workspace copy. Drift and any network, schema, identity, ledger, pagination,
 size, or parity failure return nonzero.
 
-The autonomous acceptance path is limited to the six configured GitHub source repositories. A
+The autonomous acceptance path is limited to the six configured GitHub source entries. A
 separate weekly or manually dispatched Kiro canary observes product/runtime/documentation drift
 without editing the repository or promoting a new CLI pin.
 
@@ -223,7 +223,7 @@ always removes only its isolated temporary Kiro runtime and retains no uploaded 
 - Each source has exactly one canonical genesis marker before all immutable transition markers.
 - Missing credentials, incomplete pagination, or indeterminate identity evidence fail closed without acceptance.
 - Automated peer review uses Kiro-hosted Claude Opus 5 at `xhigh`; local Fable records keep their actual model and effort.
-- Only the six configured GitHub source repositories advance autonomously; Kiro product facts are observations, not another self-updating source.
+- Only the six configured GitHub source entries advance autonomously; Kiro product facts are observations, not another self-updating source.
 - A newer stable Kiro CLI deliberately fails the canary until a human reviews and promotes every trust-root pin copy; the canary itself must not edit workflows or protected controller code.
 
 ## Verification

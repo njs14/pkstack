@@ -115,6 +115,11 @@ without that exact explanation, or a changed base/head/path set, is a blocker.
    bounded validation, search-context, common, and CLI-error schemas used at the optional `okn`
    process boundary. Exclude deployment, job-control, runtime, release-action, and release-management
    interfaces; leave all other unadopted schemas provenance-only.
+   For HumanLayer skills, preserve the skill's user-facing judgement and completion criteria while
+   translating Claude-specific locations and assumptions to Kiro Agent Skills. Exclude external
+   model secrets, floating installs/actions, broad write permissions, unbounded `/iterate` comment
+   paths, and example automation that weakens PK-Stack's immutable sensor/controller/actuator/
+   dampener boundary. Keep `show-me` lightweight and route polished diagrams to `archify`.
 4. Exclude runtime-specific model slugs, frontmatter, commands, permissions, branding, and logo
    assets that do not belong in Kiro. Do not vendor upstream implementation or turn PK-Stack into
    another runtime.

@@ -99,18 +99,20 @@ or the OpenKnowledge runtime.
 The schemas are not redistributed. The root `LICENSE` contains the Apache License 2.0 text but
 licenses PK-Stack rather than transferring ownership of OpenKnowledge.
 
-## HumanLayer show-me semantic reference
+## HumanLayer skills semantic references
 
-The Kiro-native `show-me` skill preserves the lightweight visual-explainer
-semantics from HumanLayer's public `plugins/show-me/` subtree. Its Kiro
-wrapper is adapted for this Power and is kept separate from `show-me-your-work`.
+The Kiro-native `build-iterated-agentic-loop`, `design-control-loop`,
+`improve-claude-md`, `narrow-react-prop-types`, and `show-me` skills preserve
+reviewed semantics from HumanLayer's public skills catalog. Their wrappers and
+bounded references are adapted for Kiro and PK-Stack's stricter workflow
+security boundaries.
 
-- Project: `humanlayer/skills`, `plugins/show-me/` subtree
-- Source: <https://github.com/humanlayer/skills/tree/4d8d644ca747517973f58d7953f58d7cd07520cd/plugins/show-me>
-- Pinned commit: `4d8d644ca747517973f58d7953f58d7cd07520cd`
+- Project: `humanlayer/skills`, reviewed plugin subtrees
+- Source: <https://github.com/humanlayer/skills>
+- Pinned catalog commit: `3c2629142c5d437428269b1b722b08c0b87f574d`
 - Copyright: Copyright (c) 2026 HumanLayer
 - License: MIT
-- Detailed file-level provenance: [`docs/humanlayer-show-me-provenance.md`](docs/humanlayer-show-me-provenance.md)
+- Detailed file-level provenance: the `docs/humanlayer-*-provenance.md` records
 
 The upstream MIT notice follows verbatim.
 

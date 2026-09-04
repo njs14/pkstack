@@ -54,7 +54,7 @@ discovery evidence.
 
 ## Automated product-drift canary
 
-The 6 repositories in `maintenance/upstreams.json` are PK-Stack's autonomous update sources.
+The 6 source entries in `maintenance/upstreams.json` are PK-Stack's autonomous update sources.
 Kiro product/runtime/documentation state is deliberately separate: the weekly and manually
 dispatchable `.github/workflows/pk-stack-kiro-runtime-canary.yml` is read-only and never promotes a
 pin or creates a candidate branch.
@@ -262,7 +262,7 @@ After bootstrap, skills use `.pstack/bin/projectctl`, never repository
 Setup remains Power-local and is cached under
 `.pstack/projectctl/skills/setup-pstack/`; bootstrap deliberately does not copy
 it to `.kiro/skills/`, where an older workspace copy could shadow an upgraded
-Power. The other 50 workflow skills are materialized in the workspace. Kiro's
+Power. The other 54 workflow skills are materialized in the workspace. Kiro's
 current [Agent Skills documentation](https://kiro.dev/docs/skills/) describes
 progressive disclosure: metadata is discovered first and the full skill body is
 loaded only when activated. It documents workspace skills across IDE, CLI, Web,

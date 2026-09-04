@@ -24,6 +24,8 @@
     "tools_settings": {},
     "resources": [
       "file://AGENTS.md",
+      "file://.pk-stack-ci/control-plan.json",
+      "file://.pk-stack-ci/loop-memory.md",
       "file://.pk-stack-ci/upstream-delta.json",
       "file://.pk-stack-ci/verification-feedback.txt"
     ],
@@ -33,7 +35,11 @@
       "powers/pk-stack/docs/okf-skills-parity.json",
       "powers/pk-stack/docs/okf-spec-source-parity.json",
       "powers/pk-stack/docs/humanlayer-show-me-bundle-manifest.json",
-      "powers/pk-stack/docs/humanlayer-show-me-source-parity.json",
+      "powers/pk-stack/docs/humanlayer-skills-source-parity.json",
+      "powers/pk-stack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
+      "powers/pk-stack/docs/humanlayer-design-control-loop-bundle-manifest.json",
+      "powers/pk-stack/docs/humanlayer-improve-claude-md-bundle-manifest.json",
+      "powers/pk-stack/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
       "powers/pk-stack/docs/tt-a1i-archify-bundle-manifest.json",
       "powers/pk-stack/docs/tt-a1i-archify-source-parity.json",
       "powers/pk-stack/docs/upstream-skill-parity.json",
@@ -111,16 +117,28 @@
     "powers/pk-stack/docs/okf-skills-parity.json",
     "powers/pk-stack/docs/okf-spec-source-parity.json",
     "powers/pk-stack/docs/humanlayer-show-me-bundle-manifest.json",
-    "powers/pk-stack/docs/humanlayer-show-me-source-parity.json",
+    "powers/pk-stack/docs/humanlayer-skills-source-parity.json",
+    "powers/pk-stack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
+    "powers/pk-stack/docs/humanlayer-design-control-loop-bundle-manifest.json",
+    "powers/pk-stack/docs/humanlayer-improve-claude-md-bundle-manifest.json",
+    "powers/pk-stack/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
     "powers/pk-stack/docs/tt-a1i-archify-bundle-manifest.json",
     "powers/pk-stack/docs/tt-a1i-archify-source-parity.json",
     "powers/pk-stack/docs/upstream-skill-parity.json"
   ],
   "agent_allowed_prefixes": {
-    "powers/pk-stack/dev.kiro/": [".md"],
-    "powers/pk-stack/docs/": [".md"],
-    "powers/pk-stack/skills/": [".md"],
-    "powers/pk-stack/templates/project/": [".json"]
+    "powers/pk-stack/dev.kiro/": [
+      ".md"
+    ],
+    "powers/pk-stack/docs/": [
+      ".md"
+    ],
+    "powers/pk-stack/skills/": [
+      ".md"
+    ],
+    "powers/pk-stack/templates/project/": [
+      ".json"
+    ]
   },
   "final_allowed_exact": [
     ".pstack/bin/projectctl",
@@ -134,25 +152,53 @@
     "powers/pk-stack/docs/okf-skills-parity.json",
     "powers/pk-stack/docs/okf-spec-source-parity.json",
     "powers/pk-stack/docs/humanlayer-show-me-bundle-manifest.json",
-    "powers/pk-stack/docs/humanlayer-show-me-source-parity.json",
+    "powers/pk-stack/docs/humanlayer-skills-source-parity.json",
+    "powers/pk-stack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
+    "powers/pk-stack/docs/humanlayer-design-control-loop-bundle-manifest.json",
+    "powers/pk-stack/docs/humanlayer-improve-claude-md-bundle-manifest.json",
+    "powers/pk-stack/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
     "powers/pk-stack/docs/tt-a1i-archify-bundle-manifest.json",
     "powers/pk-stack/docs/tt-a1i-archify-source-parity.json",
     "powers/pk-stack/docs/upstream-skill-parity.json",
     "projectctl"
   ],
   "final_allowed_prefixes": {
-    ".kiro/agents/": [".json"],
-    ".kiro/hooks/": [".json"],
-    ".kiro/skills/": [".md"],
-    ".kiro/steering/": [".md"],
-    ".pstack/projectctl/dev.kiro/": [".md"],
-    ".pstack/projectctl/skills/": [".md"],
-    ".pstack/projectctl/templates/project/": [".json"],
-    ".pstack/projectctl/templates/projectctl/": [".lock"],
-    "powers/pk-stack/dev.kiro/": [".md"],
-    "powers/pk-stack/docs/": [".md"],
-    "powers/pk-stack/skills/": [".md"],
-    "powers/pk-stack/templates/project/": [".json"]
+    ".kiro/agents/": [
+      ".json"
+    ],
+    ".kiro/hooks/": [
+      ".json"
+    ],
+    ".kiro/skills/": [
+      ".md"
+    ],
+    ".kiro/steering/": [
+      ".md"
+    ],
+    ".pstack/projectctl/dev.kiro/": [
+      ".md"
+    ],
+    ".pstack/projectctl/skills/": [
+      ".md"
+    ],
+    ".pstack/projectctl/templates/project/": [
+      ".json"
+    ],
+    ".pstack/projectctl/templates/projectctl/": [
+      ".lock"
+    ],
+    "powers/pk-stack/dev.kiro/": [
+      ".md"
+    ],
+    "powers/pk-stack/docs/": [
+      ".md"
+    ],
+    "powers/pk-stack/skills/": [
+      ".md"
+    ],
+    "powers/pk-stack/templates/project/": [
+      ".json"
+    ]
   },
   "protected_exact": [
     ".github/pk-stack-maintenance-policy.json",
