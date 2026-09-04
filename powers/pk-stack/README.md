@@ -25,7 +25,7 @@ intentional and remain stable.
 
 The Power contains:
 
-- the Power-local `/setup-pstack` bootstrap skill;
+- the Power-local `/setup-pk-stack` bootstrap skill;
 - workflow skills for architecture, investigation, OKF knowledge, review,
   verification, TDD, writing, and bounded principles;
 - Kiro steering, custom-agent, and hook templates;
@@ -46,7 +46,7 @@ Prerequisites: Kiro IDE or Kiro CLI v3, Python 3.11+, and `uv`.
 2. In the target repository, invoke the Power-local skill:
 
    ```text
-   /setup-pstack
+   /setup-pk-stack
    ```
 
    The skill previews managed changes before writing them. Review
@@ -72,9 +72,9 @@ directory and use the explicit source fallback:
 
 ```sh
 : "${PK_STACK_POWER:?Set PK_STACK_POWER to the PK-Stack Power directory}"
-python3 "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
   --root "$PWD" --dry-run --output json
-python3 "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
   --root "$PWD" --output json
 ```
 
@@ -156,8 +156,8 @@ repository. Floci is a consumer of this Power, not part of this package.
 ```sh
 uv sync --all-groups
 uv lock --check
-uv run ruff check src tests skills/setup-pstack/scripts/setup_pstack.py
-uv run ruff format --check src tests skills/setup-pstack/scripts/setup_pstack.py
+uv run ruff check src tests skills/setup-pk-stack/scripts/setup_pstack.py
+uv run ruff format --check src tests skills/setup-pk-stack/scripts/setup_pstack.py
 uv run ty check
 uv run pytest -q
 ```

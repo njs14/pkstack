@@ -1,5 +1,5 @@
 ---
-name: setup-pstack
+name: setup-pk-stack
 description: Initialize or repair repository-local PK-Stack scaffolding for a Kiro workspace. Use when adopting PK-Stack, refreshing its feature-map and knowledge layout, or checking whether projectctl is ready.
 compatibility: Kiro IDE 1.x and Kiro CLI v3 for local Power bootstrap; Kiro Crew and Kiro Web consume committed post-bootstrap assets rather than invoking this setup skill; Python 3.11 or newer, or uv, available in the workspace.
 ---
@@ -79,7 +79,7 @@ message. In Kiro CLI v3, stay in the same chat and run:
 The selected prompt, tools, and permissions take effect on the next message.
 For a later managed refresh, the `pstack` profile intentionally has no Powers.
 Stay in the same chat, temporarily select the Power-enabled setup agent, invoke
-this Power-local `/setup-pstack`, and select `pstack` again. In CLI v3 those
+this Power-local `/setup-pk-stack`, and select `pstack` again. In CLI v3 those
 agent selections can be `/agent swap kiro_default` and `/agent swap pstack`;
 if the Power-enabled agent has another name, use the agent that performed
 initial setup.

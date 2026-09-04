@@ -500,7 +500,11 @@ def _skill_parity_document() -> dict[str, Any]:
             "pinned": _fake_skill_package("pinned", name),
             "current": _fake_skill_package("current", name),
             "disposition": "excluded" if excluded else "direct-port",
-            "target": None if excluded else f"skills/{name}/SKILL.md",
+            "target": (
+                None
+                if excluded
+                else f"skills/{'setup-pk-stack' if name == 'setup-pstack' else name}/SKILL.md"
+            ),
             "rationale": f"Bounded synthetic test disposition for {name}.",
         }
         if excluded:
@@ -563,7 +567,13 @@ def _write_skill_parity(root: Path, document: Any | None = None) -> Path:
             if local_skill_root.is_dir()
             else set()
         )
-        upstream_names = {entry["name"] for entry in payload["skills"]}
+        # Parity names preserve upstream provenance, while the target directory
+        # is the Kiro-facing route (and may use an explicit alias).
+        upstream_names = {
+            Path(entry["target"]).parent.name
+            for entry in payload["skills"]
+            if entry["target"] is not None
+        }
         curated_path = root / "powers" / "pk-stack" / "docs" / "curated-skills.json"
         curated_names: set[str] = set()
         if curated_path.is_file():

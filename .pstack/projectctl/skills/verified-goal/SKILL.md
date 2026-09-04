@@ -27,7 +27,7 @@ bootstrap deliberately preserves that name when the host project already owns
 it. Do not use ambient `uv run projectctl` package resolution.
 
 If the internal runner is unavailable, stop with the exact missing prerequisite
-and direct the user to `/setup-pstack`. Do not emulate goal state in prose or
+and direct the user to `/setup-pk-stack`. Do not emulate goal state in prose or
 create an ad hoc state file.
 
 ## Establish the acceptance contract

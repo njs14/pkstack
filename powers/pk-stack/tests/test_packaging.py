@@ -323,7 +323,7 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
     assert setup_payload == {
         "error": (
             "projectctl setup requires --power-root; use the Power-local "
-            "/setup-pstack skill for setup or refresh, or pass a reviewed "
+            "/setup-pk-stack skill for setup or refresh, or pass a reviewed "
             "Power root explicitly"
         ),
         "error_type": "ValueError",

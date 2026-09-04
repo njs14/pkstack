@@ -25,8 +25,8 @@ Treat feature maps and goal state as projectctl-owned. Never hand-edit them to m
 completion requires the named executable verifier to pass.
 
 The `pstack` profile excludes installed Powers. For setup or managed refresh, IDE users stay in chat
-and use the agent picker to select the Power-enabled setup agent, invoke `/setup-pstack`, and
-reselect `pstack`. CLI users stay in chat and use `/agent swap kiro_default`, `/setup-pstack`, then
+and use the agent picker to select the Power-enabled setup agent, invoke `/setup-pk-stack`, and
+reselect `pstack`. CLI users stay in chat and use `/agent swap kiro_default`, `/setup-pk-stack`, then
 `/agent swap pstack`; use the prior setup agent if named differently. Crew opens the trusted project
 only after local bootstrap. Web uses a locally refreshed, reviewed, committed asset tree;
 Configuration Sync is not a complete PK-Stack installer. Cached `.pstack/bin/projectctl setup`

@@ -120,7 +120,7 @@ def setup_command(
         if power_root is None:
             raise ValueError(
                 "projectctl setup requires --power-root; use the Power-local "
-                "/setup-pstack skill for setup or refresh, or pass a reviewed "
+                "/setup-pk-stack skill for setup or refresh, or pass a reviewed "
                 "Power root explicitly"
             )
         result = bootstrap_project(

@@ -2042,7 +2042,7 @@
         ]
       },
       "disposition": "native-kiro-replacement",
-      "target": "skills/setup-pstack/SKILL.md",
+      "target": "skills/setup-pk-stack/SKILL.md",
       "rationale": "Preserves the upstream setup outcome and optional verification-workflow offer, but replaces its Cursor global role-model rule with idempotent Kiro Power bootstrap, ownership receipts, a pinned local controller, and inheritance of the user's selected Kiro model and effort."
     },
     {

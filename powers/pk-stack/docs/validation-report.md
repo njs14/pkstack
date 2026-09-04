@@ -30,8 +30,8 @@ From `powers/pk-stack/`:
 
 ```sh
 uv lock --check
-uv run --frozen ruff check src tests skills/setup-pstack/scripts/setup_pstack.py
-uv run --frozen ruff format --check src tests skills/setup-pstack/scripts/setup_pstack.py
+uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pstack.py
+uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pstack.py
 uv run --frozen ty check
 uv run --frozen pytest -q
 ```
