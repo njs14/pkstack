@@ -108,17 +108,27 @@ def validate_inventory_bytes(raw: bytes, *, require_review_model: bool = False) 
         raise InventoryError("default model is not present in model inventory")
     if len(sol_entries) != 1:
         raise InventoryError("model inventory must contain exactly one gpt-5.6-sol entry")
-    if sol_entries[0] != EXPECTED_MODEL:
+    if not _within_model_budget(sol_entries[0], EXPECTED_MODEL):
         raise InventoryError(
-            "gpt-5.6-sol no longer matches the approved experimental lifecycle contract"
+            "gpt-5.6-sol no longer meets the approved context and cost contract"
         )
     if require_review_model:
         if len(review_entries) != 1:
             raise InventoryError(
                 "model inventory must contain exactly one claude-opus-5 entry"
             )
-        if review_entries[0] != EXPECTED_REVIEW_MODEL:
+        if not _within_model_budget(review_entries[0], EXPECTED_REVIEW_MODEL):
             raise InventoryError("claude-opus-5 no longer matches the approved review contract")
+
+
+def _within_model_budget(model: dict[str, Any], approved: dict[str, Any]) -> bool:
+    """Provider descriptions are prose, not model identity or spending authority."""
+    return (
+        model["model_id"] == approved["model_id"]
+        and model["context_window_tokens"] >= approved["context_window_tokens"]
+        and model["rate_unit"] == approved["rate_unit"]
+        and model["rate_multiplier"] <= approved["rate_multiplier"]
+    )
 
 
 def validate_inventory_file(path: Path, *, require_review_model: bool = False) -> None:

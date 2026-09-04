@@ -7,6 +7,11 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from feature_fixtures import (
+    generate_fixture_cli_feature,
+    generate_fixture_feature,
+    plant_fixture_feature,
+)
 
 from pk_stack import cli
 from pk_stack import features as feature_module
@@ -26,6 +31,37 @@ POWER_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = POWER_ROOT.parents[1]
 
 
+@pytest.mark.parametrize("schema", [None, 1, 3, "2", True])
+def test_only_current_feature_schema_is_readable(tmp_path: Path, schema: object) -> None:
+    path = generate_fixture_feature(
+        tmp_path,
+        "current",
+        title="Current",
+        behavior="A maintainer reads the current contract.",
+        expected_path="Feature file to validated contract",
+        command=None,
+    )
+    text = path.read_text(encoding="utf-8")
+    replacement = "" if schema is None else f"schema_version: {json.dumps(schema)}\n"
+    path.write_text(text.replace("schema_version: 2\n", replacement), encoding="utf-8")
+
+    with pytest.raises(FeatureMapError, match="schema_version must be 2"):
+        load_feature(path, root=tmp_path)
+
+
+def test_generation_requires_structured_contract_without_fabricating_fields(tmp_path: Path) -> None:
+    with pytest.raises(FeatureMapError, match="at least one non-empty sub-feature"):
+        generate_feature(
+            tmp_path,
+            "incomplete",
+            title="Incomplete",
+            behavior="A user reaches the application.",
+            expected_path="User request to application result",
+            command=None,
+        )
+    assert not (tmp_path / "Wiki").exists()
+
+
 def test_generate_load_list_and_validate_feature(tmp_path: Path) -> None:
     verifier = tmp_path / "verify.py"
     verifier.write_text("print('ok')\n", encoding="utf-8")
@@ -41,7 +77,6 @@ def test_generate_load_list_and_validate_feature(tmp_path: Path) -> None:
         command=[sys.executable, "verify.py"],
         related=["../architecture/boundary.md"],
         draft=False,
-        schema_version=2,
         sub_features=[
             FeatureSubFeature(
                 identifier="lookup-status",
@@ -100,7 +135,7 @@ def test_generated_yaml_ambiguous_strings_round_trip_without_coercion(
     token: str,
 ) -> None:
     slug = token.lower() if token != "~" else "tilde"
-    generate_feature(
+    generate_fixture_feature(
         tmp_path,
         slug,
         title=token,
@@ -120,7 +155,7 @@ def test_generated_yaml_ambiguous_strings_round_trip_without_coercion(
 
 
 def test_generate_is_draft_by_default_and_refuses_overwrite(tmp_path: Path) -> None:
-    generate_feature(
+    generate_fixture_feature(
         tmp_path,
         "login",
         title="Login",
@@ -131,7 +166,7 @@ def test_generate_is_draft_by_default_and_refuses_overwrite(tmp_path: Path) -> N
 
     assert find_feature(tmp_path, "login").draft is True
     with pytest.raises(FeatureMapError, match="overwrite"):
-        generate_feature(
+        generate_fixture_feature(
             tmp_path,
             "login",
             title="Login",
@@ -158,7 +193,7 @@ def test_concurrent_generation_without_overwrite_has_exactly_one_winner(
 
     def generate(title: str) -> None:
         try:
-            result = generate_feature(
+            result = generate_fixture_feature(
                 tmp_path,
                 "raced-feature",
                 title=title,
@@ -187,7 +222,7 @@ def test_concurrent_generation_without_overwrite_has_exactly_one_winner(
 
 def test_rejected_generation_has_no_filesystem_side_effect(tmp_path: Path) -> None:
     with pytest.raises(CommandRejected, match="verification evidence"):
-        generate_feature(
+        generate_fixture_feature(
             tmp_path,
             "placeholder",
             title="Placeholder",
@@ -200,21 +235,13 @@ def test_rejected_generation_has_no_filesystem_side_effect(tmp_path: Path) -> No
 
 
 def test_planted_placeholder_command_fails_feature_validation(tmp_path: Path) -> None:
-    feature = tmp_path / "Wiki" / "features" / "placeholder.md"
-    feature.parent.mkdir(parents=True)
-    feature.write_text(
-        "---\n"
-        "type: feature\n"
-        "slug: placeholder\n"
-        "title: Placeholder\n"
-        "draft: false\n"
-        "verification:\n"
-        "  command: ['true']\n"
-        "related: []\n"
-        "---\n\n"
-        "## User behavior\n\nA user observes real behavior.\n\n"
-        "## Expected path\n\nRequest to result.\n",
-        encoding="utf-8",
+    plant_fixture_feature(
+        tmp_path,
+        "placeholder",
+        title="Placeholder",
+        behavior="A user observes real behavior.",
+        expected_path="Request to result.",
+        command=["true"],
     )
 
     result = validate_feature_map(tmp_path)
@@ -226,7 +253,7 @@ def test_planted_placeholder_command_fails_feature_validation(tmp_path: Path) ->
 def test_validate_reports_missing_related_document(tmp_path: Path) -> None:
     verifier = tmp_path / "verify.py"
     verifier.write_text("pass\n", encoding="utf-8")
-    generate_feature(
+    generate_fixture_feature(
         tmp_path,
         "checkout",
         title="Checkout",
@@ -262,7 +289,7 @@ def test_ready_generation_rejects_invalid_related_before_running_proof(
     )
 
     with pytest.raises(SystemExit, match="2"):
-        cli.feature_generate(
+        generate_fixture_cli_feature(
             "invalid-related",
             title="Invalid related path",
             behavior="A caller observes verified behavior.",
@@ -285,7 +312,7 @@ def test_ready_semantic_drift_is_rejected_before_proof_and_preserves_overwrite(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    existing = generate_feature(
+    existing = generate_fixture_feature(
         tmp_path,
         "stable-contract",
         title="Stable contract",
@@ -301,7 +328,7 @@ def test_ready_semantic_drift_is_rejected_before_proof_and_preserves_overwrite(
     )
 
     with pytest.raises(SystemExit, match="2"):
-        cli.feature_generate(
+        generate_fixture_cli_feature(
             "stable-contract",
             title="Stable contract",
             behavior="Intended behavior.\n\n## Expected path\n\nInjected path.",
@@ -315,7 +342,7 @@ def test_ready_semantic_drift_is_rejected_before_proof_and_preserves_overwrite(
 
     payload = json.loads(capsys.readouterr().out)
     assert payload["error_type"] == "FeatureMapError"
-    assert "does not round-trip" in payload["error"]
+    assert "exactly these ordered level-2 sections" in payload["error"]
     assert not (tmp_path / "proof-ran").exists()
     assert existing.read_bytes() == original
     assert find_feature(tmp_path, "stable-contract").expected_path == "Input -> original result"
@@ -331,7 +358,7 @@ def test_related_preflight_keeps_valid_ready_and_deferred_draft_generation(
     proof = tmp_path / "proof.py"
     proof.write_text("raise SystemExit(0)\n", encoding="utf-8")
 
-    cli.feature_generate(
+    generate_fixture_cli_feature(
         "ready-reference",
         title="Ready reference",
         behavior="A caller observes verified behavior.",
@@ -345,7 +372,7 @@ def test_related_preflight_keeps_valid_ready_and_deferred_draft_generation(
     assert json.loads(capsys.readouterr().out)["ok"] is True
     assert find_feature(tmp_path, "ready-reference").draft is False
 
-    draft = generate_feature(
+    draft = generate_fixture_feature(
         tmp_path,
         "deferred-reference",
         title="Deferred reference",
@@ -374,7 +401,7 @@ def test_draft_generation_rejects_nonportable_related_paths_before_write(
     }[kind]
 
     with pytest.raises(SystemExit, match="2"):
-        cli.feature_generate(
+        generate_fixture_cli_feature(
             "invalid-draft-related",
             title="Invalid draft related path",
             behavior="A draft records intended behavior.",
@@ -395,7 +422,7 @@ def test_draft_generation_rejects_nonportable_related_paths_before_write(
 )
 def test_rejects_invalid_slugs(tmp_path: Path, slug: str) -> None:
     with pytest.raises(FeatureMapError):
-        generate_feature(
+        generate_fixture_feature(
             tmp_path,
             slug,
             title="Title",
@@ -411,6 +438,7 @@ def test_planted_readme_slug_cannot_be_loaded_or_selected_as_a_feature(tmp_path:
     readme.write_text(
         "---\n"
         "type: feature\n"
+        "schema_version: 2\n"
         "slug: readme\n"
         "title: Hidden contract\n"
         "draft: true\n"
@@ -437,7 +465,6 @@ def test_structured_feature_round_trips_every_entrypoint_recipe_and_boundary(
         behavior="A user finds notes from either supported surface.",
         expected_path="Browser or CLI -> search service -> bounded results",
         command=[sys.executable, "verify.py"],
-        schema_version=2,
         sub_features=[
             ("matching", "Matching titles and bodies are returned."),
             ("empty-state", "An absent query produces a complete empty state."),
@@ -470,7 +497,6 @@ def test_structured_feature_round_trips_every_entrypoint_recipe_and_boundary(
     assert feature.schema_version == 2
     assert [item.identifier for item in feature.sub_features] == ["matching", "empty-state"]
     assert [item.identifier for item in feature.entrypoints] == ["toolbar", "cli"]
-    assert payload["migration_required"] is False
     assert payload["entrypoints"][1]["drive"] == "Run notes search quarterly --format json."
     assert "## Sub-features" in path.read_text(encoding="utf-8")
     assert "## How to get to it (user POV)" in path.read_text(encoding="utf-8")
@@ -486,7 +512,6 @@ def test_structured_generation_rejects_missing_entrypoint_before_write(tmp_path:
             behavior="A user reaches a result.",
             expected_path="User -> result",
             command=[sys.executable, "verify.py"],
-            schema_version=2,
             sub_features=[("primary", "The primary behavior works.")],
             entrypoints=[],
             gotchas=["Do not skip the public surface."],
@@ -504,7 +529,6 @@ def test_structured_generation_rejects_missing_entrypoint_before_write(tmp_path:
         behavior="A user reaches a result.",
         expected_path="User -> result",
         command=[sys.executable, "verify.py"],
-        schema_version=2,
         sub_features=[("primary", "The primary behavior works.")],
         entrypoints=[("cli", "Run it.", "Drive it.", "Observe it.")],
         gotchas=["Do not skip the public surface."],
@@ -533,7 +557,6 @@ def test_structured_feature_rejects_ambiguous_or_unstructured_markdown(
         behavior="A user observes one unambiguous contract.",
         expected_path="Public entrypoint -> result",
         command=[sys.executable, "verify.py"],
-        schema_version=2,
         sub_features=[("primary", "The main behavior completes.")],
         entrypoints=[("cli", "Run the CLI.", "Drive the CLI.", "Observe the result.")],
         gotchas=["Do not bypass the public entrypoint."],
@@ -554,158 +577,6 @@ def test_structured_feature_rejects_ambiguous_or_unstructured_markdown(
 
     with pytest.raises(FeatureMapError, match=message):
         load_feature(path, root=tmp_path)
-
-
-def test_legacy_contract_remains_readable_and_migrates_with_fresh_proof(
-    tmp_path: Path,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    verifier = tmp_path / "verify.py"
-    verifier.write_text(
-        "from pathlib import Path\n"
-        "p = Path('proof-count')\n"
-        "p.write_text(str(int(p.read_text()) + 1) if p.exists() else '1')\n",
-        encoding="utf-8",
-    )
-    generate_feature(
-        tmp_path,
-        "legacy",
-        title="Legacy feature",
-        behavior="A user observes the old contract behavior.",
-        expected_path="CLI -> result",
-        command=[sys.executable, "verify.py"],
-        draft=False,
-    )
-    validation = validate_feature_map(tmp_path)
-    assert validation["ok"] is True
-    assert any("legacy feature schema" in warning for warning in validation["warnings"])
-
-    cli.feature_migrate(
-        "legacy",
-        sub_feature=["primary=The old behavior remains observable."],
-        entrypoint=["cli=Run the public CLI command."],
-        drive=[f"cli=Run {sys.executable} verify.py."],
-        entrypoint_proof=["cli=The process exits zero."],
-        gotcha=["Do not replace the public path with an internal call."],
-        evidence_boundary="Capture exit status and bounded output.",
-        cleanup_boundary="The verifier owns only proof-count.",
-        root=tmp_path,
-        output="json",
-    )
-
-    result = json.loads(capsys.readouterr().out)
-    migrated = find_feature(tmp_path, "legacy")
-    assert result["migration_verification"]["passed"] is True
-    assert (tmp_path / "proof-count").read_text(encoding="utf-8") == "1"
-    assert migrated.schema_version == 2
-    assert migrated.behavior == "A user observes the old contract behavior."
-    assert migrated.command == (sys.executable, "verify.py")
-    assert validate_feature_map(tmp_path)["warnings"] == []
-
-
-def test_legacy_extensions_remain_readable_but_block_lossy_automatic_migration(
-    tmp_path: Path,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    path = generate_feature(
-        tmp_path,
-        "extended-legacy",
-        title="Extended legacy",
-        behavior="A user observes a legacy behavior.",
-        expected_path="CLI -> result",
-        command=None,
-    )
-    path.write_text(
-        path.read_text(encoding="utf-8") + "\n## Operator notes\n\nPreserve this note.\n",
-        encoding="utf-8",
-    )
-
-    loaded = find_feature(tmp_path, "extended-legacy")
-    assert loaded.schema_version == 1
-    assert "section:Operator notes" in loaded.legacy_extensions
-    assert "noncanonical-content" in loaded.legacy_extensions
-
-    with pytest.raises(SystemExit, match="2"):
-        cli.feature_migrate(
-            "extended-legacy",
-            sub_feature=["primary=The old behavior remains observable."],
-            entrypoint=["cli=Run the public CLI."],
-            drive=["cli=Run the fixture command."],
-            entrypoint_proof=["cli=The observable result appears."],
-            gotcha=["Preserve operator notes during a manual migration."],
-            evidence_boundary="Capture bounded output.",
-            cleanup_boundary="Remove fixture-owned state.",
-            root=tmp_path,
-            output="json",
-        )
-
-    error = json.loads(capsys.readouterr().out)
-    assert "unmodeled legacy extensions" in error["error"]
-    assert "Operator notes" in path.read_text(encoding="utf-8")
-
-
-@pytest.mark.parametrize(
-    "mutation",
-    ["duplicate-user-behavior", "preamble", "verification-prose", "yaml-comment"],
-)
-def test_legacy_migration_rejects_every_noncanonical_or_ambiguous_byte(
-    tmp_path: Path,
-    capsys: pytest.CaptureFixture[str],
-    mutation: str,
-) -> None:
-    path = generate_feature(
-        tmp_path,
-        "legacy-contract",
-        title="Legacy contract",
-        behavior="A user observes the legacy result.",
-        expected_path="Public command -> result",
-        command=None,
-    )
-    text = path.read_text(encoding="utf-8")
-    if mutation == "duplicate-user-behavior":
-        text = text.replace(
-            "## Expected path",
-            "## User behavior\n\nA second ambiguous behavior.\n\n## Expected path",
-            1,
-        )
-    elif mutation == "preamble":
-        text = text.replace(
-            "# Legacy contract\n\n",
-            "# Legacy contract\n\nOperator preamble that must survive.\n\n",
-            1,
-        )
-    elif mutation == "verification-prose":
-        text = text.replace(
-            "A passing command proves the behavior described above, not merely that files exist.",
-            "This verifier has a load-bearing operator safety boundary.",
-        )
-    else:
-        text = text.replace("type: feature", "# preserve this comment\ntype: feature", 1)
-    path.write_text(text, encoding="utf-8")
-    original = path.read_bytes()
-
-    loaded = find_feature(tmp_path, "legacy-contract")
-    assert "noncanonical-content" in loaded.legacy_extensions
-    if mutation == "duplicate-user-behavior":
-        assert "duplicate-section:user behavior" in loaded.legacy_extensions
-
-    with pytest.raises(SystemExit, match="2"):
-        cli.feature_migrate(
-            "legacy-contract",
-            sub_feature=["primary=The old behavior remains observable."],
-            entrypoint=["cli=Run the public CLI."],
-            drive=["cli=Run the fixture command."],
-            entrypoint_proof=["cli=The observable result appears."],
-            gotcha=["Preserve all operator-authored content."],
-            evidence_boundary="Capture bounded output.",
-            cleanup_boundary="Remove fixture-owned state.",
-            root=tmp_path,
-            output="json",
-        )
-
-    error = json.loads(capsys.readouterr().out)
-    assert "unmodeled legacy extensions" in error["error"]
-    assert path.read_bytes() == original
 
 
 def _write_feature_plan(tmp_path: Path, *, feature_count: int = 3) -> Path:
@@ -746,7 +617,7 @@ def _write_feature_plan(tmp_path: Path, *, feature_count: int = 3) -> Path:
     return definition
 
 
-def test_initial_map_generates_three_to_five_and_proves_only_representative(
+def test_initial_map_proves_only_representative(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
@@ -778,6 +649,25 @@ def test_initial_map_generates_three_to_five_and_proves_only_representative(
     assert (tmp_path / "ran-1").read_text(encoding="utf-8") == "yes"
     assert (tmp_path / "ran-3").read_text(encoding="utf-8") == "yes"
     assert all(not feature.draft for feature in list_features(tmp_path))
+
+
+def test_initial_map_accepts_one_real_feature(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    definition = _write_feature_plan(tmp_path, feature_count=1)
+
+    cli.feature_generate_map(
+        definition,
+        representative="surface-1",
+        root=tmp_path,
+        output="json",
+    )
+
+    result = json.loads(capsys.readouterr().out)
+    assert len(result["features"]) == 1
+    assert result["initial_verification"]["passed"] is True
+    assert find_feature(tmp_path, "surface-1").draft is False
+    assert (tmp_path / "ran-1").read_text(encoding="utf-8") == "yes"
 
 
 def test_initial_map_rejects_definition_changed_by_representative_proof(
@@ -1066,7 +956,6 @@ def test_publish_changes_only_draft_scalar_and_preserves_operator_prose(
         behavior="A user observes the public result.",
         expected_path="Public entrypoint -> result",
         command=[sys.executable, verifier.name],
-        schema_version=2,
         sub_features=[("primary", "The main behavior completes.")],
         entrypoints=[("cli", "Run it.", "Drive it.", "Observe it.")],
         gotchas=["Do not bypass the public path."],
@@ -1099,7 +988,7 @@ def test_ready_generate_detects_existing_contract_changed_by_its_verifier(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    path = generate_feature(
+    path = generate_fixture_feature(
         tmp_path,
         "ready-race",
         title="Original contract",
@@ -1116,7 +1005,7 @@ def test_ready_generate_detects_existing_contract_changed_by_its_verifier(
     )
 
     with pytest.raises(SystemExit, match="2"):
-        cli.feature_generate(
+        generate_fixture_cli_feature(
             "ready-race",
             title="Replacement contract",
             behavior="A user observes the replacement result.",
@@ -1152,7 +1041,6 @@ def test_publish_detects_contract_changed_by_its_verifier(
         behavior="A user observes the draft behavior.",
         expected_path="Public entrypoint -> result",
         command=[sys.executable, mutator.name],
-        schema_version=2,
         sub_features=[("primary", "The behavior completes.")],
         entrypoints=[("cli", "Run it.", "Drive it.", "Observe it.")],
         gotchas=["Do not lose operator content."],
@@ -1167,47 +1055,6 @@ def test_publish_detects_contract_changed_by_its_verifier(
     assert "changed during verification" in error["error"]
     assert "Concurrent publication note" in path.read_text(encoding="utf-8")
     assert find_feature(tmp_path, "publish-race").draft is True
-
-
-def test_migrate_detects_legacy_contract_changed_by_its_verifier(
-    tmp_path: Path,
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    mutator = tmp_path / "mutate.py"
-    mutator.write_text(
-        "from pathlib import Path\n"
-        "p = Path('Wiki/features/migrate-race.md')\n"
-        "p.write_text(p.read_text() + '\\nConcurrent migration note.\\n')\n",
-        encoding="utf-8",
-    )
-    path = generate_feature(
-        tmp_path,
-        "migrate-race",
-        title="Migrate race",
-        behavior="A user observes the legacy behavior.",
-        expected_path="Public entrypoint -> result",
-        command=[sys.executable, mutator.name],
-        draft=False,
-    )
-
-    with pytest.raises(SystemExit, match="2"):
-        cli.feature_migrate(
-            "migrate-race",
-            sub_feature=["primary=The legacy behavior completes."],
-            entrypoint=["cli=Run it."],
-            drive=["cli=Drive it."],
-            entrypoint_proof=["cli=Observe it."],
-            gotcha=["Do not lose concurrent content."],
-            evidence_boundary="Retain bounded output.",
-            cleanup_boundary="Remove verifier-owned state.",
-            root=tmp_path,
-            output="json",
-        )
-
-    error = json.loads(capsys.readouterr().out)
-    assert "changed during verification" in error["error"]
-    assert "Concurrent migration note" in path.read_text(encoding="utf-8")
-    assert find_feature(tmp_path, "migrate-race").schema_version == 1
 
 
 def test_feature_document_and_concurrently_growing_plan_are_bounded(
@@ -1241,11 +1088,11 @@ def test_feature_document_and_concurrently_growing_plan_are_bounded(
         load_feature_plan(tmp_path, definition)
 
 
-@pytest.mark.parametrize("feature_count", [2, 6])
+@pytest.mark.parametrize("feature_count", [0, 6])
 def test_initial_map_rejects_out_of_range_count(tmp_path: Path, feature_count: int) -> None:
     definition = _write_feature_plan(tmp_path, feature_count=feature_count)
 
-    with pytest.raises(FeatureMapError, match="3-5 records"):
+    with pytest.raises(FeatureMapError, match="1-5 records"):
         load_feature_plan(tmp_path, definition)
 
 
@@ -1258,7 +1105,6 @@ def test_shipped_repository_features_are_complete_schema_two_contracts() -> None
     features = {item["slug"]: item for item in result["features"]}
     assert set(features) == {"pk-stack-upstream-maintenance"}
     assert all(item["schema_version"] == 2 for item in features.values())
-    assert all(item["migration_required"] is False for item in features.values())
     assert {
         item["identifier"] for item in features["pk-stack-upstream-maintenance"]["entrypoints"]
     } == {"local-check", "current-session-maintenance", "scheduled-cadence", "manual-dispatch"}

@@ -6,8 +6,9 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from feature_fixtures import generate_fixture_cli_feature
 
-from pk_stack import cli
+from pk_stack import __version__, cli
 from pk_stack.branding import identity_payload
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
@@ -32,7 +33,7 @@ def test_renderers_and_version_cover_text_and_json(
         assert f'"{key}": "{value}"' in output
 
     cli.version_command(output="text")
-    expected = {**identity_payload(), "version": "0.2.0"}
+    expected = {**identity_payload(), "version": __version__}
     expected_text = "".join(f"{key}: {value}\n" for key, value in expected.items())
     assert capsys.readouterr().out == expected_text
 
@@ -58,7 +59,7 @@ def test_direct_feature_commands_cover_success_and_failure(
         "from pathlib import Path\nPath('draft-ran').write_text('bad')\nraise SystemExit(7)\n",
         encoding="utf-8",
     )
-    cli.feature_generate(
+    generate_fixture_cli_feature(
         "health",
         title="Health",
         behavior="A maintainer checks health.",
@@ -81,7 +82,7 @@ def test_direct_feature_commands_cover_success_and_failure(
     cli.verify_alias("health", root=tmp_path, output="json")
     assert _json(capsys)["ok"] is True
 
-    cli.feature_generate(
+    generate_fixture_cli_feature(
         "broken",
         title="Broken",
         behavior="A check fails.",

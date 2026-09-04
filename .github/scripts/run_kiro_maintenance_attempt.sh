@@ -62,7 +62,7 @@ validate_private_file() {
     echo "Kiro produced a non-regular private evidence file" >&2
     return 1
   fi
-  size=$(wc -c <"$path")
+  read -r size < <(wc -c <"$path")
   if [[ ! "$size" =~ ^[0-9]+$ ]] || ((size > maximum)); then
     echo "Kiro private evidence exceeded its byte limit" >&2
     return 1
@@ -70,8 +70,8 @@ validate_private_file() {
 }
 
 # This authenticated inventory check deliberately precedes the model turn. Sol
-# is experimental, so removal or any lifecycle/metadata drift stops scheduled
-# maintenance for explicit review rather than silently routing to another model.
+# removal, a smaller context, or a higher price stops scheduled maintenance.
+# Provider description wording does not change model identity or authority.
 set +e
 env -i \
   HOME="$KIRO_USER_HOME" \
@@ -109,7 +109,8 @@ if [[ "$inventory_rc" -ne 0 ]]; then
   exit "$inventory_rc"
 fi
 python3 "$model_validator" "$inventory_path"
-unlink "$inventory_path" "$inventory_stderr_path"
+unlink "$inventory_path"
+unlink "$inventory_stderr_path"
 
 prompt=$(printf '%s\n' \
   "This is bounded PK-Stack upstream repair ${ATTEMPT_NUMBER} of 4." \
@@ -119,14 +120,14 @@ prompt=$(printf '%s\n' \
   "Reconcile every semantic delta into the Kiro-v3-native PK-Stack design or record an explicit exclusion in provenance." \
   "Edit only the data-only authored paths granted by your exact write policy: Power Markdown, project-template JSON, and the selected detector-named source parity JSON." \
   "Do not edit Python, tests, plugin/package/lock files, generated .kiro or .pk-stack files, either maintenance ledger/manifest, feature contracts, CI files, or evidence." \
-  "When upstream-delta.json reports one or more drifts, select the lexicographically smallest drifting source id, reconcile only that source, and leave every other drifting source unchanged for a later cadence." \
+  "When upstream-delta.json reports one or more drifts, use the exact selected_source_id from the immutable control plan, reconcile only that source, and leave every other drifting source unchanged for a later cadence." \
   "Write .pk-stack-maintenance/proposal.json as exactly one transition object with source_id, prior, new, inventory_sha256, and dispositions; the proposal must name that source_id and cover every selected-source comparison.paths entry exactly once with disposition A, B, or C and a specific trimmed rationale." \
   "When detector drift_count is zero, create no proposal, including for source-parity-only or generated-parity repair." \
   "For the selected drift, append exactly one new final marker line <!-- pk-stack-upstream-review: {canonical JSON} --> to its provenance_path, preserving the canonical <!-- pk-stack-upstream-genesis: {canonical JSON} --> marker byte-for-byte and preserving every prior marker unchanged and in order; final review-marker count must equal the existing review-ledger transition count plus one. The new compact sorted JSON must contain only source_id, repository, path, prior, new, and inventory_sha256 and must exactly match the detector/proposal identities and digest." \
   "Do not run shell commands, invoke slash commands, use ACP, access the network, commit, push, or create a pull request." \
   "A secretless trusted finalizer will update the re-proved pin, regenerate managed copies, and run all executable verification." \
   "Preserve normal interactive kiro-cli chat --v3 current-session semantics. PK-Stack verified-goal remains the deterministic projectctl seam; headless CI must not depend on interactive slash-command availability." \
-  "Changes requiring controller code, executable helpers, tests, packages, or security-policy edits are outside automation scope: leave them unresolved for human and Fable review." \
+  "Changes requiring controller code, executable helpers, tests, packages, or security-policy edits are outside automation scope: leave them unresolved for human and independent review." \
   "Make the smallest coherent authored change and exact proposal, then stop.")
 
 set +e

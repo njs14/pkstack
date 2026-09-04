@@ -1,7 +1,7 @@
 # Architecture
 
 PK-Stack is a Kiro Power plus a small repository-local control plane. The
-current public package is `0.2.0`; its release metadata authority is
+package's release metadata authority is
 [`plugin.json`](../plugin.json). This document describes runtime boundaries,
 not release acceptance. See the [validation report](validation-report.md) and
 [current release status](../../../reviews/release-status.md) for evidence.
@@ -71,8 +71,8 @@ native plan with `/spec new <name>` or `/spec <name>`, then explicitly swaps to
 picker, then reselects `pk-stack` in the same conversation.
 
 PK-Stack does not emulate those workflows from an Agent Skill or create a
-second task graph. `goal bind-spec` writes a small bridge to a published
-feature contract and records snapshots of the native intent, design, and
+second task graph. `goal bind-spec` writes a small bridge to an executable
+command or a published feature and records snapshots of the native intent, design, and
 bridge. `tasks.md` remains mutable so Kiro can track work. A task checkbox or
 prose acceptance criterion is not executable proof.
 
@@ -105,7 +105,7 @@ A successful target setup contains:
 │   ├── bin/projectctl                  # stable project entrypoint
 │   ├── bootstrap.json                  # managed-file receipt
 │   ├── discovery.json                  # root-relative repository inventory
-│   ├── projectctl/                     # cached source and locked runtime
+│   ├── projectctl/                     # Python source, lock, and integrity manifests
 │   └── state/                          # ignored goal and evidence state
 └── Wiki/features/                      # project-owned contracts
 ```
@@ -113,6 +113,10 @@ A successful target setup contains:
 `.kiro/` and `.pk-stack/` are generated workspace material, not alternate Power
 sources. A root `projectctl` convenience wrapper may exist when its name was
 unowned, but skills never select it.
+
+The controller cache contains no second copy of skills, steering, or templates.
+Doctor checks installed `.kiro/` files against the ownership receipt and curated
+bundle manifests. Archify executes its installed `.kiro/skills/archify/` resources.
 
 ### Bootstrap receipt and upgrades
 
@@ -237,7 +241,7 @@ must remain contiguous.
 The Power-local source, generated workspace, and review ledger are checked
 together before an acceptance operation. This keeps source parity and
 generated parity separate from release acceptance: an accepted upstream pin
-does not mean PK-Stack `v0.2.0` is released.
+does not establish release acceptance.
 
 ## Security and limits
 

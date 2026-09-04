@@ -250,13 +250,12 @@ class FeatureSpec:
     command: tuple[str, ...] | None
     related: tuple[str, ...]
     draft: bool
-    schema_version: int = 1
+    schema_version: int = 2
     sub_features: tuple[FeatureSubFeature, ...] = ()
     entrypoints: tuple[FeatureEntrypoint, ...] = ()
     gotchas: tuple[str, ...] = ()
     evidence_boundary: str = ""
     cleanup_boundary: str = ""
-    legacy_extensions: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -265,8 +264,6 @@ class FeatureSpec:
         data["sub_features"] = [item.to_dict() for item in self.sub_features]
         data["entrypoints"] = [item.to_dict() for item in self.entrypoints]
         data["gotchas"] = list(self.gotchas)
-        data["legacy_extensions"] = list(self.legacy_extensions)
-        data["migration_required"] = self.schema_version < 2
         return data
 
 

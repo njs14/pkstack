@@ -83,11 +83,7 @@ def model_event(model: str = MODEL) -> dict[str, object]:
 
 def mode_event(mode: str = review.REQUIRED_AGENT) -> dict[str, object]:
     return {
-        "data": {
-            "update": {
-                "configOptions": [{"id": "mode", "currentValue": mode}]
-            }
-        }
+        "data": {"update": {"configOptions": [{"id": "mode", "currentValue": mode}]}}
     }
 
 
@@ -159,7 +155,10 @@ class KiroReviewStreamTests(unittest.TestCase):
             verdict(head="5" * 40),
             verdict(findings=["Material safety gap"]),
         ):
-            with self.subTest(response=response), tempfile.TemporaryDirectory() as directory:
+            with (
+                self.subTest(response=response),
+                tempfile.TemporaryDirectory() as directory,
+            ):
                 args = self._args(Path(directory))
                 with (
                     mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
@@ -171,6 +170,73 @@ class KiroReviewStreamTests(unittest.TestCase):
                     self.assertRaises(review.ReviewError),
                 ):
                     review.validate(args)
+
+    def test_valid_rejection_is_reported_for_remediation_but_never_approval(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            args = self._args(root)
+            args.report_path = root / "report.json"
+            args.source_id = "alpha"
+            args.source_commit = "a" * 40
+            args.source_subtree_sha = "b" * 40
+            args.source_run_id = 10
+            args.candidate_run_id = 11
+            with (
+                mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
+                mock.patch.object(
+                    review,
+                    "parse_no_tool_stream_bytes",
+                    return_value=(
+                        verdict(findings=["Fix boundary\nthen rerun"]),
+                        [mode_event(), model_event()],
+                    ),
+                ),
+            ):
+                result = review.validate(args)
+            self.assertEqual(result["review_verdict"], "rejected")
+            report = json.loads(args.report_path.read_bytes())
+            self.assertEqual(report["material_findings"], ["Fix boundary then rerun"])
+            self.assertEqual(report["head_sha"], HEAD)
+            self.assertEqual(report["source_subtree_sha"], "b" * 40)
+            self.assertNotIn("sentinel-secret", args.report_path.read_text())
+
+    def test_json_escaped_secret_cannot_reach_a_published_report(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            args = self._args(root)
+            args.report_path = root / "report.json"
+            escaped = verdict(findings=["sentinel-secret"]).replace(
+                "sentinel", r"\u0073entinel"
+            )
+            self.assertNotIn("sentinel-secret", escaped)
+            with (
+                mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
+                mock.patch.object(
+                    review,
+                    "parse_no_tool_stream_bytes",
+                    return_value=(escaped, [mode_event(), model_event()]),
+                ),
+                self.assertRaisesRegex(review.ReviewError, "decoded review output"),
+            ):
+                review.validate(args)
+            self.assertFalse(args.report_path.exists())
+
+    def test_cli_rejected_result_does_not_claim_approval(self) -> None:
+        with (
+            mock.patch.object(
+                review.argparse.ArgumentParser,
+                "parse_args",
+                return_value=argparse.Namespace(github_output=None),
+            ),
+            mock.patch.object(
+                review, "validate", return_value={"review_verdict": "rejected"}
+            ),
+            mock.patch("builtins.print") as printed,
+        ):
+            self.assertEqual(review.main(), 0)
+        self.assertFalse(json.loads(printed.call_args.args[0])["approved"])
 
     def test_wrong_model_effort_or_secret_leak_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -198,7 +264,9 @@ class KiroReviewStreamTests(unittest.TestCase):
                 self.assertRaises(review.ReviewError),
             ):
                 review.validate(args)
-            args.stderr.write_text('agent not found, using "default"\n', encoding="utf-8")
+            args.stderr.write_text(
+                'agent not found, using "default"\n', encoding="utf-8"
+            )
             with (
                 mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
                 self.assertRaisesRegex(review.ReviewError, "fell back"),
@@ -237,12 +305,16 @@ class KiroReviewStreamTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             args = self._args(Path(directory))
             tampered = {**BUNDLE, "changed_files": 2}
-            raw = (json.dumps(tampered, sort_keys=True, separators=(",", ":")) + "\n").encode()
+            raw = (
+                json.dumps(tampered, sort_keys=True, separators=(",", ":")) + "\n"
+            ).encode()
             args.bundle.write_bytes(raw)
             args.content_sha256 = hashlib.sha256(raw).hexdigest()
             with (
                 mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
-                self.assertRaisesRegex(review.ReviewError, "bundle facts are malformed"),
+                self.assertRaisesRegex(
+                    review.ReviewError, "bundle facts are malformed"
+                ),
             ):
                 review.validate(args)
 

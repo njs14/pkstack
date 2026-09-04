@@ -1,9 +1,15 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import signal
+import subprocess
 import sys
+import textwrap
 import threading
+import time
+from contextlib import suppress
 from pathlib import Path
 
 import pytest
@@ -401,6 +407,71 @@ def test_explicit_relative_executable_symlink_cannot_use_path_identity_exception
         run_command(["./verify"], root=project)
 
 
+def test_relative_venv_python_matches_selected_interpreter_without_escaping_operands(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    environment = tmp_path / ".venv" / "bin"
+    environment.mkdir(parents=True)
+    interpreter = environment / "python"
+    interpreter.symlink_to(sys.executable)
+    monkeypatch.setenv("PATH", f"{environment}{os.pathsep}{os.environ['PATH']}")
+    (tmp_path / "verify.py").write_text("print('verified')\n", encoding="utf-8")
+    assert run_command([".venv/bin/python", "verify.py"], root=tmp_path).passed
+    with pytest.raises(CommandRejected, match="path operands"):
+        run_command([".venv/bin/python", "../outside.py"], root=tmp_path)
+
+
+@pytest.mark.parametrize("cancel_signal", [signal.SIGINT, signal.SIGTERM])
+def test_cancelled_goal_reaps_verifier_group_and_releases_lock(
+    tmp_path: Path, cancel_signal: int
+) -> None:
+    from pk_stack.goal import get_goal
+
+    (tmp_path / "descendant.py").write_text(
+        "import time\nfrom pathlib import Path\ntime.sleep(2)\n"
+        "Path('leaked-child').write_text('bad')\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "verify.py").write_text(
+        "import subprocess, sys, time\nfrom pathlib import Path\n"
+        "subprocess.Popen([sys.executable, 'descendant.py'])\n"
+        "Path('ready').touch()\ntime.sleep(30)\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "controller.py").write_text(
+        "import sys\nfrom pathlib import Path\n"
+        "from pk_stack.goal import start_goal, verify_goal\n"
+        "start_goal(Path.cwd(), 'Cancellation probe', command=[sys.executable, 'verify.py'])\n"
+        "verify_goal(Path.cwd())\n",
+        encoding="utf-8",
+    )
+    controller = subprocess.Popen(
+        [sys.executable, "controller.py"],
+        cwd=tmp_path,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    try:
+        deadline = time.monotonic() + 10
+        while not (tmp_path / "ready").exists() and controller.poll() is None:
+            if time.monotonic() >= deadline:
+                raise AssertionError("verifier did not become ready")
+            time.sleep(0.02)
+        assert (tmp_path / "ready").exists()
+        controller.send_signal(cancel_signal)
+        controller.communicate(timeout=10)
+        assert controller.returncode != 0
+        state = get_goal(tmp_path)
+        assert state.status == "active"
+        assert state.last_result is None
+        time.sleep(2.1)
+        assert not (tmp_path / "leaked-child").exists()
+    finally:
+        if controller.poll() is None:
+            controller.kill()
+        controller.communicate(timeout=10)
+
+
 def test_project_named_pk_stack_can_run_an_unrelated_local_verifier(tmp_path: Path) -> None:
     project = tmp_path / "pk_stack"
     project.mkdir()
@@ -736,3 +807,95 @@ def test_verifier_restores_wrapper_caller_pythonpath_and_applies_overrides(
     assert overridden_payload["pythonpath"] == "/explicit/override"
     assert overridden_payload["set_marker"] is None
     assert overridden_payload["value_marker"] is None
+
+
+def test_detached_stdout_writer_reports_bounded_error_without_hanging_close(tmp_path: Path) -> None:
+    """Own both processes while reproducing a writer outside the verifier's group."""
+
+    (tmp_path / "sleep.py").write_text("import time\ntime.sleep(30)\n", encoding="utf-8")
+    probe = textwrap.dedent(
+        """\
+        import json, os, signal, subprocess, sys, threading, time
+        from pathlib import Path
+        from pk_stack import runner
+
+        real_popen = subprocess.Popen
+        owned = []
+        watchdog = None
+
+        def with_detached_writer(argv, **kwargs):
+            global watchdog
+            read_fd, write_fd = os.pipe()
+            kwargs['stdout'] = write_fd
+            try:
+                verifier = real_popen(argv, **kwargs)
+                owned.append(verifier)
+                verifier.stdout = os.fdopen(read_fd, 'rb')
+                writer = real_popen(
+                    [sys.executable, 'sleep.py'], stdout=write_fd,
+                    stderr=subprocess.DEVNULL, start_new_session=True,
+                )
+                owned.append(writer)
+                Path('owned-pids.json').write_text(json.dumps([child.pid for child in owned]))
+                assert os.getpgid(writer.pid) != os.getpgid(verifier.pid)
+                # Free the pipe even under the old blocking-close bug, then fail on elapsed time.
+                watchdog = threading.Timer(10, writer.kill)
+                watchdog.daemon = True
+                watchdog.start()
+                return verifier
+            finally:
+                os.close(write_fd)
+
+        runner.subprocess.Popen = with_detached_writer
+        started = time.monotonic()
+        try:
+            try:
+                runner.run_command(
+                    [sys.executable, 'sleep.py'], root=Path.cwd(), timeout_seconds=.01,
+                )
+            except RuntimeError as error:
+                assert str(error) == 'verifier output pipe did not close after process termination'
+                elapsed = time.monotonic() - started
+                assert 4.5 <= elapsed < 8, elapsed
+                print('bounded pipe error', flush=True)
+            else:
+                raise AssertionError('detached writer must produce the bounded pipe error')
+        finally:
+            if watchdog is not None:
+                watchdog.cancel()
+                watchdog.join(timeout=1)
+            for child in owned:
+                if child.poll() is None:
+                    child.kill()
+                child.wait(timeout=3)
+            print('owned processes reaped', flush=True)
+        """
+    )
+    controller = subprocess.Popen(
+        [sys.executable, "-c", probe],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PATH": os.pathsep.join((str(Path(sys.executable).parent), os.environ.get("PATH", ""))),
+        },
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        stdout, stderr = controller.communicate(timeout=20)
+        assert controller.returncode == 0, stdout + stderr
+        assert stdout.splitlines() == ["bounded pipe error", "owned processes reaped"]
+    finally:
+        if controller.poll() is None:
+            # Unblock the probe before ending it so its finally can reap its own children.
+            pid_file = tmp_path / "owned-pids.json"
+            if pid_file.exists():
+                for pid in json.loads(pid_file.read_text(encoding="utf-8")):
+                    with suppress(ProcessLookupError):
+                        os.kill(pid, signal.SIGKILL)
+            try:
+                controller.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                controller.kill()
+                controller.communicate(timeout=5)

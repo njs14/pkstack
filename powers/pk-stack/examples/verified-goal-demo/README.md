@@ -5,7 +5,7 @@ spaces and hyphens into exactly twelve decimal digits and raise `ValueError`
 otherwise.
 
 The real Kiro CLI v3 campaign copies this directory to an isolated temporary
-Git repository, bootstraps PK-Stack, creates an `account-lookup` feature contract,
+Git repository, bootstraps PK-Stack, starts a goal against the unittest command,
 and invokes:
 
 ```text

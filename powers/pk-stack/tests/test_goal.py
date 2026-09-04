@@ -7,8 +7,10 @@ from pathlib import Path
 from typing import Any, cast
 
 import pytest
+from feature_fixtures import generate_fixture_feature
 
-from pk_stack.features import FeatureMapError, generate_feature
+from pk_stack import cli
+from pk_stack.features import FeatureMapError, find_feature
 from pk_stack.goal import (
     GoalError,
     GoalStore,
@@ -91,7 +93,7 @@ def test_goal_exhaustion_and_resume(tmp_path: Path) -> None:
 
 def test_goal_can_resolve_feature_contract(tmp_path: Path) -> None:
     (tmp_path / "health.py").write_text("print('healthy')\n", encoding="utf-8")
-    generate_feature(
+    generate_fixture_feature(
         tmp_path,
         "health",
         title="Health",
@@ -109,7 +111,7 @@ def test_goal_can_resolve_feature_contract(tmp_path: Path) -> None:
 
 def test_goal_rejects_draft_feature_with_command_before_creating_state(tmp_path: Path) -> None:
     (tmp_path / "would-pass.py").write_text("print('not evidence yet')\n", encoding="utf-8")
-    generate_feature(
+    generate_fixture_feature(
         tmp_path,
         "draft-health",
         title="Draft health",
@@ -146,7 +148,7 @@ def test_spec_binding_prefers_published_feature_and_preserves_both_provenances(
 ) -> None:
     _write_native_spec(tmp_path, "account-lookup")
     (tmp_path / "health.py").write_text("print('healthy')\n", encoding="utf-8")
-    generate_feature(
+    generate_fixture_feature(
         tmp_path,
         "account-lookup",
         title="Account lookup",
@@ -178,7 +180,7 @@ def test_spec_binding_prefers_published_feature_and_preserves_both_provenances(
     ) == {"schema_version": 1, "feature": "account-lookup"}
 
 
-def test_spec_binding_supports_reviewed_command_only_when_no_feature_applies(
+def test_spec_binding_supports_reviewed_command_for_new_feature_development(
     tmp_path: Path,
 ) -> None:
     _write_native_spec(tmp_path, "one-off", bugfix=True)
@@ -192,6 +194,39 @@ def test_spec_binding_supports_reviewed_command_only_when_no_feature_applies(
     assert contract.spec == "one-off"
     assert contract.feature is None
     assert contract.argv == (sys.executable, "check.py")
+
+
+def test_new_feature_records_failure_then_repairs_and_publishes(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _write_native_spec(tmp_path, "new-feature")
+    checker = _sentinel_command(tmp_path)
+    bind_spec_contract(tmp_path, "new-feature", command=checker)
+    original = start_goal(tmp_path, "Build the new feature", spec="new-feature", max_attempts=3)
+
+    failed = verify_goal(tmp_path)
+    assert failed.status == "active"
+    assert failed.history[-1].passed is False
+    assert not (tmp_path / "Wiki/features").exists()
+
+    (tmp_path / "fixed.txt").write_text("implemented\n", encoding="utf-8")
+    passed = verify_goal(tmp_path)
+    assert passed.status == "passed"
+    assert passed.contract == original.contract
+    assert [result.passed for result in passed.history] == [False, True]
+
+    generate_fixture_feature(
+        tmp_path,
+        "new-feature",
+        title="New feature",
+        behavior="The fixture confirms its implemented marker.",
+        expected_path="Native spec to command to implementation marker",
+        command=checker,
+    )
+    cli.feature_publish("new-feature", root=tmp_path, output="json")
+    assert json.loads(capsys.readouterr().out)["published"] is True
+    assert find_feature(tmp_path, "new-feature").schema_version == 2
+    assert find_feature(tmp_path, "new-feature").draft is False
 
 
 def test_spec_binding_requires_complete_native_artifacts_and_exact_source(
@@ -465,7 +500,7 @@ def test_verifier_result_is_discarded_when_resume_changes_state(
 
 
 def test_goal_contract_and_store_error_boundaries(tmp_path: Path) -> None:
-    generate_feature(
+    generate_fixture_feature(
         tmp_path,
         "draft-only",
         title="Draft only",

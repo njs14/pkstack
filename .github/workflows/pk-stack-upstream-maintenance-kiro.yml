@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "17 13 * * *"
   workflow_dispatch:
+    inputs:
+      retry_source:
+        description: 'Explicit retry after three rejections: source-id@current-subtree-sha'
+        required: false
+        default: ''
+        type: string
 
 permissions: {}
 
@@ -17,7 +23,7 @@ jobs:
     permissions:
       actions: read
       contents: read
-      pull-requests: write
+      pull-requests: read
     outputs:
       base_sha: ${{ steps.plan.outputs.base_sha }}
       default_branch: ${{ steps.plan.outputs.default_branch }}
@@ -114,18 +120,6 @@ jobs:
               );
               core.setOutput("should_run", "false");
             } else {
-              if (decision.action === "close") {
-                await github.rest.pulls.update({
-                  owner,
-                  repo,
-                  pull_number: decision.prNumber,
-                  state: "closed",
-                });
-                core.warning(
-                  `closed exact bot-owned maintenance PR #${decision.prNumber} `
-                  + `for recoverable lifecycle state ${decision.reason}`
-                );
-              }
               core.setOutput("should_run", "true");
             }
             core.setOutput("base_sha", process.env.BASE_SHA);
@@ -179,6 +173,7 @@ jobs:
             .github/pk-stack-maintenance-policy.json \
             .github/scripts/pk_stack_maintenance_guard.py \
             .github/scripts/pk_stack_update_controller.py \
+            .github/scripts/pk_stack_review_feedback.py \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --no-config \
             --project "$TRUSTED_ROOT/.pk-stack/projectctl"
@@ -188,6 +183,7 @@ jobs:
           TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-trusted
           EVIDENCE_ROOT: ${{ runner.temp }}/pk-stack-loop-evidence
           READONLY_GITHUB_TOKEN: ${{ github.token }}
+          RETRY_SOURCE: ${{ github.event.inputs.retry_source || '' }}
         run: |
           set -euo pipefail
           trusted_projectctl="$TRUSTED_ROOT/.pk-stack/projectctl"
@@ -208,6 +204,8 @@ jobs:
             validate-detector --detector "$detector_path"
           python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_update_controller.py" \
             --detector "$detector_path" \
+            --feedback maintenance/upstream-feedback.json \
+            --retry-source "$RETRY_SOURCE" \
             --output "$control_plan_path"
           needs_maintenance=$(python3 - "$detector_path" "$detector_rc" <<'PY'
           import json
@@ -227,6 +225,9 @@ jobs:
           detector_sha256=$(sha256sum "$detector_path" | cut -d' ' -f1)
           control_plan_sha256=$(sha256sum "$control_plan_path" | cut -d' ' -f1)
           control_action=$(jq -er '.action' "$control_plan_path")
+          if [[ "$control_action" != "reconcile-source" ]]; then
+            needs_maintenance=false
+          fi
           selected_source_id=$(jq -er '.selected_source_id // ""' "$control_plan_path")
           {
             printf 'needs_maintenance=%s\n' "$needs_maintenance"
@@ -401,17 +402,13 @@ jobs:
           goal_kind=$(jq -er '.goal.kind' "$CONTROL_PLAN_PATH")
           goal_value=$(jq -er '.goal.value' "$CONTROL_PLAN_PATH")
           max_attempts=$(jq -er '.max_attempts' "$CONTROL_PLAN_PATH")
-          test "$action" != "current"
+          test "$action" = "reconcile-source"
           test "$max_attempts" = "5"
           test "$(jq -er '.max_open_candidates' "$CONTROL_PLAN_PATH")" = "1"
-          case "$goal_kind" in
-            command) goal_contract=(--command "$goal_value") ;;
-            feature) goal_contract=(--feature "$goal_value") ;;
-            *) echo "unsupported controller goal kind" >&2; exit 1 ;;
-          esac
+          test "$goal_kind" = "command"
           trusted_projectctl goal start \
             "$objective" \
-            "${goal_contract[@]}" \
+            --command "$goal_value" \
             --max-attempts "$max_attempts" \
             --output json >"$RUNNER_TEMP/pk-stack-goal-start.json"
           set +e

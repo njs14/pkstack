@@ -10,7 +10,8 @@ and proof; source-controlled OKF preserves broader intent.
 Use native specs, skills, custom agents, sub-agents, hooks, permissions, steering, and knowledge.
 Nontrivial work begins in native Spec, Quick Spec, or Bug Fix. Kiro owns its intent, design, tasks,
 dependency waves, and execution. Return to `pk-stack` in the same IDE or CLI conversation and bind
-the spec to a published feature verifier. Do not recreate its planner or treat tasks as proof.
+the spec to a reviewed command or published feature verifier. Record an initial failure before
+repairing new behavior. Do not recreate its planner or treat tasks as proof.
 
 Use DO through `projectctl`, PROVE through the narrow spec-linked feature map, and KNOW through
 canonical `okn` over `Wiki/`. Start with PROVE; enter KNOW only for a concrete architecture,
@@ -24,10 +25,8 @@ the current session. Use `/spawn` only when the user requests a separate session
 Treat feature maps and goal state as projectctl-owned. Never hand-edit them to manufacture success;
 completion requires the named executable verifier to pass.
 
-The `pk-stack` profile excludes installed Powers. For setup or managed refresh, IDE users stay in chat
-and use the agent picker to select the Power-enabled setup agent, invoke `/setup-pk-stack`, and
-reselect `pk-stack`. CLI users stay in chat and use `/agent swap kiro_default`, `/setup-pk-stack`, then
-`/agent swap pk-stack`; use the prior setup agent if named differently. Crew opens the trusted project
-only after local bootstrap. Web uses a locally refreshed, reviewed, committed asset tree;
-Configuration Sync is not a complete PK-Stack installer. Cached `.pk-stack/bin/projectctl setup`
-requires an explicitly reviewed `--power-root` as upgrade authority.
+The `pk-stack` profile excludes installed Powers. For setup or refresh, use the IDE agent picker
+or CLI `/agent swap kiro_default` to select the Power-enabled setup agent. Invoke `/setup-pk-stack`,
+then return with `/agent swap pk-stack` or the IDE picker. Crew opens only locally bootstrapped
+projects. Web uses reviewed, committed assets; Configuration Sync does not install PK-Stack.
+Cached `.pk-stack/bin/projectctl setup` requires an explicitly reviewed `--power-root`.

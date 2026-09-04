@@ -1449,7 +1449,7 @@ def validate_ci_agent(agent_path: Path, policy: dict[str, Any]) -> None:
         raise GuardError("CI agent resources differ from the immutable policy")
     prompt = agent.get("prompt")
     marker_requirements = (
-        "select the lexicographically smallest drifting source id",
+        "use the exact selected_source_id from the immutable control plan",
         "proposal must name that source_id",
         "leave every other drifting source unchanged for a later cadence",
         "append exactly one new final pk-stack-upstream-review HTML comment",
@@ -2005,7 +2005,7 @@ def validate_detector(path: Path) -> dict[str, Any]:
         if reproved["subtree_sha"] != pinned["subtree_sha"]:
             raise GuardError("upstream subtree pin was not re-proved")
         drift = _boolean(source["drift"], "upstream detector source drift")
-        if drift != (current != pinned):
+        if drift != (current["subtree_sha"] != pinned["subtree_sha"]):
             raise GuardError("upstream detector drift flag disagrees with identities")
         comparison = _exact_keys(
             source["comparison"],
@@ -2189,6 +2189,10 @@ def validate_detector(path: Path) -> dict[str, Any]:
                     "expected_head": current["commit"],
                 }
             )
+        elif current["commit"] != pinned["commit"]:
+            if (comparison["status"] != "ahead" or behind != 0
+                    or not (ahead == commits >= 1) or paths or files):
+                raise GuardError("ref-only upstream movement must preserve the imported subtree")
         elif (
             comparison["status"] != "identical"
             or ahead != 0
@@ -2579,7 +2583,9 @@ def _require_provenance_markers(
                 )
 
 
-def validate_proposal(root: Path, detector_path: Path, proposal_path: Path) -> dict[str, Any]:
+def validate_proposal(
+    root: Path, detector_path: Path, proposal_path: Path, selected_source_id: str | None = None
+) -> dict[str, Any]:
     """Independently bind an untrusted proposal to the exact detector inventory."""
 
     detector = validate_detector(detector_path)
@@ -2602,11 +2608,11 @@ def validate_proposal(root: Path, detector_path: Path, proposal_path: Path) -> d
     source_id = proposal["source_id"]
     if not isinstance(source_id, str) or not source_id:
         raise GuardError("upstream acceptance proposal source_id is invalid")
-    source = drift_sources[0]
-    if source_id != source["id"]:
-        raise GuardError(
-            "upstream acceptance proposal did not select the lexicographically first drift source"
-        )
+    if selected_source_id is not None and source_id != selected_source_id:
+        raise GuardError("upstream proposal does not match the controller-selected source")
+    source = next((item for item in drift_sources if item["id"] == source_id), None)
+    if source is None:
+        raise GuardError("upstream proposal does not select a drifting source")
     prior = _identity(proposal["prior"], "upstream acceptance proposal prior")
     new = _identity(proposal["new"], "upstream acceptance proposal new")
     if prior != source["pinned"]:
@@ -2669,11 +2675,32 @@ def validate_proposal(root: Path, detector_path: Path, proposal_path: Path) -> d
     }
 
 
+def validate_control_plan(root: Path, detector_path: Path, plan_path: Path) -> dict[str, Any]:
+    from pk_stack_update_controller import decide
+
+    _, plan = _load_json(plan_path, maximum=131072, label="controller plan")
+    retry = ""
+    if plan.get("retry_override") is True:
+        retry = f"{plan.get('selected_source_id')}@{plan.get('source_subtree_sha')}"
+    expected = decide(detector_path, root / "maintenance/upstream-feedback.json", retry)
+    if plan != expected:
+        raise GuardError("controller plan does not match trusted feedback and detector")
+    if plan["action"] != "reconcile-source":
+        raise GuardError("controller plan does not authorize a repair")
+    return {
+        "selected_source_id": plan["selected_source_id"] or "",
+        "source_subtree_sha": plan["source_subtree_sha"] or "",
+        "expected_head": plan["expected_head"] or "",
+        "retry_override": plan["retry_override"],
+    }
+
+
 def validate_serialized_acceptance(
     root: Path,
     base_sha: str,
     before_path: Path,
     after_path: Path,
+    selected_source_id: str | None = None,
 ) -> dict[str, Any]:
     """Prove exactly the deterministically selected source advanced once."""
 
@@ -2685,13 +2712,19 @@ def validate_serialized_acceptance(
         raise GuardError("serialized acceptance requires initial upstream drift")
     if before["selected_source_id"] is not None or after["selected_source_id"] is not None:
         raise GuardError("serialized acceptance requires full-manifest detector evidence")
-    selected_id = before_drift[0]["source_id"]
-    selected_head = before_drift[0]["expected_head"]
     before_sources = {source["id"]: source for source in before["sources"]}
     after_sources = {source["id"]: source for source in after["sources"]}
     if set(after_sources) != set(before_sources):
         raise GuardError("serialized acceptance changed the upstream source inventory")
-
+    changed = [source_id for source_id, source in after_sources.items()
+               if source["pinned"] != before_sources[source_id]["pinned"]]
+    if len(changed) != 1 or (selected_source_id is not None and changed != [selected_source_id]):
+        raise GuardError("serialized acceptance does not match the controller-selected source")
+    selected_id = changed[0]
+    selected = next((item for item in before_drift if item["source_id"] == selected_id), None)
+    if selected is None:
+        raise GuardError("serialized acceptance selected a non-drifting source")
+    selected_head = selected["expected_head"]
     stable_fields = ("repository", "path", "ref", "provenance_path", "parity_path")
     for source_id, before_source in before_sources.items():
         after_source = after_sources[source_id]
@@ -2737,11 +2770,33 @@ def validate_serialized_acceptance(
         ):
             raise GuardError("serialized acceptance did not establish selected parity baseline")
 
-    _require_provenance_markers(
-        root,
-        after,
-        selected_source_id=None,
-    )
+    # Remote reproof covers the latest transition, not the complete local
+    # history. Compare the frozen ledger as well so older reviews cannot be
+    # rewritten while presenting the same latest remote evidence.
+    ledger_path = before["review_ledger"]
+    try:
+        base_raw = _git_bytes(root, "show", f"{base_sha}:{ledger_path}")
+        if len(base_raw) > REVIEW_LEDGER_MAX_BYTES:
+            raise GuardError("base review ledger exceeds its byte budget")
+        base_ledger = json.loads(base_raw, object_pairs_hook=_strict_object)
+        _, candidate_ledger = _load_json(root / ledger_path, maximum=REVIEW_LEDGER_MAX_BYTES,
+                                         label="candidate review ledger")
+        base_records = {item["id"]: item for item in base_ledger["sources"]}
+        candidate_records = {item["id"]: item for item in candidate_ledger["sources"]}
+    except (subprocess.CalledProcessError, KeyError, TypeError, json.JSONDecodeError) as exc:
+        raise GuardError("serialized acceptance requires a valid frozen review ledger") from exc
+    if set(base_records) != set(candidate_records) or set(base_records) != set(before_sources):
+        raise GuardError("serialized acceptance changed review ledger source inventory")
+    for source_id, prior_record in base_records.items():
+        candidate_record = candidate_records[source_id]
+        if source_id != selected_id:
+            if candidate_record != prior_record:
+                raise GuardError("serialized acceptance modified a deferred review ledger")
+        elif ({key: value for key, value in candidate_record.items() if key != "transitions"}
+              != {key: value for key, value in prior_record.items() if key != "transitions"}
+              or candidate_record["transitions"][:-1] != prior_record["transitions"]):
+            raise GuardError("serialized acceptance rewrote selected review history")
+    _require_provenance_markers(root, after, selected_source_id=None)
     for source_id, source in before_sources.items():
         if source_id == selected_id:
             continue
@@ -3422,14 +3477,20 @@ def _parser() -> argparse.ArgumentParser:
     detector = commands.add_parser("validate-detector")
     detector.add_argument("--detector", type=Path, required=True)
 
+    control = commands.add_parser("validate-control-plan")
+    control.add_argument("--detector", type=Path, required=True)
+    control.add_argument("--control-plan", type=Path, required=True)
+
     proposal = commands.add_parser("validate-proposal")
     proposal.add_argument("--detector", type=Path, required=True)
     proposal.add_argument("--proposal", type=Path, required=True)
+    proposal.add_argument("--selected-source-id", required=True)
 
     serialized = commands.add_parser("validate-serialized-acceptance")
     serialized.add_argument("--base", required=True)
     serialized.add_argument("--before-detector", type=Path, required=True)
     serialized.add_argument("--after-detector", type=Path, required=True)
+    serialized.add_argument("--selected-source-id", required=True)
 
     package = commands.add_parser("package")
     package.add_argument("--base", required=True)
@@ -3526,8 +3587,11 @@ def main() -> int:
             "selected_source_id": selected["source_id"] if selected else "",
             "expected_head": selected["expected_head"] if selected else "",
         }
+    elif args.command == "validate-control-plan":
+        result = validate_control_plan(root, args.detector, args.control_plan)
+        result["ok"] = True
     elif args.command == "validate-proposal":
-        result = validate_proposal(root, args.detector, args.proposal)
+        result = validate_proposal(root, args.detector, args.proposal, args.selected_source_id)
         result["ok"] = True
     elif args.command == "validate-serialized-acceptance":
         result = validate_serialized_acceptance(
@@ -3535,6 +3599,7 @@ def main() -> int:
             args.base,
             args.before_detector,
             args.after_detector,
+            args.selected_source_id,
         )
         result["ok"] = True
     elif args.command == "package":

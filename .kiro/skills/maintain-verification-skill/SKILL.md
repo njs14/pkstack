@@ -12,8 +12,8 @@ Do not assume a passing old check still covers current behavior. Preserve this s
 1. **Locate the surface.** Find the authoritative verification skill, its feature-map index, every
    feature record, executable commands, implementation entrypoints, and existing evidence. Use
    `.pk-stack/bin/projectctl feature list --output json` and `feature show <slug> --output json` when
-   PK-Stack is set up. A legacy schema-1 record must be reviewed and migrated with `feature migrate
-   <slug> --output json` before publication; do not discard unknown extensions to force migration.
+   PK-Stack is set up. Feature records use schema 2; unsupported records need a fresh reviewed
+   contract grounded in the current implementation and public surface.
 2. **Check index hygiene.** Reconcile the index, feature files, and user-visible surface. Record
    missing, stale, duplicate, or orphaned entries before editing.
    Also find native `.kiro/specs/*/pk-stack-verification.json` bridges. Treat their
@@ -39,9 +39,8 @@ Do not assume a passing old check still covers current behavior. Preserve this s
    expectation to preserve green output. Keep blocked checks explicit.
 7. **Prove or stop.** For every remaining initial-map draft, review its complete contract and run
    `.pk-stack/bin/projectctl feature publish <slug> --output json`; publication executes the stored
-   verifier and changes draft state only after it passes. Treat that as the first proof, then run
-   `feature verify <slug> --output json` once more. For an already published verifier changed during
-   this pass, run `feature verify <slug> --output json` twice. Never hand-edit `draft: false` or use
+   verifier and changes draft state only after it passes. For an already published verifier changed
+   during this pass, run `feature verify <slug> --output json`. Never hand-edit `draft: false` or use
    another feature's evidence. Then run `.pk-stack/bin/projectctl feature validate --output json` and
    nearby tests. Report a clean, changed-and-proved, verified-unreachable, or blocked outcome. When
    verifier assets changed and the user separately authorized a pull request, group the maintenance

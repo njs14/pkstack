@@ -48,11 +48,13 @@ create an ad hoc state file.
 
    Reusing an identical bridge is idempotent. Never pass `--overwrite` until the existing bridge
    and replacement have both been reviewed.
-5. When no feature applies, use `create-verification-skill` or `maintain-verification-skill` to
-   establish one. Only when a feature map would add no useful reusable behavior contract may a
-   reviewed repository test, build, lint, type-check, or domain command be bound directly with
-   `<runner> goal bind-spec <spec-name> --command "<command>" --output json` or used as an explicit
-   goal command.
+5. When no published feature applies, review an executable repository test, build, lint, type-check,
+   or domain command for the requested behavior. A new feature may begin with a failing verifier;
+   it does not need a published feature record before implementation. Bind a matching native spec with
+   `<runner> goal bind-spec <spec-name> --command "<command>" --output json`, or use an explicit
+   goal command. Use `create-verification-skill` if the project lacks a way to drive and observe its
+   public behavior. After the goal passes, publish a reusable feature contract when it will help
+   future work.
 6. Do not create a fake spec directory, edit native requirements/design/tasks merely to make the
    bridge pass, infer Quick Spec provenance from filenames, or treat completed task checkboxes as
    executable evidence. Do not weaken a verifier to obtain a pass. If no checkable predicate can
@@ -66,10 +68,10 @@ Start new state with exactly one verifier:
 <runner> goal start "<objective>" --command "<verification command>" --max-attempts 4 --output json
 ```
 
-Use `--spec` when a matching native package and bridge exist. That bridge should normally point to
-the published feature verifier; it does not replace Kiro's planning artifacts or introduce another
-task runner. If a native spec exists but has no executable bridge, stop and bind/prove its
-verification contract instead of silently dropping its provenance.
+Use `--spec` when a matching native package and bridge exist. Its bridge may point to a published
+feature or the reviewed command for a feature still being built. It does not replace Kiro's planning
+artifacts or introduce another task runner. If a native spec exists but has no executable bridge,
+bind its reviewed verification contract instead of silently dropping its provenance.
 
 Before the first verification attempt in every skill invocation, display
 `goal.contract.display` and its provenance from the latest status or start
@@ -78,6 +80,10 @@ already active when the invocation began. The shell approval UI is not a
 substitute for showing the exact stored predicate in the workflow.
 
 Never include credentials or other secrets in the objective or stored command.
+
+For new behavior, run `<runner> goal verify --output json` before editing and inspect the recorded
+failure. Keep that acceptance predicate unchanged while repairing the implementation. If it already
+passes, inspect whether it proves the requested behavior before making unnecessary changes.
 
 ## Iterate
 

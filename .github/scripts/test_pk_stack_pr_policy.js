@@ -249,61 +249,34 @@ test("skips only a fresh active candidate run bound to exact bot, base, head, an
   });
 });
 
-for (const scenario of ["peer-review rejection", "Kiro outage", "candidate-test failure"]) {
-  test(`${scenario} terminal failure closes the exact owned PR for cadence recovery`, async () => {
-    const { result } = await classify([pull()], {
+for (const scenario of ["rejection report upload failure", "feedback CAS failure", "cleanup failure"]) {
+  test(`${scenario} blocks cadence until durable feedback is reconciled`, async () => {
+    await assert.rejects(() => classify([pull()], {
       runs: [candidateRun({ status: "completed", conclusion: "failure" })],
-    });
-    assert.equal(result.action, "close");
-    assert.equal(result.reason, "terminal-candidate-failure");
-    assert.equal(result.prNumber, 7);
-    assert.equal(result.candidateRunId, CANDIDATE_RUN_ID);
+    }), /requires operator recovery: terminal-candidate-failure/);
   });
 }
 
-test("canceled and missing candidate runs close the exact owned PR", async () => {
-  const canceled = await classify([pull()], {
+test("canceled and missing candidate runs cannot discard unknown feedback", async () => {
+  await assert.rejects(() => classify([pull()], {
     runs: [candidateRun({ status: "completed", conclusion: "cancelled" })],
-  });
-  assert.equal(canceled.result.action, "close");
-  assert.equal(canceled.result.reason, "terminal-candidate-cancelled");
-
-  const missing = await classify([pull()], { runs: [] });
-  assert.deepEqual(missing.result, {
-    action: "close",
-    prNumber: 7,
-    headRef: `pk-stack-upstream/kiro-${SOURCE_RUN_ID}`,
-    reason: "missing-candidate-run",
-    sourceRunId: SOURCE_RUN_ID,
-  });
+  }), /requires operator recovery: terminal-candidate-cancelled/);
+  await assert.rejects(() => classify([pull()], { runs: [] }), /missing-candidate-run/);
 });
 
-test("stale active and stale successful-open lifecycle states are closed", async () => {
-  const staleActive = await classify([pull()], {
+test("stale active and successful-open states require operator recovery", async () => {
+  await assert.rejects(() => classify([pull()], {
     runs: [candidateRun({ updated_at: "2026-09-02T05:59:59Z" })],
-  });
-  assert.equal(staleActive.result.action, "close");
-  assert.equal(staleActive.result.reason, "stale-active-candidate");
-
-  const successfulOpen = await classify([pull()], {
+  }), /requires operator recovery: stale-active-candidate/);
+  await assert.rejects(() => classify([pull()], {
     runs: [candidateRun({ status: "completed", conclusion: "success" })],
-  });
-  assert.equal(successfulOpen.result.action, "close");
-  assert.equal(successfulOpen.result.reason, "successful-candidate-left-open-pr");
+  }), /requires operator recovery: successful-candidate-left-open-pr/);
 });
 
-test("base movement selects only the exact bot candidate for stale close", async () => {
+test("base movement cannot bypass unresolved rejection publication", async () => {
   const stale = pull({ base: { ref: "main", sha: OLD_BASE } });
-  const { result, loaded } = await classify([stale], { parentSha: OLD_BASE });
-  assert.deepEqual(result, {
-    action: "close",
-    prNumber: 7,
-    headRef: `pk-stack-upstream/kiro-${SOURCE_RUN_ID}`,
-    reason: "stale-base",
-    staleParentSha: OLD_BASE,
-  });
-  assert.deepEqual(loaded.sources, []);
-  assert.deepEqual(loaded.candidateSources, []);
+  await assert.rejects(() => classify([stale], { parentSha: OLD_BASE }),
+    /requires operator recovery: stale-base/);
 });
 
 test("source and candidate workflow identity mismatches fail closed", async () => {

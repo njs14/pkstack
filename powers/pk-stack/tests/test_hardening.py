@@ -13,14 +13,17 @@ from contextlib import suppress
 from pathlib import Path
 
 import pytest
+from feature_fixtures import (
+    generate_fixture_cli_feature,
+    generate_fixture_feature,
+    plant_fixture_feature,
+)
 
-from pk_stack import cli
 from pk_stack.bootstrap import bootstrap_project
 from pk_stack.discovery import discover_repository
 from pk_stack.doctor import run_doctor
 from pk_stack.features import (
     FeatureMapError,
-    generate_feature,
     load_feature,
     validate_feature_map,
 )
@@ -324,8 +327,6 @@ def test_retired_managed_asset_is_reported_until_explicitly_removed(tmp_path: Pa
     assert ".kiro/skills/retired/SKILL.md" in receipt["files"]
 
     live.unlink()
-    cached = tmp_path / ".pk-stack" / "projectctl" / "skills" / "retired" / "SKILL.md"
-    cached.unlink()
     resolved = bootstrap_project(tmp_path, power_root=power_v1, update_managed=True)
     assert resolved.ok is True
     receipt = json.loads((tmp_path / ".pk-stack" / "bootstrap.json").read_text())
@@ -366,7 +367,7 @@ def test_ready_generation_proves_before_write_and_pure_validation_runs_first(
     failing = tmp_path / "fail.py"
     failing.write_text("raise SystemExit(7)\n", encoding="utf-8")
     with pytest.raises(SystemExit, match="1"):
-        cli.feature_generate(
+        generate_fixture_cli_feature(
             "new-feature",
             title="New feature",
             behavior="A behavior.",
@@ -383,7 +384,7 @@ def test_ready_generation_proves_before_write_and_pure_validation_runs_first(
     proof = tmp_path / "proof.py"
     proof.write_text("from pathlib import Path\nPath('proof-ran').write_text('yes')\n")
     with pytest.raises(SystemExit, match="2"):
-        cli.feature_generate(
+        generate_fixture_cli_feature(
             "invalid",
             title="",
             behavior="A behavior.",
@@ -401,7 +402,7 @@ def test_rejected_overwrite_never_runs_ready_verifier(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    generate_feature(
+    generate_fixture_feature(
         tmp_path,
         "existing",
         title="Existing",
@@ -413,7 +414,7 @@ def test_rejected_overwrite_never_runs_ready_verifier(
     proof.write_text("from pathlib import Path\nPath('proof-ran').write_text('yes')\n")
 
     with pytest.raises(SystemExit, match="2"):
-        cli.feature_generate(
+        generate_fixture_cli_feature(
             "existing",
             title="Existing",
             behavior="A behavior.",
@@ -496,21 +497,13 @@ def test_goal_start_enforces_verifier_policy_before_persisting_state(
 
 
 def test_feature_validation_reports_policy_rejection(tmp_path: Path) -> None:
-    feature = tmp_path / "Wiki" / "features" / "unsafe-proof.md"
-    feature.parent.mkdir(parents=True)
-    feature.write_text(
-        "---\n"
-        "type: feature\n"
-        "slug: unsafe-proof\n"
-        "title: Unsafe proof\n"
-        "draft: false\n"
-        "verification:\n"
-        "  command: [oc, delete, pod, example]\n"
-        "related: []\n"
-        "---\n\n"
-        "## User behavior\n\nA maintainer verifies behavior.\n\n"
-        "## Expected path\n\nCommand -> result.\n",
-        encoding="utf-8",
+    plant_fixture_feature(
+        tmp_path,
+        "unsafe-proof",
+        title="Unsafe proof",
+        behavior="A maintainer verifies behavior.",
+        expected_path="Command to result.",
+        command=["oc", "delete", "pod", "example"],
     )
 
     result = validate_feature_map(tmp_path)
@@ -588,7 +581,7 @@ def test_outside_absolute_executable_is_rejected_before_contract_persistence(
     assert not (project / ".pk-stack" / "state" / "goal.json").exists()
 
     with pytest.raises(CommandRejected, match="path operands"):
-        generate_feature(
+        generate_fixture_feature(
             project,
             "outside-proof",
             title="Outside proof",
@@ -599,21 +592,13 @@ def test_outside_absolute_executable_is_rejected_before_contract_persistence(
         )
     assert not (project / "Wiki" / "features" / "outside-proof.md").exists()
 
-    planted = project / "Wiki" / "features" / "planted-proof.md"
-    planted.parent.mkdir(parents=True, exist_ok=True)
-    planted.write_text(
-        "---\n"
-        "type: feature\n"
-        "slug: planted-proof\n"
-        "title: Planted proof\n"
-        "draft: false\n"
-        "verification:\n"
-        f"  command: [{json.dumps(str(outside))}]\n"
-        "related: []\n"
-        "---\n\n"
-        "## User behavior\n\nA caller observes a bounded proof.\n\n"
-        "## Expected path\n\nProject to verifier.\n",
-        encoding="utf-8",
+    plant_fixture_feature(
+        project,
+        "planted-proof",
+        title="Planted proof",
+        behavior="A caller observes a bounded proof.",
+        expected_path="Project to verifier.",
+        command=[str(outside)],
     )
 
     validation = validate_feature_map(project)

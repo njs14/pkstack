@@ -4,184 +4,183 @@
   <img src="powers/pk-stack/assets/logo.png" alt="A scholarly potato ghost, the PK-Stack mascot" width="260">
 </p>
 
-PK-Stack is a Kiro Power for development work that should finish with
-executable evidence. It keeps planning, tool use, model choice, and
-orchestration in Kiro, then adds a small repository-local control surface for
-feature contracts, bounded verification, and project state.
+PK-Stack helps Kiro finish development work with a check you can run again.
+Plan with Kiro, give the task an executable verifier, and use
+`/verified-goal` to work through failures in the same conversation.
 
-The checked-in Power reports version **0.2.0**. The `version` field in
-[`powers/pk-stack/plugin.json`](powers/pk-stack/plugin.json) is the release
-metadata authority, and the Python package and lockfile mirror it. Changes on
-`main` after the `v0.2.0` tag are unreleased. See the [release status](reviews/release-status.md)
-for the historical gate record.
+The Power ports [Poteto's pstack workflows](powers/pk-stack/docs/upstream-skill-parity.md)
+to Kiro and adds a repository-local `projectctl` command. Feature contracts
+live in `Wiki/features/`; broader architecture and decisions live alongside
+them in the Wiki, with optional `okn` retrieval.
 
-## What it provides
+## Where it works
 
-- Native Kiro Spec, Quick Spec, Bug Fix, and Plan workflows remain the planning
-  source of truth.
-- `/setup-pk-stack` installs a reviewed workspace profile, steering, hooks, and
-  skills from the Power.
-- `/verified-goal` runs a bounded implement, verify, diagnose, and repair loop
-  in the current Kiro session.
-- `projectctl` records feature contracts, verification attempts, and bounded
-  evidence outside the prompt.
-- The source-controlled Wiki keeps architecture and decisions close to the
-  project. Optional canonical `okn` provides deeper knowledge retrieval.
+| Surface | Support and evidence |
+| --- | --- |
+| Kiro CLI v3 | Primary runtime; exercised in real terminal sessions |
+| Kiro IDE 1.x agent panel | Primary target; profiles and assets validated, full UI walkthrough still required |
+| Kiro Crew | Optional orchestrator over the installed workspace assets |
+| Kiro Web | Supported through committed workspace assets; untested end to end |
 
-`/verified-goal` is a PK-Stack skill. It is not Kiro's native `/goal`, and it
-does not require a user-launched ACP process. Kiro CLI v3 and the Kiro IDE
-agent panel are the primary surfaces. Crew is optional; the committed Web
-workspace path is supported by design but has not been tested end to end.
+Kiro owns Specs, Quick Specs, tools, permissions, subagents, and model choice.
+PK-Stack inherits your selected model and effort. `/verified-goal` is a
+PK-Stack skill, not a native Kiro `/goal` command. Normal use needs no ACP host.
+See the [compatibility guide](powers/pk-stack/docs/kiro-v3-compatibility.md)
+for the tested versions and surface-specific limits.
 
-## Quick start
+## Install
 
-1. Import [`powers/pk-stack/`](powers/pk-stack) through Kiro's Power manager.
-   Review the package before enabling it.
-2. Open the target repository in Kiro and run the Power-local setup skill:
+You need Kiro, Python 3.11 or newer, and [uv](https://docs.astral.sh/uv/)
+on your path. GitHub access to this repository is required while it is private.
 
-   ```text
-   /setup-pk-stack
-   ```
-
-3. Review the dry-run result. Then select the generated `pk-stack` agent in the
-   IDE picker, or start a CLI v3 session with:
-
-   ```sh
-   kiro-cli chat --v3 --agent pk-stack
-   ```
-
-   In an existing CLI conversation, `/agent swap pk-stack` performs the same
-   handoff. A fresh session may be needed for Kiro to discover new assets.
-4. Check the installation through the canonical wrapper:
-
-   ```sh
-   .pk-stack/bin/projectctl doctor --output json
-   .pk-stack/bin/projectctl feature validate --output json
-   ```
-
-For a source-checkout fallback, set `PK_STACK_POWER` to the checked-out
-`powers/pk-stack` directory and run the same Power-local script explicitly:
+Clone the source and keep its Power path for setup and later refreshes:
 
 ```sh
-: "${PK_STACK_POWER:?Set PK_STACK_POWER to the PK-Stack Power directory}"
+git clone https://github.com/njs14/pk-stack.git
+export PK_STACK_POWER="$PWD/pk-stack/powers/pk-stack"
+```
+
+In Kiro IDE, open **Powers → Add Custom Power → Import power from a folder**
+and select `powers/pk-stack` from that clone. Review the Power before installing.
+Kiro CLI v3 can then use the installed Power.
+([Kiro installation instructions](https://kiro.dev/docs/powers/installation/))
+
+Open your target project in Kiro and run:
+
+```text
+/setup-pk-stack
+```
+
+Review the setup preview before allowing writes. Then select the workspace
+`pk-stack` agent in the IDE, or use `/agent swap pk-stack` in CLI v3.
+If the new skills are not discovered yet, start one fresh session:
+
+```sh
+kiro-cli chat --v3 --agent pk-stack
+```
+
+For terminal-only setup, run the same Power-local script from your target project:
+
+```sh
 python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --dry-run --output json
 python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --output json
+.pk-stack/bin/projectctl doctor --output json
 ```
 
-The cached controller is not setup authority. A managed refresh requires the
-same Power-local source and an explicit `--update-managed` approval. See the
-[usage guide](powers/pk-stack/docs/usage.md) for the full recovery path.
+Setup preserves conflicting user files and reports their paths. It does not
+change global Kiro settings or install optional knowledge tools.
 
-## The working model
+## Try one failing task
 
-PK-Stack separates three concerns:
-
-| Interface | Responsibility |
-| --- | --- |
-| `.pk-stack/bin/projectctl` | **DO** — setup, diagnostics, feature operations, upstream checks, and goal state |
-| `Wiki/features/*.md` | **PROVE** — user-visible behavior bound to an executable verifier |
-| `Wiki/` and optional `okn` | **KNOW** — architecture, decisions, concepts, and operations |
-
-For nontrivial work, let Kiro complete its native plan first. In CLI v3 use
-`/spec new <name>` or resume with `/spec <name>`; in the IDE use **Build with
-spec** or the workflow picker. Then return to `pk-stack` in the same conversation
-and bind the plan to a feature contract:
+The included account-ID example starts broken. Use a disposable copy so the
+fixture in the Power stays unchanged. These commands use only Python's standard
+library for the verifier:
 
 ```sh
-.pk-stack/bin/projectctl goal bind-spec account-lookup \
-  --feature account-lookup --output json
+PK_STACK_DEMO=$(mktemp -d "${TMPDIR:-/tmp}/pk-stack-demo.XXXXXX")
+cp -R "$PK_STACK_POWER/examples/verified-goal-demo/." "$PK_STACK_DEMO/"
+cd "$PK_STACK_DEMO"
+git init -q
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
+  --root "$PWD" --dry-run --output json
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
+  --root "$PWD" --output json
+.pk-stack/bin/projectctl doctor --output json
+.pk-stack/bin/projectctl goal start "Repair account ID normalization" \
+  --command "python3 -m unittest discover -s tests -v" \
+  --max-attempts 4 --output json
+.pk-stack/bin/projectctl goal verify --output json
 ```
 
-Start the bounded loop only after a concrete verifier exists:
+The last command should exit **1**, report failed tests, and leave the goal
+`active`. That is the starting evidence. Do not fix the tests to make them pass.
+
+Start Kiro in that directory:
+
+```sh
+kiro-cli chat --v3 --agent pk-stack
+```
+
+Then ask:
 
 ```text
-/verified-goal Implement account lookup and make account-lookup pass.
+/verified-goal Repair account ID normalization using the existing goal. Keep the tests unchanged. Remove spaces and hyphens, accept exactly twelve decimal digits, and raise ValueError otherwise. Rerun the stored verifier until it passes or the attempt budget is exhausted.
 ```
 
-For a smaller change, create a contract directly:
+Kiro should edit `account.py` and rerun the stored command in this conversation.
+Check the result yourself:
 
 ```sh
-.pk-stack/bin/projectctl feature generate account-lookup \
-  --title "Account lookup" \
-  --behavior "A caller can retrieve account status." \
-  --expected-path "CLI -> gateway -> account service -> response" \
-  --command "uv run pytest tests/test_account_lookup.py -q" \
-  --ready --output json
+.pk-stack/bin/projectctl goal status --output json
+python3 -m unittest discover -s tests -v
 ```
 
-`--ready` runs the command before writing a ready contract. The verifier
-screen is a bounded hazard check, not an operating-system sandbox or proof
-that arbitrary project code is relevant. Human review remains part of the
-acceptance boundary.
+Success means stored status `passed`, a failing attempt followed by a passing
+attempt, and all four tests passing. An `exhausted` goal is unfinished; inspect
+the failure before explicitly adding attempts. The runner screens common
+hazards but is not an OS sandbox. Review verifiers before approving execution.
 
-## Repository layout
+For larger work, start with Kiro's native `/spec` or Quick Spec. Bind its
+artifacts to a command, record the failure, and repair it before publishing a
+reusable feature contract. The [usage guide](powers/pk-stack/docs/usage.md)
+covers that sequence and the current schema-2 feature format.
 
-| Path | Purpose |
+## Pick a workflow
+
+| Task | Start here |
 | --- | --- |
-| `powers/pk-stack/` | Canonical installable Power, package, skills, templates, and docs |
-| `.kiro/` | Generated workspace agents, hooks, skills, and steering |
-| `.pk-stack/` | Generated wrapper, receipt, cached controller, and ignored runtime state |
-| `Wiki/` | Feature contracts and source-controlled project knowledge |
-| `maintenance/` | Pinned upstream identities and review ledger |
-| `reviews/` | Current release status and historical evidence |
-| `.github/` | Repository automation and policy; change settings separately |
+| Adopt PK-Stack or refresh installed files | `/setup-pk-stack` |
+| Plan a feature or bug fix | Kiro's native Spec, Quick Spec, or Bug Fix workflow |
+| Implement against a concrete check | `/verified-goal` |
+| Map and prove the project's user-facing features | `/create-verification-skill` |
+| Update an existing verification workflow | `/maintain-verification-skill` |
+| Read or maintain architecture and decisions | `/okf`, then optional canonical `okn` |
+| Explain architecture visually | `/archify` or `/show-me` |
+| Write concise agent instructions | `/writing-for-agents` |
+| Apply the broader Poteto workflow | `/poteto-mode` |
 
-The private [pk-stack-floci-lab](https://github.com/njs14/pk-stack-floci-lab)
-repository contains the Floci document-export application and its live
-campaigns. Floci consumes PK-Stack; it is not part of this Power or release
-artifact.
+The [skill catalog and provenance](powers/pk-stack/docs/upstream-skill-parity.md)
+describe the pstack ports. [Curated additions](powers/pk-stack/docs/curated-skills.md)
+cover HumanLayer, Archify, and writing-for-agents.
 
-## Test the Power
+## Installed files and updates
+
+Setup installs skills, steering, hooks, and agents in `.kiro/`, and the
+controller, lockfile, and ownership receipt in `.pk-stack/`. Goal state is
+local and ignored by Git. Keep your feature contracts and Wiki under version
+control. The controller does not retain a second copy of the installed skills.
+
+Use the reviewed Power source to preview a refresh:
 
 ```sh
-cd powers/pk-stack
-uv lock --check
-uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
-uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
-uv run --frozen ty check
-uv run --frozen pytest -q
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
+  --root "$PWD" --dry-run --update-managed --output json
 ```
 
-Repository-level guard and documentation commands are listed in
-[CONTRIBUTING.md](CONTRIBUTING.md) and the [release status](reviews/release-status.md).
+After reviewing the paths, repeat without `--dry-run`. User edits are never
+overwritten. Retired managed files require explicit removal; see
+[refresh and clean reinstall](powers/pk-stack/docs/usage.md#refresh-managed-files).
+Pre-0.3 installations and schema-1 feature files have no automatic migration path.
 
-## Self-maintenance
+This repository checks upstream sources on a GitHub Actions schedule. Kiro
+proposes one content update at a time; deterministic checks and independent
+review gate its merge. Runtime or workflow changes still require a maintainer.
+All model calls in that pipeline use Kiro, with no separate provider API keys.
+See the [updater guide](powers/pk-stack/docs/upstream-control-loop.md).
 
-GitHub Actions checks the pinned upstream sources on a schedule and processes
-one drift source at a time. Its explicit control loop uses `projectctl upstream
-check` as the sensor, a deterministic one-source controller, Kiro plus
-`maintain-pk-stack` as the actuator, and the exact-SHA candidate gate as the
-dampener. Durable steering lives in a short trusted-base memory file. The Kiro maintainer may update only reviewed
-Markdown, source-parity records, and the matching curated bundle manifest. A
-secretless finalizer reproves the source identity, regenerates managed files,
-runs the deterministic gates, and opens or merges only its own exact candidate.
+## Further reading
 
-The pipeline uses `KIRO_API_KEY` for Kiro-hosted maintenance and review. It has
-no Anthropic, OpenAI, xAI, or GitHub Copilot key. Executable vendored runtime
-changes, workflow changes, and controller changes fail closed for a human
-release review rather than receiving autonomous write authority.
-
-The Power also ships a reviewed portable subset of
-[HumanLayer skills](https://github.com/humanlayer/skills):
-`build-iterated-agentic-loop`, `design-control-loop`,
-`narrow-react-prop-types`, and `show-me`. It adds Matt Pocock's
-[`writing-for-agents`](https://github.com/mattpocock/skills/tree/6654f6b60cd9d5be8b54c6fafe44346dabeb3b76/skills/productivity/writing-for-agents)
-method for `AGENTS.md`, Kiro Skills, steering, and pointer-linked references.
-Runtime-specific registration and unsafe generic CI examples remain provenance-only.
-
-## Documentation and community
-
-- [Power README](powers/pk-stack/README.md)
-- [Usage and recovery](powers/pk-stack/docs/usage.md)
+- [Usage, feature authoring, and recovery](powers/pk-stack/docs/usage.md)
 - [Architecture and trust boundaries](powers/pk-stack/docs/architecture.md)
-- [Interactive architecture artifact](powers/pk-stack/docs/artifacts/pk-stack-architecture.html)
-- [Kiro surface compatibility](powers/pk-stack/docs/kiro-v3-compatibility.md)
-- [Provenance and porting boundary](powers/pk-stack/docs/provenance.md)
-- [Validation report](powers/pk-stack/docs/validation-report.md)
-- [Wiki navigation](Wiki/index.md)
-- [Contributing](CONTRIBUTING.md), [security](SECURITY.md), and [code of conduct](CODE_OF_CONDUCT.md)
+- [Interactive architecture diagram](powers/pk-stack/docs/artifacts/pk-stack-architecture.html)
+- [Validation evidence](reviews/release-status.md)
+- [Contributing and test commands](CONTRIBUTING.md)
+- [Security](SECURITY.md) and [code of conduct](CODE_OF_CONDUCT.md)
 
-PK-Stack is licensed under Apache-2.0. Third-party attribution is in
-[`powers/pk-stack/THIRD_PARTY_NOTICES.md`](powers/pk-stack/THIRD_PARTY_NOTICES.md).
+The [Floci test lab](https://github.com/njs14/pk-stack-floci-lab) is a separate
+private repository. It is not included in this Power.
+
+PK-Stack is licensed under Apache-2.0.
+[Third-party notices](powers/pk-stack/THIRD_PARTY_NOTICES.md) preserve upstream attribution.

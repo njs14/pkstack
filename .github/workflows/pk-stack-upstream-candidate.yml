@@ -220,9 +220,14 @@ jobs:
     if: needs.resolve.outputs.has_candidate == 'true'
     runs-on: ubuntu-24.04
     permissions:
+      actions: read
       contents: read
     outputs:
       tested_sha: ${{ steps.immutable.outputs.tested_sha }}
+      selected_source_id: ${{ steps.selection.outputs.selected_source_id }}
+      source_subtree_sha: ${{ steps.selection.outputs.source_subtree_sha }}
+      source_commit: ${{ steps.selection.outputs.expected_head }}
+      retry_override: ${{ steps.selection.outputs.retry_override }}
       review_artifact_id: ${{ steps.upload_review.outputs.artifact-id }}
       review_content_sha256: ${{ steps.review_bundle.outputs.content_sha256 }}
       review_patch_sha256: ${{ steps.review_bundle.outputs.patch_sha256 }}
@@ -254,6 +259,13 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: powers/pk-stack/uv.lock
+      - name: Download immutable source detector and controller selection
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pk-stack-detector-${{ github.event.workflow_run.id }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/pk-stack-source-plan
       - name: Snapshot immutable base controller and review guards
         env:
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
@@ -280,12 +292,22 @@ jobs:
             --base "$BASE_SHA" \
             --trusted-root "$TRUSTED_ROOT"
           chmod -R a-w "$TRUSTED_ROOT"
+      - name: Revalidate sole controller source selection
+        id: selection
+        env:
+          TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-candidate-trusted
+        run: |
+          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
+            --github-output "$GITHUB_OUTPUT" validate-control-plan \
+            --detector "$RUNNER_TEMP/pk-stack-source-plan/upstream-check.json" \
+            --control-plan "$RUNNER_TEMP/pk-stack-source-plan/control-plan.json"
       - name: Run candidate gates with no write token or secrets
         env:
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
           EXPECTED_SHA: ${{ needs.resolve.outputs.head_sha }}
           READONLY_GITHUB_TOKEN: ${{ github.token }}
           TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-candidate-trusted
+          SELECTED_SOURCE_ID: ${{ steps.selection.outputs.selected_source_id }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
@@ -295,13 +317,28 @@ jobs:
               "$TRUSTED_ROOT/.pk-stack/projectctl/.venv/bin/python" \
               -B -X pycache_prefix=/dev/null -m pk_stack "$@"
           }
+          set +e
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" trusted_projectctl upstream check \
             --manifest maintenance/upstreams.json \
             --power-root powers/pk-stack \
-            --output json
+            --output json >"$RUNNER_TEMP/pk-stack-candidate-detector.json"
+          detector_rc=$?
+          set -e
+          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" validate-detector \
+            --detector "$RUNNER_TEMP/pk-stack-candidate-detector.json"
+          if [[ -n "$SELECTED_SOURCE_ID" ]]; then
+            python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
+              validate-serialized-acceptance --base "$BASE_SHA" \
+              --before-detector "$RUNNER_TEMP/pk-stack-source-plan/upstream-check.json" \
+              --after-detector "$RUNNER_TEMP/pk-stack-candidate-detector.json" \
+              --selected-source-id "$SELECTED_SOURCE_ID"
+            GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" trusted_projectctl upstream check \
+              --manifest maintenance/upstreams.json --power-root powers/pk-stack \
+              --source-id "$SELECTED_SOURCE_ID" --output json
+          else
+            test "$detector_rc" -eq 0
+          fi
           trusted_projectctl feature validate --output json
-          GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" trusted_projectctl feature verify \
-            pk-stack-upstream-maintenance --output json
           unset READONLY_GITHUB_TOKEN
           python3 "$TRUSTED_ROOT/.github/scripts/test_pk_stack_maintenance_guard.py"
           (
@@ -358,6 +395,9 @@ jobs:
       actions: read
       contents: read
     outputs:
+      review_verdict: ${{ steps.validate.outputs.review_verdict }}
+      report_sha256: ${{ steps.validate.outputs.report_sha256 }}
+      report_artifact_id: ${{ steps.upload_report.outputs.artifact-id }}
       reviewed_base_sha: ${{ steps.validate.outputs.reviewed_base_sha }}
       reviewed_head_sha: ${{ steps.validate.outputs.reviewed_head_sha }}
       reviewed_content_sha256: ${{ steps.validate.outputs.reviewed_content_sha256 }}
@@ -496,7 +536,8 @@ jobs:
           fi
           python3 "$TRUSTED_REVIEW_ROOT/.github/scripts/validate_kiro_model_inventory.py" \
             --require-review-model "$inventory"
-          unlink "$inventory" "$inventory_stderr"
+          unlink "$inventory"
+          unlink "$inventory_stderr"
           printf -v prompt \
             'Review the attached exact-candidate bundle under the immutable agent contract. Bind the verdict exactly to base %s, head %s, content SHA-256 %s, and patch SHA-256 %s. Return only the required compact JSON verdict.' \
             "$BASE_SHA" "$HEAD_SHA" "$CONTENT_SHA256" "$PATCH_SHA256"
@@ -515,6 +556,10 @@ jobs:
           PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
           REVIEW_RETURN_CODE: ${{ steps.invoke.outputs.return_code }}
           REVIEW_BUNDLE: ${{ runner.temp }}/pk-stack-peer-review-workspace/.pk-stack-ci/review-input.json
+          SELECTED_SOURCE_ID: ${{ needs.candidate_tests.outputs.selected_source_id }}
+          SOURCE_SUBTREE_SHA: ${{ needs.candidate_tests.outputs.source_subtree_sha }}
+          SOURCE_COMMIT: ${{ needs.candidate_tests.outputs.source_commit }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
           python3 "$TRUSTED_REVIEW_ROOT/.github/scripts/validate_kiro_review_stream.py" \
@@ -528,7 +573,21 @@ jobs:
             --patch-sha256 "$PATCH_SHA256" \
             --model "$REVIEW_MODEL" \
             --effort "$REVIEW_EFFORT" \
-            --github-output "$GITHUB_OUTPUT"
+            --github-output "$GITHUB_OUTPUT" \
+            --report-path "$RUNNER_TEMP/pk-stack-review-report/report.json" \
+            --source-id "$SELECTED_SOURCE_ID" \
+            --source-commit "$SOURCE_COMMIT" \
+            --source-subtree-sha "$SOURCE_SUBTREE_SHA" \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --candidate-run-id "$GITHUB_RUN_ID"
+      - name: Retain bounded sanitized review report
+        id: upload_report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pk-stack-review-report-${{ github.run_id }}
+          path: ${{ runner.temp }}/pk-stack-review-report/report.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Remove private Kiro review state
         if: always()
         run: |
@@ -551,6 +610,7 @@ jobs:
       && needs.base_tests.result == 'success'
       && needs.candidate_tests.result == 'success'
       && needs.kiro_peer_review.result == 'success'
+      && needs.kiro_peer_review.outputs.review_verdict == 'approved'
     runs-on: ubuntu-24.04
     permissions:
       actions: read
@@ -776,12 +836,97 @@ jobs:
             }
             core.notice(`merged PR #${pull.number} from exact tested SHA ${process.env.TESTED_SHA}`);
 
+  record_rejection:
+    needs: [resolve, candidate_tests, kiro_peer_review]
+    if: always() && needs.kiro_peer_review.outputs.review_verdict == 'rejected'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Harden trusted feedback publisher networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            api.github.com:443
+            github.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+      - name: Check out immutable feedback controls
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.resolve.outputs.base_sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Download this workflow's validated review report
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ needs.kiro_peer_review.outputs.report_artifact_id }}
+          path: ${{ runner.temp }}/pk-stack-feedback-report
+      - name: Read current durable feedback without candidate code
+        id: current
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          DEFAULT_BRANCH: ${{ needs.resolve.outputs.default_branch }}
+        with:
+          script: |
+            const fs = require('fs');
+            const { owner, repo } = context.repo;
+            const branch = (await github.rest.repos.getBranch({owner, repo, branch: process.env.DEFAULT_BRANCH})).data;
+            const response = (await github.rest.repos.getContent({owner, repo,
+              path: 'maintenance/upstream-feedback.json', ref: branch.commit.sha})).data;
+            if (Array.isArray(response) || response.type !== 'file' || response.size > 1048576) {
+              throw new Error('durable review history is missing or unbounded');
+            }
+            fs.writeFileSync(`${process.env.RUNNER_TEMP}/pk-stack-feedback-current.json`,
+              Buffer.from(response.content, 'base64'), {mode: 0o600});
+            core.setOutput('parent_sha', branch.commit.sha);
+      - name: Bind report and advance only its substantive rejection count
+        env:
+          REPORT_SHA256: ${{ needs.kiro_peer_review.outputs.report_sha256 }}
+          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
+          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
+          HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
+          RETRY_OVERRIDE: ${{ needs.candidate_tests.outputs.retry_override }}
+        run: |
+          python3 .github/scripts/pk_stack_review_feedback.py \
+            --ledger "$RUNNER_TEMP/pk-stack-feedback-current.json" \
+            --report "$RUNNER_TEMP/pk-stack-feedback-report/report.json" \
+            --expected-sha256 "$REPORT_SHA256" \
+            --source-run-id "$SOURCE_RUN_ID" --candidate-run-id "$GITHUB_RUN_ID" \
+            --base "$BASE_SHA" --head "$HEAD_SHA" \
+            --retry-override "$RETRY_OVERRIDE" \
+            --output "$RUNNER_TEMP/pk-stack-feedback-next.json"
+      - name: Commit only feedback with a compare-and-swap branch update
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PARENT_SHA: ${{ steps.current.outputs.parent_sha }}
+          DEFAULT_BRANCH: ${{ needs.resolve.outputs.default_branch }}
+        with:
+          script: |
+            const fs = require('fs');
+            const { owner, repo } = context.repo;
+            const parent = (await github.rest.git.getCommit({owner, repo, commit_sha: process.env.PARENT_SHA})).data;
+            const blob = (await github.rest.git.createBlob({owner, repo, encoding: 'base64',
+              content: fs.readFileSync(`${process.env.RUNNER_TEMP}/pk-stack-feedback-next.json`).toString('base64')})).data;
+            const tree = (await github.rest.git.createTree({owner, repo, base_tree: parent.tree.sha,
+              tree: [{path: 'maintenance/upstream-feedback.json', mode: '100644', type: 'blob', sha: blob.sha}]})).data;
+            if (tree.sha === parent.tree.sha) { core.info('review feedback already recorded'); return; }
+            const commit = (await github.rest.git.createCommit({owner, repo, tree: tree.sha,
+              parents: [process.env.PARENT_SHA], message: 'chore: record bounded upstream review feedback'})).data;
+            // A concurrent main commit makes this sibling non-fast-forward. Never force it.
+            await github.rest.git.updateRef({owner, repo, ref: `heads/${process.env.DEFAULT_BRANCH}`,
+              sha: commit.sha, force: false});
+
   cleanup_failed_candidate:
-    needs: [resolve, base_tests, candidate_tests, kiro_peer_review, merge]
+    needs: [resolve, base_tests, candidate_tests, kiro_peer_review, merge, record_rejection]
     if: >-
       always()
       && github.event.workflow_run.conclusion == 'success'
       && needs.merge.result != 'success'
+      && (needs.kiro_peer_review.outputs.review_verdict != 'rejected' || needs.record_rejection.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
       actions: read
@@ -808,6 +953,7 @@ jobs:
           SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
           SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
           CANDIDATE_RUN_ID: ${{ github.run_id }}
+          FEEDBACK_RECORDED: ${{ needs.record_rejection.result == 'success' }}
         with:
           script: |
             const { authorizeTerminalCandidateClose } = require(
@@ -848,6 +994,7 @@ jobs:
             let decision;
             try {
               decision = await authorizeTerminalCandidateClose({
+                allowFeedbackAdvance: process.env.FEEDBACK_RECORDED === 'true',
                 pulls,
                 policy,
                 baseSha: process.env.SOURCE_SHA,

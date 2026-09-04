@@ -709,7 +709,9 @@ def _check_upstreams(
             reviewed_inventory=reviewed_inventory,
         )
         pin_reproof_ok = pinned_commit == source.commit and pinned_subtree == source.subtree_sha
-        drift = current_commit != source.commit or current_subtree != source.subtree_sha
+        # A repository ref can move without changing the imported subtree. Its
+        # commit is informational; only imported content requires reconciliation.
+        drift = current_subtree != source.subtree_sha
         results.append(
             {
                 "ok": pin_reproof_ok and not drift and source_parity["ok"],
@@ -885,11 +887,8 @@ def accept_upstream(
         )
         if not drift_source_ids:
             raise UpstreamError("upstream accept proposal is stale or already applied")
-        if proposal_source_id != drift_source_ids[0]:
-            raise UpstreamError(
-                "upstream acceptance proposal must select the lexicographically first "
-                "drifting source"
-            )
+        if proposal_source_id not in drift_source_ids:
+            raise UpstreamError("upstream acceptance proposal does not select a drifting source")
         source_result = next(
             result for result in proof["sources"] if result["id"] == proposal_source_id
         )
@@ -1046,7 +1045,7 @@ def _recovered_acceptance_is_valid(
             or comparison.get("head_commit") != current.get("commit")
         ):
             return False
-        expected_drift = current != pinned
+        expected_drift = current.get("subtree_sha") != pinned.get("subtree_sha")
         return (
             drift is expected_drift
             and source.get("ok") is (not drift)
@@ -1515,7 +1514,11 @@ def _resolve_parity_state(
     reviewed_inventory: dict[str, Any],
     context: str,
 ) -> tuple[str, bool, dict[str, Any]]:
-    if matrix_pinned == active and matrix_current == remote and remote != active:
+    if (
+        matrix_pinned == active
+        and matrix_current == remote
+        and remote[subtree_key] != active[subtree_key]
+    ):
         return "candidate-ready", True, current_inventory
     if matrix_current == active:
         prior = (

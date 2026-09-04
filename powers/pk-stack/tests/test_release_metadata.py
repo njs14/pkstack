@@ -12,7 +12,6 @@ import yaml
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = POWER_ROOT.parents[1]
-RELEASE_VERSION = "0.2.0"
 
 
 def _source_version() -> str:
@@ -42,7 +41,7 @@ def test_public_version_mirrors_plugin_authority() -> None:
     manifest = json.loads((POWER_ROOT / "plugin.json").read_text(encoding="utf-8"))
     project = tomllib.loads((POWER_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 
-    assert manifest["version"] == RELEASE_VERSION
+    assert re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", manifest["version"])
     assert project["project"]["version"] == manifest["version"]
     assert _source_version() == manifest["version"]
     assert _lock_version(POWER_ROOT / "uv.lock") == manifest["version"]
@@ -67,6 +66,10 @@ def test_release_reproves_tagged_default_branch_commit_and_portable_checksum() -
     parsed = yaml.safe_load(workflow)
 
     assert parsed["jobs"]["release"]["env"]["RELEASE_SHA"] == "${{ github.sha }}"
+    assert parsed["jobs"]["release"]["env"]["EXPECTED_TAG"] == "${{ github.ref_name }}"
+    trigger = parsed.get("on", parsed.get(True))
+    assert trigger["push"]["tags"] == ["v[0-9]+.[0-9]+.[0-9]+"]
+    assert "RELEASE_VERSION=${EXPECTED_TAG#v}" in workflow
     assert "refs/remotes/origin/$DEFAULT_BRANCH" in workflow
     assert "uv run --frozen pytest -q" in workflow
     assert "node --test .github/scripts/test_pk_stack_pr_policy.js" in workflow

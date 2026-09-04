@@ -181,18 +181,6 @@
     ".kiro/steering/": [
       ".md"
     ],
-    ".pk-stack/projectctl/dev.kiro/": [
-      ".md"
-    ],
-    ".pk-stack/projectctl/skills/": [
-      ".md"
-    ],
-    ".pk-stack/projectctl/templates/project/": [
-      ".json"
-    ],
-    ".pk-stack/projectctl/templates/projectctl/": [
-      ".lock"
-    ],
     "powers/pk-stack/dev.kiro/": [
       ".md"
     ],
@@ -207,6 +195,7 @@
     ]
   },
   "protected_exact": [
+    "maintenance/upstream-feedback.json",
     ".github/pk-stack-maintenance-policy.json",
     ".kiro/agents/pk-stack-ci-reviewer.json",
     ".kiro/agents/pk-stack-maintainer.json",

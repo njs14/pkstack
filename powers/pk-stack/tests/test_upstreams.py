@@ -26,6 +26,7 @@ PIN_ROOT_TREE = "1" * 40
 HEAD_ROOT_TREE = "2" * 40
 FUTURE = "d" * 40
 FUTURE_ROOT_TREE = "3" * 40
+FUTURE_TREE = "4" * 40
 CHANGED_PATHS = (
     ".cursor-plugin/plugin.json",
     "README.md",
@@ -316,9 +317,15 @@ def _transition(inventory_sha256: str) -> dict[str, Any]:
 def _future_transition(inventory_sha256: str) -> dict[str, Any]:
     return {
         "prior": {"commit": HEAD, "subtree_sha": HEAD_TREE},
-        "new": {"commit": FUTURE, "subtree_sha": HEAD_TREE},
+        "new": {"commit": FUTURE, "subtree_sha": FUTURE_TREE},
         "inventory_sha256": inventory_sha256,
-        "dispositions": [],
+        "dispositions": [
+            {
+                "path": "README.md",
+                "disposition": "C",
+                "rationale": "Reviewed documentation-only update.",
+            }
+        ],
     }
 
 
@@ -738,7 +745,7 @@ def _fake_responses() -> dict[str, Any]:
     return responses
 
 
-def _future_ref_responses() -> dict[str, Any]:
+def _future_ref_responses(*, content_change: bool = False) -> dict[str, Any]:
     responses = _fake_responses()
     responses[upstreams._api_url("cursor/plugins", "commits", "main")] = {
         "sha": FUTURE,
@@ -750,7 +757,14 @@ def _future_ref_responses() -> dict[str, Any]:
     }
     responses[upstreams._api_url("cursor/plugins", "git", "trees", FUTURE_ROOT_TREE)] = _tree(
         FUTURE_ROOT_TREE,
-        [{"path": "pstack", "mode": "040000", "type": "tree", "sha": HEAD_TREE}],
+        [
+            {
+                "path": "pstack",
+                "mode": "040000",
+                "type": "tree",
+                "sha": FUTURE_TREE if content_change else HEAD_TREE,
+            }
+        ],
     )
     responses[
         upstreams._api_url(
@@ -769,6 +783,46 @@ def _future_ref_responses() -> dict[str, Any]:
         "commits": [{"sha": FUTURE}],
         "files": [],
     }
+    if content_change:
+        old = _new_content("README.md")
+        new = b"future README.md\n"
+        tree = copy.deepcopy(
+            responses[
+                upstreams._api_url(
+                    "cursor/plugins", "git", "trees", HEAD_TREE, query=(("recursive", "1"),)
+                )
+            ]
+        )
+        tree["sha"] = FUTURE_TREE
+        for entry in tree["tree"]:
+            if entry["path"] == "README.md":
+                entry.update(sha=_git_blob_sha(new), size=len(new))
+        responses[
+            upstreams._api_url(
+                "cursor/plugins", "git", "trees", FUTURE_TREE, query=(("recursive", "1"),)
+            )
+        ] = tree
+        responses[upstreams._api_url("cursor/plugins", "git", "blobs", _git_blob_sha(old))] = (
+            _blob_response(old)
+        )
+        responses[
+            upstreams._api_url(
+                "cursor/plugins",
+                "compare",
+                f"{HEAD}...{FUTURE}",
+                query=(("per_page", "100"), ("page", "1")),
+            )
+        ]["files"] = [
+            {
+                "filename": "pstack/README.md",
+                "status": "modified",
+                "sha": _git_blob_sha(new),
+                "additions": 1,
+                "deletions": 1,
+                "changes": 2,
+                "patch": "@@ -1 +1 @@\n-new README.md\n+future README.md",
+            }
+        ]
     return responses
 
 
@@ -2007,6 +2061,38 @@ def _comparison_value(
     return value
 
 
+def test_ref_only_movement_preserves_accepted_parity_without_a_transition(tmp_path: Path) -> None:
+    _write_manifest(tmp_path)
+    parity = _skill_parity_document()
+    parity["source"]["current"] = copy.deepcopy(parity["source"]["pinned"])
+    for skill in parity["skills"]:
+        skill["current"] = copy.deepcopy(skill["pinned"])
+    count = parity["summary"]["pinned_package_files"]
+    parity["summary"]["current_package_files"] = count
+    parity["summary"]["semantic_source_files"] = count
+    _write_skill_parity(tmp_path, parity)
+    manifest_before = (tmp_path / "maintenance/upstreams.json").read_bytes()
+    ledger_before = (tmp_path / "maintenance/upstream-reviews.json").read_bytes()
+    responses = _fake_responses()
+    root_url = upstreams._api_url("cursor/plugins", "git", "trees", HEAD_ROOT_TREE)
+    responses[root_url]["tree"][0]["sha"] = PIN_TREE
+    compare_url = next(url for url in responses if "/compare/" in url)
+    responses[compare_url]["files"] = _external_comparison_files(1)
+
+    result = check_upstreams(tmp_path, fetch_json=FakeFetch(responses), environ={})
+
+    assert result["ok"] is True
+    source = result["sources"][0]
+    assert source["drift"] is False
+    assert source["current"]["commit"] == HEAD
+    assert source["current"]["subtree_sha"] == PIN_TREE
+    assert source["source_parity"]["status"] == "accepted-baseline"
+    assert source["source_parity"]["candidate_ready"] is False
+    assert source["comparison"]["paths"] == []
+    assert (tmp_path / "maintenance/upstreams.json").read_bytes() == manifest_before
+    assert (tmp_path / "maintenance/upstream-reviews.json").read_bytes() == ledger_before
+
+
 def test_compare_ignores_changes_wholly_outside_subtree() -> None:
     sha = "a" * 40
     assert (
@@ -3014,7 +3100,7 @@ def test_second_transition_accepts_one_proposal_bound_marker_tail(tmp_path: Path
         environ={},
     )
 
-    future_responses = _future_ref_responses()
+    future_responses = _future_ref_responses(content_change=True)
     second_proof = check_upstreams(
         tmp_path,
         power_root=canonical_power,
@@ -3038,7 +3124,7 @@ def test_second_transition_accepts_one_proposal_bound_marker_tail(tmp_path: Path
     parity_path = tmp_path / "powers" / "pk-stack" / "docs" / "upstream-skill-parity.json"
     parity = json.loads(parity_path.read_text(encoding="utf-8"))
     parity["source"]["pinned"] = {"commit": HEAD, "pstack_subtree_sha": HEAD_TREE}
-    parity["source"]["current"] = {"commit": FUTURE, "pstack_subtree_sha": HEAD_TREE}
+    parity["source"]["current"] = {"commit": FUTURE, "pstack_subtree_sha": FUTURE_TREE}
     for entry in parity["skills"]:
         entry["pinned"] = copy.deepcopy(entry["current"])
     parity_path.write_text(json.dumps(parity), encoding="utf-8")
@@ -3097,7 +3183,7 @@ def test_second_transition_accept_rejects_any_noncanonical_marker_tail(
     )
     first = _transition(first_proof["sources"][0]["comparison"]["inventory_sha256"])
     _advance_review(tmp_path, first["inventory_sha256"])
-    future_responses = _future_ref_responses()
+    future_responses = _future_ref_responses(content_change=True)
     second_proof = check_upstreams(
         tmp_path,
         fetch_json=FakeFetch(future_responses),
@@ -3517,12 +3603,12 @@ def test_accept_recovery_preserves_committed_transition_when_ref_advances(tmp_pa
     )
 
     assert result["ok"] is result["accepted"] is result["recovered"] is True
-    assert result["final"]["ok"] is False
+    assert result["final"]["ok"] is True
     source = result["final"]["sources"][0]
     assert source["pinned"] == {"commit": HEAD, "subtree_sha": HEAD_TREE}
     assert source["pinned_reproof"]["ok"] is True
     assert source["review_reproof"]["ok"] is True
-    assert source["drift"] is True
+    assert source["drift"] is False
     assert source["current"] == {"commit": FUTURE, "subtree_sha": HEAD_TREE}
     assert source["comparison"]["fast_forward"] is True
     assert source["comparison"]["base_commit"] == HEAD

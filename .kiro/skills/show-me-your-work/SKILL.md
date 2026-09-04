@@ -29,11 +29,15 @@ alone is sufficient. An optional repository artifact requires `--artifact <relat
 bind `--artifact-sha256 <lowercase-sha256>`; use hashes when later drift would change the claim.
 
 Each canonical line contains `schema_version`, `sequence`, `timestamp`, `requirement`, `evidence`,
-`decision`, `artifact`, `verification`, and `verdict`. Projectctl validates the complete prior file,
+`decision`, `artifact`, `verification`, and `verdict`. Projectctl validates the prior file's structure,
 chooses the next contiguous sequence and strictly increasing timestamp, checks exact keys and bounds,
-validates any repository-relative artifact and digest, screens known credential shapes, preserves the
+validates the new event's repository-relative artifact and digest, screens known credential shapes, preserves the
 prior byte prefix, and replaces the file atomically while holding its lock. This is an append-only
 workflow convention with deterministic validation, not a signed or tamper-proof log.
+
+An old artifact may change or disappear. Append a correction without rewriting the old event;
+`evidence audit` still reports the historical reference's present drift. A successful append proves
+the write succeeded, not that every historical artifact is still current.
 
 Record decisions as they happen. Include rejected alternatives only when consequential. A
 retrospective reconstruction must be labeled as such and cannot claim contemporaneous coverage.

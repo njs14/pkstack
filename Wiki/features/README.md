@@ -41,7 +41,7 @@ Use the canonical project wrapper from the repository root:
 Schema-2 contracts describe sub-features, entrypoints, driving recipes,
 observable proof, gotchas, and evidence/cleanup boundaries. New contracts are
 drafts unless `--ready` proves the command first. For an initial map, prepare
-three to five complete records and run `feature generate-map`; only the named
+one to five complete records and run `feature generate-map`; only the named
 representative is published until each remaining verifier passes.
 
 ```sh

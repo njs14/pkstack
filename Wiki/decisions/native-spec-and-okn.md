@@ -11,8 +11,9 @@ tags: [pk-stack, decision, kiro, okn, okf]
 
 Use Kiro's native Spec, Quick Spec, Bug Fix, and Plan workflows for structured planning. Keep the
 transition visible in the current IDE or CLI conversation. Bind completed native artifacts to one
-published feature verifier, then use PK-Stack's current-session verified-goal loop for terminal
-proof.
+reviewed command or published feature verifier, then use PK-Stack's current-session verified-goal
+loop for terminal proof. A new feature can begin with a failing command; publish a reusable
+feature contract after it passes when that record will help future work.
 
 Use `openknowledge-sh/openknowledge`'s `okn` as the canonical broader KNOW implementation. Its
 ranked, bounded, provenance-bearing retrieval is the interface PK-Stack needs. `okfcli/okf` may be
