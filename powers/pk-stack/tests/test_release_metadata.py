@@ -76,3 +76,12 @@ def test_release_reproves_tagged_default_branch_commit_and_portable_checksum() -
     assert 'sha256sum "$(basename "$archive")"' in workflow
     assert 'sha256sum --check "$(basename "$checksum")"' in workflow
     assert 'sha256sum "$archive" >"$checksum"' not in workflow
+
+
+def test_ci_static_analyzers_are_on_path_before_same_step_probe() -> None:
+    workflow = (REPOSITORY_ROOT / ".github/workflows/pk-stack-ci.yml").read_text(encoding="utf-8")
+    export_at = workflow.index('export PATH="$STATIC_TOOLS/bin:$PATH"')
+    actionlint_probe_at = workflow.index("actionlint -version")
+    shellcheck_probe_at = workflow.index("shellcheck --version")
+
+    assert export_at < actionlint_probe_at < shellcheck_probe_at

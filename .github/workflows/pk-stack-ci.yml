@@ -72,6 +72,7 @@ jobs:
             --strip-components=1 "shellcheck-v${SHELLCHECK_VERSION}/shellcheck"
           chmod 0555 "$STATIC_TOOLS/bin/actionlint" "$STATIC_TOOLS/bin/shellcheck"
           printf '%s\n' "$STATIC_TOOLS/bin" >>"$GITHUB_PATH"
+          export PATH="$STATIC_TOOLS/bin:$PATH"
           actionlint -version
           shellcheck --version | sed -n '1,4p'
       - name: Run workflow and shell-script static checks
