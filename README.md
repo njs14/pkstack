@@ -176,6 +176,7 @@ Runtime-specific registration and unsafe generic CI examples remain provenance-o
 - [Power README](powers/pk-stack/README.md)
 - [Usage and recovery](powers/pk-stack/docs/usage.md)
 - [Architecture and trust boundaries](powers/pk-stack/docs/architecture.md)
+- [Interactive architecture artifact](powers/pk-stack/docs/artifacts/pk-stack-architecture.html)
 - [Kiro surface compatibility](powers/pk-stack/docs/kiro-v3-compatibility.md)
 - [Provenance and porting boundary](powers/pk-stack/docs/provenance.md)
 - [Validation report](powers/pk-stack/docs/validation-report.md)
