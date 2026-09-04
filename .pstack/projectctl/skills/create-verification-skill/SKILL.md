@@ -1,7 +1,6 @@
 ---
 name: create-verification-skill
 description: Design and prove a project-local verification workflow that exercises real user behavior through a bounded, deterministic, rerunnable contract.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; projectctl feature commands are preferred after setup.
 ---
 
 # Create a verification workflow

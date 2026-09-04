@@ -6,8 +6,8 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "7f7fcc5936c7a280929a1459973d2e6d3beffdf62d7947ccfc413cc97a79dc58",
-      "size": 4033,
+      "sha256": "a17f0dfc26d24f8ffa2f54f3e2342de89918a3fb95d2ae7e8cf5c04b14f626f7",
+      "size": 3822,
       "source_path": "archify/SKILL.md"
     },
     {
@@ -574,7 +574,7 @@
   "schema_version": 1,
   "skill": "archify",
   "summary": {
-    "byte_count": 2238375,
+    "byte_count": 2238164,
     "file_count": 71
   }
 }

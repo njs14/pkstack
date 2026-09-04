@@ -1,7 +1,6 @@
 ---
 name: no-comments
 description: Remove stale, redundant, or compensating code comments while preserving external contracts and the non-obvious reasons maintainers genuinely need.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Make the code explain itself

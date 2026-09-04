@@ -1,7 +1,6 @@
 ---
 name: principle-model-the-domain
 description: Replace scattered state booleans, repeated shape assumptions, and branching with the smallest structure that encodes the real domain and its invariants.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Encode the domain

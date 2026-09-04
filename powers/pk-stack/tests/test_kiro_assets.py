@@ -34,7 +34,7 @@ EXPECTED_SKILLS = (
     | CURATED_SKILLS
 )
 REPO_ROOT = ROOT.parents[1]
-ALLOWED_SKILL_FRONTMATTER = {"name", "description", "compatibility"}
+ALLOWED_SKILL_FRONTMATTER = {"name", "description"}
 ALLOWED_TOOLS = {"read", "write", "shell", "subagent", "knowledge"}
 ALLOWED_HOOK_TRIGGERS = {
     "PostFileSave",
@@ -87,18 +87,9 @@ def test_skill_frontmatter_matches_agent_skills_standard(skill_name: str) -> Non
     metadata, body = _frontmatter(path)
 
     assert metadata["name"] == skill_name
-    assert set(metadata) <= ALLOWED_SKILL_FRONTMATTER
+    assert set(metadata) == ALLOWED_SKILL_FRONTMATTER
     assert isinstance(metadata["description"], str)
     assert 20 <= len(metadata["description"]) <= 1024
-    compatibility = metadata["compatibility"]
-    assert isinstance(compatibility, str)
-    for surface in ("Kiro IDE 1.x", "Kiro CLI v3", "Kiro Crew", "Kiro Web"):
-        assert surface in compatibility
-    if skill_name == "setup-pk-stack":
-        assert "committed post-bootstrap assets" in compatibility
-        assert "rather than invoking this setup skill" in compatibility
-    else:
-        assert "supported by design but untested" in compatibility
     assert body
 
 

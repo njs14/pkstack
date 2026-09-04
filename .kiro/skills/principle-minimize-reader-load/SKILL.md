@@ -1,7 +1,6 @@
 ---
 name: principle-minimize-reader-load
 description: Reduce the layers a maintainer must trace and the mutable state they must remember while preserving boundaries that hide meaningful complexity.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Reduce reader load

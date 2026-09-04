@@ -1,7 +1,6 @@
 ---
 name: principle-foundational-thinking
 description: Choose core data structures, state ownership, concurrency boundaries, and shared verification before dependent feature logic closes design options.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Put foundations first

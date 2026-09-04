@@ -1,7 +1,6 @@
 ---
 name: principle-fix-root-causes
 description: Reproduce a failure, trace the first incorrect value or state, fix that origin, and prove the nearby class of symptoms cannot return through another path.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Fix the cause

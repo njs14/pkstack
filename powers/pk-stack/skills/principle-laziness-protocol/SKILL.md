@@ -1,7 +1,6 @@
 ---
 name: principle-laziness-protocol
 description: Prefer deletion and the smallest direct maintainable change when a refactor starts adding wrappers, layers, duplicated decisions, or signal threading.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Keep the solution small

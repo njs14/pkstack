@@ -1,7 +1,6 @@
 ---
 name: automate-me
 description: Turn a demonstrated, repeatable working style into a reviewable project-local Kiro skill without mining private transcripts or publishing changes automatically.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Capture a repeatable working style

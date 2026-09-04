@@ -1,7 +1,6 @@
 ---
 name: principle-redesign-from-first-principles
 description: Integrate a cross-cutting requirement as if it had shaped the system from the start, then propagate one coherent rule through code, tests, docs, and examples.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Integrate the requirement

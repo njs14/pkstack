@@ -1,7 +1,6 @@
 ---
 name: principle-build-the-lever
 description: Turn non-trivial repeated edits, migrations, analyses, or proof into the smallest safe rerunnable script, generator, check, or delegated-work contract.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Build the lever

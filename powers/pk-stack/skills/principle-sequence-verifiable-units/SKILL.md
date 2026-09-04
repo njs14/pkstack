@@ -1,7 +1,6 @@
 ---
 name: principle-sequence-verifiable-units
 description: Break multi-step work into small reversible units that each end in a meaningful check, then order delivery so the evidence identifies each causal change.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Sequence checked units

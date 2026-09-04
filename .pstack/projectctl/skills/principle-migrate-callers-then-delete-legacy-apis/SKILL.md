@@ -1,7 +1,6 @@
 ---
 name: principle-migrate-callers-then-delete-legacy-apis
 description: When no external compatibility promise applies, inventory callers, migrate them to the chosen internal API, and remove the old path in the same bounded wave.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Remove the retired path

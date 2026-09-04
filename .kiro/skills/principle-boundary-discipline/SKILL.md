@@ -1,7 +1,6 @@
 ---
 name: principle-boundary-discipline
 description: Concentrate parsing, validation, and error translation at real system boundaries while keeping typed internal business logic small and direct.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Keep guards at boundaries

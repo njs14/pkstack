@@ -1,7 +1,6 @@
 ---
 name: principle-separate-before-serializing-shared-state
 description: Remove unnecessary shared write targets between concurrent actors before adding structural serialization for state that truly requires one writer.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Separate shared writes

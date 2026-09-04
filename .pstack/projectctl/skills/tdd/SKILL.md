@@ -1,7 +1,6 @@
 ---
 name: tdd
 description: Implement a behavior change with a focused failing regression first, the smallest coherent fix, and layered executable evidence.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Develop from a failing behavior

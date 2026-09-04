@@ -1,7 +1,6 @@
 ---
 name: principle-guard-the-context-window
 description: Bound large outputs and broad research, delegate independent slices when available, and retain only evidence that can change the next decision.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Protect useful context

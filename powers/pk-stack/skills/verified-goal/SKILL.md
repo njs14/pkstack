@@ -1,7 +1,6 @@
 ---
 name: verified-goal
 description: Work toward a concrete objective in the current Kiro agent session and require deterministic projectctl verification before reporting success. Use for multi-step implementation, repair, migration, or refactoring with an executable acceptance check.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; initialized PK-Stack workspace with projectctl.
 ---
 
 # Run a verified goal

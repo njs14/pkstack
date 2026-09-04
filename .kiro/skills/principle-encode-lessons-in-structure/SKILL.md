@@ -1,7 +1,6 @@
 ---
 name: principle-encode-lessons-in-structure
 description: Replace a recurring correction with the strongest practical type, lint, CI, helper, or runtime mechanism and prove the observed mistake now fails automatically.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Encode the lesson

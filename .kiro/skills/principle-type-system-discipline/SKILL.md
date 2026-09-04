@@ -1,7 +1,6 @@
 ---
 name: principle-type-system-discipline
 description: Use variants, constructive types, branded primitives, parsed boundaries, schema derivation, and exhaustive matching to make invalid typed states hard to express.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Let types carry invariants

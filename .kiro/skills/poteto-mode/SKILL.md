@@ -1,7 +1,6 @@
 ---
 name: poteto-mode
 description: Route broad Poteto workflow requests into PK-Stack's Kiro-native skills, project interfaces, and current-session verification loop.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; projectctl is used after setup.
 ---
 
 # Use PK-Stack mode

@@ -1,7 +1,6 @@
 ---
 name: interrogate
 description: Route a high-stakes proposal through the PK-Stack model council for evidence-bound challenge, without granting reviewers implementation authority.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; optional external advisors require user-provided access.
 ---
 
 # Interrogate a proposal

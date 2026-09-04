@@ -1,7 +1,6 @@
 ---
 name: writing-for-agents
 description: Write or revise agent-facing instructions, including AGENTS.md, Kiro Skills, steering files, and pointer-linked reference documents.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Writing for agents

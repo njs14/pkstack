@@ -1,7 +1,6 @@
 ---
 name: recall
 description: Recover relevant project context from the current Kiro session and explicit repository knowledge without silently mining unrelated private conversations.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; projectctl knowledge and git history are optional sources.
 ---
 
 # Recall relevant context
