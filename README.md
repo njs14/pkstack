@@ -43,14 +43,14 @@ workspace path is supported by design but has not been tested end to end.
    /setup-pk-stack
    ```
 
-3. Review the dry-run result. Then select the generated `pstack` agent in the
+3. Review the dry-run result. Then select the generated `pk-stack` agent in the
    IDE picker, or start a CLI v3 session with:
 
    ```sh
-   kiro-cli chat --v3 --agent pstack
+   kiro-cli chat --v3 --agent pk-stack
    ```
 
-   In an existing CLI conversation, `/agent swap pstack` performs the same
+   In an existing CLI conversation, `/agent swap pk-stack` performs the same
    handoff. A fresh session may be needed for Kiro to discover new assets.
 4. Check the installation through the canonical wrapper:
 
@@ -64,9 +64,9 @@ For a source-checkout fallback, set `PK_STACK_POWER` to the checked-out
 
 ```sh
 : "${PK_STACK_POWER:?Set PK_STACK_POWER to the PK-Stack Power directory}"
-python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --dry-run --output json
-python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --output json
 ```
 
@@ -86,7 +86,7 @@ PK-Stack separates three concerns:
 
 For nontrivial work, let Kiro complete its native plan first. In CLI v3 use
 `/spec new <name>` or resume with `/spec <name>`; in the IDE use **Build with
-spec** or the workflow picker. Then return to `pstack` in the same conversation
+spec** or the workflow picker. Then return to `pk-stack` in the same conversation
 and bind the plan to a feature contract:
 
 ```sh
@@ -138,8 +138,8 @@ artifact.
 ```sh
 cd powers/pk-stack
 uv lock --check
-uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pstack.py
-uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pstack.py
+uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
 uv run --frozen ty check
 uv run --frozen pytest -q
 ```

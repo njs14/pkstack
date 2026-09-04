@@ -100,7 +100,7 @@ def test_feature_loader_rejects_schema_errors_and_escape(tmp_path: Path) -> None
 
 def test_goal_spec_bridge_and_transition_errors(tmp_path: Path) -> None:
     (tmp_path / "pass.py").write_text("pass\n", encoding="utf-8")
-    bridge = tmp_path / ".kiro" / "specs" / "health" / "pstack-verification.json"
+    bridge = tmp_path / ".kiro" / "specs" / "health" / "pk-stack-verification.json"
     bridge.parent.mkdir(parents=True)
     for name in ("requirements.md", "design.md", "tasks.md"):
         (bridge.parent / name).write_text(f"# {name}\n\nBounded artifact.\n", encoding="utf-8")

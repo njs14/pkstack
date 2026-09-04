@@ -22,8 +22,8 @@ Kiro does not document a supported Agent Skill or custom-agent tool for changing
 workflow. PK-Stack therefore does not invoke or emulate the native workflow or hide the transition
 with ACP or a nested Kiro process. In CLI v3, return a same-conversation handoff to `/spec new
 <name>`, `/spec <name>`, or `/spec run <name>`, then have the
-user run `/agent swap pstack` after the native phase. In the IDE, use **Build with spec** or the
-workflow/agent picker and then reselect `pstack`. Web uses its native Spec picker and built-in
+user run `/agent swap pk-stack` after the native phase. In the IDE, use **Build with spec** or the
+workflow/agent picker and then reselect `pk-stack`. Web uses its native Spec picker and built-in
 primary agent; the Web path remains untested. Crew may run a committed spec through its Task Runner,
 but this workflow does not claim that Crew exposes Kiro's built-in Spec agent or one local session.
 
@@ -132,7 +132,7 @@ work composes `show-me-your-work`, PR-status work uses Babysit, and landing work
 
 1. Select or resume Kiro's native Spec or Quick Spec through the native workflow spine. Treat its
    `requirements.md`, `design.md`, and `tasks.md` as the planning authority.
-2. After returning to `pstack`, run `how` over the affected subsystem and use `architect` to
+2. After returning to `pk-stack`, run `how` over the affected subsystem and use `architect` to
    challenge or refine the native design; if the choice is obvious, retain
    `architect skipped: <specific reason>`.
 3. Record a throughput checkpoint covering blocking gates, independent workstreams, shared mutable

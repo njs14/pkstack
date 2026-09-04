@@ -152,7 +152,7 @@ env -i \
   timeout --signal=TERM --kill-after=30s 25m \
   "$KIRO_BIN_DIR/kiro-cli" chat \
     --v3 \
-    --agent pstack-maintainer \
+    --agent pk-stack-maintainer \
     --model gpt-5.6-sol \
     --effort max \
     --no-interactive \

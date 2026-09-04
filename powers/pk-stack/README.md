@@ -17,9 +17,10 @@ supported by design and remains untested.
 
 This package is version **0.2.0**. [`plugin.json`](plugin.json) is the release
 metadata authority. `pyproject.toml`, `src/pstack_kiro/__init__.py`, and the
-shipped lockfiles are mirrors and must equal that value. The compatibility
-names `pstack-kiro`, `pstack_kiro`, `.pstack`, `projectctl`, and `pstack` are
-intentional and remain stable.
+shipped lockfiles are mirrors and must equal that value. The technical
+compatibility identifiers `pstack-kiro`, `pstack_kiro`, `.pstack`, and
+`projectctl` remain stable. User-facing Kiro agents, hooks, steering, setup
+commands, and native-spec bridges use the `pk-stack` name.
 
 ## What is installed
 
@@ -52,13 +53,13 @@ Prerequisites: Kiro IDE or Kiro CLI v3, Python 3.11+, and `uv`.
    The skill previews managed changes before writing them. Review
    `pending_updates`, `stale_managed`, and `conflicts` before approving a
    refresh.
-3. Select the generated `pstack` agent in the IDE, or launch a CLI v3 session:
+3. Select the generated `pk-stack` agent in the IDE, or launch a CLI v3 session:
 
    ```sh
-   kiro-cli chat --v3 --agent pstack
+   kiro-cli chat --v3 --agent pk-stack
    ```
 
-   In an existing CLI conversation, `/agent swap pstack` performs the handoff.
+   In an existing CLI conversation, `/agent swap pk-stack` performs the handoff.
 4. Check the workspace:
 
    ```sh
@@ -72,9 +73,9 @@ directory and use the explicit source fallback:
 
 ```sh
 : "${PK_STACK_POWER:?Set PK_STACK_POWER to the PK-Stack Power directory}"
-python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --dry-run --output json
-python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --output json
 ```
 
@@ -88,7 +89,7 @@ reviewed `projectctl setup --power-root ...` invocation with explicit
 For nontrivial work, let Kiro's native Spec, Quick Spec, Bug Fix, or Plan
 workflow produce its requirements, design, and task artifacts. In CLI v3 use
 `/spec new <name>` or `/spec <name>`; in the IDE use **Build with spec** or the
-workflow picker. Return to `pstack` in the same conversation when the native
+workflow picker. Return to `pk-stack` in the same conversation when the native
 plan is ready.
 
 Bind a native spec to a feature contract:
@@ -157,8 +158,8 @@ repository. Floci is a consumer of this Power, not part of this package.
 ```sh
 uv sync --all-groups
 uv lock --check
-uv run ruff check src tests skills/setup-pk-stack/scripts/setup_pstack.py
-uv run ruff format --check src tests skills/setup-pk-stack/scripts/setup_pstack.py
+uv run ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+uv run ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
 uv run ty check
 uv run pytest -q
 ```

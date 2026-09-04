@@ -362,7 +362,7 @@ jobs:
           uv sync --quiet --locked --no-config --project "$TRUSTED_PROJECTCTL_ROOT"
           python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH"
           python3 "$GUARD_PATH" validate-ci-agent \
-            --agent .kiro/agents/pstack-maintainer.json
+            --agent .kiro/agents/pk-stack-maintainer.json
           python3 "$GUARD_PATH" validate-trusted-snapshot \
             --base "$BASE_SHA" \
             --trusted-root "$TRUSTED_ROOT"

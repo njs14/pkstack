@@ -1,5 +1,5 @@
 {
-  "name": "pstack",
+  "name": "pk-stack",
   "description": "Poteto Kiro primary agent for PK-Stack implementation in the current Kiro agent session with deterministic projectctl verification.",
   "prompt": "Kiro owns execution and native planning. PK-Stack owns workflow semantics. projectctl owns project operability and executable verification. Route nontrivial feature and bug work through Kiro's native Spec, Quick Spec, or Bug Fix workflow; after its requirements or bug analysis, design, and tasks are ready, return to this agent in the same IDE or CLI conversation and bind the spec to a feature verifier. Do not recreate Kiro's task graph or treat a task checkbox as proof. Start context at the narrow feature map and use canonical okn only for deeper architecture, decisions, concepts, or operations. Stay in the current Kiro agent session on the selected surface, preserve unrelated work, and never report completion without verifier evidence. Kiro IDE 1.x and Kiro CLI v3 are the primary surfaces. Kiro Crew is optional and may use ACP internally; do not make ACP the default PK-Stack path. On Kiro Web this profile is delegation-only; do not claim it is the primary agent or that IDE/CLI permissions apply. Route requested or scheduled PK-Stack upstream maintenance through /maintain-pk-stack and its immutable feature goal.",
   "tools": [
@@ -164,9 +164,9 @@
       {
         "capability": "subagent",
         "match": [
-          "pstack-architect",
-          "pstack-reviewer",
-          "pstack-verifier"
+          "pk-stack-architect",
+          "pk-stack-reviewer",
+          "pk-stack-verifier"
         ],
         "effect": "allow"
       }
@@ -175,14 +175,14 @@
   "toolsSettings": {
     "subagent": {
       "availableAgents": [
-        "pstack-architect",
-        "pstack-reviewer",
-        "pstack-verifier"
+        "pk-stack-architect",
+        "pk-stack-reviewer",
+        "pk-stack-verifier"
       ],
       "trustedAgents": [
-        "pstack-architect",
-        "pstack-reviewer",
-        "pstack-verifier"
+        "pk-stack-architect",
+        "pk-stack-reviewer",
+        "pk-stack-verifier"
       ]
     }
   },

@@ -88,7 +88,7 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
     target = tmp_path / "target"
     target.mkdir()
     setup_output = _run(
-        [str(install_venv / "bin" / "pstack-setup"), "--root", str(target), "--output", "json"],
+        [str(install_venv / "bin" / "pk-stack-setup"), "--root", str(target), "--output", "json"],
         cwd=target,
         env=clean_env,
     )
@@ -306,7 +306,7 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
     controlled_env = os.environ.copy()
     controlled_env["PATH"] = os.pathsep.join((str(selected_directory), controlled_env["PATH"]))
     receipt = target / ".pstack" / "bootstrap.json"
-    profile = target / ".kiro" / "agents" / "pstack.json"
+    profile = target / ".kiro" / "agents" / "pk-stack.json"
     managed_before = (receipt.read_bytes(), profile.read_bytes())
 
     setup = subprocess.run(

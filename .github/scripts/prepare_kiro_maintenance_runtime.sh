@@ -8,7 +8,7 @@ set -euo pipefail
 : "${RUNNER_TEMP:?RUNNER_TEMP is required}"
 : "${TRUSTED_ROOT:?TRUSTED_ROOT is required}"
 
-agent_name=${KIRO_AGENT_NAME:-pstack-maintainer}
+agent_name=${KIRO_AGENT_NAME:-pk-stack-maintainer}
 if [[ ! "$agent_name" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
   echo "KIRO_AGENT_NAME is invalid" >&2
   exit 2

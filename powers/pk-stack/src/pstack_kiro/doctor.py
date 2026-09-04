@@ -89,7 +89,7 @@ def run_doctor(root: Path) -> dict[str, Any]:
                 "projectctl",
                 "fail",
                 internal_error or "executable .pstack/bin/projectctl entrypoint is missing",
-                "Run /setup-pk-stack or pstack-setup in this project.",
+                "Run /setup-pk-stack or pk-stack-setup in this project.",
             )
         )
     checks.append(_receipt_integrity_check(root))
@@ -104,16 +104,16 @@ def run_doctor(root: Path) -> dict[str, Any]:
         )
 
     required_assets = {
-        "pstack-agent": root / ".kiro" / "agents" / "pstack.json",
-        "architect-agent": root / ".kiro" / "agents" / "pstack-architect.json",
-        "reviewer-agent": root / ".kiro" / "agents" / "pstack-reviewer.json",
-        "verifier-agent": root / ".kiro" / "agents" / "pstack-verifier.json",
-        "pstack-core-steering": root / ".kiro" / "steering" / "pstack-core.md",
-        "pstack-safety-steering": root / ".kiro" / "steering" / "pstack-safety.md",
-        "pstack-typescript-steering": root / ".kiro" / "steering" / "pstack-typescript.md",
-        "pstack-unslop-steering": root / ".kiro" / "steering" / "pstack-unslop.md",
-        "session-hook": root / ".kiro" / "hooks" / "pstack-session.json",
-        "tripwire-hook": root / ".kiro" / "hooks" / "pstack-tripwire.json",
+        "pk-stack-agent": root / ".kiro" / "agents" / "pk-stack.json",
+        "architect-agent": root / ".kiro" / "agents" / "pk-stack-architect.json",
+        "reviewer-agent": root / ".kiro" / "agents" / "pk-stack-reviewer.json",
+        "verifier-agent": root / ".kiro" / "agents" / "pk-stack-verifier.json",
+        "pk-stack-core-steering": root / ".kiro" / "steering" / "pk-stack-core.md",
+        "pk-stack-safety-steering": root / ".kiro" / "steering" / "pk-stack-safety.md",
+        "pk-stack-typescript-steering": root / ".kiro" / "steering" / "pk-stack-typescript.md",
+        "pk-stack-unslop-steering": root / ".kiro" / "steering" / "pk-stack-unslop.md",
+        "session-hook": root / ".kiro" / "hooks" / "pk-stack-session.json",
+        "tripwire-hook": root / ".kiro" / "hooks" / "pk-stack-tripwire.json",
     }
     try:
         cached_skills = ensure_tree_no_symlinks(

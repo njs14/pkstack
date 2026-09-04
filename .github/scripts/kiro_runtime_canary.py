@@ -42,12 +42,12 @@ DOC_EVIDENCE_PATHS = (
 )
 
 EXPECTED_AGENTS = (
-    "pstack",
-    "pstack-architect",
-    "pstack-ci-reviewer",
-    "pstack-maintainer",
-    "pstack-reviewer",
-    "pstack-verifier",
+    "pk-stack",
+    "pk-stack-architect",
+    "pk-stack-ci-reviewer",
+    "pk-stack-maintainer",
+    "pk-stack-reviewer",
+    "pk-stack-verifier",
 )
 TARGET_SELECTOR = {
     "kind": "deb",

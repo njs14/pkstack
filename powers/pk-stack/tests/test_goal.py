@@ -126,7 +126,7 @@ def test_goal_rejects_draft_feature_with_command_before_creating_state(tmp_path:
 
 
 def test_spec_bridge_rejects_non_string_argv_elements(tmp_path: Path) -> None:
-    bridge = _write_native_spec(tmp_path, "typed") / "pstack-verification.json"
+    bridge = _write_native_spec(tmp_path, "typed") / "pk-stack-verification.json"
     bridge.write_text('{"schema_version":1,"command":["pytest",true]}\n', encoding="utf-8")
 
     with pytest.raises(GoalError, match="argv must contain only strings"):
@@ -134,7 +134,7 @@ def test_spec_bridge_rejects_non_string_argv_elements(tmp_path: Path) -> None:
 
 
 def test_spec_bridge_rejects_schema_free_legacy_shape(tmp_path: Path) -> None:
-    bridge = _write_native_spec(tmp_path, "legacy") / "pstack-verification.json"
+    bridge = _write_native_spec(tmp_path, "legacy") / "pk-stack-verification.json"
     bridge.write_text('{"command":["pytest"]}\n', encoding="utf-8")
 
     with pytest.raises(GoalError, match="schema_version 1"):
@@ -170,11 +170,11 @@ def test_spec_binding_prefers_published_feature_and_preserves_both_provenances(
     assert {Path(item.path).name for item in contract.spec_artifacts} == {
         "requirements.md",
         "design.md",
-        "pstack-verification.json",
+        "pk-stack-verification.json",
     }
     assert all(len(item.sha256) == 64 for item in contract.spec_artifacts)
     assert json.loads(
-        (tmp_path / ".kiro/specs/account-lookup/pstack-verification.json").read_text()
+        (tmp_path / ".kiro/specs/account-lookup/pk-stack-verification.json").read_text()
     ) == {"schema_version": 1, "feature": "account-lookup"}
 
 
@@ -203,7 +203,7 @@ def test_spec_binding_requires_complete_native_artifacts_and_exact_source(
 
     with pytest.raises(GoalError, match=r"missing design\.md"):
         bind_spec_contract(tmp_path, "incomplete", command=f"{sys.executable} check.py")
-    assert not (directory / "pstack-verification.json").exists()
+    assert not (directory / "pk-stack-verification.json").exists()
 
     _write_native_spec(tmp_path, "ambiguous")
     (tmp_path / ".kiro/specs/ambiguous/bugfix.md").write_text("# Bug\n", encoding="utf-8")
@@ -216,11 +216,11 @@ def test_spec_binding_refuses_changed_bridge_without_explicit_overwrite(tmp_path
     (tmp_path / "one.py").write_text("pass\n", encoding="utf-8")
     (tmp_path / "two.py").write_text("pass\n", encoding="utf-8")
     bind_spec_contract(tmp_path, "stable", command=f"{sys.executable} one.py")
-    before = (directory / "pstack-verification.json").read_bytes()
+    before = (directory / "pk-stack-verification.json").read_bytes()
 
     with pytest.raises(GoalError, match="without --overwrite"):
         bind_spec_contract(tmp_path, "stable", command=f"{sys.executable} two.py")
-    assert (directory / "pstack-verification.json").read_bytes() == before
+    assert (directory / "pk-stack-verification.json").read_bytes() == before
 
     replaced = bind_spec_contract(
         tmp_path,
@@ -234,7 +234,7 @@ def test_spec_binding_refuses_changed_bridge_without_explicit_overwrite(tmp_path
 
 @pytest.mark.parametrize(
     "artifact",
-    ["requirements.md", "design.md", "pstack-verification.json"],
+    ["requirements.md", "design.md", "pk-stack-verification.json"],
 )
 def test_spec_goal_rejects_bound_artifact_drift_without_consuming_attempt(
     tmp_path: Path,
@@ -476,7 +476,7 @@ def test_goal_contract_and_store_error_boundaries(tmp_path: Path) -> None:
     with pytest.raises(FeatureMapError, match="still a draft"):
         resolve_contract(tmp_path, feature="draft-only")
 
-    bridge = _write_native_spec(tmp_path, "broken") / "pstack-verification.json"
+    bridge = _write_native_spec(tmp_path, "broken") / "pk-stack-verification.json"
     bridge.write_text("{broken", encoding="utf-8")
     with pytest.raises(GoalError, match="invalid spec verification bridge"):
         resolve_contract(tmp_path, spec="broken")

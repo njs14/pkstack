@@ -25,7 +25,7 @@ SHA1 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_MODEL = "claude-opus-5"
 REQUIRED_EFFORT = "xhigh"
-REQUIRED_AGENT = "pstack-ci-reviewer"
+REQUIRED_AGENT = "pk-stack-ci-reviewer"
 
 
 class ReviewError(RuntimeError):

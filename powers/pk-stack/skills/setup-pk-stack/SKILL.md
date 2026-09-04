@@ -15,13 +15,13 @@ supported selection. Bootstrap never edits the user's global model, effort, or r
 
 ## Resolve setup from this Power
 
-Always resolve `scripts/setup_pstack.py` relative to this loaded `SKILL.md`.
+Always resolve `scripts/setup_pk_stack.py` relative to this loaded `SKILL.md`.
 That Power-local shim is the only pre-bootstrap and refresh entrypoint; never
 execute a repository-supplied `./projectctl` to decide whether it belongs to PK-Stack.
 Run the shim first as a no-write preflight against the current project root:
 
 ```text
-python3 <resolved-skill-directory>/scripts/setup_pstack.py --root . --dry-run --output json
+python3 <resolved-skill-directory>/scripts/setup_pk_stack.py --root . --dry-run --output json
 ```
 
 If preflight reports `pending_updates`, show them and use `--update-managed`
@@ -66,30 +66,30 @@ Report:
 - any approval or restart still required.
 
 Kiro discovers newly copied workspace skills at session startup. After setup,
-the generated Poteto Kiro (`pstack`) permission profile does not attach
+the generated Poteto Kiro (`pk-stack`) permission profile does not attach
 retroactively. In Kiro IDE 1.x, use the agent selector in the chat panel or
-Agent Focus and choose the workspace `pstack` agent before the next workflow
+Agent Focus and choose the workspace `pk-stack` agent before the next workflow
 message. In Kiro CLI v3, stay in the same chat and run:
 
 ```text
-/agent swap pstack
+/agent swap pk-stack
 ```
 
 The selected prompt, tools, and permissions take effect on the next message.
-For a later managed refresh, the `pstack` profile intentionally has no Powers.
+For a later managed refresh, the `pk-stack` profile intentionally has no Powers.
 Stay in the same chat, temporarily select the Power-enabled setup agent, invoke
-this Power-local `/setup-pk-stack`, and select `pstack` again. In CLI v3 those
-agent selections can be `/agent swap kiro_default` and `/agent swap pstack`;
+this Power-local `/setup-pk-stack`, and select `pk-stack` again. In CLI v3 those
+agent selections can be `/agent swap kiro_default` and `/agent swap pk-stack`;
 if the Power-enabled agent has another name, use the agent that performed
 initial setup.
 
 If the newly scaffolded agent or `/verified-goal` is not discoverable in this
 session, open one fresh session from the same repository before starting a
 verified goal. In IDE 1.x, open a fresh chat/Agent Focus session and choose the
-workspace `pstack` agent. In CLI v3, exit normally and run:
+workspace `pk-stack` agent. In CLI v3, exit normally and run:
 
 ```text
-kiro-cli chat --v3 --agent pstack
+kiro-cli chat --v3 --agent pk-stack
 ```
 
 Kiro Crew and Kiro Web consume the resulting repository-local assets only

@@ -30,8 +30,8 @@ From `powers/pk-stack/`:
 
 ```sh
 uv lock --check
-uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pstack.py
-uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pstack.py
+uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
 uv run --frozen ty check
 uv run --frozen pytest -q
 ```
@@ -70,7 +70,7 @@ or a temporary directory name without exposing local identity.
 On a disposable project, use the Power-local setup flow from
 [Usage](usage.md): first a dry run, then an explicitly approved apply. Confirm
 that the receipt is complete, the internal lock is current, `doctor` reports no
-managed drift, and the generated `pstack` profile is selected before invoking
+managed drift, and the generated `pk-stack` profile is selected before invoking
 `/verified-goal`. A fixture's passing goal proves that fixture predicate only.
 
 Kiro CLI v3/IDE, Crew, and Web observations must identify the exact surface,

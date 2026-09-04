@@ -38,7 +38,7 @@ committed beside it so the diagram can be reviewed and regenerated.
 flowchart LR
     User[User in Kiro IDE or CLI v3]
     Plan[Native Spec / Quick Spec / Bug Fix / Plan]
-    Skill[PK-Stack skills and pstack agent]
+    Skill[PK-Stack skills and pk-stack agent]
     CLI[.pstack/bin/projectctl]
     Services[Typed Python services]
     Contract[Wiki/features contract]
@@ -67,8 +67,8 @@ verifier, and persists small, inspectable records. It does not call a model.
 Kiro owns requirements or bug analysis, `design.md`, `tasks.md`, dependency
 waves, and native task execution. In CLI v3, the user starts or resumes a
 native plan with `/spec new <name>` or `/spec <name>`, then explicitly swaps to
-`pstack`. In the IDE, the user selects **Build with spec** or the workflow
-picker, then reselects `pstack` in the same conversation.
+`pk-stack`. In the IDE, the user selects **Build with spec** or the workflow
+picker, then reselects `pk-stack` in the same conversation.
 
 PK-Stack does not emulate those workflows from an Agent Skill or create a
 second task graph. `goal bind-spec` writes a small bridge to a published
@@ -93,7 +93,7 @@ powers/pk-stack/
 
 The wheel force-includes skills, steering, templates, and the repo-local lock
 under `pstack_kiro/_assets/`, so setup can use a source checkout or an
-installed Power. The Power-local `skills/setup-pk-stack/scripts/setup_pstack.py`
+installed Power. The Power-local `skills/setup-pk-stack/scripts/setup_pk_stack.py`
 is the only setup and upgrade authority.
 
 A successful target setup contains:
