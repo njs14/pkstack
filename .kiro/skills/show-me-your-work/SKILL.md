@@ -1,7 +1,6 @@
 ---
 name: show-me-your-work
 description: Produce a compact, auditable decision trail that connects requirements, evidence, choices, edits, and verification without exposing hidden reasoning.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Show the decision trail

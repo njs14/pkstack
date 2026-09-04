@@ -1,7 +1,6 @@
 ---
 name: okf
 description: Produce, maintain, or consume source-controlled Open Knowledge Format project knowledge through PK-Stack's bounded Wiki and canonical okn interfaces. Use when capturing durable architecture, decisions, concepts, operations, provenance, lifecycle, trust, or attested-computation guidance.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; projectctl and canonical okn provide deterministic validation and retrieval.
 ---
 
 # Work with project knowledge

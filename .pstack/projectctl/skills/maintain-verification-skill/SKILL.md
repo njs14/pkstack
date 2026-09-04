@@ -1,7 +1,6 @@
 ---
 name: maintain-verification-skill
 description: Audit and update an existing verification workflow against current user-visible behavior while preserving scope, safety, and executable proof.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; projectctl feature commands are preferred after setup.
 ---
 
 # Maintain a verification workflow

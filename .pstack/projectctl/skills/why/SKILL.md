@@ -1,7 +1,6 @@
 ---
 name: why
 description: Explain why a system or decision exists using code, tests, history, and documentation while separating direct evidence from plausible inference.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; projectctl knowledge and repository history are optional sources.
 ---
 
 # Explain why it is this way

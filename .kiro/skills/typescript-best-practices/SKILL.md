@@ -1,7 +1,6 @@
 ---
 name: typescript-best-practices
 description: Design or review TypeScript with constructive domain types, boundary schemas, exhaustive variants, and tests that exercise runtime uncertainty.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Apply TypeScript type discipline

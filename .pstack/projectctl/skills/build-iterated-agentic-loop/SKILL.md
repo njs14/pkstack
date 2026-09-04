@@ -1,7 +1,6 @@
 ---
 name: build-iterated-agentic-loop
 description: Build a bounded, observable, repo-local agent loop from locally runnable sensor, controller, Kiro actuator, validation, memory, and flow-control components.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; GitHub Actions optional.
 ---
 
 # Build an iterated agentic loop

@@ -1,7 +1,6 @@
 ---
 name: narrow-react-prop-types
 description: Narrow React component prop types to the states used by live application call sites, then adapt stories, tests, and mocks to the stricter contract.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; React and TypeScript repositories.
 ---
 
 # Narrow React prop types

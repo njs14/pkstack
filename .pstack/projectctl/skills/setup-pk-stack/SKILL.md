@@ -1,7 +1,6 @@
 ---
 name: setup-pk-stack
 description: Initialize or repair repository-local PK-Stack scaffolding for a Kiro workspace. Use when adopting PK-Stack, refreshing its feature-map and knowledge layout, or checking whether projectctl is ready.
-compatibility: Kiro IDE 1.x and Kiro CLI v3 for local Power bootstrap; Kiro Crew and Kiro Web consume committed post-bootstrap assets rather than invoking this setup skill; Python 3.11 or newer, or uv, available in the workspace.
 ---
 
 # Set up PK-Stack

@@ -1,7 +1,6 @@
 ---
 name: principle-experience-first
 description: Resolve product, API, and workflow tradeoffs from the consuming user's experience, including failure and maintenance paths, rather than implementation convenience.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Design from the user's seat

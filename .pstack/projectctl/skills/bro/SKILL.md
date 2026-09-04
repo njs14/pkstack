@@ -1,7 +1,6 @@
 ---
 name: bro
 description: Restate the prior answer in direct everyday language while preserving its important facts, caveats, and requested next action.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Say it plainly

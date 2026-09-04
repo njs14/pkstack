@@ -1,7 +1,6 @@
 ---
 name: principle-subtract-before-you-add
 description: Remove dead paths, duplicate checks, stale references, and speculative surface area before adding or reshaping behavior in a complex area.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Simplify before building

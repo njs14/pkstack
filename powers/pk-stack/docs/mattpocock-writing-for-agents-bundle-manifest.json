@@ -14,15 +14,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "f6c6dfc905cf6087b7b165c6dd28ef3df69abd78905fc58d5b92020734cd904f",
-      "size": 3922,
+      "sha256": "6f2abb06e8ce65a6bbe5bf4937ba343ec77040cca7712fd0b289cbe083b23a2f",
+      "size": 3812,
       "source_path": "skills/productivity/writing-for-agents/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "writing-for-agents",
   "summary": {
-    "byte_count": 5218,
+    "byte_count": 5108,
     "file_count": 2
   }
 }

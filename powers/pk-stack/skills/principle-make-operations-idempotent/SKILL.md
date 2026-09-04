@@ -1,7 +1,6 @@
 ---
 name: principle-make-operations-idempotent
 description: Make commands, lifecycle steps, scheduled jobs, and retry loops converge safely after repeat runs and interruption at any write boundary.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Make reruns converge

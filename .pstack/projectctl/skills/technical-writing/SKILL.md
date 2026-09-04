@@ -1,7 +1,6 @@
 ---
 name: technical-writing
 description: Write or revise technical documentation for a specific reader and task, with verified commands, direct language, and maintainable information placement.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Write useful technical documentation

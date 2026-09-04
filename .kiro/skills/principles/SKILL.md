@@ -1,7 +1,6 @@
 ---
 name: principles
 description: Select and apply one or more PK-Stack engineering principles to a design, implementation, debugging, review, or verification decision without importing runtime-specific upstream behavior.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Apply engineering principles

@@ -1,7 +1,6 @@
 ---
 name: how
 description: Explain how a subsystem works from evidence, connecting entrypoints, data flow, state, boundaries, failure behavior, and verification seams.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; projectctl knowledge is optional.
 ---
 
 # Explain how it works

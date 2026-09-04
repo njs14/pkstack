@@ -1,7 +1,6 @@
 ---
 name: principle-exhaust-the-design-space
 description: Compare two or three structurally distinct designs for a novel interaction or architectural decision before committing to an implementation shape.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Explore real alternatives

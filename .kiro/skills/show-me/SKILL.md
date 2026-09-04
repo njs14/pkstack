@@ -1,7 +1,6 @@
 ---
 name: show-me
 description: Help the user understand the current topic with concise diagrams, code-shape sketches, and focused offline-capable HTML artifacts.
-compatibility: Kiro IDE 1.x and Kiro CLI v3 for concise visual explanations; Kiro Crew and Kiro Web consume committed assets; supported by design but untested.
 ---
 
 # Show me

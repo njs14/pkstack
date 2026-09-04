@@ -1,7 +1,6 @@
 ---
 name: figure-it-out
 description: Solve an unfamiliar, ambiguous technical problem by turning it into bounded hypotheses, verifiable phases, and an auditable evidence trail.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Figure out an unfamiliar problem

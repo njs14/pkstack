@@ -1,7 +1,6 @@
 ---
 name: blast-radius
 description: Trace one proposed change or suspected defect through callers, state, boundaries, and executable behavior to establish its real blast radius.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Establish the blast radius

@@ -1,7 +1,6 @@
 ---
 name: reflect
 description: Extract durable lessons from completed work and propose the smallest structural, documentation, or skill improvement that would prevent repetition.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Reflect on completed work

@@ -1,7 +1,6 @@
 ---
 name: architect
 description: Design or revise a component through grounded architecture analysis, structurally distinct alternatives, explicit tradeoffs, and executable verification. Use for system boundaries, APIs, data models, migrations, or high-impact refactors.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; projectctl knowledge and feature commands are optional but preferred.
 ---
 
 # Architect a change

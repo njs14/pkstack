@@ -14,15 +14,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "29db461a379ca7aa53691e640fbd71e58bad731ca1e3bfa5789813e0f4cbd6b0",
-      "size": 1870,
+      "sha256": "a10936b168906acba08a4758fe19fd8d2486ac2be18d083adb73c739477f64ac",
+      "size": 1760,
       "source_path": "plugins/design-control-loop/skills/design-control-loop/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "design-control-loop",
   "summary": {
-    "byte_count": 2614,
+    "byte_count": 2504,
     "file_count": 2
   }
 }

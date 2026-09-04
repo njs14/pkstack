@@ -1,7 +1,6 @@
 ---
 name: principle-prove-it-works
 description: Before declaring completion, exercise the real artifact and observable path with a deterministic check that would fail if the claim were false.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Prove the result

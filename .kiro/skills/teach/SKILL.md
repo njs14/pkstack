@@ -1,7 +1,6 @@
 ---
 name: teach
 description: Teach a technical concept by connecting how it operates, why it was designed that way, and concrete examples without quizzing the user.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Teach the concept

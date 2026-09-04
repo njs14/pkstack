@@ -1,7 +1,6 @@
 ---
 name: principle-never-block-on-the-human
 description: Continue routine reversible in-scope work with visible assumptions while reserving questions for missing intent, new authority, or consequential actions.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Keep reversible work moving

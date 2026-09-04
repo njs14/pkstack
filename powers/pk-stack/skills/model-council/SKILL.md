@@ -1,7 +1,6 @@
 ---
 name: model-council
 description: Obtain independent reviews of the same change under one rubric, synthesize consensus and disagreement, and classify advice without auto-applying it. Use for high-risk decisions or when the user explicitly requests a model council, Fable review, or Grok review.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested; optional external reviewer commands must already be configured by the user.
 ---
 
 # Convene a review council

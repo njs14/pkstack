@@ -1,7 +1,6 @@
 ---
 name: unslop
 description: Edit prose into concise, specific, human writing while preserving the author's facts, voice, uncertainty, and intended audience.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Remove synthetic-sounding prose

@@ -1,7 +1,6 @@
 ---
 name: design-control-loop
 description: Design a locally runnable, observable agent control loop with an explicit set point, sensor, controller, Kiro actuator, disturbances, and dampener.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Design a control loop

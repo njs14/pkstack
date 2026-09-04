@@ -1,7 +1,6 @@
 ---
 name: archify
 description: Create polished, validated, offline-capable architecture, workflow, sequence, data-flow, and lifecycle diagrams with the reviewed Archify runtime.
-compatibility: Kiro IDE 1.x and Kiro CLI v3 for local diagram authoring; Kiro Crew and Kiro Web consume committed assets; supported by design but untested; Node.js 18 or newer is an optional Archify capability.
 ---
 
 # Archify

@@ -1,7 +1,6 @@
 ---
 name: principle-outcome-oriented-execution
 description: Drive a planned migration or rewrite toward its explicit verifiable target without letting temporary compatibility become the permanent architecture.
-compatibility: Kiro IDE 1.x and Kiro CLI v3; Kiro Crew compatible; Kiro Web supported by design but untested.
 ---
 
 # Converge on the target
