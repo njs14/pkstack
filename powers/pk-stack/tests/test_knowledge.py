@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from pstack_kiro.knowledge import KnowledgeError, _reported_root_matches, search, status, validate
+from pk_stack.knowledge import KnowledgeError, _reported_root_matches, search, status, validate
 
 
 def test_reported_root_accepts_filesystem_alias_but_rejects_other_roots(tmp_path: Path) -> None:
@@ -145,7 +145,7 @@ def _fake_okn(
 def test_knowledge_falls_back_only_to_narrow_feature_validation(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: None)
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: None)
     (tmp_path / "Wiki" / "features").mkdir(parents=True)
 
     info = status(tmp_path)
@@ -164,7 +164,7 @@ def test_canonical_okn_validation_composes_with_feature_map_verdict(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     workspace, okn = _fake_okn(tmp_path)
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: str(okn))
 
     result = validate(workspace)
 
@@ -180,7 +180,7 @@ def test_canonical_okn_failure_cannot_be_hidden_by_valid_feature_map(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     workspace, okn = _fake_okn(tmp_path, validation_status="fail")
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: str(okn))
     (workspace / "Wiki/features").mkdir(parents=True)
 
     result = validate(workspace)
@@ -195,7 +195,7 @@ def test_canonical_search_validates_versioned_provenance_and_budget(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     workspace, okn = _fake_okn(tmp_path)
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: str(okn))
     (workspace / "Wiki").mkdir()
 
     result = search(workspace, "native planning", budget=512)
@@ -215,7 +215,7 @@ def test_canonical_search_accepts_managed_status_from_newer_okn(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     workspace, okn = _fake_okn(tmp_path, protocol_mutation="search-status-managed")
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: str(okn))
     (workspace / "Wiki").mkdir()
 
     result = search(workspace, "native planning", budget=512)
@@ -231,7 +231,7 @@ def test_malformed_okn_machine_contract_fails_closed(
     operation: str,
 ) -> None:
     workspace, okn = _fake_okn(tmp_path, malformed_operation=operation)
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: str(okn))
     (workspace / "Wiki/features").mkdir(parents=True)
 
     result = validate(workspace) if operation == "validate" else search(workspace, "context")
@@ -246,7 +246,7 @@ def test_workspace_local_okn_is_never_executed(
     okn = tmp_path / "okn"
     okn.write_text("#!/bin/sh\ntouch should-not-run\n", encoding="utf-8")
     okn.chmod(0o755)
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: str(okn))
     (tmp_path / "Wiki/features").mkdir(parents=True)
 
     info = status(tmp_path)
@@ -268,7 +268,7 @@ def test_openknowledge_binary_name_is_supported(
     def which(name: str) -> str | None:
         return str(openknowledge) if name == "openknowledge" else None
 
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", which)
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", which)
 
     info = status(workspace)
 
@@ -281,7 +281,7 @@ def test_validation_protocol_binds_the_requested_wiki_root(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     workspace, okn = _fake_okn(tmp_path, protocol_mutation="validation-root")
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: str(okn))
     (workspace / "Wiki/features").mkdir(parents=True)
 
     result = validate(workspace)
@@ -309,7 +309,7 @@ def test_search_protocol_binds_root_budget_and_source_identity(
     message: str,
 ) -> None:
     workspace, okn = _fake_okn(tmp_path, protocol_mutation=mutation)
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _: str(okn))
     (workspace / "Wiki").mkdir()
 
     result = search(workspace, "native planning", budget=512)

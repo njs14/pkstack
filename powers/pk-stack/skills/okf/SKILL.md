@@ -9,7 +9,7 @@ Treat the request text that activated this skill as a request to **produce**, **
 the repository's OKF knowledge. Infer the narrowest mode from the request and state it. Store project
 knowledge in `Wiki/`; do not create a competing `.okf/` tree when PK-Stack already owns `Wiki/`.
 
-This skill owns workflow semantics only. `.pstack/bin/projectctl` composes the feature map with the
+This skill owns workflow semantics only. `.pk-stack/bin/projectctl` composes the feature map with the
 canonical `okn` process for validation and bounded retrieval. Do not copy or invoke an upstream
 validator, activate an upstream MCP server or hook, install dependencies, substitute `okfcli/okf`
 for `okn`, or edit global Kiro `/knowledge` settings.
@@ -35,7 +35,7 @@ the user's task and keep external, paid, public, or destructive effects separate
    question, record the escalation reason and issue one targeted command:
 
    ```text
-   .pstack/bin/projectctl knowledge search "<specific question>" --budget 1200 --output json
+   .pk-stack/bin/projectctl knowledge search "<specific question>" --budget 1200 --output json
    ```
 
 4. Retain the returned revision, content-addressed locators, and exact line ranges with conclusions.
@@ -91,8 +91,8 @@ that person actually performed it.
 Run both layers after any knowledge change:
 
 ```text
-.pstack/bin/projectctl feature validate --output json
-.pstack/bin/projectctl knowledge validate --output json
+.pk-stack/bin/projectctl feature validate --output json
+.pk-stack/bin/projectctl knowledge validate --output json
 ```
 
 Full KNOW completion requires `mode: canonical-okn`, a supported `okn` version, clean OKF validation,

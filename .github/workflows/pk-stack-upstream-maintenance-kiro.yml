@@ -175,13 +175,13 @@ jobs:
           set -euo pipefail
           mkdir -p "$TRUSTED_ROOT"
           git archive "$BASE_SHA" \
-            .pstack/projectctl \
+            .pk-stack/projectctl \
             .github/pk-stack-maintenance-policy.json \
             .github/scripts/pk_stack_maintenance_guard.py \
             .github/scripts/pk_stack_update_controller.py \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --no-config \
-            --project "$TRUSTED_ROOT/.pstack/projectctl"
+            --project "$TRUSTED_ROOT/.pk-stack/projectctl"
       - name: Re-prove pinned upstream identity and drift
         id: detect
         env:
@@ -190,7 +190,7 @@ jobs:
           READONLY_GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          trusted_projectctl="$TRUSTED_ROOT/.pstack/projectctl"
+          trusted_projectctl="$TRUSTED_ROOT/.pk-stack/projectctl"
           mkdir -p "$EVIDENCE_ROOT"
           detector_path="$EVIDENCE_ROOT/upstream-check.json"
           control_plan_path="$EVIDENCE_ROOT/control-plan.json"
@@ -198,7 +198,7 @@ jobs:
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" \
             PYTHONPATH="$trusted_projectctl/src" \
             "$trusted_projectctl/.venv/bin/python" -B -X pycache_prefix=/dev/null \
-            -m pstack_kiro upstream check \
+            -m pk_stack upstream check \
             --manifest maintenance/upstreams.json \
             --power-root powers/pk-stack \
             --output json >"$detector_path"
@@ -299,7 +299,7 @@ jobs:
           set -euo pipefail
           {
             printf 'TRUSTED_ROOT=%s\n' "$RUNNER_TEMP/pk-stack-trusted"
-            printf 'TRUSTED_PROJECTCTL_ROOT=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.pstack/projectctl"
+            printf 'TRUSTED_PROJECTCTL_ROOT=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.pk-stack/projectctl"
             printf 'GUARD_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/pk_stack_maintenance_guard.py"
             printf 'VERIFY_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/verify_pk_stack_attempt.sh"
             printf 'KIRO_RUNNER_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/run_kiro_maintenance_attempt.sh"
@@ -349,7 +349,7 @@ jobs:
           mkdir -p "$TRUSTED_ROOT"
           git archive "$BASE_SHA" \
             Wiki/features/pk-stack-upstream-maintenance.md \
-            .pstack/projectctl \
+            .pk-stack/projectctl \
             .github/agent-memory/pk-stack-upstream.md \
             .github/fixtures \
             .github/pk-stack-maintenance-policy.json \
@@ -393,7 +393,7 @@ jobs:
           trusted_projectctl() {
             PYTHONPATH="$TRUSTED_PROJECTCTL_ROOT/src" \
               "$TRUSTED_PROJECTCTL_ROOT/.venv/bin/python" -B -X pycache_prefix=/dev/null \
-              -m pstack_kiro "$@"
+              -m pk_stack "$@"
           }
           python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH" >/dev/null
           action=$(jq -er '.action' "$CONTROL_PLAN_PATH")

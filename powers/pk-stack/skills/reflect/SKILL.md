@@ -59,7 +59,7 @@ Reflection is advisory. Obtain explicit approval before making any durable edit
 based on it. This includes code, tests, documentation, steering, skills,
 backlog or ticket submissions, personal memory, and cross-project
 instructions. An approved project-local skill edit must target a user-owned
-path not listed in `.pstack/bootstrap.json`; improve a receipt-managed
+path not listed in `.pk-stack/bootstrap.json`; improve a receipt-managed
 PK-Stack skill only in its reviewed Power source and refresh it through setup.
 Never publish automatically.
 

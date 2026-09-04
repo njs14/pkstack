@@ -28,7 +28,7 @@ DENIED_WRITE_TEXT = "BLOCKED\n"
 DENIED_RESOURCES = (
     ".github/protected.txt",
     ".kiro/protected.txt",
-    "powers/pk-stack/src/pstack_kiro/protected.py",
+    "powers/pk-stack/src/pk_stack/protected.py",
     "powers/pk-stack/tests/protected.py",
     "maintenance/upstream-reviews.json",
     "powers/pk-stack/docs/validation-report.md",

@@ -16,7 +16,7 @@ RELEASE_VERSION = "0.2.0"
 
 
 def _source_version() -> str:
-    module = ast.parse((POWER_ROOT / "src/pstack_kiro/__init__.py").read_text(encoding="utf-8"))
+    module = ast.parse((POWER_ROOT / "src/pk_stack/__init__.py").read_text(encoding="utf-8"))
     for statement in module.body:
         if isinstance(statement, ast.Assign) and any(
             isinstance(target, ast.Name) and target.id == "__version__"
@@ -25,16 +25,16 @@ def _source_version() -> str:
             value = ast.literal_eval(statement.value)
             assert isinstance(value, str)
             return value
-    raise AssertionError("pstack_kiro.__version__ is not declared")
+    raise AssertionError("pk_stack.__version__ is not declared")
 
 
 def _lock_version(path: Path) -> str:
     text = path.read_text(encoding="utf-8")
     match = re.search(
-        r'(?ms)^\[\[package\]\]\nname = "pstack-kiro"\nversion = "([^"]+)"',
+        r'(?ms)^\[\[package\]\]\nname = "pk-stack"\nversion = "([^"]+)"',
         text,
     )
-    assert match, f"pstack-kiro package entry missing from {path}"
+    assert match, f"pk-stack package entry missing from {path}"
     return match.group(1)
 
 

@@ -54,7 +54,7 @@
       ".github/**",
       ".git/**",
       ".kiro/**",
-      ".pstack/**",
+      ".pk-stack/**",
       ".pk-stack-ci/**",
       ".claude/**",
       ".codex/**",
@@ -78,7 +78,7 @@
       "powers/pk-stack/examples/**",
       "powers/pk-stack/pyproject.toml",
       "powers/pk-stack/reviews/**",
-      "powers/pk-stack/src/pstack_kiro/**",
+      "powers/pk-stack/src/pk_stack/**",
       "powers/pk-stack/tests/**",
       "powers/pk-stack/uv.lock",
       "projectctl",
@@ -145,10 +145,10 @@
     ]
   },
   "final_allowed_exact": [
-    ".pstack/bin/projectctl",
-    ".pstack/bootstrap.json",
-    ".pstack/discovery.json",
-    ".pstack/projectctl/README.md",
+    ".pk-stack/bin/projectctl",
+    ".pk-stack/bootstrap.json",
+    ".pk-stack/discovery.json",
+    ".pk-stack/projectctl/README.md",
     "Wiki/features/README.md",
     "maintenance/upstream-reviews.json",
     "maintenance/upstreams.json",
@@ -181,16 +181,16 @@
     ".kiro/steering/": [
       ".md"
     ],
-    ".pstack/projectctl/dev.kiro/": [
+    ".pk-stack/projectctl/dev.kiro/": [
       ".md"
     ],
-    ".pstack/projectctl/skills/": [
+    ".pk-stack/projectctl/skills/": [
       ".md"
     ],
-    ".pstack/projectctl/templates/project/": [
+    ".pk-stack/projectctl/templates/project/": [
       ".json"
     ],
-    ".pstack/projectctl/templates/projectctl/": [
+    ".pk-stack/projectctl/templates/projectctl/": [
       ".lock"
     ],
     "powers/pk-stack/dev.kiro/": [
@@ -230,7 +230,7 @@
     ".github/",
     "powers/pk-stack/examples/",
     "powers/pk-stack/reviews/",
-    "powers/pk-stack/src/pstack_kiro/",
+    "powers/pk-stack/src/pk_stack/",
     "powers/pk-stack/tests/",
     "reviews/"
   ]

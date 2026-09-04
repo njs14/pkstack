@@ -9,12 +9,12 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
-from pstack_kiro.bootstrap import (
+from pk_stack.bootstrap import (
     REQUIRED_POWER_ASSETS,
     REQUIRED_SOURCE_MODULES,
     bootstrap_project,
 )
-from pstack_kiro.branding import DISTRIBUTION_NAME, identity_payload
+from pk_stack.branding import DISTRIBUTION_NAME, identity_payload
 
 POWER_ROOT = Path(__file__).parents[1]
 
@@ -63,13 +63,13 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
         members = set(archive.namelist())
     assert any(name.endswith(".dist-info/licenses/THIRD_PARTY_NOTICES.md") for name in members)
     for name in REQUIRED_SOURCE_MODULES:
-        assert f"pstack_kiro/{name}" in members
+        assert f"pk_stack/{name}" in members
     for relative in REQUIRED_POWER_ASSETS:
-        assert f"pstack_kiro/_assets/{relative}" in members
+        assert f"pk_stack/_assets/{relative}" in members
     for source in (POWER_ROOT / "skills").rglob("*"):
         if source.is_file():
             relative = source.relative_to(POWER_ROOT).as_posix()
-            assert f"pstack_kiro/_assets/{relative}" in members
+            assert f"pk_stack/_assets/{relative}" in members
 
     clean_env = {
         key: value
@@ -94,7 +94,7 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
     )
     assert json.loads(setup_output)["ok"] is True
 
-    controller = target / ".pstack" / "bin" / "projectctl"
+    controller = target / ".pk-stack" / "bin" / "projectctl"
     version_output = _run_clean_json(
         [str(controller), "version", "--output", "json"], cwd=target, env=clean_env
     )
@@ -105,11 +105,11 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
         env=clean_env,
     )
     assert json.loads(doctor_output)["ok"] is True
-    cached_source = target / ".pstack" / "projectctl" / "src"
+    cached_source = target / ".pk-stack" / "projectctl" / "src"
     assert not list(cached_source.rglob("__pycache__"))
     assert not list(cached_source.rglob("*.py[co]"))
 
-    runtime_python = target / ".pstack" / "projectctl" / ".venv" / "bin" / "python"
+    runtime_python = target / ".pk-stack" / "projectctl" / ".venv" / "bin" / "python"
     installed = json.loads(
         _run(
             [
@@ -130,7 +130,7 @@ def test_bootstrapped_wrapper_preserves_host_verifier_environment(tmp_path: Path
     target = tmp_path / "target"
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
-    controller = target / ".pstack" / "bin" / "projectctl"
+    controller = target / ".pk-stack" / "bin" / "projectctl"
     probe = target / "envprobe.py"
     probe.write_text(
         "import json, os, sys\n"
@@ -143,14 +143,14 @@ def test_bootstrapped_wrapper_preserves_host_verifier_environment(tmp_path: Path
         "  'uv': {k: v for k, v in os.environ.items() if k.startswith('UV_')},\n"
         "  'executable': str(Path(sys.executable).resolve()),\n"
         "  'prefix': str(Path(sys.prefix).resolve()),\n"
-        "  'markers': sorted(k for k in os.environ if k.startswith('PSTACK_KIRO_CALLER_')),\n"
+        "  'markers': sorted(k for k in os.environ if k.startswith('PK_STACK_CALLER_')),\n"
         "}, sort_keys=True))\n",
         encoding="utf-8",
     )
     host_env = os.environ.copy()
     host_env["PYTHONPATH"] = str(tmp_path / "host-pythonpath")
     host_env["VIRTUAL_ENV"] = str(tmp_path / "host-venv")
-    host_env["UV_PSTACK_HOST_SENTINEL"] = "preserved"
+    host_env["UV_PK_STACK_HOST_SENTINEL"] = "preserved"
     baseline = json.loads(_run(["python3", "envprobe.py"], cwd=target, env=host_env))
 
     generated = _run_clean_json(
@@ -185,19 +185,19 @@ def test_bootstrapped_wrapper_preserves_host_verifier_environment(tmp_path: Path
     assert initial_probe == baseline
     assert repeated_probe == baseline
     assert initial_probe["markers"] == []
-    assert ".pstack/projectctl" not in json.dumps(initial_probe)
+    assert ".pk-stack/projectctl" not in json.dumps(initial_probe)
 
 
 def test_bootstrapped_wrapper_ignores_unchecked_controller_bytecode(tmp_path: Path) -> None:
     target = tmp_path / "target"
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
-    controller = target / ".pstack" / "bin" / "projectctl"
+    controller = target / ".pk-stack" / "bin" / "projectctl"
     expected = {**identity_payload(), "version": "0.2.0"}
     command = [str(controller), "version", "--output", "json"]
     assert _run_clean_json(command, cwd=target) == expected
 
-    cached_branding = target / ".pstack" / "projectctl" / "src" / "pstack_kiro" / "branding.py"
+    cached_branding = target / ".pk-stack" / "projectctl" / "src" / "pk_stack" / "branding.py"
     cached_source = cached_branding.read_bytes()
     malicious_source = target / "unchecked-cache-payload.py"
     malicious_source.write_text(
@@ -211,7 +211,7 @@ def test_bootstrapped_wrapper_ignores_unchecked_controller_bytecode(tmp_path: Pa
         '"expanded_name": "HIJACKED", "power_id": "hijacked"}\n',
         encoding="utf-8",
     )
-    runtime_python = target / ".pstack" / "projectctl" / ".venv" / "bin" / "python"
+    runtime_python = target / ".pk-stack" / "projectctl" / ".venv" / "bin" / "python"
     _run(
         [
             str(runtime_python),
@@ -232,7 +232,7 @@ def test_bootstrapped_wrapper_ignores_unchecked_controller_bytecode(tmp_path: Pa
     unprotected_env = os.environ.copy()
     unprotected_env["PYTHONPATH"] = str(cached_branding.parents[1])
     unprotected = _run_clean_json(
-        [str(runtime_python), "-B", "-m", "pstack_kiro", "version", "--output", "json"],
+        [str(runtime_python), "-B", "-m", "pk_stack", "version", "--output", "json"],
         cwd=target,
         env=unprotected_env,
     )
@@ -269,7 +269,7 @@ def test_bootstrapped_wrapper_keeps_malformed_feature_json_structured(tmp_path: 
             feature.write_bytes(content)
         else:
             feature.write_text(content, encoding="utf-8")
-        controller = target / ".pstack" / "bin" / "projectctl"
+        controller = target / ".pk-stack" / "bin" / "projectctl"
 
         for command, (expected_code, expected_keys) in commands.items():
             completed = subprocess.run(
@@ -292,7 +292,7 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
     target = tmp_path / "target"
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
-    controller = target / ".pstack" / "bin" / "projectctl"
+    controller = target / ".pk-stack" / "bin" / "projectctl"
     selected_directory = tmp_path / "selected"
     other_directory = tmp_path / "other"
     selected_directory.mkdir()
@@ -305,7 +305,7 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
     (target / "proof.txt").write_text("present\n", encoding="utf-8")
     controlled_env = os.environ.copy()
     controlled_env["PATH"] = os.pathsep.join((str(selected_directory), controlled_env["PATH"]))
-    receipt = target / ".pstack" / "bootstrap.json"
+    receipt = target / ".pk-stack" / "bootstrap.json"
     profile = target / ".kiro" / "agents" / "pk-stack.json"
     managed_before = (receipt.read_bytes(), profile.read_bytes())
 
@@ -352,12 +352,12 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
         assert placeholder_goal.returncode == 2
         assert placeholder_goal.stderr == ""
         assert json.loads(placeholder_goal.stdout)["error_type"] == "CommandRejected"
-        assert not (target / ".pstack" / "state" / "goal.json").exists()
+        assert not (target / ".pk-stack" / "state" / "goal.json").exists()
 
     for slug, verifier in (
         ("placeholder-proof", "true"),
         ("echo-proof", "echo PASS"),
-        ("self-proof", ".pstack/bin/projectctl version --output json"),
+        ("self-proof", ".pk-stack/bin/projectctl version --output json"),
     ):
         placeholder_feature = subprocess.run(
             [
@@ -408,7 +408,7 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
     assert started.returncode == 2
     assert started.stderr == ""
     assert json.loads(started.stdout)["error_type"] == "CommandRejected"
-    assert not (target / ".pstack" / "state" / "goal.json").exists()
+    assert not (target / ".pk-stack" / "state" / "goal.json").exists()
 
     generated = subprocess.run(
         [

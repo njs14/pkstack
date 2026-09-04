@@ -142,7 +142,7 @@ jobs:
             const treeByPath = new Map(tree.tree.map((entry) => [entry.path, entry]));
             for (const file of files.filter((item) => item.status !== "removed")) {
               const entry = treeByPath.get(file.filename);
-              const expectedMode = [".pstack/bin/projectctl", "projectctl"].includes(file.filename) ? "100755" : "100644";
+              const expectedMode = [".pk-stack/bin/projectctl", "projectctl"].includes(file.filename) ? "100755" : "100644";
               if (!entry || entry.type !== "blob" || entry.mode !== expectedMode) {
                 core.setFailed(`candidate git object or mode is invalid: ${file.filename}`);
                 return;
@@ -194,7 +194,7 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
           uv sync --quiet --locked --all-groups --project powers/pk-stack
-          .pstack/bin/projectctl feature validate --output json
+          .pk-stack/bin/projectctl feature validate --output json
           python3 .github/scripts/test_pk_stack_maintenance_guard.py
           (
             cd powers/pk-stack
@@ -264,7 +264,7 @@ jobs:
           mkdir -p "$TRUSTED_ROOT"
           git archive "$BASE_SHA" \
             Wiki/features/pk-stack-upstream-maintenance.md \
-            .pstack/projectctl \
+            .pk-stack/projectctl \
             .github/fixtures \
             .github/pk-stack-maintenance-policy.json \
             .github/scripts \
@@ -272,7 +272,7 @@ jobs:
             .kiro/agents \
             reviews \
             | tar -x -C "$TRUSTED_ROOT"
-          uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pstack/projectctl"
+          uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pk-stack/projectctl"
           python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
             --root . \
             --policy "$TRUSTED_ROOT/.github/pk-stack-maintenance-policy.json" \
@@ -291,9 +291,9 @@ jobs:
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
           uv sync --quiet --locked --all-groups --project powers/pk-stack
           trusted_projectctl() {
-            PYTHONPATH="$TRUSTED_ROOT/.pstack/projectctl/src" \
-              "$TRUSTED_ROOT/.pstack/projectctl/.venv/bin/python" \
-              -B -X pycache_prefix=/dev/null -m pstack_kiro "$@"
+            PYTHONPATH="$TRUSTED_ROOT/.pk-stack/projectctl/src" \
+              "$TRUSTED_ROOT/.pk-stack/projectctl/.venv/bin/python" \
+              -B -X pycache_prefix=/dev/null -m pk_stack "$@"
           }
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" trusted_projectctl upstream check \
             --manifest maintenance/upstreams.json \
@@ -755,7 +755,7 @@ jobs:
             const treeByPath = new Map(tree.tree.map((entry) => [entry.path, entry]));
             for (const file of files.filter((item) => item.status !== "removed")) {
               const entry = treeByPath.get(file.filename);
-              const expectedMode = [".pstack/bin/projectctl", "projectctl"].includes(file.filename) ? "100755" : "100644";
+              const expectedMode = [".pk-stack/bin/projectctl", "projectctl"].includes(file.filename) ? "100755" : "100644";
               if (!entry || entry.type !== "blob" || entry.mode !== expectedMode) {
                 core.setFailed(`final candidate object or mode is invalid: ${file.filename}`);
                 return;

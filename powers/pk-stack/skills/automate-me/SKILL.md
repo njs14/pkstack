@@ -16,7 +16,7 @@ machine-specific paths.
 
 1. Describe the trigger, desired outcome, constraints, and evidence of success in plain language.
 2. Ask one focused question only if two materially different behaviors remain plausible.
-3. Inspect `.pstack/bootstrap.json` when present and choose a narrowly named project-local
+3. Inspect `.pk-stack/bootstrap.json` when present and choose a narrowly named project-local
    `.kiro/skills/<name>/SKILL.md` that is not receipt-managed by PK-Stack. Writing a new unowned
    skill still follows the selected Kiro agent's approval policy; never overwrite a managed skill.
 4. Keep the main file short. Put optional detail in a relative `references/` file only when it will

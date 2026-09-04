@@ -9,11 +9,11 @@ executable evidence. It keeps planning, tool use, model choice, and
 orchestration in Kiro, then adds a small repository-local control surface for
 feature contracts, bounded verification, and project state.
 
-The current release candidate is **0.2.0**. The `version` field in
+The checked-in Power reports version **0.2.0**. The `version` field in
 [`powers/pk-stack/plugin.json`](powers/pk-stack/plugin.json) is the release
-metadata authority. The Python package and lockfile mirror it; a release tag
-must be `v0.2.0` and point at the reviewed commit. See the [current release
-status](reviews/release-status.md) for the gate record.
+metadata authority, and the Python package and lockfile mirror it. Changes on
+`main` after the `v0.2.0` tag are unreleased. See the [release status](reviews/release-status.md)
+for the historical gate record.
 
 ## What it provides
 
@@ -55,8 +55,8 @@ workspace path is supported by design but has not been tested end to end.
 4. Check the installation through the canonical wrapper:
 
    ```sh
-   .pstack/bin/projectctl doctor --output json
-   .pstack/bin/projectctl feature validate --output json
+   .pk-stack/bin/projectctl doctor --output json
+   .pk-stack/bin/projectctl feature validate --output json
    ```
 
 For a source-checkout fallback, set `PK_STACK_POWER` to the checked-out
@@ -80,7 +80,7 @@ PK-Stack separates three concerns:
 
 | Interface | Responsibility |
 | --- | --- |
-| `.pstack/bin/projectctl` | **DO** — setup, diagnostics, feature operations, upstream checks, and goal state |
+| `.pk-stack/bin/projectctl` | **DO** — setup, diagnostics, feature operations, upstream checks, and goal state |
 | `Wiki/features/*.md` | **PROVE** — user-visible behavior bound to an executable verifier |
 | `Wiki/` and optional `okn` | **KNOW** — architecture, decisions, concepts, and operations |
 
@@ -90,7 +90,7 @@ spec** or the workflow picker. Then return to `pk-stack` in the same conversatio
 and bind the plan to a feature contract:
 
 ```sh
-.pstack/bin/projectctl goal bind-spec account-lookup \
+.pk-stack/bin/projectctl goal bind-spec account-lookup \
   --feature account-lookup --output json
 ```
 
@@ -103,7 +103,7 @@ Start the bounded loop only after a concrete verifier exists:
 For a smaller change, create a contract directly:
 
 ```sh
-.pstack/bin/projectctl feature generate account-lookup \
+.pk-stack/bin/projectctl feature generate account-lookup \
   --title "Account lookup" \
   --behavior "A caller can retrieve account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
@@ -122,7 +122,7 @@ acceptance boundary.
 | --- | --- |
 | `powers/pk-stack/` | Canonical installable Power, package, skills, templates, and docs |
 | `.kiro/` | Generated workspace agents, hooks, skills, and steering |
-| `.pstack/` | Generated wrapper, receipt, cached controller, and ignored runtime state |
+| `.pk-stack/` | Generated wrapper, receipt, cached controller, and ignored runtime state |
 | `Wiki/` | Feature contracts and source-controlled project knowledge |
 | `maintenance/` | Pinned upstream identities and review ledger |
 | `reviews/` | Current release status and historical evidence |

@@ -20,7 +20,7 @@ question that the feature record and its related links cannot answer. Record tha
 
 ## Resolve the controller once
 
-Use `.pstack/bin/projectctl` for the entire loop. It is the bootstrap-managed
+Use `.pk-stack/bin/projectctl` for the entire loop. It is the bootstrap-managed
 entrypoint and has a locked repo-local runtime. Do not select `./projectctl`:
 bootstrap deliberately preserves that name when the host project already owns
 it. Do not use ambient `uv run projectctl` package resolution.

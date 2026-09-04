@@ -14,17 +14,17 @@ from pathlib import Path
 
 import pytest
 
-from pstack_kiro import cli
-from pstack_kiro.bootstrap import bootstrap_project
-from pstack_kiro.discovery import discover_repository
-from pstack_kiro.doctor import run_doctor
-from pstack_kiro.features import (
+from pk_stack import cli
+from pk_stack.bootstrap import bootstrap_project
+from pk_stack.discovery import discover_repository
+from pk_stack.doctor import run_doctor
+from pk_stack.features import (
     FeatureMapError,
     generate_feature,
     load_feature,
     validate_feature_map,
 )
-from pstack_kiro.goal import (
+from pk_stack.goal import (
     GoalError,
     GoalStore,
     get_goal,
@@ -32,14 +32,14 @@ from pstack_kiro.goal import (
     start_goal,
     verify_goal,
 )
-from pstack_kiro.paths import WorkspacePathError
-from pstack_kiro.runner import CommandRejected, run_command
+from pk_stack.paths import WorkspacePathError
+from pk_stack.runner import CommandRejected, run_command
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _copy_power_fixture(destination: Path) -> None:
-    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates", "docs"):
+    for relative in ("src/pk_stack", "skills", "dev.kiro", "templates", "docs"):
         shutil.copytree(POWER_ROOT / relative, destination / relative)
 
 
@@ -48,7 +48,7 @@ def test_bootstrap_rejects_symlink_escape_before_writing(tmp_path: Path) -> None
     outside = tmp_path / "outside"
     project.mkdir()
     outside.mkdir()
-    (project / ".pstack").symlink_to(outside, target_is_directory=True)
+    (project / ".pk-stack").symlink_to(outside, target_is_directory=True)
 
     with pytest.raises(ValueError, match="symlink"):
         bootstrap_project(project, power_root=POWER_ROOT)
@@ -81,13 +81,13 @@ def test_bootstrap_discovery_rejects_hostile_nested_symlinks_without_disclosure(
     evidence = f"{bootstrap_error.value}\n{discovery_error.value}"
     assert sentinel_name not in evidence
     assert sentinel_content not in evidence
-    assert not (project / ".pstack" / "bin" / "projectctl").exists()
+    assert not (project / ".pk-stack" / "bin" / "projectctl").exists()
 
 
 @pytest.mark.parametrize(
     "missing_asset",
     [
-        "src/pstack_kiro/goal.py",
+        "src/pk_stack/goal.py",
         "skills/verified-goal/SKILL.md",
         "templates/project/.kiro/agents/pk-stack.json",
     ],
@@ -123,7 +123,7 @@ def test_bootstrap_rejects_required_source_asset_symlink_before_writing(
     outside = tmp_path / "outside-goal.py"
     sentinel = "external source sentinel must remain unread"
     outside.write_text(sentinel, encoding="utf-8")
-    source = power / "src" / "pstack_kiro" / "goal.py"
+    source = power / "src" / "pk_stack" / "goal.py"
     source.unlink()
     source.symlink_to(outside)
     target = tmp_path / "target"
@@ -139,8 +139,8 @@ def test_bootstrap_rejects_required_source_asset_symlink_before_writing(
 def test_bootstrap_rejects_source_package_root_symlink_before_writing(tmp_path: Path) -> None:
     power = tmp_path / "power"
     (power / "src").mkdir(parents=True)
-    (power / "src" / "pstack_kiro").symlink_to(
-        POWER_ROOT / "src" / "pstack_kiro",
+    (power / "src" / "pk_stack").symlink_to(
+        POWER_ROOT / "src" / "pk_stack",
         target_is_directory=True,
     )
     for relative in ("skills", "dev.kiro", "templates"):
@@ -157,13 +157,13 @@ def test_bootstrap_rejects_source_package_root_symlink_before_writing(tmp_path: 
 def test_bootstrap_symlink_loop_returns_structured_cli_error(tmp_path: Path) -> None:
     project = tmp_path / "project"
     project.mkdir()
-    (project / ".pstack").symlink_to(".pstack", target_is_directory=True)
+    (project / ".pk-stack").symlink_to(".pk-stack", target_is_directory=True)
 
     completed = subprocess.run(
         [
             sys.executable,
             "-m",
-            "pstack_kiro.bootstrap",
+            "pk_stack.bootstrap",
             "--root",
             str(project),
             "--power-root",
@@ -191,13 +191,13 @@ def test_bootstrap_rejects_traversal_or_empty_receipt_keys_before_writing(
     tmp_path: Path,
     receipt_key: str,
 ) -> None:
-    receipt = tmp_path / ".pstack" / "bootstrap.json"
+    receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     receipt.parent.mkdir(parents=True)
     receipt.write_text(
         json.dumps(
             {
                 "schema_version": 1,
-                "manager": "pstack-kiro",
+                "manager": "pk-stack",
                 "files": {receipt_key: "0" * 64},
             }
         ),
@@ -207,20 +207,20 @@ def test_bootstrap_rejects_traversal_or_empty_receipt_keys_before_writing(
     with pytest.raises(ValueError, match="invalid managed-file hashes"):
         bootstrap_project(tmp_path, power_root=POWER_ROOT)
 
-    assert not (tmp_path / ".pstack" / "bin" / "projectctl").exists()
+    assert not (tmp_path / ".pk-stack" / "bin" / "projectctl").exists()
 
 
 def test_forged_receipt_cannot_authorize_automatic_overwrite(tmp_path: Path) -> None:
     foreign = tmp_path / "projectctl"
     foreign.write_text("foreign\n", encoding="utf-8")
-    receipt = tmp_path / ".pstack" / "bootstrap.json"
+    receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     receipt.parent.mkdir(parents=True)
     digest = hashlib.sha256(foreign.read_bytes()).hexdigest()
     receipt.write_text(
         json.dumps(
             {
                 "schema_version": 1,
-                "manager": "pstack-kiro",
+                "manager": "pk-stack",
                 "files": {"projectctl": digest},
             }
         ),
@@ -243,7 +243,7 @@ def test_bootstrap_preflights_non_file_conflict_without_partial_install(tmp_path
 
     assert result.ok is False
     assert ".kiro/agents/pk-stack.json" in result.conflicts
-    assert not (tmp_path / ".pstack" / "bin" / "projectctl").exists()
+    assert not (tmp_path / ".pk-stack" / "bin" / "projectctl").exists()
 
 
 def test_bootstrap_preflights_non_directory_parent_without_partial_install(
@@ -256,8 +256,8 @@ def test_bootstrap_preflights_non_directory_parent_without_partial_install(
 
     assert result.ok is False
     assert ".kiro/agents" in result.conflicts
-    assert not (tmp_path / ".pstack" / "bin" / "projectctl").exists()
-    assert not (tmp_path / ".pstack" / "bootstrap.json").exists()
+    assert not (tmp_path / ".pk-stack" / "bin" / "projectctl").exists()
+    assert not (tmp_path / ".pk-stack" / "bootstrap.json").exists()
 
 
 def test_managed_upgrade_requires_preview_then_explicit_opt_in(tmp_path: Path) -> None:
@@ -266,14 +266,14 @@ def test_managed_upgrade_requires_preview_then_explicit_opt_in(tmp_path: Path) -
 
     first = bootstrap_project(tmp_path, power_root=POWER_ROOT)
     assert first.ok is True
-    managed = tmp_path / ".pstack" / "projectctl" / "src" / "pstack_kiro" / "__init__.py"
+    managed = tmp_path / ".pk-stack" / "projectctl" / "src" / "pk_stack" / "__init__.py"
     before = managed.read_bytes()
-    source_v2 = power_v2 / "src" / "pstack_kiro" / "__init__.py"
+    source_v2 = power_v2 / "src" / "pk_stack" / "__init__.py"
     source_v2.write_bytes(source_v2.read_bytes() + b"\n# v2 fixture\n")
 
     pending = bootstrap_project(tmp_path, power_root=power_v2)
     assert pending.ok is False
-    assert ".pstack/projectctl/src/pstack_kiro/__init__.py" in pending.pending_updates
+    assert ".pk-stack/projectctl/src/pk_stack/__init__.py" in pending.pending_updates
     assert managed.read_bytes() == before
 
     updated = bootstrap_project(tmp_path, power_root=power_v2, update_managed=True)
@@ -289,8 +289,8 @@ def test_owned_discovery_refreshes_without_managed_upgrade_gate(tmp_path: Path) 
     second = bootstrap_project(tmp_path, power_root=POWER_ROOT)
 
     assert second.ok is True
-    assert ".pstack/discovery.json" in second.updated
-    discovery = json.loads((tmp_path / ".pstack" / "discovery.json").read_text())
+    assert ".pk-stack/discovery.json" in second.updated
+    discovery = json.loads((tmp_path / ".pk-stack" / "discovery.json").read_text())
     assert discovery["root"] == "."
     assert "okn_available" not in discovery["knowledge"]
 
@@ -320,15 +320,15 @@ def test_retired_managed_asset_is_reported_until_explicitly_removed(tmp_path: Pa
     blocked = bootstrap_project(tmp_path, power_root=power_v1, update_managed=True)
     assert blocked.ok is False
     assert ".kiro/skills/retired/SKILL.md" in blocked.stale_managed
-    receipt = json.loads((tmp_path / ".pstack" / "bootstrap.json").read_text())
+    receipt = json.loads((tmp_path / ".pk-stack" / "bootstrap.json").read_text())
     assert ".kiro/skills/retired/SKILL.md" in receipt["files"]
 
     live.unlink()
-    cached = tmp_path / ".pstack" / "projectctl" / "skills" / "retired" / "SKILL.md"
+    cached = tmp_path / ".pk-stack" / "projectctl" / "skills" / "retired" / "SKILL.md"
     cached.unlink()
     resolved = bootstrap_project(tmp_path, power_root=power_v1, update_managed=True)
     assert resolved.ok is True
-    receipt = json.loads((tmp_path / ".pstack" / "bootstrap.json").read_text())
+    receipt = json.loads((tmp_path / ".pk-stack" / "bootstrap.json").read_text())
     assert ".kiro/skills/retired/SKILL.md" not in receipt["files"]
 
 
@@ -560,7 +560,7 @@ def test_goal_rejects_relative_script_escape_before_state_is_created(tmp_path: P
             command=f"{sys.executable} ../outside.py",
         )
 
-    assert not (project / ".pstack" / "state" / "goal.json").exists()
+    assert not (project / ".pk-stack" / "state" / "goal.json").exists()
 
     link = project / "linked.py"
     link.symlink_to(outside)
@@ -571,7 +571,7 @@ def test_goal_rejects_relative_script_escape_before_state_is_created(tmp_path: P
             command=f"{sys.executable} linked.py",
         )
 
-    assert not (project / ".pstack" / "state" / "goal.json").exists()
+    assert not (project / ".pk-stack" / "state" / "goal.json").exists()
 
 
 def test_outside_absolute_executable_is_rejected_before_contract_persistence(
@@ -585,7 +585,7 @@ def test_outside_absolute_executable_is_rejected_before_contract_persistence(
 
     with pytest.raises(CommandRejected, match="path operands"):
         start_goal(project, "Reject outside executable", command=str(outside))
-    assert not (project / ".pstack" / "state" / "goal.json").exists()
+    assert not (project / ".pk-stack" / "state" / "goal.json").exists()
 
     with pytest.raises(CommandRejected, match="path operands"):
         generate_feature(
@@ -637,9 +637,9 @@ def test_doctor_detects_missing_assets_runtime_drift_and_corrupt_goal(tmp_path: 
     assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok is True
     (tmp_path / ".kiro" / "agents" / "pk-stack-architect.json").unlink()
     (tmp_path / ".kiro" / "hooks" / "pk-stack-session.json").unlink()
-    internal = tmp_path / ".pstack" / "bin" / "projectctl"
+    internal = tmp_path / ".pk-stack" / "bin" / "projectctl"
     internal.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
-    state = tmp_path / ".pstack" / "state" / "goal.json"
+    state = tmp_path / ".pk-stack" / "state" / "goal.json"
     state.parent.mkdir(parents=True)
     state.write_text("{}", encoding="utf-8")
 
@@ -664,7 +664,7 @@ def test_hostile_wiki_symlink_returns_structured_cli_json(tmp_path: Path) -> Non
         [
             sys.executable,
             "-m",
-            "pstack_kiro",
+            "pk_stack",
             "feature",
             "validate",
             "--root",

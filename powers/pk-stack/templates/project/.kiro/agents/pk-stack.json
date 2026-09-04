@@ -35,15 +35,15 @@
       {
         "capability": "shell",
         "match": [
-          ".pstack/bin/projectctl",
-          ".pstack/bin/projectctl *"
+          ".pk-stack/bin/projectctl",
+          ".pk-stack/bin/projectctl *"
         ],
         "effect": "ask"
       },
       {
         "capability": "fs_write",
         "match": [
-          ".pstack/**",
+          ".pk-stack/**",
           ".kiro/agents/**",
     ".kiro/hooks/**",
     ".kiro/skills/archify/**",

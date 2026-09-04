@@ -8,8 +8,8 @@ from typing import Any, cast
 
 import pytest
 
-from pstack_kiro.features import FeatureMapError, generate_feature
-from pstack_kiro.goal import (
+from pk_stack.features import FeatureMapError, generate_feature
+from pk_stack.goal import (
     GoalError,
     GoalStore,
     bind_spec_contract,
@@ -21,7 +21,7 @@ from pstack_kiro.goal import (
     tripwire,
     verify_goal,
 )
-from pstack_kiro.models import CommandSpec, VerificationResult
+from pk_stack.models import CommandSpec, VerificationResult
 
 
 def _contract_digest(contract: CommandSpec) -> str:
@@ -122,7 +122,7 @@ def test_goal_rejects_draft_feature_with_command_before_creating_state(tmp_path:
     with pytest.raises(FeatureMapError, match=r"still a draft.*verification evidence"):
         start_goal(tmp_path, "Do not trust a draft", feature="draft-health")
 
-    assert not (tmp_path / ".pstack" / "state" / "goal.json").exists()
+    assert not (tmp_path / ".pk-stack" / "state" / "goal.json").exists()
 
 
 def test_spec_bridge_rejects_non_string_argv_elements(tmp_path: Path) -> None:
@@ -287,7 +287,7 @@ def test_spec_goal_discards_result_when_artifact_drifts_during_verification(
             duration_ms=0,
         )
 
-    monkeypatch.setattr("pstack_kiro.goal.run_command", drift_during_verification)
+    monkeypatch.setattr("pk_stack.goal.run_command", drift_during_verification)
     with pytest.raises(GoalError, match="changed after goal start"):
         verify_goal(tmp_path)
 
@@ -311,12 +311,12 @@ def test_goal_state_locking_fails_closed_without_fcntl(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr("pstack_kiro.goal.fcntl", None)
+    monkeypatch.setattr("pk_stack.goal.fcntl", None)
 
     with pytest.raises(GoalError, match="requires POSIX fcntl"):
         start_goal(tmp_path, "Do not run unlocked", command=_sentinel_command(tmp_path))
 
-    assert not (tmp_path / ".pstack").exists()
+    assert not (tmp_path / ".pk-stack").exists()
 
 
 def test_clear_requires_force_for_active_goal(tmp_path: Path) -> None:
@@ -332,7 +332,7 @@ def test_read_only_goal_queries_do_not_create_state_artifacts(tmp_path: Path) ->
     with pytest.raises(GoalError, match="no goal state"):
         get_goal(tmp_path)
     assert tripwire(tmp_path)["active"] is False
-    assert not (tmp_path / ".pstack").exists()
+    assert not (tmp_path / ".pk-stack").exists()
 
 
 def test_start_rejects_ambiguous_contract_sources(tmp_path: Path) -> None:
@@ -453,7 +453,7 @@ def test_verifier_result_is_discarded_when_resume_changes_state(
             duration_ms=0,
         )
 
-    monkeypatch.setattr("pstack_kiro.goal.run_command", resume_during_verification)
+    monkeypatch.setattr("pk_stack.goal.run_command", resume_during_verification)
     with pytest.raises(GoalError, match="state changed during verification"):
         verify_goal(tmp_path)
 
@@ -485,7 +485,7 @@ def test_goal_contract_and_store_error_boundaries(tmp_path: Path) -> None:
     outside = tmp_path / "outside"
     hostile.mkdir()
     outside.mkdir()
-    (hostile / ".pstack").symlink_to(outside, target_is_directory=True)
+    (hostile / ".pk-stack").symlink_to(outside, target_is_directory=True)
     with pytest.raises(GoalError, match="symlink"):
         GoalStore(hostile)
 
@@ -516,6 +516,6 @@ def test_goal_rejects_unsupported_schema_and_discards_removed_state(
             duration_ms=0,
         )
 
-    monkeypatch.setattr("pstack_kiro.goal.run_command", remove_state)
+    monkeypatch.setattr("pk_stack.goal.run_command", remove_state)
     with pytest.raises(GoalError, match="changed while its verifier was running"):
         verify_goal(tmp_path)

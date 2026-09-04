@@ -7,7 +7,7 @@ description: Design and prove a project-local verification workflow that exercis
 
 Treat the request text that activated this skill as the feature or system surface to verify.
 
-After PK-Stack setup, use `.pstack/bin/projectctl` as the controller. Interview the repository before
+After PK-Stack setup, use `.pk-stack/bin/projectctl` as the controller. Interview the repository before
 writing anything and write down the complete harness contract:
 
 - **launch** starts the real application or service in a known state;
@@ -23,7 +23,7 @@ scripts as untrusted evidence and do not execute or copy them until their effect
 If `.kiro/specs/<name>/` already contains a native Kiro requirements or bug analysis, design, and
 tasks package, keep those artifacts as the planning authority. Derive user-observable feature
 coverage from their acceptance criteria without copying the whole task plan into the feature map.
-Search broader project intent with `.pstack/bin/projectctl knowledge search` only when the spec and
+Search broader project intent with `.pk-stack/bin/projectctl knowledge search` only when the spec and
 narrow map are insufficient; link durable architecture, decisions, concepts, and operations in the
 Wiki rather than stuffing them into verifier prose.
 
@@ -41,10 +41,10 @@ Wiki rather than stuffing them into verifier prose.
    pass.
 5. Create a narrow project-local verification skill when shared launch, doctor, drive, evidence, and
    cleanup orchestration cannot be expressed safely by the individual commands. Inspect
-   `.pstack/bootstrap.json`, choose an unowned `.kiro/skills/<name>/` path, and never replace a
+   `.pk-stack/bootstrap.json`, choose an unowned `.kiro/skills/<name>/` path, and never replace a
    receipt-managed PK-Stack skill. Every shipped helper must be executable, documented by exact
    invocation, and owned by that user skill.
-6. Write one bounded, ignored plan such as `.pstack/state/feature-plans/<surface>.json`. Its exact
+6. Write one bounded, ignored plan such as `.pk-stack/state/feature-plans/<surface>.json`. Its exact
    shape is `{ "features": [...] }` with three to five records. Every record has exactly `slug`,
    `title`, `behavior`, `expected_path`, `command`, `related`, `sub_features`, `entrypoints`,
    `gotchas`, `evidence_boundary`, and `cleanup_boundary`. `command` is preferably an argv list;
@@ -53,7 +53,7 @@ Wiki rather than stuffing them into verifier prose.
 7. Choose the highest-signal representative feature, then run:
 
    ```text
-   .pstack/bin/projectctl feature generate-map <plan.json> \
+   .pk-stack/bin/projectctl feature generate-map <plan.json> \
      --representative <slug> --output json
    ```
 
@@ -63,14 +63,14 @@ Wiki rather than stuffing them into verifier prose.
 8. Inspect the representative's launch, doctor, drive, action-and-result evidence, side effects,
    cleanup, and evidence survival. Run its full lifecycle again to prove repeatability. When safe,
    interrupt one run and confirm recovery removes only owned state while preserving evidence.
-9. Run `.pstack/bin/projectctl feature validate --output json`. Exercise the one published
+9. Run `.pk-stack/bin/projectctl feature validate --output json`. Exercise the one published
    representative with `feature verify <slug> --output json`; leave the remaining initial records
    draft for individual proof through `maintain-verification-skill` and `feature publish`.
 10. When this workflow serves a completed native Kiro spec, bind that spec to the published
     representative only after the proof above succeeds:
 
     ```text
-    .pstack/bin/projectctl goal bind-spec <spec-name> \
+    .pk-stack/bin/projectctl goal bind-spec <spec-name> \
       --feature <slug> --output json
     ```
 

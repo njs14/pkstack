@@ -67,7 +67,7 @@ jobs:
             "$workspace_template/powers/pk-stack/dev.kiro/steering" \
             "$workspace_template/powers/pk-stack/docs/smoke" \
             "$workspace_template/powers/pk-stack/skills/permission-smoke" \
-            "$workspace_template/powers/pk-stack/src/pstack_kiro" \
+            "$workspace_template/powers/pk-stack/src/pk_stack" \
             "$workspace_template/powers/pk-stack/templates/project/.kiro/agents" \
             "$workspace_template/powers/pk-stack/tests"
           archive="$SMOKE_ROOT/kirocli-2.21.0.tar.xz"
@@ -89,11 +89,11 @@ jobs:
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            018d14c50dafd39eff3dd062d202d7fdcf735f9cc09cb06b60151fc71a079ae5 \
+            09357bd36bd6b7aecbc0bf3cc5d18ab05c60ef42982726aa9204fc7eb3f3fd14 \
             "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            626af81793708816647c13dde35105994be218b3a216cd2f97c229f58ab76e2c \
+            4bad398ba52bb1db12f01943523e2e088344b6c4b19ed4f4eceb3afbe40b16aa \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
           python3 - "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
           import json
@@ -140,7 +140,7 @@ jobs:
           protected_paths=(
             .github/protected.txt
             .kiro/protected.txt
-            powers/pk-stack/src/pstack_kiro/protected.py
+            powers/pk-stack/src/pk_stack/protected.py
             powers/pk-stack/tests/protected.py
             maintenance/upstream-reviews.json
             powers/pk-stack/docs/validation-report.md
@@ -177,7 +177,7 @@ jobs:
           powers/pk-stack/docs/upstream-skill-parity.json
           powers/pk-stack/docs/validation-report.md
           powers/pk-stack/skills/permission-smoke/SKILL.md
-          powers/pk-stack/src/pstack_kiro/protected.py
+          powers/pk-stack/src/pk_stack/protected.py
           powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json
           powers/pk-stack/tests/protected.py
           EOF
@@ -232,7 +232,7 @@ jobs:
             test ! -e "$case_root/user-home/.kiro"
             test ! -e "$case_root/kiro-home/settings/mcp.json"
             printf '%s  %s\n' \
-              018d14c50dafd39eff3dd062d202d7fdcf735f9cc09cb06b60151fc71a079ae5 \
+              09357bd36bd6b7aecbc0bf3cc5d18ab05c60ef42982726aa9204fc7eb3f3fd14 \
               "$case_root/workspace/.kiro/agents/pk-stack-permission-fixture.json" \
               | sha256sum --check
           }
@@ -416,7 +416,7 @@ jobs:
           denied_resources=(
             .github/protected.txt
             .kiro/protected.txt
-            powers/pk-stack/src/pstack_kiro/protected.py
+            powers/pk-stack/src/pk_stack/protected.py
             powers/pk-stack/tests/protected.py
             maintenance/upstream-reviews.json
             powers/pk-stack/docs/validation-report.md

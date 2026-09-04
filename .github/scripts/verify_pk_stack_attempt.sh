@@ -22,13 +22,13 @@ trusted_python="$TRUSTED_PROJECTCTL_ROOT/.venv/bin/python"
 
 trusted_projectctl() {
   PYTHONPATH="$TRUSTED_PROJECTCTL_ROOT/src" \
-    "$trusted_python" -B -X pycache_prefix=/dev/null -m pstack_kiro "$@"
+    "$trusted_python" -B -X pycache_prefix=/dev/null -m pk_stack "$@"
 }
 
 trusted_projectctl_network() {
   GITHUB_TOKEN="$readonly_token" \
     PYTHONPATH="$TRUSTED_PROJECTCTL_ROOT/src" \
-    "$trusted_python" -B -X pycache_prefix=/dev/null -m pstack_kiro "$@"
+    "$trusted_python" -B -X pycache_prefix=/dev/null -m pk_stack "$@"
 }
 
 # Git subprocesses launched directly or by immutable controller code inherit

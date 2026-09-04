@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from pstack_kiro import evidence as evidence_module
-from pstack_kiro.evidence import EvidenceError, append_evidence, audit_evidence
+from pk_stack import evidence as evidence_module
+from pk_stack.evidence import EvidenceError, append_evidence, audit_evidence
 
 
 def _append(
@@ -50,9 +50,9 @@ def test_default_append_is_bounded_canonical_monotonic_and_auditable(tmp_path: P
     second = _append(tmp_path, decision="Retain the verified implementation.", now=instant)
     audit = audit_evidence(tmp_path, "account-lookup")
 
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     events = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
-    assert first["path"] == ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    assert first["path"] == ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     assert first["committed"] is False
     assert second["event_count"] == 2
     assert [event["sequence"] for event in events] == [1, 2]
@@ -115,8 +115,8 @@ def test_secret_shaped_input_is_rejected_without_echo_or_file(
 
     assert secret not in str(error.value)
     assert "redacted pointer" in str(error.value)
-    assert not (tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl").exists()
-    assert not (tmp_path / ".pstack").exists()
+    assert not (tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl").exists()
+    assert not (tmp_path / ".pk-stack").exists()
 
 
 @pytest.mark.parametrize(
@@ -149,7 +149,7 @@ def test_artifact_reference_rejects_dotdot_alias_even_when_it_resolves_inside(
     with pytest.raises(EvidenceError, match="canonical"):
         _append(tmp_path, artifact=Path("artifacts/../artifact.txt"))
 
-    assert not (tmp_path / ".pstack").exists()
+    assert not (tmp_path / ".pk-stack").exists()
 
 
 def test_artifact_symlink_and_digest_drift_fail_closed(tmp_path: Path) -> None:
@@ -220,7 +220,7 @@ def test_committed_trail_requires_flag_and_exact_target(tmp_path: Path) -> None:
 
     assert result["committed"] is True
     assert (tmp_path / target).is_file()
-    assert not (tmp_path / ".pstack/state/evidence/account-lookup").exists()
+    assert not (tmp_path / ".pk-stack/state/evidence/account-lookup").exists()
     assert (
         audit_evidence(
             tmp_path,
@@ -238,7 +238,7 @@ def test_audit_rejects_schema_order_encoding_and_canonicalization_tampering(
     mutation: str,
 ) -> None:
     _append(tmp_path)
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     event = json.loads(path.read_text(encoding="utf-8"))
     if mutation == "extra-key":
         event["reasoning"] = "private narrative"
@@ -263,7 +263,7 @@ def test_bounds_reject_without_replacing_valid_trail(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     _append(tmp_path)
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     original = path.read_bytes()
     monkeypatch.setattr(evidence_module, "MAX_EVIDENCE_EVENTS", 1)
 
@@ -308,14 +308,14 @@ def test_append_rejects_invalid_verdict_or_detached_digest_before_writing(
             artifact_sha256="0" * 64,
         )
 
-    assert not (tmp_path / ".pstack").exists()
+    assert not (tmp_path / ".pk-stack").exists()
 
 
 def test_audit_rejects_missing_empty_and_duplicate_key_trails(tmp_path: Path) -> None:
     with pytest.raises(EvidenceError, match="does not exist"):
         audit_evidence(tmp_path, "account-lookup")
 
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     path.parent.mkdir(parents=True)
     path.write_bytes(b"")
     with pytest.raises(EvidenceError, match="no events"):
@@ -333,7 +333,7 @@ def test_audit_rejects_missing_empty_and_duplicate_key_trails(tmp_path: Path) ->
 
 
 def test_audit_duplicate_key_error_does_not_echo_untrusted_secret(tmp_path: Path) -> None:
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     path.parent.mkdir(parents=True)
     secret = "api_key=super-secret-value"
     path.write_text(f'{{"{secret}":1,"{secret}":2}}\n', encoding="utf-8")
@@ -347,7 +347,7 @@ def test_audit_duplicate_key_error_does_not_echo_untrusted_secret(tmp_path: Path
 def test_audit_rejects_planted_secret_and_non_monotonic_timestamp(tmp_path: Path) -> None:
     _append(tmp_path)
     _append(tmp_path, decision="Second public checkpoint.")
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     events = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
     second_timestamp = events[1]["timestamp"]
     events[1]["timestamp"] = events[0]["timestamp"]
@@ -381,7 +381,7 @@ def test_audit_rejects_crlf_and_mixed_jsonl_separators(
 ) -> None:
     _append(tmp_path)
     _append(tmp_path, decision="Second public checkpoint.")
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     lines = path.read_bytes().splitlines()
     if separator == "crlf":
         path.write_bytes(b"\r\n".join(lines) + b"\r\n")
@@ -399,7 +399,7 @@ def test_unicode_line_separator_inside_json_string_is_one_valid_event(tmp_path: 
     _append(tmp_path, decision=f"Keep the public{separator}evidence boundary.")
 
     audit = audit_evidence(tmp_path, "account-lookup")
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     assert audit["event_count"] == 1
     assert path.read_bytes().count(b"\n") == 1
     assert separator.encode() in path.read_bytes()
@@ -412,7 +412,7 @@ def test_event_and_file_bounds_are_enforced_on_append_and_audit(
     monkeypatch.setattr(evidence_module, "MAX_EVIDENCE_LINE_BYTES", 64)
     with pytest.raises(EvidenceError, match="event exceeds"):
         _append(tmp_path)
-    path = tmp_path / ".pstack/state/evidence/account-lookup/decision-log.jsonl"
+    path = tmp_path / ".pk-stack/state/evidence/account-lookup/decision-log.jsonl"
     assert not path.exists()
 
     monkeypatch.setattr(evidence_module, "MAX_EVIDENCE_LINE_BYTES", 24 * 1024)
@@ -429,4 +429,4 @@ def test_event_and_file_bounds_are_enforced_on_append_and_audit(
 def test_timestamp_source_must_be_timezone_aware(tmp_path: Path) -> None:
     with pytest.raises(EvidenceError, match="timezone-aware"):
         _append(tmp_path, now=datetime(2026, 9, 3, 12, 30))
-    assert not (tmp_path / ".pstack").exists()
+    assert not (tmp_path / ".pk-stack").exists()

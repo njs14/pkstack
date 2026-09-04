@@ -4091,7 +4091,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("maintenance/upstream-reviews.json", final_exact)
         self.assertFalse(
             guard._matches(
-                "powers/pk-stack/src/pstack_kiro/upstreams.py",
+                "powers/pk-stack/src/pk_stack/upstreams.py",
                 agent_exact,
                 self.policy["agent_allowed_prefixes"],
             )
@@ -5128,7 +5128,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             verifier.index("trusted_projectctl_network upstream accept"),
         )
         self.assertIn("test ! -e .pk-stack-maintenance", verifier)
-        self.assertNotIn("test ! -e .pstack/state/upstream-accept.lock", verifier)
+        self.assertNotIn("test ! -e .pk-stack/state/upstream-accept.lock", verifier)
         self.assertIn("workflow_dispatch:", smoke)
         self.assertNotIn("schedule:", smoke)
         self.assertGreaterEqual(smoke.count("permissions: {}"), 2)

@@ -27,7 +27,7 @@ before delegating.
 
 Before broad retrieval, inspect the matching feature record and follow its explicit related links.
 When rationale remains unresolved, record that escalation reason and issue one bounded, targeted
-`.pstack/bin/projectctl knowledge search "<specific rationale>" --budget 1200 --output json` query.
+`.pk-stack/bin/projectctl knowledge search "<specific rationale>" --budget 1200 --output json` query.
 Verify every returned section against its content-addressed source and current implementation; do
 not inject the whole Wiki.
 

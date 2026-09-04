@@ -7,13 +7,13 @@ import tomllib
 import zlib
 from pathlib import Path
 
-from pstack_kiro.bootstrap import (
+from pk_stack.bootstrap import (
     GITIGNORE_BLOCK,
     GITIGNORE_RESULT_KEY,
     REQUIRED_SOURCE_MODULES,
     TARGET_README,
 )
-from pstack_kiro.branding import (
+from pk_stack.branding import (
     DISPLAY_NAME,
     DISTRIBUTION_NAME,
     EXPANDED_NAME,
@@ -25,7 +25,7 @@ from pstack_kiro.branding import (
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = ROOT.parents[1]
 EXPECTED_IDENTITY = {
-    "name": "pstack-kiro",
+    "name": "pk-stack",
     "display_name": "PK-Stack",
     "expanded_name": "Poteto Kiro",
     "power_id": "pk-stack",
@@ -107,7 +107,7 @@ def _decode_rgba_png(payload: bytes) -> tuple[int, int, bytes]:
     return width, height, bytes(decoded)
 
 
-def test_runtime_identity_has_one_brand_and_explicit_compatibility_name() -> None:
+def test_runtime_identity_uses_one_brand() -> None:
     assert identity_payload() == EXPECTED_IDENTITY
     assert EXPECTED_IDENTITY["name"] == DISTRIBUTION_NAME == RECEIPT_MANAGER
     assert EXPECTED_IDENTITY["display_name"] == DISPLAY_NAME
@@ -115,7 +115,7 @@ def test_runtime_identity_has_one_brand_and_explicit_compatibility_name() -> Non
     assert EXPECTED_IDENTITY["power_id"] == POWER_ID
 
 
-def test_manifest_and_distribution_separate_brand_from_compatibility_id() -> None:
+def test_manifest_and_distribution_share_the_pk_stack_identity() -> None:
     manifest = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
 
@@ -143,12 +143,12 @@ def test_manifest_and_distribution_separate_brand_from_compatibility_id() -> Non
     assert copyright_line in (ROOT / "LICENSE").read_text(encoding="utf-8")
 
 
-def test_generated_surfaces_use_brand_without_renaming_installed_paths() -> None:
+def test_generated_surfaces_use_the_pk_stack_paths() -> None:
     assert "branding.py" in REQUIRED_SOURCE_MODULES
     assert GITIGNORE_BLOCK.startswith(f"# {DISPLAY_NAME} runtime state")
-    assert GITIGNORE_RESULT_KEY == ".gitignore:pstack-runtime-block"
+    assert GITIGNORE_RESULT_KEY == ".gitignore:pk-stack-runtime-block"
     assert f"managed by the {DISPLAY_NAME} bootstrap" in TARGET_README
-    assert ".pstack/bin/projectctl" in TARGET_README
+    assert ".pk-stack/bin/projectctl" in TARGET_README
 
 
 def test_human_facing_surfaces_use_the_pk_stack_brand() -> None:
@@ -190,10 +190,10 @@ def test_repository_artwork_is_square_rgba_without_extending_the_manifest() -> N
     assert "logo" not in json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
 
 
-def test_usage_does_not_present_the_compatibility_distribution_as_a_checkout() -> None:
+def test_usage_does_not_present_the_distribution_as_a_checkout() -> None:
     usage = (ROOT / "docs" / "usage.md").read_text(encoding="utf-8")
 
-    assert "/absolute/path/to/pstack-kiro/" not in usage
+    assert "/absolute/path/to/pk-stack/" not in usage
 
 
 def test_agent_ids_use_the_pk_stack_name() -> None:
@@ -233,7 +233,7 @@ def test_hook_payloads_use_pk_stack_key_and_expose_display_brand() -> None:
         }
 
 
-def test_active_user_guidance_does_not_use_legacy_agent_or_setup_names() -> None:
+def test_active_user_guidance_does_not_use_legacy_pk_stack_names() -> None:
     paths = (
         REPOSITORY_ROOT / "README.md",
         ROOT / "README.md",
@@ -247,6 +247,9 @@ def test_active_user_guidance_does_not_use_legacy_agent_or_setup_names() -> None
         "/agent swap pstack",
         "skills + pstack agent",
         "setup_pstack.py",
+        ".pstack/",
+        "pstack_kiro",
+        "pstack-kiro",
     )
 
     for path in paths:

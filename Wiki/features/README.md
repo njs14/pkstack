@@ -23,7 +23,7 @@ in the broader [KNOW index](../index.md).
 Use the canonical project wrapper from the repository root:
 
 ```sh
-.pstack/bin/projectctl feature generate account-lookup \
+.pk-stack/bin/projectctl feature generate account-lookup \
   --title "Account lookup" \
   --behavior "A caller can retrieve account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
@@ -45,15 +45,15 @@ three to five complete records and run `feature generate-map`; only the named
 representative is published until each remaining verifier passes.
 
 ```sh
-.pstack/bin/projectctl feature generate-map feature-plan.json \
+.pk-stack/bin/projectctl feature generate-map feature-plan.json \
   --representative account-lookup --output json
-.pstack/bin/projectctl feature publish <slug> --output json
+.pk-stack/bin/projectctl feature publish <slug> --output json
 ```
 
 Validate the map at any time:
 
 ```sh
-.pstack/bin/projectctl feature validate --output json
+.pk-stack/bin/projectctl feature validate --output json
 ```
 
 If a contract needs deeper context, follow its `related` links before issuing

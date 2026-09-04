@@ -69,7 +69,7 @@ jobs:
           power = Path("powers/pk-stack")
           pyproject = tomllib.loads((power / "pyproject.toml").read_text(encoding="utf-8"))
           manifest = json.loads((power / "plugin.json").read_text(encoding="utf-8"))
-          source = (power / "src/pstack_kiro/__init__.py").read_text(encoding="utf-8")
+          source = (power / "src/pk_stack/__init__.py").read_text(encoding="utf-8")
           version = pyproject["project"].get("version")
           runtime = re.search(r'^__version__ = "([^"]+)"$', source, re.MULTILINE)
           if version != expected or manifest.get("version") != expected:
@@ -99,9 +99,9 @@ jobs:
             uv run --frozen ty check
             uv run --frozen pytest -q
           )
-          ./.pstack/bin/projectctl version --output json
-          ./.pstack/bin/projectctl feature validate --output json
-          ./.pstack/bin/projectctl knowledge validate --output json
+          ./.pk-stack/bin/projectctl version --output json
+          ./.pk-stack/bin/projectctl feature validate --output json
+          ./.pk-stack/bin/projectctl knowledge validate --output json
       - name: Build deterministic PK-Stack Power archive and SHA-256
         env:
           RELEASE_VERSION: 0.2.0

@@ -31,9 +31,9 @@ Select one candidate as the base. Hand-graft only the strongest compatible ideas
 
 ## Prove the result
 
-After PK-Stack setup, use only the managed `.pstack/bin/projectctl` entrypoint.
+After PK-Stack setup, use only the managed `.pk-stack/bin/projectctl` entrypoint.
 Run the repository's executable verifier, preferably
-`.pstack/bin/projectctl feature verify <slug> --output json` or
-`.pstack/bin/projectctl verify <slug> --output json`. Do not select an ambient
+`.pk-stack/bin/projectctl feature verify <slug> --output json` or
+`.pk-stack/bin/projectctl verify <slug> --output json`. Do not select an ambient
 `projectctl` or repository-owned `./projectctl`. Report the rubric, scorecard,
 chosen base, grafted ideas, exact verifier, and unresolved uncertainty.

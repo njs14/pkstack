@@ -13,13 +13,13 @@ from typing import Any
 
 import pytest
 
-from pstack_kiro.bootstrap import bootstrap_project
+from pk_stack.bootstrap import bootstrap_project
 
 POWER_ROOT = Path(__file__).parents[1]
 
 
 def _copy_power_fixture(destination: Path) -> None:
-    for relative in ("src/pstack_kiro", "skills", "dev.kiro", "templates", "docs"):
+    for relative in ("src/pk_stack", "skills", "dev.kiro", "templates", "docs"):
         shutil.copytree(POWER_ROOT / relative, destination / relative)
 
 
@@ -59,13 +59,13 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     assert second.updated == []
     assert first_hashes == second_hashes
     assert (tmp_path / "projectctl").stat().st_mode & 0o111
-    wrapper = (tmp_path / ".pstack" / "bin" / "projectctl").read_text(encoding="utf-8")
+    wrapper = (tmp_path / ".pk-stack" / "bin" / "projectctl").read_text(encoding="utf-8")
     assert 'uv sync --quiet --locked --no-config --project "$PROJECTCTL_ROOT"' in wrapper
     assert 'exec "$PROJECTCTL_ROOT/.venv/bin/python" -B -X pycache_prefix=/dev/null' in wrapper
-    assert '-m pstack_kiro "$@"' in wrapper
+    assert '-m pk_stack "$@"' in wrapper
     assert (tmp_path / ".kiro" / "skills" / "verified-goal" / "SKILL.md").is_file()
     assert not (tmp_path / ".kiro" / "skills" / "setup-pk-stack").exists()
-    cached_setup = tmp_path / ".pstack" / "projectctl" / "skills" / "setup-pk-stack"
+    cached_setup = tmp_path / ".pk-stack" / "projectctl" / "skills" / "setup-pk-stack"
     assert (cached_setup / "SKILL.md").is_file()
     assert (cached_setup / "scripts" / "setup_pk_stack.py").is_file()
     parity = json.loads(
@@ -84,7 +84,7 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     live_skills = {path.parent.name for path in (tmp_path / ".kiro" / "skills").glob("*/SKILL.md")}
     cached_skills = {
         path.parent.name
-        for path in (tmp_path / ".pstack" / "projectctl" / "skills").glob("*/SKILL.md")
+        for path in (tmp_path / ".pk-stack" / "projectctl" / "skills").glob("*/SKILL.md")
     }
     assert live_skills == canonical_skills - {"setup-pk-stack"}
     assert cached_skills == canonical_skills
@@ -95,7 +95,7 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     live_steering = {path.name for path in (tmp_path / ".kiro" / "steering").glob("*.md")}
     cached_steering = {
         path.name
-        for path in (tmp_path / ".pstack" / "projectctl" / "dev.kiro" / "steering").glob("*.md")
+        for path in (tmp_path / ".pk-stack" / "projectctl" / "dev.kiro" / "steering").glob("*.md")
     }
     assert (
         live_steering
@@ -119,16 +119,16 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     assert "pk-stack-upstream-maintenance.md" not in feature_readme
     assert "../powers/pk-stack" not in wiki_index
     assert "../reviews/" not in wiki_index
-    receipt = json.loads((tmp_path / ".pstack" / "bootstrap.json").read_text())
-    assert receipt["manager"] == "pstack-kiro"
-    assert ".pstack/projectctl/src/pstack_kiro/goal.py" in receipt["files"]
+    receipt = json.loads((tmp_path / ".pk-stack" / "bootstrap.json").read_text())
+    assert receipt["manager"] == "pk-stack"
+    assert ".pk-stack/projectctl/src/pk_stack/goal.py" in receipt["files"]
 
 
 def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: Path) -> None:
     target = tmp_path / "target"
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
-    receipt = target / ".pstack" / "bootstrap.json"
+    receipt = target / ".pk-stack" / "bootstrap.json"
     profile = target / ".kiro" / "agents" / "pk-stack.json"
     before = (receipt.read_bytes(), profile.read_bytes())
     clean_env = {
@@ -139,7 +139,7 @@ def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: 
 
     cached_shim = (
         target
-        / ".pstack"
+        / ".pk-stack"
         / "projectctl"
         / "skills"
         / "setup-pk-stack"
@@ -164,12 +164,12 @@ def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: 
     )
 
     module_env = dict(clean_env)
-    module_env["PYTHONPATH"] = str(target / ".pstack" / "projectctl" / "src")
+    module_env["PYTHONPATH"] = str(target / ".pk-stack" / "projectctl" / "src")
     module_result = subprocess.run(
         [
             sys.executable,
             "-m",
-            "pstack_kiro.bootstrap",
+            "pk_stack.bootstrap",
             "--root",
             ".",
             "--dry-run",
@@ -188,7 +188,7 @@ def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: 
         assert completed.stderr == ""
         payload = json.loads(completed.stdout)
         assert payload["error_type"] == "ValueError"
-        assert "project-local .pstack cache" in payload["error"]
+        assert "project-local .pk-stack cache" in payload["error"]
     assert (receipt.read_bytes(), profile.read_bytes()) == before
 
 
@@ -196,8 +196,8 @@ def test_cached_setup_rejects_case_alias_on_case_folding_filesystem(tmp_path: Pa
     target = tmp_path / "target"
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
-    alternate_cache = target / ".PSTACK"
-    canonical_cache = target / ".pstack"
+    alternate_cache = target / ".PK-STACK"
+    canonical_cache = target / ".pk-stack"
     if not alternate_cache.exists() or not alternate_cache.samefile(canonical_cache):
         return
 
@@ -236,7 +236,7 @@ def test_cached_setup_rejects_case_alias_on_case_folding_filesystem(tmp_path: Pa
         [
             sys.executable,
             "-m",
-            "pstack_kiro.bootstrap",
+            "pk_stack.bootstrap",
             "--root",
             ".",
             "--dry-run",
@@ -255,7 +255,7 @@ def test_cached_setup_rejects_case_alias_on_case_folding_filesystem(tmp_path: Pa
         assert completed.stderr == ""
         payload = json.loads(completed.stdout)
         assert payload["error_type"] == "ValueError"
-        assert "project-local .pstack cache" in payload["error"]
+        assert "project-local .pk-stack cache" in payload["error"]
 
 
 def test_shipped_workflows_select_only_the_managed_internal_controller() -> None:
@@ -291,7 +291,7 @@ def test_bootstrap_preserves_foreign_projectctl(tmp_path: Path) -> None:
 
     assert result.ok is True
     assert (tmp_path / "projectctl").read_text(encoding="utf-8") == "foreign\n"
-    assert (tmp_path / ".pstack" / "bin" / "projectctl").is_file()
+    assert (tmp_path / ".pk-stack" / "bin" / "projectctl").is_file()
     assert any("existing root projectctl" in note for note in result.notes)
 
 
@@ -299,14 +299,14 @@ def test_gitignore_comments_and_substrings_do_not_impersonate_runtime_patterns(
     tmp_path: Path,
 ) -> None:
     ignored_paths = (
-        ".pstack/state/",
-        ".pstack/tmp/",
-        ".pstack/projectctl/.venv/",
+        ".pk-stack/state/",
+        ".pk-stack/tmp/",
+        ".pk-stack/projectctl/.venv/",
         ".pk-stack-maintenance/",
     )
     impostors = (
         "".join(f"# {entry}\n" for entry in ignored_paths),
-        "backup/.pstack/state/\n.pstack/tmp/cache\n.pstack/projectctl/.venv/backup\n"
+        "backup/.pk-stack/state/\n.pk-stack/tmp/cache\n.pk-stack/projectctl/.venv/backup\n"
         ".pk-stack-maintenance/archive\n",
     )
     for index, existing in enumerate(impostors):
@@ -330,27 +330,27 @@ def test_bootstrap_migrates_legacy_gitignore_block_once_and_is_idempotent(
     legacy = (
         "foreign-entry/\n\n"
         "# PK-Stack runtime state (generated by /setup-pk-stack)\n"
-        ".pstack/state/\n"
-        ".pstack/tmp/\n"
-        ".pstack/projectctl/.venv/\n\n"
+        ".pk-stack/state/\n"
+        ".pk-stack/tmp/\n"
+        ".pk-stack/projectctl/.venv/\n\n"
         "# PK-Stack runtime state (generated by /setup-pk-stack)\n"
-        ".pstack/state/\n"
-        ".pstack/tmp/\n"
-        ".pstack/projectctl/.venv/\n"
+        ".pk-stack/state/\n"
+        ".pk-stack/tmp/\n"
+        ".pk-stack/projectctl/.venv/\n"
         ".pk-stack-maintenance/\n"
     )
     gitignore.write_text(legacy, encoding="utf-8")
 
     preview = bootstrap_project(tmp_path, power_root=POWER_ROOT, dry_run=True)
 
-    assert ".gitignore:pstack-runtime-block" in preview.updated
+    assert ".gitignore:pk-stack-runtime-block" in preview.updated
     assert gitignore.read_text(encoding="utf-8") == legacy
 
     applied = bootstrap_project(tmp_path, power_root=POWER_ROOT)
     normalized = gitignore.read_text(encoding="utf-8")
     assert applied.ok is True
     assert normalized.count("# PK-Stack runtime state (generated by /setup-pk-stack)") == 1
-    assert normalized.count(".pstack/state/") == 1
+    assert normalized.count(".pk-stack/state/") == 1
     assert normalized.count(".pk-stack-maintenance/") == 1
     assert normalized.startswith("foreign-entry/\n\n")
 
@@ -367,9 +367,9 @@ def test_idempotent_bootstrap_normalizes_managed_file_modes_after_dry_run(
     tmp_path: Path,
 ) -> None:
     assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok is True
-    executable = tmp_path / ".pstack" / "bin" / "projectctl"
+    executable = tmp_path / ".pk-stack" / "bin" / "projectctl"
     text = tmp_path / ".kiro" / "steering" / "pk-stack-core.md"
-    receipt = tmp_path / ".pstack" / "bootstrap.json"
+    receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     for path in (executable, text, receipt):
         path.chmod(0o777)
 
@@ -401,7 +401,7 @@ def test_concurrent_fresh_bootstraps_serialize_and_commit_one_consistent_receipt
     for label in ("alpha", "beta"):
         power = tmp_path / f"power-{label}"
         _copy_power_fixture(power)
-        managed_source = power / "src" / "pstack_kiro" / "__init__.py"
+        managed_source = power / "src" / "pk_stack" / "__init__.py"
         managed_source.write_bytes(managed_source.read_bytes() + f"\n# {label}\n".encode())
         expected_sources.add(managed_source.read_bytes())
         powers.append(power)
@@ -430,12 +430,12 @@ def test_concurrent_fresh_bootstraps_serialize_and_commit_one_consistent_receipt
     assert sum(outcome["ok"] is True for outcome in outcomes) == 1
     assert sum(bool(outcome["pending_updates"]) for outcome in outcomes) == 1
 
-    receipt = json.loads((target / ".pstack" / "bootstrap.json").read_text(encoding="utf-8"))
+    receipt = json.loads((target / ".pk-stack" / "bootstrap.json").read_text(encoding="utf-8"))
     for relative, expected_hash in receipt["files"].items():
         managed = target / relative
         assert managed.is_file()
         assert hashlib.sha256(managed.read_bytes()).hexdigest() == expected_hash
-    installed_source = target / ".pstack" / "projectctl" / "src" / "pstack_kiro" / "__init__.py"
+    installed_source = target / ".pk-stack" / "projectctl" / "src" / "pk_stack" / "__init__.py"
     assert installed_source.read_bytes() in expected_sources
 
 
@@ -444,7 +444,7 @@ def test_bootstrap_refuses_to_overwrite_modified_managed_file(tmp_path: Path) ->
     agent = tmp_path / ".kiro" / "agents" / "pk-stack.json"
     if not agent.exists():
         # The Kiro assets are added independently; use a guaranteed managed file meanwhile.
-        agent = tmp_path / ".pstack" / "projectctl" / "README.md"
+        agent = tmp_path / ".pk-stack" / "projectctl" / "README.md"
     agent.write_text("user customization\n", encoding="utf-8")
 
     result = bootstrap_project(tmp_path, power_root=POWER_ROOT)
@@ -478,12 +478,12 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
     }
     expected_pending = {
         ".kiro/agents/pk-stack.json",
-        ".pstack/projectctl/templates/project/.kiro/agents/pk-stack.json",
+        ".pk-stack/projectctl/templates/project/.kiro/agents/pk-stack.json",
     }
 
     controller_preview = subprocess.run(
         [
-            str(target / ".pstack" / "bin" / "projectctl"),
+            str(target / ".pk-stack" / "bin" / "projectctl"),
             "setup",
             "--power-root",
             str(power_v2),
@@ -546,7 +546,7 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
     live = target / ".kiro" / "agents" / "pk-stack.json"
     cached = (
         target
-        / ".pstack"
+        / ".pk-stack"
         / "projectctl"
         / "templates"
         / "project"
@@ -556,7 +556,7 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
     )
     assert marker in live.read_text(encoding="utf-8")
     assert live.read_bytes() == cached.read_bytes() == v2_profile.read_bytes()
-    receipt = json.loads((target / ".pstack" / "bootstrap.json").read_text(encoding="utf-8"))
+    receipt = json.loads((target / ".pk-stack" / "bootstrap.json").read_text(encoding="utf-8"))
     for path in (live, cached):
         key = path.relative_to(target).as_posix()
         assert receipt["files"][key] == hashlib.sha256(path.read_bytes()).hexdigest()

@@ -7,7 +7,7 @@ description: Design or revise a component through grounded architecture analysis
 
 Treat the request text that activated this skill as the architecture request.
 
-After PK-Stack setup, `<runner>` means exactly `.pstack/bin/projectctl`. Do not
+After PK-Stack setup, `<runner>` means exactly `.pk-stack/bin/projectctl`. Do not
 select an ambient `projectctl` or repository-owned `./projectctl`.
 
 Use Kiro's native execution and context. This skill supplies decision

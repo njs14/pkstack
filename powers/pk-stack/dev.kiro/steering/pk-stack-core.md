@@ -18,8 +18,8 @@ decision, concept, or operations question. Native `/knowledge` may index the Wik
 second source of truth.
 
 Kiro IDE chat/Agent Focus and Kiro CLI v3 are primary. Crew is optional and may use ACP internally;
-ACP is not PK-Stack's default. Web consumes committed assets by design but is untested. Keep normal
-work in the current session. Use `/spawn` only when the user requests a separate session.
+ACP is not PK-Stack's default. Web consumes committed assets by design but is untested. Keep work in
+the current session. Use `/spawn` only when the user requests a separate session.
 
 Treat feature maps and goal state as projectctl-owned. Never hand-edit them to manufacture success;
 completion requires the named executable verifier to pass.
@@ -29,5 +29,5 @@ and use the agent picker to select the Power-enabled setup agent, invoke `/setup
 reselect `pk-stack`. CLI users stay in chat and use `/agent swap kiro_default`, `/setup-pk-stack`, then
 `/agent swap pk-stack`; use the prior setup agent if named differently. Crew opens the trusted project
 only after local bootstrap. Web uses a locally refreshed, reviewed, committed asset tree;
-Configuration Sync is not a complete PK-Stack installer. Cached `.pstack/bin/projectctl setup`
+Configuration Sync is not a complete PK-Stack installer. Cached `.pk-stack/bin/projectctl setup`
 requires an explicitly reviewed `--power-root` as upgrade authority.

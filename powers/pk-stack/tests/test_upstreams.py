@@ -11,10 +11,10 @@ from typing import Any
 
 import pytest
 
-from pstack_kiro import cli, upstreams
-from pstack_kiro.bootstrap import bootstrap_project
-from pstack_kiro.runner import CommandRejected, enforce_verification_policy
-from pstack_kiro.upstreams import UpstreamError, check_upstreams, load_upstream_manifest
+from pk_stack import cli, upstreams
+from pk_stack.bootstrap import bootstrap_project
+from pk_stack.runner import CommandRejected, enforce_verification_policy
+from pk_stack.upstreams import UpstreamError, check_upstreams, load_upstream_manifest
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = POWER_ROOT.parents[1]
@@ -3321,7 +3321,7 @@ def test_upstream_accept_lock_serializes_two_processes(tmp_path: Path) -> None:
     first.join(2)
     second.join(2)
     assert first.exitcode == second.exitcode == 0
-    assert (tmp_path / ".pstack" / "state" / "upstream-accept.lock").is_file()
+    assert (tmp_path / ".pk-stack" / "state" / "upstream-accept.lock").is_file()
     assert not (tmp_path / ".pk-stack-maintenance").exists()
 
 
@@ -3331,7 +3331,7 @@ def test_upstream_accept_lock_rejects_symlink_swapped_after_path_validation(
 ) -> None:
     target = tmp_path / "outside-lock-target"
     target.write_text("unchanged", encoding="utf-8")
-    lock_path = tmp_path / ".pstack" / "state" / "upstream-accept.lock"
+    lock_path = tmp_path / ".pk-stack" / "state" / "upstream-accept.lock"
     original_open = upstreams.os.open
     raced = False
 
@@ -3645,7 +3645,7 @@ def test_cyclopts_routes_expected_head_bound_upstream_accept(
 
 def _managed_command(root: Path) -> list[str]:
     return [
-        ".pstack/bin/projectctl",
+        ".pk-stack/bin/projectctl",
         "upstream",
         "check",
         "--manifest",
@@ -3658,7 +3658,7 @@ def _managed_command(root: Path) -> list[str]:
 
 
 def test_runner_allows_only_the_exact_managed_upstream_predicate(tmp_path: Path) -> None:
-    executable = tmp_path / ".pstack" / "bin" / "projectctl"
+    executable = tmp_path / ".pk-stack" / "bin" / "projectctl"
     executable.parent.mkdir(parents=True)
     executable.write_text("#!/bin/sh\nexit 1\n", encoding="utf-8")
     executable.chmod(0o755)

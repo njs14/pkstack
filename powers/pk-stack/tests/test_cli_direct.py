@@ -7,8 +7,8 @@ from typing import Any
 
 import pytest
 
-from pstack_kiro import cli
-from pstack_kiro.branding import identity_payload
+from pk_stack import cli
+from pk_stack.branding import identity_payload
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
 
@@ -103,7 +103,7 @@ def test_direct_feature_commands_cover_success_and_failure(
     goal_error = _json(capsys)
     assert goal_error["error_type"] == "FeatureMapError"
     assert "still a draft" in goal_error["error"]
-    assert not (tmp_path / ".pstack" / "state" / "goal.json").exists()
+    assert not (tmp_path / ".pk-stack" / "state" / "goal.json").exists()
     assert not (tmp_path / "draft-ran").exists()
 
     with pytest.raises(SystemExit, match="2"):
@@ -199,7 +199,7 @@ def test_setup_doctor_and_knowledge_cli_boundaries(
     cli.knowledge_status_command(root=tmp_path, output="json")
     assert "mode" in _json(capsys)
 
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _name: None)
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _name: None)
     cli.knowledge_validate_command(root=tmp_path, output="json")
     payload = _json(capsys)
     assert payload["ok"] is True

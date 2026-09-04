@@ -102,12 +102,12 @@ jobs:
       - name: Run version, documentation, and curated bundle checks
         run: |
           set -euo pipefail
-          ./.pstack/bin/projectctl version --output json
-          ./.pstack/bin/projectctl feature validate --output json
+          ./.pk-stack/bin/projectctl version --output json
+          ./.pk-stack/bin/projectctl feature validate --output json
           if command -v openknowledge >/dev/null 2>&1; then
-            ./.pstack/bin/projectctl knowledge validate --require-okn --output json
+            ./.pk-stack/bin/projectctl knowledge validate --require-okn --output json
           else
-            ./.pstack/bin/projectctl knowledge validate --output json
+            ./.pk-stack/bin/projectctl knowledge validate --output json
           fi
           (
             cd powers/pk-stack
@@ -122,7 +122,7 @@ jobs:
           power = Path("powers/pk-stack")
           pyproject = tomllib.loads((power / "pyproject.toml").read_text(encoding="utf-8"))
           manifest = json.loads((power / "plugin.json").read_text(encoding="utf-8"))
-          source = (power / "src/pstack_kiro/__init__.py").read_text(encoding="utf-8")
+          source = (power / "src/pk_stack/__init__.py").read_text(encoding="utf-8")
           version = pyproject["project"]["version"]
           if version != "0.2.0" or manifest.get("version") != version:
               raise SystemExit("Power package and plugin versions are not v0.2.0")
