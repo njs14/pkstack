@@ -114,9 +114,9 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
             "hash mismatch (1): .pstack/projectctl/src/pstack_kiro/models.py",
         ),
         (
-            ".pstack/projectctl/skills/setup-pstack/SKILL.md",
+            ".pstack/projectctl/skills/setup-pk-stack/SKILL.md",
             "missing",
-            "missing or non-file (1): .pstack/projectctl/skills/setup-pstack/SKILL.md",
+            "missing or non-file (1): .pstack/projectctl/skills/setup-pk-stack/SKILL.md",
         ),
     ],
 )

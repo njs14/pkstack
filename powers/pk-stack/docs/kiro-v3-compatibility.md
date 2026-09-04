@@ -206,7 +206,7 @@ The two settings commands returned `true` and
 | Capability | Current Kiro contract | PK-Stack use |
 | --- | --- | --- |
 | Specs | Feature Spec, Bugfix Spec, Quick Spec, and parallel task execution span IDE, CLI, and Web; CLI exposes `/spec new <name>`, `/spec <name>`, and `/spec run <name>` | Use native requirements or bug analysis, design, tasks, and dependency waves as the planning spine; after a visible same-conversation return to `pstack`, bind the native package to one published feature verifier rather than recreating a planner |
-| Agent Skills | Workspace `.kiro/skills/<name>/SKILL.md` and global `~/.kiro/skills/`; slash invocation accepts trailing request text across IDE, CLI, and Web | Materialize `/verified-goal`, architecture, arena, swarm, maintenance, and advisory council workflows without CLI-only placeholder substitution; keep `/setup-pstack` Power-local as an IDE/CLI bootstrap exception |
+| Agent Skills | Workspace `.kiro/skills/<name>/SKILL.md` and global `~/.kiro/skills/`; slash invocation accepts trailing request text across IDE, CLI, and Web | Materialize `/verified-goal`, architecture, arena, swarm, maintenance, and advisory council workflows without CLI-only placeholder substitution; keep `/setup-pk-stack` Power-local as an IDE/CLI bootstrap exception |
 | Powers | Agent Plugins layout with root `plugin.json`, optional `skills/`, `mcp.json`, and `dev.kiro/` | Package and distribute PK-Stack guidance and its Power-local setup shim |
 | Custom agents | Workspace `.kiro/agents/` or global `~/.kiro/agents/`; current docs accept JSON and Markdown; IDE and CLI can select a primary agent while Web can only delegate to project agents | Ship four Power JSON profiles plus the repository's isolated CI maintainer; require both installed-CLI validation and exact Workspace discovery; select `pstack` as primary only where Kiro supports it |
 | Native subagents | Main agent delegates isolated work through the `subagent` tool; custom agents can be allow-listed | Bounded architecture, review, and verification assistance while the primary session owns edits/evidence |
@@ -260,7 +260,7 @@ After bootstrap, skills use `.pstack/bin/projectctl`, never repository
 `./projectctl` or ambient `uv run projectctl` resolution.
 
 Setup remains Power-local and is cached under
-`.pstack/projectctl/skills/setup-pstack/`; bootstrap deliberately does not copy
+`.pstack/projectctl/skills/setup-pk-stack/`; bootstrap deliberately does not copy
 it to `.kiro/skills/`, where an older workspace copy could shadow an upgraded
 Power. The other 54 workflow skills are materialized in the workspace. Kiro's
 current [Agent Skills documentation](https://kiro.dev/docs/skills/) describes
@@ -272,7 +272,7 @@ The cached `projectctl setup` surface requires an explicit `--power-root` and
 cannot silently use its own stale cache as upgrade authority. After selecting
 `pstack`, a managed refresh remains in the current chat. IDE users switch
 through the agent picker; CLI users run `/agent swap kiro_default`,
-`/setup-pstack`, then `/agent swap pstack` (or use the local Power-enabled agent
+`/setup-pk-stack`, then `/agent swap pstack` (or use the local Power-enabled agent
 name in place of `kiro_default`).
 Setup also validates its required source modules and Power assets before target
 writes. Its deterministic repository discovery uses sorted root-relative paths

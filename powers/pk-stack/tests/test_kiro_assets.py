@@ -94,7 +94,7 @@ def test_skill_frontmatter_matches_agent_skills_standard(skill_name: str) -> Non
     assert isinstance(compatibility, str)
     for surface in ("Kiro IDE 1.x", "Kiro CLI v3", "Kiro Crew", "Kiro Web"):
         assert surface in compatibility
-    if skill_name == "setup-pstack":
+    if skill_name == "setup-pk-stack":
         assert "committed post-bootstrap assets" in compatibility
         assert "rather than invoking this setup skill" in compatibility
     else:
@@ -114,7 +114,7 @@ def test_compatibility_document_inventory_counts_match_assets() -> None:
     )["sources"]
     workspace_agents = list((REPO_ROOT / ".kiro" / "agents").glob("*.json"))
     shipped_agents = list(AGENTS.glob("*.json"))
-    materialized_skills = EXPECTED_SKILLS - {"setup-pstack"}
+    materialized_skills = EXPECTED_SKILLS - {"setup-pk-stack"}
 
     assert f"The {len(upstreams)} source entries in `maintenance/upstreams.json`" in text
     assert f"validates all {len(workspace_agents)} workspace-agent files" in text
@@ -183,7 +183,8 @@ def test_upstream_skill_parity_inventory_is_complete_and_rendered() -> None:
     for entry in PARITY_SKILLS:
         if entry["target"] is not None:
             target = ROOT / entry["target"]
-            assert target == SKILLS / entry["name"] / "SKILL.md"
+            route_name = {"setup-pstack": "setup-pk-stack"}.get(entry["name"], entry["name"])
+            assert target == SKILLS / route_name / "SKILL.md"
             assert target.is_file()
         for revision in ("pinned", "current"):
             package = entry[revision]
@@ -244,7 +245,7 @@ def test_load_bearing_upstream_skill_packages_are_routed_by_their_real_names() -
 
     setup = by_name["setup-pstack"]
     assert setup["disposition"] == "native-kiro-replacement"
-    assert setup["target"] == "skills/setup-pstack/SKILL.md"
+    assert setup["target"] == "skills/setup-pk-stack/SKILL.md"
     assert [(resource["path"], resource["handling"]) for resource in setup["current"]["files"]] == [
         ("SKILL.md", "semantic-source")
     ]
@@ -702,7 +703,7 @@ def test_nested_workflow_ports_preserve_semantics_without_cursor_runtime_seams()
 
 
 def test_setup_skill_uses_idempotent_json_contract() -> None:
-    text = (SKILLS / "setup-pstack" / "SKILL.md").read_text(encoding="utf-8")
+    text = (SKILLS / "setup-pk-stack" / "SKILL.md").read_text(encoding="utf-8")
 
     assert "scripts/setup_pstack.py" in text
     assert ".pstack/bin/projectctl" in text
@@ -797,7 +798,7 @@ def test_setup_shim_uses_locked_source_module_fallback_for_older_python(
 
     with pytest.raises(RuntimeError, match="execve captured"):
         runpy.run_path(
-            str(SKILLS / "setup-pstack" / "scripts" / "setup_pstack.py"),
+            str(SKILLS / "setup-pk-stack" / "scripts" / "setup_pstack.py"),
             run_name="__main__",
         )
 
@@ -822,9 +823,9 @@ def test_setup_shim_uses_locked_source_module_fallback_for_older_python(
 
 
 def test_setup_shim_legacy_location_finds_the_project_controller(tmp_path: Path) -> None:
-    shim = tmp_path / ".kiro" / "skills" / "setup-pstack" / "scripts" / "setup_pstack.py"
+    shim = tmp_path / ".kiro" / "skills" / "setup-pk-stack" / "scripts" / "setup_pstack.py"
     shim.parent.mkdir(parents=True)
-    shutil.copy2(SKILLS / "setup-pstack" / "scripts" / "setup_pstack.py", shim)
+    shutil.copy2(SKILLS / "setup-pk-stack" / "scripts" / "setup_pstack.py", shim)
     cached_controller = tmp_path / ".pstack" / "projectctl"
     cached_controller.mkdir(parents=True)
 
@@ -893,7 +894,7 @@ def test_surface_support_matrix_separates_targets_from_evidence() -> None:
     )
     assert len(crew_nightly_versions) == 1
     assert "project custom agent as primary" in normalized_compatibility
-    assert "keep `/setup-pstack` Power-local as an IDE/CLI bootstrap exception" in (
+    assert "keep `/setup-pk-stack` Power-local as an IDE/CLI bootstrap exception" in (
         normalized_compatibility
     )
     assert "text files only" in normalized_compatibility
@@ -1162,7 +1163,7 @@ def test_primary_profile_denies_direct_control_plane_writes_and_common_clobbers(
         ".kiro/steering/**",
     }
     assert ".kiro/skills/**" not in denied_writes
-    managed_live_skills = EXPECTED_SKILLS - {"setup-pstack"}
+    managed_live_skills = EXPECTED_SKILLS - {"setup-pk-stack"}
     managed_skill_denies = {
         pattern for pattern in denied_writes if pattern.startswith(".kiro/skills/")
     }
@@ -1254,7 +1255,7 @@ def test_post_swap_setup_refresh_uses_power_local_authority() -> None:
     assert "IDE users stay in chat and use the agent picker" in normalized
     assert "CLI users stay in chat" in normalized
     assert "/agent swap kiro_default" in normalized
-    assert "/setup-pstack" in normalized
+    assert "/setup-pk-stack" in normalized
     assert "/agent swap pstack" in normalized
     assert "Crew opens the trusted project only after local bootstrap" in normalized
     assert "Web uses a locally refreshed, reviewed, committed asset tree" in normalized

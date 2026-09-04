@@ -131,7 +131,7 @@ without that exact explanation, or a changed base/head/path set, is a blocker.
 Run focused canonical tests, then explicitly preview ownership-aware generation:
 
 ```text
-python3 powers/pk-stack/skills/setup-pstack/scripts/setup_pstack.py --root . --dry-run --update-managed --output json
+python3 powers/pk-stack/skills/setup-pk-stack/scripts/setup_pstack.py --root . --dry-run --update-managed --output json
 ```
 
 Review the preview, run the same command without `--dry-run`, and rerun tests and parity checks.

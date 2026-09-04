@@ -28,7 +28,11 @@ from urllib.request import (
     build_opener,
 )
 
-from pstack_kiro.bootstrap import BootstrapResult, bootstrap_project
+from pstack_kiro.bootstrap import (
+    SKILL_ROUTE_ALIASES,
+    BootstrapResult,
+    bootstrap_project,
+)
 from pstack_kiro.paths import WorkspacePathError, workspace_path
 
 UPSTREAM_SCHEMA_VERSION = 2
@@ -1844,9 +1848,13 @@ def _validate_skill_parity_document(
             if target is not None or type(entry.get("safe_alternative")) is not str:
                 raise UpstreamError(f"{context} exclusion must name a safe alternative")
         else:
-            if target != f"skills/{name}/SKILL.md":
+            expected_target = f"skills/{SKILL_ROUTE_ALIASES.get(name, name)}/SKILL.md"
+            if target != expected_target:
                 raise UpstreamError(f"{context} target must be its canonical Kiro skill")
-            routed_names.add(name)
+            # The upstream name remains the provenance identity; the target
+            # directory is the Kiro-facing route and may intentionally use an
+            # explicit compatibility alias.
+            routed_names.add(Path(target).parent.name)
         if disposition == "alias-consolidation":
             if type(entry.get("consolidates_to")) is not str:
                 raise UpstreamError(f"{context} alias must name its consolidation")

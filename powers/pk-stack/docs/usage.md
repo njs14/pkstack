@@ -13,7 +13,7 @@ are deciding whether to install it.
 import and review the Power
         |
         v
-/setup-pstack  ->  review the dry run and bootstrap
+/setup-pk-stack  ->  review the dry run and bootstrap
         |
         v
 select pstack  ->  use the IDE picker or /agent swap pstack
@@ -69,7 +69,7 @@ using a source checkout, set one environment variable to the checkout's
 ```sh
 : "${PK_STACK_POWER:?Set PK_STACK_POWER to the checked-out PK-Stack Power directory}"
 test -f "$PK_STACK_POWER/plugin.json"
-test -f "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py"
+test -f "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py"
 ```
 
 Do not infer this value from a target project's `.pstack/` cache. An installed
@@ -83,7 +83,7 @@ package. In the target repository, use the current Kiro chat or Agent Focus
 session and invoke:
 
 ```text
-/setup-pstack
+/setup-pk-stack
 ```
 
 The skill first previews managed changes. Review `pending_updates`,
@@ -92,9 +92,9 @@ source-checkout equivalent is useful for troubleshooting and deterministic
 tests:
 
 ```sh
-python3 "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
   --root "$PWD" --dry-run --output json
-python3 "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
   --root "$PWD" --output json
 ```
 
@@ -118,7 +118,7 @@ Return to the Power-enabled Kiro agent before refreshing. In CLI v3:
 
 ```text
 /agent swap kiro_default
-/setup-pstack
+/setup-pk-stack
 /agent swap pstack
 ```
 
@@ -126,9 +126,9 @@ Use the local setup-agent name if it differs. If the dry run reports
 `pending_updates`, inspect the exact paths and preview the explicit upgrade:
 
 ```sh
-python3 "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
   --root "$PWD" --dry-run --update-managed --output json
-python3 "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
   --root "$PWD" --update-managed --output json
 ```
 

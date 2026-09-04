@@ -5,7 +5,7 @@ This directory is managed by the PK-Stack bootstrap. Use the canonical
 exist as a convenience, but workflows never select an ambient root executable.
 
 The cached controller is not setup authority. Setup and refresh must use the
-Power-local `/setup-pstack` skill, or an explicitly reviewed `--power-root`;
+Power-local `/setup-pk-stack` skill, or an explicitly reviewed `--power-root`;
 `projectctl setup` fails closed when that source is omitted.
 
 Runtime goal state lives in `.pstack/state/` and is intentionally ignored.

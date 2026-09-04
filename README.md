@@ -19,7 +19,7 @@ status](reviews/release-status.md) for the gate record.
 
 - Native Kiro Spec, Quick Spec, Bug Fix, and Plan workflows remain the planning
   source of truth.
-- `/setup-pstack` installs a reviewed workspace profile, steering, hooks, and
+- `/setup-pk-stack` installs a reviewed workspace profile, steering, hooks, and
   skills from the Power.
 - `/verified-goal` runs a bounded implement, verify, diagnose, and repair loop
   in the current Kiro session.
@@ -40,7 +40,7 @@ workspace path is supported by design but has not been tested end to end.
 2. Open the target repository in Kiro and run the Power-local setup skill:
 
    ```text
-   /setup-pstack
+   /setup-pk-stack
    ```
 
 3. Review the dry-run result. Then select the generated `pstack` agent in the
@@ -64,9 +64,9 @@ For a source-checkout fallback, set `PK_STACK_POWER` to the checked-out
 
 ```sh
 : "${PK_STACK_POWER:?Set PK_STACK_POWER to the PK-Stack Power directory}"
-python3 "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
   --root "$PWD" --dry-run --output json
-python3 "$PK_STACK_POWER/skills/setup-pstack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
   --root "$PWD" --output json
 ```
 
@@ -138,8 +138,8 @@ artifact.
 ```sh
 cd powers/pk-stack
 uv lock --check
-uv run --frozen ruff check src tests skills/setup-pstack/scripts/setup_pstack.py
-uv run --frozen ruff format --check src tests skills/setup-pstack/scripts/setup_pstack.py
+uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pstack.py
+uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pstack.py
 uv run --frozen ty check
 uv run --frozen pytest -q
 ```

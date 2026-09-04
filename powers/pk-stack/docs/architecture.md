@@ -88,7 +88,7 @@ powers/pk-stack/
 
 The wheel force-includes skills, steering, templates, and the repo-local lock
 under `pstack_kiro/_assets/`, so setup can use a source checkout or an
-installed Power. The Power-local `skills/setup-pstack/scripts/setup_pstack.py`
+installed Power. The Power-local `skills/setup-pk-stack/scripts/setup_pstack.py`
 is the only setup and upgrade authority.
 
 A successful target setup contains:

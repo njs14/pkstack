@@ -73,7 +73,7 @@ extend-exclude = ["tests/fixtures/generated"]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
-"skills/setup-pstack/scripts/setup_pstack.py" = ["UP036"]
+"skills/setup-pk-stack/scripts/setup_pstack.py" = ["UP036"]
 
 [tool.ruff.format]
 quote-style = "double"

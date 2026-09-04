@@ -50,7 +50,7 @@ rebases, and treats both early ready-PR creation and landing as separately autho
 The authoritative upstream route is `create-verification-skill`; there is no separate
 `install-verification-skill` package in either bounded catalog. Requests phrased as "install a
 verification skill" route to `create-verification-skill` rather than inventing a second skill name.
-Likewise, the `setup-pstack` replacement preserves the source package's post-setup offer of that
+Likewise, the `setup-pk-stack` replacement preserves the source package's post-setup offer of that
 workflow while deliberately replacing its Cursor-wide per-role model rule with repository-local,
 idempotent Kiro bootstrap and the current session's selected model and effort.
 
@@ -94,7 +94,7 @@ idempotent Kiro bootstrap and the current session's selected model and effort.
 | `principle-type-system-discipline` | Alias / consolidation | [`principle-type-system-discipline`](../skills/principle-type-system-discipline/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
 | `recall` | Native Kiro replacement | [`recall`](../skills/recall/SKILL.md) | Uses current-session context, Kiro steering, projectctl knowledge, git, and explicitly authorized task history instead of private Cursor transcript stores. |
 | `reflect` | Native Kiro replacement | [`reflect`](../skills/reflect/SKILL.md) | Reflects on current Kiro work and proposes structural learning; broad durable instruction changes require explicit approval. |
-| `setup-pstack` | Native Kiro replacement | [`setup-pstack`](../skills/setup-pstack/SKILL.md) | Preserves the upstream setup outcome and optional verification-workflow offer, but replaces its Cursor global role-model rule with idempotent Kiro Power bootstrap, ownership receipts, a pinned local controller, and inheritance of the user's selected Kiro model and effort. |
+| `setup-pstack` | Native Kiro replacement | [`setup-pk-stack`](../skills/setup-pk-stack/SKILL.md) | Routes the upstream setup skill to the consistent `/setup-pk-stack` Kiro command while preserving the setup outcome and optional verification-workflow offer; replaces its Cursor global role-model rule with idempotent Kiro Power bootstrap, ownership receipts, a pinned local controller, and inheritance of the user's selected Kiro model and effort. |
 | `show-me-your-work` | Direct port | [`show-me-your-work`](../skills/show-me-your-work/SKILL.md) | A bounded decision-and-evidence trail is portable; it excludes hidden reasoning and unsafe raw transcript export. |
 | `swarm` | Direct port | [`swarm`](../skills/swarm/SKILL.md) | Independent bounded work maps to native Kiro sub-agents with explicit ownership and current-session synthesis. |
 | `tdd` | Direct port | [`tdd`](../skills/tdd/SKILL.md) | Failing-behavior-first implementation and layered proof are runtime-neutral. |

@@ -89,7 +89,7 @@ def run_doctor(root: Path) -> dict[str, Any]:
                 "projectctl",
                 "fail",
                 internal_error or "executable .pstack/bin/projectctl entrypoint is missing",
-                "Run /setup-pstack or pstack-setup in this project.",
+                "Run /setup-pk-stack or pstack-setup in this project.",
             )
         )
     checks.append(_receipt_integrity_check(root))
@@ -139,7 +139,7 @@ def run_doctor(root: Path) -> dict[str, Any]:
         checks.append(_archify_runtime_check(root))
         checks.append(_archify_node_check())
     for skill in skill_names:
-        if skill == "setup-pstack":
+        if skill == "setup-pk-stack":
             continue
         required_assets[f"{skill}-skill"] = root / ".kiro" / "skills" / skill / "SKILL.md"
 
@@ -157,7 +157,7 @@ def run_doctor(root: Path) -> dict[str, Any]:
                 (
                     None
                     if safe_path.is_file()
-                    else "Re-run /setup-pstack; foreign files are preserved."
+                    else "Re-run /setup-pk-stack; foreign files are preserved."
                 ),
             )
         )
@@ -531,14 +531,14 @@ def _archify_runtime_check(root: Path) -> DoctorCheck:
             "archify-runtime",
             "fail",
             f"unable to inspect the managed Archify runtime safely: {exc}",
-            "Re-run /setup-pstack and restore the reviewed Archify bundle.",
+            "Re-run /setup-pk-stack and restore the reviewed Archify bundle.",
         )
     if missing:
         return DoctorCheck(
             "archify-runtime",
             "fail",
             "managed Archify runtime is incomplete: " + ", ".join(missing),
-            "Re-run /setup-pstack and restore the reviewed Archify bundle.",
+            "Re-run /setup-pk-stack and restore the reviewed Archify bundle.",
         )
     return DoctorCheck(
         "archify-runtime",

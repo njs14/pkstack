@@ -164,7 +164,7 @@ def test_human_facing_surfaces_use_the_pk_stack_brand() -> None:
         ROOT / "dev.kiro" / "steering" / "pstack-unslop.md": (
             f"# {DISPLAY_NAME} prose discipline",
         ),
-        ROOT / "skills" / "setup-pstack" / "SKILL.md": (f"# Set up {DISPLAY_NAME}",),
+        ROOT / "skills" / "setup-pk-stack" / "SKILL.md": (f"# Set up {DISPLAY_NAME}",),
     }
     for path, markers in expected.items():
         content = path.read_text(encoding="utf-8")

@@ -91,8 +91,11 @@ pstack components.
 
 The current name is Kiro-specific branding, not a restoration of upstream
 metadata. The Power manifest identifier and source-repository name are
-`pk-stack`; the Python distribution, receipt manager, package, agent routes,
+`pk-stack`; the Python distribution, receipt manager, package, `pstack` agent,
 and on-disk `.pstack` paths retain their documented compatibility identifiers.
+User-facing slash-command routes use the `pk-stack` slug convention. Where a
+source package name is retained in a parity or provenance record, that is an
+upstream identity and not a user-facing route.
 
 ## Upstream files consulted
 
@@ -124,7 +127,8 @@ review ledger.
 
 - [`pstack/skills/setup-pstack/SKILL.md`](https://github.com/cursor/plugins/blob/b9ddc83c32972210b8a94d389130713e8eed346e/pstack/skills/setup-pstack/SKILL.md)
   informed idempotent setup, validation of detected capabilities, and the
-  optional verification bootstrap.
+  optional verification bootstrap. PK-Stack exposes that reviewed source as
+  the consistent Kiro-facing `/setup-pk-stack` route.
 - [`pstack/skills/poteto-mode/SKILL.md`](https://github.com/cursor/plugins/blob/b9ddc83c32972210b8a94d389130713e8eed346e/pstack/skills/poteto-mode/SKILL.md)
   informed playbook routing, visible skip decisions, artifact-based review,
   and real-surface verification.
