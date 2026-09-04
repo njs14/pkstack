@@ -102,7 +102,7 @@ licenses PK-Stack rather than transferring ownership of OpenKnowledge.
 ## HumanLayer skills semantic references
 
 The Kiro-native `build-iterated-agentic-loop`, `design-control-loop`,
-`improve-claude-md`, `narrow-react-prop-types`, and `show-me` skills preserve
+`narrow-react-prop-types`, and `show-me` skills preserve
 reviewed semantics from HumanLayer's public skills catalog. Their wrappers and
 bounded references are adapted for Kiro and PK-Stack's stricter workflow
 security boundaries.
@@ -115,6 +115,19 @@ security boundaries.
 - Detailed file-level provenance: the `docs/humanlayer-*-provenance.md` records
 
 The upstream MIT notice follows verbatim.
+
+## Matt Pocock `writing-for-agents` semantic reference
+
+The Kiro-native `writing-for-agents` skill adapts the agent-facing writing method
+from `mattpocock/skills` while excluding OpenAI-only UI metadata.
+
+- Project: `mattpocock/skills`
+- Source: <https://github.com/mattpocock/skills>
+- Pinned commit: `6654f6b60cd9d5be8b54c6fafe44346dabeb3b76`
+- License: MIT
+- Detailed provenance: [`docs/mattpocock-writing-for-agents-provenance.md`](docs/mattpocock-writing-for-agents-provenance.md)
+
+The MIT license text below applies to this source as well.
 
 ```text
 MIT License

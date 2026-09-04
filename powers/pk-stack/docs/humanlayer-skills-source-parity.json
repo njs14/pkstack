@@ -404,7 +404,7 @@
         "size": 9450,
         "type": "blob"
       },
-      "disposition": "A",
+      "disposition": "B",
       "path": "improve-claude-md/skills/improve-claude-md/SKILL.md",
       "pinned": {
         "mode": "100644",
@@ -412,7 +412,7 @@
         "size": 9450,
         "type": "blob"
       },
-      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+      "rationale": "The Claude-specific instruction method is intentionally not shipped; the runtime-neutral writing-for-agents source is the Kiro-native authority."
     },
     {
       "current": {
@@ -550,8 +550,8 @@
     "retrieved_on": "2026-09-03"
   },
   "summary": {
-    "A": 10,
-    "B": 5,
+    "A": 9,
+    "B": 6,
     "C": 16,
     "current_files": 31,
     "pinned_files": 31
