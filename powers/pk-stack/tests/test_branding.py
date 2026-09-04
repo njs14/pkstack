@@ -23,6 +23,7 @@ from pstack_kiro.branding import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = ROOT.parents[1]
 EXPECTED_IDENTITY = {
     "name": "pstack-kiro",
     "display_name": "PK-Stack",
@@ -132,7 +133,7 @@ def test_manifest_and_distribution_separate_brand_from_compatibility_id() -> Non
         "version",
     }
     assert manifest["description"].startswith(f"{DISPLAY_NAME} ({EXPANDED_NAME}):")
-    assert {DISPLAY_NAME, EXPANDED_NAME, "pstack"} <= set(manifest["keywords"])
+    assert {DISPLAY_NAME, EXPANDED_NAME, "pk-stack"} <= set(manifest["keywords"])
     assert project["name"] == DISTRIBUTION_NAME
     assert project["description"].startswith(DISPLAY_NAME)
     assert manifest["author"]["name"] == project["authors"][0]["name"]
@@ -156,12 +157,14 @@ def test_human_facing_surfaces_use_the_pk_stack_brand() -> None:
         ROOT / "docs" / "architecture.md": (f"{DISPLAY_NAME} owns workflow semantics",),
         ROOT / "docs" / "kiro-v3-compatibility.md": (f"{DISPLAY_NAME} use",),
         ROOT / "docs" / "usage.md": (f"{DISPLAY_NAME} keeps implementation",),
-        ROOT / "dev.kiro" / "steering" / "pstack-core.md": (f"# {DISPLAY_NAME} operating model",),
-        ROOT / "dev.kiro" / "steering" / "pstack-safety.md": (f"# {DISPLAY_NAME} safety boundary",),
-        ROOT / "dev.kiro" / "steering" / "pstack-typescript.md": (
+        ROOT / "dev.kiro" / "steering" / "pk-stack-core.md": (f"# {DISPLAY_NAME} operating model",),
+        ROOT / "dev.kiro" / "steering" / "pk-stack-safety.md": (
+            f"# {DISPLAY_NAME} safety boundary",
+        ),
+        ROOT / "dev.kiro" / "steering" / "pk-stack-typescript.md": (
             f"# {DISPLAY_NAME} TypeScript discipline",
         ),
-        ROOT / "dev.kiro" / "steering" / "pstack-unslop.md": (
+        ROOT / "dev.kiro" / "steering" / "pk-stack-unslop.md": (
             f"# {DISPLAY_NAME} prose discipline",
         ),
         ROOT / "skills" / "setup-pk-stack" / "SKILL.md": (f"# Set up {DISPLAY_NAME}",),
@@ -193,25 +196,30 @@ def test_usage_does_not_present_the_compatibility_distribution_as_a_checkout() -
     assert "/absolute/path/to/pstack-kiro/" not in usage
 
 
-def test_agent_ids_remain_compatible_while_visible_copy_is_branded() -> None:
+def test_agent_ids_use_the_pk_stack_name() -> None:
     agent_root = ROOT / "templates" / "project" / ".kiro" / "agents"
     profiles = {
         path.stem: json.loads(path.read_text(encoding="utf-8"))
         for path in agent_root.glob("*.json")
     }
-    primary = profiles["pstack"]
+    primary = profiles["pk-stack"]
 
-    assert primary["name"] == "pstack"
+    assert primary["name"] == "pk-stack"
     assert DISPLAY_NAME in primary["prompt"]
     assert primary["welcomeMessage"].startswith(EXPANDED_NAME)
     assert DISPLAY_NAME in primary["welcomeMessage"]
-    assert set(profiles) == {"pstack", "pstack-architect", "pstack-reviewer", "pstack-verifier"}
+    assert set(profiles) == {
+        "pk-stack",
+        "pk-stack-architect",
+        "pk-stack-reviewer",
+        "pk-stack-verifier",
+    }
     for name, profile in profiles.items():
         assert profile["name"] == name
         assert DISPLAY_NAME in profile["description"]
 
 
-def test_hook_payloads_keep_compatibility_key_and_expose_display_brand() -> None:
+def test_hook_payloads_use_pk_stack_key_and_expose_display_brand() -> None:
     hook_root = ROOT / "templates" / "project" / ".kiro" / "hooks"
     for path in hook_root.glob("*.json"):
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -219,7 +227,29 @@ def test_hook_payloads_keep_compatibility_key_and_expose_display_brand() -> None
         match = re.search(r"'(\{.*\})'", command)
         assert match is not None
         fallback = json.loads(match.group(1))
-        assert fallback["pstack"]
+        assert fallback["pk_stack"]
         assert {key: fallback[key] for key in identity_payload() if key != "name"} == {
             key: value for key, value in identity_payload().items() if key != "name"
         }
+
+
+def test_active_user_guidance_does_not_use_legacy_agent_or_setup_names() -> None:
+    paths = (
+        REPOSITORY_ROOT / "README.md",
+        ROOT / "README.md",
+        ROOT / "docs" / "usage.md",
+        ROOT / "docs" / "kiro-v3-compatibility.md",
+        ROOT / "docs" / "artifacts" / "pk-stack-architecture.json",
+        ROOT / "docs" / "artifacts" / "pk-stack-architecture.html",
+    )
+    legacy_phrases = (
+        "--agent pstack",
+        "/agent swap pstack",
+        "skills + pstack agent",
+        "setup_pstack.py",
+    )
+
+    for path in paths:
+        content = path.read_text(encoding="utf-8")
+        for phrase in legacy_phrases:
+            assert phrase not in content, f"{path} still contains {phrase!r}"

@@ -67,7 +67,7 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     assert not (tmp_path / ".kiro" / "skills" / "setup-pk-stack").exists()
     cached_setup = tmp_path / ".pstack" / "projectctl" / "skills" / "setup-pk-stack"
     assert (cached_setup / "SKILL.md").is_file()
-    assert (cached_setup / "scripts" / "setup_pstack.py").is_file()
+    assert (cached_setup / "scripts" / "setup_pk_stack.py").is_file()
     parity = json.loads(
         (POWER_ROOT / "docs" / "upstream-skill-parity.json").read_text(encoding="utf-8")
     )
@@ -101,13 +101,13 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
         live_steering
         == cached_steering
         == {
-            "pstack-core.md",
-            "pstack-safety.md",
-            "pstack-typescript.md",
-            "pstack-unslop.md",
+            "pk-stack-core.md",
+            "pk-stack-safety.md",
+            "pk-stack-typescript.md",
+            "pk-stack-unslop.md",
         }
     )
-    assert (tmp_path / ".kiro" / "agents" / "pstack-verifier.json").is_file()
+    assert (tmp_path / ".kiro" / "agents" / "pk-stack-verifier.json").is_file()
     feature_readme = (tmp_path / "Wiki" / "features" / "README.md").read_text(encoding="utf-8")
     wiki_index = (tmp_path / "Wiki" / "index.md").read_text(encoding="utf-8")
     assert "Schema-2 contracts" in feature_readme
@@ -129,7 +129,7 @@ def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: 
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
     receipt = target / ".pstack" / "bootstrap.json"
-    profile = target / ".kiro" / "agents" / "pstack.json"
+    profile = target / ".kiro" / "agents" / "pk-stack.json"
     before = (receipt.read_bytes(), profile.read_bytes())
     clean_env = {
         key: value
@@ -144,7 +144,7 @@ def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: 
         / "skills"
         / "setup-pk-stack"
         / "scripts"
-        / "setup_pstack.py"
+        / "setup_pk_stack.py"
     )
     shim_result = subprocess.run(
         [
@@ -207,7 +207,12 @@ def test_cached_setup_rejects_case_alias_on_case_folding_filesystem(tmp_path: Pa
         if not key.startswith(("COV_CORE_", "COVERAGE_"))
     }
     cached_shim = (
-        alternate_cache / "projectctl" / "skills" / "setup-pk-stack" / "scripts" / "setup_pstack.py"
+        alternate_cache
+        / "projectctl"
+        / "skills"
+        / "setup-pk-stack"
+        / "scripts"
+        / "setup_pk_stack.py"
     )
     shim_result = subprocess.run(
         [
@@ -363,7 +368,7 @@ def test_idempotent_bootstrap_normalizes_managed_file_modes_after_dry_run(
 ) -> None:
     assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok is True
     executable = tmp_path / ".pstack" / "bin" / "projectctl"
-    text = tmp_path / ".kiro" / "steering" / "pstack-core.md"
+    text = tmp_path / ".kiro" / "steering" / "pk-stack-core.md"
     receipt = tmp_path / ".pstack" / "bootstrap.json"
     for path in (executable, text, receipt):
         path.chmod(0o777)
@@ -436,7 +441,7 @@ def test_concurrent_fresh_bootstraps_serialize_and_commit_one_consistent_receipt
 
 def test_bootstrap_refuses_to_overwrite_modified_managed_file(tmp_path: Path) -> None:
     bootstrap_project(tmp_path, power_root=POWER_ROOT)
-    agent = tmp_path / ".kiro" / "agents" / "pstack.json"
+    agent = tmp_path / ".kiro" / "agents" / "pk-stack.json"
     if not agent.exists():
         # The Kiro assets are added independently; use a guaranteed managed file meanwhile.
         agent = tmp_path / ".pstack" / "projectctl" / "README.md"
@@ -457,7 +462,7 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
         _copy_power_fixture(power)
         powers.append(power)
     power_v1, power_v2 = powers
-    v2_profile = power_v2 / "templates" / "project" / ".kiro" / "agents" / "pstack.json"
+    v2_profile = power_v2 / "templates" / "project" / ".kiro" / "agents" / "pk-stack.json"
     v2_payload = json.loads(v2_profile.read_text(encoding="utf-8"))
     marker = " managed-v2-marker"
     v2_payload["description"] += marker
@@ -472,8 +477,8 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
         if not key.startswith(("COV_CORE_", "COVERAGE_"))
     }
     expected_pending = {
-        ".kiro/agents/pstack.json",
-        ".pstack/projectctl/templates/project/.kiro/agents/pstack.json",
+        ".kiro/agents/pk-stack.json",
+        ".pstack/projectctl/templates/project/.kiro/agents/pk-stack.json",
     }
 
     controller_preview = subprocess.run(
@@ -496,7 +501,7 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
     assert controller_preview.stderr == ""
     assert set(json.loads(controller_preview.stdout)["pending_updates"]) == expected_pending
 
-    shim = power_v2 / "skills" / "setup-pk-stack" / "scripts" / "setup_pstack.py"
+    shim = power_v2 / "skills" / "setup-pk-stack" / "scripts" / "setup_pk_stack.py"
     shim_preview = subprocess.run(
         [
             sys.executable,
@@ -538,7 +543,7 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
     applied_payload = json.loads(applied.stdout)
     assert set(applied_payload["updated"]) >= expected_pending
 
-    live = target / ".kiro" / "agents" / "pstack.json"
+    live = target / ".kiro" / "agents" / "pk-stack.json"
     cached = (
         target
         / ".pstack"
@@ -547,7 +552,7 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
         / "project"
         / ".kiro"
         / "agents"
-        / "pstack.json"
+        / "pk-stack.json"
     )
     assert marker in live.read_text(encoding="utf-8")
     assert live.read_bytes() == cached.read_bytes() == v2_profile.read_bytes()

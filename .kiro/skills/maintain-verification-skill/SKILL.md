@@ -16,7 +16,7 @@ Do not assume a passing old check still covers current behavior. Preserve this s
    <slug> --output json` before publication; do not discard unknown extensions to force migration.
 2. **Check index hygiene.** Reconcile the index, feature files, and user-visible surface. Record
    missing, stale, duplicate, or orphaned entries before editing.
-   Also find native `.kiro/specs/*/pstack-verification.json` bridges. Treat their
+   Also find native `.kiro/specs/*/pk-stack-verification.json` bridges. Treat their
    `requirements.md` or `bugfix.md`, `design.md`, and `tasks.md` as Kiro-owned planning artifacts;
    reconcile each bridge to its exact published feature or reviewed command without rewriting the
    native plan.

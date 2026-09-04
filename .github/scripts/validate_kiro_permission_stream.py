@@ -18,7 +18,7 @@ MAX_GREP_INPUT_DIAGNOSTIC_BYTES = 4096
 PERMISSION_AGENT_NAME = "pk-stack-permission-fixture"
 PERMISSION_AGENT_DESCRIPTION = (
     "Manual CI-only proof that Kiro 2.21 honors the exact production "
-    "pstack-maintainer filesystem permission rules."
+    "pk-stack-maintainer filesystem permission rules."
 )
 PERMISSION_AGENT_WELCOME = "Exact production PK-Stack filesystem permission fixture loaded."
 FIXTURE_INPUT_PATH = "fixture-input.txt"

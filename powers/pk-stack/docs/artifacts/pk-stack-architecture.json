@@ -54,7 +54,7 @@
       "id": "pk_workflows",
       "type": "frontend",
       "label": "PK-Stack workflows",
-      "sublabel": "skills + pstack agent",
+      "sublabel": "skills + pk-stack agent",
       "tag": "workflow semantics",
       "pos": [545, 320],
       "size": [165, 72],

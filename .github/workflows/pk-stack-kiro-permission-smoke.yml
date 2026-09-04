@@ -89,11 +89,11 @@ jobs:
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            be04736f4830edacf6ee59865f1b5f268a7676785d92f52e65105e0019a01c2d \
+            018d14c50dafd39eff3dd062d202d7fdcf735f9cc09cb06b60151fc71a079ae5 \
             "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            82d9ae9ee035c9c86ec0e07589483a1bfc6d5141234472ca0937044f612bf972 \
+            626af81793708816647c13dde35105994be218b3a216cd2f97c229f58ab76e2c \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
           python3 - "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
           import json
@@ -102,7 +102,7 @@ jobs:
 
           fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
           production = json.loads(
-              Path(".kiro/agents/pstack-maintainer.json").read_text(encoding="utf-8")
+              Path(".kiro/agents/pk-stack-maintainer.json").read_text(encoding="utf-8")
           )
           policy = json.loads(
               Path(".github/pk-stack-maintenance-policy.json").read_text(encoding="utf-8")
@@ -232,7 +232,7 @@ jobs:
             test ! -e "$case_root/user-home/.kiro"
             test ! -e "$case_root/kiro-home/settings/mcp.json"
             printf '%s  %s\n' \
-              be04736f4830edacf6ee59865f1b5f268a7676785d92f52e65105e0019a01c2d \
+              018d14c50dafd39eff3dd062d202d7fdcf735f9cc09cb06b60151fc71a079ae5 \
               "$case_root/workspace/.kiro/agents/pk-stack-permission-fixture.json" \
               | sha256sum --check
           }

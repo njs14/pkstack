@@ -9,7 +9,7 @@ and proof; source-controlled OKF preserves broader intent.
 
 Use native specs, skills, custom agents, sub-agents, hooks, permissions, steering, and knowledge.
 Nontrivial work begins in native Spec, Quick Spec, or Bug Fix. Kiro owns its intent, design, tasks,
-dependency waves, and execution. Return to `pstack` in the same IDE or CLI conversation and bind
+dependency waves, and execution. Return to `pk-stack` in the same IDE or CLI conversation and bind
 the spec to a published feature verifier. Do not recreate its planner or treat tasks as proof.
 
 Use DO through `projectctl`, PROVE through the narrow spec-linked feature map, and KNOW through
@@ -24,10 +24,10 @@ work in the current session. Use `/spawn` only when the user requests a separate
 Treat feature maps and goal state as projectctl-owned. Never hand-edit them to manufacture success;
 completion requires the named executable verifier to pass.
 
-The `pstack` profile excludes installed Powers. For setup or managed refresh, IDE users stay in chat
+The `pk-stack` profile excludes installed Powers. For setup or managed refresh, IDE users stay in chat
 and use the agent picker to select the Power-enabled setup agent, invoke `/setup-pk-stack`, and
-reselect `pstack`. CLI users stay in chat and use `/agent swap kiro_default`, `/setup-pk-stack`, then
-`/agent swap pstack`; use the prior setup agent if named differently. Crew opens the trusted project
+reselect `pk-stack`. CLI users stay in chat and use `/agent swap kiro_default`, `/setup-pk-stack`, then
+`/agent swap pk-stack`; use the prior setup agent if named differently. Crew opens the trusted project
 only after local bootstrap. Web uses a locally refreshed, reviewed, committed asset tree;
 Configuration Sync is not a complete PK-Stack installer. Cached `.pstack/bin/projectctl setup`
 requires an explicitly reviewed `--power-root` as upgrade authority.

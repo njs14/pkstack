@@ -52,7 +52,7 @@ GENERATED_EXACT = {
 }
 EXECUTABLE_PATHS = {".pstack/bin/projectctl", "projectctl"}
 ALLOWED_PRODUCT_TOOLS = {"read", "write", "shell", "subagent", "knowledge"}
-ALLOWED_HOOKS = {"pstack-session.json", "pstack-tripwire.json"}
+ALLOWED_HOOKS = {"pk-stack-session.json", "pk-stack-tripwire.json"}
 TRUSTED_SNAPSHOT_PREFIXES = (
     "Wiki/features/pk-stack-upstream-maintenance.md",
     ".github/fixtures",
@@ -947,7 +947,7 @@ def load_policy(path: Path) -> tuple[bytes, dict[str, Any]]:
         "deny_patterns",
     }:
         raise GuardError("maintenance policy ci_authority is invalid")
-    if authority["path"] != ".kiro/agents/pstack-maintainer.json":
+    if authority["path"] != ".kiro/agents/pk-stack-maintainer.json":
         raise GuardError("maintenance policy CI authority path changed")
     if authority["power_managed"] is not False or authority["candidate_mutable"] is not False:
         raise GuardError("maintenance policy CI authority must be immutable and repo-only")
@@ -1024,7 +1024,7 @@ def load_policy(path: Path) -> tuple[bytes, dict[str, Any]]:
         or review["model"] != "claude-opus-5"
         or review["effort"] != "xhigh"
         or review["credential_secret"] != "KIRO_API_KEY"
-        or review["agent"] != "pstack-ci-reviewer"
+        or review["agent"] != "pk-stack-ci-reviewer"
     ):
         raise GuardError("mandatory Kiro-hosted candidate review contract changed")
     return raw, policy
@@ -1441,8 +1441,8 @@ def validate_ci_agent(agent_path: Path, policy: dict[str, Any]) -> None:
         "welcomeMessage",
     }:
         raise GuardError("CI agent authority has unexpected or missing fields")
-    if agent.get("name") != "pstack-maintainer":
-        raise GuardError("CI agent name must be pstack-maintainer")
+    if agent.get("name") != "pk-stack-maintainer":
+        raise GuardError("CI agent name must be pk-stack-maintainer")
     if agent.get("tools") != authority["tools"]:
         raise GuardError("CI agent tools must be exactly read, grep, and write")
     if agent.get("resources") != authority["resources"]:
@@ -1512,7 +1512,7 @@ def validate_ci_agent(agent_path: Path, policy: dict[str, Any]) -> None:
 def validate_product_envelope(root: Path) -> None:
     agent_root = root / ".kiro" / "agents"
     agents = sorted(agent_root.glob("*.json"))
-    product_agents = [path for path in agents if path.name != "pstack-maintainer.json"]
+    product_agents = [path for path in agents if path.name != "pk-stack-maintainer.json"]
     if not product_agents:
         raise GuardError("generated product agents are missing")
     for path in product_agents:
@@ -1552,7 +1552,7 @@ def validate_product_envelope(root: Path) -> None:
         command = hook["action"].get("command")
         if not isinstance(command, str):
             raise GuardError(f"product hook command is invalid: {path.name}")
-        if path.name == "pstack-session.json":
+        if path.name == "pk-stack-session.json":
             if hook.get("trigger") != "SessionStart" or hook.get("enabled") is not True:
                 raise GuardError("session hook trigger or enabled state widened")
             try:

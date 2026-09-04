@@ -147,7 +147,7 @@ pin is behind.
 
 #### Recipe
 
-Invoke `/maintain-pk-stack` in the selected `pstack` agent, keep one live coordinator, inspect the
+Invoke `/maintain-pk-stack` in the selected `pk-stack` agent, keep one live coordinator, inspect the
 generated proposal, and run the documented verification/review sequence.
 
 #### Observable proof

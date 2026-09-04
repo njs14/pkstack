@@ -8,7 +8,7 @@
     }
   ],
   "ci_authority": {
-    "path": ".kiro/agents/pstack-maintainer.json",
+    "path": ".kiro/agents/pk-stack-maintainer.json",
     "power_managed": false,
     "candidate_mutable": false,
     "tools": [
@@ -103,7 +103,7 @@
     "model": "claude-opus-5",
     "effort": "xhigh",
     "credential_secret": "KIRO_API_KEY",
-    "agent": "pstack-ci-reviewer"
+    "agent": "pk-stack-ci-reviewer"
   },
   "limits": {
     "max_changed_files": 48,
@@ -208,8 +208,8 @@
   },
   "protected_exact": [
     ".github/pk-stack-maintenance-policy.json",
-    ".kiro/agents/pstack-ci-reviewer.json",
-    ".kiro/agents/pstack-maintainer.json",
+    ".kiro/agents/pk-stack-ci-reviewer.json",
+    ".kiro/agents/pk-stack-maintainer.json",
     "AGENTS.md",
     "Wiki/features/pk-stack-upstream-maintenance.md",
     "powers/pk-stack/docs/validation-report.md"

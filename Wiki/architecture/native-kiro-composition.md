@@ -31,7 +31,7 @@ process to hide the transition.
 
 In CLI v3, the operator enters or resumes the native workflow with `/spec`; in the IDE, the operator
 uses **Build with spec** or the workflow picker. After Kiro produces its native artifacts, the same
-conversation returns to the `pstack` agent and binds the spec to an executable verifier. Web support
+conversation returns to the `pk-stack` agent and binds the spec to an executable verifier. Web support
 uses committed workspace assets but remains untested. Crew compatibility is artifact-level through
 its Task Runner and does not imply the local IDE/CLI same-session transition.
 

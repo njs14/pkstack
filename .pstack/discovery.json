@@ -9,16 +9,16 @@
   "git": true,
   "kiro": {
     "agents": [
-      ".kiro/agents/pstack-architect.json",
-      ".kiro/agents/pstack-ci-reviewer.json",
-      ".kiro/agents/pstack-maintainer.json",
-      ".kiro/agents/pstack-reviewer.json",
-      ".kiro/agents/pstack-verifier.json",
-      ".kiro/agents/pstack.json"
+      ".kiro/agents/pk-stack-architect.json",
+      ".kiro/agents/pk-stack-ci-reviewer.json",
+      ".kiro/agents/pk-stack-maintainer.json",
+      ".kiro/agents/pk-stack-reviewer.json",
+      ".kiro/agents/pk-stack-verifier.json",
+      ".kiro/agents/pk-stack.json"
     ],
     "hooks": [
-      ".kiro/hooks/pstack-session.json",
-      ".kiro/hooks/pstack-tripwire.json"
+      ".kiro/hooks/pk-stack-session.json",
+      ".kiro/hooks/pk-stack-tripwire.json"
     ],
     "present": true,
     "skills": [
@@ -161,10 +161,10 @@
     ],
     "specs": [],
     "steering": [
-      ".kiro/steering/pstack-core.md",
-      ".kiro/steering/pstack-safety.md",
-      ".kiro/steering/pstack-typescript.md",
-      ".kiro/steering/pstack-unslop.md"
+      ".kiro/steering/pk-stack-core.md",
+      ".kiro/steering/pk-stack-safety.md",
+      ".kiro/steering/pk-stack-typescript.md",
+      ".kiro/steering/pk-stack-unslop.md"
     ]
   },
   "knowledge": {

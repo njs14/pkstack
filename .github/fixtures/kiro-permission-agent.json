@@ -1,6 +1,6 @@
 {
   "name": "pk-stack-permission-fixture",
-  "description": "Manual CI-only proof that Kiro 2.21 honors the exact production pstack-maintainer filesystem permission rules.",
+  "description": "Manual CI-only proof that Kiro 2.21 honors the exact production pk-stack-maintainer filesystem permission rules.",
   "prompt": "This is a sterile permission fixture, not project maintenance. Execute exactly and only the ordered filesystem operations enumerated in the current user prompt. Do not infer, retry, or add operations. Do not access the network, shell, MCP, Powers, slash commands, git, or any path not explicitly named by the user prompt. Emit no assistant prose before or after tool use. End immediately after the final requested operation, including when that operation is denied.",
   "tools": [
     "read",

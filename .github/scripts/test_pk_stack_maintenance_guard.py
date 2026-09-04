@@ -4114,7 +4114,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_ci_agent_matches_immutable_policy(self) -> None:
         guard.validate_ci_agent(
-            ROOT / ".kiro" / "agents" / "pstack-maintainer.json",
+            ROOT / ".kiro" / "agents" / "pk-stack-maintainer.json",
             self.policy,
         )
 
@@ -4123,7 +4123,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             (ROOT / ".github/fixtures/kiro-permission-agent.json").read_text(encoding="utf-8")
         )
         production = json.loads(
-            (ROOT / ".kiro/agents/pstack-maintainer.json").read_text(encoding="utf-8")
+            (ROOT / ".kiro/agents/pk-stack-maintainer.json").read_text(encoding="utf-8")
         )
         authority = self.policy["ci_authority"]
         self.assertIn(".git/**", authority["deny_patterns"])
@@ -4164,7 +4164,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_ci_agent_rejects_nonempty_v3_discovery_settings(self) -> None:
         document = json.loads(
-            (ROOT / ".kiro/agents/pstack-maintainer.json").read_text(encoding="utf-8")
+            (ROOT / ".kiro/agents/pk-stack-maintainer.json").read_text(encoding="utf-8")
         )
         document["toolsSettings"] = {"shell": {"allowedCommands": ["*"]}}
         with tempfile.TemporaryDirectory() as temporary:
@@ -4175,7 +4175,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_ci_agent_cannot_replace_prior_provenance_markers(self) -> None:
         document = json.loads(
-            (ROOT / ".kiro/agents/pstack-maintainer.json").read_text(encoding="utf-8")
+            (ROOT / ".kiro/agents/pk-stack-maintainer.json").read_text(encoding="utf-8")
         )
         document["prompt"] = document["prompt"].replace(
             "preserve every prior review marker unchanged and in order",
@@ -4189,7 +4189,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_ci_agent_cannot_choose_an_ambiguous_drift_source(self) -> None:
         document = json.loads(
-            (ROOT / ".kiro/agents/pstack-maintainer.json").read_text(encoding="utf-8")
+            (ROOT / ".kiro/agents/pk-stack-maintainer.json").read_text(encoding="utf-8")
         )
         required = "select the lexicographically smallest drifting source id"
         self.assertIn(required, document["prompt"])
@@ -5044,7 +5044,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             'trusted_agent="$TRUSTED_ROOT/.kiro/agents/${agent_name}.json"',
             kiro_setup,
         )
-        self.assertNotIn("install -m 0600 .kiro/agents/pstack-maintainer.json", kiro_setup)
+        self.assertNotIn("install -m 0600 .kiro/agents/pk-stack-maintainer.json", kiro_setup)
         self.assertEqual(
             self.policy["ci_authority"]["runtime_trust_tools"],
             ["fs_read", "fs_write", "grep"],
@@ -5092,7 +5092,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("future scheduled maintenance may retry", candidate)
         self.assertIn("REVIEW_MODEL: claude-opus-5", candidate)
         self.assertIn("REVIEW_EFFORT: xhigh", candidate)
-        self.assertIn("--agent pstack-ci-reviewer", candidate)
+        self.assertIn("--agent pk-stack-ci-reviewer", candidate)
         self.assertIn("--trust-tools=", candidate)
         self.assertIn("validate_kiro_review_stream.py", candidate)
         self.assertIn("REVIEWED_CONTENT_SHA256", candidate)
@@ -5101,7 +5101,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("REVIEWED_AGENT", candidate)
         self.assertIn("REVIEWED_MODEL", candidate)
         self.assertIn("REVIEWED_EFFORT", candidate)
-        self.assertIn("EXPECTED_REVIEW_AGENT: pstack-ci-reviewer", candidate)
+        self.assertIn("EXPECTED_REVIEW_AGENT: pk-stack-ci-reviewer", candidate)
         self.assertIn("EXPECTED_REVIEW_MODEL: claude-opus-5", candidate)
         self.assertIn("EXPECTED_REVIEW_EFFORT: xhigh", candidate)
         self.assertIn("execution_evidence_sha256", candidate)
@@ -5136,7 +5136,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertNotIn("actions/upload-artifact", smoke)
         self.assertEqual(smoke.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 1)
         self.assertIn("--agent pk-stack-credential-smoke", smoke)
-        self.assertNotIn("--agent pstack-maintainer", smoke)
+        self.assertNotIn("--agent pk-stack-maintainer", smoke)
         self.assertIn("--model gpt-5.6-sol", smoke)
         self.assertIn("--effort max", smoke)
         self.assertIn("--trust-tools=", smoke)
@@ -5207,7 +5207,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertNotEqual(
             credential_agent_raw,
-            (ROOT / ".kiro/agents/pstack-maintainer.json").read_bytes(),
+            (ROOT / ".kiro/agents/pk-stack-maintainer.json").read_bytes(),
         )
         embedded_agent_sha = re.search(r"(?m)^          CI_AGENT_SHA256: ([0-9a-f]{64})$", smoke)
         self.assertIsNotNone(embedded_agent_sha)
@@ -5539,7 +5539,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             manifest.write_text('{"pin":"base"}\n', encoding="utf-8")
             ledger.write_text(base_ledger, encoding="utf-8")
             provenance.write_text("# Provenance\n\n", encoding="utf-8")
-            (root / ".kiro/agents/pstack.json").write_text("{}\n", encoding="utf-8")
+            (root / ".kiro/agents/pk-stack.json").write_text("{}\n", encoding="utf-8")
             subprocess.run(["git", "init", "-q"], cwd=root, check=True)
             subprocess.run(["git", "add", "."], cwd=root, check=True)
             subprocess.run(

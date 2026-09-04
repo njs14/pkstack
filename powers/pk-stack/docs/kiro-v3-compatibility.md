@@ -20,8 +20,8 @@ workflow actually run. Those are deliberately separate claims.
 
 | Kiro surface | Product role | PK-Stack entry path | Current evidence | Status and limits |
 | --- | --- | --- | --- | --- |
-| CLI v3 (`kiro-cli` 2.21.0) | Primary | Ordinary `kiro-cli chat --v3`; select workspace agent `pstack`; invoke `/verified-goal` in that chat | Real current-session fail/repair/pass campaign, four product-agent schema validations, a five-profile repository discovery sentinel, generated-asset parity, automated tests, and a sterile interactive native-goal probe | **First-class and exercised.** ACP, classic/V2, nested Kiro, and `/spawn` were not used. This runtime treated `/goal clear` as ordinary prompt text rather than a slash command. |
-| IDE 1.x (`Kiro.app` 1.0.437) | Primary | Open the repository in Kiro, use ordinary chat or experimental Agent Focus Mode, select the workspace `pstack` agent in the agent picker, and invoke the same skills | Installed build verified; official shared-harness, workspace-agent, workspace-skill, and Agent Focus contracts; the same JSON assets validate with the installed Kiro CLI | **First-class and structurally validated.** Ordinary IDE chat is stable; Kiro currently lists Agent Focus Mode as experimental. The GUI path has not received a separate end-to-end repair campaign in this snapshot. |
+| CLI v3 (`kiro-cli` 2.21.0) | Primary | Ordinary `kiro-cli chat --v3`; select workspace agent `pk-stack`; invoke `/verified-goal` in that chat | Real current-session fail/repair/pass campaign, four product-agent schema validations, a five-profile repository discovery sentinel, generated-asset parity, automated tests, and a sterile interactive native-goal probe | **First-class and exercised.** ACP, classic/V2, nested Kiro, and `/spawn` were not used. This runtime treated `/goal clear` as ordinary prompt text rather than a slash command. |
+| IDE 1.x (`Kiro.app` 1.0.437) | Primary | Open the repository in Kiro, use ordinary chat or experimental Agent Focus Mode, select the workspace `pk-stack` agent in the agent picker, and invoke the same skills | Installed build verified; official shared-harness, workspace-agent, workspace-skill, and Agent Focus contracts; the same JSON assets validate with the installed Kiro CLI | **First-class and structurally validated.** Ordinary IDE chat is stable; Kiro currently lists Agent Focus Mode as experimental. The GUI path has not received a separate end-to-end repair campaign in this snapshot. |
 | Kiro Crew | Optional orchestrator | Open the trusted repository through Crew so its Kiro-backed session reads committed `.kiro`; keep one `/verified-goal` loop in the Crew-owned session | Official Crew contract says it runs Kiro CLI over ACP and reads existing `.kiro` agents, skills, and steering; signed feed-current Sep. 3 Nightly passed `--version`, `--help`, and `doctor`; package assets avoid client-only argument substitution | **Compatibility required; orchestration optional.** The bounded smoke did not open a project or run PK-Stack. Crew's internal ACP transport does not make ACP PK-Stack's default entrypoint, and no Crew end-to-end goal campaign is claimed here. |
 | Kiro Web (GA) | Supported secondary surface | Start from a repository that already commits the bootstrapped `.kiro` and `.pstack` assets; invoke `/verified-goal` from the Web session's primary agent | Official Web support for project skills, agents, hooks, steering, and MCP plus static repository/path tests | **Supported by design, explicitly untested.** Web cannot select a project custom agent as primary, does not provide the local permission/approval surface, and still needs Python 3.11+ plus `uv` in its sandbox. |
 | External ACP client | Optional integration boundary | Client-owned `kiro-cli acp` integration | Kiro documents the protocol; PK-Stack does not launch or test it | Not a primary or default PK-Stack path. Crew's use of ACP is a product implementation detail, not authorization to substitute an external host. |
@@ -111,7 +111,7 @@ only. The complete PK-Stack Power exceeds that count and includes a PNG asset.
 The honest Web path is to bootstrap locally, review and commit the generated
 `.kiro` and `.pstack` assets, and then let Kiro Web clone that repository. A
 Web session can activate committed workspace skills, but its built-in primary
-agent owns the turn; committed `pstack-*` agents are available only for
+agent owns the turn; committed `pk-stack-*` agents are available only for
 sub-agent delegation, and the IDE/CLI permission profile is not claimed there.
 
 ## Primary-surface compatibility decision
@@ -122,17 +122,17 @@ PK-Stack can bootstrap through the ordinary interactive CLI v3 experience:
 kiro-cli chat --v3
 ```
 
-After setup, `/agent swap pstack` attaches the generated repository-local
+After setup, `/agent swap pk-stack` attaches the generated repository-local
 Poteto Kiro primary profile before the next workflow message. If Kiro has not
 discovered it yet,
 the fallback remains the same ordinary V3 runtime:
 
 ```bash
-kiro-cli chat --v3 --agent pstack
+kiro-cli chat --v3 --agent pk-stack
 ```
 
 In Kiro IDE 1.x, the equivalent primary path is to open chat or Agent Focus and
-choose the workspace `pstack` agent from the agent selector. The selected
+choose the workspace `pk-stack` agent from the agent selector. The selected
 prompt, tools, and resources apply to the next message without changing the
 user's global default agent.
 
@@ -205,10 +205,10 @@ The two settings commands returned `true` and
 
 | Capability | Current Kiro contract | PK-Stack use |
 | --- | --- | --- |
-| Specs | Feature Spec, Bugfix Spec, Quick Spec, and parallel task execution span IDE, CLI, and Web; CLI exposes `/spec new <name>`, `/spec <name>`, and `/spec run <name>` | Use native requirements or bug analysis, design, tasks, and dependency waves as the planning spine; after a visible same-conversation return to `pstack`, bind the native package to one published feature verifier rather than recreating a planner |
+| Specs | Feature Spec, Bugfix Spec, Quick Spec, and parallel task execution span IDE, CLI, and Web; CLI exposes `/spec new <name>`, `/spec <name>`, and `/spec run <name>` | Use native requirements or bug analysis, design, tasks, and dependency waves as the planning spine; after a visible same-conversation return to `pk-stack`, bind the native package to one published feature verifier rather than recreating a planner |
 | Agent Skills | Workspace `.kiro/skills/<name>/SKILL.md` and global `~/.kiro/skills/`; slash invocation accepts trailing request text across IDE, CLI, and Web | Materialize `/verified-goal`, architecture, arena, swarm, maintenance, and advisory council workflows without CLI-only placeholder substitution; keep `/setup-pk-stack` Power-local as an IDE/CLI bootstrap exception |
 | Powers | Agent Plugins layout with root `plugin.json`, optional `skills/`, `mcp.json`, and `dev.kiro/` | Package and distribute PK-Stack guidance and its Power-local setup shim |
-| Custom agents | Workspace `.kiro/agents/` or global `~/.kiro/agents/`; current docs accept JSON and Markdown; IDE and CLI can select a primary agent while Web can only delegate to project agents | Ship four Power JSON profiles plus the repository's isolated CI maintainer; require both installed-CLI validation and exact Workspace discovery; select `pstack` as primary only where Kiro supports it |
+| Custom agents | Workspace `.kiro/agents/` or global `~/.kiro/agents/`; current docs accept JSON and Markdown; IDE and CLI can select a primary agent while Web can only delegate to project agents | Ship four Power JSON profiles plus the repository's isolated CI maintainer; require both installed-CLI validation and exact Workspace discovery; select `pk-stack` as primary only where Kiro supports it |
 | Native subagents | Main agent delegates isolated work through the `subagent` tool; custom agents can be allow-listed | Bounded architecture, review, and verification assistance while the primary session owns edits/evidence |
 | `/spawn` | User-driven command for a fresh parallel session | Not used for internal PK-Stack fanout or verified-goal iteration |
 | Hooks | Standalone `.kiro/hooks/*.json`, `version: "v1"`, PascalCase triggers, command or agent actions | Static SessionStart orientation plus a disabled advisory Stop probe |
@@ -251,7 +251,7 @@ request context in IDE, CLI, and Web. Placeholder substitution such as
 `$ARGUMENTS` is currently CLI-only, so PK-Stack skills refer to the activation
 request directly and do not depend on that placeholder.
 
-The setup skill resolves `scripts/setup_pstack.py` relative to its loaded
+The setup skill resolves `scripts/setup_pk_stack.py` relative to its loaded
 Power. It always starts with a no-write preview. New managed content appears as
 `pending_updates` until a reviewed run explicitly includes
 `--update-managed`; user-modified files remain conflicts. Retired receipt-owned
@@ -270,17 +270,17 @@ and Mobile and gives no per-project skill-count cap; PK-Stack does not infer
 from that absence that the catalog is unlimited.
 The cached `projectctl setup` surface requires an explicit `--power-root` and
 cannot silently use its own stale cache as upgrade authority. After selecting
-`pstack`, a managed refresh remains in the current chat. IDE users switch
+`pk-stack`, a managed refresh remains in the current chat. IDE users switch
 through the agent picker; CLI users run `/agent swap kiro_default`,
-`/setup-pk-stack`, then `/agent swap pstack` (or use the local Power-enabled agent
+`/setup-pk-stack`, then `/agent swap pk-stack` (or use the local Power-enabled agent
 name in place of `kiro_default`).
 Setup also validates its required source modules and Power assets before target
 writes. Its deterministic repository discovery uses sorted root-relative paths
 and refreshes as an owned observation rather than a managed code upgrade.
 
 In CLI v3, Kiro can switch to the discovered Poteto Kiro primary agent in the
-current chat with `/agent swap pstack`. In IDE 1.x, use the agent selector in
-chat or Agent Focus and choose the workspace `pstack` profile. Its prompt,
+current chat with `/agent swap pk-stack`. In IDE 1.x, use the agent selector in
+chat or Agent Focus and choose the workspace `pk-stack` profile. Its prompt,
 tools, and permissions apply beginning with the next message. Newly copied
 workspace skills or agents may require one fresh pre-goal chat for discovery.
 Once `/verified-goal` is loaded, the implement/verify loop stays in that current
@@ -290,7 +290,7 @@ Kiro agent session.
 
 PK-Stack uses JSON profiles because all 4 shipped Power profiles validate with the
 installed `kiro-cli agent validate`; the source repository also has the
-separately constrained `pstack-maintainer` and `pstack-ci-reviewer` CI profiles. Every repository
+separately constrained `pk-stack-maintainer` and `pk-stack-ci-reviewer` CI profiles. Every repository
 workspace profile must both validate and appear in `agent list`. Each Power
 profile explicitly declares:
 
@@ -303,18 +303,18 @@ profile explicitly declares:
 - no hard-coded model, so the user's active model is inherited.
 
 The primary profile has the write tool and a subagent allow-list limited to
-`pstack-architect`, `pstack-reviewer`, and `pstack-verifier`. All three
+`pk-stack-architect`, `pk-stack-reviewer`, and `pk-stack-verifier`. All three
 delegated profiles expose only `read` and `knowledge`; they omit both `write`
 and `shell` and deny `fs_write`. The verifier inspects a contract and recorded
 evidence, then returns the exact command for the primary session to execute.
 
-IDE and CLI can select `pstack` as the primary session agent. Crew reads the
+IDE and CLI can select `pk-stack` as the primary session agent. Crew reads the
 same `.kiro` configuration when it drives Kiro CLI, but remains an optional
 orchestrator. Crew's direct KAS projection (Kiro Agent Specification) does not
 preserve inline permission or native subagent parity: `permissions.rules` and
 the subagent allow/trust settings are not claimed equivalent. Kiro Web reads
 the project profiles only as delegation targets;
-the Web primary session agent cannot be replaced with `pstack`, so PK-Stack
+the Web primary session agent cannot be replaced with `pk-stack`, so PK-Stack
 does not claim the profile's primary-agent prompt or permissions there.
 
 ### Permissions
@@ -343,7 +343,7 @@ give any delegated profile a shell. Primary-session `projectctl` commands still
 ask, because the runner screens obvious hazards but is not a sandbox and cannot
 prove an arbitrary project script is read-only.
 
-These rules apply only after selecting the `pstack` profile; plain `--v3` uses
+These rules apply only after selecting the `pk-stack` profile; plain `--v3` uses
 the ambient default agent and does not inherit them. The installed help still
 exposes `--trust-all-tools` and `--trust-tools`
 compatibility switches even though V3 documentation emphasizes capability
@@ -351,7 +351,7 @@ permissions. PK-Stack does not depend on those broad switches.
 
 The same permission profile is selectable in Kiro IDE 1.x. Kiro Web does not
 offer the corresponding project permission YAML or interactive-approval
-surface and cannot select `pstack` as its primary agent, so Web support rests
+surface and cannot select `pk-stack` as its primary agent, so Web support rests
 on projectctl's deterministic checks rather than a claimed replication of the
 IDE/CLI permission boundary. Crew adds its own orchestration and security
 layers; those do not weaken or replace PK-Stack verification.
@@ -605,7 +605,7 @@ the portable completion predicate on every supported path.
   that shape.
 - Power installation UX may remain Kiro UI-mediated even though this repository
   is an Agent Plugins package.
-- Newly materialized skills or agents may need one explicit `--agent pstack`
+- Newly materialized skills or agents may need one explicit `--agent pk-stack`
   chat for discovery; the loaded goal loop itself does not start a replacement
   session.
 - Stop is advisory, not a continuation guarantee.

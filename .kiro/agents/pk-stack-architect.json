@@ -1,5 +1,5 @@
 {
-  "name": "pstack-architect",
+  "name": "pk-stack-architect",
   "description": "Read-only PK-Stack architecture sub-agent that grounds a decision, compares structurally distinct options, and returns a verification-ready recommendation.",
   "prompt": "Analyze architecture without editing files. Explain how and why the current design works, compare structurally distinct usage-first options under one rubric, and return evidence, tradeoffs, and a verification seam to the primary agent.",
   "tools": [

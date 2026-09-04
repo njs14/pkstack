@@ -89,7 +89,7 @@ def test_bootstrap_discovery_rejects_hostile_nested_symlinks_without_disclosure(
     [
         "src/pstack_kiro/goal.py",
         "skills/verified-goal/SKILL.md",
-        "templates/project/.kiro/agents/pstack.json",
+        "templates/project/.kiro/agents/pk-stack.json",
     ],
 )
 def test_bootstrap_rejects_incomplete_power_before_writing(
@@ -236,13 +236,13 @@ def test_forged_receipt_cannot_authorize_automatic_overwrite(tmp_path: Path) -> 
 
 
 def test_bootstrap_preflights_non_file_conflict_without_partial_install(tmp_path: Path) -> None:
-    conflict = tmp_path / ".kiro" / "agents" / "pstack.json"
+    conflict = tmp_path / ".kiro" / "agents" / "pk-stack.json"
     conflict.mkdir(parents=True)
 
     result = bootstrap_project(tmp_path, power_root=POWER_ROOT)
 
     assert result.ok is False
-    assert ".kiro/agents/pstack.json" in result.conflicts
+    assert ".kiro/agents/pk-stack.json" in result.conflicts
     assert not (tmp_path / ".pstack" / "bin" / "projectctl").exists()
 
 
@@ -635,8 +635,8 @@ def test_outside_absolute_executable_is_rejected_before_contract_persistence(
 
 def test_doctor_detects_missing_assets_runtime_drift_and_corrupt_goal(tmp_path: Path) -> None:
     assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok is True
-    (tmp_path / ".kiro" / "agents" / "pstack-architect.json").unlink()
-    (tmp_path / ".kiro" / "hooks" / "pstack-session.json").unlink()
+    (tmp_path / ".kiro" / "agents" / "pk-stack-architect.json").unlink()
+    (tmp_path / ".kiro" / "hooks" / "pk-stack-session.json").unlink()
     internal = tmp_path / ".pstack" / "bin" / "projectctl"
     internal.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
     state = tmp_path / ".pstack" / "state" / "goal.json"

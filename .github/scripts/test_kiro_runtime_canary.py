@@ -385,7 +385,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         ).encode()
         self.assertEqual(canary._workspace_agents(output), tuple(sorted(canary.EXPECTED_AGENTS)))
         with self.assertRaisesRegex(canary.CanaryError, "duplicate"):
-            canary._workspace_agents(output + b"\n  pstack Workspace duplicate\n")
+            canary._workspace_agents(output + b"\n  pk-stack Workspace duplicate\n")
 
     def test_runtime_probe_uses_only_non_chat_agent_commands(self) -> None:
         replies = [
@@ -631,7 +631,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         self.assertIn("needs: [plan, detect]", maintenance)
         self.assertIn("REVIEW_MODEL: claude-opus-5", candidate)
         self.assertIn("REVIEW_EFFORT: xhigh", candidate)
-        self.assertIn("--agent pstack-ci-reviewer", candidate)
+        self.assertIn("--agent pk-stack-ci-reviewer", candidate)
         self.assertEqual(candidate.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 2)
         self.assertNotRegex(
             candidate,

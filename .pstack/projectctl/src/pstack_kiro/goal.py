@@ -126,7 +126,7 @@ def inspect_native_spec(root: Path, spec: str) -> dict[str, Any]:
 def _load_spec_bridge(root: Path, spec: str) -> tuple[dict[str, Any], Path, dict[str, Any], bytes]:
     native = inspect_native_spec(root, spec)
     directory = Path(native["directory"])
-    bridge = directory / "pstack-verification.json"
+    bridge = directory / "pk-stack-verification.json"
     if not bridge.is_file():
         raise GoalError(f"spec {spec!r} has no executable bridge at {bridge}")
     raw = _read_bounded_spec_file(
@@ -187,7 +187,7 @@ def _resolve_spec_contract(root: Path, spec: str) -> CommandSpec:
             sha256=native["artifact_sha256"]["design.md"],
         ),
         SpecArtifactDigest(
-            path=(Path(".kiro") / "specs" / spec / "pstack-verification.json").as_posix(),
+            path=(Path(".kiro") / "specs" / spec / "pk-stack-verification.json").as_posix(),
             sha256=hashlib.sha256(bridge_raw).hexdigest(),
         ),
     )
@@ -210,7 +210,7 @@ def _assert_spec_snapshot(root: Path, contract: CommandSpec) -> None:
     expected_paths = {
         (Path(".kiro") / "specs" / contract.spec / expected_intent).as_posix(),
         (Path(".kiro") / "specs" / contract.spec / "design.md").as_posix(),
-        (Path(".kiro") / "specs" / contract.spec / "pstack-verification.json").as_posix(),
+        (Path(".kiro") / "specs" / contract.spec / "pk-stack-verification.json").as_posix(),
     }
     actual_paths = {item.path for item in contract.spec_artifacts}
     if len(actual_paths) != len(contract.spec_artifacts) or actual_paths != expected_paths:
@@ -219,7 +219,7 @@ def _assert_spec_snapshot(root: Path, contract: CommandSpec) -> None:
         relative = Path(item.path)
         limit = (
             MAX_SPEC_BRIDGE_BYTES
-            if relative.name == "pstack-verification.json"
+            if relative.name == "pk-stack-verification.json"
             else MAX_SPEC_ARTIFACT_BYTES
         )
         try:
@@ -266,7 +266,7 @@ def bind_spec_contract(
             "command": list(argv),
         }
     data = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
-    bridge = Path(native["directory"]) / "pstack-verification.json"
+    bridge = Path(native["directory"]) / "pk-stack-verification.json"
     changed = True
     if bridge.exists():
         existing = _read_bounded_spec_file(
@@ -282,7 +282,9 @@ def bind_spec_contract(
                 f"--overwrite: {bridge}"
             )
     if changed:
-        descriptor, temporary = tempfile.mkstemp(prefix=".pstack-verification.", dir=bridge.parent)
+        descriptor, temporary = tempfile.mkstemp(
+            prefix=".pk-stack-verification.", dir=bridge.parent
+        )
         try:
             with os.fdopen(descriptor, "wb") as handle:
                 handle.write(data)
@@ -671,7 +673,7 @@ def _validate_state(
         paths = {item.path for item in state.contract.spec_artifacts}
         shared = {
             (base / "design.md").as_posix(),
-            (base / "pstack-verification.json").as_posix(),
+            (base / "pk-stack-verification.json").as_posix(),
         }
         intents = {
             (base / "requirements.md").as_posix(),

@@ -91,8 +91,9 @@ pstack components.
 
 The current name is Kiro-specific branding, not a restoration of upstream
 metadata. The Power manifest identifier and source-repository name are
-`pk-stack`; the Python distribution, receipt manager, package, `pstack` agent,
-and on-disk `.pstack` paths retain their documented compatibility identifiers.
+`pk-stack`; the Python distribution, receipt manager, package, and on-disk
+`.pstack` paths retain their documented compatibility identifiers. Selectable
+Kiro agents use the PK-Stack name.
 User-facing slash-command routes use the `pk-stack` slug convention. Where a
 source package name is retained in a parity or provenance record, that is an
 upstream identity and not a user-facing route.

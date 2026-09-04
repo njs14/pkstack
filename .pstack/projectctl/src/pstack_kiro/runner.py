@@ -49,7 +49,7 @@ _NON_EVIDENTIARY_EXECUTABLES = {
     "which",
     "yes",
 }
-_CONTROL_PLANE_EXECUTABLES = {"projectctl", "pstack-setup"}
+_CONTROL_PLANE_EXECUTABLES = {"projectctl", "pk-stack-setup"}
 _SHELL_EXECUTABLES = {"sh", "bash", "zsh", "fish", "dash", "ksh", "csh", "tcsh"}
 _SCRIPT_INTERPRETERS = {"node", "nodejs", "ruby", "perl", "php", "osascript"}
 _PYTHON_DELEGATING_MODULES = {

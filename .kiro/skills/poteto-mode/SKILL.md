@@ -24,7 +24,7 @@ Before reproducing planning inside a PK-Stack skill, select Kiro's native workfl
 - use **Bug Fix** for a reproducible defect; and
 - use native **Plan** for a plan-only request.
 
-An obvious one- or two-file change may remain in the default `pstack` flow, but state the concrete
+An obvious one- or two-file change may remain in the default `pk-stack` flow, but state the concrete
 reason that a native planning artifact would add no useful decision or review boundary. Resume an
 existing `.kiro/specs/<name>/` package instead of starting a competing plan.
 
@@ -33,8 +33,8 @@ workflow. PK-Stack therefore does not invoke or emulate Spec, Quick Spec, or Bug
 use ACP or a nested Kiro process to hide the boundary. Make it visible as one same-conversation
 handoff. In CLI v3, ask the user to run `/spec new <name>` and
 choose Feature, Quick Spec, or Bug, or `/spec <name>` to resume; after the native artifacts are
-ready, use `/agent swap pstack`. In the IDE, use **Build with spec** or the Spec, Quick Spec, or Bug
-Fix workflow in the agent picker, then reselect `pstack` in the same conversation. Web uses its
+ready, use `/agent swap pk-stack`. In the IDE, use **Build with spec** or the Spec, Quick Spec, or Bug
+Fix workflow in the agent picker, then reselect `pk-stack` in the same conversation. Web uses its
 native Spec picker and built-in primary agent; it does not claim the CLI slash command or a
 selectable project primary agent. Crew may consume committed spec artifacts through its Task
 Runner, but PK-Stack does not claim Crew can switch to Kiro's built-in Spec agent.

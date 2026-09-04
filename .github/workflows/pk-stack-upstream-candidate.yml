@@ -199,8 +199,8 @@ jobs:
           (
             cd powers/pk-stack
             uv lock --check
-            uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pstack.py
-            uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pstack.py
+            uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+            uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
             uv run --frozen ty check
             uv run --frozen pytest -q
           )
@@ -307,8 +307,8 @@ jobs:
           (
             cd powers/pk-stack
             uv lock --check
-            uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pstack.py
-            uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pstack.py
+            uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+            uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
             uv run --frozen ty check
             uv run --frozen pytest -q
           )
@@ -448,8 +448,8 @@ jobs:
           printf '%s  %s\n' "$EXPECTED_CONTENT_SHA256" "$input" | sha256sum --check
           mkdir -m 0700 "$REVIEW_WORKSPACE" "$REVIEW_WORKSPACE/.pk-stack-ci" "$REVIEW_PRIVATE"
           install -m 0400 "$input" "$REVIEW_WORKSPACE/.pk-stack-ci/review-input.json"
-          TRUSTED_ROOT="$TRUSTED_REVIEW_ROOT"             KIRO_AGENT_NAME=pstack-ci-reviewer             bash "$TRUSTED_REVIEW_ROOT/.github/scripts/prepare_kiro_maintenance_runtime.sh"
-          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             "$KIRO_BIN_DIR/kiro-cli" agent validate             --path "$TRUSTED_REVIEW_ROOT/.kiro/agents/pstack-ci-reviewer.json"
+          TRUSTED_ROOT="$TRUSTED_REVIEW_ROOT"             KIRO_AGENT_NAME=pk-stack-ci-reviewer             bash "$TRUSTED_REVIEW_ROOT/.github/scripts/prepare_kiro_maintenance_runtime.sh"
+          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             "$KIRO_BIN_DIR/kiro-cli" agent validate             --path "$TRUSTED_REVIEW_ROOT/.kiro/agents/pk-stack-ci-reviewer.json"
           chmod -R a-w "$REVIEW_WORKSPACE"
       - name: Independent Kiro-hosted Claude Opus 5 review
         id: invoke
@@ -501,7 +501,7 @@ jobs:
             'Review the attached exact-candidate bundle under the immutable agent contract. Bind the verdict exactly to base %s, head %s, content SHA-256 %s, and patch SHA-256 %s. Return only the required compact JSON verdict.' \
             "$BASE_SHA" "$HEAD_SHA" "$CONTENT_SHA256" "$PATCH_SHA256"
           set +e
-          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             CI=true             NO_COLOR=1             KIRO_LOG_NO_COLOR=1             XDG_RUNTIME_DIR="$runtime"             SSL_CERT_DIR=/etc/ssl/certs             GIT_DIR=/dev/null             GIT_CONFIG_NOSYSTEM=1             GIT_CONFIG_SYSTEM=/dev/null             GIT_CONFIG_GLOBAL=/dev/null             GIT_ATTR_NOSYSTEM=1             GIT_EXTERNAL_DIFF=             GIT_NO_REPLACE_OBJECTS=1             GIT_TERMINAL_PROMPT=0             KIRO_API_KEY="$KIRO_API_KEY"             timeout --signal=TERM --kill-after=30s 30m             "$KIRO_BIN_DIR/kiro-cli" chat               --v3               --agent pstack-ci-reviewer               --model "$REVIEW_MODEL"               --effort "$REVIEW_EFFORT"               --no-interactive               --trust-tools=               --output-format stream-json               "$prompt" >"$stream" 2>"$stderr"
+          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             CI=true             NO_COLOR=1             KIRO_LOG_NO_COLOR=1             XDG_RUNTIME_DIR="$runtime"             SSL_CERT_DIR=/etc/ssl/certs             GIT_DIR=/dev/null             GIT_CONFIG_NOSYSTEM=1             GIT_CONFIG_SYSTEM=/dev/null             GIT_CONFIG_GLOBAL=/dev/null             GIT_ATTR_NOSYSTEM=1             GIT_EXTERNAL_DIFF=             GIT_NO_REPLACE_OBJECTS=1             GIT_TERMINAL_PROMPT=0             KIRO_API_KEY="$KIRO_API_KEY"             timeout --signal=TERM --kill-after=30s 30m             "$KIRO_BIN_DIR/kiro-cli" chat               --v3               --agent pk-stack-ci-reviewer               --model "$REVIEW_MODEL"               --effort "$REVIEW_EFFORT"               --no-interactive               --trust-tools=               --output-format stream-json               "$prompt" >"$stream" 2>"$stderr"
           review_rc=$?
           set -e
           printf 'return_code=%s\n' "$review_rc" >>"$GITHUB_OUTPUT"
@@ -590,7 +590,7 @@ jobs:
           EXPECTED_REVIEW_PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
           EXPECTED_REVIEW_CHANGED_FILES: ${{ needs.candidate_tests.outputs.review_changed_files }}
           EXPECTED_REVIEW_PATHS_SHA256: ${{ needs.candidate_tests.outputs.review_paths_sha256 }}
-          EXPECTED_REVIEW_AGENT: pstack-ci-reviewer
+          EXPECTED_REVIEW_AGENT: pk-stack-ci-reviewer
           EXPECTED_REVIEW_MODEL: claude-opus-5
           EXPECTED_REVIEW_EFFORT: xhigh
           REVIEW_EXECUTION_EVIDENCE_SHA256: ${{ needs.kiro_peer_review.outputs.execution_evidence_sha256 }}

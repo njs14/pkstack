@@ -92,7 +92,9 @@ def mode_event(mode: str = review.REQUIRED_AGENT) -> dict[str, object]:
 
 
 class KiroReviewStreamTests(unittest.TestCase):
-    def test_captured_kiro_221_model_and_agent_projection(self) -> None:
+    def test_captured_kiro_221_model_projection_and_legacy_agent_rejection(
+        self,
+    ) -> None:
         fixture = json.loads(
             (
                 Path(__file__).resolve().parents[2]
@@ -101,7 +103,8 @@ class KiroReviewStreamTests(unittest.TestCase):
         )
         self.assertEqual(fixture["cli_version"], "2.21.0")
         review._validate_model_event(fixture["events"], fixture["command_model"])
-        review._validate_agent_event(fixture["events"])
+        with self.assertRaisesRegex(review.ReviewError, "required agent"):
+            review._validate_agent_event(fixture["events"])
 
     def _args(self, root: Path) -> argparse.Namespace:
         stream = root / "stream.jsonl"

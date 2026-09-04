@@ -18,7 +18,7 @@ dependencies = [
 
 [project.scripts]
 projectctl = "pstack_kiro.cli:main"
-pstack-setup = "pstack_kiro.bootstrap:main"
+pk-stack-setup = "pstack_kiro.bootstrap:main"
 
 [dependency-groups]
 dev = [
@@ -73,7 +73,7 @@ extend-exclude = ["tests/fixtures/generated"]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
-"skills/setup-pk-stack/scripts/setup_pstack.py" = ["UP036"]
+"skills/setup-pk-stack/scripts/setup_pk_stack.py" = ["UP036"]
 
 [tool.ruff.format]
 quote-style = "double"

@@ -111,7 +111,7 @@ def test_compatibility_document_inventory_counts_match_assets() -> None:
     assert f"validates all {len(workspace_agents)} workspace-agent files" in text
     assert f"The other {len(materialized_skills)} workflow skills" in text
     assert f"all {len(shipped_agents)} shipped Power profiles" in text
-    assert "`pstack-maintainer` and `pstack-ci-reviewer` CI profiles" in text
+    assert "`pk-stack-maintainer` and `pk-stack-ci-reviewer` CI profiles" in text
 
 
 def test_upstream_skill_parity_inventory_is_complete_and_rendered() -> None:
@@ -476,7 +476,7 @@ def test_poteto_router_preserves_package_wide_triggers_and_playbook_routes() -> 
         "Kiro does not document a supported Agent Skill or custom-agent tool",
         "/spec new <name>",
         "/spec run <name>",
-        "/agent swap pstack",
+        "/agent swap pk-stack",
         "PK-Stack does not recreate that task graph",
         "projectctl goal bind-spec",
         "Use the feature record first",
@@ -495,7 +495,7 @@ def test_poteto_primary_router_uses_native_specs_as_the_planning_spine() -> None
         "native **Plan**",
         "Kiro does not document a supported Agent Skill or custom-agent tool",
         "/spec new <name>",
-        "/agent swap pstack",
+        "/agent swap pk-stack",
         "Kiro owns `requirements.md` or `bugfix.md`, `design.md`, `tasks.md`",
         "never creates a second task graph",
         "through canonical `okn`",
@@ -696,7 +696,7 @@ def test_nested_workflow_ports_preserve_semantics_without_cursor_runtime_seams()
 def test_setup_skill_uses_idempotent_json_contract() -> None:
     text = (SKILLS / "setup-pk-stack" / "SKILL.md").read_text(encoding="utf-8")
 
-    assert "scripts/setup_pstack.py" in text
+    assert "scripts/setup_pk_stack.py" in text
     assert ".pstack/bin/projectctl" in text
     assert "--dry-run --output json" in text
     assert "--update-managed" in text
@@ -704,8 +704,8 @@ def test_setup_skill_uses_idempotent_json_contract() -> None:
     assert "doctor --output json" in text
     assert "idempotent" in text
     assert "silently install" in text
-    assert "/agent swap pstack" in text
-    assert "kiro-cli chat --v3 --agent pstack" in text
+    assert "/agent swap pk-stack" in text
+    assert "kiro-cli chat --v3 --agent pk-stack" in text
     assert "Agent Focus" in text
     assert "Kiro Crew" in text and "optional orchestrator" in text
     assert "Kiro Web" in text and "Configuration Sync" in text
@@ -754,7 +754,7 @@ def test_maintenance_skill_preserves_current_session_and_clean_room_contract() -
     assert "Git history is the tamper-evident authority" in text
     assert "Only report all upstreams current" in text
 
-    agent = json.loads((AGENTS / "pstack.json").read_text(encoding="utf-8"))
+    agent = json.loads((AGENTS / "pk-stack.json").read_text(encoding="utf-8"))
     assert "/maintain-pk-stack" in agent["prompt"]
     assert "immutable feature goal" in agent["prompt"]
 
@@ -764,8 +764,8 @@ def test_post_setup_workflow_attaches_the_pstack_agent() -> None:
     usage = (ROOT / "docs" / "usage.md").read_text(encoding="utf-8")
 
     for document in (readme, usage):
-        assert "/agent swap pstack" in document
-        assert "kiro-cli chat --v3 --agent pstack" in document
+        assert "/agent swap pk-stack" in document
+        assert "kiro-cli chat --v3 --agent pk-stack" in document
 
 
 def test_setup_shim_uses_locked_source_module_fallback_for_older_python(
@@ -784,12 +784,12 @@ def test_setup_shim_uses_locked_source_module_fallback_for_older_python(
         lambda name: "/opt/homebrew/bin/uv" if name == "uv" else None,
     )
     monkeypatch.setattr(os, "execve", fake_execve)
-    monkeypatch.setattr(sys, "argv", ["setup_pstack.py", "--root", "/tmp/example"])
+    monkeypatch.setattr(sys, "argv", ["setup_pk_stack.py", "--root", "/tmp/example"])
     monkeypatch.setenv("PYTHONPATH", "/existing/pythonpath")
 
     with pytest.raises(RuntimeError, match="execve captured"):
         runpy.run_path(
-            str(SKILLS / "setup-pk-stack" / "scripts" / "setup_pstack.py"),
+            str(SKILLS / "setup-pk-stack" / "scripts" / "setup_pk_stack.py"),
             run_name="__main__",
         )
 
@@ -814,13 +814,13 @@ def test_setup_shim_uses_locked_source_module_fallback_for_older_python(
 
 
 def test_setup_shim_legacy_location_finds_the_project_controller(tmp_path: Path) -> None:
-    shim = tmp_path / ".kiro" / "skills" / "setup-pk-stack" / "scripts" / "setup_pstack.py"
+    shim = tmp_path / ".kiro" / "skills" / "setup-pk-stack" / "scripts" / "setup_pk_stack.py"
     shim.parent.mkdir(parents=True)
-    shutil.copy2(SKILLS / "setup-pk-stack" / "scripts" / "setup_pstack.py", shim)
+    shutil.copy2(SKILLS / "setup-pk-stack" / "scripts" / "setup_pk_stack.py", shim)
     cached_controller = tmp_path / ".pstack" / "projectctl"
     cached_controller.mkdir(parents=True)
 
-    namespace = runpy.run_path(str(shim), run_name="pstack_setup_probe")
+    namespace = runpy.run_path(str(shim), run_name="pk_stack_setup_probe")
 
     assert namespace["POWER_ROOT"] == cached_controller
 
@@ -983,7 +983,7 @@ def test_model_guidance_is_kiro_native_and_evidence_bounded() -> None:
 
 
 def test_primary_agent_copy_is_surface_neutral_and_keeps_cli_and_crew_boundaries() -> None:
-    primary = json.loads((AGENTS / "pstack.json").read_text(encoding="utf-8"))
+    primary = json.loads((AGENTS / "pk-stack.json").read_text(encoding="utf-8"))
 
     assert "current Kiro agent session" in primary["description"]
     assert "current Kiro CLI v3 session" not in primary["description"]
@@ -1043,10 +1043,10 @@ def test_prospective_fable_harness_uses_xhigh_without_rewriting_history() -> Non
 def test_agent_templates_are_json_least_privilege_profiles() -> None:
     paths = sorted(AGENTS.glob("*.json"))
     assert {path.name for path in paths} == {
-        "pstack-architect.json",
-        "pstack-reviewer.json",
-        "pstack-verifier.json",
-        "pstack.json",
+        "pk-stack-architect.json",
+        "pk-stack-reviewer.json",
+        "pk-stack-verifier.json",
+        "pk-stack.json",
     }
 
     for path in paths:
@@ -1074,15 +1074,15 @@ def test_agent_templates_are_json_least_privilege_profiles() -> None:
                 assert "projectctl" not in matches
                 assert "uv run" not in matches
 
-    assert "write" in json.loads((AGENTS / "pstack.json").read_text())["tools"]
-    primary_rules = json.loads((AGENTS / "pstack.json").read_text())["permissions"]["rules"]
+    assert "write" in json.loads((AGENTS / "pk-stack.json").read_text())["tools"]
+    primary_rules = json.loads((AGENTS / "pk-stack.json").read_text())["permissions"]["rules"]
     assert any(
         rule["capability"] == "fs_read" and rule["effect"] == "allow" for rule in primary_rules
     )
     for read_only in (
-        "pstack-architect.json",
-        "pstack-reviewer.json",
-        "pstack-verifier.json",
+        "pk-stack-architect.json",
+        "pk-stack-reviewer.json",
+        "pk-stack-verifier.json",
     ):
         profile = json.loads((AGENTS / read_only).read_text())
         assert profile["tools"] == ["read", "knowledge"]
@@ -1092,7 +1092,7 @@ def test_agent_templates_are_json_least_privilege_profiles() -> None:
 
 
 def test_primary_profile_asks_for_every_canonical_controller_route() -> None:
-    primary = json.loads((AGENTS / "pstack.json").read_text(encoding="utf-8"))
+    primary = json.loads((AGENTS / "pk-stack.json").read_text(encoding="utf-8"))
     ask_patterns = [
         pattern
         for rule in primary["permissions"]["rules"]
@@ -1132,7 +1132,7 @@ def test_primary_profile_asks_for_every_canonical_controller_route() -> None:
 
 
 def test_primary_profile_denies_direct_control_plane_writes_and_common_clobbers() -> None:
-    primary = json.loads((AGENTS / "pstack.json").read_text(encoding="utf-8"))
+    primary = json.loads((AGENTS / "pk-stack.json").read_text(encoding="utf-8"))
     rules = primary["permissions"]["rules"]
     denied_writes = {
         pattern
@@ -1209,7 +1209,7 @@ def test_skill_authoring_respects_bootstrap_owned_routes() -> None:
 
 
 def test_primary_profile_never_allows_git_forms_that_execute_read_or_write() -> None:
-    primary = json.loads((AGENTS / "pstack.json").read_text(encoding="utf-8"))
+    primary = json.loads((AGENTS / "pk-stack.json").read_text(encoding="utf-8"))
     shell_allow = [
         pattern
         for rule in primary["permissions"]["rules"]
@@ -1240,14 +1240,14 @@ def test_primary_profile_never_allows_git_forms_that_execute_read_or_write() -> 
 
 
 def test_post_swap_setup_refresh_uses_power_local_authority() -> None:
-    steering = (ROOT / "dev.kiro" / "steering" / "pstack-core.md").read_text(encoding="utf-8")
+    steering = (ROOT / "dev.kiro" / "steering" / "pk-stack-core.md").read_text(encoding="utf-8")
     normalized = " ".join(steering.split())
 
     assert "IDE users stay in chat and use the agent picker" in normalized
     assert "CLI users stay in chat" in normalized
     assert "/agent swap kiro_default" in normalized
     assert "/setup-pk-stack" in normalized
-    assert "/agent swap pstack" in normalized
+    assert "/agent swap pk-stack" in normalized
     assert "Crew opens the trusted project only after local bootstrap" in normalized
     assert "Web uses a locally refreshed, reviewed, committed asset tree" in normalized
     assert "Configuration Sync is not a complete PK-Stack installer" in normalized
@@ -1265,13 +1265,13 @@ def test_verified_goal_surfaces_stored_predicate_before_first_attempt() -> None:
 
 
 def test_subagent_trust_is_explicit_and_bounded_to_shipped_profiles() -> None:
-    primary = json.loads((AGENTS / "pstack.json").read_text(encoding="utf-8"))
+    primary = json.loads((AGENTS / "pk-stack.json").read_text(encoding="utf-8"))
     settings = primary["toolsSettings"]["subagent"]
 
     assert settings["availableAgents"] == [
-        "pstack-architect",
-        "pstack-reviewer",
-        "pstack-verifier",
+        "pk-stack-architect",
+        "pk-stack-reviewer",
+        "pk-stack-verifier",
     ]
     assert settings["trustedAgents"] == settings["availableAgents"]
 
@@ -1310,9 +1310,14 @@ def test_installed_kiro_discovers_every_workspace_agent_with_221_sentinel(
     )
     discovered = {
         match.group(1)
-        for match in re.finditer(r"^\s*(pstack(?:-[a-z]+)?)\s+Workspace\b", output, re.MULTILINE)
+        for match in re.finditer(r"^\s*(pk-stack(?:-[a-z]+)?)\s+Workspace\b", output, re.MULTILINE)
     }
-    assert discovered == {"pstack", "pstack-architect", "pstack-reviewer", "pstack-verifier"}
+    assert discovered == {
+        "pk-stack",
+        "pk-stack-architect",
+        "pk-stack-reviewer",
+        "pk-stack-verifier",
+    }
 
 
 def test_hook_templates_use_standalone_v3_schema() -> None:
@@ -1338,7 +1343,7 @@ def test_hook_templates_use_standalone_v3_schema() -> None:
 
 
 def test_stop_tripwire_is_disabled_and_advisory() -> None:
-    tripwire = json.loads((HOOKS / "pstack-tripwire.json").read_text(encoding="utf-8"))
+    tripwire = json.loads((HOOKS / "pk-stack-tripwire.json").read_text(encoding="utf-8"))
     hooks = tripwire["hooks"]
 
     assert len(hooks) == 1
@@ -1353,15 +1358,15 @@ def test_stop_tripwire_is_disabled_and_advisory() -> None:
 def test_steering_uses_native_always_and_file_match_inclusion() -> None:
     paths = sorted(STEERING.glob("*.md"))
     assert {path.name for path in paths} == {
-        "pstack-core.md",
-        "pstack-safety.md",
-        "pstack-typescript.md",
-        "pstack-unslop.md",
+        "pk-stack-core.md",
+        "pk-stack-safety.md",
+        "pk-stack-typescript.md",
+        "pk-stack-unslop.md",
     }
 
     for path in paths:
         metadata, body = _frontmatter(path)
-        if path.name == "pstack-typescript.md":
+        if path.name == "pk-stack-typescript.md":
             assert metadata == {
                 "inclusion": "fileMatch",
                 "fileMatchPattern": ["**/*.ts", "**/*.tsx"],
@@ -1373,7 +1378,7 @@ def test_steering_uses_native_always_and_file_match_inclusion() -> None:
             assert metadata == {"inclusion": "always"}
         assert len(body) < 2_000
 
-    unslop = (STEERING / "pstack-unslop.md").read_text(encoding="utf-8")
+    unslop = (STEERING / "pk-stack-unslop.md").read_text(encoding="utf-8")
     normalized_unslop = " ".join(unslop.split())
     assert "preserve facts, commitments, caveats" in normalized_unslop
     assert "Do not manufacture certainty, opinions, quotations, or evidence" in normalized_unslop

@@ -3,7 +3,7 @@
 PK-Stack keeps implementation and repair work in the current Kiro session.
 
 This guide covers the supported PK-Stack 0.2.0 path: a Power-local bootstrap,
-the generated `pstack` Kiro agent, a feature contract, and a verifier run in
+the generated `pk-stack` Kiro agent, a feature contract, and a verifier run in
 the current Kiro session. Start with the [Power README](../README.md) if you
 are deciding whether to install it.
 
@@ -16,7 +16,7 @@ import and review the Power
 /setup-pk-stack  ->  review the dry run and bootstrap
         |
         v
-select pstack  ->  use the IDE picker or /agent swap pstack
+select pk-stack  ->  use the IDE picker or /agent swap pk-stack
         |
         v
 native Spec / Quick Spec / Bug Fix  ->  Kiro owns the plan
@@ -69,7 +69,7 @@ using a source checkout, set one environment variable to the checkout's
 ```sh
 : "${PK_STACK_POWER:?Set PK_STACK_POWER to the checked-out PK-Stack Power directory}"
 test -f "$PK_STACK_POWER/plugin.json"
-test -f "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py"
+test -f "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py"
 ```
 
 Do not infer this value from a target project's `.pstack/` cache. An installed
@@ -92,9 +92,9 @@ source-checkout equivalent is useful for troubleshooting and deterministic
 tests:
 
 ```sh
-python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --dry-run --output json
-python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --output json
 ```
 
@@ -119,16 +119,16 @@ Return to the Power-enabled Kiro agent before refreshing. In CLI v3:
 ```text
 /agent swap kiro_default
 /setup-pk-stack
-/agent swap pstack
+/agent swap pk-stack
 ```
 
 Use the local setup-agent name if it differs. If the dry run reports
 `pending_updates`, inspect the exact paths and preview the explicit upgrade:
 
 ```sh
-python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --dry-run --update-managed --output json
-python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pstack.py" \
+python3 "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py" \
   --root "$PWD" --update-managed --output json
 ```
 
@@ -141,16 +141,16 @@ reviewed `--power-root` is supplied.
 ### Attach the generated agent
 
 The bootstrap conversation may not inherit the new profile. In the IDE choose
-the workspace `pstack` agent. In CLI v3 use either:
+the workspace `pk-stack` agent. In CLI v3 use either:
 
 ```text
-/agent swap pstack
+/agent swap pk-stack
 ```
 
 or, when Kiro has not discovered the new assets yet:
 
 ```sh
-kiro-cli chat --v3 --agent pstack
+kiro-cli chat --v3 --agent pk-stack
 ```
 
 Keep the handoff in the same conversation when possible. The primary profile
@@ -169,7 +169,7 @@ For nontrivial work, use Kiro's native planner before the PK-Stack loop:
   bounded change whose shape is already clear.
 
 Kiro owns requirements or bug analysis, design, tasks, dependency waves, and
-native task execution. When those artifacts are ready, return to `pstack` and
+native task execution. When those artifacts are ready, return to `pk-stack` and
 bind the native plan to one published feature verifier:
 
 ```sh
@@ -255,7 +255,7 @@ Legacy schema-1 records remain readable. Migrate them deliberately with
 
 ## Run a verified goal
 
-In the selected `pstack` session:
+In the selected `pk-stack` session:
 
 ```text
 /verified-goal Implement account lookup and make account-lookup pass.
@@ -378,7 +378,7 @@ for the scope and [provenance](provenance.md) for source identities.
 | `stale_managed` | Review each exact retired path; do not let setup prune it. |
 | Missing Power assets | Restore or reinstall the Power source; never use the target cache as authority. |
 | Doctor drift | Inspect the receipt and rerun the Power-local dry run before applying a fix. |
-| Missing `/verified-goal` | Select `pstack`; if needed, start a fresh `kiro-cli chat --v3 --agent pstack`. |
+| Missing `/verified-goal` | Select `pk-stack`; if needed, start a fresh `kiro-cli chat --v3 --agent pk-stack`. |
 | Corrupt goal state | Preserve `.pstack/state/goal.json`, inspect it, and make an explicit clear/recovery decision. |
 | Managed symlink | Replace it with an intended in-repository file or directory; setup rejects symlink components. |
 
