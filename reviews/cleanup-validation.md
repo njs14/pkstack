@@ -75,11 +75,39 @@ Power example also remained broken; only the disposable consumer was repaired.
 
 The next native command was `/spec new account-whitespace`. Kiro offered the
 native Quick Spec choice and used its `fast-task-workflow` subagent to generate
-the planning artifacts. The native-spec handoff and final usage reading are
-still being collected.
+`requirements.md`, `design.md`, and `tasks.md`. No application or test file was
+edited during planning. After `/agent swap pk-stack`, a second `/verified-goal`
+invocation added one regression containing embedded tab/newline characters,
+preserved the four original tests, and ran:
 
-Baseline `/usage`: **257.82 of 1,000 credits used**, resetting October 1, 2026.
-This is an account-wide counter, not a per-task meter.
+```sh
+.pk-stack/bin/projectctl goal clear --force --output json
+.pk-stack/bin/projectctl goal bind-spec account-whitespace \
+  --command "python3 -m unittest discover -s tests -v" --output json
+.pk-stack/bin/projectctl goal start "Implement account-whitespace Quick Spec" \
+  --spec account-whitespace --max-attempts 4 --output json
+.pk-stack/bin/projectctl goal verify --output json
+# After the recorded failure, Kiro changed only account.py.
+.pk-stack/bin/projectctl goal verify --output json
+```
+
+The clear was explicitly authorized after preserving the terminal first goal's
+evidence; force was unnecessary for its `passed` state. Goal
+`634d3f8c-1c02-49ac-b8d1-c4bcc9bd48aa` recorded failure at attempt 1 and pass at
+attempt 2, with five tests passing. Its contract has `source: spec` and
+`spec: account-whitespace`. The three native planning documents remained
+unchanged. No feature was published before implementing this new behavior.
+
+The same PTY then refreshed the consumer from the final reviewed Power source
+and ran doctor, all five application tests, knowledge validation, and Archify
+doctor in one approved command group. All five commands succeeded. The refreshed
+runner, bootstrap code, and verified-goal skill matched the candidate byte for
+byte. The only runner difference before that refresh was a removed unused helper.
+
+Baseline `/usage`: **257.82 of 1,000 credits used**. The post-campaign reading
+was **258.80**, a difference of **0.98 credits**, resetting October 1, 2026.
+This is an account-wide counter, not a per-task meter. Native Quick Spec reported
+0.50 credits; the two repair turns reported 0.11 and 0.12 credits respectively.
 
 ## Deterministic checks
 
@@ -152,8 +180,13 @@ transport and provider behavior were outside this local rereview.
 
 ## Release gate and limitations
 
-PR checks, merge, one bounded main-branch maintenance run, and the 0.3.0 release
-are pending. Do not read the version bump as proof of publication.
+[PR #13](https://github.com/njs14/pk-stack/pull/13) contains the implementation
+at `3cc2f814f239336c1d7baca41da64363f0666d33` plus subsequent evidence-only edits.
+Its first [GitHub CI run](https://github.com/njs14/pk-stack/actions/runs/33930968676)
+passed: 128 policy tests, 17 JavaScript tests, and 810 Power tests with one
+environment-dependent skip. Hosted knowledge validation used feature-map-only
+mode because canonical `okn` was unavailable. Final PR checks, merge, one bounded
+main-branch maintenance run, and the 0.3.0 release are pending.
 
 - IDE Power import is not UI-validated. The installed desktop driver lacks
   macOS Accessibility and Screen Recording permission. The terminal campaign

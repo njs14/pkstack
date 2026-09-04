@@ -18,9 +18,13 @@ It removes schema-1 compatibility and duplicate controller-cache assets,
 fixes verifier cancellation and evidence corrections, repairs the updater,
 and replaces duplicated onboarding with an executed README walkthrough.
 
-The candidate is still being validated. The final report will record the
-reviewed commit, exact checks, interactive Kiro results, usage, and limitations.
-A passing historical check is not acceptance of this diff.
+The [cleanup report](cleanup-validation.md) records the current checks and
+limitations. Local gates passed 811 Power tests, 128 repository-policy tests,
+and 17 JavaScript tests, plus lint, formatting, types, Actionlint, and ShellCheck.
+Independent bounded runtime and pipeline reviews accepted the implementation.
+Real Kiro CLI v3 sessions passed both the direct-command and native Quick Spec
+handoffs, with recorded failures before repair. [PR #13](https://github.com/njs14/pk-stack/pull/13)
+is the release candidate; merge and the live updater campaign remain pending.
 
 ## Release requirements
 
