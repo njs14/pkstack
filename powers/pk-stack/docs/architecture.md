@@ -29,6 +29,11 @@ or claim that CLI v3 supplies native `/goal`.
 
 ## Component map
 
+For a browsable version with guided views, theme switching, zoom, and export,
+open the [interactive PK-Stack architecture artifact](artifacts/pk-stack-architecture.html).
+Its [Archify source specification](artifacts/pk-stack-architecture.json) is
+committed beside it so the diagram can be reviewed and regenerated.
+
 ```mermaid
 flowchart LR
     User[User in Kiro IDE or CLI v3]
