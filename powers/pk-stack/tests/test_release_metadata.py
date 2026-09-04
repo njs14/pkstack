@@ -67,6 +67,9 @@ def test_release_reproves_tagged_default_branch_commit_and_portable_checksum() -
     assert "refs/remotes/origin/$DEFAULT_BRANCH" in workflow
     assert "uv run --frozen pytest -q" in workflow
     assert "node --test .github/scripts/test_pk_stack_pr_policy.js" in workflow
+    assert "git archive --format=tar --prefix=pk-stack/" in workflow
+    assert '"$RELEASE_SHA:powers/pk-stack"' in workflow
+    assert "tar --create" not in workflow
     assert 'sha256sum "$(basename "$archive")"' in workflow
     assert 'sha256sum --check "$(basename "$checksum")"' in workflow
     assert 'sha256sum "$archive" >"$checksum"' not in workflow
