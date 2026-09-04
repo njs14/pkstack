@@ -8,6 +8,8 @@ import re
 import tomllib
 from pathlib import Path
 
+import yaml
+
 POWER_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = POWER_ROOT.parents[1]
 RELEASE_VERSION = "0.2.0"
@@ -60,10 +62,11 @@ def test_setup_docs_use_declared_power_source() -> None:
 
 
 def test_release_reproves_tagged_default_branch_commit_and_portable_checksum() -> None:
-    workflow = (REPOSITORY_ROOT / ".github/workflows/pk-stack-release.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow_path = REPOSITORY_ROOT / ".github/workflows/pk-stack-release.yml"
+    workflow = workflow_path.read_text(encoding="utf-8")
+    parsed = yaml.safe_load(workflow)
 
+    assert parsed["jobs"]["release"]["env"]["RELEASE_SHA"] == "${{ github.sha }}"
     assert "refs/remotes/origin/$DEFAULT_BRANCH" in workflow
     assert "uv run --frozen pytest -q" in workflow
     assert "node --test .github/scripts/test_pk_stack_pr_policy.js" in workflow
