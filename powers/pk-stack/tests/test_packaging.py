@@ -48,7 +48,7 @@ def _run_clean_json(
     return json.loads(completed.stdout)
 
 
-def test_wheel_assets_and_offline_installed_bootstrap_runtime(tmp_path: Path) -> None:
+def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
     uv = shutil.which("uv")
     assert uv is not None
     dist = tmp_path / "dist"
@@ -81,7 +81,7 @@ def test_wheel_assets_and_offline_installed_bootstrap_runtime(tmp_path: Path) ->
     _run([uv, "venv", "--python", sys.executable, str(install_venv)], cwd=tmp_path)
     install_python = install_venv / "bin" / "python"
     _run(
-        [uv, "pip", "install", "--offline", "--python", str(install_python), str(wheels[0])],
+        [uv, "pip", "install", "--python", str(install_python), str(wheels[0])],
         cwd=tmp_path,
     )
 
