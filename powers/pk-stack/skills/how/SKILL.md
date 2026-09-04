@@ -16,7 +16,7 @@ before delegating or critiquing.
 
 Start with the matching feature record and follow its explicit related links. If those do not
 explain the runtime boundary, record the missing question and issue one bounded, targeted
-`.pstack/bin/projectctl knowledge search "<specific mechanism>" --budget 1200 --output json` query.
+`.pk-stack/bin/projectctl knowledge search "<specific mechanism>" --budget 1200 --output json` query.
 Record the selected depth and escalation reason; never inject the whole Wiki.
 
 ## Choose the path

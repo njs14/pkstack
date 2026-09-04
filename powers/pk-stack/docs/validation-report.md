@@ -8,7 +8,7 @@ candidate commit and gate verdicts.
 ## Authority and evidence boundary
 
 The version in [`plugin.json`](../plugin.json) is the release metadata
-authority. `pyproject.toml`, `src/pstack_kiro/__init__.py`, and the shipped
+authority. `pyproject.toml`, `src/pk_stack/__init__.py`, and the shipped
 lockfiles are mirrors. Verify the authority first and compare every mirror
 before recording any other result.
 
@@ -40,13 +40,13 @@ From the repository root:
 
 ```sh
 python3 -m pytest powers/pk-stack/tests/test_release_metadata.py -q
-.pstack/bin/projectctl doctor --output json
-.pstack/bin/projectctl feature validate --output json
-.pstack/bin/projectctl knowledge validate --output json
+.pk-stack/bin/projectctl doctor --output json
+.pk-stack/bin/projectctl feature validate --output json
+.pk-stack/bin/projectctl knowledge validate --output json
 ```
 
 The metadata regression compares `plugin.json`, `pyproject.toml`, the package
-`__version__`, and the package lock. It does not make generated `.pstack/`
+`__version__`, and the package lock. It does not make generated `.pk-stack/`
 content authoritative; generated parity must be checked through setup and the
 receipt after the Power's bootstrap source is updated.
 

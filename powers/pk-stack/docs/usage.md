@@ -72,7 +72,7 @@ test -f "$PK_STACK_POWER/plugin.json"
 test -f "$PK_STACK_POWER/skills/setup-pk-stack/scripts/setup_pk_stack.py"
 ```
 
-Do not infer this value from a target project's `.pstack/` cache. An installed
+Do not infer this value from a target project's `.pk-stack/` cache. An installed
 Power may be imported through Kiro's Power manager instead; the same
 Power-local rule applies.
 
@@ -102,14 +102,14 @@ After a successful setup, use only the generated wrapper for project
 operations:
 
 ```sh
-.pstack/bin/projectctl version --output json
-.pstack/bin/projectctl doctor --output json
-.pstack/bin/projectctl feature validate --output json
+.pk-stack/bin/projectctl version --output json
+.pk-stack/bin/projectctl doctor --output json
+.pk-stack/bin/projectctl feature validate --output json
 ```
 
 Setup may create a root `projectctl` convenience wrapper when that name is
 unowned. It is not the trusted entrypoint. The canonical wrapper uses the
-shipped locked runtime under `.pstack/projectctl/`; its environment does not
+shipped locked runtime under `.pk-stack/projectctl/`; its environment does not
 become the verifier's environment.
 
 ### Refresh managed files
@@ -173,7 +173,7 @@ native task execution. When those artifacts are ready, return to `pk-stack` and
 bind the native plan to one published feature verifier:
 
 ```sh
-.pstack/bin/projectctl goal bind-spec account-lookup \
+.pk-stack/bin/projectctl goal bind-spec account-lookup \
   --feature account-lookup --output json
 ```
 
@@ -190,7 +190,7 @@ hyphens.
 Create a draft without running its command:
 
 ```sh
-.pstack/bin/projectctl feature generate account-lookup \
+.pk-stack/bin/projectctl feature generate account-lookup \
   --title "Account lookup" \
   --behavior "A caller can retrieve account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
@@ -208,7 +208,7 @@ Create a draft without running its command:
 Add `--ready` to run the command before writing `draft: false`:
 
 ```sh
-.pstack/bin/projectctl feature generate account-lookup \
+.pk-stack/bin/projectctl feature generate account-lookup \
   --title "Account lookup" \
   --behavior "A caller can retrieve account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
@@ -229,16 +229,16 @@ existing target unchanged. `feature validate` checks syntax, links, location,
 duplicate slugs, and command policy; it does not prove the behavior:
 
 ```sh
-.pstack/bin/projectctl feature show account-lookup --output json
-.pstack/bin/projectctl feature list --output json
-.pstack/bin/projectctl feature validate --output json
+.pk-stack/bin/projectctl feature show account-lookup --output json
+.pk-stack/bin/projectctl feature list --output json
+.pk-stack/bin/projectctl feature validate --output json
 ```
 
 For three to five features, prepare one JSON plan and prove only the named
 representative during generation:
 
 ```sh
-.pstack/bin/projectctl feature generate-map feature-plan.json \
+.pk-stack/bin/projectctl feature generate-map feature-plan.json \
   --representative account-lookup --output json
 ```
 
@@ -246,8 +246,8 @@ The other records remain drafts until each verifier passes. Publish and verify
 them separately:
 
 ```sh
-.pstack/bin/projectctl feature publish account-lookup --output json
-.pstack/bin/projectctl feature verify account-lookup --output json
+.pk-stack/bin/projectctl feature publish account-lookup --output json
+.pk-stack/bin/projectctl feature verify account-lookup --output json
 ```
 
 Legacy schema-1 records remain readable. Migrate them deliberately with
@@ -269,7 +269,7 @@ the primary session owns edits and final evidence.
 For explicit CLI control, start one goal from exactly one source:
 
 ```sh
-.pstack/bin/projectctl goal start \
+.pk-stack/bin/projectctl goal start \
   "Repair account lookup" \
   --feature account-lookup --max-attempts 4 --output json
 ```
@@ -277,7 +277,7 @@ For explicit CLI control, start one goal from exactly one source:
 Or supply one reviewed command:
 
 ```sh
-.pstack/bin/projectctl goal start \
+.pk-stack/bin/projectctl goal start \
   "Repair account lookup" \
   --command "uv run pytest tests/test_account_lookup.py -q" \
   --max-attempts 4 --output json
@@ -286,8 +286,8 @@ Or supply one reviewed command:
 Inspect and verify:
 
 ```sh
-.pstack/bin/projectctl goal status --output json
-.pstack/bin/projectctl goal verify --output json
+.pk-stack/bin/projectctl goal status --output json
+.pk-stack/bin/projectctl goal verify --output json
 ```
 
 | Result | Exit | Stored status |
@@ -303,7 +303,7 @@ one. An exhausted goal needs an explicit larger budget (`goal resume
 preserving evidence:
 
 ```sh
-.pstack/bin/projectctl goal clear --output json
+.pk-stack/bin/projectctl goal clear --output json
 ```
 
 Active state requires the explicit `--force` abandonment option. Clearing
@@ -327,9 +327,9 @@ The feature map is the first context layer. Check the broader integration only
 when the feature and its explicit links do not answer the question:
 
 ```sh
-.pstack/bin/projectctl knowledge status --output json
-.pstack/bin/projectctl knowledge validate --output json
-.pstack/bin/projectctl knowledge search "account suspension" --output json
+.pk-stack/bin/projectctl knowledge status --output json
+.pk-stack/bin/projectctl knowledge validate --output json
+.pk-stack/bin/projectctl knowledge search "account suspension" --output json
 ```
 
 When installed, canonical `okn` handles bounded Wiki validation and search.
@@ -344,7 +344,7 @@ source-controlled knowledge.
 In this repository, use `/maintain-pk-stack` or inspect the pinned sources with:
 
 ```sh
-.pstack/bin/projectctl upstream check \
+.pk-stack/bin/projectctl upstream check \
   --manifest maintenance/upstreams.json \
   --power-root powers/pk-stack \
   --output json
@@ -357,7 +357,7 @@ executing upstream content. A proposal may advance one source only. Acceptance
 requires a reviewed exact head and an explicit dry run before applying:
 
 ```sh
-.pstack/bin/projectctl upstream accept \
+.pk-stack/bin/projectctl upstream accept \
   --manifest maintenance/upstreams.json \
   --power-root powers/pk-stack \
   --proposal .pk-stack-maintenance/proposal.json \
@@ -379,7 +379,7 @@ for the scope and [provenance](provenance.md) for source identities.
 | Missing Power assets | Restore or reinstall the Power source; never use the target cache as authority. |
 | Doctor drift | Inspect the receipt and rerun the Power-local dry run before applying a fix. |
 | Missing `/verified-goal` | Select `pk-stack`; if needed, start a fresh `kiro-cli chat --v3 --agent pk-stack`. |
-| Corrupt goal state | Preserve `.pstack/state/goal.json`, inspect it, and make an explicit clear/recovery decision. |
+| Corrupt goal state | Preserve `.pk-stack/state/goal.json`, inspect it, and make an explicit clear/recovery decision. |
 | Managed symlink | Replace it with an intended in-repository file or directory; setup rejects symlink components. |
 
 There is no automatic uninstaller. Back up first, compare receipt hashes, and

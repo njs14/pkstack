@@ -57,7 +57,7 @@ Then select the narrowest shipped skill:
   a named `principle-*` skill
 - plain restatement or evidence trail: `bro` or `show-me-your-work`
 - bounded parallel work or independent challenge: `swarm`, `interrogate`, or `model-council`
-- completion: `verified-goal` with `.pstack/bin/projectctl`
+- completion: `verified-goal` with `.pk-stack/bin/projectctl`
 
 Use DO for project commands, PROVE for executable feature contracts, and KNOW for broader project
 knowledge through canonical `okn`. Start with the spec-linked feature record; use `okn` only when

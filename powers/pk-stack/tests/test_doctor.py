@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from pstack_kiro.bootstrap import bootstrap_project
-from pstack_kiro.doctor import (
+from pk_stack.bootstrap import bootstrap_project
+from pk_stack.doctor import (
     _command_check,
     _kiro_agent_check,
     _kiro_agent_discovery_check,
@@ -43,7 +43,7 @@ def _write_workspace_agents(root: Path, names: list[str]) -> None:
 
 def _without_optional_doctor_tools(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
-        "pstack_kiro.doctor.shutil.which",
+        "pk_stack.doctor.shutil.which",
         lambda name: "/tools/uv" if name == "uv" else None,
     )
 
@@ -57,7 +57,7 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
     fake_kiro.parent.mkdir()
     fake_kiro.write_text("test executable sentinel\n", encoding="utf-8")
     monkeypatch.setattr(
-        "pstack_kiro.doctor.shutil.which",
+        "pk_stack.doctor.shutil.which",
         lambda name: (
             str(fake_kiro) if name == "kiro-cli" else "/tools/uv" if name == "uv" else None
         ),
@@ -74,14 +74,14 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
         assert command[1:3] == ["agent", "validate"]
         return subprocess.CompletedProcess(command, 0, "", "")
 
-    monkeypatch.setattr("pstack_kiro.doctor.subprocess.run", run)
+    monkeypatch.setattr("pk_stack.doctor.subprocess.run", run)
 
     result = run_doctor(tmp_path)
 
     assert result["ok"] is True
     assert result["summary"]["fail"] == 0
     checks = {check["name"]: check for check in result["checks"]}
-    receipt = json.loads((tmp_path / ".pstack" / "bootstrap.json").read_text())
+    receipt = json.loads((tmp_path / ".pk-stack" / "bootstrap.json").read_text())
     assert checks["okn"]["status"] == "warn"
     assert checks["kiro-workspace-agent-discovery"]["status"] == "pass"
     for steering in (
@@ -109,14 +109,14 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
     ("relative", "mutation", "message"),
     [
         (
-            ".pstack/projectctl/src/pstack_kiro/models.py",
+            ".pk-stack/projectctl/src/pk_stack/models.py",
             "drift",
-            "hash mismatch (1): .pstack/projectctl/src/pstack_kiro/models.py",
+            "hash mismatch (1): .pk-stack/projectctl/src/pk_stack/models.py",
         ),
         (
-            ".pstack/projectctl/skills/setup-pk-stack/SKILL.md",
+            ".pk-stack/projectctl/skills/setup-pk-stack/SKILL.md",
             "missing",
-            "missing or non-file (1): .pstack/projectctl/skills/setup-pk-stack/SKILL.md",
+            "missing or non-file (1): .pk-stack/projectctl/skills/setup-pk-stack/SKILL.md",
         ),
     ],
 )
@@ -133,7 +133,7 @@ def test_doctor_receipt_integrity_detects_cached_drift_and_missing_owned_files(
         managed.write_bytes(managed.read_bytes() + b"\n# receipt drift probe\n")
     else:
         managed.unlink()
-    receipt = tmp_path / ".pstack" / "bootstrap.json"
+    receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     receipt_before = receipt.read_bytes()
     _without_optional_doctor_tools(monkeypatch)
 
@@ -156,7 +156,7 @@ def test_doctor_receipt_integrity_detects_identical_live_and_cached_permission_d
     live = tmp_path / ".kiro" / "agents" / "pk-stack.json"
     cached = (
         tmp_path
-        / ".pstack"
+        / ".pk-stack"
         / "projectctl"
         / "templates"
         / "project"
@@ -169,7 +169,7 @@ def test_doctor_receipt_integrity_detects_identical_live_and_cached_permission_d
     altered = (json.dumps(document, indent=2, sort_keys=True) + "\n").encode()
     live.write_bytes(altered)
     cached.write_bytes(altered)
-    receipt = tmp_path / ".pstack" / "bootstrap.json"
+    receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     receipt_before = receipt.read_bytes()
     _without_optional_doctor_tools(monkeypatch)
 
@@ -184,7 +184,7 @@ def test_doctor_receipt_integrity_detects_identical_live_and_cached_permission_d
     assert "hash mismatch (2)" in receipt_check["message"]
     assert ".kiro/agents/pk-stack.json" in receipt_check["message"]
     assert (
-        ".pstack/projectctl/templates/project/.kiro/agents/pk-stack.json"
+        ".pk-stack/projectctl/templates/project/.kiro/agents/pk-stack.json"
         in receipt_check["message"]
     )
     assert receipt.read_bytes() == receipt_before
@@ -196,19 +196,19 @@ def test_doctor_receipt_integrity_detects_identical_live_and_cached_permission_d
     [
         None,
         "{broken",
-        json.dumps({"schema_version": 99, "manager": "pstack-kiro", "files": {}}),
-        json.dumps({"schema_version": 1, "manager": "pstack-kiro", "files": {}}),
+        json.dumps({"schema_version": 99, "manager": "pk-stack", "files": {}}),
+        json.dumps({"schema_version": 1, "manager": "pk-stack", "files": {}}),
         json.dumps(
             {
                 "schema_version": 1,
-                "manager": "pstack-kiro",
+                "manager": "pk-stack",
                 "files": {"../escape": "0" * 64},
             }
         ),
         json.dumps(
             {
                 "schema_version": 1,
-                "manager": "pstack-kiro",
+                "manager": "pk-stack",
                 "files": {"projectctl": "not-a-sha256"},
             }
         ),
@@ -221,7 +221,7 @@ def test_doctor_receipt_integrity_returns_structured_failure_for_invalid_receipt
     replacement: str | None,
 ) -> None:
     assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok is True
-    receipt = tmp_path / ".pstack" / "bootstrap.json"
+    receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     if replacement is None:
         receipt.unlink()
     else:
@@ -250,7 +250,7 @@ def test_doctor_receipt_integrity_rejects_symlinked_receipt_without_disclosure(
     outside = tmp_path.parent / f"{tmp_path.name}-outside-receipt"
     sentinel = "external receipt sentinel must remain unread"
     outside.write_text(sentinel, encoding="utf-8")
-    receipt = tmp_path / ".pstack" / "bootstrap.json"
+    receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     receipt.unlink()
     receipt.symlink_to(outside)
     _without_optional_doctor_tools(monkeypatch)
@@ -276,7 +276,7 @@ def test_doctor_receipt_integrity_rejects_symlinked_managed_path_without_disclos
     outside = tmp_path.parent / f"{tmp_path.name}-outside-managed"
     sentinel = "external managed-file sentinel must remain unread"
     outside.write_text(sentinel, encoding="utf-8")
-    managed = tmp_path / ".pstack" / "projectctl" / "src" / "pstack_kiro" / "models.py"
+    managed = tmp_path / ".pk-stack" / "projectctl" / "src" / "pk_stack" / "models.py"
     managed.unlink()
     managed.symlink_to(outside)
     _without_optional_doctor_tools(monkeypatch)
@@ -296,11 +296,11 @@ def test_bootstrapped_controller_doctor_exits_nonzero_for_cached_source_drift(
     tmp_path: Path,
 ) -> None:
     assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok is True
-    cached = tmp_path / ".pstack" / "projectctl" / "src" / "pstack_kiro" / "models.py"
+    cached = tmp_path / ".pk-stack" / "projectctl" / "src" / "pk_stack" / "models.py"
     cached.write_bytes(cached.read_bytes() + b"\n# receipt drift probe\n")
 
     completed = subprocess.run(
-        [str(tmp_path / ".pstack" / "bin" / "projectctl"), "doctor", "--output", "json"],
+        [str(tmp_path / ".pk-stack" / "bin" / "projectctl"), "doctor", "--output", "json"],
         cwd=tmp_path,
         capture_output=True,
         text=True,
@@ -320,7 +320,7 @@ def test_doctor_detects_missing_and_invalid_assets(tmp_path: Path, monkeypatch) 
     bootstrap_project(tmp_path, power_root=POWER_ROOT)
     (tmp_path / ".kiro" / "agents" / "pk-stack.json").write_text("{broken", encoding="utf-8")
     (tmp_path / ".kiro" / "agents" / "pk-stack-reviewer.json").unlink()
-    monkeypatch.setattr("pstack_kiro.doctor.shutil.which", lambda _name: None)
+    monkeypatch.setattr("pk_stack.doctor.shutil.which", lambda _name: None)
 
     result = run_doctor(tmp_path)
 
@@ -337,15 +337,15 @@ def test_runtime_ignore_check_uses_git_when_present(tmp_path: Path, monkeypatch)
     class Completed:
         returncode = 0
 
-    monkeypatch.setattr("pstack_kiro.doctor.subprocess.run", lambda *args, **kwargs: Completed())
+    monkeypatch.setattr("pk_stack.doctor.subprocess.run", lambda *args, **kwargs: Completed())
 
     assert _runtime_state_ignored(tmp_path).status == "pass"
-    assert _command_check("definitely-missing-pstack-tool", required=False).status == "warn"
+    assert _command_check("definitely-missing-pk-stack-tool", required=False).status == "warn"
 
 
 @pytest.mark.parametrize(
     "impostor",
-    ["# .pstack/state/\n", "backup/.pstack/state/\n", ".pstack/state/cache\n"],
+    ["# .pk-stack/state/\n", "backup/.pk-stack/state/\n", ".pk-stack/state/cache\n"],
 )
 def test_runtime_ignore_check_rejects_impostor_match_without_git(
     tmp_path: Path,
@@ -357,7 +357,7 @@ def test_runtime_ignore_check_rejects_impostor_match_without_git(
 
 
 def test_bootstrap_rejects_invalid_receipt_and_dry_run_is_non_mutating(tmp_path: Path) -> None:
-    receipt = tmp_path / ".pstack" / "bootstrap.json"
+    receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     receipt.parent.mkdir(parents=True)
     receipt.write_text(json.dumps({"schema_version": 99, "manager": "other"}), encoding="utf-8")
 
@@ -403,7 +403,7 @@ def test_doctor_handles_hostile_paths_and_feature_discovery_without_disclosure(
     outside.mkdir()
     sentinel = "external doctor sentinel must remain unread"
     (outside / "sentinel.txt").write_text(sentinel, encoding="utf-8")
-    (project / ".pstack").symlink_to(outside, target_is_directory=True)
+    (project / ".pk-stack").symlink_to(outside, target_is_directory=True)
     (project / "projectctl").mkdir()
     (project / "Wiki").mkdir()
     (project / "Wiki" / "features").symlink_to(outside, target_is_directory=True)
@@ -428,14 +428,14 @@ def test_doctor_reports_runtime_ignore_and_kiro_validation_execution_errors(
     def fail_run(*_args: object, **_kwargs: object) -> object:
         raise OSError("execution blocked")
 
-    monkeypatch.setattr("pstack_kiro.doctor.subprocess.run", fail_run)
+    monkeypatch.setattr("pk_stack.doctor.subprocess.run", fail_run)
 
     assert _runtime_state_ignored(tmp_path).status == "fail"
     assert _kiro_agent_check("kiro-cli", tmp_path / "agent.json", "agent").status == "fail"
 
     timeout = subprocess.TimeoutExpired("kiro-cli", 30)
     monkeypatch.setattr(
-        "pstack_kiro.doctor.subprocess.run",
+        "pk_stack.doctor.subprocess.run",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(timeout),
     )
     assert _kiro_agent_check("kiro-cli", tmp_path / "agent.json", "agent").status == "fail"
@@ -460,7 +460,7 @@ def test_kiro_workspace_agent_discovery_accepts_all_exact_ansi_rows(
         observed.update(kwargs)
         return subprocess.CompletedProcess(command, 0, _agent_list_output(expected, ansi=True), "")
 
-    monkeypatch.setattr("pstack_kiro.doctor.subprocess.run", run)
+    monkeypatch.setattr("pk_stack.doctor.subprocess.run", run)
 
     check = _kiro_agent_discovery_check("/opt/kiro-cli", tmp_path)
 
@@ -486,7 +486,7 @@ def test_kiro_workspace_agent_discovery_accepts_real_cli_stderr_renderer(
     _write_workspace_agents(tmp_path, expected)
     output = _agent_list_output(expected, ansi=True)
     monkeypatch.setattr(
-        "pstack_kiro.doctor.subprocess.run",
+        "pk_stack.doctor.subprocess.run",
         lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, "", output),
     )
 
@@ -504,7 +504,7 @@ def test_kiro_workspace_agent_discovery_fails_when_expected_agent_is_missing(
     _write_workspace_agents(tmp_path, expected)
     output = _agent_list_output(["pk-stack", "pk-stack-reviewer"])
     monkeypatch.setattr(
-        "pstack_kiro.doctor.subprocess.run",
+        "pk_stack.doctor.subprocess.run",
         lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, output, ""),
     )
 
@@ -530,7 +530,7 @@ def test_kiro_workspace_agent_discovery_fails_on_malformed_output(
 ) -> None:
     _write_workspace_agents(tmp_path, ["pk-stack"])
     monkeypatch.setattr(
-        "pstack_kiro.doctor.subprocess.run",
+        "pk_stack.doctor.subprocess.run",
         lambda command, **_kwargs: subprocess.CompletedProcess(command, 0, output, ""),
     )
 
@@ -551,7 +551,7 @@ def test_kiro_workspace_agent_discovery_fails_closed_on_timeout(
         assert isinstance(timeout_seconds, (int, float))
         raise subprocess.TimeoutExpired(command, timeout_seconds)
 
-    monkeypatch.setattr("pstack_kiro.doctor.subprocess.run", timeout)
+    monkeypatch.setattr("pk_stack.doctor.subprocess.run", timeout)
 
     check = _kiro_agent_discovery_check("kiro-cli", tmp_path)
 
@@ -565,7 +565,7 @@ def test_kiro_workspace_agent_discovery_fails_closed_on_nonzero(
 ) -> None:
     _write_workspace_agents(tmp_path, ["pk-stack"])
     monkeypatch.setattr(
-        "pstack_kiro.doctor.subprocess.run",
+        "pk_stack.doctor.subprocess.run",
         lambda command, **_kwargs: subprocess.CompletedProcess(
             command,
             23,

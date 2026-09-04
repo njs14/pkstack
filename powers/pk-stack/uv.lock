@@ -212,7 +212,7 @@ wheels = [
 ]
 
 [[package]]
-name = "pstack-kiro"
+name = "pk-stack"
 version = "0.2.0"
 source = { editable = "." }
 dependencies = [

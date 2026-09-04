@@ -16,11 +16,10 @@ orchestrator. Kiro Web can consume committed workspace assets, but that path is
 supported by design and remains untested.
 
 This package is version **0.2.0**. [`plugin.json`](plugin.json) is the release
-metadata authority. `pyproject.toml`, `src/pstack_kiro/__init__.py`, and the
-shipped lockfiles are mirrors and must equal that value. The technical
-compatibility identifiers `pstack-kiro`, `pstack_kiro`, `.pstack`, and
-`projectctl` remain stable. User-facing Kiro agents, hooks, steering, setup
-commands, and native-spec bridges use the `pk-stack` name.
+metadata authority. `pyproject.toml`, `src/pk_stack/__init__.py`, and the
+shipped lockfiles are mirrors and must equal that value. The package,
+repository-local state directory, Kiro agents, hooks, steering, setup commands,
+and native-spec bridges all use the PK-Stack name consistently.
 
 ## What is installed
 
@@ -30,12 +29,12 @@ The Power contains:
 - workflow skills for architecture, investigation, OKF knowledge, review,
   verification, TDD, writing, and bounded principles;
 - Kiro steering, custom-agent, and hook templates;
-- the `pstack_kiro` package and `projectctl` command; and
+- the `pk_stack` package and `projectctl` command; and
 - documentation and parity/provenance records.
 
 `powers/pk-stack/` is the only source of Power-managed content. A successful
 setup materializes selected files into a target project's `.kiro/` and caches a
-controller under `.pstack/projectctl/`. The target's `.pstack/bin/projectctl`
+controller under `.pk-stack/projectctl/`. The target's `.pk-stack/bin/projectctl`
 wrapper is the stable project entrypoint. Generated files are an ownership
 receipt and cache, not a second source tree.
 
@@ -63,9 +62,9 @@ Prerequisites: Kiro IDE or Kiro CLI v3, Python 3.11+, and `uv`.
 4. Check the workspace:
 
    ```sh
-   .pstack/bin/projectctl version --output json
-   .pstack/bin/projectctl doctor --output json
-   .pstack/bin/projectctl feature validate --output json
+   .pk-stack/bin/projectctl version --output json
+   .pk-stack/bin/projectctl doctor --output json
+   .pk-stack/bin/projectctl feature validate --output json
    ```
 
 If Kiro cannot import a local Power, set `PK_STACK_POWER` to this checked-out
@@ -95,7 +94,7 @@ plan is ready.
 Bind a native spec to a feature contract:
 
 ```sh
-.pstack/bin/projectctl goal bind-spec account-lookup \
+.pk-stack/bin/projectctl goal bind-spec account-lookup \
   --feature account-lookup --output json
 ```
 
@@ -108,7 +107,7 @@ Then run the current-session loop:
 For a small change, create a contract directly:
 
 ```sh
-.pstack/bin/projectctl feature generate account-lookup \
+.pk-stack/bin/projectctl feature generate account-lookup \
   --title "Account lookup" \
   --behavior "A caller can retrieve account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
@@ -125,7 +124,7 @@ the verifier and its project scope before approving it.
 
 | Interface | Job |
 | --- | --- |
-| `.pstack/bin/projectctl` | **DO:** setup, diagnostics, feature/upstream operations, and goal state |
+| `.pk-stack/bin/projectctl` | **DO:** setup, diagnostics, feature/upstream operations, and goal state |
 | `Wiki/features/*.md` | **PROVE:** user-visible behavior and its executable verifier |
 | `Wiki/` plus optional canonical `okn` | **KNOW:** architecture, decisions, concepts, and operations |
 

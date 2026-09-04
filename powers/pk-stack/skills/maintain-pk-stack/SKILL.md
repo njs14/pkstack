@@ -20,17 +20,17 @@ a manifest or repurpose the flow for an unrelated dependency update.
 
 ## Establish the immutable goal
 
-Use `.pstack/bin/projectctl` throughout. First inspect goal state:
+Use `.pk-stack/bin/projectctl` throughout. First inspect goal state:
 
 ```text
-.pstack/bin/projectctl goal status --output json
+.pk-stack/bin/projectctl goal status --output json
 ```
 
 If a goal is already terminal, or an unrelated goal is active, stop without
 replacing, clearing, resuming, or verifying it. Then run the aggregate read-only check:
 
 ```text
-.pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --output json
+.pk-stack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --output json
 ```
 
 The aggregate result must account for every manifest source. If more than one source has reviewable
@@ -39,7 +39,7 @@ parity artifact, and provenance document byte-for-byte unchanged. Use the source
 by the aggregate result for every source-scoped operation:
 
 ```text
-.pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --source-id <source-id> --output json
+.pk-stack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --source-id <source-id> --output json
 ```
 
 Never combine transitions from different sources in one proposal or acceptance call. Complete and
@@ -153,8 +153,8 @@ Do not edit `maintenance/upstreams.json` or `maintenance/upstream-reviews.json` 
 then apply the expected-head-bound acceptance:
 
 ```text
-.pstack/bin/projectctl upstream accept --manifest maintenance/upstreams.json --power-root powers/pk-stack --proposal .pk-stack-maintenance/proposal.json --expected-head <exact-head-commit> --dry-run --output json
-.pstack/bin/projectctl upstream accept --manifest maintenance/upstreams.json --power-root powers/pk-stack --proposal .pk-stack-maintenance/proposal.json --expected-head <exact-head-commit> --output json
+.pk-stack/bin/projectctl upstream accept --manifest maintenance/upstreams.json --power-root powers/pk-stack --proposal .pk-stack-maintenance/proposal.json --expected-head <exact-head-commit> --dry-run --output json
+.pk-stack/bin/projectctl upstream accept --manifest maintenance/upstreams.json --power-root powers/pk-stack --proposal .pk-stack-maintenance/proposal.json --expected-head <exact-head-commit> --output json
 ```
 
 The service freshly reproofs the transition, atomically and recoverably appends its normalized

@@ -14,8 +14,8 @@ build/
 *.egg-info/
 
 # Runtime-only PK-Stack state. Knowledge and feature maps remain tracked.
-.pstack/state/
-.pstack/tmp/
+.pk-stack/state/
+.pk-stack/tmp/
 
 # Local Kiro and Claude transcripts/settings are never source material.
 .kiro/cache/

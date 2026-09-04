@@ -12,7 +12,7 @@ At the start, choose a stable slug. Do not create or edit the trail by hand. App
 decision or checkpoint through the deterministic projectctl lever:
 
 ```text
-.pstack/bin/projectctl evidence append <slug> \
+.pk-stack/bin/projectctl evidence append <slug> \
   --requirement <bounded requirement> \
   --evidence <bounded evidence pointer or digest> \
   --decision <bounded visible decision> \
@@ -21,7 +21,7 @@ decision or checkpoint through the deterministic projectctl lever:
   --output json
 ```
 
-The default target is `.pstack/state/evidence/<slug>/decision-log.jsonl`, beneath the setup-managed
+The default target is `.pk-stack/state/evidence/<slug>/decision-log.jsonl`, beneath the setup-managed
 ignore rule and therefore uncommitted by default. Use a committed trail only when the user explicitly
 requests that durable review surface, and require both `--committed` and the exact
 `--target Wiki/evidence/<slug>/decision-log.jsonl` on every append and audit command. Neither flag
@@ -44,7 +44,7 @@ or unbounded raw logs. The artifact records bounded evidence and decisions, not 
 Before handoff, run:
 
 ```text
-.pstack/bin/projectctl evidence audit <slug> --output json
+.pk-stack/bin/projectctl evidence audit <slug> --output json
 ```
 
 For a committed trail, repeat the exact `--committed --target

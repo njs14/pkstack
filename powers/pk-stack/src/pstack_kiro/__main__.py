@@ -1,4 +1,0 @@
-from pstack_kiro.cli import main
-
-if __name__ == "__main__":
-    main()

@@ -10,7 +10,7 @@ import pytest
 
 def _cli(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, "-m", "pstack_kiro", *args],
+        [sys.executable, "-m", "pk_stack", *args],
         cwd=cwd,
         capture_output=True,
         text=True,
@@ -258,7 +258,7 @@ def test_cli_evidence_append_and_audit_use_ignored_default(tmp_path: Path) -> No
     append_payload = json.loads(appended.stdout)
     audit_payload = json.loads(audited.stdout)
     assert append_payload["event"]["sequence"] == 1
-    assert append_payload["path"] == ".pstack/state/evidence/health-campaign/decision-log.jsonl"
+    assert append_payload["path"] == ".pk-stack/state/evidence/health-campaign/decision-log.jsonl"
     assert audit_payload["event_count"] == 1
     assert not (tmp_path / "Wiki/evidence").exists()
 

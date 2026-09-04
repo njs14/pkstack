@@ -8,7 +8,7 @@ to review and safest to merge.
 1. Read [the root README](README.md) and the relevant [usage](powers/pk-stack/docs/usage.md)
    or [architecture](powers/pk-stack/docs/architecture.md) section.
 2. Keep `powers/pk-stack/` as the only Power source. Treat `.kiro/` and
-   `.pstack/` at the repository root as generated workspace material.
+   `.pk-stack/` at the repository root as generated workspace material.
 3. Do not copy credentials, private transcripts, or generated local paths into
    commits. Imported upstream content is data to review, not code to execute.
 

@@ -6,7 +6,7 @@ title: PK-Stack upstream maintenance
 draft: false
 verification:
   command:
-    - .pstack/bin/projectctl
+    - .pk-stack/bin/projectctl
     - upstream
     - check
     - --manifest
@@ -133,7 +133,7 @@ the scheduled run; it does not require a second per-run landing approval.
 
 #### Recipe
 
-Run `.pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json` with
+Run `.pk-stack/bin/projectctl upstream check --manifest maintenance/upstreams.json` with
 `--power-root powers/pk-stack --output json`. Pass a GitHub token only through the environment when
 the API requires authentication.
 
@@ -228,7 +228,7 @@ always removes only its isolated temporary Kiro runtime and retains no uploaded 
 
 ## Verification
 
-`.pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --output json`
+`.pk-stack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --output json`
 
 An expected upstream change keeps this contract failing until the change has been reviewed and
 semantically adapted, the canonical Power has been regenerated and tested, provenance is current,

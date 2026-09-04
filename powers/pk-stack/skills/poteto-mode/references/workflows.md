@@ -31,7 +31,7 @@ The native package owns `requirements.md` or `bugfix.md`, `design.md`, `tasks.md
 task status, and native parallel execution. PK-Stack does not recreate that task graph. After the
 native package is ready, its skills supply the upstream Poteto semantics and bind the result to
 DO/PROVE/KNOW: project commands, one executable feature contract, and task-driven OKF context.
-Use the feature record first; invoke `.pstack/bin/projectctl knowledge search` only when the narrow
+Use the feature record first; invoke `.pk-stack/bin/projectctl knowledge search` only when the narrow
 record cannot answer an architecture, decision, concept, or operations question. Native
 `/knowledge` may index the source-controlled Wiki, but it does not replace canonical `okn` checks
 or become the source of truth.

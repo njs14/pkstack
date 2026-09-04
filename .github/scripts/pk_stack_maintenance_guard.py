@@ -41,16 +41,16 @@ POLICY_KEYS = {
     "protected_path_components",
     "protected_prefixes",
 }
-GENERATED_PREFIXES = (".kiro/", ".pstack/bin/", ".pstack/projectctl/")
+GENERATED_PREFIXES = (".kiro/", ".pk-stack/bin/", ".pk-stack/projectctl/")
 GENERATED_EXACT = {
-    ".pstack/bootstrap.json",
-    ".pstack/discovery.json",
+    ".pk-stack/bootstrap.json",
+    ".pk-stack/discovery.json",
     "Wiki/features/README.md",
     "maintenance/upstream-reviews.json",
     "maintenance/upstreams.json",
     "projectctl",
 }
-EXECUTABLE_PATHS = {".pstack/bin/projectctl", "projectctl"}
+EXECUTABLE_PATHS = {".pk-stack/bin/projectctl", "projectctl"}
 ALLOWED_PRODUCT_TOOLS = {"read", "write", "shell", "subagent", "knowledge"}
 ALLOWED_HOOKS = {"pk-stack-session.json", "pk-stack-tripwire.json"}
 TRUSTED_SNAPSHOT_PREFIXES = (
@@ -61,7 +61,7 @@ TRUSTED_SNAPSHOT_PREFIXES = (
     ".github/scripts",
     ".github/workflows",
     ".kiro/agents",
-    ".pstack/projectctl",
+    ".pk-stack/projectctl",
     "reviews",
 )
 CANDIDATE_PACKAGE_MAX_BYTES = 33_554_432
@@ -1004,7 +1004,7 @@ def load_policy(path: Path) -> tuple[bytes, dict[str, Any]]:
         raise GuardError("review proposal must be ephemeral and agent-only")
     if not {ledger, manifest} <= final_exact or {ledger, manifest} & agent_exact:
         raise GuardError("upstream pin and review ledger must be finalizer-only")
-    if not {"powers/pk-stack/src/pstack_kiro/", "powers/pk-stack/tests/"} <= set(
+    if not {"powers/pk-stack/src/pk_stack/", "powers/pk-stack/tests/"} <= set(
         policy["protected_prefixes"]
     ):
         raise GuardError("controller and canonical Power tests must be protected")
@@ -1248,7 +1248,7 @@ def _remove_untracked_generated(root: Path, base_sha: str) -> None:
             generated_root.rglob("*"), key=lambda item: len(item.parts), reverse=True
         ):
             relative = path.relative_to(root).as_posix()
-            if relative.startswith(".pstack/state/"):
+            if relative.startswith(".pk-stack/state/"):
                 continue
             if path.is_symlink() or path.is_file():
                 if relative not in tracked:
@@ -1570,7 +1570,7 @@ def validate_product_envelope(root: Path) -> None:
         else:
             if hook.get("trigger") != "Stop" or hook.get("enabled") is not False:
                 raise GuardError("tripwire hook must remain disabled and advisory")
-            if ".pstack/bin/projectctl goal tripwire --output json" not in command:
+            if ".pk-stack/bin/projectctl goal tripwire --output json" not in command:
                 raise GuardError("disabled tripwire hook lost its bounded command")
 
 

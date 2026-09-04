@@ -23,7 +23,7 @@ workflow actually run. Those are deliberately separate claims.
 | CLI v3 (`kiro-cli` 2.21.0) | Primary | Ordinary `kiro-cli chat --v3`; select workspace agent `pk-stack`; invoke `/verified-goal` in that chat | Real current-session fail/repair/pass campaign, four product-agent schema validations, a five-profile repository discovery sentinel, generated-asset parity, automated tests, and a sterile interactive native-goal probe | **First-class and exercised.** ACP, classic/V2, nested Kiro, and `/spawn` were not used. This runtime treated `/goal clear` as ordinary prompt text rather than a slash command. |
 | IDE 1.x (`Kiro.app` 1.0.437) | Primary | Open the repository in Kiro, use ordinary chat or experimental Agent Focus Mode, select the workspace `pk-stack` agent in the agent picker, and invoke the same skills | Installed build verified; official shared-harness, workspace-agent, workspace-skill, and Agent Focus contracts; the same JSON assets validate with the installed Kiro CLI | **First-class and structurally validated.** Ordinary IDE chat is stable; Kiro currently lists Agent Focus Mode as experimental. The GUI path has not received a separate end-to-end repair campaign in this snapshot. |
 | Kiro Crew | Optional orchestrator | Open the trusted repository through Crew so its Kiro-backed session reads committed `.kiro`; keep one `/verified-goal` loop in the Crew-owned session | Official Crew contract says it runs Kiro CLI over ACP and reads existing `.kiro` agents, skills, and steering; signed feed-current Sep. 3 Nightly passed `--version`, `--help`, and `doctor`; package assets avoid client-only argument substitution | **Compatibility required; orchestration optional.** The bounded smoke did not open a project or run PK-Stack. Crew's internal ACP transport does not make ACP PK-Stack's default entrypoint, and no Crew end-to-end goal campaign is claimed here. |
-| Kiro Web (GA) | Supported secondary surface | Start from a repository that already commits the bootstrapped `.kiro` and `.pstack` assets; invoke `/verified-goal` from the Web session's primary agent | Official Web support for project skills, agents, hooks, steering, and MCP plus static repository/path tests | **Supported by design, explicitly untested.** Web cannot select a project custom agent as primary, does not provide the local permission/approval surface, and still needs Python 3.11+ plus `uv` in its sandbox. |
+| Kiro Web (GA) | Supported secondary surface | Start from a repository that already commits the bootstrapped `.kiro` and `.pk-stack` assets; invoke `/verified-goal` from the Web session's primary agent | Official Web support for project skills, agents, hooks, steering, and MCP plus static repository/path tests | **Supported by design, explicitly untested.** Web cannot select a project custom agent as primary, does not provide the local permission/approval surface, and still needs Python 3.11+ plus `uv` in its sandbox. |
 | External ACP client | Optional integration boundary | Client-owned `kiro-cli acp` integration | Kiro documents the protocol; PK-Stack does not launch or test it | Not a primary or default PK-Stack path. Crew's use of ACP is a product implementation detail, not authorization to substitute an external host. |
 
 The IDE and CLI wording above follows Kiro's current [one-harness,
@@ -103,13 +103,13 @@ local-to-cloud configuration, not repository deployment.
 Configuration Sync does not merge into or overwrite local `.kiro`. A cloud
 copy can be loaded into a new local IDE or CLI session, and `/config` may label
 active items as local, cloud, or both, but the managed files recorded by
-`.pstack/bootstrap.json` remain on-disk repository state.
+`.pk-stack/bootstrap.json` remain on-disk repository state.
 
 Do not present a Configuration Sync upload as a complete PK-Stack Web install.
 Kiro permits at most 50 files in a custom cloud Power and accepts text files
 only. The complete PK-Stack Power exceeds that count and includes a PNG asset.
 The honest Web path is to bootstrap locally, review and commit the generated
-`.kiro` and `.pstack` assets, and then let Kiro Web clone that repository. A
+`.kiro` and `.pk-stack` assets, and then let Kiro Web clone that repository. A
 Web session can activate committed workspace skills, but its built-in primary
 agent owns the turn; committed `pk-stack-*` agents are available only for
 sub-agent delegation, and the IDE/CLI permission profile is not claimed there.
@@ -138,7 +138,7 @@ user's global default agent.
 
 The normal workflow remains in that selected Kiro agent session. Kiro owns
 execution and native orchestration; PK-Stack supplies workflow skills and
-conventions; the bootstrapped `.pstack/bin/projectctl` supplies deterministic
+conventions; the bootstrapped `.pk-stack/bin/projectctl` supplies deterministic
 project state and evidence. Setup does not mutate the user's global default
 agent.
 
@@ -256,11 +256,11 @@ Power. It always starts with a no-write preview. New managed content appears as
 `pending_updates` until a reviewed run explicitly includes
 `--update-managed`; user-modified files remain conflicts. Retired receipt-owned
 paths appear as blocking `stale_managed` and are never pruned automatically.
-After bootstrap, skills use `.pstack/bin/projectctl`, never repository
+After bootstrap, skills use `.pk-stack/bin/projectctl`, never repository
 `./projectctl` or ambient `uv run projectctl` resolution.
 
 Setup remains Power-local and is cached under
-`.pstack/projectctl/skills/setup-pk-stack/`; bootstrap deliberately does not copy
+`.pk-stack/projectctl/skills/setup-pk-stack/`; bootstrap deliberately does not copy
 it to `.kiro/skills/`, where an older workspace copy could shadow an upgraded
 Power. The other 54 workflow skills are materialized in the workspace. Kiro's
 current [Agent Skills documentation](https://kiro.dev/docs/skills/) describes
@@ -326,7 +326,7 @@ profile:
 - workspace reads are allowed, while every Git shell command asks;
 - filesystem writes ask, while direct writes to bootstrap-managed control-plane
   paths are denied;
-- every canonical `.pstack/bin/projectctl` invocation asks;
+- every canonical `.pk-stack/bin/projectctl` invocation asks;
 - destructive shell patterns are denied; and
 - only the three tool-limited PK-Stack subagents are allowed/trusted.
 
@@ -382,17 +382,17 @@ therefore does not enforce verified-goal continuation.
 ### Repo-local projectctl runtime
 
 Bootstrap ships a fixed `uv.lock` and generated runtime metadata with
-`[tool.uv] package = false`. `.pstack/bin/projectctl` changes to the repository
+`[tool.uv] package = false`. `.pk-stack/bin/projectctl` changes to the repository
 root, prepares the locked controller environment, and executes the source with:
 
 ```text
-uv sync --quiet --locked --no-config --project .pstack/projectctl
-PYTHONPATH=.pstack/projectctl/src \
-  .pstack/projectctl/.venv/bin/python -B -X pycache_prefix=/dev/null \
-    -m pstack_kiro
+uv sync --quiet --locked --no-config --project .pk-stack/projectctl
+PYTHONPATH=.pk-stack/projectctl/src \
+  .pk-stack/projectctl/.venv/bin/python -B -X pycache_prefix=/dev/null \
+    -m pk_stack
 ```
 
-The control plane receives `.pstack/projectctl/src` through `PYTHONPATH`, which
+The control plane receives `.pk-stack/projectctl/src` through `PYTHONPATH`, which
 avoids ambient project packaging and dependency drift. Before a user verifier
 starts, the runner restores the caller's original `PYTHONPATH` and strips its
 private markers. Bytecode writes are disabled and the null cache prefix keeps
@@ -407,7 +407,7 @@ The loop uses native Kiro execution without replacing it:
 
 1. The user invokes `/verified-goal <objective>` in the existing Kiro agent
    session.
-2. The skill uses only `.pstack/bin/projectctl`.
+2. The skill uses only `.pk-stack/bin/projectctl`.
 3. It inspects existing state and starts schema version 2 state with one
    executable contract and a bounded budget.
 4. The same Kiro agent implements the smallest evidence-backed change and runs

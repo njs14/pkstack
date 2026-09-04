@@ -6,14 +6,14 @@ from pathlib import Path
 
 import pytest
 
-from pstack_kiro import bootstrap
-from pstack_kiro.features import (
+from pk_stack import bootstrap
+from pk_stack.features import (
     FeatureMapError,
     generate_feature,
     load_feature,
     validate_feature_map,
 )
-from pstack_kiro.goal import (
+from pk_stack.goal import (
     GoalError,
     get_goal,
     resolve_contract,
@@ -21,10 +21,10 @@ from pstack_kiro.goal import (
     start_goal,
     verify_goal,
 )
-from pstack_kiro.knowledge import KnowledgeError
-from pstack_kiro.knowledge import search as search_knowledge
-from pstack_kiro.knowledge import validate as validate_knowledge
-from pstack_kiro.runner import CommandRejected, _coerce_output, parse_command, run_command
+from pk_stack.knowledge import KnowledgeError
+from pk_stack.knowledge import search as search_knowledge
+from pk_stack.knowledge import validate as validate_knowledge
+from pk_stack.runner import CommandRejected, _coerce_output, parse_command, run_command
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
 
@@ -148,7 +148,7 @@ def test_runner_rejects_more_destructive_forms_and_reports_exec_errors(tmp_path:
         with pytest.raises(CommandRejected):
             run_command(command, root=tmp_path)
 
-    missing = run_command(["definitely-missing-pstack-executable"], root=tmp_path)
+    missing = run_command(["definitely-missing-pk-stack-executable"], root=tmp_path)
     assert missing.exit_code == 127
     assert missing.error and "unable to execute" in missing.error
     with pytest.raises(ValueError, match="positive"):
@@ -189,7 +189,7 @@ def test_knowledge_delegates_to_available_okn(
         encoding="utf-8",
     )
     okn.chmod(0o755)
-    monkeypatch.setattr("pstack_kiro.knowledge.shutil.which", lambda _name: str(okn))
+    monkeypatch.setattr("pk_stack.knowledge.shutil.which", lambda _name: str(okn))
 
     assert validate_knowledge(workspace)["mode"] == "canonical-okn"
     assert search_knowledge(workspace, "account")["ok"] is True
@@ -220,7 +220,7 @@ def test_bootstrap_main_and_missing_asset_paths(
         bootstrap.bootstrap_project(tmp_path, power_root=tmp_path / "missing")
 
     minimal_power = tmp_path / "minimal-power"
-    source = minimal_power / "src" / "pstack_kiro"
+    source = minimal_power / "src" / "pk_stack"
     source.mkdir(parents=True)
     (source / "__init__.py").write_text("", encoding="utf-8")
     lock = minimal_power / "templates" / "projectctl" / "uv.lock"

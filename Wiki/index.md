@@ -30,7 +30,7 @@ is replaced by a broad knowledge search.
 ## Layer map
 
 ```text
-DO      .pstack/bin/projectctl
+DO      .pk-stack/bin/projectctl
   -> PROVE  Wiki/features/*.md + one executable verifier
   -> KNOW   this Wiki + optional canonical `okn`
 ```

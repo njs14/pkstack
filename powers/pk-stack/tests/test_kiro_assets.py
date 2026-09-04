@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from pstack_kiro.branding import DISPLAY_NAME, EXPANDED_NAME, POWER_ID
+from pk_stack.branding import DISPLAY_NAME, EXPANDED_NAME, POWER_ID
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
@@ -316,7 +316,7 @@ def test_ported_skill_bodies_keep_high_value_upstream_contracts() -> None:
     for phrase in (
         "projectctl evidence append <slug>",
         "--verdict VERIFIED|NOT VERIFIED|INCONCLUSIVE",
-        ".pstack/state/evidence/<slug>/decision-log.jsonl",
+        ".pk-stack/state/evidence/<slug>/decision-log.jsonl",
         "uncommitted by default",
         "only when the user explicitly requests",
         "--committed",
@@ -697,7 +697,7 @@ def test_setup_skill_uses_idempotent_json_contract() -> None:
     text = (SKILLS / "setup-pk-stack" / "SKILL.md").read_text(encoding="utf-8")
 
     assert "scripts/setup_pk_stack.py" in text
-    assert ".pstack/bin/projectctl" in text
+    assert ".pk-stack/bin/projectctl" in text
     assert "--dry-run --output json" in text
     assert "--update-managed" in text
     assert "repository-supplied `./projectctl`" in text
@@ -804,7 +804,7 @@ def test_setup_shim_uses_locked_source_module_fallback_for_older_python(
         str(ROOT),
         "python",
         "-m",
-        "pstack_kiro.bootstrap",
+        "pk_stack.bootstrap",
         "--root",
         "/tmp/example",
     ]
@@ -817,7 +817,7 @@ def test_setup_shim_legacy_location_finds_the_project_controller(tmp_path: Path)
     shim = tmp_path / ".kiro" / "skills" / "setup-pk-stack" / "scripts" / "setup_pk_stack.py"
     shim.parent.mkdir(parents=True)
     shutil.copy2(SKILLS / "setup-pk-stack" / "scripts" / "setup_pk_stack.py", shim)
-    cached_controller = tmp_path / ".pstack" / "projectctl"
+    cached_controller = tmp_path / ".pk-stack" / "projectctl"
     cached_controller.mkdir(parents=True)
 
     namespace = runpy.run_path(str(shim), run_name="pk_stack_setup_probe")
@@ -828,7 +828,7 @@ def test_setup_shim_legacy_location_finds_the_project_controller(tmp_path: Path)
 def test_verified_goal_is_current_session_and_deterministically_verified() -> None:
     text = (SKILLS / "verified-goal" / "SKILL.md").read_text(encoding="utf-8")
 
-    assert "Use `.pstack/bin/projectctl` for the entire loop" in text
+    assert "Use `.pk-stack/bin/projectctl` for the entire loop" in text
     assert "Do not use ambient `uv run projectctl`" in text
     for command in (
         "goal start",
@@ -1100,32 +1100,32 @@ def test_primary_profile_asks_for_every_canonical_controller_route() -> None:
         for pattern in rule["match"]
     ]
     commands = (
-        ".pstack/bin/projectctl",
-        ".pstack/bin/projectctl version --output json",
-        ".pstack/bin/projectctl setup --power-root /reviewed --update-managed",
-        ".pstack/bin/projectctl doctor --output json",
-        ".pstack/bin/projectctl feature list --output json",
-        ".pstack/bin/projectctl feature show sample --output json",
-        ".pstack/bin/projectctl feature validate --output json",
-        ".pstack/bin/projectctl feature generate sample --ready",
-        ".pstack/bin/projectctl feature verify sample --output json",
-        ".pstack/bin/projectctl verify sample --output json",
-        ".pstack/bin/projectctl goal start objective --command verifier",
-        ".pstack/bin/projectctl goal bind-spec sample --feature sample --output json",
-        ".pstack/bin/projectctl goal status --output json",
-        ".pstack/bin/projectctl goal verify --output json",
-        ".pstack/bin/projectctl goal resume --add-attempts 1",
-        ".pstack/bin/projectctl goal clear --force",
-        ".pstack/bin/projectctl goal tripwire --output json",
-        ".pstack/bin/projectctl knowledge status --output json",
-        ".pstack/bin/projectctl knowledge validate --output json",
-        ".pstack/bin/projectctl knowledge search sample --output json",
-        ".pstack/bin/projectctl future-command --future-option",
+        ".pk-stack/bin/projectctl",
+        ".pk-stack/bin/projectctl version --output json",
+        ".pk-stack/bin/projectctl setup --power-root /reviewed --update-managed",
+        ".pk-stack/bin/projectctl doctor --output json",
+        ".pk-stack/bin/projectctl feature list --output json",
+        ".pk-stack/bin/projectctl feature show sample --output json",
+        ".pk-stack/bin/projectctl feature validate --output json",
+        ".pk-stack/bin/projectctl feature generate sample --ready",
+        ".pk-stack/bin/projectctl feature verify sample --output json",
+        ".pk-stack/bin/projectctl verify sample --output json",
+        ".pk-stack/bin/projectctl goal start objective --command verifier",
+        ".pk-stack/bin/projectctl goal bind-spec sample --feature sample --output json",
+        ".pk-stack/bin/projectctl goal status --output json",
+        ".pk-stack/bin/projectctl goal verify --output json",
+        ".pk-stack/bin/projectctl goal resume --add-attempts 1",
+        ".pk-stack/bin/projectctl goal clear --force",
+        ".pk-stack/bin/projectctl goal tripwire --output json",
+        ".pk-stack/bin/projectctl knowledge status --output json",
+        ".pk-stack/bin/projectctl knowledge validate --output json",
+        ".pk-stack/bin/projectctl knowledge search sample --output json",
+        ".pk-stack/bin/projectctl future-command --future-option",
     )
 
     assert set(ask_patterns) >= {
-        ".pstack/bin/projectctl",
-        ".pstack/bin/projectctl *",
+        ".pk-stack/bin/projectctl",
+        ".pk-stack/bin/projectctl *",
     }
     for command in commands:
         assert any(fnmatchcase(command, pattern) for pattern in ask_patterns), command
@@ -1148,7 +1148,7 @@ def test_primary_profile_denies_direct_control_plane_writes_and_common_clobbers(
     }
 
     assert denied_writes >= {
-        ".pstack/**",
+        ".pk-stack/**",
         ".kiro/agents/**",
         ".kiro/hooks/**",
         ".kiro/steering/**",
@@ -1204,7 +1204,7 @@ def test_primary_profile_denies_direct_control_plane_writes_and_common_clobbers(
 def test_skill_authoring_respects_bootstrap_owned_routes() -> None:
     for name in ("automate-me", "create-verification-skill", "reflect"):
         text = (SKILLS / name / "SKILL.md").read_text(encoding="utf-8")
-        assert ".pstack/bootstrap.json" in text
+        assert ".pk-stack/bootstrap.json" in text
         assert "receipt-managed" in text
 
 
@@ -1227,7 +1227,7 @@ def test_primary_profile_never_allows_git_forms_that_execute_read_or_write() -> 
         "git difftool -y -x sh",
         "git diff --ext-diff",
         "git diff --output=.kiro/hooks/evil.json",
-        "git log -1 --format=%B --output=.pstack/state/goal.json",
+        "git log -1 --format=%B --output=.pk-stack/state/goal.json",
         "git show --output=/tmp/escape HEAD",
         "git log --output=../outside.txt",
         "git diff --no-index /etc/hosts /dev/null",
@@ -1337,9 +1337,9 @@ def test_hook_templates_use_standalone_v3_schema() -> None:
                 assert "uv run" not in hook["action"]["command"]
                 if hook.get("enabled", True):
                     command = hook["action"]["command"].lstrip()
-                    assert not command.startswith(("./projectctl", ".pstack/bin/projectctl"))
-                    assert "; .pstack/bin/projectctl" not in command
-                    assert "&& .pstack/bin/projectctl" not in command
+                    assert not command.startswith(("./projectctl", ".pk-stack/bin/projectctl"))
+                    assert "; .pk-stack/bin/projectctl" not in command
+                    assert "&& .pk-stack/bin/projectctl" not in command
 
 
 def test_stop_tripwire_is_disabled_and_advisory() -> None:

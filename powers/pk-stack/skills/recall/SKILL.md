@@ -9,7 +9,7 @@ Treat the request text that activated this skill as the decision or topic whose 
 needed.
 
 Search only sources legitimately in scope: the current conversation, loaded Kiro steering, project
-files, feature records, canonical `okn` through `.pstack/bin/projectctl knowledge search`, git
+files, feature records, canonical `okn` through `.pk-stack/bin/projectctl knowledge search`, git
 history, and task history the user explicitly supplied or authorized. Do not crawl unrelated chats,
 editor databases, home directories, or credentials.
 

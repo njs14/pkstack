@@ -18,7 +18,7 @@ The design has one simple rule:
 | --- | --- | --- |
 | Kiro IDE/CLI | Native Spec, Quick Spec, Bug Fix, Plan, tools, model, permissions, and task execution | PK-Stack goal state or feature proof |
 | PK-Stack skills | Prompts, workflow sequencing, and current-session handoff | A replacement agent runtime or native planner |
-| `.pstack/bin/projectctl` | Setup receipt, discovery, feature records, evidence, goals, and bounded command execution | Kiro orchestration or semantic correctness of arbitrary scripts |
+| `.pk-stack/bin/projectctl` | Setup receipt, discovery, feature records, evidence, goals, and bounded command execution | Kiro orchestration or semantic correctness of arbitrary scripts |
 | `Wiki/features/*.md` | User-visible contracts and one executable verifier per contract | Broad architecture context or permanent correctness |
 | `Wiki/` and canonical `okn` | Source-controlled knowledge and optional bounded retrieval | A second feature-verification authority |
 
@@ -39,10 +39,10 @@ flowchart LR
     User[User in Kiro IDE or CLI v3]
     Plan[Native Spec / Quick Spec / Bug Fix / Plan]
     Skill[PK-Stack skills and pk-stack agent]
-    CLI[.pstack/bin/projectctl]
+    CLI[.pk-stack/bin/projectctl]
     Services[Typed Python services]
     Contract[Wiki/features contract]
-    Goal[.pstack/state/goal.json]
+    Goal[.pk-stack/state/goal.json]
     Runner[Shell-free bounded runner]
     Project[Project files and verifier]
     Wiki[Source-controlled Wiki]
@@ -85,14 +85,14 @@ powers/pk-stack/
 ├── plugin.json                       # release version authority
 ├── skills/                            # Power-local workflows
 ├── dev.kiro/steering/                 # shipped steering
-├── src/pstack_kiro/                    # projectctl package and bootstrap
+├── src/pk_stack/                    # projectctl package and bootstrap
 ├── templates/project/.kiro/            # agent and hook templates
 ├── templates/projectctl/uv.lock       # cached-runtime lock
 └── docs/                              # usage, architecture, provenance, evidence
 ```
 
 The wheel force-includes skills, steering, templates, and the repo-local lock
-under `pstack_kiro/_assets/`, so setup can use a source checkout or an
+under `pk_stack/_assets/`, so setup can use a source checkout or an
 installed Power. The Power-local `skills/setup-pk-stack/scripts/setup_pk_stack.py`
 is the only setup and upgrade authority.
 
@@ -101,7 +101,7 @@ A successful target setup contains:
 ```text
 <project>/
 ├── .kiro/                              # generated agents, hooks, skills, steering
-├── .pstack/
+├── .pk-stack/
 │   ├── bin/projectctl                  # stable project entrypoint
 │   ├── bootstrap.json                  # managed-file receipt
 │   ├── discovery.json                  # root-relative repository inventory
@@ -110,7 +110,7 @@ A successful target setup contains:
 └── Wiki/features/                      # project-owned contracts
 ```
 
-`.kiro/` and `.pstack/` are generated workspace material, not alternate Power
+`.kiro/` and `.pk-stack/` are generated workspace material, not alternate Power
 sources. A root `projectctl` convenience wrapper may exist when its name was
 unowned, but skills never select it.
 
@@ -183,7 +183,7 @@ hazard screen, not a sandbox or proof that an arbitrary script is relevant.
 
 ## Goal state and current-session loop
 
-There is one goal slot per project at `.pstack/state/goal.json`. Schema 2
+There is one goal slot per project at `.pk-stack/state/goal.json`. Schema 2
 stores an objective, one immutable command contract, provenance, a digest,
 attempt budget, last result, and append-only attempt history. Spec contracts
 also snapshot intent, design, and the bridge; `tasks.md` is intentionally not

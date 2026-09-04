@@ -25,7 +25,7 @@ def decide(detector_path: Path) -> dict[str, object]:
         goal = {
             "kind": "command",
             "value": (
-                ".pstack/bin/projectctl upstream check "
+                ".pk-stack/bin/projectctl upstream check "
                 "--manifest maintenance/upstreams.json --power-root powers/pk-stack "
                 f"--source-id {source_id} --output json"
             ),

@@ -8,9 +8,9 @@ from typing import Any
 
 import pytest
 
-from pstack_kiro import cli
-from pstack_kiro import features as feature_module
-from pstack_kiro.features import (
+from pk_stack import cli
+from pk_stack import features as feature_module
+from pk_stack.features import (
     FeatureMapError,
     find_feature,
     generate_feature,
@@ -19,8 +19,8 @@ from pstack_kiro.features import (
     load_feature_plan,
     validate_feature_map,
 )
-from pstack_kiro.models import FeatureEntrypoint, FeatureSubFeature
-from pstack_kiro.runner import CommandRejected
+from pk_stack.models import FeatureEntrypoint, FeatureSubFeature
+from pk_stack.runner import CommandRejected
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = POWER_ROOT.parents[1]

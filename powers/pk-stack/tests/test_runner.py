@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from pstack_kiro.models import CommandSpec
-from pstack_kiro.runner import (
+from pk_stack.models import CommandSpec
+from pk_stack.runner import (
     CommandRejected,
     enforce_verification_policy,
     parse_command,
@@ -69,8 +69,8 @@ def test_overlong_path_operand_is_structurally_rejected(tmp_path: Path) -> None:
         ["env", "rm", "-rf", "build"],
         [sys.executable, "-c", "print('inline')"],
         [sys.executable, "-cprint('inline')"],
-        [sys.executable, "-qm", "pstack_kiro", "version"],
-        ["uv", "run", sys.executable, "-qm", "pstack_kiro", "version"],
+        [sys.executable, "-qm", "pk_stack", "version"],
+        ["uv", "run", sys.executable, "-qm", "pk_stack", "version"],
         ["node", "-eprocess.exit(0)"],
         ["node", "--eval=process.exit(0)"],
         ["node", "-p", "process.exit(0)"],
@@ -107,16 +107,16 @@ def test_overlong_path_operand_is_structurally_rejected(tmp_path: Path) -> None:
         ["echo", "proof"],
         ["printf", "proof"],
         ["projectctl", "version"],
-        [".pstack/bin/projectctl", "version"],
-        [sys.executable, "-m", "pstack_kiro"],
-        [sys.executable, "--check-hash-based-pycs", "default", "-m", "pstack_kiro.cli"],
+        [".pk-stack/bin/projectctl", "version"],
+        [sys.executable, "-m", "pk_stack"],
+        [sys.executable, "--check-hash-based-pycs", "default", "-m", "pk_stack.cli"],
         ["uv", "run", "true"],
         ["uv", "run", "--quiet", "echo", "proof"],
-        ["uv", "run", "-m", "pstack_kiro"],
-        ["uv", "run", "-m", "-q", "pstack_kiro", "version"],
-        ["uv", "run", "-qm", "pstack_kiro", "version"],
-        ["uv", "run", "-mq", "pstack_kiro", "version"],
-        ["uv", "run", "-vm", "pstack_kiro", "version"],
+        ["uv", "run", "-m", "pk_stack"],
+        ["uv", "run", "-m", "-q", "pk_stack", "version"],
+        ["uv", "run", "-qm", "pk_stack", "version"],
+        ["uv", "run", "-mq", "pk_stack", "version"],
+        ["uv", "run", "-vm", "pk_stack", "version"],
         ["uv", "run", "-s", "--help", "verify.py"],
         ["uv", "run", "--help"],
         ["uv", "run", "-h"],
@@ -127,14 +127,14 @@ def test_overlong_path_operand_is_structurally_rejected(tmp_path: Path) -> None:
         ["uv", "run", "-qh", "pytest"],
         ["uv", "run", "-hq", "pytest"],
         ["uv", "-qV"],
-        ["sh", ".pstack/bin/projectctl", "version"],
-        ["ksh", ".pstack/bin/projectctl", "version"],
-        ["csh", ".pstack/bin/projectctl", "version"],
-        ["tcsh", ".pstack/bin/projectctl", "version"],
-        ["bash", "--debug", ".pstack/bin/projectctl", "version"],
-        ["bash", "+O", "extglob", ".pstack/bin/projectctl", "version"],
-        ["bash", "+o", "errexit", ".pstack/bin/projectctl", "version"],
-        ["uv", "run", "sh", ".pstack/bin/projectctl", "version"],
+        ["sh", ".pk-stack/bin/projectctl", "version"],
+        ["ksh", ".pk-stack/bin/projectctl", "version"],
+        ["csh", ".pk-stack/bin/projectctl", "version"],
+        ["tcsh", ".pk-stack/bin/projectctl", "version"],
+        ["bash", "--debug", ".pk-stack/bin/projectctl", "version"],
+        ["bash", "+O", "extglob", ".pk-stack/bin/projectctl", "version"],
+        ["bash", "+o", "errexit", ".pk-stack/bin/projectctl", "version"],
+        ["uv", "run", "sh", ".pk-stack/bin/projectctl", "version"],
         ["time", "pytest"],
         ["caffeinate", "pytest"],
         ["stdbuf", "pytest"],
@@ -240,29 +240,29 @@ def test_overlong_path_operand_is_structurally_rejected(tmp_path: Path) -> None:
         ["pnpm", "exec", "sh", "-c", "exit 0"],
         ["pnpm", "dlx", "projectctl", "version"],
         ["uv", "run", "yarn", "exec", "projectctl", "version"],
-        ["uvx", "--from", "pstack-kiro", "projectctl", "version"],
+        ["uvx", "--from", "pk-stack", "projectctl", "version"],
         ["uv", "run", "uvx", "pytest", "--version"],
         ["pytest", "-o", "addopts=--version"],
         ["uv", "run", "pytest", "--override-ini=addopts=--version"],
         ["python", "-m", "pytest", "-oaddopts=-h"],
-        ["python", "-m", "runpy", "pstack_kiro"],
-        ["uv", "run", "python", "-m", "runpy", "pstack_kiro.__main__"],
-        ["python", "src/pstack_kiro/__main__.py", "version"],
-        ["uv", "run", "python", "src/pstack_kiro/__main__.py", "version"],
-        ["uv", "run", "src/pstack_kiro/__main__.py", "version"],
-        ["python", ".pstack/projectctl/src/pstack_kiro/__main__.py", "version"],
-        ["python", "src/pstack_kiro", "version"],
-        ["uv", "run", "python", "src/pstack_kiro", "version"],
-        ["python", ".pstack/projectctl/src/pstack_kiro", "version"],
-        ["python", "src/pstack_kiro/__pycache__/__main__.pyc", "version"],
+        ["python", "-m", "runpy", "pk_stack"],
+        ["uv", "run", "python", "-m", "runpy", "pk_stack.__main__"],
+        ["python", "src/pk_stack/__main__.py", "version"],
+        ["uv", "run", "python", "src/pk_stack/__main__.py", "version"],
+        ["uv", "run", "src/pk_stack/__main__.py", "version"],
+        ["python", ".pk-stack/projectctl/src/pk_stack/__main__.py", "version"],
+        ["python", "src/pk_stack", "version"],
+        ["uv", "run", "python", "src/pk_stack", "version"],
+        ["python", ".pk-stack/projectctl/src/pk_stack", "version"],
+        ["python", "src/pk_stack/__pycache__/__main__.pyc", "version"],
         ["pytest", "@../outside/args.txt"],
         ["pytest", "@args.txt"],
         ["uv", "run", "pytest", "@../outside/args.txt"],
         ["cc", "@args.txt"],
         ["python", "-m", "pytest", "@args.txt"],
-        ["coverage", "run", "-m", "pstack_kiro", "version"],
-        ["coverage", "run", "src/pstack_kiro/__main__.py", "version"],
-        ["python", "-m", "coverage", "run", "-m", "pstack_kiro", "version"],
+        ["coverage", "run", "-m", "pk_stack", "version"],
+        ["coverage", "run", "src/pk_stack/__main__.py", "version"],
+        ["python", "-m", "coverage", "run", "-m", "pk_stack", "version"],
         ["python", "-m", "pip", "-V"],
         ["uv", "run", "python", "-m", "pip", "-V"],
         ["id"],
@@ -375,7 +375,7 @@ def test_symlink_alias_cannot_turn_controller_into_evidence(
     tmp_path: Path,
     command: list[str],
 ) -> None:
-    controller = tmp_path / ".pstack" / "bin" / "projectctl"
+    controller = tmp_path / ".pk-stack" / "bin" / "projectctl"
     controller.parent.mkdir(parents=True)
     controller.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
     controller.chmod(0o755)
@@ -401,8 +401,8 @@ def test_explicit_relative_executable_symlink_cannot_use_path_identity_exception
         run_command(["./verify"], root=project)
 
 
-def test_project_named_pstack_kiro_can_run_an_unrelated_local_verifier(tmp_path: Path) -> None:
-    project = tmp_path / "pstack_kiro"
+def test_project_named_pk_stack_can_run_an_unrelated_local_verifier(tmp_path: Path) -> None:
+    project = tmp_path / "pk_stack"
     project.mkdir()
     verifier = project / "verify"
     verifier.write_text("#!/bin/sh\ntest -f proof.txt\n", encoding="utf-8")
@@ -710,14 +710,14 @@ def test_verifier_restores_wrapper_caller_pythonpath_and_applies_overrides(
         "import json, os\n"
         "print(json.dumps({\n"
         "  'pythonpath': os.environ.get('PYTHONPATH'),\n"
-        "  'set_marker': os.environ.get('PSTACK_KIRO_CALLER_PYTHONPATH_SET'),\n"
-        "  'value_marker': os.environ.get('PSTACK_KIRO_CALLER_PYTHONPATH'),\n"
+        "  'set_marker': os.environ.get('PK_STACK_CALLER_PYTHONPATH_SET'),\n"
+        "  'value_marker': os.environ.get('PK_STACK_CALLER_PYTHONPATH'),\n"
         "}))\n",
         encoding="utf-8",
     )
     monkeypatch.setenv("PYTHONPATH", "/controller/src")
-    monkeypatch.setenv("PSTACK_KIRO_CALLER_PYTHONPATH_SET", caller_set)
-    monkeypatch.setenv("PSTACK_KIRO_CALLER_PYTHONPATH", caller_value)
+    monkeypatch.setenv("PK_STACK_CALLER_PYTHONPATH_SET", caller_set)
+    monkeypatch.setenv("PK_STACK_CALLER_PYTHONPATH", caller_value)
 
     restored = run_command([sys.executable, "env.py"], root=tmp_path)
     overridden = run_command(
