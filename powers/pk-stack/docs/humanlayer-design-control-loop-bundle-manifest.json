@@ -1,0 +1,28 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/design-control-loop",
+  "files": [
+    {
+      "handling": "adapted-kiro-reference",
+      "mode": "100644",
+      "path": "references/taxonomy.md",
+      "sha256": "8b5440a9bf3589cf9f43b1f488854bed878bfa5cddf3b2b2022dade8ddf02f8c",
+      "size": 744,
+      "source_path": "plugins/design-control-loop/skills/design-control-loop/references/control-loop-taxonomy.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "29db461a379ca7aa53691e640fbd71e58bad731ca1e3bfa5789813e0f4cbd6b0",
+      "size": 1870,
+      "source_path": "plugins/design-control-loop/skills/design-control-loop/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "design-control-loop",
+  "summary": {
+    "byte_count": 2614,
+    "file_count": 2
+  }
+}

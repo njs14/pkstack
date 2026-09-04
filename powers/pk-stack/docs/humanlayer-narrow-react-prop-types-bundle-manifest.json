@@ -1,0 +1,20 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/narrow-react-prop-types",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "0b18c52391c39785e1e9a341284047962f010e5594287e0ffafb0021d80495aa",
+      "size": 1874,
+      "source_path": "plugins/narrow-react-prop-types/skills/narrow-react-prop-types/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "narrow-react-prop-types",
+  "summary": {
+    "byte_count": 1874,
+    "file_count": 1
+  }
+}

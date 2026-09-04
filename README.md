@@ -150,7 +150,10 @@ Repository-level guard and documentation commands are listed in
 ## Self-maintenance
 
 GitHub Actions checks the pinned upstream sources on a schedule and processes
-one drift source at a time. The Kiro maintainer may update only reviewed
+one drift source at a time. Its explicit control loop uses `projectctl upstream
+check` as the sensor, a deterministic one-source controller, Kiro plus
+`maintain-pk-stack` as the actuator, and the exact-SHA candidate gate as the
+dampener. Durable steering lives in a short trusted-base memory file. The Kiro maintainer may update only reviewed
 Markdown, source-parity records, and the matching curated bundle manifest. A
 secretless finalizer reproves the source identity, regenerates managed files,
 runs the deterministic gates, and opens or merges only its own exact candidate.
@@ -159,6 +162,12 @@ The pipeline uses `KIRO_API_KEY` for Kiro-hosted maintenance and review. It has
 no Anthropic, OpenAI, xAI, or GitHub Copilot key. Executable vendored runtime
 changes, workflow changes, and controller changes fail closed for a human
 release review rather than receiving autonomous write authority.
+
+The Power also ships Kiro-native ports of the complete reviewed
+[HumanLayer skills catalog](https://github.com/humanlayer/skills):
+`build-iterated-agentic-loop`, `design-control-loop`, `improve-claude-md`,
+`narrow-react-prop-types`, and `show-me`. Claude-specific registration and
+unsafe generic CI runner examples remain provenance-only.
 
 ## Documentation and community
 

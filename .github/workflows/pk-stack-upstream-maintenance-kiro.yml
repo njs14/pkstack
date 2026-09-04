@@ -140,6 +140,9 @@ jobs:
     outputs:
       needs_maintenance: ${{ steps.detect.outputs.needs_maintenance }}
       detector_sha256: ${{ steps.detect.outputs.detector_sha256 }}
+      control_plan_sha256: ${{ steps.detect.outputs.control_plan_sha256 }}
+      control_action: ${{ steps.detect.outputs.control_action }}
+      selected_source_id: ${{ steps.detect.outputs.selected_source_id }}
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
     steps:
       - name: Harden runner networking
@@ -164,7 +167,7 @@ jobs:
           fetch-depth: 1
       - name: Install uv
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-      - name: Snapshot immutable controller
+      - name: Snapshot immutable sensor and controller
         env:
           BASE_SHA: ${{ needs.plan.outputs.base_sha }}
           TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-trusted
@@ -175,6 +178,7 @@ jobs:
             .pstack/projectctl \
             .github/pk-stack-maintenance-policy.json \
             .github/scripts/pk_stack_maintenance_guard.py \
+            .github/scripts/pk_stack_update_controller.py \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --no-config \
             --project "$TRUSTED_ROOT/.pstack/projectctl"
@@ -182,11 +186,14 @@ jobs:
         id: detect
         env:
           TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-trusted
-          DETECTOR_PATH: ${{ runner.temp }}/upstream-check.json
+          EVIDENCE_ROOT: ${{ runner.temp }}/pk-stack-loop-evidence
           READONLY_GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           trusted_projectctl="$TRUSTED_ROOT/.pstack/projectctl"
+          mkdir -p "$EVIDENCE_ROOT"
+          detector_path="$EVIDENCE_ROOT/upstream-check.json"
+          control_plan_path="$EVIDENCE_ROOT/control-plan.json"
           set +e
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" \
             PYTHONPATH="$trusted_projectctl/src" \
@@ -194,12 +201,15 @@ jobs:
             -m pstack_kiro upstream check \
             --manifest maintenance/upstreams.json \
             --power-root powers/pk-stack \
-            --output json >"$DETECTOR_PATH"
+            --output json >"$detector_path"
           detector_rc=$?
           set -e
           python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
-            validate-detector --detector "$DETECTOR_PATH"
-          needs_maintenance=$(python3 - "$DETECTOR_PATH" "$detector_rc" <<'PY'
+            validate-detector --detector "$detector_path"
+          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_update_controller.py" \
+            --detector "$detector_path" \
+            --output "$control_plan_path"
+          needs_maintenance=$(python3 - "$detector_path" "$detector_rc" <<'PY'
           import json
           import sys
           payload = json.load(open(sys.argv[1], encoding="utf-8"))
@@ -214,16 +224,24 @@ jobs:
               print("true")
           PY
           )
-          detector_sha256=$(sha256sum "$DETECTOR_PATH" | cut -d' ' -f1)
-          printf 'needs_maintenance=%s\n' "$needs_maintenance" >>"$GITHUB_OUTPUT"
-          printf 'detector_sha256=%s\n' "$detector_sha256" >>"$GITHUB_OUTPUT"
+          detector_sha256=$(sha256sum "$detector_path" | cut -d' ' -f1)
+          control_plan_sha256=$(sha256sum "$control_plan_path" | cut -d' ' -f1)
+          control_action=$(jq -er '.action' "$control_plan_path")
+          selected_source_id=$(jq -er '.selected_source_id // ""' "$control_plan_path")
+          {
+            printf 'needs_maintenance=%s\n' "$needs_maintenance"
+            printf 'detector_sha256=%s\n' "$detector_sha256"
+            printf 'control_plan_sha256=%s\n' "$control_plan_sha256"
+            printf 'control_action=%s\n' "$control_action"
+            printf 'selected_source_id=%s\n' "$selected_source_id"
+          } >>"$GITHUB_OUTPUT"
       - name: Upload bounded detector evidence
         id: upload
         if: steps.detect.outputs.needs_maintenance == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pk-stack-detector-${{ github.run_id }}
-          path: ${{ runner.temp }}/upstream-check.json
+          path: ${{ runner.temp }}/pk-stack-loop-evidence
           if-no-files-found: error
           retention-days: 1
           compression-level: 9
@@ -287,6 +305,7 @@ jobs:
             printf 'KIRO_RUNNER_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/run_kiro_maintenance_attempt.sh"
             printf 'KIRO_SETUP_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/prepare_kiro_maintenance_runtime.sh"
             printf 'DETECTOR_PATH=%s\n' "$RUNNER_TEMP/pk-stack-detector/upstream-check.json"
+            printf 'CONTROL_PLAN_PATH=%s\n' "$RUNNER_TEMP/pk-stack-detector/control-plan.json"
             printf 'FEEDBACK_PATH=%s\n' "$RUNNER_TEMP/pk-stack-verification-feedback.txt"
             printf 'GOAL_STATUS_PATH=%s\n' "$RUNNER_TEMP/pk-stack-goal-status.json"
             printf 'KIRO_BIN_DIR=%s\n' "$RUNNER_TEMP/kiro-bin"
@@ -309,9 +328,16 @@ jobs:
       - name: Verify detector artifact identity
         env:
           EXPECTED_SHA256: ${{ needs.detect.outputs.detector_sha256 }}
+          EXPECTED_CONTROL_SHA256: ${{ needs.detect.outputs.control_plan_sha256 }}
+          EXPECTED_CONTROL_ACTION: ${{ needs.detect.outputs.control_action }}
+          EXPECTED_SOURCE_ID: ${{ needs.detect.outputs.selected_source_id }}
         run: |
           set -euo pipefail
           printf '%s  %s\n' "$EXPECTED_SHA256" "$DETECTOR_PATH" | sha256sum --check
+          printf '%s  %s\n' "$EXPECTED_CONTROL_SHA256" "$CONTROL_PLAN_PATH" | sha256sum --check
+          test "$(jq -er '.sensor_sha256' "$CONTROL_PLAN_PATH")" = "$EXPECTED_SHA256"
+          test "$(jq -er '.action' "$CONTROL_PLAN_PATH")" = "$EXPECTED_CONTROL_ACTION"
+          test "$(jq -er '.selected_source_id // ""' "$CONTROL_PLAN_PATH")" = "$EXPECTED_SOURCE_ID"
       - name: Install uv and materialize protected lockfiles
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
@@ -324,6 +350,7 @@ jobs:
           git archive "$BASE_SHA" \
             Wiki/features/pk-stack-upstream-maintenance.md \
             .pstack/projectctl \
+            .github/agent-memory/pk-stack-upstream.md \
             .github/fixtures \
             .github/pk-stack-maintenance-policy.json \
             .github/scripts \
@@ -368,23 +395,24 @@ jobs:
               "$TRUSTED_PROJECTCTL_ROOT/.venv/bin/python" -B -X pycache_prefix=/dev/null \
               -m pstack_kiro "$@"
           }
-          detector_validation=$(python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH")
-          drift_count=$(jq -er '.drift_count' <<<"$detector_validation")
-          selected_source_id=$(jq -er '.selected_source_id' <<<"$detector_validation")
-          objective="Restore PK-Stack generated and source parity"
-          goal_contract=(--feature pk-stack-upstream-maintenance)
-          if (( drift_count > 0 )); then
-            test -n "$selected_source_id"
-            objective="Reconcile PK-Stack with selected upstream source $selected_source_id"
-            goal_contract=(
-              --command
-              ".pstack/bin/projectctl upstream check --manifest maintenance/upstreams.json --power-root powers/pk-stack --source-id $selected_source_id --output json"
-            )
-          fi
+          python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH" >/dev/null
+          action=$(jq -er '.action' "$CONTROL_PLAN_PATH")
+          objective=$(jq -er '.objective' "$CONTROL_PLAN_PATH")
+          goal_kind=$(jq -er '.goal.kind' "$CONTROL_PLAN_PATH")
+          goal_value=$(jq -er '.goal.value' "$CONTROL_PLAN_PATH")
+          max_attempts=$(jq -er '.max_attempts' "$CONTROL_PLAN_PATH")
+          test "$action" != "current"
+          test "$max_attempts" = "5"
+          test "$(jq -er '.max_open_candidates' "$CONTROL_PLAN_PATH")" = "1"
+          case "$goal_kind" in
+            command) goal_contract=(--command "$goal_value") ;;
+            feature) goal_contract=(--feature "$goal_value") ;;
+            *) echo "unsupported controller goal kind" >&2; exit 1 ;;
+          esac
           trusted_projectctl goal start \
             "$objective" \
             "${goal_contract[@]}" \
-            --max-attempts 5 \
+            --max-attempts "$max_attempts" \
             --output json >"$RUNNER_TEMP/pk-stack-goal-start.json"
           set +e
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" \
@@ -405,6 +433,8 @@ jobs:
             --base "$BASE_SHA" \
             --detector "$DETECTOR_PATH" \
             --feedback "$FEEDBACK_PATH" \
+            --control-plan "$CONTROL_PLAN_PATH" \
+            --memory "$TRUSTED_ROOT/.github/agent-memory/pk-stack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
       - name: Kiro repair 1 of 4
@@ -426,6 +456,8 @@ jobs:
             --base "$BASE_SHA" \
             --detector "$DETECTOR_PATH" \
             --feedback "$FEEDBACK_PATH" \
+            --control-plan "$CONTROL_PLAN_PATH" \
+            --memory "$TRUSTED_ROOT/.github/agent-memory/pk-stack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
       - name: Kiro repair 2 of 4
@@ -449,6 +481,8 @@ jobs:
             --base "$BASE_SHA" \
             --detector "$DETECTOR_PATH" \
             --feedback "$FEEDBACK_PATH" \
+            --control-plan "$CONTROL_PLAN_PATH" \
+            --memory "$TRUSTED_ROOT/.github/agent-memory/pk-stack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
       - name: Kiro repair 3 of 4
@@ -472,6 +506,8 @@ jobs:
             --base "$BASE_SHA" \
             --detector "$DETECTOR_PATH" \
             --feedback "$FEEDBACK_PATH" \
+            --control-plan "$CONTROL_PLAN_PATH" \
+            --memory "$TRUSTED_ROOT/.github/agent-memory/pk-stack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
       - name: Kiro repair 4 of 4

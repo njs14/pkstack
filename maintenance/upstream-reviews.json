@@ -187,13 +187,13 @@
     },
     {
       "genesis": {
-        "commit": "4d8d644ca747517973f58d7953f58d7cd07520cd",
-        "subtree_sha": "dddf8a7e4e579d44f29310868a4a282ccd77bdff"
+        "commit": "3c2629142c5d437428269b1b722b08c0b87f574d",
+        "subtree_sha": "1dd095000af2d0bb29986a9f11f97e3742feb2b3"
       },
-      "id": "humanlayer-show-me",
-      "parity_path": "powers/pk-stack/docs/humanlayer-show-me-source-parity.json",
-      "path": "plugins/show-me",
-      "provenance_path": "powers/pk-stack/docs/humanlayer-show-me-provenance.md",
+      "id": "humanlayer-skills",
+      "parity_path": "powers/pk-stack/docs/humanlayer-skills-source-parity.json",
+      "path": "plugins",
+      "provenance_path": "powers/pk-stack/docs/humanlayer-skills-provenance.md",
       "repository": "humanlayer/skills",
       "transitions": []
     },

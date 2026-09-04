@@ -116,7 +116,7 @@ def test_compatibility_document_inventory_counts_match_assets() -> None:
     shipped_agents = list(AGENTS.glob("*.json"))
     materialized_skills = EXPECTED_SKILLS - {"setup-pstack"}
 
-    assert f"The {len(upstreams)} repositories in `maintenance/upstreams.json`" in text
+    assert f"The {len(upstreams)} source entries in `maintenance/upstreams.json`" in text
     assert f"validates all {len(workspace_agents)} workspace-agent files" in text
     assert f"The other {len(materialized_skills)} workflow skills" in text
     assert f"all {len(shipped_agents)} shipped Power profiles" in text

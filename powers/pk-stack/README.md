@@ -142,6 +142,7 @@ repository. Floci is a consumer of this Power, not part of this package.
 
 - [Usage and recovery](docs/usage.md)
 - [Architecture and trust boundaries](docs/architecture.md)
+- [Upstream control loop](docs/upstream-control-loop.md)
 - [Kiro surface compatibility](docs/kiro-v3-compatibility.md)
 - [Upstream skill parity](docs/upstream-skill-parity.md)
 - [OKF source and method provenance](docs/okf-skills-provenance.md),
