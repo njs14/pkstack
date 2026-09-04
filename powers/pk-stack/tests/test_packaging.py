@@ -9,6 +9,8 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+from feature_fixtures import plant_fixture_feature
+
 from pk_stack.bootstrap import (
     REQUIRED_POWER_ASSETS,
     REQUIRED_SOURCE_MODULES,
@@ -93,12 +95,15 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
         env=clean_env,
     )
     assert json.loads(setup_output)["ok"] is True
+    for directory in ("skills", "dev.kiro", "templates"):
+        assert not (target / ".pk-stack" / "projectctl" / directory).exists()
+    assert (target / ".kiro/skills/archify/upstream/bin/archify.mjs").is_file()
 
     controller = target / ".pk-stack" / "bin" / "projectctl"
     version_output = _run_clean_json(
         [str(controller), "version", "--output", "json"], cwd=target, env=clean_env
     )
-    assert version_output == {**identity_payload(), "version": "0.2.0"}
+    assert version_output == {**identity_payload(), "version": "0.3.0"}
     doctor_output = _run(
         [str(controller), "doctor", "--output", "json"],
         cwd=target,
@@ -167,6 +172,20 @@ def test_bootstrapped_wrapper_preserves_host_verifier_environment(tmp_path: Path
             "Host shell to verifier process",
             "--command",
             "python3 envprobe.py",
+            "--sub-feature",
+            "environment=The verifier retains the caller environment.",
+            "--entrypoint",
+            "cli=Run the environment probe through projectctl.",
+            "--drive",
+            "cli=Run python3 envprobe.py.",
+            "--entrypoint-proof",
+            "cli=Compare the emitted environment with direct host execution.",
+            "--gotcha",
+            "Controller dependency isolation must not replace the verifier environment.",
+            "--evidence-boundary",
+            "Record bounded environment probe output and exit status.",
+            "--cleanup-boundary",
+            "The probe reads environment variables and creates no state.",
             "--ready",
             "--output",
             "json",
@@ -193,7 +212,7 @@ def test_bootstrapped_wrapper_ignores_unchecked_controller_bytecode(tmp_path: Pa
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
     controller = target / ".pk-stack" / "bin" / "projectctl"
-    expected = {**identity_payload(), "version": "0.2.0"}
+    expected = {**identity_payload(), "version": "0.3.0"}
     command = [str(controller), "version", "--output", "json"]
     assert _run_clean_json(command, cwd=target) == expected
 
@@ -374,6 +393,20 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
                 "--command",
                 verifier,
                 "--ready",
+                "--sub-feature",
+                "proof=Reject an uninformative or self-referential verifier.",
+                "--entrypoint",
+                "cli=Generate a feature with an invalid verifier.",
+                "--drive",
+                f"cli=Run {verifier}.",
+                "--entrypoint-proof",
+                "cli=The controller rejects the command before writing a feature.",
+                "--gotcha",
+                "A zero exit alone is not evidence of project behavior.",
+                "--evidence-boundary",
+                "Capture the command rejection and check no contract was written.",
+                "--cleanup-boundary",
+                "Rejected generation creates no feature state.",
                 "--output",
                 "json",
             ],
@@ -425,6 +458,20 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
             "--command",
             str(outside),
             "--ready",
+            "--sub-feature",
+            "proof=Reject a verifier outside the approved project boundary.",
+            "--entrypoint",
+            "cli=Generate a feature with an outside verifier.",
+            "--drive",
+            f"cli=Run {outside}.",
+            "--entrypoint-proof",
+            "cli=The controller rejects the command before writing a feature.",
+            "--gotcha",
+            "A same-named executable is not the selected executable.",
+            "--evidence-boundary",
+            "Capture the command rejection and check no contract was written.",
+            "--cleanup-boundary",
+            "Rejected generation creates no feature state.",
             "--output",
             "json",
         ],
@@ -439,20 +486,13 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
     assert json.loads(generated.stdout)["error_type"] == "CommandRejected"
     assert not (target / "Wiki" / "features" / "outside-proof.md").exists()
 
-    planted = target / "Wiki" / "features" / "planted-proof.md"
-    planted.write_text(
-        "---\n"
-        "type: feature\n"
-        "slug: planted-proof\n"
-        "title: Planted proof\n"
-        "draft: false\n"
-        "verification:\n"
-        f"  command: [{json.dumps(str(outside))}]\n"
-        "related: []\n"
-        "---\n\n"
-        "## User behavior\n\nA caller observes a bounded proof.\n\n"
-        "## Expected path\n\nProject to verifier.\n",
-        encoding="utf-8",
+    plant_fixture_feature(
+        target,
+        "planted-proof",
+        title="Planted proof",
+        behavior="A caller observes a bounded proof.",
+        expected_path="Project to verifier.",
+        command=[str(outside)],
     )
     validated = subprocess.run(
         [str(controller), "feature", "validate", "--output", "json"],

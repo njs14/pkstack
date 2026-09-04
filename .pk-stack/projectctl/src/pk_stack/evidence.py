@@ -164,7 +164,9 @@ def _canonical_timestamp(value: datetime) -> str:
     return utc.isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
-def _reference_from_object(root: Path, value: object) -> EvidenceReference | None:
+def _reference_from_object(
+    root: Path, value: object, *, validate_artifacts: bool = True
+) -> EvidenceReference | None:
     if value is None:
         return None
     if not isinstance(value, dict) or set(value) != {"path", "sha256"}:
@@ -178,6 +180,11 @@ def _reference_from_object(root: Path, value: object) -> EvidenceReference | Non
         or _canonical_relative_path(candidate) != raw_path
     ):
         raise EvidenceError("evidence artifact path must be canonical and workspace-relative")
+    raw_sha = value["sha256"]
+    if raw_sha is not None and (type(raw_sha) is not str or not _SHA256.fullmatch(raw_sha)):
+        raise EvidenceError("evidence artifact sha256 must be null or 64 lowercase hex characters")
+    if not validate_artifacts:
+        return EvidenceReference(path=raw_path, sha256=raw_sha)
     try:
         resolved = workspace_path(root, candidate)
     except WorkspacePathError as exc:
@@ -185,9 +192,6 @@ def _reference_from_object(root: Path, value: object) -> EvidenceReference | Non
     if not resolved.is_file():
         raise EvidenceError(f"evidence artifact does not exist as a regular file: {raw_path}")
 
-    raw_sha = value["sha256"]
-    if raw_sha is not None and (type(raw_sha) is not str or not _SHA256.fullmatch(raw_sha)):
-        raise EvidenceError("evidence artifact sha256 must be null or 64 lowercase hex characters")
     if raw_sha is not None:
         size = resolved.stat().st_size
         if size > MAX_HASHED_ARTIFACT_BYTES:
@@ -207,7 +211,9 @@ def _reference_from_object(root: Path, value: object) -> EvidenceReference | Non
     return EvidenceReference(path=raw_path, sha256=raw_sha)
 
 
-def _event_from_object(root: Path, value: object) -> EvidenceEvent:
+def _event_from_object(
+    root: Path, value: object, *, validate_artifacts: bool = True
+) -> EvidenceEvent:
     if not isinstance(value, dict) or set(value) != _EVENT_KEYS:
         raise EvidenceError("evidence event does not match the exact schema")
     if (
@@ -228,7 +234,9 @@ def _event_from_object(root: Path, value: object) -> EvidenceEvent:
         requirement=_bounded_text(value["requirement"], field="requirement"),
         evidence=_bounded_text(value["evidence"], field="evidence"),
         decision=_bounded_text(value["decision"], field="decision"),
-        artifact=_reference_from_object(root, value["artifact"]),
+        artifact=_reference_from_object(
+            root, value["artifact"], validate_artifacts=validate_artifacts
+        ),
         verification=_bounded_text(value["verification"], field="verification"),
         verdict=verdict,
     )
@@ -278,7 +286,9 @@ def _read_bounded(path: Path, *, allow_missing: bool) -> bytes:
     return data
 
 
-def _parse_events(root: Path, data: bytes) -> list[EvidenceEvent]:
+def _parse_events(
+    root: Path, data: bytes, *, validate_artifacts: bool = True
+) -> list[EvidenceEvent]:
     if not data:
         return []
     if not data.endswith(b"\n"):
@@ -305,7 +315,7 @@ def _parse_events(root: Path, data: bytes) -> list[EvidenceEvent]:
             value = json.loads(line, object_pairs_hook=_object_without_duplicate_keys)
         except (json.JSONDecodeError, EvidenceError) as exc:
             raise EvidenceError(f"invalid evidence event {expected_sequence}: {exc}") from exc
-        event = _event_from_object(root, value)
+        event = _event_from_object(root, value, validate_artifacts=validate_artifacts)
         if event.sequence != expected_sequence:
             raise EvidenceError(
                 f"evidence sequence must be contiguous: expected {expected_sequence}, "
@@ -423,7 +433,9 @@ def append_evidence(
             target=target,
         )
         data = _read_bounded(path, allow_missing=True)
-        events = _parse_events(project_root, data)
+        # Historical bytes stay immutable even when their referenced artifacts
+        # change. Allow recording that change; audit still checks live hashes.
+        events = _parse_events(project_root, data, validate_artifacts=False)
         if len(events) >= MAX_EVIDENCE_EVENTS:
             raise EvidenceError(f"evidence trail reached the {MAX_EVIDENCE_EVENTS}-event limit")
 
@@ -454,7 +466,7 @@ def append_evidence(
             raise EvidenceError(
                 f"evidence trail would exceed the {MAX_EVIDENCE_FILE_BYTES}-byte limit"
             )
-        parsed = _parse_events(project_root, updated)
+        parsed = _parse_events(project_root, updated, validate_artifacts=False)
         _atomic_replace(path, updated, committed=committed)
 
     return {

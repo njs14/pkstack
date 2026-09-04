@@ -95,7 +95,9 @@ def _validate_model_event(events: list[dict[str, Any]], expected_model: str) -> 
         or any(model not in {"auto", expected_model} for model in current_models)
         or not advertised
     ):
-        raise ReviewError("Kiro stream did not bind the peer review to the required model")
+        raise ReviewError(
+            "Kiro stream did not bind the peer review to the required model"
+        )
 
 
 def _validate_agent_event(events: list[dict[str, Any]]) -> None:
@@ -116,7 +118,9 @@ def _validate_agent_event(events: list[dict[str, Any]]) -> None:
         or REQUIRED_AGENT not in current_modes
         or any(mode not in {"vibe", REQUIRED_AGENT} for mode in current_modes)
     ):
-        raise ReviewError("Kiro stream did not bind the peer review to the required agent")
+        raise ReviewError(
+            "Kiro stream did not bind the peer review to the required agent"
+        )
 
 
 def _validate_bundle(
@@ -249,16 +253,16 @@ def _validate_verdict(
         or not 1 <= len(summary.encode("utf-8")) <= 4_000
     ):
         raise ReviewError("Kiro peer-review summary is malformed")
-    if verdict.get("verdict") != "approved" or findings:
-        raise ReviewError("Kiro peer reviewer did not approve without material findings")
+    if verdict.get("verdict") not in {"approved", "rejected"}:
+        raise ReviewError("Kiro peer reviewer returned an unknown verdict")
+    if (verdict["verdict"] == "approved") != (not findings):
+        raise ReviewError("Kiro peer-review verdict contradicts its material findings")
     return verdict, raw
 
 
 def validate(args: argparse.Namespace) -> dict[str, str]:
     if args.model != REQUIRED_MODEL or args.effort != REQUIRED_EFFORT:
-        raise ReviewError(
-            "Kiro peer review must use claude-opus-5 at xhigh effort"
-        )
+        raise ReviewError("Kiro peer review must use claude-opus-5 at xhigh effort")
     for value, pattern, label in (
         (args.base, SHA1, "base SHA"),
         (args.head, SHA1, "head SHA"),
@@ -297,7 +301,7 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
         raise ReviewError(str(exc)) from exc
     _validate_model_event(events, args.model)
     _validate_agent_event(events)
-    _, verdict_raw = _validate_verdict(
+    verdict, verdict_raw = _validate_verdict(
         assistant_text,
         base_sha=args.base,
         head_sha=args.head,
@@ -306,6 +310,9 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
         changed_files=changed_files,
         paths_sha256=paths_sha256,
     )
+    # JSON escapes can conceal a secret from the raw-byte check above.
+    if api_key in assistant_text or api_key in json.dumps(verdict, ensure_ascii=False):
+        raise ReviewError("Kiro decoded review output contained the API key")
     stream_sha256 = hashlib.sha256(stream_raw).hexdigest()
     verdict_sha256 = hashlib.sha256(verdict_raw).hexdigest()
     attestation = json.dumps(
@@ -326,7 +333,8 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
         sort_keys=True,
         separators=(",", ":"),
     ).encode()
-    return {
+    result = {
+        "review_verdict": verdict["verdict"],
         "reviewed_base_sha": args.base,
         "reviewed_head_sha": args.head,
         "reviewed_content_sha256": args.content_sha256,
@@ -340,6 +348,40 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
         "verdict_sha256": verdict_sha256,
         "attestation_sha256": hashlib.sha256(attestation).hexdigest(),
     }
+    if getattr(args, "report_path", None) is not None:
+        from pk_stack_review_feedback import validate_report
+
+        report = {
+            "schema_version": 1,
+            "source_id": args.source_id,
+            "source_commit": args.source_commit,
+            "source_subtree_sha": args.source_subtree_sha,
+            "source_run_id": args.source_run_id,
+            "candidate_run_id": args.candidate_run_id,
+            "base_sha": args.base,
+            "head_sha": args.head,
+            "content_sha256": args.content_sha256,
+            "patch_sha256": args.patch_sha256,
+            "verdict": verdict["verdict"],
+            "material_findings": [
+                re.sub(r"[\x00-\x1f\x7f]", " ", item).strip()
+                for item in verdict["material_findings"]
+            ],
+            "summary": re.sub(r"[\x00-\x1f\x7f]", " ", verdict["summary"]).strip(),
+        }
+        validate_report(report)
+        encoded = (
+            json.dumps(
+                report, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            )
+            + "\n"
+        ).encode()
+        if encoded_key in encoded:
+            raise ReviewError("Kiro sanitized review report contained the API key")
+        args.report_path.parent.mkdir(parents=True, exist_ok=True)
+        args.report_path.write_bytes(encoded)
+        result["report_sha256"] = hashlib.sha256(encoded).hexdigest()
+    return result
 
 
 def main() -> int:
@@ -355,6 +397,12 @@ def main() -> int:
     parser.add_argument("--model", required=True)
     parser.add_argument("--effort", required=True)
     parser.add_argument("--github-output")
+    parser.add_argument("--report-path", type=Path, required=True)
+    parser.add_argument("--source-id", required=True)
+    parser.add_argument("--source-commit", required=True)
+    parser.add_argument("--source-subtree-sha", required=True)
+    parser.add_argument("--source-run-id", type=int, required=True)
+    parser.add_argument("--candidate-run-id", type=int, required=True)
     args = parser.parse_args()
     try:
         result = validate(args)
@@ -364,7 +412,12 @@ def main() -> int:
     if args.github_output:
         with Path(args.github_output).open("a", encoding="utf-8") as output:
             output.writelines(f"{key}={value}\n" for key, value in result.items())
-    print(json.dumps({**result, "approved": True}, sort_keys=True))
+    print(
+        json.dumps(
+            {**result, "approved": result["review_verdict"] == "approved"},
+            sort_keys=True,
+        )
+    )
     return 0
 
 

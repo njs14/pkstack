@@ -411,7 +411,11 @@ def _reject_path_escape(token: str, *, root: Path, executable: bool = False) -> 
     try:
         resolved.relative_to(resolved_root)
     except ValueError as exc:
-        if executable and path.is_absolute():
+        if executable and (
+            path.is_absolute()
+            or _is_python(path.name.lower())
+            or path.name.lower() in _SCRIPT_INTERPRETERS
+        ):
             selected = shutil.which(path.name)
             if selected is not None and _resolve_policy_path(Path(selected)) == resolved:
                 return
@@ -1165,6 +1169,12 @@ def run_command(
     started = time.monotonic()
     process_env = _verifier_environment(env, uv_command=Path(argv[0]).name.lower() == "uv")
 
+    process: subprocess.Popen[bytes] | None = None
+    readers: list[threading.Thread] = []
+    previous_sigterm = None
+    if threading.current_thread() is threading.main_thread():
+        previous_sigterm = signal.signal(signal.SIGTERM, _cancel_verification)
+    timed_out = False
     try:
         process = subprocess.Popen(
             list(argv),
@@ -1185,6 +1195,15 @@ def run_command(
         ]
         for reader in readers:
             reader.start()
+        deadline = started + timeout_seconds
+        try:
+            process.wait(timeout=max(0.0, deadline - time.monotonic()))
+        except subprocess.TimeoutExpired:
+            timed_out = True
+        for reader in readers:
+            reader.join(max(0.0, deadline - time.monotonic()))
+        if any(reader.is_alive() for reader in readers):
+            timed_out = True
     except OSError as exc:
         duration_ms = int((time.monotonic() - started) * 1_000)
         return VerificationResult(
@@ -1197,32 +1216,30 @@ def run_command(
             started_at=started_at,
         )
 
-    deadline = started + timeout_seconds
-    timed_out = False
-    try:
-        process.wait(timeout=max(0.0, deadline - time.monotonic()))
-    except subprocess.TimeoutExpired:
-        timed_out = True
-
-    for reader in readers:
-        reader.join(max(0.0, deadline - time.monotonic()))
-    if any(reader.is_alive() for reader in readers):
-        timed_out = True
-
-    if timed_out:
-        _kill_process_group(process)
-        with suppress(subprocess.TimeoutExpired):
-            process.wait(timeout=5)
-        for reader in readers:
-            reader.join(timeout=5)
+    finally:
+        try:
+            if process is not None:
+                # This also runs on Ctrl-C, SIGTERM, and failures while starting
+                # capture threads. No verifier may outlive its proof attempt.
+                _kill_process_group(process)
+                with suppress(subprocess.TimeoutExpired):
+                    process.wait(timeout=5)
+                for reader in readers:
+                    if reader.ident is not None:
+                        reader.join(timeout=5)
+                for index, stream in enumerate((process.stdout, process.stderr)):
+                    # Closing a BufferedReader while its read thread is blocked
+                    # can itself block. The reader owns its stream until exit.
+                    reader_stopped = index >= len(readers) or not readers[index].is_alive()
+                    if reader_stopped and stream is not None and not stream.closed:
+                        stream.close()
+        finally:
+            if previous_sigterm is not None:
+                signal.signal(signal.SIGTERM, previous_sigterm)
 
     for reader in readers:
         if reader.is_alive():  # pragma: no cover - defensive OS pipe failure
             raise RuntimeError("verifier output pipe did not close after process termination")
-    # Verifiers are not allowed to daemonize work past the proof boundary.
-    # The original process may already be reaped, but its process group can
-    # still contain descendants that redirected their output elsewhere.
-    _kill_process_group(process)
     stdout, stdout_cut = stdout_capture.render()
     stderr, stderr_cut = stderr_capture.render()
     duration_ms = int((time.monotonic() - started) * 1_000)
@@ -1249,12 +1266,10 @@ def run_command(
     )
 
 
-def _coerce_output(value: str | bytes | None) -> str:
-    if value is None:
-        return ""
-    if isinstance(value, bytes):
-        return value.decode(errors="replace")
-    return value
+def _cancel_verification(signum: int, _frame: object) -> None:
+    """Unwind the command lifetime and the caller's goal lock on termination."""
+
+    raise SystemExit(128 + signum)
 
 
 def _kill_process_group(process: subprocess.Popen[bytes]) -> None:

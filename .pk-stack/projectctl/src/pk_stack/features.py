@@ -35,7 +35,7 @@ except ImportError:  # pragma: no cover - PK-Stack currently targets macOS/Linux
 
 FEATURES_DIRECTORY = Path("Wiki/features")
 FEATURE_SCHEMA_VERSION = 2
-MIN_INITIAL_FEATURES = 3
+MIN_INITIAL_FEATURES = 1
 MAX_INITIAL_FEATURES = 5
 MAX_FEATURE_PLAN_BYTES = 256 * 1024
 MAX_FEATURE_DOCUMENT_BYTES = 512 * 1024
@@ -346,9 +346,9 @@ def _parse_feature_text(text: str, *, path: Path, project_root: Path) -> Feature
     if metadata.get("type") != "feature":
         raise FeatureMapError(f"{path}: frontmatter type must be 'feature'")
 
-    schema_version = metadata.get("schema_version", 1)
-    if type(schema_version) is not int or schema_version not in {1, FEATURE_SCHEMA_VERSION}:
-        raise FeatureMapError(f"{path}: schema_version must be 1 or {FEATURE_SCHEMA_VERSION}")
+    schema_version = metadata.get("schema_version")
+    if type(schema_version) is not int or schema_version != FEATURE_SCHEMA_VERSION:
+        raise FeatureMapError(f"{path}: schema_version must be {FEATURE_SCHEMA_VERSION}")
     allowed_metadata = {
         "type",
         "schema_version",
@@ -359,7 +359,7 @@ def _parse_feature_text(text: str, *, path: Path, project_root: Path) -> Feature
         "related",
     }
     unknown_metadata = set(metadata) - allowed_metadata
-    if schema_version == FEATURE_SCHEMA_VERSION and unknown_metadata:
+    if unknown_metadata:
         raise FeatureMapError(
             f"{path}: unknown frontmatter fields: "
             f"{', '.join(sorted(repr(item) for item in unknown_metadata))}"
@@ -381,7 +381,7 @@ def _parse_feature_text(text: str, *, path: Path, project_root: Path) -> Feature
     if not isinstance(verification, dict):
         raise FeatureMapError(f"{path}: verification must be a mapping")
     unknown_verification = set(verification) - {"command"}
-    if schema_version == FEATURE_SCHEMA_VERSION and unknown_verification:
+    if unknown_verification:
         raise FeatureMapError(f"{path}: verification contains unknown fields")
     if "command" in verification:
         raw_command = verification["command"]
@@ -420,59 +420,32 @@ def _parse_feature_text(text: str, *, path: Path, project_root: Path) -> Feature
     if type(raw_draft) is not bool:
         raise FeatureMapError(f"{path}: draft must be a boolean")
 
-    if schema_version == FEATURE_SCHEMA_VERSION:
-        expected_headings = [
-            "User behavior",
-            "Expected path",
-            "Sub-features",
-            "How to get to it (user POV)",
-            "Driving it",
-            "Evidence boundary",
-            "Cleanup boundary",
-            "Gotchas",
-            "Verification",
-        ]
-        actual_headings = [heading.strip() for heading in _H2.findall(body)]
-        if actual_headings != expected_headings:
-            raise FeatureMapError(
-                f"{path}: schema 2 requires exactly these ordered level-2 sections: "
-                f"{', '.join(expected_headings)}"
-            )
-        if not _section(body, "Verification"):
-            raise FeatureMapError(f"{path}: missing non-empty '## Verification' section")
-        (
-            sub_features,
-            entrypoints,
-            gotchas,
-            evidence_boundary,
-            cleanup_boundary,
-        ) = _parse_structured_sections(body, path=path)
-        legacy_extensions = ()
-    else:
-        sub_features = ()
-        entrypoints = ()
-        gotchas = ()
-        evidence_boundary = ""
-        cleanup_boundary = ""
-        known_headings = {"user behavior", "expected path", "verification"}
-        headings = [heading.strip() for heading in _H2.findall(body)]
-        heading_counts: dict[str, int] = {}
-        for heading in headings:
-            normalized_heading = heading.casefold()
-            heading_counts[normalized_heading] = heading_counts.get(normalized_heading, 0) + 1
-        extra_headings = [
-            heading for heading in headings if heading.casefold() not in known_headings
-        ]
-        legacy_extensions = list(
-            [f"frontmatter:{item!r}" for item in unknown_metadata]
-            + [f"verification:{item!r}" for item in unknown_verification]
-            + [f"section:{heading}" for heading in extra_headings]
-            + [
-                f"duplicate-section:{heading}"
-                for heading, count in heading_counts.items()
-                if count > 1
-            ]
+    expected_headings = [
+        "User behavior",
+        "Expected path",
+        "Sub-features",
+        "How to get to it (user POV)",
+        "Driving it",
+        "Evidence boundary",
+        "Cleanup boundary",
+        "Gotchas",
+        "Verification",
+    ]
+    actual_headings = [heading.strip() for heading in _H2.findall(body)]
+    if actual_headings != expected_headings:
+        raise FeatureMapError(
+            f"{path}: schema 2 requires exactly these ordered level-2 sections: "
+            f"{', '.join(expected_headings)}"
         )
+    if not _section(body, "Verification"):
+        raise FeatureMapError(f"{path}: missing non-empty '## Verification' section")
+    (
+        sub_features,
+        entrypoints,
+        gotchas,
+        evidence_boundary,
+        cleanup_boundary,
+    ) = _parse_structured_sections(body, path=path)
 
     feature = FeatureSpec(
         slug=slug,
@@ -483,35 +456,12 @@ def _parse_feature_text(text: str, *, path: Path, project_root: Path) -> Feature
         command=command,
         related=tuple(raw_related),
         draft=raw_draft,
-        schema_version=schema_version,
         sub_features=sub_features,
         entrypoints=entrypoints,
         gotchas=gotchas,
         evidence_boundary=evidence_boundary,
         cleanup_boundary=cleanup_boundary,
-        legacy_extensions=tuple(legacy_extensions),
     )
-    if schema_version == 1:
-        canonical = _render_feature_document(
-            slug=feature.slug,
-            title=feature.title,
-            behavior=feature.behavior,
-            expected_path=feature.expected_path,
-            command=feature.command,
-            related=feature.related,
-            draft=feature.draft,
-            schema_version=1,
-            sub_features=(),
-            entrypoints=(),
-            gotchas=(),
-            evidence_boundary="",
-            cleanup_boundary="",
-        )
-        if text != canonical and "noncanonical-content" not in feature.legacy_extensions:
-            feature = replace(
-                feature,
-                legacy_extensions=(*feature.legacy_extensions, "noncanonical-content"),
-            )
     return feature
 
 
@@ -624,11 +574,6 @@ def validate_feature_map(root: Path) -> dict[str, Any]:
         seen.add(feature.slug)
         if feature.draft:
             warnings.append(f"{feature.path}: contract is still marked draft")
-        if feature.schema_version < FEATURE_SCHEMA_VERSION:
-            warnings.append(
-                f"{feature.path}: legacy feature schema; migrate to schema_version "
-                f"{FEATURE_SCHEMA_VERSION} for entrypoint and evidence coverage"
-            )
         if not feature.command and feature.draft:
             warnings.append(f"{feature.path}: no executable verification command")
         elif not feature.command:
@@ -774,7 +719,6 @@ def _render_feature_document(
     command: tuple[str, ...] | None,
     related: Sequence[str],
     draft: bool,
-    schema_version: int,
     sub_features: tuple[FeatureSubFeature, ...],
     entrypoints: tuple[FeatureEntrypoint, ...],
     gotchas: tuple[str, ...],
@@ -787,8 +731,7 @@ def _render_feature_document(
         "title": title,
         "draft": draft,
     }
-    if schema_version == FEATURE_SCHEMA_VERSION:
-        metadata["schema_version"] = FEATURE_SCHEMA_VERSION
+    metadata["schema_version"] = FEATURE_SCHEMA_VERSION
     if command:
         metadata["verification"] = {"command": list(command)}
     if related:
@@ -798,15 +741,13 @@ def _render_feature_document(
     command_text = (
         display_command(command) if command else "Not established yet. Keep `draft: true`."
     )
-    structured_text = ""
-    if schema_version == FEATURE_SCHEMA_VERSION:
-        structured_text = _render_structured_sections(
-            sub_features=sub_features,
-            entrypoints=entrypoints,
-            gotchas=gotchas,
-            evidence_boundary=evidence_boundary,
-            cleanup_boundary=cleanup_boundary,
-        )
+    structured_text = _render_structured_sections(
+        sub_features=sub_features,
+        entrypoints=entrypoints,
+        gotchas=gotchas,
+        evidence_boundary=evidence_boundary,
+        cleanup_boundary=cleanup_boundary,
+    )
     return (
         f"---\n{frontmatter}\n---\n\n"
         f"# {title}\n\n"
@@ -834,7 +775,7 @@ def _strict_string(value: object, *, field: str) -> str:
 
 
 def load_feature_plan(root: Path, definition: Path) -> list[dict[str, Any]]:
-    """Load an exact, bounded 3-5 record initial feature-map definition."""
+    """Load an exact, bounded 1-5 record initial feature-map definition."""
 
     project_root = root.resolve()
     try:
@@ -966,7 +907,7 @@ def prepare_initial_feature_map(
     representative: str,
     overwrite: bool = False,
 ) -> list[tuple[Path, str, FeatureSpec]]:
-    """Prepare 3-5 records while publishing only the representative contract."""
+    """Prepare 1-5 records while publishing only the representative contract."""
 
     definitions = load_feature_plan(root, definition)
     matches = [item for item in definitions if item["slug"] == representative]
@@ -986,7 +927,6 @@ def prepare_initial_feature_map(
             related=item["related"],
             draft=draft,
             overwrite=overwrite,
-            schema_version=FEATURE_SCHEMA_VERSION,
             sub_features=item["sub_features"],
             entrypoints=item["entrypoints"],
             gotchas=item["gotchas"],
@@ -1368,7 +1308,6 @@ def generate_feature(
     related: Iterable[str] = (),
     draft: bool = True,
     overwrite: bool = False,
-    schema_version: int | None = None,
     sub_features: Iterable[FeatureSubFeature | tuple[str, str]] | None = None,
     entrypoints: Iterable[FeatureEntrypoint | tuple[str, str, str, str]] | None = None,
     gotchas: Iterable[str] | None = None,
@@ -1385,7 +1324,6 @@ def generate_feature(
         related=related,
         draft=draft,
         overwrite=overwrite,
-        schema_version=schema_version,
         sub_features=sub_features,
         entrypoints=entrypoints,
         gotchas=gotchas,
@@ -1412,7 +1350,6 @@ def prepare_feature(
     related: Iterable[str] = (),
     draft: bool = True,
     overwrite: bool = False,
-    schema_version: int | None = None,
     sub_features: Iterable[FeatureSubFeature | tuple[str, str]] | None = None,
     entrypoints: Iterable[FeatureEntrypoint | tuple[str, str, str, str]] | None = None,
     gotchas: Iterable[str] | None = None,
@@ -1428,46 +1365,21 @@ def prepare_feature(
     if not draft and command is None:
         raise FeatureMapError("a ready contract requires an executable verification command")
 
-    has_structured_input = any(
-        value is not None
-        for value in (
-            sub_features,
-            entrypoints,
-            gotchas,
-            evidence_boundary,
-            cleanup_boundary,
-        )
-    )
-    selected_schema = (
-        schema_version
-        if schema_version is not None
-        else (FEATURE_SCHEMA_VERSION if has_structured_input else 1)
-    )
-    if type(selected_schema) is not int or selected_schema not in {1, FEATURE_SCHEMA_VERSION}:
-        raise FeatureMapError(f"schema_version must be 1 or {FEATURE_SCHEMA_VERSION}")
     normalized_sub_features = _normalize_sub_features(sub_features)
     normalized_entrypoints = _normalize_entrypoints(entrypoints)
     normalized_gotchas = _normalize_gotchas(gotchas)
-    if selected_schema == FEATURE_SCHEMA_VERSION:
-        if not normalized_sub_features:
-            raise FeatureMapError("schema 2 requires at least one non-empty sub-feature")
-        if not normalized_entrypoints:
-            raise FeatureMapError("schema 2 requires at least one user entrypoint and drive recipe")
-        if not normalized_gotchas:
-            raise FeatureMapError("schema 2 requires at least one gotcha")
-        if not isinstance(evidence_boundary, str) or not evidence_boundary.strip():
-            raise FeatureMapError("schema 2 requires a non-empty evidence boundary")
-        if not isinstance(cleanup_boundary, str) or not cleanup_boundary.strip():
-            raise FeatureMapError("schema 2 requires a non-empty cleanup boundary")
-        normalized_evidence_boundary = evidence_boundary.strip()
-        normalized_cleanup_boundary = cleanup_boundary.strip()
-    else:
-        if has_structured_input:
-            raise FeatureMapError(
-                f"structured feature fields require schema_version {FEATURE_SCHEMA_VERSION}"
-            )
-        normalized_evidence_boundary = ""
-        normalized_cleanup_boundary = ""
+    if not normalized_sub_features:
+        raise FeatureMapError("schema 2 requires at least one non-empty sub-feature")
+    if not normalized_entrypoints:
+        raise FeatureMapError("schema 2 requires at least one user entrypoint and drive recipe")
+    if not normalized_gotchas:
+        raise FeatureMapError("schema 2 requires at least one gotcha")
+    if not isinstance(evidence_boundary, str) or not evidence_boundary.strip():
+        raise FeatureMapError("schema 2 requires a non-empty evidence boundary")
+    if not isinstance(cleanup_boundary, str) or not cleanup_boundary.strip():
+        raise FeatureMapError("schema 2 requires a non-empty cleanup boundary")
+    normalized_evidence_boundary = evidence_boundary.strip()
+    normalized_cleanup_boundary = cleanup_boundary.strip()
 
     argv = parse_command(command) if command is not None else None
     if argv:
@@ -1483,7 +1395,6 @@ def prepare_feature(
         command=argv,
         related=related_list,
         draft=draft,
-        schema_version=selected_schema,
         sub_features=normalized_sub_features,
         entrypoints=normalized_entrypoints,
         gotchas=normalized_gotchas,
@@ -1504,13 +1415,11 @@ def prepare_feature(
         command=argv,
         related=tuple(related_list),
         draft=draft,
-        schema_version=selected_schema,
         sub_features=normalized_sub_features,
         entrypoints=normalized_entrypoints,
         gotchas=normalized_gotchas,
         evidence_boundary=normalized_evidence_boundary,
         cleanup_boundary=normalized_cleanup_boundary,
-        legacy_extensions=(),
     )
     if parsed != expected:
         raise FeatureMapError(

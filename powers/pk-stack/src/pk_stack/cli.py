@@ -210,27 +210,6 @@ def _structured_feature_values(
     evidence_boundary: str | None,
     cleanup_boundary: str | None,
 ) -> dict[str, Any]:
-    supplied = any(
-        value is not None
-        for value in (
-            sub_feature,
-            entrypoint,
-            drive,
-            entrypoint_proof,
-            gotcha,
-            evidence_boundary,
-            cleanup_boundary,
-        )
-    )
-    if not supplied:
-        return {
-            "schema_version": None,
-            "sub_features": None,
-            "entrypoints": None,
-            "gotchas": None,
-            "evidence_boundary": None,
-            "cleanup_boundary": None,
-        }
     sub_features = _keyed_values(sub_feature, label="sub-feature")
     user_paths = _keyed_values(entrypoint, label="entrypoint")
     drives = _keyed_values(drive, label="drive")
@@ -244,7 +223,6 @@ def _structured_feature_values(
     if not gotcha:
         raise FeatureMapError("structured generation requires at least one --gotcha")
     return {
-        "schema_version": FEATURE_SCHEMA_VERSION,
         "sub_features": [
             FeatureSubFeature(identifier=identifier, behavior=behavior)
             for identifier, behavior in sub_features.items()
@@ -360,8 +338,7 @@ def feature_generate(
         "ok": True,
         "path": str(path),
         "draft": not ready,
-        "schema_version": structured["schema_version"] or 1,
-        "migration_required": structured["schema_version"] is None,
+        "schema_version": FEATURE_SCHEMA_VERSION,
     }
     if proof is not None:
         payload["initial_verification"] = proof.to_dict()
@@ -378,7 +355,7 @@ def feature_generate_map(
     timeout_seconds: float = 300.0,
     output: Output = "text",
 ) -> None:
-    """Create 3-5 records and initially prove exactly one representative feature."""
+    """Create 1-5 records and initially prove exactly one representative feature."""
 
     try:
         project_root = root.resolve()
@@ -453,100 +430,6 @@ def feature_generate_map(
     )
 
 
-@feature_app.command(name="migrate")
-def feature_migrate(
-    slug: str,
-    *,
-    sub_feature: list[str],
-    entrypoint: list[str],
-    drive: list[str],
-    entrypoint_proof: list[str],
-    gotcha: list[str],
-    evidence_boundary: str,
-    cleanup_boundary: str,
-    root: Path = Path("."),
-    timeout_seconds: float = 300.0,
-    output: Output = "text",
-) -> None:
-    """Migrate one legacy record without changing its behavior or verifier contract."""
-
-    try:
-        project_root = root.resolve()
-        existing, existing_path, before = snapshot_existing_feature(project_root, slug)
-        if existing.schema_version >= FEATURE_SCHEMA_VERSION:
-            raise FeatureMapError(f"feature {slug!r} already uses schema_version 2")
-        if existing.legacy_extensions:
-            raise FeatureMapError(
-                f"feature {slug!r} has unmodeled legacy extensions; migrate it manually "
-                "without discarding operator-authored bytes or structure"
-            )
-        structured = _structured_feature_values(
-            sub_feature=sub_feature,
-            entrypoint=entrypoint,
-            drive=drive,
-            entrypoint_proof=entrypoint_proof,
-            gotcha=gotcha,
-            evidence_boundary=evidence_boundary,
-            cleanup_boundary=cleanup_boundary,
-        )
-        path, text = prepare_feature(
-            project_root,
-            slug,
-            title=existing.title,
-            behavior=existing.behavior,
-            expected_path=existing.expected_path,
-            command=existing.command,
-            related=existing.related,
-            draft=existing.draft,
-            overwrite=True,
-            **structured,
-        )
-        proof = None
-        if not existing.draft:
-            if existing.command is None:
-                raise FeatureMapError(
-                    "a ready legacy contract requires a verifier before migration"
-                )
-            contract = CommandSpec(
-                argv=existing.command,
-                display=display_command(existing.command),
-                source="feature-map",
-                feature=slug,
-            )
-            proof = run_command(contract, root=project_root, timeout_seconds=timeout_seconds)
-            if not proof.passed:
-                _emit(
-                    {
-                        "ok": False,
-                        "migrated": False,
-                        "contract": contract.to_dict(),
-                        "result": proof.to_dict(),
-                    },
-                    output,
-                )
-                raise SystemExit(1)
-        if path != existing_path:
-            raise FeatureMapError(f"feature {slug!r} resolved to an inconsistent migration path")
-        path = write_prepared_feature_if_unchanged(
-            project_root,
-            path,
-            text.encode("utf-8"),
-            expected=before,
-        )
-    except (FeatureMapError, CommandRejected, OSError, ValueError) as exc:
-        _fail(exc, output)
-    payload: dict[str, Any] = {
-        "ok": True,
-        "migrated": True,
-        "path": str(path),
-        "schema_version": FEATURE_SCHEMA_VERSION,
-        "draft": existing.draft,
-    }
-    if proof is not None:
-        payload["migration_verification"] = proof.to_dict()
-    _emit(payload, output)
-
-
 @feature_app.command(name="publish")
 def feature_publish(
     slug: str,
@@ -560,10 +443,6 @@ def feature_publish(
     try:
         project_root = root.resolve()
         feature, path, before = snapshot_existing_feature(project_root, slug)
-        if feature.schema_version < FEATURE_SCHEMA_VERSION:
-            raise FeatureMapError(
-                f"feature {slug!r} must be migrated to schema_version 2 before publication"
-            )
         if not feature.draft:
             raise FeatureMapError(f"feature {slug!r} is already published")
         if feature.command is None:

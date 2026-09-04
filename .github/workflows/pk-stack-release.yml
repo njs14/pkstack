@@ -1,9 +1,9 @@
-name: PK-Stack v0.2 Release
+name: PK-Stack Release
 
 on:
   push:
     tags:
-      - v0.2.0
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 permissions: {}
 
@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: write
     env:
-      EXPECTED_TAG: v0.2.0
+      EXPECTED_TAG: ${{ github.ref_name }}
       REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
       DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       PYTHONDONTWRITEBYTECODE: "1"
@@ -44,12 +44,13 @@ jobs:
           ref: ${{ github.ref }}
           persist-credentials: false
           fetch-depth: 0
-      - name: Verify private repository, tag identity, and v0.2 metadata
+      - name: Verify private repository, tag identity, and package metadata
         env:
           RELEASE_REF: ${{ github.ref }}
           RELEASE_REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
+          [[ "$EXPECTED_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
           test "$REPOSITORY_PRIVATE" = "true"
           test "$RELEASE_REF" = "refs/tags/$EXPECTED_TAG"
           test "$RELEASE_REF_NAME" = "$EXPECTED_TAG"
@@ -85,10 +86,7 @@ jobs:
       - name: Re-run deterministic release gates on the tagged commit
         run: |
           set -euo pipefail
-          python3 -B .github/scripts/test_pk_stack_maintenance_guard.py
-          python3 -B .github/scripts/test_kiro_runtime_canary.py
-          python3 -B .github/scripts/test_validate_kiro_model_inventory.py
-          python3 -B .github/scripts/test_validate_kiro_review_stream.py
+          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
           node --test .github/scripts/test_pk_stack_pr_policy.js
           uv sync --quiet --locked --all-groups --project powers/pk-stack
           (
@@ -103,10 +101,9 @@ jobs:
           ./.pk-stack/bin/projectctl feature validate --output json
           ./.pk-stack/bin/projectctl knowledge validate --output json
       - name: Build deterministic PK-Stack Power archive and SHA-256
-        env:
-          RELEASE_VERSION: 0.2.0
         run: |
           set -euo pipefail
+          RELEASE_VERSION=${EXPECTED_TAG#v}
           umask 077
           ARCHIVE_DIR="$RUNNER_TEMP/pk-stack-release"
           test ! -e "$ARCHIVE_DIR"
@@ -135,6 +132,6 @@ jobs:
           gh release create "$EXPECTED_TAG" \
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
-            --title "PK-Stack v0.2.0" \
-            --notes "PK-Stack v0.2.0 Power archive. The repository is private; assets are published only to its private GitHub Release." \
+            --title "PK-Stack $EXPECTED_TAG" \
+            --notes "PK-Stack $EXPECTED_TAG Power archive. The repository is private; assets are published only to its private GitHub Release." \
             "$ARCHIVE" "$CHECKSUM"

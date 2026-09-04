@@ -211,10 +211,10 @@ function lifecycleDecision({ run, policy, nowMs }) {
  * Classify one exact-title open PR without mutating GitHub state.
  *
  * A current-base candidate suppresses maintenance credits only while the exact
- * candidate-gate run for its source run is fresh and active. Every terminal,
- * missing, duplicated, or stale lifecycle closes only the fully authenticated
- * bot candidate so a future source run can make progress. Human or malformed
- * PR identities throw and are never selected for mutation.
+ * candidate-gate run for its source run is fresh and active. An open terminal,
+ * missing, duplicated, or stale candidate means authenticated in-run cleanup
+ * did not finish. Stop for operator recovery: closing here could discard an
+ * unpersisted rejection and silently reset the next cadence's review budget.
  */
 async function classifyOpenCandidate({
   pulls,
@@ -240,15 +240,12 @@ async function classifyOpenCandidate({
   assert(/^[0-9a-f]{40}$/.test(parentSha || ""),
     "maintenance candidate parent is missing or invalid");
 
-  const close = (reason, extra = {}) => ({
-    action: "close",
-    prNumber: pull.number,
-    headRef: pull.head.ref,
-    reason,
-    ...extra,
-  });
+  const block = (reason) => {
+    throw new Error(`maintenance PR ${pull.number} requires operator recovery: ${reason}; `
+      + "reconcile durable review feedback before closing or retrying");
+  };
   if (parentSha !== baseSha || pull.base.sha !== baseSha) {
-    return close("stale-base", { staleParentSha: parentSha });
+    return block("stale-base");
   }
 
   const sourceRun = await loadSourceRun(binding.runId);
@@ -265,10 +262,10 @@ async function classifyOpenCandidate({
   const exactTitle = candidateRunTitle(policy, binding.runId);
   const matchingRuns = candidateRuns.filter((run) => run.display_title === exactTitle);
   if (matchingRuns.length === 0) {
-    return close("missing-candidate-run", { sourceRunId: binding.runId });
+    return block("missing-candidate-run");
   }
   if (matchingRuns.length !== 1) {
-    return close("duplicate-candidate-runs", { sourceRunId: binding.runId });
+    return block("duplicate-candidate-runs");
   }
   const run = matchingRuns[0];
   validateCandidateRun({
@@ -290,17 +287,12 @@ async function classifyOpenCandidate({
       candidateRunStatus: run.status,
     };
   }
-  return close(lifecycle.reason, {
-    sourceRunId: binding.runId,
-    candidateRunId: run.id,
-    candidateRunStatus: run.status,
-    candidateRunConclusion: run.conclusion,
-    ageSeconds: lifecycle.ageSeconds,
-  });
+  return block(lifecycle.reason);
 }
 
 /** Authenticate the sole PR that a terminal candidate workflow may close. */
 async function authorizeTerminalCandidateClose({
+  allowFeedbackAdvance = false,
   pulls,
   policy,
   baseSha,
@@ -338,7 +330,7 @@ async function authorizeTerminalCandidateClose({
   const commit = await loadCommit(pull.head.sha);
   assert(Array.isArray(commit.parents) && commit.parents.length === 1
       && commit.parents[0]?.sha === baseSha
-      && pull.base.sha === baseSha,
+      && (pull.base.sha === baseSha || allowFeedbackAdvance),
   "terminal cleanup candidate is no longer exactly one commit atop the source base");
   return {
     action: "close",

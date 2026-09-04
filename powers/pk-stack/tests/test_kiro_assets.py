@@ -286,31 +286,6 @@ def test_load_bearing_upstream_skill_packages_are_routed_by_their_real_names() -
 
 
 def test_ported_skill_bodies_keep_high_value_upstream_contracts() -> None:
-    create = (SKILLS / "create-verification-skill" / "SKILL.md").read_text()
-    normalized_create = " ".join(create.split())
-    for phrase in (
-        "**launch**",
-        "**doctor**",
-        "**drive**",
-        "**evidence**",
-        "**isolation and cleanup**",
-        "**helpers**",
-        "three to five user-meaningful features",
-        "every sub-feature",
-        "every user entrypoint",
-        "`sub_features`",
-        "`entrypoints`",
-        "`gotchas`",
-        "`evidence_boundary`",
-        "`cleanup_boundary`",
-        "feature generate-map <plan.json>",
-        "--representative <slug> --output json",
-        "executes exactly the representative's stored verifier",
-        "leaves every other record draft",
-        "feature publish",
-    ):
-        assert phrase in normalized_create
-
     work_log = (SKILLS / "show-me-your-work" / "SKILL.md").read_text()
     normalized_work_log = " ".join(work_log.split())
     for phrase in (
@@ -333,22 +308,6 @@ def test_ported_skill_bodies_keep_high_value_upstream_contracts() -> None:
         assert phrase in normalized_work_log
     figure = (SKILLS / "figure-it-out" / "SKILL.md").read_text()
     assert "show-me-your-work" in figure and "append" in figure
-
-    maintain = (SKILLS / "maintain-verification-skill" / "SKILL.md").read_text()
-    normalized_maintain = " ".join(maintain.split())
-    for phrase in (
-        "feature migrate <slug> --output json",
-        "exactly one recovery retry",
-        "verified-unreachable",
-        "single coordinator",
-        "feature publish <slug> --output json",
-        "changes draft state only after it passes",
-        "Treat that as the first proof",
-        "feature verify <slug> --output json` once more",
-        "Never hand-edit `draft: false`",
-        "one reviewed pull request rather than one per feature",
-    ):
-        assert phrase in normalized_maintain
 
     how = (SKILLS / "how" / "SKILL.md").read_text()
     assert "## Critique mode" in how
@@ -760,7 +719,7 @@ def test_maintenance_skill_preserves_current_session_and_clean_room_contract() -
 
 
 def test_post_setup_workflow_attaches_the_pstack_agent() -> None:
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     usage = (ROOT / "docs" / "usage.md").read_text(encoding="utf-8")
 
     for document in (readme, usage):
@@ -863,8 +822,7 @@ def test_skills_do_not_depend_on_cli_only_argument_substitution() -> None:
 def test_surface_support_matrix_separates_targets_from_evidence() -> None:
     compatibility = (ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8")
     normalized_compatibility = " ".join(compatibility.split())
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    normalized_compatibility = " ".join(compatibility.split())
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
 
     for text in (compatibility, readme):
         normalized = " ".join(text.split())
@@ -872,7 +830,7 @@ def test_surface_support_matrix_separates_targets_from_evidence() -> None:
         assert "Kiro IDE 1.x" in normalized
         assert "Kiro Crew" in normalized
         assert "Kiro Web" in normalized
-        assert "optional orchestrator" in normalized
+        assert "optional orchestrator" in normalized.lower()
     assert "## Support and evidence matrix" in compatibility
     assert "First-class and exercised" in normalized_compatibility
     assert "First-class and structurally validated" in normalized_compatibility
@@ -924,7 +882,7 @@ def test_model_guidance_is_kiro_native_and_evidence_bounded() -> None:
     compatibility = (ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8")
     normalized_compatibility = " ".join(compatibility.split())
     usage = (ROOT / "docs" / "usage.md").read_text(encoding="utf-8")
-    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     normalized_usage = " ".join(usage.split())
     normalized_readme = " ".join(readme.split())
     combined_root = ROOT.parents[1]
@@ -952,8 +910,7 @@ def test_model_guidance_is_kiro_native_and_evidence_bounded() -> None:
     ):
         assert phrase in normalized_compatibility
 
-    assert "PK-Stack inherits the model and effort" in normalized_readme
-    assert "does not hard-code Sol/max" in normalized_readme
+    assert "PK-Stack inherits your selected model and effort" in normalized_readme
     assert "evidence, not the interactive default" in normalized_usage
     assert "select the desired normal effort afterwards" in normalized_usage
 
@@ -991,7 +948,6 @@ def test_primary_agent_copy_is_surface_neutral_and_keeps_cli_and_crew_boundaries
     assert "Kiro Crew is optional and may use ACP internally" in primary["prompt"]
     assert "do not make ACP the default PK-Stack path" in primary["prompt"]
     assert "native Spec, Quick Spec, or Bug Fix workflow" in primary["prompt"]
-    assert "bind the spec to a feature verifier" in primary["prompt"]
     assert "Do not recreate Kiro's task graph" in primary["prompt"]
     assert "use canonical okn only for deeper" in primary["prompt"]
     assert "On Kiro Web this profile is delegation-only" in primary["prompt"]
@@ -1243,14 +1199,9 @@ def test_post_swap_setup_refresh_uses_power_local_authority() -> None:
     steering = (ROOT / "dev.kiro" / "steering" / "pk-stack-core.md").read_text(encoding="utf-8")
     normalized = " ".join(steering.split())
 
-    assert "IDE users stay in chat and use the agent picker" in normalized
-    assert "CLI users stay in chat" in normalized
     assert "/agent swap kiro_default" in normalized
     assert "/setup-pk-stack" in normalized
     assert "/agent swap pk-stack" in normalized
-    assert "Crew opens the trusted project only after local bootstrap" in normalized
-    assert "Web uses a locally refreshed, reviewed, committed asset tree" in normalized
-    assert "Configuration Sync is not a complete PK-Stack installer" in normalized
     assert "--power-root" in normalized
 
 

@@ -119,6 +119,15 @@ reviewed. This preserves the useful architecture outcome without importing the u
 
 ## Adaptation boundaries
 
+Feature records use PK-Stack's schema-2 executable contract. The bounded initial-map batch accepts
+one to five records: upstream's advice to aim for three to five features remains guidance, not a
+minimum that requires inventing features. Generation proves one representative's full lifecycle;
+maintenance covers every feature and repeats a live path after a repair. Port-added mandatory
+duplicate proof runs have been removed. New development may start with a reviewed failing command
+bound to a native Kiro spec, then publish a reusable feature record after the implementation passes.
+This uses the existing verification loop without changing upstream's launch, doctor, drive,
+evidence-survival, or cleanup requirements.
+
 The shipped skills keep execution inside the current Kiro agent session. Kiro IDE 1.x and Kiro CLI
 v3 are primary; Kiro Crew is compatible; Kiro Web is supported by design but remains untested. The
 port uses native skills and sub-agents where helpful, and projectctl for deterministic project state

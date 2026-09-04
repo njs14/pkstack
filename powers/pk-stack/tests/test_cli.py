@@ -155,7 +155,7 @@ def test_cli_failure_returns_structured_json_and_nonzero(tmp_path: Path) -> None
     ("content", "binary"),
     [
         (
-            "---\ntype: feature\nslug: broken\ntitle: Broken\ndraft: true\n"
+            "---\ntype: feature\nschema_version: 2\nslug: broken\ntitle: Broken\ndraft: true\n"
             'verification:\n  command: "echo \'unterminated"\n---\n\n'
             "## User behavior\n\nA caller sees a result.\n\n"
             "## Expected path\n\nInput to output.\n",

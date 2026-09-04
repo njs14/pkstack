@@ -5,11 +5,11 @@ import sys
 from pathlib import Path
 
 import pytest
+from feature_fixtures import generate_fixture_feature
 
 from pk_stack import bootstrap
 from pk_stack.features import (
     FeatureMapError,
-    generate_feature,
     load_feature,
     validate_feature_map,
 )
@@ -24,7 +24,7 @@ from pk_stack.goal import (
 from pk_stack.knowledge import KnowledgeError
 from pk_stack.knowledge import search as search_knowledge
 from pk_stack.knowledge import validate as validate_knowledge
-from pk_stack.runner import CommandRejected, _coerce_output, parse_command, run_command
+from pk_stack.runner import CommandRejected, parse_command, run_command
 
 POWER_ROOT = Path(__file__).resolve().parents[1]
 
@@ -60,14 +60,14 @@ def test_feature_loader_rejects_schema_errors_and_escape(tmp_path: Path) -> None
 
     mismatch = directory / "health.md"
     mismatch.write_text(
-        "---\ntype: feature\nslug: other\ntitle: Health\n---\n\n"
+        "---\ntype: feature\nschema_version: 2\nslug: other\ntitle: Health\n---\n\n"
         "## User behavior\n\nCheck.\n\n## Expected path\n\nCommand -> result.\n",
         encoding="utf-8",
     )
     with pytest.raises(FeatureMapError, match="file name"):
         load_feature(mismatch, root=tmp_path)
 
-    generated = generate_feature(
+    generated = generate_fixture_feature(
         tmp_path,
         "escape",
         title="Escape",
@@ -88,7 +88,7 @@ def test_feature_loader_rejects_schema_errors_and_escape(tmp_path: Path) -> None
     assert any("escapes the project" in error for error in result["errors"])
 
     with pytest.raises(FeatureMapError, match="non-empty"):
-        generate_feature(
+        generate_fixture_feature(
             tmp_path,
             "empty",
             title="",
@@ -155,8 +155,6 @@ def test_runner_rejects_more_destructive_forms_and_reports_exec_errors(tmp_path:
         run_command(["test", "-d", "."], root=tmp_path, timeout_seconds=0)
     with pytest.raises(ValueError, match="1024"):
         run_command(["test", "-d", "."], root=tmp_path, output_limit=100)
-    assert _coerce_output(b"bytes") == "bytes"
-    assert _coerce_output(None) == ""
 
 
 def test_knowledge_delegates_to_available_okn(

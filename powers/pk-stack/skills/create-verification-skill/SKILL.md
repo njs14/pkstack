@@ -29,8 +29,9 @@ Wiki rather than stuffing them into verifier prose.
 
 ## Encode and prove the contract
 
-1. Build an initial map of three to five user-meaningful features that together cover setup, a core
-   success path, a failure or boundary path, and cleanup or persistence when applicable.
+1. Aim for three to five user-meaningful features covering setup, a core success path, a failure or
+   boundary path, and cleanup or persistence when applicable. A smaller surface may need only one;
+   do not invent features to fill the map.
 2. Give every feature a complete schema-2 contract: one observable behavior, explicit expected path,
    every sub-feature, every user entrypoint, a drive recipe and observable proof for each entrypoint,
    gotchas, an evidence boundary, and a cleanup boundary. One convenient entrypoint is not complete
@@ -45,7 +46,7 @@ Wiki rather than stuffing them into verifier prose.
    receipt-managed PK-Stack skill. Every shipped helper must be executable, documented by exact
    invocation, and owned by that user skill.
 6. Write one bounded, ignored plan such as `.pk-stack/state/feature-plans/<surface>.json`. Its exact
-   shape is `{ "features": [...] }` with three to five records. Every record has exactly `slug`,
+   shape is `{ "features": [...] }` with one to five records. Every record has exactly `slug`,
    `title`, `behavior`, `expected_path`, `command`, `related`, `sub_features`, `entrypoints`,
    `gotchas`, `evidence_boundary`, and `cleanup_boundary`. `command` is preferably an argv list;
    `related` and `gotchas` are lists. Each sub-feature is `{ "identifier", "behavior" }`; each
@@ -57,15 +58,14 @@ Wiki rather than stuffing them into verifier prose.
      --representative <slug> --output json
    ```
 
-   This validates all three to five records, executes exactly the representative's stored verifier,
+   This validates all records, executes exactly the representative's stored verifier,
    writes nothing on a failed proof or changed plan, publishes that one record, and leaves every
    other record draft. It does not prove the other features.
 8. Inspect the representative's launch, doctor, drive, action-and-result evidence, side effects,
-   cleanup, and evidence survival. Run its full lifecycle again to prove repeatability. When safe,
-   interrupt one run and confirm recovery removes only owned state while preserving evidence.
-9. Run `.pk-stack/bin/projectctl feature validate --output json`. Exercise the one published
-   representative with `feature verify <slug> --output json`; leave the remaining initial records
-   draft for individual proof through `maintain-verification-skill` and `feature publish`.
+   cleanup, and evidence survival. If anything fails, fix it and repeat the affected live path;
+   clean up failed attempts without deleting their evidence.
+9. Run `.pk-stack/bin/projectctl feature validate --output json`. Leave the remaining initial
+   records draft for individual proof through `maintain-verification-skill` and `feature publish`.
 10. When this workflow serves a completed native Kiro spec, bind that spec to the published
     representative only after the proof above succeeds:
 

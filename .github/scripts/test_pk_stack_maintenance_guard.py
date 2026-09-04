@@ -107,6 +107,10 @@ CANDIDATE_REVIEW_ENV_BLOCKS = {
         "          PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}\n"
         "          REVIEW_RETURN_CODE: ${{ steps.invoke.outputs.return_code }}\n"
         "          REVIEW_BUNDLE: ${{ runner.temp }}/pk-stack-peer-review-workspace/.pk-stack-ci/review-input.json\n"
+        "          SELECTED_SOURCE_ID: ${{ needs.candidate_tests.outputs.selected_source_id }}\n"
+        "          SOURCE_SUBTREE_SHA: ${{ needs.candidate_tests.outputs.source_subtree_sha }}\n"
+        "          SOURCE_COMMIT: ${{ needs.candidate_tests.outputs.source_commit }}\n"
+        "          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}\n"
     ),
 }
 MAINTENANCE_MAINTAIN_STEPS = (
@@ -3618,6 +3622,7 @@ class DetectorTests(unittest.TestCase):
         proposal: dict[str, object],
         *,
         extra_pending_source_id: str | None = None,
+        controller_source_id: str | None = None,
     ) -> dict[str, object]:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -3644,7 +3649,7 @@ class DetectorTests(unittest.TestCase):
                     "# Provenance\n\n" + "\n".join(markers) + "\n",
                     encoding="utf-8",
                 )
-            return guard.validate_proposal(root, detector_path, proposal_path)
+            return guard.validate_proposal(root, detector_path, proposal_path, controller_source_id)
 
     def validate_serialized(
         self,
@@ -3652,6 +3657,8 @@ class DetectorTests(unittest.TestCase):
         after: dict[str, object],
         *,
         mutate_deferred_provenance: bool = False,
+        mutate_deferred_ledger: bool = False,
+        controller_source_id: str | None = None,
     ) -> dict[str, object]:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -3659,6 +3666,9 @@ class DetectorTests(unittest.TestCase):
             after_path = root / "after.json"
             before_path.write_text(json.dumps(before), encoding="utf-8")
             after_path.write_text(json.dumps(after), encoding="utf-8")
+            ledger_path = root / "maintenance/upstream-reviews.json"
+            ledger_path.parent.mkdir(parents=True)
+            ledger_path.write_text(json.dumps(review_ledger_fixture(before)), encoding="utf-8")
             for source in before["sources"]:  # type: ignore[union-attr]
                 provenance_path = root / source["provenance_path"]
                 provenance_path.parent.mkdir(parents=True, exist_ok=True)
@@ -3688,11 +3698,15 @@ class DetectorTests(unittest.TestCase):
                 ["git", "rev-parse", "HEAD"], cwd=root, text=True
             ).strip()
             ledger_path = root / "maintenance/upstream-reviews.json"
-            ledger_path.parent.mkdir(parents=True)
+            ledger_path.parent.mkdir(parents=True, exist_ok=True)
             ledger_path.write_text(
                 json.dumps(review_ledger_fixture(after)),
                 encoding="utf-8",
             )
+            if mutate_deferred_ledger:
+                ledger = json.loads(ledger_path.read_text())
+                ledger["sources"][0]["genesis"]["commit"] = "9" * 40
+                ledger_path.write_text(json.dumps(ledger))
             for source in after["sources"]:  # type: ignore[union-attr]
                 provenance_path = root / source["provenance_path"]
                 provenance_path.parent.mkdir(parents=True, exist_ok=True)
@@ -3720,6 +3734,7 @@ class DetectorTests(unittest.TestCase):
                 base_sha,
                 before_path,
                 after_path,
+                controller_source_id,
             )
 
     def test_multiple_drift_sources_are_sorted_for_serialized_selection(self) -> None:
@@ -3775,7 +3790,7 @@ class DetectorTests(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardError, "non-drifting upstream"):
             self.validate(payload)
 
-    def test_proposal_must_name_lexicographically_first_drift_source(self) -> None:
+    def test_proposal_must_name_controller_selected_drift_source(self) -> None:
         payload = drift_detector_fixture()
         add_detector_source(payload, source_id="alpha-okf", drift=True)
 
@@ -3784,8 +3799,9 @@ class DetectorTests(unittest.TestCase):
         self.assertEqual(self.validate_proposal(payload, selected)["source_id"], "alpha-okf")
 
         wrong = proposal_fixture(payload, source_id="cursor-pstack")
-        with self.assertRaisesRegex(guard.GuardError, "lexicographically first"):
-            self.validate_proposal(payload, wrong)
+        with self.assertRaisesRegex(guard.GuardError, "controller-selected"):
+            self.validate_proposal(payload, wrong, controller_source_id="alpha-okf")
+        self.assertEqual(self.validate_proposal(payload, wrong, controller_source_id="cursor-pstack")["source_id"], "cursor-pstack")
 
         with self.assertRaisesRegex(guard.GuardError, "marker count"):
             self.validate_proposal(
@@ -3804,6 +3820,8 @@ class DetectorTests(unittest.TestCase):
         self.assertEqual(result["source_id"], "alpha-okf")
         self.assertEqual(result["initial_drift_count"], 2)
         self.assertEqual(result["remaining_drift_count"], 1)
+        with self.assertRaisesRegex(guard.GuardError, "deferred review ledger"):
+            self.validate_serialized(before, after, mutate_deferred_ledger=True)
 
         after["sources"][0]["source_parity"]["pinned_resource_count"] = 2  # type: ignore[index]
         with self.assertRaisesRegex(guard.GuardError, "deferred upstream source"):
@@ -3830,6 +3848,15 @@ class DetectorTests(unittest.TestCase):
 
         with self.assertRaisesRegex(guard.GuardError, "not detector-bound"):
             self.validate_serialized(before, after)
+
+    def test_serialized_acceptance_obeys_controller_choice_not_lexical_order(self) -> None:
+        before = drift_detector_fixture()
+        add_detector_source(before, source_id="alpha-okf", drift=True)
+        after = accepted_detector_fixture(before, selected_source_id="cursor-pstack")
+        result = self.validate_serialized(before, after, controller_source_id="cursor-pstack")
+        self.assertEqual(result["source_id"], "cursor-pstack")
+        with self.assertRaisesRegex(guard.GuardError, "controller-selected"):
+            self.validate_serialized(before, after, controller_source_id="alpha-okf")
 
     def test_zero_one_and_multi_transition_reproof_shapes(self) -> None:
         for count in (0, 1, 7, 33, guard.REVIEW_TRANSITION_MAX):
@@ -3899,7 +3926,12 @@ class DetectorTests(unittest.TestCase):
         set_comparison_files(payload, [])
         source = payload["sources"][0]  # type: ignore[index]
         source["current"]["subtree_sha"] = source["pinned"]["subtree_sha"]  # type: ignore[index]
-        self.assertEqual(self.validate(payload)["validated_drift_heads"], ["c" * 40])
+        source["drift"] = False  # type: ignore[index]
+        source["ok"] = True  # type: ignore[index]
+        payload["ok"] = True
+        source["source_parity"]["candidate_ready"] = False  # type: ignore[index]
+        source["source_parity"]["status"] = "accepted-baseline"  # type: ignore[index]
+        self.assertEqual(self.validate(payload)["validated_drift_heads"], [])
 
     def test_patch_body_and_review_constraints_are_recomputed(self) -> None:
         payload = drift_detector_fixture()
@@ -4191,7 +4223,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         document = json.loads(
             (ROOT / ".kiro/agents/pk-stack-maintainer.json").read_text(encoding="utf-8")
         )
-        required = "select the lexicographically smallest drifting source id"
+        required = "use the exact selected_source_id from the immutable control plan"
         self.assertIn(required, document["prompt"])
         document["prompt"] = document["prompt"].replace(
             required,
@@ -4949,14 +4981,14 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("nowMs: Date.now()", kiro)
         self.assertIn(".github/workflows \\", kiro)
         self.assertIn(".github/workflows \\", candidate)
-        self.assertIn('decision.action === "close"', kiro)
+        self.assertNotIn('decision.action === "close"', kiro)
         self.assertIn(".goal.attempt_count == 1", kiro)
         self.assertNotIn(".goal.attempt == 1", kiro)
         self.assertIn("pk_stack_update_controller.py", kiro)
         self.assertIn("control_plan_sha256", kiro)
         self.assertIn("goal_kind=$(jq -er '.goal.kind'", kiro)
-        self.assertIn('feature) goal_contract=(--feature "$goal_value")', kiro)
-        self.assertIn('command) goal_contract=(--command "$goal_value")', kiro)
+        self.assertIn('test "$goal_kind" = "command"', kiro)
+        self.assertIn('test "$action" = "reconcile-source"', kiro)
         self.assertIn('cron: "17 13 * * *"', kiro)
         self.assertNotIn('cron: "17 13 * * 1"', kiro)
         self.assertIn(
@@ -4967,7 +4999,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("preserving every prior marker unchanged and in order", kiro_runner)
         self.assertIn("review-ledger transition count plus one", kiro_runner)
         self.assertIn(
-            "select the lexicographically smallest drifting source id",
+            "use the exact selected_source_id from the immutable control plan",
             kiro_runner,
         )
         self.assertIn("the proposal must name that source_id", kiro_runner)
@@ -5482,38 +5514,6 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             )
             self.assertNotEqual(wrong_attempt.returncode, 0)
             self.assertEqual(wrong_sentinel.read_text(encoding="utf-8"), "preserve\n")
-
-    def test_stale_pr_classification_uses_mocked_api_data(self) -> None:
-        subprocess.run(
-            ["node", "--test", ".github/scripts/test_pk_stack_pr_policy.js"],
-            cwd=ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-
-    def test_kiro_runtime_canary_contract(self) -> None:
-        subprocess.run(
-            [sys.executable, ".github/scripts/test_kiro_runtime_canary.py"],
-            cwd=ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-
-    def test_kiro_review_and_model_inventory_contracts(self) -> None:
-        for test_path in (
-            ".github/scripts/test_validate_kiro_review_stream.py",
-            ".github/scripts/test_validate_kiro_model_inventory.py",
-        ):
-            with self.subTest(test_path=test_path):
-                subprocess.run(
-                    [sys.executable, test_path],
-                    cwd=ROOT,
-                    check=True,
-                    capture_output=True,
-                    text=True,
-                )
 
     def test_post_accept_failure_restores_pin_and_ledger_for_attempt_two(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

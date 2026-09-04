@@ -13,6 +13,7 @@ from typing import Any
 from pk_stack.bootstrap import (
     INTERNAL_WRAPPER,
     TARGET_PYPROJECT,
+    BootstrapReceiptAudit,
     audit_bootstrap_receipt,
     gitignore_has_entry,
 )
@@ -92,7 +93,20 @@ def run_doctor(root: Path) -> dict[str, Any]:
                 "Run /setup-pk-stack or pk-stack-setup in this project.",
             )
         )
-    checks.append(_receipt_integrity_check(root))
+    try:
+        receipt = audit_bootstrap_receipt(root)
+    except (OSError, ValueError) as exc:
+        receipt = None
+        checks.append(
+            DoctorCheck(
+                "bootstrap-receipt-integrity",
+                "fail",
+                f"unable to validate bootstrap ownership receipt: {exc}",
+                "Run the Power-local setup preflight and repair managed files.",
+            )
+        )
+    else:
+        checks.append(_receipt_integrity_check(receipt))
     checks.append(_runtime_integrity_check(root, internal))
     if wrapper.exists() and not (wrapper.is_file() and os.access(wrapper, os.X_OK)):
         checks.append(
@@ -115,26 +129,16 @@ def run_doctor(root: Path) -> dict[str, Any]:
         "session-hook": root / ".kiro" / "hooks" / "pk-stack-session.json",
         "tripwire-hook": root / ".kiro" / "hooks" / "pk-stack-tripwire.json",
     }
-    try:
-        cached_skills = ensure_tree_no_symlinks(
-            root,
-            Path(".pk-stack/projectctl/skills"),
-        )
-        skill_names = sorted(
-            path.name
-            for path in cached_skills.iterdir()
-            if path.is_dir() and (path / "SKILL.md").is_file()
-        )
-    except (OSError, WorkspacePathError) as exc:
-        checks.append(
-            DoctorCheck(
-                "workspace-skill-inventory",
-                "fail",
-                f"unable to enumerate managed skills safely: {exc}",
-                "Repair the receipt-managed projectctl skill cache.",
-            )
-        )
-        skill_names = []
+    # The receipt records expected assets even when an entire installed skill
+    # has disappeared. Enumerating live directories would hide that omission.
+    managed_paths = receipt.managed_paths if receipt is not None else ()
+    skill_names = sorted(
+        path.parts[2]
+        for path in map(Path, managed_paths)
+        if len(path.parts) == 4
+        and path.parts[:2] == (".kiro", "skills")
+        and path.name == "SKILL.md"
+    )
     if "archify" in skill_names:
         checks.append(_archify_runtime_check(root))
         checks.append(_archify_node_check())
@@ -161,8 +165,6 @@ def run_doctor(root: Path) -> dict[str, Any]:
                 ),
             )
         )
-        if safe_path.is_file():
-            checks.append(_asset_integrity_check(root, safe_path, name))
         if safe_path.suffix == ".json" and safe_path.is_file():
             try:
                 document = json.loads(safe_path.read_text(encoding="utf-8"))
@@ -244,16 +246,13 @@ def _validate_kiro_json(path: Path, document: Any) -> None:
 
 def _runtime_integrity_check(root: Path, internal: Path) -> DoctorCheck:
     pyproject = root / ".pk-stack" / "projectctl" / "pyproject.toml"
-    lock = root / ".pk-stack" / "projectctl" / "uv.lock"
-    cached_lock = root / ".pk-stack" / "projectctl" / "templates" / "projectctl" / "uv.lock"
     try:
-        paths = [workspace_path(root, path) for path in (internal, pyproject, lock, cached_lock)]
+        paths = [workspace_path(root, path) for path in (internal, pyproject)]
         expected = [
             INTERNAL_WRAPPER.encode(),
             TARGET_PYPROJECT.encode(),
-            paths[3].read_bytes(),
         ]
-        actual = [paths[0].read_bytes(), paths[1].read_bytes(), paths[2].read_bytes()]
+        actual = [path.read_bytes() for path in paths]
     except (OSError, ValueError) as exc:
         return DoctorCheck(
             "projectctl-runtime-integrity",
@@ -265,24 +264,15 @@ def _runtime_integrity_check(root: Path, internal: Path) -> DoctorCheck:
         "projectctl-runtime-integrity",
         "pass" if actual == expected else "fail",
         (
-            "managed wrapper, project metadata, and lock are consistent"
+            "managed wrapper and project metadata are consistent; lock checked by receipt"
             if actual == expected
-            else "managed wrapper, project metadata, or lock differs from the shipped runtime"
+            else "managed wrapper or project metadata differs from the shipped runtime"
         ),
         None if actual == expected else "Review setup conflicts before --update-managed.",
     )
 
 
-def _receipt_integrity_check(root: Path) -> DoctorCheck:
-    try:
-        audit = audit_bootstrap_receipt(root)
-    except (OSError, ValueError) as exc:
-        return DoctorCheck(
-            "bootstrap-receipt-integrity",
-            "fail",
-            f"unable to validate bootstrap ownership receipt: {exc}",
-            "Run the Power-local setup preflight and repair managed files.",
-        )
+def _receipt_integrity_check(audit: BootstrapReceiptAudit) -> DoctorCheck:
     if audit.ok:
         return DoctorCheck(
             "bootstrap-receipt-integrity",
@@ -307,29 +297,6 @@ def _receipt_integrity_check(root: Path) -> DoctorCheck:
         "fail",
         f"checked {audit.managed_count} receipt-managed files; " + "; ".join(failures),
         "Review setup conflicts and restore receipt-owned files from the reviewed Power.",
-    )
-
-
-def _asset_integrity_check(root: Path, live: Path, name: str) -> DoctorCheck:
-    relative = live.relative_to(root)
-    if relative.parts[:2] == (".kiro", "skills"):
-        cached_relative = Path(".pk-stack/projectctl/skills").joinpath(*relative.parts[2:])
-    elif relative.parts[:2] == (".kiro", "steering"):
-        cached_relative = Path(".pk-stack/projectctl/dev.kiro/steering").joinpath(
-            *relative.parts[2:]
-        )
-    else:
-        cached_relative = Path(".pk-stack/projectctl/templates/project") / relative
-    try:
-        cached = workspace_path(root, cached_relative)
-        matches = cached.is_file() and live.read_bytes() == cached.read_bytes()
-    except (OSError, ValueError) as exc:
-        return DoctorCheck(f"{name}-managed-integrity", "fail", str(exc))
-    return DoctorCheck(
-        f"{name}-managed-integrity",
-        "pass" if matches else "fail",
-        "live asset matches managed cache" if matches else "live asset differs from managed cache",
-        None if matches else "Review the setup conflict; do not overwrite user changes silently.",
     )
 
 
@@ -520,7 +487,7 @@ def _command_check(name: str, *, required: bool) -> DoctorCheck:
 def _archify_runtime_check(root: Path) -> DoctorCheck:
     """Check the reviewed offline Archify runtime closure without executing it."""
 
-    runtime = Path(".pk-stack/projectctl/skills/archify")
+    runtime = Path(".kiro/skills/archify")
     try:
         runtime_root = ensure_tree_no_symlinks(root, runtime)
         missing = [

@@ -1,6 +1,6 @@
 # Provenance and porting boundary
 
-PK-Stack `0.2.0` release metadata is owned by [`plugin.json`](../plugin.json).
+PK-Stack release metadata is owned by [`plugin.json`](../plugin.json).
 This document records external source identities and the independent Kiro
 adaptation; it is not a release verdict. Current acceptance belongs to the
 root [release status](../../../reviews/release-status.md), while older review
@@ -91,9 +91,10 @@ pstack components.
 
 The current name is Kiro-specific branding, not a restoration of upstream
 metadata. The Power manifest identifier and source-repository name are
-`pk-stack`; the Python distribution, receipt manager, package, and on-disk
-`.pstack` paths retain their documented compatibility identifiers. Selectable
-Kiro agents use the PK-Stack name.
+`pk-stack`; the Python distribution and receipt manager also use `pk-stack`,
+the Python import is `pk_stack`, and local state lives under `.pk-stack/`.
+Selectable Kiro agents use the PK-Stack name. Old compatibility names and
+automatic state migration are not supported.
 User-facing slash-command routes use the `pk-stack` slug convention. Where a
 source package name is retained in a parity or provenance record, that is an
 upstream identity and not a user-facing route.

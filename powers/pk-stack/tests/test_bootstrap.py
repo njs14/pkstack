@@ -65,9 +65,8 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     assert '-m pk_stack "$@"' in wrapper
     assert (tmp_path / ".kiro" / "skills" / "verified-goal" / "SKILL.md").is_file()
     assert not (tmp_path / ".kiro" / "skills" / "setup-pk-stack").exists()
-    cached_setup = tmp_path / ".pk-stack" / "projectctl" / "skills" / "setup-pk-stack"
-    assert (cached_setup / "SKILL.md").is_file()
-    assert (cached_setup / "scripts" / "setup_pk_stack.py").is_file()
+    for directory in ("skills", "dev.kiro", "templates"):
+        assert not (tmp_path / ".pk-stack" / "projectctl" / directory).exists()
     parity = json.loads(
         (POWER_ROOT / "docs" / "upstream-skill-parity.json").read_text(encoding="utf-8")
     )
@@ -82,31 +81,18 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
         | {entry["name"] for entry in curated["skills"]}
     )
     live_skills = {path.parent.name for path in (tmp_path / ".kiro" / "skills").glob("*/SKILL.md")}
-    cached_skills = {
-        path.parent.name
-        for path in (tmp_path / ".pk-stack" / "projectctl" / "skills").glob("*/SKILL.md")
-    }
     assert live_skills == canonical_skills - {"setup-pk-stack"}
-    assert cached_skills == canonical_skills
     assert len(canonical_skills) == (
         parity["summary"]["shipped_skill_directories"]
         + curated["summary"]["shipped_skill_directories"]
     )
     live_steering = {path.name for path in (tmp_path / ".kiro" / "steering").glob("*.md")}
-    cached_steering = {
-        path.name
-        for path in (tmp_path / ".pk-stack" / "projectctl" / "dev.kiro" / "steering").glob("*.md")
+    assert live_steering == {
+        "pk-stack-core.md",
+        "pk-stack-safety.md",
+        "pk-stack-typescript.md",
+        "pk-stack-unslop.md",
     }
-    assert (
-        live_steering
-        == cached_steering
-        == {
-            "pk-stack-core.md",
-            "pk-stack-safety.md",
-            "pk-stack-typescript.md",
-            "pk-stack-unslop.md",
-        }
-    )
     assert (tmp_path / ".kiro" / "agents" / "pk-stack-verifier.json").is_file()
     feature_readme = (tmp_path / "Wiki" / "features" / "README.md").read_text(encoding="utf-8")
     wiki_index = (tmp_path / "Wiki" / "index.md").read_text(encoding="utf-8")
@@ -137,32 +123,6 @@ def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: 
         if not key.startswith(("COV_CORE_", "COVERAGE_"))
     }
 
-    cached_shim = (
-        target
-        / ".pk-stack"
-        / "projectctl"
-        / "skills"
-        / "setup-pk-stack"
-        / "scripts"
-        / "setup_pk_stack.py"
-    )
-    shim_result = subprocess.run(
-        [
-            sys.executable,
-            str(cached_shim),
-            "--root",
-            ".",
-            "--dry-run",
-            "--output",
-            "json",
-        ],
-        cwd=target,
-        env=clean_env,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
     module_env = dict(clean_env)
     module_env["PYTHONPATH"] = str(target / ".pk-stack" / "projectctl" / "src")
     module_result = subprocess.run(
@@ -183,12 +143,11 @@ def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: 
         check=False,
     )
 
-    for completed in (shim_result, module_result):
-        assert completed.returncode == 2
-        assert completed.stderr == ""
-        payload = json.loads(completed.stdout)
-        assert payload["error_type"] == "ValueError"
-        assert "project-local .pk-stack cache" in payload["error"]
+    assert module_result.returncode == 2
+    assert module_result.stderr == ""
+    payload = json.loads(module_result.stdout)
+    assert payload["error_type"] == "ValueError"
+    assert "project-local .pk-stack cache" in payload["error"]
     assert (receipt.read_bytes(), profile.read_bytes()) == before
 
 
@@ -206,30 +165,6 @@ def test_cached_setup_rejects_case_alias_on_case_folding_filesystem(tmp_path: Pa
         for key, value in os.environ.items()
         if not key.startswith(("COV_CORE_", "COVERAGE_"))
     }
-    cached_shim = (
-        alternate_cache
-        / "projectctl"
-        / "skills"
-        / "setup-pk-stack"
-        / "scripts"
-        / "setup_pk_stack.py"
-    )
-    shim_result = subprocess.run(
-        [
-            sys.executable,
-            str(cached_shim),
-            "--root",
-            ".",
-            "--dry-run",
-            "--output",
-            "json",
-        ],
-        cwd=target,
-        env=clean_env,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
     module_env = dict(clean_env)
     module_env["PYTHONPATH"] = str(alternate_cache / "projectctl" / "src")
     module_result = subprocess.run(
@@ -250,12 +185,11 @@ def test_cached_setup_rejects_case_alias_on_case_folding_filesystem(tmp_path: Pa
         check=False,
     )
 
-    for completed in (shim_result, module_result):
-        assert completed.returncode == 2
-        assert completed.stderr == ""
-        payload = json.loads(completed.stdout)
-        assert payload["error_type"] == "ValueError"
-        assert "project-local .pk-stack cache" in payload["error"]
+    assert module_result.returncode == 2
+    assert module_result.stderr == ""
+    payload = json.loads(module_result.stdout)
+    assert payload["error_type"] == "ValueError"
+    assert "project-local .pk-stack cache" in payload["error"]
 
 
 def test_shipped_workflows_select_only_the_managed_internal_controller() -> None:
@@ -321,46 +255,6 @@ def test_gitignore_comments_and_substrings_do_not_impersonate_runtime_patterns(
         assert result.ok is True
         for entry in ignored_paths:
             assert entry in text.splitlines()
-
-
-def test_bootstrap_migrates_legacy_gitignore_block_once_and_is_idempotent(
-    tmp_path: Path,
-) -> None:
-    gitignore = tmp_path / ".gitignore"
-    legacy = (
-        "foreign-entry/\n\n"
-        "# PK-Stack runtime state (generated by /setup-pk-stack)\n"
-        ".pk-stack/state/\n"
-        ".pk-stack/tmp/\n"
-        ".pk-stack/projectctl/.venv/\n\n"
-        "# PK-Stack runtime state (generated by /setup-pk-stack)\n"
-        ".pk-stack/state/\n"
-        ".pk-stack/tmp/\n"
-        ".pk-stack/projectctl/.venv/\n"
-        ".pk-stack-maintenance/\n"
-    )
-    gitignore.write_text(legacy, encoding="utf-8")
-
-    preview = bootstrap_project(tmp_path, power_root=POWER_ROOT, dry_run=True)
-
-    assert ".gitignore:pk-stack-runtime-block" in preview.updated
-    assert gitignore.read_text(encoding="utf-8") == legacy
-
-    applied = bootstrap_project(tmp_path, power_root=POWER_ROOT)
-    normalized = gitignore.read_text(encoding="utf-8")
-    assert applied.ok is True
-    assert normalized.count("# PK-Stack runtime state (generated by /setup-pk-stack)") == 1
-    assert normalized.count(".pk-stack/state/") == 1
-    assert normalized.count(".pk-stack-maintenance/") == 1
-    assert normalized.startswith("foreign-entry/\n\n")
-
-    repeated = bootstrap_project(tmp_path, power_root=POWER_ROOT, update_managed=True)
-    assert repeated.ok is True
-    assert repeated.created == []
-    assert repeated.updated == []
-    assert repeated.pending_updates == []
-    assert repeated.stale_managed == []
-    assert gitignore.read_text(encoding="utf-8") == normalized
 
 
 def test_idempotent_bootstrap_normalizes_managed_file_modes_after_dry_run(
@@ -478,7 +372,6 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
     }
     expected_pending = {
         ".kiro/agents/pk-stack.json",
-        ".pk-stack/projectctl/templates/project/.kiro/agents/pk-stack.json",
     }
 
     controller_preview = subprocess.run(
@@ -544,22 +437,11 @@ def test_power_local_upgrade_detects_and_applies_newer_managed_assets(
     assert set(applied_payload["updated"]) >= expected_pending
 
     live = target / ".kiro" / "agents" / "pk-stack.json"
-    cached = (
-        target
-        / ".pk-stack"
-        / "projectctl"
-        / "templates"
-        / "project"
-        / ".kiro"
-        / "agents"
-        / "pk-stack.json"
-    )
     assert marker in live.read_text(encoding="utf-8")
-    assert live.read_bytes() == cached.read_bytes() == v2_profile.read_bytes()
+    assert live.read_bytes() == v2_profile.read_bytes()
     receipt = json.loads((target / ".pk-stack" / "bootstrap.json").read_text(encoding="utf-8"))
-    for path in (live, cached):
-        key = path.relative_to(target).as_posix()
-        assert receipt["files"][key] == hashlib.sha256(path.read_bytes()).hexdigest()
+    key = live.relative_to(target).as_posix()
+    assert receipt["files"][key] == hashlib.sha256(live.read_bytes()).hexdigest()
 
 
 @pytest.mark.parametrize(

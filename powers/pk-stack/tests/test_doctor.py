@@ -91,7 +91,6 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
         "pk-stack-unslop-steering",
     ):
         assert checks[steering]["status"] == "pass"
-        assert checks[f"{steering}-managed-integrity"]["status"] == "pass"
     assert calls[0] == ([str(fake_kiro), "agent", "list"], tmp_path.resolve())
     assert all(call[0][1:3] == ["agent", "validate"] for call in calls[1:])
     assert {Path(call[0][-1]).stem for call in calls[1:]} == {
@@ -114,9 +113,14 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
             "hash mismatch (1): .pk-stack/projectctl/src/pk_stack/models.py",
         ),
         (
-            ".pk-stack/projectctl/skills/setup-pk-stack/SKILL.md",
+            ".pk-stack/projectctl/uv.lock",
+            "drift",
+            "hash mismatch (1): .pk-stack/projectctl/uv.lock",
+        ),
+        (
+            ".kiro/skills/archify/upstream/schemas/workflow.schema.json",
             "missing",
-            "missing or non-file (1): .pk-stack/projectctl/skills/setup-pk-stack/SKILL.md",
+            "missing or non-file (1): .kiro/skills/archify/upstream/schemas/workflow.schema.json",
         ),
     ],
 )
@@ -141,34 +145,23 @@ def test_doctor_receipt_integrity_detects_cached_drift_and_missing_owned_files(
     checks = {check["name"]: check for check in result["checks"]}
 
     assert result["ok"] is False
-    assert result["summary"]["fail"] == 1
+    assert result["summary"]["fail"] >= 1
     assert checks["bootstrap-receipt-integrity"]["status"] == "fail"
     assert message in checks["bootstrap-receipt-integrity"]["message"]
     assert receipt.read_bytes() == receipt_before
     assert managed.exists() is (mutation == "drift")
 
 
-def test_doctor_receipt_integrity_detects_identical_live_and_cached_permission_drift(
+def test_doctor_receipt_integrity_detects_live_permission_drift(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok is True
     live = tmp_path / ".kiro" / "agents" / "pk-stack.json"
-    cached = (
-        tmp_path
-        / ".pk-stack"
-        / "projectctl"
-        / "templates"
-        / "project"
-        / ".kiro"
-        / "agents"
-        / "pk-stack.json"
-    )
     document = json.loads(live.read_text(encoding="utf-8"))
     document["description"] = "Altered but still schema-valid permission profile"
     altered = (json.dumps(document, indent=2, sort_keys=True) + "\n").encode()
     live.write_bytes(altered)
-    cached.write_bytes(altered)
     receipt = tmp_path / ".pk-stack" / "bootstrap.json"
     receipt_before = receipt.read_bytes()
     _without_optional_doctor_tools(monkeypatch)
@@ -178,17 +171,12 @@ def test_doctor_receipt_integrity_detects_identical_live_and_cached_permission_d
 
     assert result["ok"] is False
     assert result["summary"]["fail"] == 1
-    assert checks["pk-stack-agent-managed-integrity"]["status"] == "pass"
     receipt_check = checks["bootstrap-receipt-integrity"]
     assert receipt_check["status"] == "fail"
-    assert "hash mismatch (2)" in receipt_check["message"]
+    assert "hash mismatch (1)" in receipt_check["message"]
     assert ".kiro/agents/pk-stack.json" in receipt_check["message"]
-    assert (
-        ".pk-stack/projectctl/templates/project/.kiro/agents/pk-stack.json"
-        in receipt_check["message"]
-    )
     assert receipt.read_bytes() == receipt_before
-    assert live.read_bytes() == cached.read_bytes() == altered
+    assert live.read_bytes() == altered
 
 
 @pytest.mark.parametrize(

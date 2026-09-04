@@ -15,6 +15,7 @@ umask 077
 : "${KIRO_HOME:?KIRO_HOME is required}"
 : "${KIRO_USER_HOME:?KIRO_USER_HOME is required}"
 : "${GIT_BOUNDARY_STATE:?GIT_BOUNDARY_STATE is required}"
+: "${CONTROL_PLAN_PATH:?CONTROL_PLAN_PATH is required}"
 
 project_root=$(pwd -P)
 verification_log="${RUNNER_TEMP:?RUNNER_TEMP is required}/pk-stack-verify-${ATTEMPT_NUMBER}.log"
@@ -134,8 +135,8 @@ set +e
 
   detector_validation=$(python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH")
   drift_count=$(jq -er '.drift_count' <<<"$detector_validation")
-  selected_source_id=$(jq -er '.selected_source_id' <<<"$detector_validation")
-  expected_head=$(jq -er '.expected_head' <<<"$detector_validation")
+  selected_source_id=$(jq -er '.selected_source_id // ""' "$CONTROL_PLAN_PATH")
+  expected_head=$(jq -er '.expected_head // ""' "$CONTROL_PLAN_PATH")
 
   # The base-commit controller performs the only generated-file update. This
   # must precede proposal preview because acceptance requires generated parity.
@@ -164,7 +165,8 @@ set +e
     test -f .pk-stack-maintenance/proposal.json
     proposal_validation=$(python3 "$GUARD_PATH" validate-proposal \
       --detector "$DETECTOR_PATH" \
-      --proposal .pk-stack-maintenance/proposal.json)
+      --proposal .pk-stack-maintenance/proposal.json \
+      --selected-source-id "$selected_source_id")
     jq -e \
       --arg source_id "$selected_source_id" \
       --arg expected_head "$expected_head" \
@@ -250,7 +252,8 @@ set +e
     python3 "$GUARD_PATH" --root "$project_root" validate-serialized-acceptance \
       --base "$BASE_SHA" \
       --before-detector "$DETECTOR_PATH" \
-      --after-detector "$post_accept_detector"
+      --after-detector "$post_accept_detector" \
+      --selected-source-id "$selected_source_id"
   else
     [[ "$remaining_drift_count" == "0" ]]
   fi

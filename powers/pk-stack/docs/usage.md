@@ -2,9 +2,9 @@
 
 PK-Stack keeps implementation and repair work in the current Kiro session.
 
-This guide covers the supported PK-Stack 0.2.0 path: a Power-local bootstrap,
+This guide covers the current PK-Stack path: a Power-local bootstrap,
 the generated `pk-stack` Kiro agent, a feature contract, and a verifier run in
-the current Kiro session. Start with the [Power README](../README.md) if you
+the current Kiro session. Start with the [repository README](../../../README.md) if you
 are deciding whether to install it.
 
 ## The short version
@@ -138,6 +138,15 @@ automatically; preserve or remove each exact path by a separate project
 decision. The cached controller's setup command fails unless an explicit,
 reviewed `--power-root` is supplied.
 
+For pre-0.3 installations, use a clean reinstall. Preserve project-owned
+`Wiki/` content, native `.kiro/specs/`, user-authored settings, and any evidence
+you want to retain. Inspect `.pk-stack/bootstrap.json` and remove only the
+PK-Stack-managed paths whose bytes still match their receipt hashes, plus
+the receipt itself. Remove retired cache paths explicitly; never delete an
+entire `.kiro/` or Wiki directory. Then run fresh setup from the reviewed Power.
+User-modified managed files need a deliberate keep-or-replace decision first.
+Old goals and schema-1 feature records are not imported automatically.
+
 ### Attach the generated agent
 
 The bootstrap conversation may not inherit the new profile. In the IDE choose
@@ -170,15 +179,21 @@ For nontrivial work, use Kiro's native planner before the PK-Stack loop:
 
 Kiro owns requirements or bug analysis, design, tasks, dependency waves, and
 native task execution. When those artifacts are ready, return to `pk-stack` and
-bind the native plan to one published feature verifier:
+bind the native plan to an executable verifier. For a new, still-failing feature:
 
 ```sh
 .pk-stack/bin/projectctl goal bind-spec account-lookup \
-  --feature account-lookup --output json
+  --command "python3 -m unittest discover -s tests -v" --output json
+.pk-stack/bin/projectctl goal start "Repair account lookup" \
+  --spec account-lookup --max-attempts 4 --output json
+.pk-stack/bin/projectctl goal verify --output json
 ```
 
-The bridge records the native spec and feature provenance. It does not copy a
-second task graph or treat a checked task as executable proof.
+Record that initial failure before editing, repair in the same Kiro session,
+and run `goal verify` again. Publish a reusable feature only when useful and
+after its command passes. For an already published feature, bind with
+`--feature account-lookup` instead of `--command`. The bridge records native
+spec provenance without copying a task graph or treating a checked task as proof.
 
 ## Create and prove feature contracts
 
@@ -223,8 +238,8 @@ Add `--ready` to run the command before writing `draft: false`:
   --ready --output json
 ```
 
-Use the complete schema-2 form from the first example when the contract needs
-entrypoint coverage. A failed proof leaves a new target absent or leaves an
+Schema 2 is the only supported format; all its structured fields are required.
+A failed proof leaves a new target absent or leaves an
 existing target unchanged. `feature validate` checks syntax, links, location,
 duplicate slugs, and command policy; it does not prove the behavior:
 
@@ -234,7 +249,7 @@ duplicate slugs, and command policy; it does not prove the behavior:
 .pk-stack/bin/projectctl feature validate --output json
 ```
 
-For three to five features, prepare one JSON plan and prove only the named
+For one to five features, prepare one JSON plan and prove only the named
 representative during generation:
 
 ```sh
@@ -250,8 +265,9 @@ them separately:
 .pk-stack/bin/projectctl feature verify account-lookup --output json
 ```
 
-Legacy schema-1 records remain readable. Migrate them deliberately with
-`feature migrate`; new work should use schema 2.
+Aim for the most useful three to five features when the project has that many;
+a smaller application can start with one. Rewrite older schema-1 records as
+reviewed schema-2 contracts. There is no migration command.
 
 ## Run a verified goal
 
@@ -309,6 +325,10 @@ preserving evidence:
 Active state requires the explicit `--force` abandonment option. Clearing
 state does not revert project edits. `goal tripwire` is an advisory read and
 cannot schedule another turn or mark success.
+
+Ctrl-C or SIGTERM stops the verifier's process group and releases the goal
+lock. Cancellation never records a passing result. Inspect `goal status`
+before deciding whether to retry.
 
 ### Verifier boundary
 
@@ -394,4 +414,4 @@ workspace or rewrite user-owned Wiki material as a cleanup shortcut.
 - [Provenance and porting boundary](provenance.md)
 - [Validation report](validation-report.md)
 - [Review harness](../reviews/README.md)
-- [Current v0.2.0 release status](../../../reviews/release-status.md)
+- [Release status and validation evidence](../../../reviews/release-status.md)

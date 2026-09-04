@@ -152,6 +152,29 @@ def test_artifact_reference_rejects_dotdot_alias_even_when_it_resolves_inside(
     assert not (tmp_path / ".pk-stack").exists()
 
 
+@pytest.mark.parametrize("removed", [False, True])
+def test_append_records_correction_after_historical_artifact_drift(
+    tmp_path: Path, removed: bool
+) -> None:
+    artifact = tmp_path / "artifact.txt"
+    artifact.write_text("first\n", encoding="utf-8")
+    digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    first = _append(tmp_path, artifact=Path("artifact.txt"), artifact_sha256=digest)
+    trail = tmp_path / str(first["path"])
+    historical = trail.read_bytes()
+    if removed:
+        artifact.unlink()
+    else:
+        artifact.write_text("changed\n", encoding="utf-8")
+    correction = _append(
+        tmp_path, decision="The prior artifact changed; re-verification is required."
+    )
+    assert correction["event_count"] == 2
+    assert trail.read_bytes().startswith(historical)
+    with pytest.raises(EvidenceError, match=r"does not exist|sha256 mismatch"):
+        audit_evidence(tmp_path, "account-lookup")
+
+
 def test_artifact_symlink_and_digest_drift_fail_closed(tmp_path: Path) -> None:
     artifact = tmp_path / "artifact.txt"
     artifact.write_text("first\n", encoding="utf-8")

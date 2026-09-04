@@ -1,6 +1,6 @@
 # Validation report
 
-This report describes how to validate the PK-Stack `0.2.0` candidate. It is a
+This report describes how to validate a PK-Stack release candidate. It is a
 release-process document, not a standing pass claim. The [current release
 status](../../../reviews/release-status.md) is the single place for the
 candidate commit and gate verdicts.
@@ -90,9 +90,10 @@ The final candidate must have a fresh result for each row in
 4. feature validation and clearly labeled optional `okn` status;
 5. repository guard, policy, Actionlint, ShellCheck, and documentation checks;
 6. exact-candidate Kiro evidence where the release contract requires it;
-7. independent Fable 5.1 `xhigh` review and Grok 4.6 `xhigh` sweep, or an
-   explicit external blocker; and
-8. a private PR and `v0.2.0` tag bound to the same reviewed commit.
+7. independent review of the exact candidate, naming the reviewer and any
+   unavailable requested reviewer; and
+8. a private PR and a version tag matching `plugin.json`, bound to the
+   reviewed commit after merge.
 
 Every material change after review returns the candidate to the affected
 checks. A historical `ACCEPT`, a clean older worktree, or a passing fixture
@@ -110,4 +111,4 @@ does not close a new row.
   deletion.
 
 Until the release-status document records the final reviewed commit and tag,
-the repository is a candidate rather than a released `v0.2.0`.
+the current tree is a candidate, even when an older version has been released.

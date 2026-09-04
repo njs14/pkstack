@@ -24,10 +24,7 @@ def _portable_files(root: Path) -> dict[str, bytes]:
 def test_canonical_power_and_generated_controller_are_byte_identical() -> None:
     pairs = (
         (POWER_ROOT / "src" / "pk_stack", CACHED_ROOT / "src" / "pk_stack"),
-        (POWER_ROOT / "skills", CACHED_ROOT / "skills"),
-        (POWER_ROOT / "dev.kiro" / "steering", CACHED_ROOT / "dev.kiro" / "steering"),
-        (POWER_ROOT / "templates" / "project", CACHED_ROOT / "templates" / "project"),
-        (POWER_ROOT / "templates" / "projectctl", CACHED_ROOT / "templates" / "projectctl"),
+        (POWER_ROOT / "dev.kiro" / "steering", REPOSITORY_ROOT / ".kiro" / "steering"),
     )
 
     for canonical, generated in pairs:
@@ -35,6 +32,18 @@ def test_canonical_power_and_generated_controller_are_byte_identical() -> None:
             canonical,
             generated,
         )
+    skills = _portable_files(POWER_ROOT / "skills")
+    expected_skills = {
+        key: value for key, value in skills.items() if not key.startswith("setup-pk-stack/")
+    }
+    assert _portable_files(REPOSITORY_ROOT / ".kiro" / "skills") == expected_skills
+    for relative, content in _portable_files(POWER_ROOT / "templates" / "project").items():
+        assert (REPOSITORY_ROOT / relative).read_bytes() == content
+    assert (CACHED_ROOT / "uv.lock").read_bytes() == (
+        POWER_ROOT / "templates" / "projectctl" / "uv.lock"
+    ).read_bytes()
+    for directory in ("skills", "dev.kiro", "templates"):
+        assert not (CACHED_ROOT / directory).exists()
 
 
 def test_committed_discovery_matches_fresh_repository_discovery() -> None:

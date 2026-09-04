@@ -83,10 +83,7 @@ jobs:
       - name: Run repository policy and stream regressions
         run: |
           set -euo pipefail
-          python3 -B .github/scripts/test_pk_stack_maintenance_guard.py
-          python3 -B .github/scripts/test_kiro_runtime_canary.py
-          python3 -B .github/scripts/test_validate_kiro_model_inventory.py
-          python3 -B .github/scripts/test_validate_kiro_review_stream.py
+          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
           node --test .github/scripts/test_pk_stack_pr_policy.js
       - name: Materialize the locked Power environment
         run: uv sync --quiet --locked --all-groups --project powers/pk-stack
@@ -109,10 +106,6 @@ jobs:
           else
             ./.pk-stack/bin/projectctl knowledge validate --output json
           fi
-          (
-            cd powers/pk-stack
-            uv run --frozen pytest tests/test_branding.py tests/test_distribution.py tests/test_kiro_assets.py -q
-          )
           python3 - <<'PY'
           import json
           import re
@@ -124,8 +117,8 @@ jobs:
           manifest = json.loads((power / "plugin.json").read_text(encoding="utf-8"))
           source = (power / "src/pk_stack/__init__.py").read_text(encoding="utf-8")
           version = pyproject["project"]["version"]
-          if version != "0.2.0" or manifest.get("version") != version:
-              raise SystemExit("Power package and plugin versions are not v0.2.0")
+          if not re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version) or manifest.get("version") != version:
+              raise SystemExit("Power package and plugin versions are inconsistent or invalid")
           match = re.search(r'^__version__ = "([^"]+)"$', source, re.MULTILINE)
           if match is None or match.group(1) != version:
               raise SystemExit("Power runtime version does not match its package metadata")

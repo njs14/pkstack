@@ -259,8 +259,7 @@ paths appear as blocking `stale_managed` and are never pruned automatically.
 After bootstrap, skills use `.pk-stack/bin/projectctl`, never repository
 `./projectctl` or ambient `uv run projectctl` resolution.
 
-Setup remains Power-local and is cached under
-`.pk-stack/projectctl/skills/setup-pk-stack/`; bootstrap deliberately does not copy
+Setup remains Power-local; bootstrap deliberately does not copy
 it to `.kiro/skills/`, where an older workspace copy could shadow an upgraded
 Power. The other 54 workflow skills are materialized in the workspace. Kiro's
 current [Agent Skills documentation](https://kiro.dev/docs/skills/) describes

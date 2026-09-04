@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pk-stack"
-version = "0.2.0"
+version = "0.3.0"
 description = "PK-Stack Kiro-native verified development Power and project control CLI"
 readme = "README.md"
 requires-python = ">=3.11"

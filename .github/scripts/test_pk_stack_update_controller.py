@@ -45,10 +45,10 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(result["goal"]["kind"], "command")
         self.assertIn("--source-id alpha", result["goal"]["value"])
 
-    def test_repairs_parity_without_remote_drift(self) -> None:
+    def test_parity_without_remote_drift_requires_reviewed_setup_not_a_model(self) -> None:
         result = self.decide({"ok": False, "validated_drift_sources": []})
-        self.assertEqual(result["action"], "repair-parity")
-        self.assertEqual(result["goal"], {"kind": "feature", "value": "pk-stack-upstream-maintenance"})
+        self.assertEqual(result["action"], "manual-parity")
+        self.assertIsNone(result["goal"])
 
     def test_current_state_is_an_explicit_noop(self) -> None:
         result = self.decide({"ok": True, "validated_drift_sources": []})
