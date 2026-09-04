@@ -163,11 +163,13 @@ no Anthropic, OpenAI, xAI, or GitHub Copilot key. Executable vendored runtime
 changes, workflow changes, and controller changes fail closed for a human
 release review rather than receiving autonomous write authority.
 
-The Power also ships Kiro-native ports of the complete reviewed
-[HumanLayer skills catalog](https://github.com/humanlayer/skills):
-`build-iterated-agentic-loop`, `design-control-loop`, `improve-claude-md`,
-`narrow-react-prop-types`, and `show-me`. Claude-specific registration and
-unsafe generic CI runner examples remain provenance-only.
+The Power also ships a reviewed portable subset of
+[HumanLayer skills](https://github.com/humanlayer/skills):
+`build-iterated-agentic-loop`, `design-control-loop`,
+`narrow-react-prop-types`, and `show-me`. It adds Matt Pocock's
+[`writing-for-agents`](https://github.com/mattpocock/skills/tree/6654f6b60cd9d5be8b54c6fafe44346dabeb3b76/skills/productivity/writing-for-agents)
+method for `AGENTS.md`, Kiro Skills, steering, and pointer-linked references.
+Runtime-specific registration and unsafe generic CI examples remain provenance-only.
 
 ## Documentation and community
 

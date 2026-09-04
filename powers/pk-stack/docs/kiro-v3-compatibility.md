@@ -54,7 +54,7 @@ discovery evidence.
 
 ## Automated product-drift canary
 
-The 6 source entries in `maintenance/upstreams.json` are PK-Stack's autonomous update sources.
+The 7 source entries in `maintenance/upstreams.json` are PK-Stack's autonomous update sources.
 Kiro product/runtime/documentation state is deliberately separate: the weekly and manually
 dispatchable `.github/workflows/pk-stack-kiro-runtime-canary.yml` is read-only and never promotes a
 pin or creates a candidate branch.

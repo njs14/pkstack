@@ -57,7 +57,7 @@
           ".kiro/skills/design-control-loop/**",
           ".kiro/skills/figure-it-out/**",
           ".kiro/skills/how/**",
-          ".kiro/skills/improve-claude-md/**",
+          ".kiro/skills/writing-for-agents/**",
           ".kiro/skills/interrogate/**",
           ".kiro/skills/maintain-pk-stack/**",
           ".kiro/skills/maintain-verification-skill/**",

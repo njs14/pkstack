@@ -109,7 +109,6 @@
       ".kiro/skills/figure-it-out/SKILL.md",
       ".kiro/skills/how/SKILL.md",
       ".kiro/skills/how/references/roles-and-critique.md",
-      ".kiro/skills/improve-claude-md/SKILL.md",
       ".kiro/skills/interrogate/SKILL.md",
       ".kiro/skills/interrogate/references/review-contract.md",
       ".kiro/skills/maintain-pk-stack/SKILL.md",
@@ -156,7 +155,9 @@
       ".kiro/skills/unslop/SKILL.md",
       ".kiro/skills/verified-goal/SKILL.md",
       ".kiro/skills/why/SKILL.md",
-      ".kiro/skills/why/references/evidence-contract.md"
+      ".kiro/skills/why/references/evidence-contract.md",
+      ".kiro/skills/writing-for-agents/SKILL-MECHANICS.md",
+      ".kiro/skills/writing-for-agents/SKILL.md"
     ],
     "specs": [],
     "steering": [

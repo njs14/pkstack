@@ -211,6 +211,18 @@
     },
     {
       "genesis": {
+        "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76",
+        "subtree_sha": "ad2925850efb8973a72d2e666f7a975f9a2d4a9b"
+      },
+      "id": "mattpocock-writing-for-agents",
+      "parity_path": "powers/pk-stack/docs/mattpocock-writing-for-agents-source-parity.json",
+      "path": "skills/productivity/writing-for-agents",
+      "provenance_path": "powers/pk-stack/docs/mattpocock-writing-for-agents-provenance.md",
+      "repository": "mattpocock/skills",
+      "transitions": []
+    },
+    {
+      "genesis": {
         "commit": "bf2448f03686a8348324e4741106697d30a867f9",
         "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
       },
