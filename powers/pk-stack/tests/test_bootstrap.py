@@ -109,11 +109,16 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     )
     assert (tmp_path / ".kiro" / "agents" / "pstack-verifier.json").is_file()
     feature_readme = (tmp_path / "Wiki" / "features" / "README.md").read_text(encoding="utf-8")
+    wiki_index = (tmp_path / "Wiki" / "index.md").read_text(encoding="utf-8")
     assert "Schema-2 contracts" in feature_readme
     assert "--sub-feature" in feature_readme
     assert "--entrypoint-proof" in feature_readme
     assert "feature generate-map feature-plan.json" in feature_readme
     assert "feature publish <slug>" in feature_readme
+    assert "No feature contract is published yet" in feature_readme
+    assert "pk-stack-upstream-maintenance.md" not in feature_readme
+    assert "../powers/pk-stack" not in wiki_index
+    assert "../reviews/" not in wiki_index
     receipt = json.loads((tmp_path / ".pstack" / "bootstrap.json").read_text())
     assert receipt["manager"] == "pstack-kiro"
     assert ".pstack/projectctl/src/pstack_kiro/goal.py" in receipt["files"]

@@ -20,7 +20,23 @@ jobs:
     env:
       EXPECTED_TAG: v0.2.0
       REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      PYTHONDONTWRITEBYTECODE: "1"
     steps:
+      - name: Harden release runner networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            api.github.com:443
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            uploads.github.com:443
       - name: Check out the exact release tag without persisted credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -40,6 +56,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
           test "$(git rev-parse --verify "$EXPECTED_TAG^{commit}")" = "$RELEASE_SHA"
           test "$(git describe --exact-match --tags "$RELEASE_SHA")" = "$EXPECTED_TAG"
+          test "$(git rev-parse "refs/remotes/origin/$DEFAULT_BRANCH")" = "$RELEASE_SHA"
           python3 - "$EXPECTED_TAG" <<'PY'
           import json
           import re
@@ -60,6 +77,31 @@ jobs:
           if runtime is None or runtime.group(1) != expected:
               raise SystemExit("tag does not match the Power runtime version")
           PY
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: powers/pk-stack/uv.lock
+      - name: Re-run deterministic release gates on the tagged commit
+        run: |
+          set -euo pipefail
+          python3 -B .github/scripts/test_pk_stack_maintenance_guard.py
+          python3 -B .github/scripts/test_kiro_runtime_canary.py
+          python3 -B .github/scripts/test_validate_kiro_model_inventory.py
+          python3 -B .github/scripts/test_validate_kiro_review_stream.py
+          node --test .github/scripts/test_pk_stack_pr_policy.js
+          uv sync --quiet --locked --all-groups --project powers/pk-stack
+          (
+            cd powers/pk-stack
+            uv lock --check
+            uv run --frozen ruff check src tests skills/setup-pstack/scripts/setup_pstack.py
+            uv run --frozen ruff format --check src tests skills/setup-pstack/scripts/setup_pstack.py
+            uv run --frozen ty check
+            uv run --frozen pytest -q
+          )
+          ./.pstack/bin/projectctl version --output json
+          ./.pstack/bin/projectctl feature validate --output json
+          ./.pstack/bin/projectctl knowledge validate --output json
       - name: Build deterministic PK-Stack Power archive and SHA-256
         env:
           RELEASE_VERSION: 0.2.0
@@ -79,10 +121,13 @@ jobs:
             --owner=0 --group=0 --numeric-owner \
             pk-stack
           gzip --no-name --stdout "$raw_archive" >"$archive"
-          sha256sum "$archive" >"$checksum"
+          (
+            cd "$ARCHIVE_DIR"
+            sha256sum "$(basename "$archive")" >"$(basename "$checksum")"
+            sha256sum --check "$(basename "$checksum")"
+          )
           test -s "$archive"
           test -s "$checksum"
-          sha256sum --check "$checksum"
           printf 'ARCHIVE=%s\n' "$archive" >>"$GITHUB_ENV"
           printf 'CHECKSUM=%s\n' "$checksum" >>"$GITHUB_ENV"
       - name: Create the private GitHub Release with the repository token

@@ -170,11 +170,10 @@ is replaced by a broad knowledge search.
 | Need | Read |
 | --- | --- |
 | Prove a user-visible behavior | [Feature map](features/README.md) |
-| Understand the runtime boundary | [Architecture](architecture/native-kiro-composition.md) |
-| Keep planning and retrieval separate | [Planning decision](decisions/native-spec-and-okn.md) |
-| Decide how far to search | [Context-depth runbook](operations/context-depth.md) |
-| Install or recover the Power | [Usage guide](../powers/pk-stack/docs/usage.md) |
-| Check release claims | [v0.2.0 release status](../reviews/release-status.md) |
+| Capture architecture | Add project-owned pages under `architecture/` |
+| Record decisions | Add project-owned pages under `decisions/` |
+| Document operations | Add project-owned pages under `operations/` |
+<!-- project-navigation -->
 
 ## Layer map
 
@@ -184,12 +183,9 @@ DO      .pstack/bin/projectctl
   -> KNOW   this Wiki + optional canonical `okn`
 ```
 
-The repository's [architecture](../powers/pk-stack/docs/architecture.md),
-[provenance](../powers/pk-stack/docs/provenance.md), and
-[validation report](../powers/pk-stack/docs/validation-report.md) describe the
-implementation and evidence boundaries. Historical release records are
-indexed under [`reviews/historical/pre-v0.2/`](../reviews/historical/pre-v0.2/)
-and are not current acceptance evidence.
+This scaffold is consumer-neutral: it does not link back into the PK-Stack
+source repository or invent project knowledge. Add only pages owned by this
+project, and keep their links relative to this Wiki.
 """
 
 FEATURE_README = """---
@@ -208,9 +204,7 @@ in the broader [KNOW index](../index.md).
 
 ## Current contracts
 
-| Contract | What it covers |
-| --- | --- |
-| [Upstream maintenance](pk-stack-upstream-maintenance.md) | Pinned-source reproof and acceptance |
+<!-- feature-contracts -->
 
 ## Create a contract
 
@@ -255,6 +249,57 @@ one targeted `projectctl knowledge search` query. Keep the verifier specific:
 a passing command is evidence for that predicate, not proof of unrelated
 features.
 """
+
+
+def _render_wiki_index(root: Path) -> str:
+    optional_rows = (
+        (
+            "Wiki/architecture/native-kiro-composition.md",
+            "| Understand the runtime boundary | "
+            "[Architecture](architecture/native-kiro-composition.md) |",
+        ),
+        (
+            "Wiki/decisions/native-spec-and-okn.md",
+            "| Keep planning and retrieval separate | "
+            "[Planning decision](decisions/native-spec-and-okn.md) |",
+        ),
+        (
+            "Wiki/operations/context-depth.md",
+            "| Decide how far to search | [Context-depth runbook](operations/context-depth.md) |",
+        ),
+        (
+            "powers/pk-stack/docs/usage.md",
+            "| Install or recover the Power | [Usage guide](../powers/pk-stack/docs/usage.md) |",
+        ),
+        (
+            "reviews/release-status.md",
+            "| Check release claims | [Release status](../reviews/release-status.md) |",
+        ),
+    )
+    rows = [row for relative, row in optional_rows if (root / relative).is_file()]
+    return WIKI_INDEX.replace("<!-- project-navigation -->", "\n".join(rows))
+
+
+def _render_feature_readme(root: Path) -> str:
+    feature_root = root / "Wiki" / "features"
+    contracts = (
+        sorted(path for path in feature_root.glob("*.md") if path.name != "README.md")
+        if feature_root.is_dir()
+        else []
+    )
+    if contracts:
+        rows = ["| Contract | What it covers |", "| --- | --- |"]
+        rows.extend(
+            f"| [{path.stem}]({path.name}) | Project-owned executable contract |"
+            for path in contracts
+        )
+        rendered = "\n".join(rows)
+    else:
+        rendered = (
+            "No feature contract is published yet. Generate and prove the first\n"
+            "project-specific contract before adding it to this index."
+        )
+    return FEATURE_README.replace("<!-- feature-contracts -->", rendered)
 
 
 @dataclass(slots=True)
@@ -400,8 +445,8 @@ def _bootstrap_project_locked(
         Path(".pstack/projectctl/templates/projectctl/uv.lock"): projectctl_lock.read_bytes(),
         Path(".pstack/projectctl/README.md"): TARGET_README.encode(),
         Path(".pstack/bin/projectctl"): INTERNAL_WRAPPER.encode(),
-        Path("Wiki/index.md"): WIKI_INDEX.encode(),
-        Path("Wiki/features/README.md"): FEATURE_README.encode(),
+        Path("Wiki/index.md"): _render_wiki_index(root).encode(),
+        Path("Wiki/features/README.md"): _render_feature_readme(root).encode(),
     }
     for relative, content in generated.items():
         operations.append((relative, content, relative == Path(".pstack/bin/projectctl")))

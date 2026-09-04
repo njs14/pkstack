@@ -86,6 +86,29 @@ MAINTENANCE_JOB_CONTROL_FLOW = {
 EXPECTED_SECRET_CONTEXT_EXPRESSIONS = (
     *("${{ secrets.KIRO_API_KEY }}",) * 4,
 )
+CANDIDATE_SECRET_CONTEXT_EXPRESSIONS = (
+    *("${{ secrets.KIRO_API_KEY }}",) * 2,
+)
+CANDIDATE_REVIEW_ENV_BLOCKS = {
+    "Independent Kiro-hosted Claude Opus 5 review": (
+        "        env:\n"
+        "          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}\n"
+        "          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}\n"
+        "          HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}\n"
+        "          CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}\n"
+        "          PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}\n"
+    ),
+    "Validate exact no-tool approval and publish only bound hashes": (
+        "        env:\n"
+        "          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}\n"
+        "          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}\n"
+        "          HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}\n"
+        "          CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}\n"
+        "          PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}\n"
+        "          REVIEW_RETURN_CODE: ${{ steps.invoke.outputs.return_code }}\n"
+        "          REVIEW_BUNDLE: ${{ runner.temp }}/pk-stack-peer-review-workspace/.pk-stack-ci/review-input.json\n"
+    ),
+}
 MAINTENANCE_MAINTAIN_STEPS = (
     ("Harden runner networking", ("uses", "with")),
     ("Bind ephemeral maintenance paths", ("run",)),
@@ -465,6 +488,26 @@ def _secret_context_expressions(lines: list[_YamlLine]) -> tuple[str, ...]:
     )
 
 
+def _secret_context_line_numbers(lines: list[_YamlLine]) -> set[int]:
+    """Return source lines containing an active GitHub ``secrets`` expression."""
+
+    result: set[int] = set()
+    for line in lines:
+        executable_text = (
+            line.raw if line.block_scalar else _mask_yaml_comment_only(line.raw)
+        )
+        if any(
+            re.search(
+                r"\bsecrets\b",
+                _mask_expression_string_literals(expression[3:-2]),
+                flags=re.IGNORECASE,
+            )
+            for expression in _github_expressions(executable_text)
+        ):
+            result.add(line.number)
+    return result
+
+
 def _reject_implicit_if_secret_context(lines: list[_YamlLine]) -> None:
     """Reject the secrets context in GitHub's implicit-expression ``if`` form."""
 
@@ -575,7 +618,9 @@ def _require_job_control_flow(
             )
 
 
-def _maintenance_job_ranges(lines: list[_YamlLine]) -> dict[str, tuple[int, int]]:
+def _workflow_job_ranges(lines: list[_YamlLine]) -> dict[str, tuple[int, int]]:
+    """Return all bare workflow job ranges without imposing a job allowlist."""
+
     jobs_headers = [
         index
         for index, line in enumerate(lines)
@@ -603,15 +648,25 @@ def _maintenance_job_ranges(lines: list[_YamlLine]) -> dict[str, tuple[int, int]
                 f"line {line.number}: jobs require bare, empty mapping headers"
             )
         headers.append((match.group(1), index))
-    expected = tuple(MAINTENANCE_JOB_PROPERTIES)
-    if tuple(name for name, _ in headers) != expected:
-        raise WorkflowContractError(
-            f"workflow jobs must be exactly {expected!r} in order"
-        )
+    if not headers:
+        raise WorkflowContractError("workflow must contain at least one job")
+    names = [name for name, _ in headers]
+    if len(names) != len(set(names)):
+        raise WorkflowContractError("workflow job names must be unique")
     ranges: dict[str, tuple[int, int]] = {}
     for position, (name, index) in enumerate(headers):
         end = headers[position + 1][1] if position + 1 < len(headers) else jobs_end
         ranges[name] = (index + 1, end)
+    return ranges
+
+
+def _maintenance_job_ranges(lines: list[_YamlLine]) -> dict[str, tuple[int, int]]:
+    ranges = _workflow_job_ranges(lines)
+    expected = tuple(MAINTENANCE_JOB_PROPERTIES)
+    if tuple(ranges) != expected:
+        raise WorkflowContractError(
+            f"workflow jobs must be exactly {expected!r} in order"
+        )
     return ranges
 
 
@@ -789,6 +844,87 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
     if all_secret_lines != secret_line_numbers or len(all_secret_lines) != 4:
         raise WorkflowContractError(
             "only the four enumerated Kiro repair env mappings may hold KIRO_API_KEY"
+        )
+
+
+def validate_candidate_workflow_secret_contract(source: str) -> None:
+    """Enforce the candidate workflow's closed Kiro review secret boundary.
+
+    Candidate tests execute the untrusted candidate checkout and must remain
+    secretless.  The only permitted secret expressions are the two explicit
+    ``KIRO_API_KEY`` bindings on the trusted Kiro review steps.  The same
+    source-level YAML indirection and scalar-decoding guards used for the
+    maintenance workflow run before this scope check.
+    """
+
+    source_lines = source.splitlines(keepends=True)
+    lines = _yaml_structural_lines(source)
+    _reject_yaml_indirection(lines)
+    _reject_yaml_scalar_decoding_escapes(lines)
+    _reject_implicit_if_secret_context(lines)
+
+    secret_expressions = _secret_context_expressions(lines)
+    if secret_expressions != CANDIDATE_SECRET_CONTEXT_EXPRESSIONS:
+        raise WorkflowContractError(
+            "candidate secret context expressions must be exactly the two scoped Kiro bindings"
+        )
+
+    job_ranges = _workflow_job_ranges(lines)
+    for job in ("candidate_tests", "kiro_peer_review"):
+        if job not in job_ranges:
+            raise WorkflowContractError(f"candidate workflow must contain {job!r} job")
+
+    candidate_start, candidate_end = job_ranges["candidate_tests"]
+    candidate_secret_lines = _secret_context_line_numbers(
+        lines[candidate_start:candidate_end]
+    )
+    if candidate_secret_lines:
+        raise WorkflowContractError(
+            "candidate_tests must not expose the secrets context"
+        )
+
+    review_start, review_end = job_ranges["kiro_peer_review"]
+    review_steps = _named_step_ranges(
+        lines,
+        job="kiro_peer_review",
+        start=review_start,
+        end=review_end,
+    )
+    for step_name in CANDIDATE_REVIEW_ENV_BLOCKS:
+        matches = [
+            (start, end)
+            for name, start, end in review_steps
+            if name == step_name
+        ]
+        if len(matches) != 1:
+            raise WorkflowContractError(
+                f"candidate review must contain exactly one {step_name!r} step"
+            )
+        start, end = matches[0]
+        actual_env = _protected_env_block(
+            source_lines,
+            lines,
+            step_name=step_name,
+            start=start,
+            end=end,
+        )
+        if actual_env != CANDIDATE_REVIEW_ENV_BLOCKS[step_name]:
+            raise WorkflowContractError(
+                f"{step_name} Kiro environment mapping changed"
+            )
+
+    allowed_secret_lines = {
+        lines[index].number
+        for step_name in CANDIDATE_REVIEW_ENV_BLOCKS
+        for name, start, end in review_steps
+        if name == step_name
+        for index in range(start, end)
+        if "${{ secrets.KIRO_API_KEY }}" in lines[index].raw
+    }
+    actual_secret_lines = _secret_context_line_numbers(lines)
+    if actual_secret_lines != allowed_secret_lines:
+        raise WorkflowContractError(
+            "only the two enumerated Kiro review env mappings may hold KIRO_API_KEY"
         )
 
 
@@ -4261,6 +4397,115 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             workflow,
             r"(ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|OPENAI_API_KEY|XAI_API_KEY|copilot)",
         )
+
+    def test_candidate_uses_only_two_scoped_kiro_review_credentials(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
+        validate_candidate_workflow_secret_contract(workflow)
+        self.assertEqual(
+            _secret_context_expressions(_yaml_structural_lines(workflow)),
+            CANDIDATE_SECRET_CONTEXT_EXPRESSIONS,
+        )
+        self.assertIn("REVIEW_MODEL: claude-opus-5", workflow)
+        self.assertIn("REVIEW_EFFORT: xhigh", workflow)
+        self.assertNotRegex(
+            workflow,
+            r"(ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|OPENAI_API_KEY|XAI_API_KEY|copilot)",
+        )
+
+        direct_leak = workflow.replace(
+            "          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}\n",
+            "          LEAK: ${{ secrets.KIRO_API_KEY }}\n",
+            1,
+        )
+        extra_direct_leak = workflow.replace(
+            "      REVIEW_MODEL: claude-opus-5\n",
+            "      REVIEW_MODEL: claude-opus-5\n"
+            "      LEAK: ${{ secrets.KIRO_API_KEY }}\n",
+            1,
+        )
+        anchor = workflow.replace(
+            "      - name: Independent Kiro-hosted Claude Opus 5 review\n"
+            "        id: invoke\n"
+            "        env:\n",
+            "      - name: Independent Kiro-hosted Claude Opus 5 review\n"
+            "        id: invoke\n"
+            "        env: &review_env\n",
+            1,
+        )
+        alias = workflow.replace(
+            "      - name: Validate exact no-tool approval and publish only bound hashes\n"
+            "        id: validate\n"
+            "        env:\n",
+            "      - name: Validate exact no-tool approval and publish only bound hashes\n"
+            "        id: validate\n"
+            "        env: *review_env\n",
+            1,
+        )
+        merge = workflow.replace(
+            "      - name: Validate exact no-tool approval and publish only bound hashes\n"
+            "        id: validate\n"
+            "        env:\n",
+            "      - name: Validate exact no-tool approval and publish only bound hashes\n"
+            "        id: validate\n"
+            "        env:\n"
+            "          <<: *review_env\n",
+            1,
+        )
+        tag = workflow.replace(
+            "      - name: Independent Kiro-hosted Claude Opus 5 review\n"
+            "        id: invoke\n"
+            "        env:\n",
+            "      - name: Independent Kiro-hosted Claude Opus 5 review\n"
+            "        id: invoke\n"
+            "        env: !!map {}\n",
+            1,
+        )
+        unicode_escape = workflow.replace(
+            "          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}\n",
+            '          LEAK: "${{ secrets.\\u004bIRO_API_KEY }}"\n',
+            1,
+        )
+        doubled_single_quote = workflow.replace(
+            "          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}\n",
+            "          LEAK: '${{ secrets[''KIRO_API_KEY''] }}'\n",
+            1,
+        )
+        quoted_direct_leak = workflow.replace(
+            "          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}\n",
+            '          LEAK: "${{ secrets.KIRO_API_KEY }}"\n',
+            1,
+        )
+        mutations = {
+            "direct alternate env name": (
+                direct_leak,
+                "Kiro environment mapping changed",
+            ),
+            "extra direct leak": (
+                extra_direct_leak,
+                "candidate secret context expressions must be exactly",
+            ),
+            "env anchor": (anchor, "YAML anchor"),
+            "env alias": (alias, "YAML alias"),
+            "env merge": (merge, "YAML merge"),
+            "env tag": (tag, "YAML tag"),
+            "unicode quote escape": (
+                unicode_escape,
+                "YAML double-quoted backslash escapes",
+            ),
+            "doubled single-quote escape": (
+                doubled_single_quote,
+                "YAML doubled single-quote escapes",
+            ),
+            "quoted direct leak": (
+                quoted_direct_leak,
+                "Kiro environment mapping changed",
+            ),
+        }
+        for label, (mutated, error) in mutations.items():
+            with self.subTest(mutation=label):
+                self.assertNotEqual(mutated, workflow)
+                with self.assertRaisesRegex(WorkflowContractError, error):
+                    validate_candidate_workflow_secret_contract(mutated)
 
     def test_maintenance_workflow_rejects_yaml_indirection_and_scope_bypasses(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()

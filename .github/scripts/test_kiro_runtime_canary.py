@@ -25,6 +25,14 @@ if SPEC is None or SPEC.loader is None:  # pragma: no cover - import contract gu
     raise RuntimeError("could not load Kiro runtime canary")
 canary = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(canary)
+MAINTENANCE_TEST_PATH = SCRIPT_DIR / "test_pk_stack_maintenance_guard.py"
+MAINTENANCE_TEST_SPEC = importlib.util.spec_from_file_location(
+    "pk_stack_maintenance_guard_tests", MAINTENANCE_TEST_PATH
+)
+if MAINTENANCE_TEST_SPEC is None or MAINTENANCE_TEST_SPEC.loader is None:
+    raise RuntimeError("could not load PK-Stack maintenance guard tests")
+maintenance_tests = importlib.util.module_from_spec(MAINTENANCE_TEST_SPEC)
+MAINTENANCE_TEST_SPEC.loader.exec_module(maintenance_tests)
 
 
 class FakeResponse(io.BytesIO):
@@ -618,6 +626,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
             ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml"
         ).read_text()
         candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
+        maintenance_tests.validate_candidate_workflow_secret_contract(candidate)
         self.assertNotIn("reviewer_readiness:", maintenance)
         self.assertIn("needs: [plan, detect]", maintenance)
         self.assertIn("REVIEW_MODEL: claude-opus-5", candidate)

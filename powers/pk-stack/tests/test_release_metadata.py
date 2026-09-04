@@ -57,3 +57,16 @@ def test_setup_docs_use_declared_power_source() -> None:
         text = path.read_text(encoding="utf-8")
         assert "/absolute/path/to" not in text
     assert "PK_STACK_POWER" in (POWER_ROOT / "docs/usage.md").read_text(encoding="utf-8")
+
+
+def test_release_reproves_tagged_default_branch_commit_and_portable_checksum() -> None:
+    workflow = (REPOSITORY_ROOT / ".github/workflows/pk-stack-release.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "refs/remotes/origin/$DEFAULT_BRANCH" in workflow
+    assert "uv run --frozen pytest -q" in workflow
+    assert "node --test .github/scripts/test_pk_stack_pr_policy.js" in workflow
+    assert 'sha256sum "$(basename "$archive")"' in workflow
+    assert 'sha256sum --check "$(basename "$checksum")"' in workflow
+    assert 'sha256sum "$archive" >"$checksum"' not in workflow

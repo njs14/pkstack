@@ -1,6 +1,6 @@
 ---
 release: "0.2.0"
-status: pending
+status: tag-derived
 version_authority: powers/pk-stack/plugin.json
 tag: v0.2.0
 ---
@@ -15,32 +15,43 @@ tagged `v0.2.0`.
 
 ## Current state
 
-**Pending final candidate review.** This document intentionally does not turn
-older test runs, Kiro sessions, upstream campaigns, or reviewer reports into a
-new release verdict. Set the candidate commit below only after the final tree
-is frozen and its gates have run.
+**Candidate gates are green; publication remains tag-derived.** Git cannot put
+a commit's own SHA inside that commit. The immutable release identity is
+therefore the commit resolved by `v0.2.0^{commit}`. Before the tag exists this
+tree is a candidate. After the private PR and exact-tag workflow pass, the tag
+commit is the release record and the released artifact authority.
 
 | Field | Value |
 | --- | --- |
 | Manifest authority | `powers/pk-stack/plugin.json` |
 | Manifest version | `0.2.0` |
 | Required tag | `v0.2.0` |
-| Candidate commit | pending final freeze |
-| Release status | pending |
+| Reviewed content baseline | `800ef927d8787477c2ac7efa68ce7b529038c929` |
+| Release commit | `v0.2.0^{commit}` after publication; must equal default-branch HEAD |
+| Release status | candidate until the tag workflow succeeds; released afterward |
 | Floci status | separate private consumer repository |
 
 ## Required gates for the final candidate
 
 | Gate | Required record | Status |
 | --- | --- | --- |
-| Metadata | Manifest, package metadata, source version, and lock mirrors are equal | rerun on final candidate |
-| Power checks | Lock, lint, format, type check, and complete package tests | rerun on final candidate |
-| Workspace checks | Clean setup/doctor and generated-byte parity | rerun on final candidate |
-| Feature and knowledge | `feature validate`; optional `okn` result clearly labeled | rerun on final candidate |
-| Repository checks | Guard, policy, Actionlint, ShellCheck, and documentation/link checks | rerun on final candidate |
-| Kiro evidence | Exact-candidate credential/runtime evidence where required | pending |
-| Independent review | Fable 5.1 `xhigh`; Grok 4.6 `xhigh` sweep or explicit blocker | pending |
+| Metadata | `uv lock --check`; release-metadata regression | pass |
+| Power checks | Ruff lint/format, ty, complete package suite | pass: 796 tests |
+| Workspace checks | Managed refresh, doctor, generated-controller parity | pass |
+| Feature and knowledge | Source map plus fresh consumer map; canonical `okn` 0.13.0 | pass; source Wiki retains 3 intentional cross-repository link warnings |
+| Repository checks | 76 guard, 25 canary, 8 inventory, 6 stream, 17 policy tests; Actionlint; ShellCheck | pass |
+| Kiro evidence | Kiro CLI 2.21.0 v3 Luna low current-session skill discovery | pass on content baseline; repeat after final freeze |
+| Independent review | Fable unavailable; Opus 5 `xhigh` substitution and Grok 4.6 `xhigh` sweep | material findings remediated; exact-head Opus re-review required |
 | Publication | Private PR head equals the reviewed candidate; tag points to that commit | pending |
+
+The Fable 5.1 `xhigh` attempt ended before review because the subscription was
+out of credits until Tuesday. It is an explicit external limitation, not an
+acceptance result. The authorized Opus 5 `xhigh` substitute requested changes
+on `800ef927...`; its documentation findings are fixed. Grok identified one
+candidate-workflow secret-confinement guard gap; direct, alias, merge-key,
+tag, quote-decoding, relocation, and computed-secret mutations are now
+negative tests. A fresh Opus review must accept the final PR head before the
+tag is created.
 
 Use the exact command, commit, exit code, and limitation for each gate. A
 historical artifact can explain provenance or a known boundary, but it cannot
@@ -48,7 +59,7 @@ close a gate for a different commit.
 
 ## Release sequence
 
-1. Freeze a clean candidate and record its commit here.
+1. Freeze a clean candidate and retain its exact commit in the PR and review evidence.
 2. Verify `plugin.json` first, then compare every public/version mirror.
 3. Run deterministic package, workspace, repository, feature, and knowledge
    checks. Keep missing optional tools as explicit limitations.
@@ -56,8 +67,9 @@ close a gate for a different commit.
    affected checks after every material change.
 5. Open the private pull request and confirm its head equals the reviewed
    candidate.
-6. Create `v0.2.0` only after the recorded gates are complete; then update this
-   document with the tag commit and final verdict.
+6. Create `v0.2.0` only after the recorded gates are complete. The release
+   workflow requires the tag commit to equal default-branch HEAD and reruns the
+   complete deterministic release gate before publishing.
 
 No step in this document changes GitHub settings or enables a workflow.
 

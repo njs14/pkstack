@@ -4,7 +4,18 @@ from pathlib import Path
 
 import pytest
 
-from pstack_kiro.knowledge import KnowledgeError, search, status, validate
+from pstack_kiro.knowledge import KnowledgeError, _reported_root_matches, search, status, validate
+
+
+def test_reported_root_accepts_filesystem_alias_but_rejects_other_roots(tmp_path: Path) -> None:
+    wiki = tmp_path / "workspace" / "Wiki"
+    wiki.mkdir(parents=True)
+    alias = tmp_path / "wiki-alias"
+    alias.symlink_to(wiki, target_is_directory=True)
+
+    assert _reported_root_matches(str(alias), wiki)
+    assert not _reported_root_matches("Wiki", wiki)
+    assert not _reported_root_matches(str(tmp_path), wiki)
 
 
 def _fake_okn(

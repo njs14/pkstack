@@ -55,8 +55,20 @@ def _json_result(stdout: str, *, operation: str) -> tuple[dict[str, Any] | None,
     return value, None
 
 
+def _reported_root_matches(value: object, expected_root: Path) -> bool:
+    if not isinstance(value, str):
+        return False
+    reported = Path(value)
+    if not reported.is_absolute():
+        return False
+    try:
+        return reported.resolve(strict=True) == expected_root.resolve(strict=True)
+    except OSError:
+        return False
+
+
 def _validation_protocol_error(report: dict[str, Any], *, expected_root: Path) -> str | None:
-    if report.get("root") != str(expected_root):
+    if not _reported_root_matches(report.get("root"), expected_root):
         return "okn validate returned a root that does not match the requested Wiki"
     if report.get("specVersion") != _OKN_SPEC_VERSION:
         return f"okn validate returned unexpected specVersion {report.get('specVersion')!r}"
@@ -101,7 +113,7 @@ def _search_protocol_error(
     budget: int,
     expected_root: Path,
 ) -> str | None:
-    if report.get("root") != str(expected_root):
+    if not _reported_root_matches(report.get("root"), expected_root):
         return "okn search returned a root that does not match the requested Wiki"
     if report.get("query") != query:
         return "okn search returned a query that does not match the requested query"

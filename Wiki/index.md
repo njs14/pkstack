@@ -18,11 +18,14 @@ is replaced by a broad knowledge search.
 | Need | Read |
 | --- | --- |
 | Prove a user-visible behavior | [Feature map](features/README.md) |
+| Capture architecture | Add project-owned pages under `architecture/` |
+| Record decisions | Add project-owned pages under `decisions/` |
+| Document operations | Add project-owned pages under `operations/` |
 | Understand the runtime boundary | [Architecture](architecture/native-kiro-composition.md) |
 | Keep planning and retrieval separate | [Planning decision](decisions/native-spec-and-okn.md) |
 | Decide how far to search | [Context-depth runbook](operations/context-depth.md) |
 | Install or recover the Power | [Usage guide](../powers/pk-stack/docs/usage.md) |
-| Check release claims | [v0.2.0 release status](../reviews/release-status.md) |
+| Check release claims | [Release status](../reviews/release-status.md) |
 
 ## Layer map
 
@@ -32,9 +35,6 @@ DO      .pstack/bin/projectctl
   -> KNOW   this Wiki + optional canonical `okn`
 ```
 
-The repository's [architecture](../powers/pk-stack/docs/architecture.md),
-[provenance](../powers/pk-stack/docs/provenance.md), and
-[validation report](../powers/pk-stack/docs/validation-report.md) describe the
-implementation and evidence boundaries. Historical release records are
-indexed under [`reviews/historical/pre-v0.2/`](../reviews/historical/pre-v0.2/)
-and are not current acceptance evidence.
+This scaffold is consumer-neutral: it does not link back into the PK-Stack
+source repository or invent project knowledge. Add only pages owned by this
+project, and keep their links relative to this Wiki.

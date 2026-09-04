@@ -16,7 +16,7 @@ in the broader [KNOW index](../index.md).
 
 | Contract | What it covers |
 | --- | --- |
-| [Upstream maintenance](pk-stack-upstream-maintenance.md) | Pinned-source reproof and acceptance |
+| [pk-stack-upstream-maintenance](pk-stack-upstream-maintenance.md) | Project-owned executable contract |
 
 ## Create a contract
 
