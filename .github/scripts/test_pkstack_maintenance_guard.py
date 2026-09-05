@@ -2970,26 +2970,66 @@ class KiroPermissionStreamTests(unittest.TestCase):
             )
             self.assertEqual(denied["user_tool_calls"], 1)
             self.assertEqual(denied["resource"], resource)
+            self.assertEqual(
+                denied["preview_original_content"], {"start": True, "terminal": True}
+            )
 
-    def test_kiro_2_21_1_denied_start_without_original_content_validates(self) -> None:
+    def test_denied_previews_accept_optional_original_content_at_each_stage(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             workspace, agent, stream, stderr = self.fixture_workspace(temporary)
             for resource in permission_stream_guard.DENIED_RESOURCES:
-                with self.subTest(resource=resource):
+                for start_present, terminal_present in ((False, False), (False, True), (True, False), (True, True)):
+                    with self.subTest(resource=resource, start=start_present, terminal=terminal_present):
+                        events = self.complete_events(workspace, denied_resource=resource)
+                        for event_index, present in ((2, start_present), (-3, terminal_present)):
+                            preview = events[event_index]["data"]["update"]["_meta"]["kiro"]["preview"]
+                            if not present:
+                                preview.pop("originalContent")
+                                self.assertEqual(preview, {
+                                    "file": resource,
+                                    "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+                                })
+                        self.write_stream(stream, events)
+                        denied = permission_stream_guard.validate_denied_invocation(
+                            stream, stderr, return_code=0, api_key="test-secret",
+                            workspace=workspace, agent_path=agent, resource=resource,
+                        )
+                        self.assertEqual(denied["user_tool_calls"], 1)
+                        self.assertEqual(denied["resource"], resource)
+                        self.assertEqual(
+                            denied["preview_original_content"],
+                            {"start": start_present, "terminal": terminal_present},
+                        )
+
+    def test_denied_terminal_preview_rejects_malformed_originals_and_extra_keys(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            valid = {
+                "file": resource,
+                "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+            }
+            cases = [
+                ("wrong_original", {**valid, "originalContent": "UNTRUSTED_PREVIEW"}),
+                ("baseline_original", {**valid, "originalContent": f"PROTECTED_BASELINE {resource}\n"}),
+                ("null_original", {**valid, "originalContent": None}),
+                ("boolean_original", {**valid, "originalContent": False}),
+                ("extra_without_original", {**valid, "UNTRUSTED_PREVIEW": "UNTRUSTED_PREVIEW"}),
+                ("extra_with_original", {**valid, "originalContent": "", "UNTRUSTED_PREVIEW": None}),
+                ("wrong_file", {**valid, "file": "UNTRUSTED_PREVIEW"}),
+                ("wrong_modified", {**valid, "modifiedContent": "UNTRUSTED_PREVIEW"}),
+            ]
+            for case, preview in cases:
+                with self.subTest(case=case):
                     events = self.complete_events(workspace, denied_resource=resource)
-                    preview = events[2]["data"]["update"]["_meta"]["kiro"]["preview"]
-                    preview.pop("originalContent")
-                    self.assertEqual(preview, {
-                        "file": resource,
-                        "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
-                    })
+                    events[-3]["data"]["update"]["_meta"]["kiro"]["preview"] = preview
                     self.write_stream(stream, events)
-                    denied = permission_stream_guard.validate_denied_invocation(
-                        stream, stderr, return_code=0, api_key="test-secret",
-                        workspace=workspace, agent_path=agent, resource=resource,
-                    )
-                    self.assertEqual(denied["user_tool_calls"], 1)
-                    self.assertEqual(denied["resource"], resource)
+                    with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                        permission_stream_guard.validate_denied_invocation(
+                            stream, stderr, return_code=0, api_key="test-secret",
+                            workspace=workspace, agent_path=agent, resource=resource,
+                        )
+                    self.assertEqual(str(caught.exception), "Kiro denied-write preview is invalid")
 
     @staticmethod
     def read_start_diagnostic_from_error(

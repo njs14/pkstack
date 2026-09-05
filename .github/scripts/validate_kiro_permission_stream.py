@@ -912,11 +912,16 @@ def _validate_write_group(
         terminal_kiro = _validate_origin(
             terminal.get("_meta"), extra_keys={"policyDenial", "preview"}
         )
-        if terminal_kiro.get("preview") != {
+        denied_preview = terminal_kiro.get("preview")
+        expected_denied_preview = {
             "file": relative_path,
             "modifiedContent": expected_text,
-            "originalContent": "",
-        }:
+        }
+        # The historical denied result used an empty original, not file contents.
+        # Accept either an omitted original or the historical empty original.
+        if isinstance(denied_preview, dict) and "originalContent" in denied_preview:
+            expected_denied_preview["originalContent"] = ""
+        if denied_preview != expected_denied_preview:
             raise StreamError("Kiro denied-write preview is invalid")
         if deny_patterns is None:
             raise StreamError("denied-write validation lacks the immutable deny rule")
@@ -1231,6 +1236,10 @@ def validate_denied_invocation(
         "events": len(events),
         "kind": "denied",
         "ok": True,
+        "preview_original_content": {
+            "start": "originalContent" in groups[0][0][1]["_meta"]["kiro"]["preview"],
+            "terminal": "originalContent" in groups[0][-1][1]["_meta"]["kiro"]["preview"],
+        },
         "resource": resource,
         "return_code": return_code,
         "user_tool_calls": 1,
