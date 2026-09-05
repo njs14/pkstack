@@ -6,99 +6,95 @@ version_authority: powers/pkstack/plugin.json
 
 # PKStack release status
 
-PKStack 0.3.0 remains an unreleased candidate. The September 5 release campaign
-repairs reproduced helper, permission, review-context, and documentation defects.
-Current acceptance is tracked in the [release ledger](release-030-acceptance.md);
-its incomplete entries prevent a readiness verdict. No 0.3.0 tag or release has
-been created. [v0.2.0](https://github.com/njs14/pkstack/releases/tag/v0.2.0) remains
-the published release.
+PKStack 0.3.0 remains an unreleased candidate; publication approval is separate.
+[v0.2.0](https://github.com/njs14/pkstack/releases/tag/v0.2.0)
+remains the published release. The reviewed implementation is merged through
+`832aa8da2dc207fbf5b51f8ad8153d207caa2820`. The bounded updater campaign and
+authenticated upstream verification passed. The user waived further GUI testing
+on September 5, 2026 and directed that IDE operation be assumed. The final
+report commit, its CI, and the archive/checksum are
+bound in the local publication handoff after these reports are merged. The
+[acceptance ledger](release-030-acceptance.md) tracks the remaining gates.
 
-## Current campaign
+## Verified delivery
 
-- **Reviewed delivery:** [PR #33](https://github.com/njs14/pkstack/pull/33) merged
-  reviewed head `67b7e3631e8aecf79653321addbff24a8bc319db` as main
-  `3859f635e36b26d813802445cceb037cc26d0dfc`. Independent product and security
-  scopes approved; exact PR CI `33976733214` and main CI `33976929179` passed.
-  Two archives of that main commit matched, and an extracted consumer passed
-  setup/idempotence, version, doctor, feature, canonical knowledge, and a stored
-  two-attempt failure/pass goal smoke. This archive smoke was not a native Kiro
-  session. Any later main change requires the final artifact binding to move
-  with it.
-- **Core and installation:** CLI Standard and Quick each completed native
-  planning, same-conversation handoff, a stored failing verifier, an
-  implementation-only repair, and a passing second attempt. The four tests and
-  native planning files remained unchanged. Clean setup, exact-hash idempotence,
-  managed-file conflict handling, and the documented 0.2-to-0.3 clean transition
-  passed. Doctor passed 81 checks and canonical `okn` validation passed.
-- **Curated helpers:** The design and builder repairs passed fresh native tasks
-  and independent generated-output checks. Show-me and React narrowing passed;
-  writing-for-agents completed after one explicit follow-up for omitted method
-  steps. Archify's original input exposed a reader-height defect; fresh input
-  exposed incorrect caption placement. Both responsible renderer paths were
-  repaired without changing the failing specifications or quality thresholds.
-- **Permissions:** Reordered forced switching, prefixed Git commands, and forced
-  branch creation now match explicit deny rules. Native acceptance verifies the
-  blocked results separately from the ordinary-switch approval path.
-- **Pipelines:** The prior updater rejection confused two omitted file identities
-  and a valid same-day retrieval date. Review bundles now carry complete changed
-  records within the existing shared context budget. Candidate checks align
-  with ordinary CI; release notes come from the exact version's changelog entry.
+| Reviewed repair | Reviewed head | Merged main |
+| --- | --- | --- |
+| [PR #33](https://github.com/njs14/pkstack/pull/33): product and security scopes approved | `67b7e36` | `3859f63` |
+| [PR #35](https://github.com/njs14/pkstack/pull/35): browser cleanup independently approved | `9c3e630` | `a1c0c9a` |
+| [PR #36](https://github.com/njs14/pkstack/pull/36): retry cleanup security approved | `e94c357` | `7533634` |
+| [PR #37](https://github.com/njs14/pkstack/pull/37): bounded upstream update independently approved and automatically merged | `277b2ee` | `23b34a7` |
+| [PR #40](https://github.com/njs14/pkstack/pull/40): practical tests, parallel CI, browser lifecycle and artifact promotion independently approved | `666396f` | `832aa8d` |
 
-Commands, hashes, native session identities, findings, and limitations are in
-[core acceptance](release-030-core.md), [CLI acceptance](release-030-cli.md),
-[loop helper acceptance](release-030-loop-helpers.md),
-[other helper acceptance](release-030-other-helpers.md),
-[Archify acceptance](release-030-archify.md), and
-[pipeline acceptance](release-030-pipeline.md).
+Historical retry-repair evidence includes the exact [PR CI run](https://github.com/njs14/pkstack/actions/runs/33979933200)
+and [main CI run](https://github.com/njs14/pkstack/actions/runs/33980155633) passed.
+Local evidence includes 870 Power tests and the latest 185 Python policy tests
+plus 17 Node tests. Candidate gate
+[33980726626](https://github.com/njs14/pkstack/actions/runs/33980726626) passed
+both exact base and candidate suites: each passed 869 Power tests, one skip for
+unavailable Kiro CLI, 185 Python policy tests, and 17 Node tests. The merged
+implementation tree equals that candidate tree. Doctor passed 81 checks;
+feature, generated-parity, and canonical `okn` checks passed. Authenticated
+upstream and feature verification passed for all seven configured sources with
+no selected semantic drift on accepted main `23b34a7`.
 
-## Remaining release gates
+Current infrastructure [PR CI](https://github.com/njs14/pkstack/actions/runs/33985933815)
+and [main CI](https://github.com/njs14/pkstack/actions/runs/33986118130) passed all
+12 jobs. The retained suite reconciled 865 Power cases (864 passed and the one
+explicit unavailable-Kiro skip), with 222 repository Python and 17 Node tests.
+Canonical/generated parity and authenticated reproof of all seven upstream
+sources passed. Main built the archive twice, checked an extracted installation
+and fixed-verifier failure/repair/pass, and produced the exact artifact subsequently
+accepted by read-only pre-tag verification. That verification created no tag and
+returned `publication_eligible: false`.
 
-The Mac locked during current desktop acceptance. IDE planning, Agent Focus,
-Crew progress, and Web follow-up still need inspection. Web already stored a
-bounded failure/repair/pass in its repository sandbox; that is limited evidence
-for the observed fixture. Earlier IDE Standard and Quick successes remain
-historical evidence in [friends validation](friends-validation.md).
+From first job start to final job completion, main took 1m33s, compared with
+2m44s for the earlier successful single-job main run. These are observed runs, not a controlled benchmark; runner
+usage increased from about 2.7 to 6.9 minutes. The
+[deliberately failing checkpoint](https://github.com/njs14/pkstack/actions/runs/33985923263)
+proved that other lanes finish, failure evidence survives, and aggregation fails.
 
-The authenticated upstream feature check validated all seven inventories,
-accepted provenance histories, and generated parity, but initially returned nonzero for
-OKF-skills and Archify drift. Archify has since been reconciled through reviewed
-runtime fixes and transactional source acceptance. OKF-skills remains for the
-bounded updater campaign; no overall freshness pass is claimed yet. The single
-source run `33977108073` passed after one repair and created PR #34. Its candidate
-tests and independently checked Opus approval passed, including the corrected
-path identities and same-day date. An Archify browser startup timeout failed the
-separate base gate; merge was skipped and cleanup closed PR #34 unmerged. The
-timeout remains under investigation; a startup-rejection cleanup gap in the test
-harness was also identified. Overall freshness remains incomplete, and later
-main changes require final CI, notes, and artifact evidence to be rebound.
+CLI Standard and Quick completed native failure/repair/pass loops. Curated
+helpers passed their bounded tasks with recorded corrections and follow-ups;
+installation, idempotence, conflict handling, and the clean 0.2-to-0.3 transition
+have retained evidence. See [core](release-030-core.md), [CLI](release-030-cli.md),
+[loop helpers](release-030-loop-helpers.md), [other helpers](release-030-other-helpers.md),
+[Archify](release-030-archify.md), and [permissions](release-030-permissions.md).
+The final [builder/verified-goal composition](release-030-composition.md) also
+passed natively at attempt 2 of 4. Its fixed five-test suite and 169 managed
+files were preserved, and the one-line repair restored the exact implementation
+already covered by 24 independent process/state cases.
 
-The cleanup fix was independently approved and merged in PR #35; exact PR and
-main CI passed on `a1c0c9ad0f88963fb46cea6c9339ae55272922ee`. The subsequent
-source run `33979038750` stopped before candidate publication: its second repair
-preparation rejected a trailing blank line after pending-marker cleanup. That
-retry path was reproduced with a valid initial diff and repaired without
-relaxing whitespace or accepted-marker validation. All 185 repository policy
-tests and 17 Node tests pass locally. The failed campaign ran no candidate tests
-or review, and it did not advance the upstream pin; patched-commit review, CI,
-and a fresh bounded campaign remain required.
+## Coverage assumptions and final binding
+
+- **GUI coverage assumed by user direction:** IDE Standard, Quick, and setup;
+  Agent Focus; Crew; and Web final follow-up were not completed in this campaign.
+  They are no longer release blockers. The Web fixture's stored
+  failure/repair/pass and earlier IDE results remain limited evidence; the waiver
+  does not establish fresh passing results for these surfaces.
+- **Final artifact:** Main `832aa8d` has passing reproducible archive, extracted-consumer,
+  and pre-tag artifact-verification evidence. The final report commit will receive
+  its own main CI artifact; notes, checksum, and exact run/artifact identities bind
+  to that commit in the local handoff. Publication promotes those validated bytes.
+
+The [pipeline history](release-030-pipeline.md) retains all three campaigns.
+Campaign 1 closed PR #34 unmerged after a base-browser CDP timeout; the proven
+startup-cleanup defect is fixed, while the timeout initiator remains unproven.
+Campaign 2 stopped before publication. Its reproduced EOF cleanup defect is
+fixed, while the earlier `accept-preview` initiating error was not retained.
+Campaign 3 passed its bounded repair, both test suites, independent review, and
+automatic merge. These later passes do not reconstruct the missing initiators.
 
 ## Publication boundary
 
-The updater remains enabled at its existing daily 13:17 UTC cadence. It selects
-one eligible source and requires isolated tests and an independent Kiro-hosted
-review before an exact-SHA merge; executable upstream updates still require a
-maintainer's review. The current campaign will not override a rejection or
-change the schedule to manufacture acceptance.
+The repository remains private and the daily updater remains enabled at
+13:17 UTC. Its isolated tests, independent Kiro-hosted review, and exact-SHA
+merge gates remain required; executable upstream changes also require
+maintainer review. Server-enforced branch protection is unavailable on the
+current private-repository plan, so workflow and manual PR gates remain
+necessary.
 
 Publication requires approval of a concrete reviewed main commit, proposed
-`v0.3.0` tag, version-specific notes, and the final archive/checksum. Repository
-privacy is retained. Server-enforced branch protection is unavailable on this
-private-repository plan, so exact-head workflow and manual PR gates remain
-necessary. The [upgrade guide](../powers/pkstack/docs/upgrade-0.3.md) preserves
-old installations and user evidence through a separate clean consumer.
-
-Earlier results remain in the [identity report](pkstack-identity-validation.md),
-[pipeline report](pipeline-readiness-validation.md),
-[cleanup report](cleanup-validation.md), and [historical records](historical/pre-v0.2/).
-The [Floci lab](https://github.com/njs14/pk-stack-floci-lab) is a separate private
-consumer repository.
+`v0.3.0` tag, version-specific notes, and final archive/checksum. The
+[upgrade guide](../powers/pkstack/docs/upgrade-0.3.md) preserves existing
+installations and user evidence through a separate clean consumer.

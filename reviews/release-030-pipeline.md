@@ -160,7 +160,7 @@ before the repair and passes afterward. The complete local follow-up passed
 870 Power, 184 Python policy, and 17 Node policy tests, plus lint, formatting,
 types, lockfile, workflow checks, doctor, feature validation, and canonical
 `okn`. No timeout, layout threshold, or existing assertion was relaxed. Exact
-patched-commit Linux CI and any fresh campaign remain distinct next checks.
+patched-commit Linux CI and fresh campaigns are recorded below.
 
 ## Cleanup follow-up and second source campaign
 
@@ -199,5 +199,78 @@ whose 870 local Power tests and exact Ubuntu CI passed. Evidence is retained in
 
 This proves the reproduced trusted cleanup defect and its repair. It does not
 reconstruct the unavailable live candidate's initiating accept-preview error or
-declare the failed second campaign accepted. Patched-commit review and CI plus a
-fresh bounded campaign remain required.
+declare the failed second campaign accepted. Patched-commit review, CI, and the
+fresh bounded campaign are recorded below.
+
+## Reviewed retry repair and third campaign
+
+[PR #36](https://github.com/njs14/pkstack/pull/36) merged the retry repair at
+`e94c357502969e9d3e7fc9845855d2179ca78ecd` as main
+`753363480954998dd383a42ded41d97d72657a08`. Independent security review approved
+that exact five-file delta and independently ran all three focused cases. Exact
+PR CI `33979933200` and main CI `33980155633` passed. The Power subtree,
+workflows, and CI reviewer authority were unchanged by the retry repair.
+
+The third fresh source run,
+[33980370382](https://github.com/njs14/pkstack/actions/runs/33980370382), is bound
+to that new main commit and used the existing bounded controls without a retry
+override. Its initial goal failed, repair 1 and secretless verification 1 passed,
+and repairs 2–4 were skipped. The stored goal passed at attempt 2 of 5. The source
+run succeeded and opened [PR #37](https://github.com/njs14/pkstack/pull/37) at
+`277b2ee5aff153c01632955060dae215d7fa4531`.
+
+Exact candidate gate
+[33980726626](https://github.com/njs14/pkstack/actions/runs/33980726626) succeeded.
+Both isolated base and candidate jobs passed 185 Python policy tests, 17 Node
+tests, and 869 Power tests with one skip because Kiro CLI was unavailable on the
+test runner. The actual browser/render/export test passed in both jobs. The
+independent Kiro-hosted Opus report approved with no material findings, correct
+complete source-record identities, and valid same-day retrieval semantics.
+
+Automatic exact-SHA merge succeeded at 2026-09-05T17:27:55Z, producing main
+`23b34a7df75fcabd8998f174002aa175aecf0ad3`. The merge parent is `7533634` and its
+tree `0e08295d1ea309a221a1b76fa478362dbf25c4cc` exactly matches the reviewed
+candidate. Rejection and failure-cleanup jobs were skipped. A separate read-only
+reviewer independently checked package identities, source Git trees, review
+context, report binding, and the final merge. The earlier failed campaigns
+remain unmodified and are not carried forward as acceptance of this run.
+
+On the accepted main commit, authenticated `upstream check` and
+`feature verify pkstack-upstream-maintenance` both passed. All seven configured
+sources validated, no semantic drift was selected, and generated parity passed.
+No ordinary push CI run was created for this automated merge; its exact tree is
+covered by the isolated candidate gates. The final report PR and resulting main
+require their own ordinary CI before the local handoff binds the final archive.
+The updater remains active on its existing daily schedule.
+
+
+## CI reduction and exact-main artifact promotion
+
+PR #40 (`666396f`, merged as `832aa8d`) replaces serial ordinary CI with ten
+execution lanes and a required aggregate. Fixed report paths receive a report-only
+PR profile; unknown/mixed paths keep normal coverage. Every selected test has one
+bound result, and missing, duplicate, cancelled or unexpected skipped results fail.
+An actual deliberately failing test in draft PR #39 failed core shard 4; all other
+execution lanes finished, evidence was retained, and aggregation refused the run.
+PR #39 was closed unmerged. The actual infrastructure candidate passed all 12 jobs
+in run 33985933815, followed by successful main run 33986118130.
+
+The updater now builds and validates its trusted review bundle before candidate
+tests and model review run concurrently. Base tests remain independent. Merge and
+cleanup wait for all branches; review rejection counts retain their earlier
+eligibility when candidate tests also fail. These changes passed independent
+security review and focused workflow tests. The new overlap has not yet been
+observed on a live updater candidate; campaign 3 remains the live acceptance record.
+
+Main CI builds twice from the exact commit, installs the archive, and validates a
+stored failure/repair/pass with an unchanged verifier. The promotion verifier
+requires the exact successful main push run/current attempt, all mandatory jobs,
+immutable artifact ID, API ZIP digest, inner hashes, matching notes and source/check
+identities. It rechecks private-repository, current-main and tag authority before
+publication. A read-only pre-tag verification of main 832aa8d passed and explicitly
+returned non-publication-eligible evidence because no tag was created.
+
+A source-updater merge without a push-main CI artifact remains ineligible for
+release promotion. There is no fallback to candidate artifacts, tree-equivalent
+commits or a rebuild during publication. The final report commit's main workflow
+will produce the release artifact bound in the local handoff.

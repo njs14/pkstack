@@ -1,4 +1,4 @@
-# PKStack 0.3.0 browser-harness startup cleanup
+# PKStack 0.3.0 browser startup failures
 
 The reader regression now closes its browser and removes its temporary profile
 when CDP startup rejects. An injected startup failure proves that cleanup defect
@@ -37,8 +37,8 @@ patch it requires the expected CDP error, a SIGTERM receipt, an absent process,
 and a removed profile. Its fallback cleanup also contains the injected child
 and profile if an assertion fails.
 
-Only those two test files changed. Vendored runtime and provenance are
-unchanged. The 15-second CDP deadline, 120-second outer browser-test limit,
+In PR #35, only those two test files changed. Vendored runtime and provenance
+were unchanged in that repair. The 15-second CDP deadline, 120-second outer browser-test limit,
 layout thresholds, required browser assertions, and existing skip behavior
 remain unchanged. There is no retry or soft-pass path.
 
@@ -73,5 +73,40 @@ without waiting, while the passing path explicitly verifies process exit.
 
 Full-suite results belong to the coordinator's release reports. This evidence
 establishes local startup-rejection cleanup and preserved render/export checks.
-Validation on Linux requires the next CI run against the exact patched commit;
-the original timeout trigger remains unresolved in this report.
+Exact patched-head CI `33978687069` and merged-main CI `33978845082` subsequently
+passed on Ubuntu 24.04. Both isolated test jobs in candidate gate `33980726626`
+also passed the actual browser/render/export test. These runs establish Linux
+validation of the repaired harness; the original timeout trigger remains
+unproven.
+
+
+## Terminal process/pipe handling and lean browser profiles
+
+PR #40 adds a separately reproduced runtime repair. A read-pipe EOF with a live
+child, or a browser exit while a test-owned descendant holds inherited pipes,
+previously waited for the normal 15-second deadline. Four lifecycle cases failed
+against the original runtime while the healthy startup/protocol-error control
+passed. The repaired five-case regression passes; real EOF and process-exit
+rejections were observed at about 32 and 65 milliseconds locally.
+
+Terminal pipe/process failures are latched for pending and future CDP requests.
+Ordinary protocol errors and per-request timeouts remain recoverable. Timeout
+errors include the already bounded process/stderr diagnostics. Chrome launch
+arguments, sandbox policy, default deadlines and the existing close implementation
+are preserved. The test explicitly owns and cleans its inherited-pipe descendant;
+it does not claim general process-tree cleanup or identify the initiating Ubuntu
+Chrome failure.
+
+The ordinary browser smoke uses three layouts (desktop light/dark and mobile),
+label geometry, toolbar visibility, zoom/pan/reset, canonical SVG consistency and
+PNG downloads. Expanded checks retain fifteen layout observations and all six
+export formats. Archify, dependency and CI/browser changes select expanded checks;
+main always runs them. Successful observations no longer take routine screenshots;
+failures retain screenshots when a page is available.
+
+Local smoke passed five Python cases in 5.47s; expanded coverage passed the same
+five cases in 16.37s. Independent review inspected the original/repaired evidence,
+source and output hashes, all format receipts, unchanged assertions, and reversal
+of the documented provenance patch. It independently passed 132 focused cases.
+PR CI 33985933815 and main CI 33986118130 subsequently passed the expanded browser
+lane on Ubuntu. The canonical and generated runtime copies match.
