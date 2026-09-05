@@ -19,13 +19,17 @@ fixes verifier cancellation and evidence corrections, repairs the updater,
 and replaces duplicated onboarding with an executed README walkthrough.
 
 The [cleanup report](cleanup-validation.md) records the current checks and
-limitations. Local gates passed 811 Power tests, 128 repository-policy tests,
-and 17 JavaScript tests, plus lint, formatting, types, Actionlint, and ShellCheck.
+limitations. The latest local gates passed 813 Power tests, 134 repository-policy
+tests, and 17 JavaScript tests, plus lint, formatting, types, Actionlint, and
+ShellCheck.
 Independent bounded runtime and pipeline reviews accepted the implementation.
 Real Kiro CLI v3 sessions passed both the direct-command and native Quick Spec
 handoffs, with recorded failures before repair. [PR #13](https://github.com/njs14/pk-stack/pull/13)
 merged at `91d1370f9db8e5f3e996648033a4b5fd557fd5c6` after its final CI passed.
-The live updater campaign and release publication remain pending.
+The corrected live updater exhausted four repairs without a verified candidate.
+No candidate was published or peer-reviewed. Its detailed inner gate failure was
+not retained by the existing script. **The 0.3.0 release is withheld** while that
+integration result is unresolved; the cleanup itself is merged on `main`.
 
 ## Release requirements
 
