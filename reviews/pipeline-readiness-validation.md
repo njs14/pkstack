@@ -355,3 +355,68 @@ Power upstream/branding/release-metadata tests, Actionlint, ShellCheck, and
 `git diff --check`. The archive-prefix regression failed on the missing file
 before the one-line workflow fix, then passed. Full deterministic CI is required
 on the repair PR before the next acceptance campaign.
+
+PR #21's ordinary [PR CI run 33947092035](https://github.com/njs14/pkstack/actions/runs/33947092035)
+also ended in failure with no jobs. The GitHub run page explicitly reported
+that required workflow approval expired. This is distinct from the candidate
+snapshot failure. GitHub now creates approval-required PR workflows when a
+workflow uses `GITHUB_TOKEN` to open or update a PR; its
+[token documentation](https://docs.github.com/en/actions/concepts/security/github_token)
+confirms that behavior. The dedicated `workflow_run` candidate gate runs
+independently and remains the autonomous acceptance authority. No PAT, new App
+credential, approval bypass, or broader workflow-token permissions were added.
+
+## Complete-snapshot acceptance run
+
+[PR #22](https://github.com/njs14/pkstack/pull/22), head
+`2dc317e445df187de96ad84d2d3c866dde64fe9a`, passed
+[CI 33947369983](https://github.com/njs14/pkstack/actions/runs/33947369983) and
+merged as `8b77431f2c8ceb4796ea687b9efc9d97c43a9254`.
+[Post-merge CI](https://github.com/njs14/pkstack/actions/runs/33947523382)
+also passed. A bounded read-only audit found no additional concrete missing
+input in the remaining candidate-test and reviewer job wiring.
+
+The next [maintenance run 33947523850](https://github.com/njs14/pkstack/actions/runs/33947523850)
+succeeded on repair one and published [PR #23](https://github.com/njs14/pkstack/pull/23),
+head `01f5028ac59c166b9228f0b4e5c1c02307b22512`, on that exact base. Its four
+changed files contain only the OKF source transition, inventory, and provenance;
+backfill remains excluded. The
+[candidate gate 33947818192](https://github.com/njs14/pkstack/actions/runs/33947818192)
+passed snapshot construction, base tests, and candidate tests. Reviewer setup
+then failed before a model call: the `kiro-cli` launcher requires login even
+for offline agent-schema validation. Cleanup closed PR #23 without merging;
+no Opus verdict or review-rejection budget was consumed.
+
+For this acceptance run only, the owner-authorized local GitHub login approved
+the separate ordinary PR CI after the exact head, base, workflow path, bot
+identity, and four-file diff were inspected:
+
+```sh
+gh api -X POST repos/njs14/pkstack/actions/runs/33947816257/approve
+```
+
+The API accepted the approval and the ordinary PR CI passed. It adds supplementary CI evidence; that run is
+not a dependency of the autonomous candidate merge job. No recurring approval
+automation or stored credential was added.
+
+## Secretless reviewer preparation
+
+Reviewer preparation now uses `kiro-cli-chat agent validate`, matching the
+existing runtime canary. Authenticated inventory and review calls remain
+`kiro-cli chat`; the preparation step still receives no API key. A regression
+checks the exact sanitized command and the unchanged credential boundary. It
+failed before the one-line correction and passed afterward. All 160 repository
+tests, Actionlint, ShellCheck, and `git diff --check` passed locally.
+
+The installed 2.21.1 binary also validated the exact reviewer profile in an
+unauthenticated disposable home, with exit 0 and no model call:
+
+```sh
+HOME=/private/tmp/pkstack-aligned-home.6oRdia/user-home \
+KIRO_HOME=/private/tmp/pkstack-aligned-home.6oRdia/user-home/.kiro \
+CI=true /Users/noahsutter/.local/bin/kiro-cli-chat agent validate \
+  --path /private/tmp/pkstack-rebrand.N2MfUP/.kiro/agents/pkstack-ci-reviewer.json
+```
+
+The next exact-head CI and full updater campaign must pass before this repair
+is accepted end to end.

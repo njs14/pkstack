@@ -42,8 +42,12 @@ exact-head CI passed. The updater is enabled again on the approved daily
 13:17 UTC schedule. Its [corrected acceptance run](https://github.com/njs14/pkstack/actions/runs/33946810878)
 passed direct global-agent attestation and secretless verification on repair
 one. Its candidate gate then rejected an incomplete trusted snapshot before
-Opus review. The missing snapshot path is being repaired; the updater remains
-enabled, but end-to-end acceptance is still outstanding.
+Opus review. [PR #22](https://github.com/njs14/pkstack/pull/22) restored the
+required snapshot path. The next candidate passed base and candidate tests,
+then stopped during offline reviewer setup because the CLI launcher required
+login. The repair uses the canary's existing secretless `kiro-cli-chat agent
+validate` path. The updater remains enabled, but end-to-end acceptance is still
+outstanding.
 
 The last instrumented updater [run 33934250700](https://github.com/njs14/pkstack/actions/runs/33934250700)
 failed at proposal validation (exit 1; cleanup 0) after setup, feature

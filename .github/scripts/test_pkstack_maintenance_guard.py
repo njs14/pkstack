@@ -4755,6 +4755,23 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 self.assertFalse(binary.exists())
                 self.assertFalse(kiro_home.exists())
 
+    def test_reviewer_schema_validation_uses_secretless_direct_chat_binary(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
+        marker = "      - name: Prepare immutable no-tool Kiro reviewer\n"
+        self.assertEqual(workflow.count(marker), 1)
+        preparation = workflow.split(marker, 1)[1].split("\n      - name: ", 1)[0]
+        commands = [line.strip() for line in preparation.splitlines() if " agent validate " in line]
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(shlex.split(commands[0]), [
+            "env", "-i", "HOME=$KIRO_USER_HOME", "KIRO_HOME=$KIRO_HOME",
+            "PATH=$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin", "LANG=C.UTF-8",
+            "$KIRO_BIN_DIR/kiro-cli-chat", "agent", "validate", "--path",
+            "$TRUSTED_REVIEW_ROOT/.kiro/agents/pkstack-ci-reviewer.json",
+        ])
+        self.assertNotIn("KIRO_API_KEY", preparation)
+        self.assertEqual(workflow.count('"$KIRO_BIN_DIR/kiro-cli" chat'), 2)
+        validate_candidate_workflow_secret_contract(workflow)
+
     def test_candidate_review_cleanup_validates_nested_home_before_deleting_roots(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
         marker = "      - name: Remove private Kiro review state\n"
