@@ -6,10 +6,14 @@ version_authority: powers/pkstack/plugin.json
 
 # PKStack release status
 
-PKStack 0.3.0 remains an unreleased candidate; publication approval is separate.
+PKStack 0.3.0 remains an unreleased candidate at this report checkpoint. The user
+authorized release after the final Grok/Opus council, merge and artifact gates.
 [v0.2.0](https://github.com/njs14/pkstack/releases/tag/v0.2.0)
-remains the published release. The reviewed implementation is merged through
-`832aa8da2dc207fbf5b51f8ad8153d207caa2820`. The bounded updater campaign and
+remains the published release at this checkpoint. The reviewed implementation
+and prior readiness reports are merged through
+`4b3e3d535ee9b8f598e6eb904ff8c27897c6c871`. Both requested council reviewers
+approved their recorded scope; see the [council record](release-030-review.md#final-grok-and-opus-council).
+The bounded updater campaign and
 authenticated upstream verification passed. The user waived further GUI testing
 on September 5, 2026 and directed that IDE operation be assumed. The final
 report commit, its CI, and the archive/checksum are
@@ -94,7 +98,8 @@ maintainer review. Server-enforced branch protection is unavailable on the
 current private-repository plan, so workflow and manual PR gates remain
 necessary.
 
-Publication requires approval of a concrete reviewed main commit, proposed
-`v0.3.0` tag, version-specific notes, and final archive/checksum. The
+Publication is authorized after the council and final merge, subject to exact
+main CI/package verification for `v0.3.0`, version-specific notes, and the final
+archive/checksum. The external publication handoff records the terminal result. The
 [upgrade guide](../powers/pkstack/docs/upgrade-0.3.md) preserves existing
 installations and user evidence through a separate clean consumer.

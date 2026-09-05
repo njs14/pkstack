@@ -148,3 +148,47 @@ passed all 12 jobs and reconciled 865 retained Power cases; deliberate failure r
 33985923263 proved rejection without cancelling other lanes. Main run 33986118130
 passed the complete checks and artifact producer; read-only pre-tag verification
 accepted its exact archive bytes without creating a tag or publishing a release.
+
+## Final Grok and Opus council
+
+At the user's request, independent native-client reviews inspected frozen main
+`4b3e3d535ee9b8f598e6eb904ff8c27897c6c871` with a shared release rubric. Both
+returned **APPROVE**, with no material finding. Existing subscriptions provided
+authentication; credentials were not transferred between clients. The reviews
+were advisory inspections of supplied source and retained evidence, not new test
+or GUI execution.
+
+- **Claude Opus 5:** the client initialization and all 102 review assistant
+  messages identified `claude-opus-5`. The full 578-file immutable packet was
+  available through Read, Glob and Grep only. The restricted safe-mode run
+  disabled ambient customization and MCP. Its usage ledger also lists a small
+  Haiku entry without a Haiku review message or observed review fallback; that
+  entry's purpose is not established.
+- **Grok 4.6:** initialization and the sole review assistant frame identified
+  `grok-4.6`; no tools or MCP servers were available and no tool calls occurred.
+  Native discovery isolation required a process-level macOS boundary with the
+  client's own sandbox disabled. The review received 46 complete source and
+  evidence files inline from the same packet. It explicitly excluded the
+  source-updater workflow, PR-policy JavaScript, most Power modules/tests, and
+  archive bytes. This is narrower delivery than the Opus review. Existing
+  configuration and all packet hashes remained unchanged; ordinary native
+  client session persistence was permitted.
+
+Both clients requested xhigh effort; the Grok initialization did not independently
+echo that setting. Sanitized verdicts, invocation receipts, the inline file
+manifest and packet hashes are retained in the private local council handoff.
+
+The two minor documentation dispositions are included in the final delta:
+date the 0.3.0 changelog heading and remove four unnecessary inventory counts
+from the Kiro compatibility guide. All four counts were correct when checked;
+removing them avoids a maintenance obligation without restoring prose-count
+tests. The version-specific release-note body is unchanged. Grok's optional
+candidate/base Chrome-presence check and dead-validator cleanup remain deferred;
+neither was reported as a release blocker, and main CI requires browser evidence.
+
+The user authorized merging the final council changes and cutting the release
+after review. The resulting main commit must receive its own complete CI run,
+package artifact and live pre-tag verification. The publication workflow then
+reverifies and promotes those exact bytes. The final run, artifact, tag and
+publication identities belong in the external handoff, avoiding a self-referential
+commit identity in this report. The existing GUI waiver and limits above stand.
