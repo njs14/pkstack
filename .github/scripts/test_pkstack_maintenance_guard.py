@@ -122,7 +122,7 @@ MAINTENANCE_MAINTAIN_STEPS = (
     ("Install uv and materialize protected lockfiles", ("uses", "with")),
     ("Materialize locked environments and trusted scripts", ("run",)),
     ("Restore pinned Kiro CLI archive", ("uses", "with")),
-    ("Verify checksum-pinned Kiro CLI 2.21.0 archive", ("run",)),
+    ("Verify checksum-pinned Kiro CLI 2.21.1 archive", ("run",)),
     ("Start immutable goal and record the required pre-edit failure", ("env", "run")),
     ("Prepare repair 1 without workspace hooks", ("run",)),
     ("Kiro repair 1 of 4", ("env", "run")),

@@ -24,9 +24,9 @@ from typing import Any, BinaryIO
 
 from validate_kiro_model_inventory import InventoryError, validate_inventory_bytes
 
-PINNED_CLI_VERSION = "2.21.0"
-PINNED_CLI_SHA256 = "6eccb46617a84690fc892219f264f7617312761c9a3d7e38cc47a0e2ab0152b7"
-PINNED_CLI_SIZE = 536_335_872
+PINNED_CLI_VERSION = "2.21.1"
+PINNED_CLI_SHA256 = "7fc0564fd02295a64470c4bf52752f5475f3280be3fa4dd9db255162e07e9825"
+PINNED_CLI_SIZE = 536_509_056
 CLI_MANIFEST_URL = "https://prod.download.cli.kiro.dev/stable/latest/manifest.json"
 CLI_DOWNLOAD_ORIGIN = "https://prod.download.cli.kiro.dev/stable/"
 CLI_ARCHIVE_NAME = "kirocli-x86_64-linux.tar.xz"
@@ -91,8 +91,8 @@ SETTINGS = (
     b"}\n"
 )
 PINNED_BINARY_SIZES = {
-    "kirocli/bin/kiro-cli": 113_921_088,
-    "kirocli/bin/kiro-cli-chat": 838_911_376,
+    "kirocli/bin/kiro-cli": 113_925_216,
+    "kirocli/bin/kiro-cli-chat": 838_626_440,
 }
 
 

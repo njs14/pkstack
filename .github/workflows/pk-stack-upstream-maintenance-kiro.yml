@@ -310,7 +310,7 @@ jobs:
             printf 'FEEDBACK_PATH=%s\n' "$RUNNER_TEMP/pkstack-verification-feedback.txt"
             printf 'GOAL_STATUS_PATH=%s\n' "$RUNNER_TEMP/pkstack-goal-status.json"
             printf 'KIRO_BIN_DIR=%s\n' "$RUNNER_TEMP/kiro-bin"
-            printf 'KIRO_ARCHIVE=%s\n' "$RUNNER_TEMP/kiro-cache/kirocli-2.21.0.tar.xz"
+            printf 'KIRO_ARCHIVE=%s\n' "$RUNNER_TEMP/kiro-cache/kirocli-2.21.1.tar.xz"
             printf 'KIRO_HOME=%s\n' "$RUNNER_TEMP/kiro-home"
             printf 'KIRO_USER_HOME=%s\n' "$RUNNER_TEMP/kiro-user-home"
             printf 'GIT_BOUNDARY_STATE=%s\n' "$RUNNER_TEMP/pkstack-git-boundary-state"
@@ -375,19 +375,19 @@ jobs:
       - name: Restore pinned Kiro CLI archive
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ${{ runner.temp }}/kiro-cache/kirocli-2.21.0.tar.xz
-          key: kiro-cli-linux-x86-64-2.21.0-6eccb46617a84690fc892219f264f7617312761c9a3d7e38cc47a0e2ab0152b7
-      - name: Verify checksum-pinned Kiro CLI 2.21.0 archive
+          path: ${{ runner.temp }}/kiro-cache/kirocli-2.21.1.tar.xz
+          key: kiro-cli-linux-x86-64-2.21.1-7fc0564fd02295a64470c4bf52752f5475f3280be3fa4dd9db255162e07e9825
+      - name: Verify checksum-pinned Kiro CLI 2.21.1 archive
         run: |
           set -euo pipefail
           mkdir -p "$(dirname "$KIRO_ARCHIVE")"
           if [[ ! -f "$KIRO_ARCHIVE" ]]; then
             curl --proto '=https' --tlsv1.2 --fail --location \
               --retry 3 --retry-all-errors --output "$KIRO_ARCHIVE" \
-              https://prod.download.cli.kiro.dev/stable/2.21.0/kirocli-x86_64-linux.tar.xz
+              https://prod.download.cli.kiro.dev/stable/2.21.1/kirocli-x86_64-linux.tar.xz
           fi
           printf '%s  %s\n' \
-            6eccb46617a84690fc892219f264f7617312761c9a3d7e38cc47a0e2ab0152b7 \
+            7fc0564fd02295a64470c4bf52752f5475f3280be3fa4dd9db255162e07e9825 \
             "$KIRO_ARCHIVE" | sha256sum --check
       - name: Start immutable goal and record the required pre-edit failure
         env:
@@ -699,7 +699,7 @@ jobs:
               `- ${item.repository}/${item.path}: \`${item.previous_commit}\` -> \`${item.current_commit}\``
             ).join("\n");
             const body = [
-              "Automated PKStack semantic reconciliation by checksum-pinned Kiro CLI 2.21.0 / GPT-5.6 Sol with --effort max requested (Kiro stream metadata does not independently attest effort).",
+              "Automated PKStack semantic reconciliation by checksum-pinned Kiro CLI 2.21.1 / GPT-5.6 Sol with --effort max requested (Kiro stream metadata does not independently attest effort).",
               "",
               "Upstream identities:",
               upstreams,
