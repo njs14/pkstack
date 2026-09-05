@@ -278,6 +278,7 @@ jobs:
           git archive "$BASE_SHA" \
             Wiki/features/pkstack-upstream-maintenance.md \
             .pkstack/projectctl \
+            .github/agent-memory/pkstack-upstream.md \
             .github/fixtures \
             .github/pkstack-maintenance-policy.json \
             .github/scripts \
