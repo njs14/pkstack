@@ -32,6 +32,15 @@ or workflow controls. Those changes require a maintainer.
    GitHub App signals are advisory; the pipeline needs no separate provider API
    key or GitHub Copilot subscription.
 
+For the selected source's parity artifact, `source.retrieved_on` records the UTC
+date of the latest inventory retrieval, not the initial baseline date. The trusted
+detector job captures that date and fails if retrieval crosses midnight UTC; the
+maintainer receives it as `inventory_retrieved_on`. It must not infer the date from
+candidate content or its own clock. Existing safety rationale stays verbatim when
+the handling decision and prerequisites are unchanged; delta-specific explanations
+belong in the new proposal and provenance prose. The new final provenance marker
+ends with an LF newline. Genesis and accepted review history remain unchanged.
+
 The configured model identities and spending bounds live in the workflow policy
 and inventory validator. Model identity, required capabilities, minimum context,
 and maximum price are checked; changes to provider marketing descriptions are not

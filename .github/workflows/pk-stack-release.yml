@@ -111,7 +111,10 @@ jobs:
           raw_archive="$ARCHIVE_DIR/pkstack-v${RELEASE_VERSION}.tar"
           archive="$ARCHIVE_DIR/pkstack-v${RELEASE_VERSION}.tar.gz"
           checksum="$ARCHIVE_DIR/pkstack-v${RELEASE_VERSION}.tar.gz.sha256"
+          # A subtree expression loses Git's automatic commit-time selection.
+          release_timestamp=$(git show -s --format=%ct "$RELEASE_SHA")
           git archive --format=tar --prefix=pkstack/ \
+            --mtime="@$release_timestamp" \
             --output "$raw_archive" \
             "$RELEASE_SHA:powers/pkstack"
           gzip --no-name --stdout "$raw_archive" >"$archive"

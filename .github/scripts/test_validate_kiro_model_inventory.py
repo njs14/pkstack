@@ -153,8 +153,10 @@ class ModelInventoryTests(unittest.TestCase):
             fake.write_text(f"#!{sys.executable}\n" + textwrap.dedent(f'''\
                 import json, os, pathlib, sys
                 if "--list-models" in sys.argv:
+                    pathlib.Path(os.environ["KIRO_HOME"], "inventory-invoked").touch()
                     print({json.dumps(inventory)!r})
                 else:
+                    assert "inventory_retrieved_on=2026-09-05" in sys.argv[-1]
                     pathlib.Path(os.environ["KIRO_HOME"], "repair-invoked").touch()
                     print(pathlib.Path({str(repair_stream)!r}).read_text(), end="")
                     print(pathlib.Path({str(repair_stderr)!r}).read_text(), end="", file=sys.stderr)
@@ -176,7 +178,24 @@ class ModelInventoryTests(unittest.TestCase):
                    "KIRO_BIN_DIR": str(binary), "KIRO_HOME": str(root / "kiro-user/.kiro"),
                    "KIRO_USER_HOME": str(root / "kiro-user"), "RUNNER_TEMP": str(root),
                    "BASE_SHA": "a" * 40, "GUARD_PATH": str(guard), "ATTEMPT_NUMBER": "1",
+                   "PKSTACK_UPSTREAM_RETRIEVED_ON": "2026-09-05",
                    "GIT_BOUNDARY_STATE": str(root / "git-boundary")}
+            for invalid_date in (None, "", "20260905", "2026-02-30", "2026-09-05\nUNTRUSTED"):
+                with self.subTest(invalid_date=invalid_date):
+                    invalid_env = {**env}
+                    if invalid_date is None:
+                        invalid_env.pop("PKSTACK_UPSTREAM_RETRIEVED_ON")
+                    else:
+                        invalid_env["PKSTACK_UPSTREAM_RETRIEVED_ON"] = invalid_date
+                    invalid = subprocess.run(
+                        ["bash", str(ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh")],
+                        cwd=root, env=invalid_env, capture_output=True, text=True, timeout=10,
+                    )
+                    self.assertNotEqual(invalid.returncode, 0)
+                    self.assertNotIn("UNTRUSTED", invalid.stdout + invalid.stderr)
+                    self.assertFalse((root / "kiro-user/.kiro/inventory-invoked").exists())
+                    self.assertFalse((root / "kiro-user/.kiro/repair-invoked").exists())
+                    self.assertFalse((root / "pkstack-kiro-private-1").exists())
             result = subprocess.run(["bash", str(ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh")],
                                     cwd=root, env=env, capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)

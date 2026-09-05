@@ -3104,12 +3104,61 @@ def test_accept_dry_run_then_atomic_accept_leaves_no_ephemeral_residue(tmp_path:
         )
 
 
+@pytest.mark.parametrize("artifact_type", ["skill-catalog", "source-inventory"])
 def test_multisource_accept_serializes_one_source_without_mutating_the_other(
     tmp_path: Path,
+    artifact_type: str,
 ) -> None:
     canonical_power = _prepare_accept_root(tmp_path)
     paths = _add_parallel_source(tmp_path)
     responses = _fake_responses()
+    parity = json.loads(paths["parity"].read_text(encoding="utf-8"))
+    if artifact_type == "source-inventory":
+        identities = {}
+        for revision, tree in (("pinned", PIN_TREE), ("current", HEAD_TREE)):
+            entries = responses[
+                upstreams._api_url(
+                    "cursor/plugins", "git", "trees", tree, query=(("recursive", "1"),)
+                )
+            ]["tree"]
+            identities[revision] = {
+                item["path"]: {
+                    "type": item["type"],
+                    "mode": item["mode"],
+                    "object_sha": item["sha"],
+                    "size": item["size"],
+                }
+                for item in entries
+                if item["type"] == "blob"
+            }
+        source = parity["source"]
+        del source["catalog_path"]
+        for revision in ("pinned", "current"):
+            source[revision]["subtree_sha"] = source[revision].pop("pstack_subtree_sha")
+        parity = {
+            "schema_version": 1,
+            "artifact_type": artifact_type,
+            "source": source,
+            "allowed_dispositions": ["A", "B", "C"],
+            "summary": {
+                "A": 0,
+                "B": len(CHANGED_PATHS),
+                "C": 0,
+                "pinned_files": len(identities["pinned"]),
+                "current_files": len(identities["current"]),
+            },
+            "files": [
+                {
+                    "path": path,
+                    "pinned": identities["pinned"].get(path),
+                    "current": identities["current"].get(path),
+                    "disposition": "B",
+                    "rationale": "Preserve the bounded synthetic exclusion.",
+                }
+                for path in sorted(CHANGED_PATHS, key=str.casefold)
+            ],
+        }
+        paths["parity"].write_text(json.dumps(parity), encoding="utf-8")
     baseline = check_upstreams(
         tmp_path,
         power_root=canonical_power,
@@ -3121,6 +3170,9 @@ def test_multisource_accept_serializes_one_source_without_mutating_the_other(
         "cursor-pstack",
     ]
     selected = next(source for source in baseline["sources"] if source["id"] == "alpha-source")
+    assert parity["source"]["retrieved_on"] == "2026-09-02"
+    parity["source"]["retrieved_on"] = "2026-09-05"
+    paths["parity"].write_text(json.dumps(parity), encoding="utf-8")
     transition = _transition(selected["comparison"]["inventory_sha256"])
     proposal = {"source_id": "alpha-source", **transition}
     proposal_path = tmp_path / ".pkstack-maintenance" / "proposal.json"
@@ -3157,6 +3209,7 @@ def test_multisource_accept_serializes_one_source_without_mutating_the_other(
     assert after_ledger["sources"][0] == other_review
     assert (tmp_path / other_manifest["provenance_path"]).read_bytes() == other_provenance
     assert (tmp_path / other_manifest["parity_path"]).read_bytes() == other_parity
+    assert json.loads(paths["parity"].read_text())["source"]["retrieved_on"] == "2026-09-05"
     advanced = next(
         source for source in after_manifest["sources"] if source["id"] == "alpha-source"
     )

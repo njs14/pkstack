@@ -88,6 +88,70 @@ def mode_event(mode: str = review.REQUIRED_AGENT) -> dict[str, object]:
 
 
 class KiroReviewStreamTests(unittest.TestCase):
+    def test_reviewer_prompt_states_existing_verdict_contract(self) -> None:
+        profile = json.loads(
+            (
+                Path(__file__).resolve().parents[2]
+                / ".kiro/agents/pkstack-ci-reviewer.json"
+            ).read_text(encoding="utf-8")
+        )
+        prompt = profile["prompt"]
+        for guidance in (
+            "exactly these required fields",
+            "strings matching the exact candidate bindings",
+            "reviewed_changed_files must be the bundle's integer count",
+            "array of 0 to 32 trimmed, nonempty strings",
+            "each at most 2000 UTF-8 bytes; never objects or null",
+            '["path/to/file: Concrete issue and required fix."]',
+            "summary must be a trimmed, nonempty string of at most 4000 UTF-8 bytes",
+            '"approved" if and only if material_findings is []',
+            'otherwise use "rejected"',
+        ):
+            with self.subTest(guidance=guidance):
+                self.assertIn(guidance, prompt)
+        for field in json.loads(verdict()):
+            self.assertIn(field, prompt)
+
+    def test_documented_findings_and_summary_limits_remain_strict(self) -> None:
+        def validate(payload: dict[str, object]) -> None:
+            review._validate_verdict(
+                json.dumps(payload),
+                base_sha=BASE,
+                head_sha=HEAD,
+                content_sha256=CONTENT,
+                patch_sha256=PATCH,
+                changed_files=1,
+                paths_sha256=PATHS_SHA256,
+            )
+
+        approved = json.loads(verdict())
+        validate(approved)
+        rejected = json.loads(verdict(findings=["é" * 1000] * 32))
+        rejected["summary"] = "é" * 2000
+        validate(rejected)
+        invalid = [
+            ("material_findings", value)
+            for value in (
+                None, {}, [None], [{"issue": "Unsafe"}], [""], [" padded "],
+                ["é" * 1001], ["Issue"] * 33,
+            )
+        ] + [
+            ("summary", value)
+            for value in (None, {}, "", " padded ", "é" * 2001)
+        ]
+        for field, value in invalid:
+            with self.subTest(field=field, value=value):
+                payload = {**approved, field: value}
+                with self.assertRaisesRegex(review.ReviewError, "malformed"):
+                    validate(payload)
+        for payload in (
+            {**approved, "verdict": "rejected"},
+            {**approved, "material_findings": ["Material issue"]},
+        ):
+            with self.subTest(verdict=payload["verdict"]):
+                with self.assertRaisesRegex(review.ReviewError, "contradicts"):
+                    validate(payload)
+
     def test_captured_kiro_221_model_projection_and_legacy_agent_rejection(
         self,
     ) -> None:
