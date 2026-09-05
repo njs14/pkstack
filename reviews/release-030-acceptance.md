@@ -13,32 +13,33 @@ by this record. The latest published release remains v0.2.0.
 | Native planning | CLI and IDE Standard and Quick Spec bind failure, repair, and pass in the same conversation | CLI Standard and Quick passed; current desktop planning pending |
 | Additional surfaces | Agent Focus, Crew, and Web exercise applicable advertised paths | Web stored failure/repair/pass; follow-up and desktop checks blocked by Mac lock |
 | Curated helpers | All six perform bounded real tasks; generated outputs satisfy independent checks | All six bounded tasks passed with recorded follow-up/authoring corrections; Archify unchanged-input replays passed |
-| Installation | Archive installs cleanly; setup is idempotent and preserves user work | Source install, idempotence, and three conflict modes passed; final archive pending |
+| Installation | Archive installs cleanly; setup is idempotent and preserves user work | Source install, idempotence, three conflict modes, and extracted-main archive installation passed |
 | Legacy transition | v0.2.0 rejection makes no writes; documented clean transition preserves source and evidence | Three rejection modes preserved 302 files; clean transition preserved all four user fixtures |
 | Permissions | Allowed operations work; equivalent denied forms remain blocked | Standalone and three grouped forms natively denied; ordinary ask/cancel preserved |
 | DO / PROVE / KNOW | Generated parity, doctor, feature gates, and canonical okn validation pass | Doctor81, schema, canonical okn, generated parity passed; Archify accepted, OKF freshness pending updater |
-| Updater | Current review context supports a bounded live campaign and correct accept/reject handling | Prior rejection context defect confirmed |
-| Deterministic gates | Repository, Power, formatting, lint, types, lockfile, and workflow checks pass | 869 Power, 184 repository, 17 Node tests passed; lint/format/types/lock/workflow checks passed |
-| Packaging | Two identical archives, correct contents/checksum/version, extracted-consumer smoke | Pending candidate freeze |
-| Independent review | Frozen candidate accepted with no unresolved material findings | Initial security approval; product finding repaired, delta review pending |
-| Delivery | Exact PR/main commit CI, release notes, upgrade guide, and publication handoff | Pending |
+| Updater | Current review context supports a bounded live campaign and correct accept/reject handling | Source and correct Opus review passed; base browser timeout blocked merge and PR #34 was closed; harness investigation active |
+| Deterministic gates | Repository, Power, formatting, lint, types, lockfile, and workflow checks pass | 870 Power, 184 repository, 17 Node tests passed after cleanup repair; lint/format/types/lock/workflow checks passed |
+| Packaging | Two identical archives, correct contents/checksum/version, extracted-consumer smoke | Main 3859f63 produced two identical archives and passed extracted-consumer checks; rebind if main advances |
+| Independent review | Frozen candidate accepted with no unresolved material findings | Security and product scopes approved through reviewed head 67b7e36; remaining surface acceptance stays open |
+| Delivery | Exact PR/main commit CI, release notes, upgrade guide, and publication handoff | PR #33 merged; CI 33976733214 and 33976929179 passed; commit-bound notes and upgrade guide prepared; publication held |
 
 ## Findings
 
-| ID | Reproduction / diagnosis | Required closure |
+| ID | Reproduction / diagnosis | Disposition / evidence |
 | --- | --- | --- |
-| R030-01 | Archify's compact sequence expands beyond the desktop viewport; original visual receipt fails | Fix responsible reader layout and check real renders without lowering thresholds |
-| R030-02 | Required control-loop taxonomy was absent from the loaded method in a fresh conversation | Make the required method reliably available and retest native loading |
-| R030-03 | Generated loop advertises two attempts but does not enforce them; valid baseline trim is rejected | Fresh generation enforces bounds and preserves baseline identity through negative cases |
-| R030-04 | Updater PR #32 review confused neighboring file records and rejected a valid same-day date | Bind explicit changed record identities/date semantics into bounded review context; regression and live acceptance |
-| R030-05 | Candidate gate omits checks run in ordinary CI | Align required deterministic checks without extending credential access |
-| R030-06 | Changelog understates unreleased work and rewrites historical v0.2.0 identities | Accurate 0.3.0 notes and historical release description |
-
-| R030-07 | Primary profile has no forced git-switch deny rule; reordered destructive forms reach ask | Narrow native-matcher repair and equivalent-form verification |
-| R030-08 | Fresh Archify sequence caption moves inside its preceding band | Keep caption associated with its own band and verify unchanged fresh JSON |
-| R030-09 | Current feature documentation says six sources but manifest has seven | Corrected to reference the configured entries |
-| R030-10 | Native CLI rejects kiro_default and cannot discover Power-local setup after a Default swap | Corrected default-agent spelling and documented conditional Power discovery / tested script path |
-| R030-11 | Reviewed upstream Archify runtime delta reproduces invalid-argument output, uncaught watcher errors, and missing caption-width rejection | Three reproduced fixes and metadata checks passed; seven-path source update accepted transactionally |
+| R030-01 | Compact Archify sequence expands beyond the desktop viewport | Reader layout repaired; original frozen input, desktop/narrow renders, interactions, and exports passed; see [Archify report](release-030-archify.md) |
+| R030-02 | Required control-loop taxonomy was absent from the loaded method | Required method made available in the loaded skill; fresh native design task passed; see [loop helpers](release-030-loop-helpers.md) |
+| R030-03 | Generated loop does not enforce its attempt limit and rejects a valid baseline trim | Wrapper repaired; fresh native generation passed five tests and 24 independent process cases; see [loop helpers](release-030-loop-helpers.md) |
+| R030-04 | PR #32 review swapped omitted file identities and rejected a valid same-day date | Schema v3 context repaired; live PR #34 Opus approval independently confirmed both correct identities and date; overall updater gate separately failed its base browser test |
+| R030-05 | Candidate gate omits ordinary CI checks | Both candidate and base gates now run the complete policy suites and required version/knowledge checks; verified in live run 33977500077 |
+| R030-06 | Changelog understates 0.3 work and rewrites historical 0.2 identities | Accurate 0.3 notes and historical 0.2 names restored; exact-version note extraction and immutable links tested |
+| R030-07 | Destructive Git-switch spellings reach ask instead of deny | Tested standalone, reordered, prefixed, and three grouped forms now deny natively; benign ask/cancel controls retained; see [permission report](release-030-permissions.md) |
+| R030-08 | A fresh sequence caption moves inside its preceding band | Placement repaired; unchanged native JSON replay matches the validated artifact; see [Archify report](release-030-archify.md) |
+| R030-09 | Feature documentation says six sources but manifest has seven | Wording now refers to the configured manifest entries |
+| R030-10 | Native CLI rejects kiro_default and does not discover Power-local setup after a Default swap | Corrected the default agent name and conditional Power-discovery guidance; direct setup script verified; IDE setup proof remains a separate open surface gate |
+| R030-11 | Upstream Archify delta reproduces malformed-argument output, watcher crashes, and missing caption-width rejection | Three runtime fixes and metadata checks passed; seven-path update accepted transactionally; live detector reports Archify current |
+| R030-12 | Evidence index has broken package links and a stale current-version label | Active package paths and status label corrected; local targets verified; historical names retained |
+| R030-13 | Reader startup rejection bypasses cleanup and leaves its browser child/profile | Injected failure reproduced the leak; startup wait moved under existing cleanup; regression and real reader/export tests passed; initiating CI timeout remains unproven, as recorded in [browser harness report](release-030-browser-harness.md) |
 
 Additional findings enter this ledger when reproduced. External blocks stay
 incomplete; historical successes never stand in for current-candidate evidence.

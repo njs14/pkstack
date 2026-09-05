@@ -1,8 +1,8 @@
 # PKStack 0.3.0 pipeline audit
 
 Inspected 2026-09-05 from base `3d4583a16fe2caca497d8b8fe7d5c860a12c1a2f`.
-This records the pipeline investigation and local repairs. A fresh campaign on
-merged controls and final-candidate archive verification remain acceptance gates.
+This records the pipeline investigation, reviewed repairs, merged-control
+verification, and bounded live campaign. Desktop acceptance remains separate.
 
 ## Rejected candidate #32
 
@@ -96,34 +96,68 @@ The current archive commands already fix the subtree archive timestamp and use
   environment or bytecode artifacts.
 
 This establishes that the archive recipe is reproducible for the inspected
-base. It does not substitute for rebuilding and installing the final frozen
-release candidate. Packaging code was not changed.
+base. Packaging code was not changed.
 
-## Bounded live campaign handoff
+The reviewed head `67b7e3631e8aecf79653321addbff24a8bc319db` and merged main
+`3859f635e36b26d813802445cceb037cc26d0dfc` were each independently packaged twice
+and installed into fresh consumers. The main archive is 4,478,207 bytes with
+368 entries and SHA-256
+`4d4a2bf4dfcc8c9aa32e13345be4348f7024fb9244a30ea1511716fd51cca09f`.
+Both builds match. Version, contents, setup/idempotence, doctor, feature,
+canonical `okn`, and a stored two-attempt failure/pass goal passed from the
+extracted archive, preserving the test hash. This was a controller smoke with a
+known implementation repair, not an additional native Kiro session.
+
+## Executed bounded live campaign
 
 The GitHub workflow API reported the existing maintenance workflow as `active`.
-The schedule remains `17 13 * * *`. No live updater dispatch was performed by
-this audit.
+The schedule remains `17 13 * * *`. [PR #33](https://github.com/njs14/pkstack/pull/33)
+merged only after exact-head CI `33976733214` passed. Main CI `33976929179` then
+passed on `3859f635e36b26d813802445cceb037cc26d0dfc`.
 
-After reviewed fixes are merged and main's CI passes, invoke exactly one existing
-manual source run:
+One manual source run,
+[33977108073](https://github.com/njs14/pkstack/actions/runs/33977108073), was
+dispatched on that main commit without `retry_source`. The detector re-proved
+all seven sources, found only OKF-skills drift, and selected
+`d8393f329c97836980566c1cf4e4aa4fe47dc111` with one retained rejection and no retry
+override. The initial failing goal was stored; repair 1 and secretless
+verification 1 passed, and repairs 2–4 were skipped. The source workflow completed
+and created [PR #34](https://github.com/njs14/pkstack/pull/34) at
+`27fb0dec5ca538e6f3bb03ef1eb11499ca744f5f`.
 
-```sh
-gh workflow run pk-stack-upstream-maintenance-kiro.yml --repo njs14/pkstack --ref main
-```
+The exact candidate workflow,
+[33977500077](https://github.com/njs14/pkstack/actions/runs/33977500077), finished
+with failure. Candidate tests passed (868 Power passed, one skipped); the base
+job passed 867 Power tests with one skip and one failure. Both passed 184 Python
+policy and 17 Node policy tests. The base failure was the first browser startup
+CDP command in `test_archify_reader_layout_and_exports`:
+`Target.getTargets: timed out after 15000ms`, on Node 22.23.2. It occurred before
+navigation, geometry checks, or exports. The unchanged focused test subsequently
+passed locally; the initiating timeout has not been isolated.
 
-Do not pass `retry_source` for this campaign: the retained source currently has
-one rejection, below the three-rejection stop. The immutable controller chooses
-one eligible source and one candidate, with five verifier attempts (one baseline
-failure plus at most four repair invocations). The maintenance job is bounded
-by 150 minutes; the isolated independent review job by 45 minutes, with its model
-invocation bounded at 30 minutes. Use existing repository Kiro authentication.
+The independent no-tool Opus verdict approved the exact candidate with no
+material findings. It correctly attributed the two full changed path records
+and accepted the valid same-day retrieval date. A separate read-only reviewer
+re-proved those identities against both complete upstream Git trees, recomputed
+the bundle and attestation hashes, and checked the sanitized report and trusted
+no-tool validator result. The combined context is 2,583 bytes; bundle digest
+`226e9e6e4531184edff3e5efb98f1a6a4ae1891ce73d3e391f09ef5852dc501c` and report hash
+`5ec67d26ee4583afea83b37071e63ae1efcde0a7b87de8b2a847b046b081b2be` bind that
+observed approval. The prior false-context finding did not recur.
 
-Bind the observed source run to the merged main SHA, then locate the candidate
-workflow by its exact source-run title and identities. Follow it to terminal
-base/candidate tests, valid no-tool Opus verdict, and merge or durable rejection
-plus closure. Inspect each material rejection against the exact bundle before
-calling it a valid negative result. Do not repeatedly dispatch, weaken the
-review gate, manually override a rejection, purchase capacity, or change the
-schedule. If an accepted update advances main, rebind final release tests,
-independent review, notes, and archive evidence to the resulting main commit.
+This was not an accepted update: the failed base gate blocked merge despite
+approval, rejection feedback was skipped, and cleanup closed PR #34 unmerged at
+2026-09-05T16:25:38Z. Main stayed `3859f635e36b26d813802445cceb037cc26d0dfc`.
+No failed-job retry, review override, schedule change, or permission widening
+occurred. Investigation identified a separate, definite startup-rejection
+cleanup gap in the test harness; its repair must not be presented as proof of the
+initiating timeout's cause. Any later accepted update requires final tests,
+review, notes, and archive evidence bound to the resulting main commit.
+
+The subsequent [browser-harness repair](release-030-browser-harness.md) moves
+startup under existing cleanup ownership. Its injected failure regression fails
+before the repair and passes afterward. The complete local follow-up passed
+870 Power, 184 Python policy, and 17 Node policy tests, plus lint, formatting,
+types, lockfile, workflow checks, doctor, feature validation, and canonical
+`okn`. No timeout, layout threshold, or existing assertion was relaxed. Exact
+patched-commit Linux CI and any fresh campaign remain distinct next checks.

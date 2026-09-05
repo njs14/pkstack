@@ -30,7 +30,7 @@ function deliver(input, target) {
 deliver(source, artifact);
 const artifactHash = digest(artifact);
 const browser = new ChromeVisualBrowser(chrome);
-const session = await browser.sessionPromise;
+let session;
 async function evaluate(expression) {
   const response = await browser.cdp.send('Runtime.evaluate', {
     expression, awaitPromise: true, returnByValue: true,
@@ -93,6 +93,7 @@ async function download(format, directory) {
 }
 
 try {
+  session = await browser.sessionPromise;
   for (const { width, height } of VISUAL_CHECK_VIEWPORTS) {
     for (const theme of ['light', 'dark']) await inspect(artifact, width, height, theme, 'account');
   }

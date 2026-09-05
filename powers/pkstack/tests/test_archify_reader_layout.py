@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
+import signal
 import subprocess
+from contextlib import suppress
 from pathlib import Path
 
 import pytest
@@ -107,3 +110,56 @@ def test_archify_reader_layout_and_exports(tmp_path: Path) -> None:
     if result.returncode == 77:
         pytest.skip(result.stdout.strip())  # ty: ignore[too-many-positional-arguments]
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_archify_reader_closes_browser_after_startup_rejection(tmp_path: Path) -> None:
+    """A failed CDP attachment must still terminate the child and remove its profile."""
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+    record_path = tmp_path / "browser.json"
+    terminated_path = tmp_path / "terminated"
+    chrome = tmp_path / "chrome"
+    chrome.write_text(
+        "#!/usr/bin/env node\n"
+        "const fs = require('node:fs');\n"
+        "const record = process.env.ARCHIFY_STARTUP_TEST_RECORD;\n"
+        "const profile = process.argv.find(arg => arg.startsWith('--user-data-dir='))\n"
+        "  .slice('--user-data-dir='.length);\n"
+        "fs.writeFileSync(record, JSON.stringify({ pid: process.pid, profile }));\n"
+        "process.on('SIGTERM', () => {\n"
+        "  fs.writeFileSync(process.env.ARCHIFY_STARTUP_TEST_TERMINATED, 'SIGTERM');\n"
+        "  process.exit(0);\n"
+        "});\n"
+        "fs.writeSync(4, 'invalid CDP JSON\\0');\n"
+        "setInterval(() => {}, 1000);\n"
+    )
+    chrome.chmod(0o755)
+    try:
+        result = subprocess.run(
+            [node, str(Path(__file__).with_suffix(".mjs")), str(tmp_path / "output")],
+            env={
+                **os.environ,
+                "ARCHIFY_CHROME": str(chrome),
+                "ARCHIFY_STARTUP_TEST_RECORD": str(record_path),
+                "ARCHIFY_STARTUP_TEST_TERMINATED": str(terminated_path),
+            },
+            text=True,
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+        assert result.returncode != 0, result.stdout + result.stderr
+        assert "Chrome DevTools returned invalid JSON" in result.stderr
+        record = json.loads(record_path.read_text())
+        assert terminated_path.exists(), "Startup rejection left the browser child running"
+        with pytest.raises(ProcessLookupError):
+            os.kill(record["pid"], 0)
+        assert not Path(record["profile"]).exists(), "Startup rejection leaked its browser profile"
+    finally:
+        # Keep the injected child and profile contained even when this regression fails.
+        if record_path.exists():
+            record = json.loads(record_path.read_text())
+            with suppress(ProcessLookupError):
+                os.kill(record["pid"], signal.SIGTERM)
+            shutil.rmtree(record["profile"], ignore_errors=True)
