@@ -73,5 +73,8 @@ without waiting, while the passing path explicitly verifies process exit.
 
 Full-suite results belong to the coordinator's release reports. This evidence
 establishes local startup-rejection cleanup and preserved render/export checks.
-Validation on Linux requires the next CI run against the exact patched commit;
-the original timeout trigger remains unresolved in this report.
+Exact patched-head CI `33978687069` and merged-main CI `33978845082` subsequently
+passed on Ubuntu 24.04. Both isolated test jobs in candidate gate `33980726626`
+also passed the actual browser/render/export test. These runs establish Linux
+validation of the repaired harness; the original timeout trigger remains
+unproven.
