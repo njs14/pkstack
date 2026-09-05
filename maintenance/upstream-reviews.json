@@ -249,6 +249,29 @@
             "commit": "bf2448f03686a8348324e4741106697d30a867f9",
             "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
           }
+        },
+        {
+          "dispositions": [
+            {
+              "disposition": "B",
+              "path": "backfill/SKILL.md",
+              "rationale": "Exclude Claude-specific transcript-backfill batching, model-tier, context-routing, and capped-diff workflow pending a separately authorized, redacted, bounded Kiro-v3-native migration."
+            },
+            {
+              "disposition": "B",
+              "path": "backfill/scripts/okf_backfill_events.py",
+              "rationale": "Exclude the executable Git diff emitter and CLI changes pending authorized implementation, hostile-input tests, and independent review."
+            }
+          ],
+          "inventory_sha256": "5eb562b5e7f2b477f2baec268df543c5d292e1a7818a9194efe68f16c86f50ca",
+          "new": {
+            "commit": "d8393f329c97836980566c1cf4e4aa4fe47dc111",
+            "subtree_sha": "21eb933ac68df2d2a81aedad6778970d71e99e8d"
+          },
+          "prior": {
+            "commit": "85db7fd0a8a66d07d984ac6c5f4fbb5063d00357",
+            "subtree_sha": "2f9170d6937027c2b1c487ef698f0c000bb47745"
+          }
         }
       ]
     },
