@@ -797,6 +797,7 @@ def _validate_diff_content(
     *,
     expected_path: str,
     expected_text: str,
+    allow_unknown_original: bool = False,
 ) -> None:
     expected = [
         {
@@ -806,7 +807,9 @@ def _validate_diff_content(
             "type": "diff",
         }
     ]
-    if content != expected:
+    # Kiro 2.21.1 represents unread originals as null on denied writes.
+    unknown_original = [{**expected[0], "oldText": None}]
+    if content != expected and not (allow_unknown_original and content == unknown_original):
         raise StreamError("Kiro write diff content is invalid")
 
 
@@ -943,6 +946,7 @@ def _validate_write_group(
             terminal.get("content"),
             expected_path=relative_path,
             expected_text=expected_text,
+            allow_unknown_original=True,
         )
         raw_output = terminal.get("rawOutput")
         if not isinstance(raw_output, dict) or set(raw_output) != {"message"}:
@@ -1236,6 +1240,9 @@ def validate_denied_invocation(
         "events": len(events),
         "kind": "denied",
         "ok": True,
+        "diff_original_content": (
+            "unknown" if groups[0][-1][1]["content"][0]["oldText"] is None else "empty"
+        ),
         "preview_original_content": {
             "start": "originalContent" in groups[0][0][1]["_meta"]["kiro"]["preview"],
             "terminal": "originalContent" in groups[0][-1][1]["_meta"]["kiro"]["preview"],

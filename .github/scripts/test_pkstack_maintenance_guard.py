@@ -6,6 +6,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import importlib.util
+import itertools
 import json
 import os
 import re
@@ -2973,33 +2974,72 @@ class KiroPermissionStreamTests(unittest.TestCase):
             self.assertEqual(
                 denied["preview_original_content"], {"start": True, "terminal": True}
             )
+            self.assertEqual(denied["diff_original_content"], "empty")
 
     def test_denied_previews_accept_optional_original_content_at_each_stage(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             workspace, agent, stream, stderr = self.fixture_workspace(temporary)
-            for resource in permission_stream_guard.DENIED_RESOURCES:
-                for start_present, terminal_present in ((False, False), (False, True), (True, False), (True, True)):
-                    with self.subTest(resource=resource, start=start_present, terminal=terminal_present):
-                        events = self.complete_events(workspace, denied_resource=resource)
-                        for event_index, present in ((2, start_present), (-3, terminal_present)):
-                            preview = events[event_index]["data"]["update"]["_meta"]["kiro"]["preview"]
-                            if not present:
-                                preview.pop("originalContent")
-                                self.assertEqual(preview, {
-                                    "file": resource,
-                                    "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
-                                })
-                        self.write_stream(stream, events)
-                        denied = permission_stream_guard.validate_denied_invocation(
+            cases = itertools.product(
+                permission_stream_guard.DENIED_RESOURCES,
+                (False, True), (False, True), (None, ""),
+            )
+            for resource, start_present, terminal_present, old_text in cases:
+                with self.subTest(resource=resource, start=start_present, terminal=terminal_present, old_text=old_text):
+                    events = self.complete_events(workspace, denied_resource=resource)
+                    for event_index, present in ((2, start_present), (-3, terminal_present)):
+                        preview = events[event_index]["data"]["update"]["_meta"]["kiro"]["preview"]
+                        if not present:
+                            preview.pop("originalContent")
+                            self.assertEqual(preview, {
+                                "file": resource,
+                                "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+                            })
+                    events[-3]["data"]["update"]["content"][0]["oldText"] = old_text
+                    self.write_stream(stream, events)
+                    denied = permission_stream_guard.validate_denied_invocation(
+                        stream, stderr, return_code=0, api_key="test-secret",
+                        workspace=workspace, agent_path=agent, resource=resource,
+                    )
+                    self.assertEqual(denied["user_tool_calls"], 1)
+                    self.assertEqual(denied["resource"], resource)
+                    self.assertEqual(
+                        denied["preview_original_content"],
+                        {"start": start_present, "terminal": terminal_present},
+                    )
+                    self.assertEqual(
+                        denied["diff_original_content"], "unknown" if old_text is None else "empty"
+                    )
+
+    def test_denied_diff_rejects_malformed_originals_and_content(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            valid = {
+                "type": "diff", "path": resource, "oldText": None,
+                "newText": permission_stream_guard.DENIED_WRITE_TEXT,
+            }
+            cases = [
+                ("wrong_original", {**valid, "oldText": "UNTRUSTED_DIFF"}),
+                ("baseline_original", {**valid, "oldText": f"PROTECTED_BASELINE {resource}\n"}),
+                ("boolean_original", {**valid, "oldText": False}),
+                ("numeric_original", {**valid, "oldText": 0}),
+                ("missing_original", {key: value for key, value in valid.items() if key != "oldText"}),
+                ("extra_key", {**valid, "UNTRUSTED_DIFF": "UNTRUSTED_DIFF"}),
+                ("wrong_path", {**valid, "path": "UNTRUSTED_DIFF"}),
+                ("wrong_content", {**valid, "newText": "UNTRUSTED_DIFF"}),
+                ("wrong_type", {**valid, "type": "UNTRUSTED_DIFF"}),
+            ]
+            for case, content in cases:
+                with self.subTest(case=case):
+                    events = self.complete_events(workspace, denied_resource=resource)
+                    events[-3]["data"]["update"]["content"] = [content]
+                    self.write_stream(stream, events)
+                    with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                        permission_stream_guard.validate_denied_invocation(
                             stream, stderr, return_code=0, api_key="test-secret",
                             workspace=workspace, agent_path=agent, resource=resource,
                         )
-                        self.assertEqual(denied["user_tool_calls"], 1)
-                        self.assertEqual(denied["resource"], resource)
-                        self.assertEqual(
-                            denied["preview_original_content"],
-                            {"start": start_present, "terminal": terminal_present},
-                        )
+                    self.assertEqual(str(caught.exception), "Kiro write diff content is invalid")
 
     def test_denied_terminal_preview_rejects_malformed_originals_and_extra_keys(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -3381,6 +3421,8 @@ class KiroPermissionStreamTests(unittest.TestCase):
             )
             nonempty_final = clone()
             nonempty_final[-1]["data"]["finalText"] = "done"  # type: ignore[index]
+            unknown_original = clone()
+            unknown_original[-3]["data"]["update"]["content"][0]["oldText"] = None  # type: ignore[index]
 
             for events in (
                 missing_write,
@@ -3388,6 +3430,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 wrong_used_tools,
                 hidden_denial,
                 nonempty_final,
+                unknown_original,
             ):
                 with self.subTest(events=events), self.assertRaises(
                     permission_stream_guard.StreamError
