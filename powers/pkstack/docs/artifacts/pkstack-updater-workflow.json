@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {"title": "How an upstream update reaches main", "locale": "en", "quality_profile": "showcase"},
+  "lanes": [
+    {"id": "trusted", "label": "Trusted workflow"},
+    {"id": "kiro", "label": "Isolated Kiro turns"},
+    {"id": "stop", "label": "No merge", "variant": "exception"}
+  ],
+  "mainPath": ["detect", "adapt", "test", "peer", "merge"],
+  "nodes": [
+    {"id": "detect", "lane": "trusted", "col": 0, "type": "backend", "label": "Detect & select", "sublabel": "One changed source", "width": 172},
+    {"id": "adapt", "lane": "kiro", "col": 1, "type": "backend", "label": "Sol adapts text", "sublabel": "Bounded repair turns", "width": 172},
+    {"id": "test", "lane": "trusted", "col": 2, "type": "security", "label": "Prove candidate", "sublabel": "Secretless tests & parity", "width": 172},
+    {"id": "peer", "lane": "kiro", "col": 3, "type": "security", "label": "Opus reviews", "sublabel": "Exact patch & skill context", "width": 172},
+    {"id": "merge", "lane": "trusted", "col": 4, "type": "backend", "label": "Merge exact SHA", "sublabel": "Recheck bindings", "width": 172},
+    {"id": "noop", "lane": "stop", "col": 0, "type": "database", "label": "No model turn", "sublabel": "Current or ineligible", "width": 172},
+    {"id": "halt", "lane": "stop", "col": 3, "type": "security", "label": "Stop & retain evidence", "sublabel": "No valid approval", "width": 172}
+  ],
+  "edges": [
+    {"id": "selected_delta", "from": "detect", "to": "adapt", "label": "eligible delta", "role": "main"},
+    {"id": "proposed_patch", "from": "adapt", "to": "test", "label": "proposal", "role": "main"},
+    {"id": "review_packet", "from": "test", "to": "peer", "label": "tests pass", "role": "main"},
+    {"id": "approved_candidate", "from": "peer", "to": "merge", "label": "approved", "role": "main", "variant": "emphasis"},
+    {"id": "no_eligible_delta", "from": "detect", "to": "noop", "label": "nothing eligible", "role": "branch", "variant": "dashed"},
+    {"id": "failed_proof", "from": "test", "to": "halt", "label": "proof fails", "role": "error", "variant": "security"},
+    {"id": "rejected_review", "from": "peer", "to": "halt", "label": "reject / invalid", "role": "error", "variant": "security"}
+  ],
+  "cards": [
+    {"dot": "violet", "title": "Limited authorship", "items": ["The maintainer cannot rewrite code, tests, or permission policy."]},
+    {"dot": "rose", "title": "Separate authorities", "items": ["Candidate code never receives model credentials or publishing tokens."]},
+    {"dot": "emerald", "title": "Merge is not release", "items": ["Tagging and release publication remain separate owner actions."]}
+  ]
+}

@@ -8,6 +8,8 @@ Kiro CLI and IDE sessions do not depend on the pipeline.
 
 ## What can ship automatically
 
+![One source update moves through bounded Kiro repair, secretless verification, independent review, and exact-candidate merge.](artifacts/pkstack-updater-workflow.png)
+
 The updater can adapt existing skill and documentation text within the paths allowed
 by [the maintenance policy](../../../.github/pkstack-maintenance-policy.json). It
 cannot edit executable helpers, controller code, tests, dependencies, permissions,
@@ -56,6 +58,25 @@ another GitHub App credential, or automatic workflow approval to avoid that
 GitHub restriction. See [GitHub's token documentation](https://docs.github.com/en/actions/concepts/security/github_token).
 
 ## Reviewer feedback and credit limits
+
+Skill changes also receive a compatibility review. The versioned review bundle
+contains the exact candidate's skill catalog, affected instructions, relevant
+neighbor skills, and shared steering. Realistic prompts and forbidden effects
+come from the protected test fixture on the trusted base, never the candidate.
+Changed references are included; other reference paths are an inventory, not
+reviewed bodies. The whole bundle is digest-bound to the tested base and head.
+
+The reviewer checks ownership, outputs, permissions, and duplicated mandatory
+work. Shared vocabulary and useful composition are allowed. For example,
+`show-me` explains something visually, while `show-me-your-work` records work
+and evidence. Asking to see completed work does not authorize a new log.
+
+This context has a hard 64 KiB limit. Missing base scenarios, uncovered new
+skills, malformed context, or an overlarge bundle stop automation for manual
+review. Tests check the fixture, links, catalog, and bundle integrity; they do
+not claim to prove how every model will route every natural-language request.
+The existing Kiro-hosted Opus reviewer performs that bounded semantic review.
+No extra model job, provider key, or permission is added.
 
 [`maintenance/upstream-feedback.json`](../../../maintenance/upstream-feedback.json)
 contains one latest validated rejection report and count per source, not an

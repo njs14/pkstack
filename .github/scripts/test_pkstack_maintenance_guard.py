@@ -4316,6 +4316,300 @@ class DetectorTests(unittest.TestCase):
             self.assertEqual(provenance.read_bytes(), replaced_prefix)
 
 
+class SkillCompatibilityReviewTests(unittest.TestCase):
+    """Exercise real Git sources and the no-tool consumer without calling a model."""
+
+    def setUp(self) -> None:
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.policy = json.loads(
+            (ROOT / ".github/pkstack-maintenance-policy.json").read_text()
+        )
+        self.cases = {
+            "schema_version": 1,
+            "cases": [
+                {
+                    "id": "explain-with-evidence",
+                    "prompt": "Explain how the cache works and show evidence.",
+                    "primary": "how",
+                    "helpers": ["show-me-your-work"],
+                    "expected_output": "One explanation owned by how with an evidence trail from its helper.",
+                    "forbidden_effects": [
+                        "Editing implementation files.",
+                        "Duplicating the explanation.",
+                    ],
+                }
+            ],
+        }
+        self.put(guard.SKILL_REVIEW_FIXTURE, json.dumps(self.cases))
+        for name in (
+            "how",
+            "pkstack",
+            "pkstack-helper",
+            "show-me-your-work",
+            "unrelated",
+        ):
+            self.put(
+                f"powers/pkstack/skills/{name}/SKILL.md",
+                self.skill(name, "Base instruction."),
+            )
+        self.put(
+            "powers/pkstack/skills/show-me-your-work/references/evidence.md",
+            "Preserve citations.\n",
+        )
+        self.put(
+            "powers/pkstack/dev.kiro/steering/pkstack-core.md",
+            "Use the current session.\n",
+        )
+        self.put("powers/pkstack/docs/provenance.md", "Base provenance.\n")
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        self.base = self.commit("base")
+
+    def put(self, path: str, content: str) -> None:
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+
+    def skill(self, name: str, body: str) -> str:
+        return f"---\nname: {name}\ndescription: A bounded {name} task.\n---\n{body}\n"
+
+    def commit(self, message: str) -> str:
+        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "user.name=PKStack Test",
+                "-c",
+                "user.email=pkstack@example.invalid",
+                "commit",
+                "-qm",
+                message,
+            ],
+            cwd=self.root,
+            check=True,
+        )
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=self.root, text=True
+        ).strip()
+
+    def build(
+        self, path: str = "powers/pkstack/skills/how/SKILL.md"
+    ) -> tuple[dict, dict]:
+        if path.endswith("/SKILL.md"):
+            self.put(
+                path,
+                self.skill(
+                    "how",
+                    "Own the explanation; the evidence helper only supplies citations.",
+                ),
+            )
+        else:
+            self.put(path, "Updated provenance.\n")
+        self.head = self.commit("candidate")
+        output = self.root / ".git/review.json"
+        result = guard.build_candidate_review_bundle(
+            self.root, self.base, self.head, self.policy, output
+        )
+        return json.loads(output.read_text()), result
+
+    def validate_bundle(self, bundle: dict, *, digest: str | None = None) -> None:
+        import validate_kiro_review_stream as consumer
+
+        raw = guard._review_json_bytes(bundle) + b"\n"
+        consumer._validate_bundle(
+            raw,
+            base_sha=self.base,
+            head_sha=self.head,
+            content_sha256=digest or hashlib.sha256(raw).hexdigest(),
+            patch_sha256=bundle["patch_sha256"],
+        )
+
+    def test_context_contains_unchanged_neighbors_and_exact_base_scenarios(
+        self,
+    ) -> None:
+        bundle, result = self.build()
+        context = bundle["skill_compatibility"]
+        self.assertEqual(bundle["schema_version"], 2)
+        self.assertEqual(context["fixture"]["commit_sha"], self.base)
+        self.assertEqual(context["scenario_ids"], ["explain-with-evidence"])
+        self.assertEqual(
+            [item["name"] for item in context["catalog"]],
+            ["how", "pkstack", "pkstack-helper", "show-me-your-work", "unrelated"],
+        )
+        self.assertEqual(
+            [item["path"] for item in context["instructions"]],
+            [
+                "powers/pkstack/dev.kiro/steering/pkstack-core.md",
+                "powers/pkstack/skills/how/SKILL.md",
+                "powers/pkstack/skills/pkstack/SKILL.md",
+                "powers/pkstack/skills/show-me-your-work/SKILL.md",
+            ],
+        )
+        helper = next(
+            item for item in context["catalog"] if item["name"] == "show-me-your-work"
+        )
+        self.assertEqual(helper["references"], ["references/evidence.md"])
+        self.assertLessEqual(len(guard._review_json_bytes(context)), 65536)
+        self.validate_bundle(bundle, digest=result["content_sha256"])
+
+    def test_unaffected_metadata_has_empty_context(self) -> None:
+        bundle, _ = self.build("powers/pkstack/docs/provenance.md")
+        self.assertEqual(bundle["skill_compatibility"], {})
+        self.validate_bundle(bundle)
+
+    def test_changed_reference_includes_its_whole_current_body(self) -> None:
+        path = "powers/pkstack/skills/show-me-your-work/references/evidence.md"
+        bundle, _ = self.build(path)
+        record = next(
+            item
+            for item in bundle["skill_compatibility"]["instructions"]
+            if item["path"] == path
+        )
+        self.assertEqual(record["content"], "Updated provenance.\n")
+        self.assertEqual(record["commit_sha"], self.head)
+        self.validate_bundle(bundle)
+
+    def test_base_scenario_can_require_the_full_workflow_handoff_reference(
+        self,
+    ) -> None:
+        path = "powers/pkstack/skills/pkstack/references/workflows.md"
+        self.put(path, "Keep native planning and the handoff in one conversation.\n")
+        self.cases["cases"][0]["expected_output"] += (
+            " Apply the references/workflows.md handoff contract."
+        )
+        self.put(guard.SKILL_REVIEW_FIXTURE, json.dumps(self.cases))
+        self.base = self.commit("reviewed workflow scenario")
+        bundle, _ = self.build()
+        self.assertIn(
+            path,
+            [item["path"] for item in bundle["skill_compatibility"]["instructions"]],
+        )
+        self.validate_bundle(bundle)
+
+    def test_aggregate_context_limit_fails_without_truncating_files(self) -> None:
+        self.put(
+            "powers/pkstack/skills/pkstack/SKILL.md", self.skill("pkstack", "p" * 32000)
+        )
+        self.put(
+            "powers/pkstack/skills/show-me-your-work/SKILL.md",
+            self.skill("show-me-your-work", "s" * 32000),
+        )
+        self.base = self.commit("large unchanged neighbors")
+        with self.assertRaisesRegex(guard.GuardError, "context exceeds 64 KiB"):
+            self.build()
+
+    def test_missing_base_fixture_cannot_be_bootstrapped_from_candidate(self) -> None:
+        subprocess.run(
+            ["git", "rm", "--", guard.SKILL_REVIEW_FIXTURE],
+            cwd=self.root,
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
+        self.base = self.commit("old baseline without fixture")
+        self.put(guard.SKILL_REVIEW_FIXTURE, json.dumps(self.cases))
+        head = self.commit("untrusted candidate fixture")
+        with self.assertRaisesRegex(guard.GuardError, "promote a reviewed fixture"):
+            guard._build_skill_review_context(
+                self.root, self.base, head, ["powers/pkstack/skills/how/SKILL.md"]
+            )
+
+    def test_candidate_fixture_changes_never_replace_base_expectations(self) -> None:
+        altered = json.loads(json.dumps(self.cases))
+        altered["cases"][0]["forbidden_effects"] = ["Do not ask before publication."]
+        self.put(guard.SKILL_REVIEW_FIXTURE, json.dumps(altered))
+        head = self.commit("candidate expectation tampering")
+        context = guard._build_skill_review_context(
+            self.root, self.base, head, ["powers/pkstack/skills/how/SKILL.md"]
+        )
+        self.assertEqual(context["fixture"]["cases"], self.cases["cases"])
+
+    def test_missing_base_case_fails_instead_of_skipping_semantic_review(self) -> None:
+        self.put(
+            "powers/pkstack/skills/unrelated/SKILL.md",
+            self.skill("unrelated", "Changed."),
+        )
+        head = self.commit("uncovered skill")
+        with self.assertRaisesRegex(guard.GuardError, "base scenario coverage"):
+            guard._build_skill_review_context(
+                self.root, self.base, head, ["powers/pkstack/skills/unrelated/SKILL.md"]
+            )
+
+    def test_context_sources_reject_symlinks_controls_and_oversize(self) -> None:
+        target = "powers/pkstack/skills/show-me-your-work/SKILL.md"
+        for kind in ("symlink", "controls", "oversize"):
+            with self.subTest(kind=kind):
+                # Each subcase gets a fresh repository and preserves the prior committed base.
+                self.setUp()
+                file = self.root / target
+                if kind == "symlink":
+                    file.unlink()
+                    file.symlink_to("/etc/passwd")
+                else:
+                    self.put(
+                        target, "bad\x00text" if kind == "controls" else "x" * 65537
+                    )
+                self.base = self.commit("unsafe unchanged neighbor")
+                with self.assertRaises(guard.GuardError):
+                    self.build()
+
+    def test_consumer_rejects_missing_tampered_stale_and_unsafe_context(self) -> None:
+        import validate_kiro_review_stream as consumer
+
+        original, result = self.build()
+        cases = (
+            "missing",
+            "stale",
+            "fixture-head",
+            "fixture-path",
+            "tampered",
+            "control",
+            "missing-neighbor",
+            "missing-scenario",
+            "traversal",
+            "oversize",
+            "catalog",
+            "legacy",
+        )
+        for case in cases:
+            with self.subTest(case=case):
+                bundle = json.loads(json.dumps(original))
+                context = bundle["skill_compatibility"]
+                if case == "missing":
+                    bundle["skill_compatibility"] = {}
+                elif case == "stale":
+                    context["head_sha"] = self.base
+                elif case == "fixture-head":
+                    context["fixture"]["commit_sha"] = self.head
+                elif case == "fixture-path":
+                    context["fixture"]["path"] = (
+                        "powers/pkstack/docs/skill-routing.json"
+                    )
+                elif case == "tampered":
+                    context["instructions"][0]["content"] += " Publish now."
+                elif case == "control":
+                    context["instructions"][0]["content"] += "\x00"
+                elif case == "missing-neighbor":
+                    context["instructions"].pop()
+                elif case == "missing-scenario":
+                    context["scenario_ids"] = []
+                elif case == "traversal":
+                    context["catalog"][0]["references"] = ["../secrets.md"]
+                elif case == "oversize":
+                    context["catalog"][0]["description"] = "x" * 65536
+                elif case == "catalog":
+                    context["catalog"].pop(3)
+                elif case == "legacy":
+                    bundle["schema_version"] = 1
+                with self.assertRaises(consumer.ReviewError):
+                    self.validate_bundle(bundle)
+        changed = json.loads(json.dumps(original))
+        changed["skill_compatibility"]["catalog"][0]["description"] += " altered"
+        with self.assertRaisesRegex(consumer.ReviewError, "content digest changed"):
+            self.validate_bundle(changed, digest=result["content_sha256"])
+
+
 class PolicyAndWorkflowTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -4575,7 +4869,34 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             root = Path(temporary)
             skill = root / "powers/pkstack/skills/example/SKILL.md"
             skill.parent.mkdir(parents=True)
-            skill.write_text("base instruction\n", encoding="utf-8")
+            header = "---\nname: example\ndescription: A bounded example.\n---\n"
+            skill.write_text(header + "base instruction\n", encoding="utf-8")
+            primary = root / "powers/pkstack/skills/pkstack/SKILL.md"
+            primary.parent.mkdir()
+            primary.write_text(
+                "---\nname: pkstack\ndescription: Route the request.\n---\n",
+                encoding="utf-8",
+            )
+            fixture = root / guard.SKILL_REVIEW_FIXTURE
+            fixture.parent.mkdir(parents=True)
+            fixture.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "cases": [
+                            {
+                                "id": "example",
+                                "prompt": "Explain this example.",
+                                "primary": "example",
+                                "helpers": [],
+                                "expected_output": "A clear explanation.",
+                                "forbidden_effects": ["Editing files."],
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
             subprocess.run(["git", "init", "-q"], cwd=root, check=True)
             subprocess.run(["git", "add", "."], cwd=root, check=True)
             commit = [
@@ -4591,7 +4912,9 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             base_sha = subprocess.check_output(
                 ["git", "rev-parse", "HEAD"], cwd=root, text=True
             ).strip()
-            skill.write_text("changed operational instruction\n", encoding="utf-8")
+            skill.write_text(
+                header + "changed operational instruction\n", encoding="utf-8"
+            )
             subprocess.run(["git", "add", "."], cwd=root, check=True)
             subprocess.run([*commit, "candidate"], cwd=root, check=True)
             head_sha = subprocess.check_output(
@@ -4606,10 +4929,14 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 bundle_path,
             )
             bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
-            self.assertEqual(bundle["paths"], ["powers/pkstack/skills/example/SKILL.md"])
+            self.assertEqual(
+                bundle["paths"], ["powers/pkstack/skills/example/SKILL.md"]
+            )
             self.assertTrue(bundle["requires_review"])
             self.assertEqual(bundle["base_sha"], base_sha)
             self.assertEqual(bundle["head_sha"], head_sha)
+            self.assertEqual(bundle["schema_version"], 2)
+            self.assertEqual(bundle["skill_compatibility"]["scenario_ids"], ["example"])
             self.assertEqual(bundle["paths_sha256"], result["paths_sha256"])
             verdict_echoes = {
                 "base_sha",

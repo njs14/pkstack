@@ -12,6 +12,10 @@ Investigate motivation, tradeoffs, and historical constraints. Use `how` for
 runtime mechanics. Code shows what exists; code shape alone does not establish
 author intent.
 
+Use [`teach`](../teach/SKILL.md) to compose rationale with mechanics for a learning outcome,
+or [`show-me`](../show-me/SKILL.md) to present the findings visually. Pass sources, coverage
+gaps, and confidence labels forward without repeating the investigation.
+
 Read [`references/evidence-contract.md`](references/evidence-contract.md)
 before delegating.
 

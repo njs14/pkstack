@@ -9,6 +9,14 @@ Treat the request text that activated this skill as the loop objective. Stay in 
 session. Do not introduce ACP as the normal path, misrepresent `/pkstack-verified-goal` as a
 native Kiro feature, or require a second model vendor's API key.
 
+Use this method to build reusable automation. Use
+[`pkstack-verified-goal`](../pkstack-verified-goal/SKILL.md) to complete a task in the current
+session, including verifying this build when implementation is authorized. A request to
+"keep working until the tests pass" does not itself request a reusable loop. If the control
+contract is unresolved, use [`design-control-loop`](../design-control-loop/SKILL.md) first;
+reuse its decisions and evidence in step 2. Keep native Kiro Specs as the planning authority.
+Creating a local workflow does not authorize enabling a schedule or publishing candidates.
+
 Read `references/control-loop.md` before designing the loop and
 `references/github-actions-profile.md` before changing GitHub Actions.
 

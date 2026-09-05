@@ -11,6 +11,10 @@ Use **Explain** mode by default. Use **Critique** mode only when the request
 asks whether the design is sound or how it should improve. `how` explains
 mechanics; use `why` to investigate motivation.
 
+Use [`teach`](../teach/SKILL.md) when the requested outcome combines mechanics and rationale
+into a lesson. Use [`show-me`](../show-me/SKILL.md) to present inspected findings visually;
+pass the same evidence packet forward and keep inferred rationale labeled.
+
 Read [`references/roles-and-critique.md`](references/roles-and-critique.md)
 before delegating or critiquing.
 

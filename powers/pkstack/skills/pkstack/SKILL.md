@@ -45,7 +45,9 @@ upstream-derived workflow skills, a narrow feature contract, deeper OKF context 
 current-session `/pkstack-verified-goal`. It never creates a second task graph or marks a Kiro task checkbox
 as executable proof.
 
-Then select the narrowest shipped skill:
+Then select the narrowest shipped skill. An explicit invocation selects that skill; it does not
+broaden the user's authority. Read the selected leaf before acting, and compose helpers only for
+distinct parts of the outcome. Pass existing evidence forward instead of repeating investigations.
 
 - architecture or alternatives: `architect` or `arena`
 - investigation, explanation, or teaching: `blast-radius`, `how`, `why`, `figure-it-out`, or
@@ -58,6 +60,16 @@ Then select the narrowest shipped skill:
 - plain restatement or evidence trail: `bro` or `show-me-your-work`
 - bounded parallel work or independent challenge: `swarm`, `interrogate`, or `pkstack-model-council`
 - completion: `pkstack-verified-goal` with `.pkstack/bin/projectctl`
+
+Use the curated skills where their output fits the task:
+
+- visual explanation: [`show-me`](../show-me/SKILL.md); polished interactive diagrams:
+  [`archify`](../archify/SKILL.md)
+- agent instructions: [`writing-for-agents`](../writing-for-agents/SKILL.md)
+- React props broader than live callers need:
+  [`narrow-react-prop-types`](../narrow-react-prop-types/SKILL.md)
+- a reusable automation contract: [`design-control-loop`](../design-control-loop/SKILL.md);
+  its implementation: [`build-iterated-agentic-loop`](../build-iterated-agentic-loop/SKILL.md)
 
 Use DO for project commands, PROVE for executable feature contracts, and KNOW for broader project
 knowledge through canonical `okn`. Start with the spec-linked feature record; use `okn` only when

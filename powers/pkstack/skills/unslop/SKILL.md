@@ -7,6 +7,11 @@ description: Edit prose into concise, specific, human writing while preserving t
 
 Treat the request text that activated this skill as the prose and editing goal.
 
+For a document's structure, compose this pass with
+[`technical-writing`](../technical-writing/SKILL.md) for humans or
+[`writing-for-agents`](../writing-for-agents/SKILL.md) for agents. Preserve their technical
+claims, triggers, checkpoints, and authority boundaries while editing sentences.
+
 Use four passes:
 
 1. **Scan.** Mark the concrete patterns below without changing meaning.

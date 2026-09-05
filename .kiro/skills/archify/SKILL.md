@@ -20,9 +20,10 @@ runtime snapshot recorded by the curated-skill manifests.
 ## Route and choose a mode
 
 When a short explanation, pseudocode, call tree, shallow file tree, or Mermaid
-sketch is enough, use `show-me`. When the user asks for a polished interactive
-diagram, route the work here. `show-me-your-work` remains a distinct decision
-and evidence-trail skill; do not substitute it for either visual route.
+sketch is enough, use [`show-me`](../show-me/SKILL.md). When the user asks for a polished
+interactive diagram, route the work here. [`show-me-your-work`](../show-me-your-work/SKILL.md)
+owns decision and evidence trails. Reuse findings from the selected explanation or design
+skill; rendering a diagram does not establish new behavioral proof.
 
 Choose exactly one diagram mode from the user's meaning:
 

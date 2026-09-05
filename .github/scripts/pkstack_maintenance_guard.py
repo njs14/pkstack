@@ -67,6 +67,11 @@ TRUSTED_SNAPSHOT_PREFIXES = (
 CANDIDATE_PACKAGE_MAX_BYTES = 33_554_432
 REVIEW_LEDGER_MAX_BYTES = 8 * 1024 * 1024
 REVIEW_TRANSITION_MAX = 512
+SKILL_REVIEW_CONTEXT_MAX_BYTES = 64 * 1024
+SKILL_REVIEW_FIXTURE = "powers/pkstack/tests/fixtures/skill-routing.json"
+SKILL_REVIEW_PREFIX = "powers/pkstack/skills/"
+SKILL_REVIEW_STEERING = "powers/pkstack/dev.kiro/"
+SKILL_REVIEW_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 UPSTREAM_SCHEMA_VERSION = 2
 GIT_CONTROL_STATE_SCHEMA = 2
 GIT_CONTROL_STATE_MAX_BYTES = 256 * 1024
@@ -3164,6 +3169,426 @@ def validate_package(
     return {**summary, "package_sha256": expected_digest}
 
 
+def _review_json_bytes(value: Any) -> bytes:
+    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def _review_safe_path(path: str) -> None:
+    _validate_path(path)
+    if str(PurePosixPath(path)) != path or "\x7f" in path:
+        raise GuardError("skill review context contains an unsafe path")
+
+
+def _review_affected_paths(paths: list[str]) -> list[str]:
+    return [
+        path
+        for path in paths
+        if path.startswith(
+            (
+                SKILL_REVIEW_PREFIX,
+                SKILL_REVIEW_STEERING,
+                ".kiro/skills/",
+                ".kiro/steering/",
+                ".kiro/agents/",
+                ".kiro/hooks/",
+                "powers/pkstack/templates/project/",
+            )
+        )
+        or path
+        in {
+            "powers/pkstack/docs/curated-skills.md",
+            "powers/pkstack/docs/curated-skills.json",
+        }
+    ]
+
+
+def _review_skill_name(path: str) -> str | None:
+    for prefix in (SKILL_REVIEW_PREFIX, ".kiro/skills/"):
+        if path.startswith(prefix):
+            name = path[len(prefix) :].split("/", 1)[0]
+            if SKILL_REVIEW_NAME.fullmatch(name) is None:
+                raise GuardError("skill review context contains an unsafe skill name")
+            return name
+    return None
+
+
+def _review_blob_sha(content: str) -> str:
+    raw = content.encode("utf-8")
+    return hashlib.sha1(
+        b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw
+    ).hexdigest()
+
+
+def _review_text(content: Any) -> bool:
+    return isinstance(content, str) and not any(
+        ord(character) < 32 and character not in "\n\r\t" or ord(character) == 127
+        for character in content
+    )
+
+
+def _parse_review_fixture(content: str) -> list[dict[str, Any]]:
+    try:
+        document = json.loads(
+            content,
+            object_pairs_hook=_strict_object,
+            parse_constant=_reject_json_constant,
+        )
+    except (ValueError, RecursionError) as exc:
+        raise GuardError("skill review base scenario fixture is invalid JSON") from exc
+    if (
+        not isinstance(document, dict)
+        or set(document) != {"schema_version", "cases"}
+        or type(document["schema_version"]) is not int
+        or document["schema_version"] != 1
+    ):
+        raise GuardError("skill review base scenario fixture contract changed")
+    return document["cases"]
+
+
+def _review_scenarios(cases: Any, affected: list[str]) -> tuple[list[str], set[str]]:
+    if not isinstance(cases, list) or not 1 <= len(cases) <= 128:
+        raise GuardError("skill review base scenario cases are malformed")
+    affected_names = {_review_skill_name(path) for path in affected}
+    broad = bool(affected_names & {None, "pkstack", "pkstack-principles"})
+    selected: list[str] = []
+    neighbors: set[str] = {"pkstack"}
+    covered: set[str] = set()
+    seen: set[str] = set()
+    for case in cases:
+        if not isinstance(case, dict) or set(case) != {
+            "id",
+            "prompt",
+            "primary",
+            "helpers",
+            "expected_output",
+            "forbidden_effects",
+        }:
+            raise GuardError("skill review base scenario contract changed")
+        for key in ("id", "primary"):
+            if (
+                not isinstance(case[key], str)
+                or SKILL_REVIEW_NAME.fullmatch(case[key]) is None
+            ):
+                raise GuardError("skill review base scenario identity is malformed")
+        helpers = case["helpers"]
+        forbidden = case["forbidden_effects"]
+        if (
+            case["id"] in seen
+            or not isinstance(helpers, list)
+            or not all(
+                isinstance(name, str) and SKILL_REVIEW_NAME.fullmatch(name)
+                for name in helpers
+            )
+            or len(helpers) != len(set(helpers))
+            or case["primary"] in helpers
+            or not isinstance(forbidden, list)
+            or not forbidden
+            or not all(
+                _review_text(text) and text.strip() == text and text
+                for text in [case["prompt"], case["expected_output"], *forbidden]
+            )
+        ):
+            raise GuardError("skill review base scenario facts are malformed")
+        seen.add(case["id"])
+        roles = {case["primary"], *helpers}
+        if broad or roles & affected_names:
+            selected.append(case["id"])
+            neighbors.update(roles)
+            covered.update(roles)
+    if (
+        not selected
+        or (affected_names - {None, "pkstack", "pkstack-principles"}) - covered
+    ):
+        raise GuardError(
+            "skill review lacks base scenario coverage; promote a reviewed fixture first"
+        )
+    return sorted(selected), neighbors | (affected_names - {None})
+
+
+def _review_reference_paths(
+    catalog: list[dict[str, Any]], affected: list[str], cases: list[dict[str, Any]]
+) -> set[str]:
+    changed = {
+        path.replace(".kiro/skills/", SKILL_REVIEW_PREFIX, 1)
+        if path.startswith(".kiro/skills/")
+        else path
+        for path in affected
+    }
+    workflow_contract = any(
+        _review_skill_name(path) == "pkstack" for path in affected
+    ) or any("references/workflows.md" in case["expected_output"] for case in cases)
+    return {
+        SKILL_REVIEW_PREFIX + entry["name"] + "/" + reference
+        for entry in catalog
+        for reference in entry["references"]
+        if SKILL_REVIEW_PREFIX + entry["name"] + "/" + reference in changed
+        or (
+            entry["name"] == "pkstack"
+            and reference == "references/workflows.md"
+            and workflow_contract
+        )
+    }
+
+
+def validate_skill_review_context(
+    context: Any, paths: list[str], base_sha: str, head_sha: str
+) -> None:
+    """Validate the same bounded, digest-covered contract in producer and consumer."""
+    for path in paths:
+        _review_safe_path(path)
+    affected = _review_affected_paths(paths)
+    if not affected:
+        if context != {}:
+            raise GuardError(
+                "unaffected candidate must have empty skill review context"
+            )
+        return
+    if not isinstance(context, dict) or set(context) != {
+        "base_sha",
+        "head_sha",
+        "affected_paths",
+        "catalog",
+        "shared_paths",
+        "instructions",
+        "fixture",
+        "scenario_ids",
+    }:
+        raise GuardError(
+            "affected candidate is missing the skill review context contract"
+        )
+    if len(_review_json_bytes(context)) > SKILL_REVIEW_CONTEXT_MAX_BYTES:
+        raise GuardError(
+            "skill review context exceeds 64 KiB; narrow the candidate or use manual review"
+        )
+    if (
+        context["base_sha"] != base_sha
+        or context["head_sha"] != head_sha
+        or context["affected_paths"] != affected
+    ):
+        raise GuardError("skill review context has stale candidate bindings")
+
+    def blob(record: Any, commit: str) -> None:
+        if not isinstance(record, dict) or set(record) != {
+            "path",
+            "commit_sha",
+            "blob_sha",
+            "content",
+        }:
+            raise GuardError("skill review context blob contract changed")
+        if not isinstance(record["path"], str):
+            raise GuardError("skill review context blob path is malformed")
+        _review_safe_path(record["path"])
+        if (
+            record["commit_sha"] != commit
+            or not _review_text(record["content"])
+            or record["blob_sha"] != _review_blob_sha(record["content"])
+        ):
+            raise GuardError("skill review context blob is unsafe, stale, or tampered")
+
+    fixture = context["fixture"]
+    if (
+        not isinstance(fixture, dict)
+        or set(fixture) != {"path", "commit_sha", "blob_sha", "cases"}
+        or fixture["path"] != SKILL_REVIEW_FIXTURE
+        or fixture["commit_sha"] != base_sha
+        or not isinstance(fixture["blob_sha"], str)
+        or re.fullmatch(r"[0-9a-f]{40}", fixture["blob_sha"]) is None
+    ):
+        raise GuardError(
+            "skill review context fixture is not the protected base fixture"
+        )
+    scenario_ids, neighbors = _review_scenarios(fixture["cases"], affected)
+    if context["scenario_ids"] != scenario_ids or len(scenario_ids) != len(
+        fixture["cases"]
+    ):
+        raise GuardError("skill review context omitted applicable base scenarios")
+    catalog = context["catalog"]
+    if not isinstance(catalog, list) or not 1 <= len(catalog) <= 256:
+        raise GuardError("skill review context catalog is malformed")
+    names: list[str] = []
+    expected: set[str] = set()
+    for entry in catalog:
+        if not isinstance(entry, dict) or set(entry) != {
+            "name",
+            "description",
+            "blob_sha",
+            "references",
+        }:
+            raise GuardError("skill review context catalog contract changed")
+        name = entry["name"]
+        references = entry["references"]
+        if (
+            not isinstance(name, str)
+            or SKILL_REVIEW_NAME.fullmatch(name) is None
+            or not _review_text(entry["description"])
+            or not entry["description"].strip()
+            or not isinstance(entry["blob_sha"], str)
+            or re.fullmatch(r"[0-9a-f]{40}", entry["blob_sha"]) is None
+            or not isinstance(references, list)
+            or not all(isinstance(path, str) for path in references)
+            or references != sorted(set(references))
+        ):
+            raise GuardError("skill review context catalog facts are malformed")
+        names.append(name)
+        for reference in references:
+            _review_safe_path(reference)
+            if not reference.endswith(".md") or reference == "SKILL.md":
+                raise GuardError(
+                    "skill review context reference is not an instruction file"
+                )
+        if name in neighbors:
+            expected.add(SKILL_REVIEW_PREFIX + name + "/SKILL.md")
+    if names != sorted(set(names)) or neighbors - set(names):
+        raise GuardError("skill review context catalog is missing a scenario skill")
+    expected.update(_review_reference_paths(catalog, affected, fixture["cases"]))
+    shared = context["shared_paths"]
+    if (
+        not isinstance(shared, list)
+        or not all(isinstance(path, str) for path in shared)
+        or shared != sorted(set(shared))
+    ):
+        raise GuardError("skill review shared instruction paths are malformed")
+    for path in shared:
+        _review_safe_path(path)
+        if not path.startswith(SKILL_REVIEW_STEERING) or not path.endswith(".md"):
+            raise GuardError("skill review shared instruction path is unsafe")
+    expected.update(shared)
+    instructions = context["instructions"]
+    if not isinstance(instructions, list):
+        raise GuardError("skill review instructions are malformed")
+    actual: list[str] = []
+    for record in instructions:
+        blob(record, head_sha)
+        actual.append(record["path"])
+        if record["path"].endswith("/SKILL.md"):
+            name = _review_skill_name(record["path"])
+            entry = next((item for item in catalog if item["name"] == name), None)
+            if entry is None or entry["blob_sha"] != record["blob_sha"]:
+                raise GuardError(
+                    "skill review instruction does not match the candidate catalog"
+                )
+    if actual != sorted(expected):
+        raise GuardError(
+            "skill review context omitted or added neighboring instructions"
+        )
+
+
+def _build_skill_review_context(
+    root: Path, base_sha: str, head_sha: str, paths: list[str]
+) -> dict[str, Any]:
+    affected = _review_affected_paths(paths)
+    if not affected:
+        return {}
+    trees: dict[str, tuple[bytes, bytes, str]] = {}
+    for record in _git_bytes(
+        root,
+        "ls-tree",
+        "-r",
+        "-z",
+        head_sha,
+        "--",
+        SKILL_REVIEW_PREFIX,
+        SKILL_REVIEW_STEERING,
+    ).split(b"\0"):
+        if record:
+            metadata, encoded_path = record.split(b"\t", 1)
+            mode, kind, object_sha = metadata.split(b" ")
+            path = encoded_path.decode("utf-8", errors="strict")
+            _review_safe_path(path)
+            trees[path] = (mode, kind, object_sha.decode("ascii"))
+
+    def read(path: str, commit: str) -> dict[str, str]:
+        record = _git_bytes(root, "ls-tree", "-z", commit, "--", path).rstrip(b"\0")
+        if not record:
+            raise GuardError(
+                "skill review base fixture or instruction missing; promote a reviewed fixture first"
+            )
+        metadata, encoded_path = record.split(b"\t", 1)
+        mode, kind, object_sha = metadata.split(b" ")
+        if mode != b"100644" or kind != b"blob" or encoded_path.decode("utf-8") != path:
+            raise GuardError(
+                "skill review context source must be a regular non-executable blob"
+            )
+        if (
+            int(_git_text(root, "cat-file", "-s", object_sha.decode("ascii")))
+            > SKILL_REVIEW_CONTEXT_MAX_BYTES
+        ):
+            raise GuardError("skill review context source exceeds 64 KiB")
+        content = _git_bytes(
+            root, "cat-file", "blob", object_sha.decode("ascii")
+        ).decode("utf-8", errors="strict")
+        if not _review_text(content):
+            raise GuardError(
+                "skill review context source contains unsafe control characters"
+            )
+        return {
+            "path": path,
+            "commit_sha": commit,
+            "blob_sha": object_sha.decode("ascii"),
+            "content": content,
+        }
+
+    fixture = read(SKILL_REVIEW_FIXTURE, base_sha)
+    cases = _parse_review_fixture(fixture.pop("content"))
+    scenario_ids, neighbors = _review_scenarios(cases, affected)
+    # Selection runs only over the immutable base. The expected whole-bundle digest
+    # binds these cases; retaining unrelated cases would spend the neighbor budget.
+    fixture["cases"] = [case for case in cases if case["id"] in scenario_ids]
+    catalog: list[dict[str, Any]] = []
+    selected: set[str] = set()
+    for path in sorted(trees):
+        if not path.startswith(SKILL_REVIEW_PREFIX) or not path.endswith("/SKILL.md"):
+            continue
+        name = _review_skill_name(path)
+        if path != SKILL_REVIEW_PREFIX + str(name) + "/SKILL.md":
+            continue  # Vendored nested skills are references, not installed catalog entries.
+        skill = read(path, head_sha)
+        header = re.match(
+            r"\A---\nname: ([a-z0-9-]+)\ndescription: ([^\n]+)\n---(?:\n|$)",
+            skill["content"],
+        )
+        if header is None or header[1] != name:
+            raise GuardError(
+                "skill review catalog requires canonical name and description frontmatter"
+            )
+        prefix = SKILL_REVIEW_PREFIX + str(name) + "/"
+        references = sorted(
+            item[len(prefix) :]
+            for item in trees
+            if item.startswith(prefix) and item.endswith(".md") and item != path
+        )
+        catalog.append(
+            {
+                "name": name,
+                "description": header[2],
+                "blob_sha": skill["blob_sha"],
+                "references": references,
+            }
+        )
+        if name in neighbors:
+            selected.add(path)
+    catalog.sort(key=lambda entry: entry["name"])
+    selected.update(_review_reference_paths(catalog, affected, fixture["cases"]))
+    shared = sorted(
+        path
+        for path in trees
+        if path.startswith(SKILL_REVIEW_STEERING) and path.endswith(".md")
+    )
+    selected.update(shared)
+    context = {
+        "base_sha": base_sha,
+        "head_sha": head_sha,
+        "affected_paths": affected,
+        "catalog": catalog,
+        "shared_paths": shared,
+        "fixture": fixture,
+        "scenario_ids": scenario_ids,
+        "instructions": [read(path, head_sha) for path in sorted(selected)],
+    }
+    validate_skill_review_context(context, paths, base_sha, head_sha)
+    return context
+
+
 def build_candidate_review_bundle(
     root: Path,
     base_sha: str,
@@ -3265,7 +3690,7 @@ def build_candidate_review_bundle(
         json.dumps(paths, ensure_ascii=False, separators=(",", ":")).encode()
     ).hexdigest()
     bundle = {
-        "schema_version": 1,
+        "schema_version": 2,
         "review_type": "mandatory-independent-exact-candidate",
         "base_sha": base_sha,
         "head_sha": head_sha,
@@ -3276,6 +3701,7 @@ def build_candidate_review_bundle(
         "paths_sha256": paths_sha256,
         "patch_sha256": patch_sha256,
         "patch": patch_text,
+        "skill_compatibility": _build_skill_review_context(root, base_sha, head_sha, paths),
     }
     raw = (json.dumps(bundle, sort_keys=True, separators=(",", ":")) + "\n").encode()
     if len(raw) > policy["limits"]["max_patch_bytes"] * 2 + 65_536:

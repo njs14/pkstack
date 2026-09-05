@@ -6,15 +6,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "cc6daa299fc66b7b75df40c7c82e489bea7b326f611f9c781b2f6ad6c5ce51c3",
-      "size": 1711,
+      "sha256": "70655d39c58b8d4716c70a827f1d2c93600f3192bdc20c427d078dcd87ae5e81",
+      "size": 2177,
       "source_path": "plugins/show-me/skills/show-me/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "show-me",
   "summary": {
-    "byte_count": 1711,
+    "byte_count": 2177,
     "file_count": 1
   }
 }

@@ -29,6 +29,7 @@ PK_ONLY_SKILLS = set(PARITY["pk_only_skills"])
 CURATED_REGISTRY_PATH = ROOT / "docs" / "curated-skills.json"
 CURATED_REGISTRY = json.loads(CURATED_REGISTRY_PATH.read_text(encoding="utf-8"))
 CURATED_SKILLS = {entry["name"] for entry in CURATED_REGISTRY["skills"]}
+ROUTING_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "skill-routing.json"
 EXPECTED_SKILLS = (
     {Path(entry["target"]).parent.name for entry in PARITY_SKILLS if entry["target"] is not None}
     | PK_ONLY_SKILLS
@@ -139,6 +140,161 @@ def test_skill_frontmatter_matches_agent_skills_standard(skill_name: str) -> Non
 def test_only_expected_skill_directories_are_present() -> None:
     actual = {path.parent.name for path in SKILLS.glob("*/SKILL.md")}
     assert actual == EXPECTED_SKILLS
+
+
+def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
+    """Validate review inputs, not a production dispatcher or semantic routing behavior."""
+
+    def unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in pairs:
+            assert key not in result, f"duplicate routing fixture key: {key}"
+            result[key] = value
+        return result
+
+    raw = ROUTING_FIXTURE_PATH.read_text(encoding="utf-8")
+    assert raw.endswith("\n") and len(raw.encode()) <= 24 * 1024
+    fixture = json.loads(raw, object_pairs_hook=unique_object)
+    assert set(fixture) == {"schema_version", "cases"}
+    assert type(fixture["schema_version"]) is int and fixture["schema_version"] == 1
+    cases = fixture["cases"]
+    assert isinstance(cases, list) and 1 <= len(cases) <= 36
+    ids: set[str] = set()
+    primary_routes: set[str] = set()
+    for case in cases:
+        assert isinstance(case, dict)
+        assert set(case) == {
+            "id",
+            "prompt",
+            "primary",
+            "helpers",
+            "expected_output",
+            "forbidden_effects",
+        }
+        for field in ("id", "prompt", "primary", "expected_output"):
+            assert isinstance(case[field], str) and case[field].strip() == case[field]
+            assert 1 <= len(case[field]) <= 1000
+        assert re.fullmatch(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*", case["id"])
+        assert case["id"] not in ids
+        ids.add(case["id"])
+        assert case["primary"] in EXPECTED_SKILLS
+        primary_routes.add(case["primary"])
+        helpers = case["helpers"]
+        assert isinstance(helpers, list) and len(helpers) <= 6
+        assert all(isinstance(helper, str) and helper in EXPECTED_SKILLS for helper in helpers)
+        assert len(helpers) == len(set(helpers)) and case["primary"] not in helpers
+        forbidden = case["forbidden_effects"]
+        assert isinstance(forbidden, list) and 1 <= len(forbidden) <= 8
+        assert all(
+            isinstance(effect, str) and effect.strip() == effect and 1 <= len(effect) <= 200
+            for effect in forbidden
+        )
+        assert len(forbidden) == len(set(forbidden))
+
+    assert primary_routes >= CURATED_SKILLS
+    # Preserve the review's positive cases, near misses, invocation, and composition coverage.
+    assert {
+        "setup-only",
+        "setup-requested-tour",
+        "visual-request-flow",
+        "visual-polished-artifact",
+        "ambiguous-work-summary",
+        "requested-evidence-trail",
+        "explicit-visual-route",
+        "explicit-evidence-summary-only",
+        "human-runbook",
+        "agent-instructions",
+        "mixed-audience-docs",
+        "prose-edit-only",
+        "mechanics-question",
+        "rationale-question",
+        "teach-composed-lesson",
+        "architecture-boundary",
+        "artifact-contest",
+        "loop-design-only",
+        "loop-build-authorized",
+        "execute-current-task",
+        "verifier-drift",
+        "product-defect",
+        "recall-context",
+        "reflect-proposals",
+        "capture-approved-knowledge",
+        "react-props-too-broad",
+        "typescript-boundary-schema",
+        "react-live-null-state",
+        "explicit-loop-no-effects",
+        "lesson-with-polished-visual",
+    } <= ids
+
+
+def test_skill_routing_markdown_pointers_resolve_within_the_power() -> None:
+    for source in SKILLS.rglob("*.md"):
+        if "upstream" in source.relative_to(SKILLS).parts:
+            continue
+        text = source.read_text(encoding="utf-8")
+        for target in re.findall(r"\[[^\]]+\]\(([^)\s]+\.md)(?:#[^)]*)?\)", text):
+            if "://" in target:
+                continue
+            resolved = (source.parent / target).resolve()
+            assert resolved.is_relative_to(ROOT.resolve()), f"{source}: {target} escapes Power"
+            assert resolved.is_file(), f"{source}: missing {target}"
+            if resolved.name == "SKILL.md":
+                assert resolved.parent.name in EXPECTED_SKILLS
+
+
+def test_contextual_entrypoints_link_all_six_curated_leaf_methods() -> None:
+    for relative in ("pkstack/SKILL.md", "pkstack/references/workflows.md"):
+        source = SKILLS / relative
+        targets = {
+            (source.parent / target).resolve()
+            for target in re.findall(r"\[[^\]]+\]\(([^)\s]+/SKILL\.md)\)", source.read_text())
+        }
+        assert {(SKILLS / name / "SKILL.md").resolve() for name in CURATED_SKILLS} <= targets
+
+
+@pytest.mark.parametrize(
+    ("skill_name", "neighbors"),
+    [
+        ("show-me", {"show-me-your-work", "archify", "how", "why", "teach"}),
+        ("show-me-your-work", {"show-me"}),
+        ("technical-writing", {"writing-for-agents", "unslop"}),
+        ("writing-for-agents", {"technical-writing", "unslop"}),
+        ("unslop", {"technical-writing", "writing-for-agents"}),
+        ("how", {"teach", "show-me"}),
+        ("why", {"teach", "show-me"}),
+        ("teach", {"how", "why", "show-me", "archify"}),
+        ("architect", {"arena", "design-control-loop"}),
+        ("arena", {"architect", "design-control-loop"}),
+        ("design-control-loop", {"architect", "arena", "build-iterated-agentic-loop"}),
+        ("build-iterated-agentic-loop", {"design-control-loop", "pkstack-verified-goal"}),
+        ("pkstack-verified-goal", {"build-iterated-agentic-loop", "maintain-verification-skill"}),
+        ("maintain-verification-skill", {"pkstack-verified-goal"}),
+        ("recall", {"reflect", "okf"}),
+        ("reflect", {"recall", "okf"}),
+        ("okf", {"recall", "reflect"}),
+        ("narrow-react-prop-types", {"typescript-best-practices"}),
+        ("typescript-best-practices", {"narrow-react-prop-types"}),
+    ],
+)
+def test_skill_boundary_leaves_link_their_neighbors(skill_name: str, neighbors: set[str]) -> None:
+    text = (SKILLS / skill_name / "SKILL.md").read_text(encoding="utf-8")
+    assert neighbors <= set(re.findall(r"\]\(\.\./([^/]+)/SKILL\.md\)", text))
+
+
+def test_setup_handoff_and_explicit_invocation_keep_authority_visible() -> None:
+    setup = " ".join((SKILLS / "pkstack-setup" / "SKILL.md").read_text().split())
+    assert "Setup ends with installation, checks, and this report" in setup
+    assert "Offer one relevant next step" in setup
+    assert "Do not start onboarding" in setup
+    for name in ("show-me", "writing-for-agents", "create-verification-skill"):
+        assert f"../{name}/SKILL.md" in setup
+    entry = " ".join((SKILLS / "pkstack" / "SKILL.md").read_text().split())
+    assert "An explicit invocation selects that skill" in entry
+    assert "does not broaden the user's authority" in entry
+    for name in ("show-me", "show-me-your-work"):
+        leaf = " ".join((SKILLS / name / "SKILL.md").read_text().split())
+        assert '"show me what you did"' in leaf
+        assert "existing evidence" in leaf and "new log" in leaf
 
 
 def test_compatibility_document_inventory_counts_match_assets() -> None:
@@ -380,8 +536,8 @@ def test_ported_skill_bodies_keep_high_value_upstream_contracts() -> None:
     normalized_teach = " ".join(teach.split())
     assert "Do not quiz the user" in normalized_teach
     for phrase in (
-        "apply the `how` skill",
-        "the `why` skill",
+        "apply [`how`](../how/SKILL.md)",
+        "[`why`](../why/SKILL.md)",
         "real skill applications",
         "coverage gaps and confidence words unchanged",
         "progressive series",
@@ -769,12 +925,18 @@ def test_maintenance_skill_preserves_current_session_and_clean_room_contract() -
 
 
 def test_post_setup_workflow_attaches_the_pkstack_agent() -> None:
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     usage = (ROOT / "docs" / "usage.md").read_text(encoding="utf-8")
 
-    for document in (readme, usage):
-        assert "/agent swap pkstack" in document
-        assert "kiro-cli chat --v3 --agent pkstack" in document
+    for path in (REPO_ROOT / "README.md", ROOT / "README.md"):
+        document = path.read_text(encoding="utf-8")
+        assert "Import power from a folder" in document
+        assert "/pkstack-setup" in document
+        assert "Select the workspace `pkstack` agent" in document
+        targets = re.findall(r"\[[^\]]+\]\(([^)\s]*docs/usage\.md)\)", document)
+        assert len(targets) == 1
+        assert (path.parent / targets[0]).resolve() == (ROOT / "docs" / "usage.md").resolve()
+    assert "/agent swap pkstack" in usage
+    assert "kiro-cli chat --v3 --agent pkstack" in usage
 
 
 def test_setup_shim_uses_locked_source_module_fallback_for_older_python(
@@ -874,13 +1036,13 @@ def test_surface_support_matrix_separates_targets_from_evidence() -> None:
     normalized_compatibility = " ".join(compatibility.split())
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
 
-    for text in (compatibility, readme):
-        normalized = " ".join(text.split())
-        assert "Kiro CLI v3" in normalized
-        assert "Kiro IDE" in normalized
-        assert "Kiro Crew" in normalized
-        assert "Kiro Web" in normalized
-        assert "optional orchestrator" in normalized.lower()
+    for phrase in ("Kiro CLI v3", "Kiro IDE", "Kiro Crew", "Kiro Web", "optional orchestrator"):
+        assert phrase in normalized_compatibility
+    for phrase in ("CLI v3", "IDE", "Crew is optional", "Web is untested"):
+        assert phrase in readme
+    assert "](reviews/release-status.md)" in readme
+    status = (REPO_ROOT / "reviews" / "release-status.md").read_text(encoding="utf-8")
+    assert "Kiro Web is untested" in status
     assert "## Support and evidence matrix" in compatibility
     assert "First-class and exercised" in normalized_compatibility
     assert "First-class with a bounded GUI smoke" in normalized_compatibility
@@ -935,9 +1097,7 @@ def test_model_guidance_is_kiro_native_and_evidence_bounded() -> None:
     compatibility = (ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8")
     normalized_compatibility = " ".join(compatibility.split())
     usage = (ROOT / "docs" / "usage.md").read_text(encoding="utf-8")
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     normalized_usage = " ".join(usage.split())
-    normalized_readme = " ".join(readme.split())
     combined_root = ROOT.parents[1]
     evidence = json.loads(
         (combined_root / "reviews" / "kiro-model-guidance-evidence.json").read_text(
@@ -963,7 +1123,7 @@ def test_model_guidance_is_kiro_native_and_evidence_bounded() -> None:
     ):
         assert phrase in normalized_compatibility
 
-    assert "Your selected Kiro model and effort carry through unchanged" in normalized_readme
+    assert "PKStack inherits the model and effort selected in Kiro" in normalized_usage
     assert "evidence, not the interactive default" in normalized_usage
     assert "select the desired normal effort afterwards" in normalized_usage
 

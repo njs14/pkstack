@@ -13,6 +13,13 @@ agent owns the goal and its evidence.
 
 Treat the request text that activated this skill as the objective and acceptance context.
 
+This method executes the current task. For a request to build reusable automation, use
+[`build-iterated-agentic-loop`](../build-iterated-agentic-loop/SKILL.md); this goal may verify
+that build, but it does not create or enable a recurring workflow by itself. If failure shows
+verifier drift, use [`maintain-verification-skill`](../maintain-verification-skill/SKILL.md)
+for a separately bounded verifier repair. Product failures stay in the authorized goal;
+never turn a failing product expectation into verifier maintenance just to obtain a pass.
+
 This is a PROVE + DO workflow. Start from the stored feature/spec verifier and its executable
 evidence; do not run broad KNOW retrieval by default. Escalate to one bounded, targeted knowledge
 query only when failure evidence exposes a concrete architecture, decision, concept, or operations

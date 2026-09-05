@@ -104,6 +104,9 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     assert '-m pkstack "$@"' in wrapper
     assert (tmp_path / ".kiro" / "skills" / "pkstack-verified-goal" / "SKILL.md").is_file()
     assert not (tmp_path / ".kiro" / "skills" / "pkstack-setup").exists()
+    assert not list(tmp_path.rglob("skill-routing.json")), "review cases are not runtime assets"
+    assert not list(tmp_path.rglob("decision-log.jsonl")), "setup does not start an evidence trail"
+    assert not (tmp_path / ".pkstack" / "state" / "goal.json").exists()
     for directory in ("skills", "dev.kiro", "templates"):
         assert not (tmp_path / ".pkstack" / "projectctl" / directory).exists()
     parity = json.loads(

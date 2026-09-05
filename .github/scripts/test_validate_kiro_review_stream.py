@@ -23,7 +23,7 @@ PATHS_SHA256 = hashlib.sha256(
     json.dumps(PATHS, separators=(",", ":")).encode()
 ).hexdigest()
 BUNDLE = {
-    "schema_version": 1,
+    "schema_version": 2,
     "review_type": "mandatory-independent-exact-candidate",
     "base_sha": BASE,
     "head_sha": HEAD,
@@ -34,6 +34,7 @@ BUNDLE = {
     "paths_sha256": PATHS_SHA256,
     "patch_sha256": PATCH,
     "patch": PATCH_TEXT,
+    "skill_compatibility": {},
 }
 BUNDLE_RAW = (json.dumps(BUNDLE, sort_keys=True, separators=(",", ":")) + "\n").encode()
 CONTENT = hashlib.sha256(BUNDLE_RAW).hexdigest()
@@ -106,6 +107,14 @@ class KiroReviewStreamTests(unittest.TestCase):
             "summary must be a trimmed, nonempty string of at most 4000 UTF-8 bytes",
             '"approved" if and only if material_findings is []',
             'otherwise use "rejected"',
+            "schema v2 skill_compatibility context",
+            "immutable base fixture",
+            "Block supported conflicting instructions",
+            "duplicated mandatory work or competing ownership",
+            "unauthorized effects, and weakened verification",
+            "Allow documented composition with one primary owner and useful helpers",
+            "shared vocabulary or overlapping descriptions alone are not defects",
+            "Missing, inconsistent, or insufficient context is an unresolved finding",
         ):
             with self.subTest(guidance=guidance):
                 self.assertIn(guidance, prompt)
@@ -126,6 +135,11 @@ class KiroReviewStreamTests(unittest.TestCase):
 
         approved = json.loads(verdict())
         validate(approved)
+        composition = dict(
+            approved,
+            summary="Intentional composition retains one primary owner and a bounded evidence helper.",
+        )
+        validate(composition)
         rejected = json.loads(verdict(findings=["é" * 1000] * 32))
         rejected["summary"] = "é" * 2000
         validate(rejected)

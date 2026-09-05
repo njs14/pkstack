@@ -30,15 +30,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "4061704880d1e51549eb5fcb8dadacf87ecde9ddbbdaa18991f64dfd10b60565",
-      "size": 4192,
+      "sha256": "d38e8d6371f96cc60283f3d631011579d9a427e1674e1360eadd08c6837d32b9",
+      "size": 4795,
       "source_path": "plugins/build-iterated-agentic-loop/skills/build-iterated-agentic-loop/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "build-iterated-agentic-loop",
   "summary": {
-    "byte_count": 6474,
+    "byte_count": 7077,
     "file_count": 4
   }
 }

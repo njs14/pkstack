@@ -1,6 +1,6 @@
 ---
 name: show-me
-description: Help the user understand the current topic with concise diagrams, code-shape sketches, and focused offline-capable HTML artifacts.
+description: Explain a topic visually with concise diagrams, code-shape sketches, or focused offline-capable HTML. Use for visual understanding rather than a decision-and-evidence log.
 ---
 
 # Show me
@@ -25,9 +25,15 @@ Keep calls, files, props, states, and boundaries to the minimum useful set.
 Do not expose hidden chain-of-thought or raw private transcripts.
 
 If the topic needs a polished interactive architecture, workflow, sequence,
-data-flow, or lifecycle diagram, route it to the curated `archify` skill. Keep
-this lightweight explainer route distinct from `show-me-your-work`, which is
-the separate decision-and-evidence trail skill.
+data-flow, or lifecycle diagram, use [`archify`](../archify/SKILL.md). Use
+[`show-me-your-work`](../show-me-your-work/SKILL.md) when the requested output
+is an auditable decision-and-evidence trail. An ambiguous "show me what you did"
+asks for a concise summary of existing evidence; it does not create a new log.
+
+For mechanics or rationale, use the findings from [`how`](../how/SKILL.md) or
+[`why`](../why/SKILL.md); [`teach`](../teach/SKILL.md) may compose those findings
+into a lesson. This skill supplies the presentation. Reuse their inspected
+sources and preserve their uncertainty instead of repeating the investigation.
 
 For a visual UI, layout, state comparison, or concept too dense for Mermaid,
 write one focused HTML artifact using the local tools and open it for the user.

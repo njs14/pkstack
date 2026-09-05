@@ -9,6 +9,11 @@ Treat the request text that activated this skill as a request to **produce**, **
 the repository's OKF knowledge. Infer the narrowest mode from the request and state it. Store project
 knowledge in `Wiki/`; do not create a competing `.okf/` tree when PKStack already owns `Wiki/`.
 
+For retrieving prior context, use [`recall`](../recall/SKILL.md). For proposing lessons from
+completed work, use [`reflect`](../reflect/SKILL.md). This skill owns durable knowledge when
+capture or maintenance is requested; retrieval and reflection do not imply a write grant.
+Reuse their inspected sources and preserve the difference between history, inference, and proof.
+
 This skill owns workflow semantics only. `.pkstack/bin/projectctl` composes the feature map with the
 canonical `okn` process for validation and bounded retrieval. Do not copy or invoke an upstream
 validator, activate an upstream MCP server or hook, install dependencies, substitute `okfcli/okf`

@@ -7,6 +7,10 @@ description: Design or review TypeScript with constructive domain types, boundar
 
 Treat the request text that activated this skill as the TypeScript change or review target.
 
+When React props admit states absent from live callers, apply
+[`narrow-react-prop-types`](../narrow-react-prop-types/SKILL.md) to that portion and reuse its
+call-site inventory. Keep broader runtime schema and domain work in this method.
+
 Inspect the repository's compiler settings, runtime schema library, lint rules, and local patterns
 before proposing a new abstraction. Model state with discriminated unions and semantic primitives
 when they remove invalid combinations. Accept external data as `unknown`, validate it once at the

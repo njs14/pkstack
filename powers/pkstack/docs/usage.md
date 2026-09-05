@@ -7,29 +7,25 @@ the generated `pkstack` Kiro agent, a feature contract, and a verifier run in
 the current Kiro session. Start with the [repository README](../../../README.md) if you
 are deciding whether to install it.
 
+## Commands
+
+| Command | Use it for |
+| --- | --- |
+| `/pkstack` | Route a task through planning, implementation, verification, and review |
+| `/pkstack-setup` | Preview installation or refresh managed files |
+| `/pkstack-maintain` | Review upstream changes to the Power |
+| `/pkstack-verified-goal` | Repair against one stored executable check |
+| `/pkstack-model-council` | Compare independent reviews and resolve findings |
+| `/pkstack-principles` | Apply the engineering-principles catalog |
+
+Imported skills keep their names. The [sources guide](curated-skills.md) explains
+their roles and handoffs. For a runnable example, [try one failing task](first-task.md).
+
 ## The short version
 
-```text
-import and review the Power
-        |
-        v
-/pkstack-setup  ->  review the dry run and bootstrap
-        |
-        v
-select pkstack  ->  use the IDE picker or /agent swap pkstack
-        |
-        v
-/pkstack <task>  ->  choose the Poteto workflow and its checkpoints
-        |
-        v
-native Spec / Quick Spec / Bug Fix  ->  Kiro owns the plan
-        |
-        v
-feature contract + verifier  ->  projectctl owns executable proof
-        |
-        v
-/pkstack-verified-goal <objective>  ->  current-session implement / verify / repair
-```
+![Return from native Kiro planning to PKStack, run the stored verifier, and repair while attempts remain.](artifacts/pkstack-task-workflow.png)
+
+[Open the interactive workflow](artifacts/pkstack-task-workflow.html).
 
 Kiro CLI v3 and the Kiro IDE agent panel are the primary surfaces. Kiro Crew is
 optional. Kiro Web can consume committed workspace assets, but its end-to-end
