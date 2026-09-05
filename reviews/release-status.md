@@ -9,7 +9,7 @@ version_authority: powers/pkstack/plugin.json
 PKStack 0.3.0 remains an unreleased candidate; publication approval is separate.
 [v0.2.0](https://github.com/njs14/pkstack/releases/tag/v0.2.0)
 remains the published release. The reviewed implementation is merged through
-`23b34a7df75fcabd8998f174002aa175aecf0ad3`. The bounded updater campaign and
+`832aa8da2dc207fbf5b51f8ad8153d207caa2820`. The bounded updater campaign and
 authenticated upstream verification passed. The user waived further GUI testing
 on September 5, 2026 and directed that IDE operation be assumed. The final
 report commit, its CI, and the archive/checksum are
@@ -24,8 +24,9 @@ bound in the local publication handoff after these reports are merged. The
 | [PR #35](https://github.com/njs14/pkstack/pull/35): browser cleanup independently approved | `9c3e630` | `a1c0c9a` |
 | [PR #36](https://github.com/njs14/pkstack/pull/36): retry cleanup security approved | `e94c357` | `7533634` |
 | [PR #37](https://github.com/njs14/pkstack/pull/37): bounded upstream update independently approved and automatically merged | `277b2ee` | `23b34a7` |
+| [PR #40](https://github.com/njs14/pkstack/pull/40): practical tests, parallel CI, browser lifecycle and artifact promotion independently approved | `666396f` | `832aa8d` |
 
-The retry repair's exact [PR CI run](https://github.com/njs14/pkstack/actions/runs/33979933200)
+Historical retry-repair evidence includes the exact [PR CI run](https://github.com/njs14/pkstack/actions/runs/33979933200)
 and [main CI run](https://github.com/njs14/pkstack/actions/runs/33980155633) passed.
 Local evidence includes 870 Power tests and the latest 185 Python policy tests
 plus 17 Node tests. Candidate gate
@@ -36,6 +37,22 @@ implementation tree equals that candidate tree. Doctor passed 81 checks;
 feature, generated-parity, and canonical `okn` checks passed. Authenticated
 upstream and feature verification passed for all seven configured sources with
 no selected semantic drift on accepted main `23b34a7`.
+
+Current infrastructure [PR CI](https://github.com/njs14/pkstack/actions/runs/33985933815)
+and [main CI](https://github.com/njs14/pkstack/actions/runs/33986118130) passed all
+12 jobs. The retained suite reconciled 865 Power cases (864 passed and the one
+explicit unavailable-Kiro skip), with 222 repository Python and 17 Node tests.
+Canonical/generated parity and authenticated reproof of all seven upstream
+sources passed. Main built the archive twice, checked an extracted installation
+and fixed-verifier failure/repair/pass, and produced the exact artifact subsequently
+accepted by read-only pre-tag verification. That verification created no tag and
+returned `publication_eligible: false`.
+
+From first job start to final job completion, main took 1m33s, compared with
+2m44s for the earlier successful single-job main run. These are observed runs, not a controlled benchmark; runner
+usage increased from about 2.7 to 6.9 minutes. The
+[deliberately failing checkpoint](https://github.com/njs14/pkstack/actions/runs/33985923263)
+proved that other lanes finish, failure evidence survives, and aggregation fails.
 
 CLI Standard and Quick completed native failure/repair/pass loops. Curated
 helpers passed their bounded tasks with recorded corrections and follow-ups;
@@ -55,10 +72,10 @@ already covered by 24 independent process/state cases.
   They are no longer release blockers. The Web fixture's stored
   failure/repair/pass and earlier IDE results remain limited evidence; the waiver
   does not establish fresh passing results for these surfaces.
-- **Final artifact:** Reproducible archives and extracted-consumer checks for
-  main `3859f63` are historical evidence. Notes, archive, checksum, and acceptance
-  must bind to the final report commit in the local handoff; this report does not
-  substitute the earlier archive for that final evidence.
+- **Final artifact:** Main `832aa8d` has passing reproducible archive, extracted-consumer,
+  and pre-tag artifact-verification evidence. The final report commit will receive
+  its own main CI artifact; notes, checksum, and exact run/artifact identities bind
+  to that commit in the local handoff. Publication promotes those validated bytes.
 
 The [pipeline history](release-030-pipeline.md) retains all three campaigns.
 Campaign 1 closed PR #34 unmerged after a base-browser CDP timeout; the proven

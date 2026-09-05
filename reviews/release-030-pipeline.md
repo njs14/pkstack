@@ -242,3 +242,35 @@ No ordinary push CI run was created for this automated merge; its exact tree is
 covered by the isolated candidate gates. The final report PR and resulting main
 require their own ordinary CI before the local handoff binds the final archive.
 The updater remains active on its existing daily schedule.
+
+
+## CI reduction and exact-main artifact promotion
+
+PR #40 (`666396f`, merged as `832aa8d`) replaces serial ordinary CI with ten
+execution lanes and a required aggregate. Fixed report paths receive a report-only
+PR profile; unknown/mixed paths keep normal coverage. Every selected test has one
+bound result, and missing, duplicate, cancelled or unexpected skipped results fail.
+An actual deliberately failing test in draft PR #39 failed core shard 4; all other
+execution lanes finished, evidence was retained, and aggregation refused the run.
+PR #39 was closed unmerged. The actual infrastructure candidate passed all 12 jobs
+in run 33985933815, followed by successful main run 33986118130.
+
+The updater now builds and validates its trusted review bundle before candidate
+tests and model review run concurrently. Base tests remain independent. Merge and
+cleanup wait for all branches; review rejection counts retain their earlier
+eligibility when candidate tests also fail. These changes passed independent
+security review and focused workflow tests. The new overlap has not yet been
+observed on a live updater candidate; campaign 3 remains the live acceptance record.
+
+Main CI builds twice from the exact commit, installs the archive, and validates a
+stored failure/repair/pass with an unchanged verifier. The promotion verifier
+requires the exact successful main push run/current attempt, all mandatory jobs,
+immutable artifact ID, API ZIP digest, inner hashes, matching notes and source/check
+identities. It rechecks private-repository, current-main and tag authority before
+publication. A read-only pre-tag verification of main 832aa8d passed and explicitly
+returned non-publication-eligible evidence because no tag was created.
+
+A source-updater merge without a push-main CI artifact remains ineligible for
+release promotion. There is no fallback to candidate artifacts, tree-equivalent
+commits or a rebuild during publication. The final report commit's main workflow
+will produce the release artifact bound in the local handoff.

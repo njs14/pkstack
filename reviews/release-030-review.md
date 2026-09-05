@@ -123,3 +123,28 @@ protected inputs remained unchanged. The separate
 [composition report](release-030-composition.md) retains the exact predicate,
 session, hashes, preflight limitation, and evidence boundary. This adds current
 composition coverage without claiming a new native Spec or broader GUI proof.
+
+
+## Independent CI, packaging and browser review
+
+The infrastructure checkpoint `666396f52c4b440020bd9d35b76751bb572dea38` received
+separate read-only reviews outside each implementer's ownership before PR #40
+merged as `832aa8da2dc207fbf5b51f8ad8153d207caa2820`:
+
+- CI classification, partition receipts and aggregation were approved after
+  preserving mandatory canonical-OKN validation when either supported executable
+  is present. Fifteen helper regressions and four availability cases passed.
+- Updater concurrency, secret boundaries, exact identities and feedback/cleanup
+  joins were approved with five focused security/workflow checks and actionlint.
+- Packaging and isolated promotion were approved with 21 tests, workflow lint,
+  and a live read-only check of the GitHub API fields used for binding. A small
+  follow-up explicitly verifies preservation of a consumer-owned file during setup.
+- Archify lifecycle, smoke/full profiles, provenance and practical-test pruning
+  were approved after 132 focused tests and inspection of before/after evidence.
+
+The complete local policy lane passed 222 Python and 17 Node tests, static checks,
+feature validation and canonical OpenKnowledge validation. Hosted run 33985933815
+passed all 12 jobs and reconciled 865 retained Power cases; deliberate failure run
+33985923263 proved rejection without cancelling other lanes. Main run 33986118130
+passed the complete checks and artifact producer; read-only pre-tag verification
+accepted its exact archive bytes without creating a tag or publishing a release.
