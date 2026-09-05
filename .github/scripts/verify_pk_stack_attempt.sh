@@ -16,6 +16,10 @@ umask 077
 : "${KIRO_USER_HOME:?KIRO_USER_HOME is required}"
 : "${GIT_BOUNDARY_STATE:?GIT_BOUNDARY_STATE is required}"
 : "${CONTROL_PLAN_PATH:?CONTROL_PLAN_PATH is required}"
+if [[ ! "$ATTEMPT_NUMBER" =~ ^[1-4]$ ]]; then
+  echo "ATTEMPT_NUMBER must be an integer from 1 through 4" >&2
+  exit 2
+fi
 
 project_root=$(pwd -P)
 verification_log="${RUNNER_TEMP:?RUNNER_TEMP is required}/pk-stack-verify-${ATTEMPT_NUMBER}.log"
@@ -129,10 +133,18 @@ python3 "$GUARD_PATH" --root "$project_root" validate-trusted-snapshot \
 readonly_token=$READONLY_GITHUB_TOKEN
 unset READONLY_GITHUB_TOKEN
 
+diagnostics_root="$RUNNER_TEMP/pk-stack-verification-results"
+test ! -L "$diagnostics_root"
+mkdir -p "$diagnostics_root"
+stage_path="$diagnostics_root/attempt-${ATTEMPT_NUMBER}.stage"
+test ! -e "$stage_path" && test ! -L "$stage_path"
+mark_stage() { printf '%s\n' "$1" >"$stage_path"; }
+
 set +e
 (
   set -euo pipefail
 
+  mark_stage detector
   detector_validation=$(python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH")
   drift_count=$(jq -er '.drift_count' <<<"$detector_validation")
   selected_source_id=$(jq -er '.selected_source_id // ""' "$CONTROL_PLAN_PATH")
@@ -140,12 +152,15 @@ set +e
 
   # The base-commit controller performs the only generated-file update. This
   # must precede proposal preview because acceptance requires generated parity.
+  mark_stage setup
   trusted_projectctl setup \
     --root . \
     --power-root powers/pk-stack \
     --update-managed \
     --output json
+  mark_stage feature-contract
   trusted_projectctl feature validate --output json
+  mark_stage generated-parity
   trusted_projectctl setup \
     --root . \
     --power-root powers/pk-stack \
@@ -162,6 +177,7 @@ set +e
   ' "$RUNNER_TEMP/pk-stack-dry-run-${ATTEMPT_NUMBER}.json"
 
   if (( drift_count > 0 )); then
+    mark_stage proposal
     test -f .pk-stack-maintenance/proposal.json
     proposal_validation=$(python3 "$GUARD_PATH" validate-proposal \
       --detector "$DETECTOR_PATH" \
@@ -172,6 +188,7 @@ set +e
       --arg expected_head "$expected_head" \
       '.ok == true and .source_id == $source_id and .expected_head == $expected_head' \
       <<<"$proposal_validation"
+    mark_stage accept-preview
     trusted_projectctl_network upstream accept \
       --manifest maintenance/upstreams.json \
       --power-root powers/pk-stack \
@@ -186,7 +203,9 @@ set +e
 
   # Only immutable base code is executable here. The candidate is constrained
   # to Markdown/JSON data, Kiro runtime state is gone, and no token is exported.
+  mark_stage policy-tests
   without_finalizer_git_metadata python3 .github/scripts/test_pk_stack_maintenance_guard.py
+  mark_stage power-tests
   (
     unset GIT_DIR GIT_COMMON_DIR GIT_WORK_TREE GIT_INDEX_FILE
     unset GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES
@@ -205,6 +224,7 @@ set +e
   # failure is retryable because prepare-attempt restores both pin and ledger
   # from BASE_SHA before asking Kiro for a fresh proposal.
   if (( drift_count > 0 )); then
+    mark_stage accept
     trusted_projectctl_network upstream accept \
       --manifest maintenance/upstreams.json \
       --power-root powers/pk-stack \
@@ -222,6 +242,7 @@ set +e
   # The owner-only, ignored accept lock is intentionally persistent. Only the
   # proposal/journal context is transactional and must be consumed.
 
+  mark_stage post-accept
   trusted_projectctl setup \
     --root . \
     --power-root powers/pk-stack \
@@ -257,6 +278,7 @@ set +e
   else
     [[ "$remaining_drift_count" == "0" ]]
   fi
+  mark_stage goal
   GITHUB_TOKEN="$readonly_token" trusted_projectctl goal verify --output json
   readonly_token=
   trusted_projectctl goal status --output json >"$GOAL_STATUS_PATH"
@@ -267,16 +289,19 @@ set +e
     and (.goal.attempt_count >= 2 and .goal.attempt_count <= 5)
   ' "$GOAL_STATUS_PATH"
 
+  mark_stage final-boundary
   python3 "$GUARD_PATH" --root "$project_root" boundary \
     --base "$BASE_SHA" \
     --scope final \
     --stage
   test -z "$(trusted_git diff --no-ext-diff --no-textconv --name-only)"
   test -z "$(trusted_git ls-files --others --exclude-standard)"
+  mark_stage complete
 ) >"$verification_log" 2>&1
 verification_rc=$?
 set -e
 
+finalizer_rc=0
 if [[ "$verification_rc" -ne 0 ]]; then
   set +e
   python3 "$GUARD_PATH" --root "$project_root" finalize-git-state \
@@ -284,10 +309,43 @@ if [[ "$verification_rc" -ne 0 ]]; then
     --git-state "$GIT_BOUNDARY_STATE" >>"$verification_log" 2>&1
   finalizer_rc=$?
   set -e
-  if [[ "$finalizer_rc" -ne 0 ]]; then
-    echo "trusted Git finalizer cleanup failed" >&2
-    exit "$finalizer_rc"
-  fi
+fi
+
+# Actions retains this fixed-field stdout; never publish raw verifier output.
+python3 - "$stage_path" "$ATTEMPT_NUMBER" "$verification_rc" "$finalizer_rc" \
+  "$BASE_SHA" "${GITHUB_RUN_ID:?GITHUB_RUN_ID is required}" <<'PY'
+import json
+import re
+import sys
+from pathlib import Path
+
+stage_file = Path(sys.argv[1])
+stage = stage_file.read_text(encoding="ascii").strip()
+allowed = {"detector", "setup", "feature-contract", "generated-parity", "proposal",
+           "accept-preview", "policy-tests", "power-tests", "accept", "post-accept",
+           "goal", "final-boundary", "complete"}
+attempt, exit_code, cleanup_exit = map(int, sys.argv[2:5])
+base_sha, run_id = sys.argv[5:7]
+if (stage not in allowed or not 1 <= attempt <= 4
+        or not 0 <= exit_code <= 255 or not 0 <= cleanup_exit <= 255
+        or re.fullmatch(r"[0-9a-f]{40}", base_sha) is None
+        or re.fullmatch(r"[1-9][0-9]{0,15}", run_id) is None):
+    raise SystemExit("invalid trusted verifier diagnostic metadata")
+report = {"schema_version": 1, "source_run_id": int(run_id), "base_sha": base_sha,
+          "attempt": attempt, "stage": stage, "exit_code": exit_code,
+          "cleanup_exit_code": cleanup_exit, "passed": exit_code == cleanup_exit == 0}
+encoded = json.dumps(report, sort_keys=True, separators=(",", ":")) + "\n"
+destination = stage_file.with_suffix(".json")
+with destination.open("x", encoding="utf-8") as output:
+    output.write(encoded)
+stage_file.unlink()
+print(encoded, end="")
+if not report["passed"]:
+    print(f"::warning::PK-Stack verification failed at {stage} (exit {exit_code}; cleanup {cleanup_exit})")
+PY
+if [[ "$finalizer_rc" -ne 0 ]]; then
+  echo "trusted Git finalizer cleanup failed" >&2
+  exit "$finalizer_rc"
 fi
 
 if [[ "$verification_rc" -eq 0 ]]; then

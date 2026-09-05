@@ -89,7 +89,7 @@ jobs:
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            09357bd36bd6b7aecbc0bf3cc5d18ab05c60ef42982726aa9204fc7eb3f3fd14 \
+            0db063207a23ac7ccc64a63dfefe57b7eccb3c5b3cb23cefbf816c9bb0d7f883 \
             "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
@@ -232,7 +232,7 @@ jobs:
             test ! -e "$case_root/user-home/.kiro"
             test ! -e "$case_root/kiro-home/settings/mcp.json"
             printf '%s  %s\n' \
-              09357bd36bd6b7aecbc0bf3cc5d18ab05c60ef42982726aa9204fc7eb3f3fd14 \
+              0db063207a23ac7ccc64a63dfefe57b7eccb3c5b3cb23cefbf816c9bb0d7f883 \
               "$case_root/workspace/.kiro/agents/pk-stack-permission-fixture.json" \
               | sha256sum --check
           }

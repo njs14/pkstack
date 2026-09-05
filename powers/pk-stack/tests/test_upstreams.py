@@ -159,15 +159,23 @@ def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_sc
         REPOSITORY_ROOT / "powers/pk-stack/docs/openknowledge-cli-contract-provenance.md"
     ).read_text(encoding="utf-8")
     source_id = "openknowledge-cli-contract"
-    expected_identity = {
-        "commit": "6e8bbe026448fd890ace9293bcfe89b53363cd1f",
-        "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf",
-    }
     manifest_source = next(source for source in manifest["sources"] if source["id"] == source_id)
     ledger_source = next(source for source in ledger["sources"] if source["id"] == source_id)
+    _assert_openknowledge_contract_scope(manifest_source, ledger_source, parity, provenance)
+
+
+def _assert_openknowledge_contract_scope(
+    manifest_source: dict[str, Any],
+    ledger_source: dict[str, Any],
+    parity: dict[str, Any],
+    provenance: str,
+) -> None:
+    """Check local scope, not remote authenticity (the acceptance verifier proves that)."""
+    source_id = "openknowledge-cli-contract"
+    active = {key: manifest_source[key] for key in ("commit", "subtree_sha")}
 
     assert manifest_source == {
-        **expected_identity,
+        **active,
         "id": source_id,
         "parity_path": "powers/pk-stack/docs/openknowledge-cli-contract-parity.json",
         "path": "packages/cli/schemas/v1",
@@ -176,27 +184,43 @@ def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_sc
         "repository": "openknowledge-sh/openknowledge",
     }
     assert ledger_source == {
-        "genesis": expected_identity,
+        "genesis": ledger_source["genesis"],
         "id": source_id,
         "parity_path": manifest_source["parity_path"],
         "path": manifest_source["path"],
         "provenance_path": manifest_source["provenance_path"],
         "repository": manifest_source["repository"],
-        "transitions": [],
+        "transitions": ledger_source["transitions"],
     }
-    assert parity["source"]["pinned"] == parity["source"]["current"] == expected_identity
-    assert len(parity["files"]) == 63
-    assert [entry["path"] for entry in parity["files"]] == sorted(
-        (entry["path"] for entry in parity["files"]), key=str.casefold
+    transitions = ledger_source["transitions"]
+    assert active == (transitions[-1]["new"] if transitions else ledger_source["genesis"])
+    prior = transitions[-1]["prior"] if transitions else ledger_source["genesis"]
+    assert parity["schema_version"] == 1
+    assert parity["artifact_type"] == "source-inventory"
+    assert parity["allowed_dispositions"] == ["A", "B", "C"]
+    for key in ("id", "repository", "path"):
+        assert parity["source"][key] == manifest_source[key]
+    pinned = upstreams._source_parity_identity(parity["source"]["pinned"], "pinned")
+    current = upstreams._source_parity_identity(parity["source"]["current"], "current")
+    # Before accept, the matrix describes active -> candidate. After accept it
+    # retains that same reviewed transition while the manifest advances.
+    assert (pinned == active and current["subtree_sha"] != active["subtree_sha"]) or (
+        current == active and pinned == prior
     )
-    assert all(entry["pinned"] == entry["current"] for entry in parity["files"])
+    paths = {entry["path"] for entry in parity["files"]}
+    assert paths
+    assert [entry["path"] for entry in parity["files"]] == sorted(paths, key=str.casefold)
+    assert all(
+        entry["pinned"] is not None or entry["current"] is not None for entry in parity["files"]
+    )
+    assert all(entry["rationale"].strip() for entry in parity["files"])
     by_disposition = {
         disposition: {
             entry["path"] for entry in parity["files"] if entry["disposition"] == disposition
         }
         for disposition in ("A", "B", "C")
     }
-    assert by_disposition["A"] == {
+    assert by_disposition["A"] == paths & {
         "cli-error.schema.json",
         "common.schema.json",
         "search-context.schema.json",
@@ -208,12 +232,11 @@ def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_sc
         if entry["path"].startswith(("deploy-", "job-", "runtime-"))
     }
     assert parity["summary"] == {
-        "A": 4,
-        "B": 19,
-        "C": 40,
-        "pinned_files": 63,
-        "current_files": 63,
+        **{disposition: len(paths) for disposition, paths in by_disposition.items()},
+        "pinned_files": sum(entry["pinned"] is not None for entry in parity["files"]),
+        "current_files": sum(entry["current"] is not None for entry in parity["files"]),
     }
+    assert sum(len(paths) for paths in by_disposition.values()) == len(parity["files"])
     assert (
         _marker_line(
             "genesis",
@@ -221,11 +244,80 @@ def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_sc
                 "source_id": source_id,
                 "repository": manifest_source["repository"],
                 "path": manifest_source["path"],
-                **expected_identity,
+                **ledger_source["genesis"],
             },
         )
         in provenance
     )
+
+
+@pytest.mark.parametrize("accepted", [False, True], ids=["pending", "accepted"])
+def test_openknowledge_contract_scope_allows_revision_and_inventory_changes(accepted: bool) -> None:
+    source = {
+        "id": "openknowledge-cli-contract",
+        "repository": "openknowledge-sh/openknowledge",
+        "path": "packages/cli/schemas/v1",
+        "ref": "main",
+        "commit": PIN,
+        "subtree_sha": PIN_TREE,
+        "parity_path": "powers/pk-stack/docs/openknowledge-cli-contract-parity.json",
+        "provenance_path": "powers/pk-stack/docs/openknowledge-cli-contract-provenance.md",
+    }
+    prior = {"commit": PIN, "subtree_sha": PIN_TREE}
+    new = {"commit": HEAD, "subtree_sha": HEAD_TREE}
+    review = {
+        **{
+            key: value
+            for key, value in source.items()
+            if key not in {"commit", "subtree_sha", "ref"}
+        },
+        "genesis": prior,
+        "transitions": [],
+    }
+    old_file = {"type": "blob", "mode": "100644", "object_sha": "a" * 40, "size": 10}
+    new_file = {**old_file, "object_sha": "b" * 40, "size": 20}
+    parity = {
+        "schema_version": 1,
+        "artifact_type": "source-inventory",
+        "allowed_dispositions": ["A", "B", "C"],
+        "source": {
+            **{key: source[key] for key in ("id", "repository", "path")},
+            "pinned": prior,
+            "current": new,
+        },
+        "files": [
+            {
+                "path": path,
+                "pinned": pinned,
+                "current": current,
+                "disposition": disposition,
+                "rationale": "Reviewed scope.",
+            }
+            for path, pinned, current, disposition in (
+                ("new-metadata.schema.json", None, new_file, "C"),
+                ("runtime-old.schema.json", old_file, None, "B"),
+                ("search-context.schema.json", old_file, new_file, "A"),
+            )
+        ],
+        "summary": {"A": 1, "B": 1, "C": 1, "pinned_files": 2, "current_files": 2},
+    }
+    if accepted:
+        source.update(new)
+        review["transitions"] = [{"prior": prior, "new": new}]
+    provenance = _marker_line(
+        "genesis",
+        {
+            "source_id": source["id"],
+            "repository": source["repository"],
+            "path": source["path"],
+            **prior,
+        },
+    )
+    _assert_openknowledge_contract_scope(source, review, parity, provenance)
+
+    parity["files"][1]["disposition"] = "A"
+    with pytest.raises(AssertionError):
+        _assert_openknowledge_contract_scope(source, review, parity, provenance)
 
 
 def _manifest() -> dict[str, Any]:

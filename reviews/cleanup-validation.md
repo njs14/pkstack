@@ -138,7 +138,9 @@ uv run --frozen ty check
 uv run --frozen pytest -q
 ```
 
-The final full suite passed **811 tests in 132.69 seconds**. Lock validation,
+The cleanup suite first passed 811 tests. The follow-up's full suite passed
+**813 tests in 146.36 seconds** after the two OpenKnowledge regressions were
+added. Lock validation,
 Ruff lint and formatting, and type checks passed. This includes runtime/evidence
 tests, wheel/offline setup, the README walkthrough, and the detached-stdout test.
 The latter proves a bounded error when a separately detached writer keeps the
@@ -209,7 +211,86 @@ immediately afterwards, before a paid model call. The regression forces Linux's
 in-tree cache behavior even on this Mac and verifies unchanged inventory/hashes.
 The revised policy suite passed 129 tests; JavaScript 17, Actionlint, and
 ShellCheck passed. Astra accepted the targeted fix and independently reran its
-11 affected tests. The follow-up live result and 0.3.0 publication are pending.
+11 affected tests. [PR #14](https://github.com/njs14/pk-stack/pull/14) passed
+[CI](https://github.com/njs14/pk-stack/actions/runs/33932025631) and merged at
+`5d8d7079476c6084b683229106aa0c16cf98fbbf`. Its
+[post-merge CI](https://github.com/njs14/pk-stack/actions/runs/33932178264) passed.
+The corrected [live run](https://github.com/njs14/pk-stack/actions/runs/33932190028)
+passed the new Linux preflight and completed four Kiro repair turns. All four
+secretless verifier wrappers returned `passed=false`; the terminal candidate
+check failed and publication was skipped. The
+[candidate gate](https://github.com/njs14/pk-stack/actions/runs/33932778985) was
+skipped, so no independent peer review or automatic merge occurred.
+
+The actual failed inner gate was not retained: the existing script deleted its
+raw verifier log after creating temporary model feedback, and uploaded only
+the detector. Each verifier stopped in roughly two to three seconds, before
+the full test stage, but that timing does not establish the failing invariant.
+These are four deterministic verifier failures, not four material peer-review
+rejections and not evidence of provider unavailability. Release remains gated
+while this integration result is unresolved.
+
+The follow-up prints a small per-attempt diagnostic in the retained GitHub
+step log: fixed gate name, exit codes, attempt, base commit, and source run ID.
+It does not print command output, model transcripts, arbitrary error text, or
+environment values. Executable shell regressions cover success, a failed gate,
+finalizer failure, and output redaction. No diagnostic artifact collector or
+upload is needed.
+
+A separate test had frozen the OpenKnowledge CLI contract's original commit,
+empty review history, and 63-file inventory. That would reject a legitimate
+future upstream update. The corrected test checks active/prior ledger identity,
+complete sorted inventories, derived counts, and the same read-only versus
+runtime classifications. Pending and accepted update regressions cover added,
+removed, and modified files. Production acceptance validation is unchanged.
+This later test blocker does not explain the earlier `okf-skills` failures.
+OpenKnowledge's parity JSON was also missing from the maintainer's exact write
+allowlist and finalizer boundary, although the controller could select that
+source. The fix adds that one path to the policy, profile, and permission
+fixture; it does not grant general JSON write access. A manifest-driven check
+guards parity-path coverage across all tracked sources.
+The permission-smoke fixture's two pinned checksum references were refreshed
+to its computed SHA-256. The first full policy rerun caught those stale hashes;
+the fixture integrity check was preserved, not bypassed.
+
+Astra accepted the log-only diagnostics, dynamic contract test, and exact-path
+permission correction. Its independent focused rerun passed eight tests:
+three shell diagnostics, three OpenKnowledge scope tests, and two source-path
+coverage tests.
+The final local follow-up gates passed 134 repository-policy tests in 12.05
+seconds and 17 JavaScript tests, with Actionlint, ShellCheck, and diff checks
+clean. The separate full Power gate passed 813 tests as recorded above.
+
+A secretless local reproduction used an archive of `5d8d707` and the saved
+detector from run 33931459393. It authored a coherent proposal for the one
+changed `okf-skills` path, an exact provenance marker, and the corresponding
+13-file parity inventory. Proposal validation, trusted setup, feature validation,
+and a repeat no-change setup all passed. The production source-parity helper
+returned `candidate-ready`. The changed source identity was commit
+`85db7fd0a8a66d07d984ac6c5f4fbb5063d00357`, subtree
+`2f9170d6937027c2b1c487ef698f0c000bb47745`.
+
+The guard invocation was:
+
+```sh
+python3 -B /private/tmp/pk-stack-cleanup.kOHcaP/.github/scripts/pk_stack_maintenance_guard.py \
+  --root . validate-proposal \
+  --detector /private/tmp/pk-stack-updater-evidence.lb2cDc/upstream-check.json \
+  --proposal .pk-stack-maintenance/proposal.json --selected-source-id okf-skills
+```
+
+The controller invocations used the immutable controller's `src` on `PYTHONPATH`
+with Python `-B -X pycache_prefix=/dev/null -m pk_stack`, followed by the same
+setup/apply, feature validation, and setup/dry-run arguments shown earlier.
+This check proves the saved data can satisfy those local gates; it does not
+prove fresh remote acceptance, the complete Git boundary, or a model-produced
+candidate. The executable shell success regression uses test doubles and is
+not a live provider result.
+
+Before the final instrumented campaign, `/usage` showed **283.77 of 1,000**
+credits used. That is **25.95** above the initial reading, including the
+interactive checks and two live pipeline campaigns. The value is account-wide
+and may include concurrent usage; it is not exact task billing.
 
 - IDE Power import is not UI-validated. The installed desktop driver lacks
   macOS Accessibility and Screen Recording permission. The terminal campaign
