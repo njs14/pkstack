@@ -1,0 +1,85 @@
+[build-system]
+requires = ["hatchling==1.32.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pkstack"
+version = "0.3.0"
+description = "PKStack Kiro-native verified development Power and project control CLI"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md"]
+authors = [{ name = "PKStack contributors" }]
+dependencies = [
+  "cyclopts==4.23.2",
+  "PyYAML>=6.0.2,<7",
+]
+
+[project.scripts]
+projectctl = "pkstack.cli:main"
+pkstack-setup = "pkstack.bootstrap:main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<0.14",
+  "ty>=0.0.1a20,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pkstack"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills" = "pkstack/_assets/skills"
+"docs/upstream-skill-parity.json" = "pkstack/_assets/docs/upstream-skill-parity.json"
+"docs/curated-skills.json" = "pkstack/_assets/docs/curated-skills.json"
+"docs/humanlayer-show-me-bundle-manifest.json" = "pkstack/_assets/docs/humanlayer-show-me-bundle-manifest.json"
+"docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json" = "pkstack/_assets/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json"
+"docs/humanlayer-design-control-loop-bundle-manifest.json" = "pkstack/_assets/docs/humanlayer-design-control-loop-bundle-manifest.json"
+"docs/humanlayer-narrow-react-prop-types-bundle-manifest.json" = "pkstack/_assets/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json"
+"docs/humanlayer-skills-provenance.md" = "pkstack/_assets/docs/humanlayer-skills-provenance.md"
+"docs/humanlayer-skills-source-parity.json" = "pkstack/_assets/docs/humanlayer-skills-source-parity.json"
+"docs/mattpocock-writing-for-agents-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-writing-for-agents-bundle-manifest.json"
+"docs/mattpocock-writing-for-agents-provenance.md" = "pkstack/_assets/docs/mattpocock-writing-for-agents-provenance.md"
+"docs/mattpocock-writing-for-agents-source-parity.json" = "pkstack/_assets/docs/mattpocock-writing-for-agents-source-parity.json"
+"docs/tt-a1i-archify-bundle-manifest.json" = "pkstack/_assets/docs/tt-a1i-archify-bundle-manifest.json"
+"docs/tt-a1i-archify-provenance.md" = "pkstack/_assets/docs/tt-a1i-archify-provenance.md"
+"docs/tt-a1i-archify-source-parity.json" = "pkstack/_assets/docs/tt-a1i-archify-source-parity.json"
+"dev.kiro/steering" = "pkstack/_assets/dev.kiro/steering"
+"templates/project" = "pkstack/_assets/templates/project"
+"templates/projectctl" = "pkstack/_assets/templates/projectctl"
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers --cov-branch"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["pkstack"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 85
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["tests/fixtures/generated"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"skills/pkstack-setup/scripts/setup_pkstack.py" = ["UP036"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.src]
+include = ["src", "tests"]

@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "artifact_type": "source-inventory",
+  "source": {
+    "id": "okf-skills",
+    "repository": "scaccogatto/okf-skills",
+    "path": "skills",
+    "pinned": {
+      "commit": "bf2448f03686a8348324e4741106697d30a867f9",
+      "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
+    },
+    "current": {
+      "commit": "bf2448f03686a8348324e4741106697d30a867f9",
+      "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
+    },
+    "retrieved_on": "2026-09-03"
+  },
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "summary": {
+    "A": 4,
+    "B": 4,
+    "C": 5,
+    "pinned_files": 13,
+    "current_files": 13
+  },
+  "files": [
+    {
+      "path": "backfill/scripts/okf_backfill_events.py",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "5f63458991555ef4cd51bef7068ad1daf5358de3",
+        "size": 21302
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "5f63458991555ef4cd51bef7068ad1daf5358de3",
+        "size": 21302
+      },
+      "disposition": "B",
+      "rationale": "Exclude transcript-oriented historical backfill from the default product pending a separately authorized, redacted, bounded migration design."
+    },
+    {
+      "path": "backfill/SKILL.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "9335fe0ed3404787d9f3336cae77b25cdc057516",
+        "size": 10577
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "9335fe0ed3404787d9f3336cae77b25cdc057516",
+        "size": 10577
+      },
+      "disposition": "B",
+      "rationale": "Exclude transcript-oriented historical backfill from the default product pending a separately authorized, redacted, bounded migration design."
+    },
+    {
+      "path": "okf/reference/APACHE-2.0.txt",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "size": 11358
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+        "size": 11358
+      },
+      "disposition": "C",
+      "rationale": "Retain license provenance for the upstream vendored Google specification without redistributing it."
+    },
+    {
+      "path": "okf/reference/SPEC.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d47af53d00017a9840b8b8e2e2ce4160cdddac79",
+        "size": 37952
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d47af53d00017a9840b8b8e2e2ce4160cdddac79",
+        "size": 37952
+      },
+      "disposition": "C",
+      "rationale": "Treat this stale vendored specification as provenance only; the independently tracked Google source is authoritative."
+    },
+    {
+      "path": "okf/scripts/okf_init.py",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "f7a54d925a06f36389b613613e15691c0a7fbaf3",
+        "size": 4143
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "f7a54d925a06f36389b613613e15691c0a7fbaf3",
+        "size": 4143
+      },
+      "disposition": "C",
+      "rationale": "Do not copy or execute the upstream initializer; PKStack owns idempotent Wiki bootstrap and preservation semantics."
+    },
+    {
+      "path": "okf/SKILL.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "87e6015125468452055c684d4c2af62d9430f792",
+        "size": 7859
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "87e6015125468452055c684d4c2af62d9430f792",
+        "size": 7859
+      },
+      "disposition": "A",
+      "rationale": "Adapt the durable produce, maintain, and consume methodology into a standards-clean Kiro-native PKStack skill."
+    },
+    {
+      "path": "okf/templates/concept.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "9fef1988ec55fa717f9283e8e8614c8e653d6020",
+        "size": 1527
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "9fef1988ec55fa717f9283e8e8614c8e653d6020",
+        "size": 1527
+      },
+      "disposition": "C",
+      "rationale": "Do not reuse the template because its date-only metadata predates the current explicit-offset timestamp requirements."
+    },
+    {
+      "path": "okf/templates/index.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "56ba3beea2db0dac13ce807a855b516822b0b227",
+        "size": 254
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "56ba3beea2db0dac13ce807a855b516822b0b227",
+        "size": 254
+      },
+      "disposition": "A",
+      "rationale": "Adapt the minimal index and bounded change-log concepts without copying the Claude plugin template."
+    },
+    {
+      "path": "okf/templates/log.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c07a2e21d1a20b6b684fcf4e308107b603be55a7",
+        "size": 255
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c07a2e21d1a20b6b684fcf4e308107b603be55a7",
+        "size": 255
+      },
+      "disposition": "A",
+      "rationale": "Adapt the minimal index and bounded change-log concepts without copying the Claude plugin template."
+    },
+    {
+      "path": "validate/scripts/okf_validate.py",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "661156f2327ab2ed05051a53ebda2eae2bf252a3",
+        "size": 25773
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "661156f2327ab2ed05051a53ebda2eae2bf252a3",
+        "size": 25773
+      },
+      "disposition": "C",
+      "rationale": "Do not copy or execute the stale validator; canonical okn supplies the hardened validation boundary."
+    },
+    {
+      "path": "validate/SKILL.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "881ecbf2eb7c749c0ea994ff239e4b128c731bce",
+        "size": 3787
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "881ecbf2eb7c749c0ea994ff239e4b128c731bce",
+        "size": 3787
+      },
+      "disposition": "A",
+      "rationale": "Adapt the validation workflow intent while keeping projectctl and canonical okn as the only default runtime boundary."
+    },
+    {
+      "path": "visualize/scripts/okf_visualize.py",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "493848c0853f6cb9aa36951f88b38897c90a8cbb",
+        "size": 25399
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "493848c0853f6cb9aa36951f88b38897c90a8cbb",
+        "size": 25399
+      },
+      "disposition": "B",
+      "rationale": "Defer visualization until it is offline, dependency-pinned, symlink-safe, and hostile-Markdown tested."
+    },
+    {
+      "path": "visualize/SKILL.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "ed7c55d0480e3a2d09a1ca204e03696f4ee79cb4",
+        "size": 2860
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "ed7c55d0480e3a2d09a1ca204e03696f4ee79cb4",
+        "size": 2860
+      },
+      "disposition": "B",
+      "rationale": "Defer visualization until it is offline, dependency-pinned, symlink-safe, and hostile-Markdown tested."
+    }
+  ]
+}

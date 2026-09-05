@@ -1,4 +1,4 @@
-name: PK-Stack Release
+name: PKStack Release
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: pk-stack-release-${{ github.ref_name }}
+  group: pkstack-release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -67,10 +67,10 @@ jobs:
 
           tag = sys.argv[1]
           expected = tag.removeprefix("v")
-          power = Path("powers/pk-stack")
+          power = Path("powers/pkstack")
           pyproject = tomllib.loads((power / "pyproject.toml").read_text(encoding="utf-8"))
           manifest = json.loads((power / "plugin.json").read_text(encoding="utf-8"))
-          source = (power / "src/pk_stack/__init__.py").read_text(encoding="utf-8")
+          source = (power / "src/pkstack/__init__.py").read_text(encoding="utf-8")
           version = pyproject["project"].get("version")
           runtime = re.search(r'^__version__ = "([^"]+)"$', source, re.MULTILINE)
           if version != expected or manifest.get("version") != expected:
@@ -82,38 +82,38 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: powers/pk-stack/uv.lock
+          cache-dependency-glob: powers/pkstack/uv.lock
       - name: Re-run deterministic release gates on the tagged commit
         run: |
           set -euo pipefail
           python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
-          node --test .github/scripts/test_pk_stack_pr_policy.js
-          uv sync --quiet --locked --all-groups --project powers/pk-stack
+          node --test .github/scripts/test_pkstack_pr_policy.js
+          uv sync --quiet --locked --all-groups --project powers/pkstack
           (
-            cd powers/pk-stack
+            cd powers/pkstack
             uv lock --check
-            uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
-            uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+            uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
+            uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
             uv run --frozen ty check
             uv run --frozen pytest -q
           )
-          ./.pk-stack/bin/projectctl version --output json
-          ./.pk-stack/bin/projectctl feature validate --output json
-          ./.pk-stack/bin/projectctl knowledge validate --output json
-      - name: Build deterministic PK-Stack Power archive and SHA-256
+          ./.pkstack/bin/projectctl version --output json
+          ./.pkstack/bin/projectctl feature validate --output json
+          ./.pkstack/bin/projectctl knowledge validate --output json
+      - name: Build deterministic PKStack Power archive and SHA-256
         run: |
           set -euo pipefail
           RELEASE_VERSION=${EXPECTED_TAG#v}
           umask 077
-          ARCHIVE_DIR="$RUNNER_TEMP/pk-stack-release"
+          ARCHIVE_DIR="$RUNNER_TEMP/pkstack-release"
           test ! -e "$ARCHIVE_DIR"
           mkdir -m 0700 "$ARCHIVE_DIR"
-          raw_archive="$ARCHIVE_DIR/pk-stack-v${RELEASE_VERSION}.tar"
-          archive="$ARCHIVE_DIR/pk-stack-v${RELEASE_VERSION}.tar.gz"
-          checksum="$ARCHIVE_DIR/pk-stack-v${RELEASE_VERSION}.tar.gz.sha256"
-          git archive --format=tar --prefix=pk-stack/ \
+          raw_archive="$ARCHIVE_DIR/pkstack-v${RELEASE_VERSION}.tar"
+          archive="$ARCHIVE_DIR/pkstack-v${RELEASE_VERSION}.tar.gz"
+          checksum="$ARCHIVE_DIR/pkstack-v${RELEASE_VERSION}.tar.gz.sha256"
+          git archive --format=tar --prefix=pkstack/ \
             --output "$raw_archive" \
-            "$RELEASE_SHA:powers/pk-stack"
+            "$RELEASE_SHA:powers/pkstack"
           gzip --no-name --stdout "$raw_archive" >"$archive"
           (
             cd "$ARCHIVE_DIR"
@@ -132,6 +132,6 @@ jobs:
           gh release create "$EXPECTED_TAG" \
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
-            --title "PK-Stack $EXPECTED_TAG" \
-            --notes "PK-Stack $EXPECTED_TAG Power archive. The repository is private; assets are published only to its private GitHub Release." \
+            --title "PKStack $EXPECTED_TAG" \
+            --notes "PKStack $EXPECTED_TAG Power archive. The repository is private; assets are published only to its private GitHub Release." \
             "$ARCHIVE" "$CHECKSUM"

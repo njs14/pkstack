@@ -1,0 +1,22 @@
+.DS_Store
+.idea/
+.vscode/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ty/
+.coverage*
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Runtime-only PKStack state. Knowledge and feature maps remain tracked.
+.pkstack/state/
+.pkstack/tmp/
+
+# Local Kiro and Claude transcripts/settings are never source material.
+.kiro/cache/
+.claude/

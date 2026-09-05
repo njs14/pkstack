@@ -1,11 +1,11 @@
-PK-Stack (Poteto Kiro)
-Copyright 2026 PK-Stack contributors
+PKStack (Poteto Kiro)
+Copyright 2026 PKStack contributors
 
-PK-Stack is an independent Kiro-native implementation of portable
+PKStack is an independent Kiro-native implementation of portable
 verified-development workflow ideas. It does not ship the Kiro or Cursor
 runtimes. Third-party attribution, including the upstream pstack and direct
 runtime dependency notices, is recorded in
-[`powers/pk-stack/THIRD_PARTY_NOTICES.md`](powers/pk-stack/THIRD_PARTY_NOTICES.md).
+[`powers/pkstack/THIRD_PARTY_NOTICES.md`](powers/pkstack/THIRD_PARTY_NOTICES.md).
 
 The generated mascot is disclosed in the Power asset documentation. The
 private Floci integration lab is a separate repository and is not part of this

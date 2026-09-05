@@ -1,16 +1,16 @@
-name: PK-Stack Upstream Candidate Gate
-run-name: PK-Stack candidate gate for source run ${{ github.event.workflow_run.id }}
+name: PKStack Upstream Candidate Gate
+run-name: PKStack candidate gate for source run ${{ github.event.workflow_run.id }}
 
 on:
   workflow_run: # zizmor: ignore[dangerous-triggers] Trusted default-branch controls bind one policy-limited commit; tests are secretless, Kiro peer review is no-tool/isolated, and merge revalidates immutable SHAs.
     workflows:
-      - PK-Stack Upstream Maintenance (Kiro)
+      - PKStack Upstream Maintenance (Kiro)
     types: [completed]
 
 permissions: {}
 
 concurrency:
-  group: pk-stack-upstream-candidate-${{ github.event.workflow_run.head_sha }}
+  group: pkstack-upstream-candidate-${{ github.event.workflow_run.head_sha }}
   cancel-in-progress: false
 
 jobs:
@@ -54,12 +54,12 @@ jobs:
         with:
           script: |
             const { resolveCandidateForSource } = require(
-              `${process.env.GITHUB_WORKSPACE}/.github/scripts/pk_stack_pr_policy.js`
+              `${process.env.GITHUB_WORKSPACE}/.github/scripts/pkstack_pr_policy.js`
             );
             const { owner, repo } = context.repo;
             const repository = (await github.rest.repos.get({ owner, repo })).data;
             const policyResponse = await github.rest.repos.getContent({
-              owner, repo, path: ".github/pk-stack-maintenance-policy.json", ref: process.env.SOURCE_SHA,
+              owner, repo, path: ".github/pkstack-maintenance-policy.json", ref: process.env.SOURCE_SHA,
             });
             if (Array.isArray(policyResponse.data) || policyResponse.data.type !== "file") {
               core.setFailed("trusted maintenance policy is unavailable");
@@ -142,7 +142,7 @@ jobs:
             const treeByPath = new Map(tree.tree.map((entry) => [entry.path, entry]));
             for (const file of files.filter((item) => item.status !== "removed")) {
               const entry = treeByPath.get(file.filename);
-              const expectedMode = [".pk-stack/bin/projectctl", "projectctl"].includes(file.filename) ? "100755" : "100644";
+              const expectedMode = [".pkstack/bin/projectctl", "projectctl"].includes(file.filename) ? "100755" : "100644";
               if (!entry || entry.type !== "blob" || entry.mode !== expectedMode) {
                 core.setFailed(`candidate git object or mode is invalid: ${file.filename}`);
                 return;
@@ -186,21 +186,21 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: powers/pk-stack/uv.lock
+          cache-dependency-glob: powers/pkstack/uv.lock
       - name: Run exact-base static regression gates with no secrets
         env:
           EXPECTED_SHA: ${{ needs.resolve.outputs.base_sha }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          uv sync --quiet --locked --all-groups --project powers/pk-stack
-          .pk-stack/bin/projectctl feature validate --output json
-          python3 -B .github/scripts/test_pk_stack_maintenance_guard.py
+          uv sync --quiet --locked --all-groups --project powers/pkstack
+          .pkstack/bin/projectctl feature validate --output json
+          python3 -B .github/scripts/test_pkstack_maintenance_guard.py
           (
-            cd powers/pk-stack
+            cd powers/pkstack
             uv lock --check
-            uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
-            uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+            uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
+            uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
             uv run --frozen ty check
             uv run --frozen pytest -q
           )
@@ -258,36 +258,36 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: powers/pk-stack/uv.lock
+          cache-dependency-glob: powers/pkstack/uv.lock
       - name: Download immutable source detector and controller selection
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: pk-stack-detector-${{ github.event.workflow_run.id }}
+          name: pkstack-detector-${{ github.event.workflow_run.id }}
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
-          path: ${{ runner.temp }}/pk-stack-source-plan
+          path: ${{ runner.temp }}/pkstack-source-plan
       - name: Snapshot immutable base controller and review guards
         env:
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
-          TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-candidate-trusted
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-candidate-trusted
         run: |
           set -euo pipefail
           git cat-file -e "$BASE_SHA^{commit}"
           mkdir -p "$TRUSTED_ROOT"
           git archive "$BASE_SHA" \
-            Wiki/features/pk-stack-upstream-maintenance.md \
-            .pk-stack/projectctl \
+            Wiki/features/pkstack-upstream-maintenance.md \
+            .pkstack/projectctl \
             .github/fixtures \
-            .github/pk-stack-maintenance-policy.json \
+            .github/pkstack-maintenance-policy.json \
             .github/scripts \
             .github/workflows \
             .kiro/agents \
             reviews \
             | tar -x -C "$TRUSTED_ROOT"
-          uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pk-stack/projectctl"
-          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
+          uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pkstack/projectctl"
+          python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
             --root . \
-            --policy "$TRUSTED_ROOT/.github/pk-stack-maintenance-policy.json" \
+            --policy "$TRUSTED_ROOT/.github/pkstack-maintenance-policy.json" \
             validate-trusted-snapshot \
             --base "$BASE_SHA" \
             --trusted-root "$TRUSTED_ROOT"
@@ -295,57 +295,57 @@ jobs:
       - name: Revalidate sole controller source selection
         id: selection
         env:
-          TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-candidate-trusted
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-candidate-trusted
         run: |
-          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
+          python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
             --github-output "$GITHUB_OUTPUT" validate-control-plan \
-            --detector "$RUNNER_TEMP/pk-stack-source-plan/upstream-check.json" \
-            --control-plan "$RUNNER_TEMP/pk-stack-source-plan/control-plan.json"
+            --detector "$RUNNER_TEMP/pkstack-source-plan/upstream-check.json" \
+            --control-plan "$RUNNER_TEMP/pkstack-source-plan/control-plan.json"
       - name: Run candidate gates with no write token or secrets
         env:
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
           EXPECTED_SHA: ${{ needs.resolve.outputs.head_sha }}
           READONLY_GITHUB_TOKEN: ${{ github.token }}
-          TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-candidate-trusted
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-candidate-trusted
           SELECTED_SOURCE_ID: ${{ steps.selection.outputs.selected_source_id }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          uv sync --quiet --locked --all-groups --project powers/pk-stack
+          uv sync --quiet --locked --all-groups --project powers/pkstack
           trusted_projectctl() {
-            PYTHONPATH="$TRUSTED_ROOT/.pk-stack/projectctl/src" \
-              "$TRUSTED_ROOT/.pk-stack/projectctl/.venv/bin/python" \
-              -B -X pycache_prefix=/dev/null -m pk_stack "$@"
+            PYTHONPATH="$TRUSTED_ROOT/.pkstack/projectctl/src" \
+              "$TRUSTED_ROOT/.pkstack/projectctl/.venv/bin/python" \
+              -B -X pycache_prefix=/dev/null -m pkstack "$@"
           }
           set +e
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" trusted_projectctl upstream check \
             --manifest maintenance/upstreams.json \
-            --power-root powers/pk-stack \
-            --output json >"$RUNNER_TEMP/pk-stack-candidate-detector.json"
+            --power-root powers/pkstack \
+            --output json >"$RUNNER_TEMP/pkstack-candidate-detector.json"
           detector_rc=$?
           set -e
-          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" validate-detector \
-            --detector "$RUNNER_TEMP/pk-stack-candidate-detector.json"
+          python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" validate-detector \
+            --detector "$RUNNER_TEMP/pkstack-candidate-detector.json"
           if [[ -n "$SELECTED_SOURCE_ID" ]]; then
-            python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
+            python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
               validate-serialized-acceptance --base "$BASE_SHA" \
-              --before-detector "$RUNNER_TEMP/pk-stack-source-plan/upstream-check.json" \
-              --after-detector "$RUNNER_TEMP/pk-stack-candidate-detector.json" \
+              --before-detector "$RUNNER_TEMP/pkstack-source-plan/upstream-check.json" \
+              --after-detector "$RUNNER_TEMP/pkstack-candidate-detector.json" \
               --selected-source-id "$SELECTED_SOURCE_ID"
             GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" trusted_projectctl upstream check \
-              --manifest maintenance/upstreams.json --power-root powers/pk-stack \
+              --manifest maintenance/upstreams.json --power-root powers/pkstack \
               --source-id "$SELECTED_SOURCE_ID" --output json
           else
             test "$detector_rc" -eq 0
           fi
           trusted_projectctl feature validate --output json
           unset READONLY_GITHUB_TOKEN
-          python3 -B "$TRUSTED_ROOT/.github/scripts/test_pk_stack_maintenance_guard.py"
+          python3 -B "$TRUSTED_ROOT/.github/scripts/test_pkstack_maintenance_guard.py"
           (
-            cd powers/pk-stack
+            cd powers/pkstack
             uv lock --check
-            uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
-            uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+            uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
+            uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
             uv run --frozen ty check
             uv run --frozen pytest -q
           )
@@ -356,13 +356,13 @@ jobs:
         env:
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
           HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
-          REVIEW_PATH: ${{ runner.temp }}/pk-stack-candidate-review/review-input.json
-          TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-candidate-trusted
+          REVIEW_PATH: ${{ runner.temp }}/pkstack-candidate-review/review-input.json
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-candidate-trusted
         run: |
           set -euo pipefail
-          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
+          python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
             --root . \
-            --policy "$TRUSTED_ROOT/.github/pk-stack-maintenance-policy.json" \
+            --policy "$TRUSTED_ROOT/.github/pkstack-maintenance-policy.json" \
             --github-output "$GITHUB_OUTPUT" \
             build-candidate-review-bundle \
             --base "$BASE_SHA" \
@@ -372,8 +372,8 @@ jobs:
         id: upload_review
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: pk-stack-candidate-review-${{ github.event.workflow_run.id }}
-          path: ${{ runner.temp }}/pk-stack-candidate-review/review-input.json
+          name: pkstack-candidate-review-${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}/pkstack-candidate-review/review-input.json
           if-no-files-found: error
           retention-days: 7
           compression-level: 9
@@ -454,8 +454,8 @@ jobs:
           set -euo pipefail
           {
             printf 'TRUSTED_REVIEW_ROOT=%s\n' "$GITHUB_WORKSPACE/trusted-review-control"
-            printf 'REVIEW_WORKSPACE=%s\n' "$RUNNER_TEMP/pk-stack-peer-review-workspace"
-            printf 'REVIEW_PRIVATE=%s\n' "$RUNNER_TEMP/pk-stack-peer-review-private"
+            printf 'REVIEW_WORKSPACE=%s\n' "$RUNNER_TEMP/pkstack-peer-review-workspace"
+            printf 'REVIEW_PRIVATE=%s\n' "$RUNNER_TEMP/pkstack-peer-review-private"
             printf 'KIRO_BIN_DIR=%s\n' "$RUNNER_TEMP/kiro-review-bin"
             printf 'KIRO_ARCHIVE=%s\n' "$RUNNER_TEMP/kiro-review-cache/kirocli-2.21.0.tar.xz"
             printf 'KIRO_HOME=%s\n' "$RUNNER_TEMP/kiro-review-home"
@@ -478,18 +478,18 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           artifact-ids: ${{ needs.candidate_tests.outputs.review_artifact_id }}
-          path: ${{ runner.temp }}/pk-stack-peer-review-input
+          path: ${{ runner.temp }}/pkstack-peer-review-input
       - name: Prepare immutable no-tool Kiro reviewer
         env:
           EXPECTED_CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
         run: |
           set -euo pipefail
-          input="$RUNNER_TEMP/pk-stack-peer-review-input/review-input.json"
+          input="$RUNNER_TEMP/pkstack-peer-review-input/review-input.json"
           printf '%s  %s\n' "$EXPECTED_CONTENT_SHA256" "$input" | sha256sum --check
-          mkdir -m 0700 "$REVIEW_WORKSPACE" "$REVIEW_WORKSPACE/.pk-stack-ci" "$REVIEW_PRIVATE"
-          install -m 0400 "$input" "$REVIEW_WORKSPACE/.pk-stack-ci/review-input.json"
-          TRUSTED_ROOT="$TRUSTED_REVIEW_ROOT"             KIRO_AGENT_NAME=pk-stack-ci-reviewer             bash "$TRUSTED_REVIEW_ROOT/.github/scripts/prepare_kiro_maintenance_runtime.sh"
-          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             "$KIRO_BIN_DIR/kiro-cli" agent validate             --path "$TRUSTED_REVIEW_ROOT/.kiro/agents/pk-stack-ci-reviewer.json"
+          mkdir -m 0700 "$REVIEW_WORKSPACE" "$REVIEW_WORKSPACE/.pkstack-ci" "$REVIEW_PRIVATE"
+          install -m 0400 "$input" "$REVIEW_WORKSPACE/.pkstack-ci/review-input.json"
+          TRUSTED_ROOT="$TRUSTED_REVIEW_ROOT"             KIRO_AGENT_NAME=pkstack-ci-reviewer             bash "$TRUSTED_REVIEW_ROOT/.github/scripts/prepare_kiro_maintenance_runtime.sh"
+          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             "$KIRO_BIN_DIR/kiro-cli" agent validate             --path "$TRUSTED_REVIEW_ROOT/.kiro/agents/pkstack-ci-reviewer.json"
           chmod -R a-w "$REVIEW_WORKSPACE"
       - name: Independent Kiro-hosted Claude Opus 5 review
         id: invoke
@@ -499,7 +499,7 @@ jobs:
           HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
           CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
           PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
-        working-directory: ${{ runner.temp }}/pk-stack-peer-review-workspace
+        working-directory: ${{ runner.temp }}/pkstack-peer-review-workspace
         run: |
           set -euo pipefail
           stream="$REVIEW_PRIVATE/review-stream.jsonl"
@@ -542,7 +542,7 @@ jobs:
             'Review the attached exact-candidate bundle under the immutable agent contract. Bind the verdict exactly to base %s, head %s, content SHA-256 %s, and patch SHA-256 %s. Return only the required compact JSON verdict.' \
             "$BASE_SHA" "$HEAD_SHA" "$CONTENT_SHA256" "$PATCH_SHA256"
           set +e
-          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             CI=true             NO_COLOR=1             KIRO_LOG_NO_COLOR=1             XDG_RUNTIME_DIR="$runtime"             SSL_CERT_DIR=/etc/ssl/certs             GIT_DIR=/dev/null             GIT_CONFIG_NOSYSTEM=1             GIT_CONFIG_SYSTEM=/dev/null             GIT_CONFIG_GLOBAL=/dev/null             GIT_ATTR_NOSYSTEM=1             GIT_EXTERNAL_DIFF=             GIT_NO_REPLACE_OBJECTS=1             GIT_TERMINAL_PROMPT=0             KIRO_API_KEY="$KIRO_API_KEY"             timeout --signal=TERM --kill-after=30s 30m             "$KIRO_BIN_DIR/kiro-cli" chat               --v3               --agent pk-stack-ci-reviewer               --model "$REVIEW_MODEL"               --effort "$REVIEW_EFFORT"               --no-interactive               --trust-tools=               --output-format stream-json               "$prompt" >"$stream" 2>"$stderr"
+          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             CI=true             NO_COLOR=1             KIRO_LOG_NO_COLOR=1             XDG_RUNTIME_DIR="$runtime"             SSL_CERT_DIR=/etc/ssl/certs             GIT_DIR=/dev/null             GIT_CONFIG_NOSYSTEM=1             GIT_CONFIG_SYSTEM=/dev/null             GIT_CONFIG_GLOBAL=/dev/null             GIT_ATTR_NOSYSTEM=1             GIT_EXTERNAL_DIFF=             GIT_NO_REPLACE_OBJECTS=1             GIT_TERMINAL_PROMPT=0             KIRO_API_KEY="$KIRO_API_KEY"             timeout --signal=TERM --kill-after=30s 30m             "$KIRO_BIN_DIR/kiro-cli" chat               --v3               --agent pkstack-ci-reviewer               --model "$REVIEW_MODEL"               --effort "$REVIEW_EFFORT"               --no-interactive               --trust-tools=               --output-format stream-json               "$prompt" >"$stream" 2>"$stderr"
           review_rc=$?
           set -e
           printf 'return_code=%s\n' "$review_rc" >>"$GITHUB_OUTPUT"
@@ -555,7 +555,7 @@ jobs:
           CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
           PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
           REVIEW_RETURN_CODE: ${{ steps.invoke.outputs.return_code }}
-          REVIEW_BUNDLE: ${{ runner.temp }}/pk-stack-peer-review-workspace/.pk-stack-ci/review-input.json
+          REVIEW_BUNDLE: ${{ runner.temp }}/pkstack-peer-review-workspace/.pkstack-ci/review-input.json
           SELECTED_SOURCE_ID: ${{ needs.candidate_tests.outputs.selected_source_id }}
           SOURCE_SUBTREE_SHA: ${{ needs.candidate_tests.outputs.source_subtree_sha }}
           SOURCE_COMMIT: ${{ needs.candidate_tests.outputs.source_commit }}
@@ -574,7 +574,7 @@ jobs:
             --model "$REVIEW_MODEL" \
             --effort "$REVIEW_EFFORT" \
             --github-output "$GITHUB_OUTPUT" \
-            --report-path "$RUNNER_TEMP/pk-stack-review-report/report.json" \
+            --report-path "$RUNNER_TEMP/pkstack-review-report/report.json" \
             --source-id "$SELECTED_SOURCE_ID" \
             --source-commit "$SOURCE_COMMIT" \
             --source-subtree-sha "$SOURCE_SUBTREE_SHA" \
@@ -584,8 +584,8 @@ jobs:
         id: upload_report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: pk-stack-review-report-${{ github.run_id }}
-          path: ${{ runner.temp }}/pk-stack-review-report/report.json
+          name: pkstack-review-report-${{ github.run_id }}
+          path: ${{ runner.temp }}/pkstack-review-report/report.json
           if-no-files-found: error
           retention-days: 30
       - name: Remove private Kiro review state
@@ -594,7 +594,7 @@ jobs:
           set -euo pipefail
           for target in "$REVIEW_PRIVATE" "$REVIEW_WORKSPACE" "$KIRO_HOME" "$KIRO_USER_HOME" "$KIRO_BIN_DIR"; do
             case "$target" in
-              "$RUNNER_TEMP"/pk-stack-peer-review-*|"$RUNNER_TEMP"/kiro-review-*) ;;
+              "$RUNNER_TEMP"/pkstack-peer-review-*|"$RUNNER_TEMP"/kiro-review-*) ;;
               *) echo "refusing unsafe Kiro review cleanup target" >&2; exit 1 ;;
             esac
             if [[ -e "$target" ]]; then
@@ -650,7 +650,7 @@ jobs:
           EXPECTED_REVIEW_PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
           EXPECTED_REVIEW_CHANGED_FILES: ${{ needs.candidate_tests.outputs.review_changed_files }}
           EXPECTED_REVIEW_PATHS_SHA256: ${{ needs.candidate_tests.outputs.review_paths_sha256 }}
-          EXPECTED_REVIEW_AGENT: pk-stack-ci-reviewer
+          EXPECTED_REVIEW_AGENT: pkstack-ci-reviewer
           EXPECTED_REVIEW_MODEL: claude-opus-5
           EXPECTED_REVIEW_EFFORT: xhigh
           REVIEW_EXECUTION_EVIDENCE_SHA256: ${{ needs.kiro_peer_review.outputs.execution_evidence_sha256 }}
@@ -665,7 +665,7 @@ jobs:
         with:
           script: |
             const { resolveCandidateForSource } = require(
-              `${process.env.GITHUB_WORKSPACE}/.github/scripts/pk_stack_pr_policy.js`
+              `${process.env.GITHUB_WORKSPACE}/.github/scripts/pkstack_pr_policy.js`
             );
             const { owner, repo } = context.repo;
             if (process.env.TESTED_BASE_SHA !== process.env.BASE_SHA) {
@@ -690,7 +690,7 @@ jobs:
               return;
             }
             const policyResponse = await github.rest.repos.getContent({
-              owner, repo, path: ".github/pk-stack-maintenance-policy.json", ref: process.env.BASE_SHA,
+              owner, repo, path: ".github/pkstack-maintenance-policy.json", ref: process.env.BASE_SHA,
             });
             if (Array.isArray(policyResponse.data) || policyResponse.data.type !== "file") {
               core.setFailed("trusted policy is unavailable at the tested base");
@@ -815,7 +815,7 @@ jobs:
             const treeByPath = new Map(tree.tree.map((entry) => [entry.path, entry]));
             for (const file of files.filter((item) => item.status !== "removed")) {
               const entry = treeByPath.get(file.filename);
-              const expectedMode = [".pk-stack/bin/projectctl", "projectctl"].includes(file.filename) ? "100755" : "100644";
+              const expectedMode = [".pkstack/bin/projectctl", "projectctl"].includes(file.filename) ? "100755" : "100644";
               if (!entry || entry.type !== "blob" || entry.mode !== expectedMode) {
                 core.setFailed(`final candidate object or mode is invalid: ${file.filename}`);
                 return;
@@ -864,7 +864,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           artifact-ids: ${{ needs.kiro_peer_review.outputs.report_artifact_id }}
-          path: ${{ runner.temp }}/pk-stack-feedback-report
+          path: ${{ runner.temp }}/pkstack-feedback-report
       - name: Read current durable feedback without candidate code
         id: current
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -880,7 +880,7 @@ jobs:
             if (Array.isArray(response) || response.type !== 'file' || response.size > 1048576) {
               throw new Error('durable review history is missing or unbounded');
             }
-            fs.writeFileSync(`${process.env.RUNNER_TEMP}/pk-stack-feedback-current.json`,
+            fs.writeFileSync(`${process.env.RUNNER_TEMP}/pkstack-feedback-current.json`,
               Buffer.from(response.content, 'base64'), {mode: 0o600});
             core.setOutput('parent_sha', branch.commit.sha);
       - name: Bind report and advance only its substantive rejection count
@@ -891,14 +891,14 @@ jobs:
           HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
           RETRY_OVERRIDE: ${{ needs.candidate_tests.outputs.retry_override }}
         run: |
-          python3 .github/scripts/pk_stack_review_feedback.py \
-            --ledger "$RUNNER_TEMP/pk-stack-feedback-current.json" \
-            --report "$RUNNER_TEMP/pk-stack-feedback-report/report.json" \
+          python3 .github/scripts/pkstack_review_feedback.py \
+            --ledger "$RUNNER_TEMP/pkstack-feedback-current.json" \
+            --report "$RUNNER_TEMP/pkstack-feedback-report/report.json" \
             --expected-sha256 "$REPORT_SHA256" \
             --source-run-id "$SOURCE_RUN_ID" --candidate-run-id "$GITHUB_RUN_ID" \
             --base "$BASE_SHA" --head "$HEAD_SHA" \
             --retry-override "$RETRY_OVERRIDE" \
-            --output "$RUNNER_TEMP/pk-stack-feedback-next.json"
+            --output "$RUNNER_TEMP/pkstack-feedback-next.json"
       - name: Commit only feedback with a compare-and-swap branch update
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
@@ -910,7 +910,7 @@ jobs:
             const { owner, repo } = context.repo;
             const parent = (await github.rest.git.getCommit({owner, repo, commit_sha: process.env.PARENT_SHA})).data;
             const blob = (await github.rest.git.createBlob({owner, repo, encoding: 'base64',
-              content: fs.readFileSync(`${process.env.RUNNER_TEMP}/pk-stack-feedback-next.json`).toString('base64')})).data;
+              content: fs.readFileSync(`${process.env.RUNNER_TEMP}/pkstack-feedback-next.json`).toString('base64')})).data;
             const tree = (await github.rest.git.createTree({owner, repo, base_tree: parent.tree.sha,
               tree: [{path: 'maintenance/upstream-feedback.json', mode: '100644', type: 'blob', sha: blob.sha}]})).data;
             if (tree.sha === parent.tree.sha) { core.info('review feedback already recorded'); return; }
@@ -957,14 +957,14 @@ jobs:
         with:
           script: |
             const { authorizeTerminalCandidateClose } = require(
-              `${process.env.GITHUB_WORKSPACE}/.github/scripts/pk_stack_pr_policy.js`
+              `${process.env.GITHUB_WORKSPACE}/.github/scripts/pkstack_pr_policy.js`
             );
             const { owner, repo } = context.repo;
             const repository = (await github.rest.repos.get({ owner, repo })).data;
             const policyResponse = await github.rest.repos.getContent({
               owner,
               repo,
-              path: ".github/pk-stack-maintenance-policy.json",
+              path: ".github/pkstack-maintenance-policy.json",
               ref: process.env.SOURCE_SHA,
             });
             if (Array.isArray(policyResponse.data) || policyResponse.data.type !== "file") {

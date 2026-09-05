@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "pkstack-session-orientation",
+      "description": "Add safe PKStack orientation to the initial session context without executing repository code.",
+      "trigger": "SessionStart",
+      "action": {
+        "type": "command",
+        "command": "printf '%s\\n' '{\"pkstack\":\"available\",\"display_name\":\"PKStack\",\"expanded_name\":\"Poteto Kiro\",\"power_id\":\"pkstack\",\"next\":\"invoke pkstack-setup or run .pkstack/bin/projectctl doctor explicitly\"}'"
+      },
+      "timeout": 30,
+      "enabled": true
+    }
+  ]
+}

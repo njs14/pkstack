@@ -15,12 +15,12 @@ MAX_EVENTS = 8192
 MAX_DIAGNOSTIC_TEXT_BYTES = 8192
 MAX_READ_START_DIAGNOSTIC_BYTES = 4096
 MAX_GREP_INPUT_DIAGNOSTIC_BYTES = 4096
-PERMISSION_AGENT_NAME = "pk-stack-permission-fixture"
+PERMISSION_AGENT_NAME = "pkstack-permission-fixture"
 PERMISSION_AGENT_DESCRIPTION = (
     "Manual CI-only proof that Kiro 2.21 honors the exact production "
-    "pk-stack-maintainer filesystem permission rules."
+    "pkstack-maintainer filesystem permission rules."
 )
-PERMISSION_AGENT_WELCOME = "Exact production PK-Stack filesystem permission fixture loaded."
+PERMISSION_AGENT_WELCOME = "Exact production PKStack filesystem permission fixture loaded."
 FIXTURE_INPUT_PATH = "fixture-input.txt"
 FIXTURE_INPUT_TEXT = "ALPHA_TOKEN sterile permission input\n"
 GREP_QUERY = "ALPHA_TOKEN"
@@ -28,26 +28,26 @@ DENIED_WRITE_TEXT = "BLOCKED\n"
 DENIED_RESOURCES = (
     ".github/protected.txt",
     ".kiro/protected.txt",
-    "powers/pk-stack/src/pk_stack/protected.py",
-    "powers/pk-stack/tests/protected.py",
+    "powers/pkstack/src/pkstack/protected.py",
+    "powers/pkstack/tests/protected.py",
     "maintenance/upstream-reviews.json",
-    "powers/pk-stack/docs/validation-report.md",
+    "powers/pkstack/docs/validation-report.md",
 )
 ALLOWED_WRITES = (
-    (".pk-stack-maintenance/proposal.json", '{"permission_smoke":true}\n'),
-    ("powers/pk-stack/README.md", "AUTHORED_README_OK\n"),
+    (".pkstack-maintenance/proposal.json", '{"permission_smoke":true}\n'),
+    ("powers/pkstack/README.md", "AUTHORED_README_OK\n"),
     (
-        "powers/pk-stack/dev.kiro/steering/permission-smoke.md",
+        "powers/pkstack/dev.kiro/steering/permission-smoke.md",
         "AUTHORED_STEERING_OK\n",
     ),
     (
-        "powers/pk-stack/docs/upstream-skill-parity.json",
+        "powers/pkstack/docs/upstream-skill-parity.json",
         '{"permission_smoke":true}\n',
     ),
-    ("powers/pk-stack/docs/smoke/permission.md", "AUTHORED_DOCS_OK\n"),
-    ("powers/pk-stack/skills/permission-smoke/SKILL.md", "AUTHORED_SKILL_OK\n"),
+    ("powers/pkstack/docs/smoke/permission.md", "AUTHORED_DOCS_OK\n"),
+    ("powers/pkstack/skills/permission-smoke/SKILL.md", "AUTHORED_SKILL_OK\n"),
     (
-        "powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json",
+        "powers/pkstack/templates/project/.kiro/agents/permission-smoke.json",
         '{"permission_smoke":true}\n',
     ),
 )
@@ -477,7 +477,7 @@ def _diagnostic_path(value: Any, *, workspace: Path) -> dict[str, Any]:
 def _read_start_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace: Path) -> str:
     diagnostic: dict[str, Any] = {
         "group_event_count": len(group),
-        "schema": "pk-stack-permission-read-start-diagnostic-v1",
+        "schema": "pkstack-permission-read-start-diagnostic-v1",
     }
     start = group[0][1]
     raw_input = start.get("rawInput")
@@ -512,7 +512,7 @@ def _read_start_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace
     encoded = json.dumps(diagnostic, separators=(",", ":"), sort_keys=True)
     if len(encoded.encode("utf-8")) > MAX_READ_START_DIAGNOSTIC_BYTES:
         return (
-            '{"diagnostic_truncated":true,"schema":"pk-stack-permission-read-start-diagnostic-v1"}'
+            '{"diagnostic_truncated":true,"schema":"pkstack-permission-read-start-diagnostic-v1"}'
         )
     return encoded
 
@@ -551,12 +551,12 @@ def _grep_input_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace
         )
     diagnostic = {
         "raw_input": facts,
-        "schema": "pk-stack-permission-grep-input-diagnostic-v1",
+        "schema": "pkstack-permission-grep-input-diagnostic-v1",
     }
     encoded = json.dumps(diagnostic, separators=(",", ":"), sort_keys=True)
     if len(encoded.encode("utf-8")) > MAX_GREP_INPUT_DIAGNOSTIC_BYTES:
         return (
-            '{"diagnostic_truncated":true,"schema":"pk-stack-permission-grep-input-diagnostic-v1"}'
+            '{"diagnostic_truncated":true,"schema":"pkstack-permission-grep-input-diagnostic-v1"}'
         )
     return encoded
 

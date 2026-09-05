@@ -7,7 +7,7 @@ import json
 import unittest
 from pathlib import Path
 
-import pk_stack_maintenance_guard as guard
+import pkstack_maintenance_guard as guard
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -17,7 +17,7 @@ class SourcePermissionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         _, cls.policy = guard.load_policy(
-            ROOT / ".github/pk-stack-maintenance-policy.json"
+            ROOT / ".github/pkstack-maintenance-policy.json"
         )
         cls.manifest = json.loads(
             (ROOT / "maintenance/upstreams.json").read_text(encoding="utf-8")

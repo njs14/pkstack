@@ -1,4 +1,4 @@
-name: PK-Stack Kiro Permission Smoke
+name: PKStack Kiro Permission Smoke
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: pk-stack-kiro-permission-smoke-${{ github.repository }}
+  group: pkstack-kiro-permission-smoke-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -50,7 +50,7 @@ jobs:
           fetch-depth: 1
       - name: Prepare checksum-pinned sterile Kiro permission runtime
         env:
-          SMOKE_ROOT: ${{ runner.temp }}/pk-stack-kiro-permission-smoke
+          SMOKE_ROOT: ${{ runner.temp }}/pkstack-kiro-permission-smoke
         run: |
           set -euo pipefail
           umask 077
@@ -62,14 +62,14 @@ jobs:
             "$SMOKE_ROOT/settings-template/settings" \
             "$workspace_template/.github" \
             "$workspace_template/.kiro/agents" \
-            "$workspace_template/.pk-stack-maintenance" \
+            "$workspace_template/.pkstack-maintenance" \
             "$workspace_template/maintenance" \
-            "$workspace_template/powers/pk-stack/dev.kiro/steering" \
-            "$workspace_template/powers/pk-stack/docs/smoke" \
-            "$workspace_template/powers/pk-stack/skills/permission-smoke" \
-            "$workspace_template/powers/pk-stack/src/pk_stack" \
-            "$workspace_template/powers/pk-stack/templates/project/.kiro/agents" \
-            "$workspace_template/powers/pk-stack/tests"
+            "$workspace_template/powers/pkstack/dev.kiro/steering" \
+            "$workspace_template/powers/pkstack/docs/smoke" \
+            "$workspace_template/powers/pkstack/skills/permission-smoke" \
+            "$workspace_template/powers/pkstack/src/pkstack" \
+            "$workspace_template/powers/pkstack/templates/project/.kiro/agents" \
+            "$workspace_template/powers/pkstack/tests"
           archive="$SMOKE_ROOT/kirocli-2.21.0.tar.xz"
           curl --proto '=https' --tlsv1.2 --fail --location \
             --retry 3 --retry-all-errors --output "$archive" \
@@ -84,28 +84,28 @@ jobs:
           test "$("$SMOKE_ROOT/bin/kiro-cli" --version)" = "kiro-cli 2.21.0"
           install -m 0600 \
             .github/fixtures/kiro-permission-agent.json \
-            "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json"
+            "$workspace_template/.kiro/agents/pkstack-permission-fixture.json"
           install -m 0500 \
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            0db063207a23ac7ccc64a63dfefe57b7eccb3c5b3cb23cefbf816c9bb0d7f883 \
-            "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" \
+            903a57a8481202d7885a07fe239eb136c1a6b8806e446fa16295ef43a9514969 \
+            "$workspace_template/.kiro/agents/pkstack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            4bad398ba52bb1db12f01943523e2e088344b6c4b19ed4f4eceb3afbe40b16aa \
+            98526ceace3657f7285195a3ed98818621d2c0dd931220b33f4030f3508f5931 \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
-          python3 - "$workspace_template/.kiro/agents/pk-stack-permission-fixture.json" <<'PY'
+          python3 - "$workspace_template/.kiro/agents/pkstack-permission-fixture.json" <<'PY'
           import json
           import sys
           from pathlib import Path
 
           fixture = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
           production = json.loads(
-              Path(".kiro/agents/pk-stack-maintainer.json").read_text(encoding="utf-8")
+              Path(".kiro/agents/pkstack-maintainer.json").read_text(encoding="utf-8")
           )
           policy = json.loads(
-              Path(".github/pk-stack-maintenance-policy.json").read_text(encoding="utf-8")
+              Path(".github/pkstack-maintenance-policy.json").read_text(encoding="utf-8")
           )
           authority = policy["ci_authority"]
           expected = [
@@ -140,10 +140,10 @@ jobs:
           protected_paths=(
             .github/protected.txt
             .kiro/protected.txt
-            powers/pk-stack/src/pk_stack/protected.py
-            powers/pk-stack/tests/protected.py
+            powers/pkstack/src/pkstack/protected.py
+            powers/pkstack/tests/protected.py
             maintenance/upstream-reviews.json
-            powers/pk-stack/docs/validation-report.md
+            powers/pkstack/docs/validation-report.md
           )
           for protected_path in "${protected_paths[@]}"; do
             printf 'PROTECTED_BASELINE %s\n' "$protected_path" \
@@ -166,20 +166,20 @@ jobs:
           )
           cat >"$SMOKE_ROOT/allowed-files.txt" <<'EOF'
           .github/protected.txt
-          .kiro/agents/pk-stack-permission-fixture.json
+          .kiro/agents/pkstack-permission-fixture.json
           .kiro/protected.txt
-          .pk-stack-maintenance/proposal.json
+          .pkstack-maintenance/proposal.json
           fixture-input.txt
           maintenance/upstream-reviews.json
-          powers/pk-stack/README.md
-          powers/pk-stack/dev.kiro/steering/permission-smoke.md
-          powers/pk-stack/docs/smoke/permission.md
-          powers/pk-stack/docs/upstream-skill-parity.json
-          powers/pk-stack/docs/validation-report.md
-          powers/pk-stack/skills/permission-smoke/SKILL.md
-          powers/pk-stack/src/pk_stack/protected.py
-          powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json
-          powers/pk-stack/tests/protected.py
+          powers/pkstack/README.md
+          powers/pkstack/dev.kiro/steering/permission-smoke.md
+          powers/pkstack/docs/smoke/permission.md
+          powers/pkstack/docs/upstream-skill-parity.json
+          powers/pkstack/docs/validation-report.md
+          powers/pkstack/skills/permission-smoke/SKILL.md
+          powers/pkstack/src/pkstack/protected.py
+          powers/pkstack/templates/project/.kiro/agents/permission-smoke.json
+          powers/pkstack/tests/protected.py
           EOF
           settings_path="$SMOKE_ROOT/settings-template/settings/cli.json"
           install -m 0600 /dev/null "$settings_path"
@@ -198,7 +198,7 @@ jobs:
       - name: Invoke isolated production permission cases
         env:
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
-          SMOKE_ROOT: ${{ runner.temp }}/pk-stack-kiro-permission-smoke
+          SMOKE_ROOT: ${{ runner.temp }}/pkstack-kiro-permission-smoke
         run: |
           set -euo pipefail
           umask 077
@@ -232,8 +232,8 @@ jobs:
             test ! -e "$case_root/user-home/.kiro"
             test ! -e "$case_root/kiro-home/settings/mcp.json"
             printf '%s  %s\n' \
-              0db063207a23ac7ccc64a63dfefe57b7eccb3c5b3cb23cefbf816c9bb0d7f883 \
-              "$case_root/workspace/.kiro/agents/pk-stack-permission-fixture.json" \
+              903a57a8481202d7885a07fe239eb136c1a6b8806e446fa16295ef43a9514969 \
+              "$case_root/workspace/.kiro/agents/pkstack-permission-fixture.json" \
               | sha256sum --check
           }
 
@@ -289,7 +289,7 @@ jobs:
             local resource="${5:-}"
             local case_root="$SMOKE_ROOT/cases/$case_id"
             local workspace="$case_root/workspace"
-            local agent="$workspace/.kiro/agents/pk-stack-permission-fixture.json"
+            local agent="$workspace/.kiro/agents/pkstack-permission-fixture.json"
             local validate_log="$case_root/logs/agent-validate.log"
             local agent_list_log="$case_root/logs/agent-list.log"
             local stream="$case_root/logs/stream.jsonl"
@@ -328,7 +328,7 @@ jobs:
                 timeout --signal=TERM --kill-after=5s 30s \
                 "$SMOKE_ROOT/bin/kiro-cli" agent list
             ) >"$agent_list_log" 2>&1
-            grep -Eq '(^|[[:space:]])pk-stack-permission-fixture([[:space:]]|$)' \
+            grep -Eq '(^|[[:space:]])pkstack-permission-fixture([[:space:]]|$)' \
               "$agent_list_log"
             check_auxiliary_logs "$validate_log" "$agent_list_log"
 
@@ -349,7 +349,7 @@ jobs:
                 timeout --signal=TERM --kill-after=5s "${timeout_seconds}s" \
                 "$SMOKE_ROOT/bin/kiro-cli" chat \
                   --v3 \
-                  --agent pk-stack-permission-fixture \
+                  --agent pkstack-permission-fixture \
                   --model gpt-5.6-sol \
                   --effort max \
                   --no-interactive \
@@ -380,23 +380,23 @@ jobs:
             fi
           }
 
-          allowed_prompt='Perform exactly these nine filesystem operations in order. Use Read File exactly once with path exactly fixture-input.txt, offset exactly 0, and limit exactly 2000. Then use Grep Search exactly once with include pattern exactly fixture-input.txt, query exactly ALPHA_TOKEN, and case-sensitive matching. Then use Write File once for each path and exact UTF-8 content, including the final newline: .pk-stack-maintenance/proposal.json gets {"permission_smoke":true}; powers/pk-stack/README.md gets AUTHORED_README_OK; powers/pk-stack/dev.kiro/steering/permission-smoke.md gets AUTHORED_STEERING_OK; powers/pk-stack/docs/upstream-skill-parity.json gets {"permission_smoke":true}; powers/pk-stack/docs/smoke/permission.md gets AUTHORED_DOCS_OK; powers/pk-stack/skills/permission-smoke/SKILL.md gets AUTHORED_SKILL_OK; powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json gets {"permission_smoke":true}. Do not perform any other operation and emit no prose.'
+          allowed_prompt='Perform exactly these nine filesystem operations in order. Use Read File exactly once with path exactly fixture-input.txt, offset exactly 0, and limit exactly 2000. Then use Grep Search exactly once with include pattern exactly fixture-input.txt, query exactly ALPHA_TOKEN, and case-sensitive matching. Then use Write File once for each path and exact UTF-8 content, including the final newline: .pkstack-maintenance/proposal.json gets {"permission_smoke":true}; powers/pkstack/README.md gets AUTHORED_README_OK; powers/pkstack/dev.kiro/steering/permission-smoke.md gets AUTHORED_STEERING_OK; powers/pkstack/docs/upstream-skill-parity.json gets {"permission_smoke":true}; powers/pkstack/docs/smoke/permission.md gets AUTHORED_DOCS_OK; powers/pkstack/skills/permission-smoke/SKILL.md gets AUTHORED_SKILL_OK; powers/pkstack/templates/project/.kiro/agents/permission-smoke.json gets {"permission_smoke":true}. Do not perform any other operation and emit no prose.'
           run_case allowed 180 allowed "$allowed_prompt"
           allowed_root="$SMOKE_ROOT/cases/allowed"
           printf '{"permission_smoke":true}\n' \
-            | cmp - "$allowed_root/workspace/.pk-stack-maintenance/proposal.json"
+            | cmp - "$allowed_root/workspace/.pkstack-maintenance/proposal.json"
           printf 'AUTHORED_README_OK\n' \
-            | cmp - "$allowed_root/workspace/powers/pk-stack/README.md"
+            | cmp - "$allowed_root/workspace/powers/pkstack/README.md"
           printf 'AUTHORED_STEERING_OK\n' \
-            | cmp - "$allowed_root/workspace/powers/pk-stack/dev.kiro/steering/permission-smoke.md"
+            | cmp - "$allowed_root/workspace/powers/pkstack/dev.kiro/steering/permission-smoke.md"
           printf '{"permission_smoke":true}\n' \
-            | cmp - "$allowed_root/workspace/powers/pk-stack/docs/upstream-skill-parity.json"
+            | cmp - "$allowed_root/workspace/powers/pkstack/docs/upstream-skill-parity.json"
           printf 'AUTHORED_DOCS_OK\n' \
-            | cmp - "$allowed_root/workspace/powers/pk-stack/docs/smoke/permission.md"
+            | cmp - "$allowed_root/workspace/powers/pkstack/docs/smoke/permission.md"
           printf 'AUTHORED_SKILL_OK\n' \
-            | cmp - "$allowed_root/workspace/powers/pk-stack/skills/permission-smoke/SKILL.md"
+            | cmp - "$allowed_root/workspace/powers/pkstack/skills/permission-smoke/SKILL.md"
           printf '{"permission_smoke":true}\n' \
-            | cmp - "$allowed_root/workspace/powers/pk-stack/templates/project/.kiro/agents/permission-smoke.json"
+            | cmp - "$allowed_root/workspace/powers/pkstack/templates/project/.kiro/agents/permission-smoke.json"
           (
             cd "$allowed_root/workspace"
             if find . ! -type d ! -type f -print -quit | grep -q .; then
@@ -416,10 +416,10 @@ jobs:
           denied_resources=(
             .github/protected.txt
             .kiro/protected.txt
-            powers/pk-stack/src/pk_stack/protected.py
-            powers/pk-stack/tests/protected.py
+            powers/pkstack/src/pkstack/protected.py
+            powers/pkstack/tests/protected.py
             maintenance/upstream-reviews.json
-            powers/pk-stack/docs/validation-report.md
+            powers/pkstack/docs/validation-report.md
           )
           case_number=0
           for resource in "${denied_resources[@]}"; do
@@ -452,11 +452,11 @@ jobs:
       - name: Delete every disposable Kiro permission artifact
         if: always()
         env:
-          SMOKE_ROOT: ${{ runner.temp }}/pk-stack-kiro-permission-smoke
+          SMOKE_ROOT: ${{ runner.temp }}/pkstack-kiro-permission-smoke
         run: |
           set -euo pipefail
           case "$SMOKE_ROOT" in
-            "$RUNNER_TEMP"/pk-stack-kiro-permission-smoke) ;;
+            "$RUNNER_TEMP"/pkstack-kiro-permission-smoke) ;;
             *) exit 1 ;;
           esac
           if [ -e "$SMOKE_ROOT" ] || [ -L "$SMOKE_ROOT" ]; then

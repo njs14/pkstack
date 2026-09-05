@@ -25,7 +25,7 @@ SHA1 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_MODEL = "claude-opus-5"
 REQUIRED_EFFORT = "xhigh"
-REQUIRED_AGENT = "pk-stack-ci-reviewer"
+REQUIRED_AGENT = "pkstack-ci-reviewer"
 
 
 class ReviewError(RuntimeError):
@@ -349,7 +349,7 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
         "attestation_sha256": hashlib.sha256(attestation).hexdigest(),
     }
     if getattr(args, "report_path", None) is not None:
-        from pk_stack_review_feedback import validate_report
+        from pkstack_review_feedback import validate_report
 
         report = {
             "schema_version": 1,

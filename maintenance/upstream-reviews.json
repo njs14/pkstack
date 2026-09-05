@@ -7,9 +7,9 @@
         "subtree_sha": "950b90234c17babd00c43e32b19ae50abb4720f5"
       },
       "id": "cursor-pstack",
-      "parity_path": "powers/pk-stack/docs/upstream-skill-parity.json",
+      "parity_path": "powers/pkstack/docs/upstream-skill-parity.json",
       "path": "pstack",
-      "provenance_path": "powers/pk-stack/docs/provenance.md",
+      "provenance_path": "powers/pkstack/docs/provenance.md",
       "repository": "cursor/plugins",
       "transitions": [
         {
@@ -191,9 +191,9 @@
         "subtree_sha": "1dd095000af2d0bb29986a9f11f97e3742feb2b3"
       },
       "id": "humanlayer-skills",
-      "parity_path": "powers/pk-stack/docs/humanlayer-skills-source-parity.json",
+      "parity_path": "powers/pkstack/docs/humanlayer-skills-source-parity.json",
       "path": "plugins",
-      "provenance_path": "powers/pk-stack/docs/humanlayer-skills-provenance.md",
+      "provenance_path": "powers/pkstack/docs/humanlayer-skills-provenance.md",
       "repository": "humanlayer/skills",
       "transitions": []
     },
@@ -203,9 +203,9 @@
         "subtree_sha": "a8cc7ed0f4ec6bb6019da9b8ace51e3e6dafd06f"
       },
       "id": "google-okf-spec",
-      "parity_path": "powers/pk-stack/docs/okf-spec-source-parity.json",
+      "parity_path": "powers/pkstack/docs/okf-spec-source-parity.json",
       "path": "okf",
-      "provenance_path": "powers/pk-stack/docs/okf-spec-provenance.md",
+      "provenance_path": "powers/pkstack/docs/okf-spec-provenance.md",
       "repository": "GoogleCloudPlatform/knowledge-catalog",
       "transitions": []
     },
@@ -215,9 +215,9 @@
         "subtree_sha": "ad2925850efb8973a72d2e666f7a975f9a2d4a9b"
       },
       "id": "mattpocock-writing-for-agents",
-      "parity_path": "powers/pk-stack/docs/mattpocock-writing-for-agents-source-parity.json",
+      "parity_path": "powers/pkstack/docs/mattpocock-writing-for-agents-source-parity.json",
       "path": "skills/productivity/writing-for-agents",
-      "provenance_path": "powers/pk-stack/docs/mattpocock-writing-for-agents-provenance.md",
+      "provenance_path": "powers/pkstack/docs/mattpocock-writing-for-agents-provenance.md",
       "repository": "mattpocock/skills",
       "transitions": []
     },
@@ -227,9 +227,9 @@
         "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
       },
       "id": "okf-skills",
-      "parity_path": "powers/pk-stack/docs/okf-skills-parity.json",
+      "parity_path": "powers/pkstack/docs/okf-skills-parity.json",
       "path": "skills",
-      "provenance_path": "powers/pk-stack/docs/okf-skills-provenance.md",
+      "provenance_path": "powers/pkstack/docs/okf-skills-provenance.md",
       "repository": "scaccogatto/okf-skills",
       "transitions": []
     },
@@ -239,9 +239,9 @@
         "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf"
       },
       "id": "openknowledge-cli-contract",
-      "parity_path": "powers/pk-stack/docs/openknowledge-cli-contract-parity.json",
+      "parity_path": "powers/pkstack/docs/openknowledge-cli-contract-parity.json",
       "path": "packages/cli/schemas/v1",
-      "provenance_path": "powers/pk-stack/docs/openknowledge-cli-contract-provenance.md",
+      "provenance_path": "powers/pkstack/docs/openknowledge-cli-contract-provenance.md",
       "repository": "openknowledge-sh/openknowledge",
       "transitions": []
     },
@@ -251,9 +251,9 @@
         "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
       },
       "id": "tt-a1i-archify",
-      "parity_path": "powers/pk-stack/docs/tt-a1i-archify-source-parity.json",
+      "parity_path": "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
       "path": "archify",
-      "provenance_path": "powers/pk-stack/docs/tt-a1i-archify-provenance.md",
+      "provenance_path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
       "repository": "tt-a1i/archify",
       "transitions": []
     }

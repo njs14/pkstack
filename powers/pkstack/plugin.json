@@ -1,0 +1,28 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "pkstack",
+  "version": "0.3.0",
+  "description": "PKStack (Poteto Kiro): Kiro-native verified-development workflows with project operability, executable feature maps, and current-session verified goals.",
+  "author": {
+    "name": "PKStack contributors"
+  },
+  "keywords": [
+    "PKStack",
+    "Poteto Kiro",
+    "pkstack",
+    "verified development",
+    "verified goal",
+    "projectctl",
+    "feature map",
+    "OKF",
+    "architecture review",
+    "arena",
+    "swarm",
+    "Kiro CLI",
+    "Kiro IDE",
+    "Kiro Crew",
+    "Kiro Web"
+  ],
+  "repository": "https://github.com/njs14/pkstack",
+  "license": "Apache-2.0"
+}

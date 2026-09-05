@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest a focused improvement to PK-Stack
+about: Suggest a focused improvement to PKStack
 title: "feature: "
 labels: [enhancement]
 assignees: []

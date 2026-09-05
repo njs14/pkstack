@@ -6,17 +6,17 @@ match it.
 
 ## Unreleased
 
-- completes the PK-Stack namespace across the Python package, distribution,
-  repository-local `.pk-stack/` state, generated controller, docs, tests, and
+- completes the PKStack namespace across the Python package, distribution,
+  repository-local `.pkstack/` state, generated controller, docs, tests, and
   GitHub automation.
 
 ## [0.2.0] — 2026-09-03
 
-This release hardens the Kiro-native PK-Stack workflow and prepares the private
+This release hardens the Kiro-native PKStack workflow and prepares the private
 repository for its first stable metadata line.
 
-- standardizes the public name as **PK-Stack (Poteto Kiro)** while retaining
-  consistent `pk-stack`, `pk_stack`, `.pk-stack`, and `projectctl` interfaces;
+- standardizes the public name as **PKStack (Poteto Kiro)** while retaining
+  consistent `pkstack`, `pkstack`, `.pkstack`, and `projectctl` interfaces;
 - documents a runnable Power-local setup workflow and current-session handoff;
 - makes the DO / PROVE / KNOW boundaries and the Floci lab separation explicit;
 - adds the curated `show-me` explainer and the reviewed offline Archify diagram
