@@ -84,11 +84,13 @@ message. In Kiro CLI v3, stay in the same chat and run:
 
 The selected prompt, tools, and permissions take effect on the next message.
 For a later managed refresh, the `pkstack` profile intentionally has no Powers.
-Stay in the same chat, temporarily select the Power-enabled setup agent, invoke
-this Power-local `/pkstack-setup`, and select `pkstack` again. In CLI v3 those
-agent selections can be `/agent swap kiro_default` and `/agent swap pkstack`;
-if the Power-enabled agent has another name, use the agent that performed
-initial setup.
+Stay in the same chat, temporarily select the agent that can discover the reviewed
+Power, invoke this Power-local `/pkstack-setup`, and select `pkstack` again.
+CLI v3 2.21.1 names its bundled default agent `default`; use `/agent swap default`
+to leave the restricted profile, then `/agent swap pkstack` when setup is complete.
+The swap alone does not register or discover a Power. If this skill is unavailable,
+use the reviewed Power-local script from a terminal as documented in usage.md;
+do not copy setup into managed workspace skills or change global Power settings.
 
 If the newly scaffolded agent or `/pkstack-verified-goal` is not discoverable in this
 session, open one fresh session from the same repository before starting a

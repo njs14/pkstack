@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Account Request Path",
+    "subtitle": "Normalization and enqueue are implemented; queue delivery is an implied boundary",
+    "output": "artifacts/account-request-path.html",
+    "viewBox": [820, 520],
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "views": [
+      { "id": "request-acceptance", "label": "Request acceptance", "focus": ["caller", "api", "account", "queue"], "note": "submitAccount normalizes the account ID, awaits enqueue, then returns the queued response." },
+      { "id": "worker-boundary", "label": "Worker boundary", "focus": ["queue", "worker"], "note": "Queue-to-worker delivery is implied by the fixture; worker.mjs exposes processAccount but no consumer wiring." }
+    ],
+    "legend": {
+      "mode": "auto",
+      "entries": {
+        "emphasis": { "label": "Implemented path" },
+        "dashed": { "label": "Implied boundary" },
+        "return": { "label": "Response / result" }
+      }
+    }
+  },
+  "participants": [
+    { "id": "caller", "type": "external", "label": "Caller", "sublabel": "request client" },
+    { "id": "api", "type": "backend", "label": "API", "sublabel": "api.mjs" },
+    { "id": "account", "type": "backend", "label": "Account", "sublabel": "account.mjs" },
+    { "id": "queue", "type": "messagebus", "label": "Queue", "sublabel": "injected boundary" },
+    { "id": "worker", "type": "backend", "label": "Worker", "sublabel": "worker.mjs" }
+  ],
+  "segments": [
+    { "from": 150, "to": 300, "label": "Implemented request path" },
+    { "from": 318, "to": 450, "label": "Implied asynchronous handoff" }
+  ],
+  "messages": [
+    { "id": "submit", "from": "caller", "to": "api", "y": 160, "label": "submitAccount(request, queue)", "variant": "emphasis", "note": "api.mjs" },
+    { "id": "normalize", "from": "api", "to": "account", "y": 210, "label": "normalizeAccountId(accountId)", "variant": "emphasis", "note": "account.mjs validates, strips spaces/hyphens, and uppercases" },
+    { "id": "enqueue", "from": "api", "to": "queue", "y": 260, "label": "await queue.enqueue({ accountId: id })", "variant": "emphasis", "note": "api.mjs" },
+    { "id": "response", "from": "api", "to": "caller", "y": 310, "label": "{ status: 'queued', accountId: id }", "variant": "return", "note": "returned after enqueue resolves" },
+    { "id": "delivery", "from": "queue", "to": "worker", "y": 380, "label": "deliver queued message", "variant": "dashed", "note": "Implied: no consumer or delivery code is present in the fixture" },
+    { "id": "process", "from": "queue", "to": "worker", "y": 430, "label": "invoke processAccount(message)", "variant": "dashed", "note": "worker.mjs returns { accountId, processed: true }" }
+  ],
+  "activations": [
+    { "participant": "api", "from": 154, "to": 322, "type": "backend" },
+    { "participant": "account", "from": 204, "to": 222, "type": "backend" },
+    { "participant": "queue", "from": 254, "to": 440, "type": "messagebus" },
+    { "participant": "worker", "from": 374, "to": 440, "type": "backend" }
+  ]
+}

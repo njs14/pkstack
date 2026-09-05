@@ -12,7 +12,7 @@ are deciding whether to install it.
 | Command | Use it for |
 | --- | --- |
 | `/pkstack` | Route a task through planning, implementation, verification, and review |
-| `/pkstack-setup` | Preview installation or refresh managed files |
+| `/pkstack-setup` | Preview installation or refresh when the imported Power is discoverable |
 | `/pkstack-maintain` | Review upstream changes to the Power |
 | `/pkstack-verified-goal` | Repair against one stored executable check |
 | `/pkstack-model-council` | Compare independent reviews and resolve findings |
@@ -88,8 +88,8 @@ session and invoke:
 
 The skill first previews managed changes. Review `pending_updates`,
 `stale_managed`, and `conflicts`; a non-empty list blocks writes. The direct
-source-checkout equivalent is useful for troubleshooting and deterministic
-tests:
+Power-local script is also the CLI bootstrap path when the imported Power is
+not discoverable. Run it from a terminal using the reviewed source directory:
 
 ```sh
 python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
@@ -114,16 +114,17 @@ become the verifier's environment.
 
 ### Refresh managed files
 
-Return to the Power-enabled Kiro agent before refreshing. In CLI v3:
+Leave the restricted `pkstack` profile before refreshing. CLI v3 2.21.1 names
+its bundled default agent `default`:
 
 ```text
-/agent swap kiro_default
-/pkstack-setup
-/agent swap pkstack
+/agent swap default
 ```
 
-Use the local setup-agent name if it differs. If the dry run reports
-`pending_updates`, inspect the exact paths and preview the explicit upgrade:
+This swap does not make an imported Power available. Invoke `/pkstack-setup`
+only if it is discovered in that context. Otherwise use the Power-local script
+from a terminal. If the dry run reports `pending_updates`, inspect the exact
+paths and preview the explicit upgrade:
 
 ```sh
 python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
@@ -131,6 +132,9 @@ python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
 python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
   --root "$PWD" --update-managed --output json
 ```
+
+After setup, return to the same conversation with `/agent swap pkstack`.
+Do not add a cached setup skill to `.kiro/skills/` to force discovery.
 
 `--update-managed` replaces only a path that still matches its prior receipt
 hash. It never overwrites a user edit. `stale_managed` paths are not deleted
@@ -140,7 +144,8 @@ reviewed `--power-root` is supplied.
 
 The PKStack rename is a clean-install change. Setup blocks legacy managed
 installations before writes; it adds no aliases and performs no automatic
-migration. An earlier installation may use a `.pk-stack/bootstrap.json`
+migration. Follow the [0.3 upgrade guide](upgrade-0.3.md) for a separate-checkout
+transition and rollback. An earlier installation may use a `.pk-stack/bootstrap.json`
 receipt and `pk-stack`-named agent files. Those names identify old files to
 review, not supported entry points.
 

@@ -4431,7 +4431,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
     ) -> None:
         bundle, result = self.build()
         context = bundle["skill_compatibility"]
-        self.assertEqual(bundle["schema_version"], 2)
+        self.assertEqual(bundle["schema_version"], 3)
         self.assertEqual(context["fixture"]["commit_sha"], self.base)
         self.assertEqual(context["scenario_ids"], ["explain-with-evidence"])
         self.assertEqual(
@@ -4453,6 +4453,82 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
         self.assertEqual(helper["references"], ["references/evidence.md"])
         self.assertLessEqual(len(guard._review_json_bytes(context)), 65536)
         self.validate_bundle(bundle, digest=result["content_sha256"])
+
+    def inventory_bundle(self) -> tuple[dict, dict]:
+        path = "powers/pkstack/docs/okf-skills-parity.json"
+        source = {"pinned": {"commit": "a" * 40}, "current": {"commit": "b" * 40}, "retrieved_on": "2026-09-05"}
+        records = []
+        for name in ("backfill/SKILL.md", "backfill/scripts/okf_backfill_events.py"):
+            records.append({"path": name, "pinned": {"type": "blob", "mode": "100644", "object_sha": "1" * 40, "size": 10577},
+                            "current": {"type": "blob", "mode": "100644", "object_sha": "2" * 40, "size": 21302},
+                            "disposition": "B", "rationale": "Keep excluded."})
+        document = {"artifact_type": "source-inventory", "source": source, "files": records}
+        self.put(path, json.dumps(document, indent=2) + "\n")
+        self.base = self.commit("inventory base")
+        records[0]["pinned"] = dict(records[0]["current"])
+        records[0]["current"] = {"type": "blob", "mode": "100644", "object_sha": "3" * 40, "size": 14817}
+        records[1]["current"] = {"type": "blob", "mode": "100644", "object_sha": "4" * 40, "size": 35417}
+        source["pinned"] = source["current"]
+        source["current"] = {"commit": "c" * 40}
+        self.put(path, json.dumps(document, indent=2) + "\n")
+        self.head = self.commit("inventory candidate")
+        output = self.root / ".git/inventory-review.json"
+        result = guard.build_candidate_review_bundle(self.root, self.base, self.head, self.policy, output)
+        return json.loads(output.read_text()), result
+
+    def test_inventory_context_keeps_record_identity_and_same_day_date(self) -> None:
+        bundle, result = self.inventory_bundle()
+        # Reproduce the real rejected candidate's short-hunk ambiguity.
+        self.assertNotIn('"path": "backfill/', bundle["patch"])
+        context = bundle["source_inventory"][0]
+        before = {item["path"]: item for item in context["base"]["files"]}
+        after = {item["path"]: item for item in context["head"]["files"]}
+        self.assertEqual(after["backfill/SKILL.md"]["pinned"], before["backfill/SKILL.md"]["current"])
+        self.assertEqual(after["backfill/scripts/okf_backfill_events.py"]["pinned"],
+                         before["backfill/scripts/okf_backfill_events.py"]["pinned"])
+        self.assertEqual(context["base"]["source"]["retrieved_on"], context["head"]["source"]["retrieved_on"])
+        self.validate_bundle(bundle, digest=result["content_sha256"])
+        bundle["source_inventory"][0]["head"]["files"][0]["path"] = "invented/path"
+        with self.assertRaisesRegex(Exception, "digest changed"):
+            self.validate_bundle(bundle, digest=result["content_sha256"])
+
+    def test_inventory_context_rejects_unrelated_duplicate_and_oversized_records(self) -> None:
+        bundle, _ = self.inventory_bundle()
+        context = bundle["source_inventory"]
+        for changed in (
+            [dict(context[0], path="unrelated.json")],
+            context + context,
+            [{**context[0], "head": {"source": context[0]["head"]["source"],
+                                    "files": [{"path": "a", "rationale": "x" * 65536}]}}],
+        ):
+            with self.subTest(context_kind=list(changed[0])), self.assertRaises(guard.GuardError):
+                guard.validate_source_inventory_context(changed, bundle["paths"])
+        with mock.patch.object(guard, "SOURCE_INVENTORY_CONTEXT_MAX_BYTES", 1):
+            with self.assertRaisesRegex(guard.GuardError, "exceeds 64 KiB"):
+                guard._build_source_inventory_context(self.root, self.base, self.head, bundle["paths"])
+
+    def test_inventory_and_skill_context_share_existing_budget(self) -> None:
+        import pkstack_maintenance_guard as consumer_guard
+
+        skills = {"instructions": "s" * 35_000}
+        inventory = [{"source": "i" * 35_000}]
+        self.assertLess(len(guard._review_json_bytes(skills)), 65_536)
+        self.assertLess(len(guard._review_json_bytes(inventory)), 65_536)
+        with self.assertRaisesRegex(guard.GuardError, "combined review context exceeds 64 KiB"):
+            guard.validate_combined_review_context(skills, inventory)
+        bundle, _ = self.inventory_bundle()
+        combined_size = len(guard._review_json_bytes({
+            "skill_compatibility": bundle["skill_compatibility"],
+            "source_inventory": bundle["source_inventory"],
+        }))
+        with (
+            mock.patch.object(guard, "SKILL_REVIEW_CONTEXT_MAX_BYTES", combined_size - 1),
+            mock.patch.object(consumer_guard, "SKILL_REVIEW_CONTEXT_MAX_BYTES", combined_size - 1),
+        ):
+            with self.assertRaisesRegex(Exception, "combined review context exceeds 64 KiB"):
+                self.validate_bundle(bundle)
+            with self.assertRaisesRegex(guard.GuardError, "combined review context exceeds 64 KiB"):
+                guard.build_candidate_review_bundle(self.root, self.base, self.head, self.policy, self.root / ".git/budget-bundle.json")
 
     def test_unaffected_metadata_has_empty_context(self) -> None:
         bundle, _ = self.build("powers/pkstack/docs/provenance.md")
@@ -4935,7 +5011,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.assertTrue(bundle["requires_review"])
             self.assertEqual(bundle["base_sha"], base_sha)
             self.assertEqual(bundle["head_sha"], head_sha)
-            self.assertEqual(bundle["schema_version"], 2)
+            self.assertEqual(bundle["schema_version"], 3)
             self.assertEqual(bundle["skill_compatibility"]["scenario_ids"], ["example"])
             self.assertEqual(bundle["paths_sha256"], result["paths_sha256"])
             verdict_echoes = {

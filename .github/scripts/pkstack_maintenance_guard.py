@@ -3589,6 +3589,98 @@ def _build_skill_review_context(
     return context
 
 
+SOURCE_INVENTORY_CONTEXT_MAX_BYTES = 65_536
+
+
+def validate_combined_review_context(skills: Any, inventories: Any) -> None:
+    """Share the existing context budget instead of expanding model input limits."""
+    combined = {"skill_compatibility": skills, "source_inventory": inventories}
+    if len(_review_json_bytes(combined)) > SKILL_REVIEW_CONTEXT_MAX_BYTES:
+        raise GuardError("combined review context exceeds 64 KiB; use manual review")
+
+
+def validate_source_inventory_context(context: Any, paths: list[str]) -> None:
+    """Validate the bounded inventory projection carried by the trusted builder."""
+    if not isinstance(context, list):
+        raise GuardError("source inventory review context must be a list")
+    if len(_review_json_bytes(context)) > SOURCE_INVENTORY_CONTEXT_MAX_BYTES:
+        raise GuardError("source inventory review context exceeds 64 KiB")
+    seen: list[str] = []
+    for item in context:
+        if not isinstance(item, dict) or set(item) != {"path", "base", "head"}:
+            raise GuardError("source inventory review context contract changed")
+        path = item["path"]
+        if not isinstance(path, str) or path not in paths or path in seen:
+            raise GuardError("source inventory review path is missing, duplicated, or unrelated")
+        seen.append(path)
+        for side in ("base", "head"):
+            value = item[side]
+            if value is None:
+                continue
+            if not isinstance(value, dict) or set(value) != {"source", "files"}:
+                raise GuardError("source inventory review side is malformed")
+            if not isinstance(value["source"], dict) or not isinstance(value["files"], list):
+                raise GuardError("source inventory review facts are malformed")
+            record_paths = []
+            for record in value["files"]:
+                if not isinstance(record, dict) or not isinstance(record.get("path"), str):
+                    raise GuardError("source inventory review record lacks its path")
+                record_paths.append(record["path"])
+            if record_paths != sorted(set(record_paths)):
+                raise GuardError("source inventory review records are unsorted or duplicated")
+        if item["base"] is None and item["head"] is None:
+            raise GuardError("source inventory review has no inventory")
+    if seen != sorted(seen):
+        raise GuardError("source inventory review paths are not sorted")
+
+
+def _build_source_inventory_context(
+    root: Path, base_sha: str, head_sha: str, paths: list[str]
+) -> list[dict[str, Any]]:
+    """Keep complete changed records: a short diff can omit their upstream path."""
+    context = []
+    for path in paths:
+        if not path.startswith("powers/pkstack/docs/") or not path.endswith("parity.json"):
+            continue
+        inventories = []
+        for commit in (base_sha, head_sha):
+            if _git_run(root, "cat-file", "-e", f"{commit}:{path}", check=False).returncode:
+                inventories.append(None)
+                continue
+            raw = _git_bytes(root, "show", f"{commit}:{path}")
+            try:
+                document = json.loads(raw, object_pairs_hook=_strict_object, parse_constant=_reject_json_constant)
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise GuardError("source inventory review input is invalid JSON") from exc
+            if not isinstance(document, dict) or document.get("artifact_type") != "source-inventory":
+                inventories.append(None)
+                continue
+            if not isinstance(document.get("source"), dict) or not isinstance(document.get("files"), list):
+                raise GuardError("source inventory review input lacks source or files")
+            records = {}
+            for record in document["files"]:
+                if not isinstance(record, dict) or not isinstance(record.get("path"), str):
+                    raise GuardError("source inventory review input lacks a record path")
+                if record["path"] in records:
+                    raise GuardError("source inventory review input repeats a record path")
+                records[record["path"]] = record
+            inventories.append((document["source"], records))
+        if all(value is None for value in inventories):
+            continue
+        before = inventories[0][1] if inventories[0] else {}
+        after = inventories[1][1] if inventories[1] else {}
+        changed = sorted(path for path in before.keys() | after.keys() if before.get(path) != after.get(path))
+        item = {"path": path}
+        for side, value in zip(("base", "head"), inventories):
+            item[side] = None if value is None else {
+                "source": value[0],
+                "files": [value[1][name] for name in changed if name in value[1]],
+            }
+        context.append(item)
+    validate_source_inventory_context(context, paths)
+    return context
+
+
 def build_candidate_review_bundle(
     root: Path,
     base_sha: str,
@@ -3690,7 +3782,7 @@ def build_candidate_review_bundle(
         json.dumps(paths, ensure_ascii=False, separators=(",", ":")).encode()
     ).hexdigest()
     bundle = {
-        "schema_version": 2,
+        "schema_version": 3,
         "review_type": "mandatory-independent-exact-candidate",
         "base_sha": base_sha,
         "head_sha": head_sha,
@@ -3702,7 +3794,9 @@ def build_candidate_review_bundle(
         "patch_sha256": patch_sha256,
         "patch": patch_text,
         "skill_compatibility": _build_skill_review_context(root, base_sha, head_sha, paths),
+        "source_inventory": _build_source_inventory_context(root, base_sha, head_sha, paths),
     }
+    validate_combined_review_context(bundle["skill_compatibility"], bundle["source_inventory"])
     raw = (json.dumps(bundle, sort_keys=True, separators=(",", ":")) + "\n").encode()
     if len(raw) > policy["limits"]["max_patch_bytes"] * 2 + 65_536:
         raise GuardError("candidate review bundle exceeds its encoded size limit")

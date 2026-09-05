@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Account Request Path",
+    "output": "artifacts/account-request-path.html",
+    "viewBox": [760, 620],
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "request-acceptance",
+        "label": "Normalize and enqueue",
+        "focus": ["caller", "api", "account", "queue"],
+        "note": "submitAccount normalizes request.accountId, enqueues the normalized ID, and returns a queued response."
+      },
+      {
+        "id": "worker-boundary",
+        "label": "Worker boundary",
+        "focus": ["queue", "worker"],
+        "note": "Queue delivery is a boundary implied by the fixture; its registration and delivery mechanism are not implemented here."
+      }
+    ]
+  },
+  "participants": [
+    { "id": "caller", "type": "external", "label": "Caller", "sublabel": "request input" },
+    { "id": "api", "type": "backend", "label": "submitAccount", "sublabel": "api.mjs" },
+    { "id": "account", "type": "backend", "label": "Account ID", "sublabel": "account.mjs" },
+    { "id": "queue", "type": "messagebus", "label": "Queue", "sublabel": "injected boundary" },
+    { "id": "worker", "type": "backend", "label": "Worker", "sublabel": "worker.mjs" }
+  ],
+  "segments": [
+    { "from": 130, "to": 390, "label": "Request acceptance" },
+    { "from": 408, "to": 550, "label": "Unimplemented delivery boundary" }
+  ],
+  "messages": [
+    { "from": "caller", "to": "api", "y": 160, "label": "submitAccount(request, queue)", "variant": "emphasis" },
+    { "from": "api", "to": "account", "y": 202, "label": "normalizeAccountId(request.accountId)", "variant": "emphasis" },
+    { "from": "account", "to": "api", "y": 244, "label": "normalized ID or throw", "variant": "return" },
+    { "from": "api", "to": "queue", "y": 286, "label": "enqueue({ accountId: id })", "variant": "emphasis" },
+    { "from": "api", "to": "caller", "y": 328, "label": "{ status: 'queued', accountId: id }", "variant": "return" },
+    { "from": "queue", "to": "worker", "y": 428, "label": "message delivery (not implemented here)", "variant": "dashed" }
+  ],
+  "activations": [
+    { "participant": "api", "from": 154, "to": 340, "type": "backend" },
+    { "participant": "account", "from": 196, "to": 252, "type": "backend" },
+    { "participant": "queue", "from": 280, "to": 440, "type": "messagebus" },
+    { "participant": "worker", "from": 422, "to": 510, "type": "backend" }
+  ],
+  "cards": []
+}

@@ -113,6 +113,42 @@ function messageRouteBox(message) {
   };
 }
 
+function segmentLabelObstacles(segment) {
+  return [
+    ...participants.values(),
+    ...asArray(sequence.segments)
+      .filter((other) => other !== segment && other.to <= segment.from)
+      .map((other) => ({ x: 48, y: other.from, width: viewBox[0] - 96, height: other.to - other.from })),
+    ...asArray(sequence.messages)
+      .flatMap((message) => [messageLabelBox(message), messageRouteBox(message)])
+      .filter(Boolean),
+  ];
+}
+
+function segmentLabelMinimumY(segment) {
+  return Math.max(0, ...asArray(sequence.segments)
+    .filter((other) => other !== segment && other.to <= segment.from)
+    .map((other) => other.to + 2));
+}
+
+function segmentLabelBox(segment) {
+  const occupied = segmentLabelObstacles(segment);
+  const label = {
+    x: 56,
+    y: segment.from - 22,
+    width: Math.max(42, textUnits(segment.label) * 5.2 + 14),
+    height: 18,
+  };
+  // A caption must not escape into an earlier band while avoiding a message.
+  // Prefer the existing positions above it, then bounded positions inside its
+  // own band; the validator rejects a composition with no clear position.
+  const positions = [0, 1, 2, 3, 4].map((attempt) => ({ ...label, y: label.y - attempt * 22 }));
+  positions.push(...[0, 1, 2, 3]
+    .map((attempt) => ({ ...label, y: segment.from + 6 + attempt * 22 }))
+    .filter((candidate) => candidate.y + candidate.height <= segment.to - 2));
+  return positions.find((candidate) => candidate.y >= segmentLabelMinimumY(segment) && !occupied.some((rect) => rectsOverlap(candidate, rect, 2))) || label;
+}
+
 const compositionFrames = asArray(sequence.segments).map((segment, index) => ({
   id: index,
   label: segment.label,
@@ -270,6 +306,10 @@ function validateSequence() {
     if (segment.from < layout.topY || segment.to > layout.lifelineBottom + 20) {
       problems.push(`Segment "${segment.label}" extends outside the canvas — keep its y range between ${layout.topY} and ${layout.lifelineBottom + 20}.`);
     }
+    const label = segmentLabelBox(segment);
+    if (label.y < segmentLabelMinimumY(segment) || segmentLabelObstacles(segment).some((rect) => rectsOverlap(label, rect, 2))) {
+      problems.push(`Segment label "${segment.label}" has no clear position above or within its band — move the segment or adjacent messages to leave label space.`);
+    }
   }
 
   for (const activation of asArray(sequence.activations)) {
@@ -322,15 +362,7 @@ function renderSegment(segment, index) {
 }
 
 function renderSegmentLabel(segment, index) {
-  const labelW = Math.max(42, textUnits(segment.label) * 5.2 + 14);
-  const occupied = asArray(sequence.messages)
-    .flatMap((message) => [messageLabelBox(message), messageRouteBox(message)])
-    .filter(Boolean);
-  const label = { x: 56, y: segment.from - 22, width: labelW, height: 18 };
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    if (!occupied.some((rect) => rectsOverlap(label, rect, 2))) break;
-    label.y -= 22;
-  }
+  const label = segmentLabelBox(segment);
   return `        <g data-graph-role="segment-label" data-segment-id="${index}">
           <rect x="${label.x}" y="${label.y}" width="${label.width}" height="${label.height}" rx="3" class="c-mask"/>
           <text x="${label.x + 6}" y="${label.y + 13}" class="t-dim" font-size="9" font-weight="600">${esc(segment.label)}</text>

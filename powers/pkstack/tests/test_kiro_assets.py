@@ -1372,6 +1372,50 @@ def test_primary_profile_denies_direct_control_plane_writes_and_common_clobbers(
         assert any(fnmatchcase(command, pattern) for pattern in denied_shell), command
 
 
+def test_primary_profile_denies_reordered_destructive_switch_flags() -> None:
+    primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
+    shell_rules = [
+        rule for rule in primary["permissions"]["rules"] if rule["capability"] == "shell"
+    ]
+
+    def effect(command: str) -> str:
+        matches = {
+            rule["effect"]
+            for rule in shell_rules
+            if any(fnmatchcase(command, pattern) for pattern in rule["match"])
+        }
+        return next(value for value in ("deny", "ask", "allow") if value in matches)
+
+    destructive_options = (
+        "-f main",
+        "--force main",
+        "--discard-changes main",
+        "-C topic",
+        "-Ctopic",
+        "--force-create topic",
+        "--force-create=topic",
+    )
+    for git_prefix in ("git", "git -C nested", "git --no-pager -C nested"):
+        for preceding_options in ("", "--no-guess ", "-t ", "--quiet ", "--progress ", "--detach "):
+            for destructive_option in destructive_options:
+                command = f"{git_prefix} switch {preceding_options}{destructive_option}"
+                assert effect(command) == "deny", command
+        for following_flag in ("-f", "--force", "--discard-changes"):
+            command = f"{git_prefix} switch main {following_flag}"
+            assert effect(command) == "deny", command
+        for benign_options in (
+            "main",
+            "-c topic",
+            "--create topic",
+            "--no-guess feature",
+            "--quiet -c feature",
+            "--track origin/feature",
+            "--detach HEAD",
+        ):
+            command = f"{git_prefix} switch {benign_options}"
+            assert effect(command) == "ask", command
+
+
 def test_skill_authoring_respects_bootstrap_owned_routes() -> None:
     for name in ("automate-me", "create-verification-skill", "reflect"):
         text = (SKILLS / name / "SKILL.md").read_text(encoding="utf-8")
@@ -1414,7 +1458,7 @@ def test_post_swap_setup_refresh_uses_power_local_authority() -> None:
     steering = (ROOT / "dev.kiro" / "steering" / "pkstack-core.md").read_text(encoding="utf-8")
     normalized = " ".join(steering.split())
 
-    assert "/agent swap kiro_default" in normalized
+    assert "/agent swap default" in normalized
     assert "/pkstack-setup" in normalized
     assert "/agent swap pkstack" in normalized
     assert "--power-root" in normalized

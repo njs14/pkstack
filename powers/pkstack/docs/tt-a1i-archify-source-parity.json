@@ -21,7 +21,7 @@
         "size": 678398,
         "type": "blob"
       },
-      "rationale": "Required offline runtime template is preserved byte-for-byte in the curated bundle."
+      "rationale": "Incorporated with a reviewed PKStack runtime adaptation: Apply desktop viewport adaptation to compact diagrams without desktop-width inflation, and contain narrow toolbar controls by resetting desktop offsets and allowing wrapping. Pinned and current identify upstream bytes; the bundle manifest and Archify provenance record bind the separate local patch."
     },
     {
       "current": {
@@ -752,7 +752,7 @@
         "size": 21146,
         "type": "blob"
       },
-      "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
+      "rationale": "Runtime renderer incorporated with an explicitly recorded local adaptation: keep segment captions clear of participant headers and preceding bands, with bounded placement above or inside their own band and validation of exhausted placement. Upstream blob identities remain unchanged; local identities and inverse patch are recorded in the Archify provenance record."
     },
     {
       "current": {

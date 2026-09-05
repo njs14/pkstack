@@ -26,7 +26,9 @@ Treat feature maps and goal state as projectctl-owned. Never hand-edit them to m
 completion requires the named executable verifier to pass.
 
 The `pkstack` profile excludes installed Powers. For setup or refresh, use the IDE agent picker
-or CLI `/agent swap kiro_default` to select the Power-enabled setup agent. Invoke `/pkstack-setup`,
-then return with `/agent swap pkstack` or the IDE picker. Crew opens only locally bootstrapped
-projects. Web uses reviewed, committed assets; Configuration Sync does not install PKStack.
+or CLI `/agent swap default` to leave the restricted profile. A default-agent swap alone does not
+make a Power discoverable. Invoke `/pkstack-setup` only when the reviewed Power is available;
+otherwise run its reviewed Power-local setup script from a terminal as documented in usage.md.
+Return with `/agent swap pkstack` or the IDE picker. Crew opens only locally bootstrapped projects.
+Web uses reviewed, committed assets; Configuration Sync does not install PKStack.
 Cached `.pkstack/bin/projectctl setup` requires an explicitly reviewed `--power-root`.

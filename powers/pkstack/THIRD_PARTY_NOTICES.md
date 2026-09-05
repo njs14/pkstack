@@ -157,8 +157,10 @@ SOFTWARE.
 
 PKStack redistributes a reviewed, byte-addressed subset of the Archify runtime
 under [`skills/archify/upstream/`](skills/archify/upstream/). The Kiro wrapper
-and curated bundle manifest are separate from that byte-exact upstream
-subtree. Tests, rendered demo HTML, `node_modules`, build/gallery tooling, the
+and curated bundle manifest are separate from the pinned upstream source.
+The runtime preserves upstream bytes except for the documented PKStack layout
+patches in [Archify provenance](docs/tt-a1i-archify-provenance.md), which records
+original and local hashes. Tests, rendered demo HTML, `node_modules`, build/gallery tooling, the
 network update checker, and npm lock/install workflow are intentionally not
 included.
 
