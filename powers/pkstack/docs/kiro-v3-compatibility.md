@@ -1,9 +1,9 @@
 # Kiro surface compatibility
 
-This is a point-in-time compatibility snapshot through **2026-09-04**. It records
-the Kiro product contract PKStack targets and the evidence collected on the
-target Mac; it is not a guarantee for every account or later release. Re-run
-the checks at the end after a Kiro update.
+The product-documentation snapshot is dated **2026-09-04**; local runtime
+evidence was refreshed on **2026-09-05**. This records the Kiro contract PKStack
+targets and the observed behavior on the target Mac, not a guarantee for every
+account or later release. Re-run the checks at the end after a Kiro update.
 
 PKStack targets Kiro's shared agent harness rather than one client. Kiro CLI
 v3 and the Kiro IDE 1.x chat panel are the two first-class primary surfaces;
@@ -20,8 +20,8 @@ workflow actually run. Those are deliberately separate claims.
 
 | Kiro surface | Product role | PKStack entry path | Current evidence | Status and limits |
 | --- | --- | --- | --- | --- |
-| CLI v3 (`kiro-cli` 2.21.0) | Primary | Ordinary `kiro-cli chat --v3`; select workspace agent `pkstack`; invoke `/pkstack-verified-goal` in that chat | Real current-session fail/repair/pass campaign, four product-agent schema validations, a five-profile repository discovery sentinel, generated-asset parity, automated tests, and a sterile interactive native-goal probe | **First-class and exercised.** ACP, classic/V2, nested Kiro, and `/spawn` were not used. This runtime treated `/goal clear` as ordinary prompt text rather than a slash command. |
-| IDE 1.x (`Kiro.app` 1.0.437) | Primary | Import the Power, bootstrap the project, select the workspace `pkstack` agent in the chat picker, and invoke the skills | September 4 native import, setup preview/apply, four-agent discovery, primary-profile selection, and three separately approved controller validations passed with Luna / Low; doctor reported 81 passes | **First-class with a bounded GUI smoke.** The IDE goal-repair and Spec/Quick Spec execution paths remain untested. Agent Focus Mode remains experimental. |
+| CLI v3 (`kiro-cli` 2.21.1) | Primary | Ordinary `kiro-cli chat --v3`; select workspace agent `pkstack`; invoke `/pkstack-verified-goal` in that chat | September 5 Luna/Low campaigns completed native Standard and Quick Spec planning, same-conversation agent handoff, Spec-bound failure, implementation-only repair, and pass; tests and planning artifacts stayed unchanged | **First-class and exercised.** These were two four-test fixtures, not every Spec mode. ACP, classic/V2, nested Kiro, and `/spawn` were not used. The separate native-goal probe below used 2.21.0. |
+| IDE 1.x (`Kiro.app` 1.0.437) | Primary | Import the Power, bootstrap the project, select the workspace `pkstack` agent in the chat picker, and invoke the skills | Import/setup/discovery passed; September 5 Luna/Low campaigns then completed native Standard and Quick Spec planning, same-tab agent handoff, Spec-bound failure, implementation-only repair, and pass; tests and planning artifacts stayed unchanged | **First-class with bounded GUI workflows.** These were two four-test fixtures, not every Spec mode or the Agent Focus view. Agent Focus Mode remains experimental. |
 | Kiro Crew | Optional orchestrator | Open the trusted repository through Crew so its Kiro-backed session reads committed `.kiro`; keep one `/pkstack-verified-goal` loop in the Crew-owned session | Official Crew contract says it runs Kiro CLI over ACP and reads existing `.kiro` agents, skills, and steering; signed feed-current Sep. 3 Nightly passed `--version`, `--help`, and `doctor`; package assets avoid client-only argument substitution | **Compatibility required; orchestration optional.** The bounded smoke did not open a project or run PKStack. Crew's internal ACP transport does not make ACP PKStack's default entrypoint, and no Crew end-to-end goal campaign is claimed here. |
 | Kiro Web (GA) | Supported secondary surface | Start from a repository that already commits the bootstrapped `.kiro` and `.pkstack` assets; invoke `/pkstack-verified-goal` from the Web session's primary agent | Official Web support for project skills, agents, hooks, steering, and MCP plus static repository/path tests | **Supported by design, explicitly untested.** Web cannot select a project custom agent as primary, does not provide the local permission/approval surface, and still needs Python 3.11+ plus `uv` in its sandbox. |
 | External ACP client | Optional integration boundary | Client-owned `kiro-cli acp` integration | Kiro documents the protocol; PKStack does not launch or test it | Not a primary or default PKStack path. Crew's use of ACP is a product implementation detail, not authorization to substitute an external host. |
@@ -33,10 +33,11 @@ matrix](https://kiro.dev/docs/configuration/) and [custom-agent surface
 behavior](https://kiro.dev/docs/custom-agents/). Crew's boundary follows the
 official [Kiro Crew product contract](https://kiro.dev/crew/).
 
-Runtime evidence above predates the PKStack namespace change. Historical
-records retain the names and commands actually tested. The
-[release status](../../../reviews/release-status.md) distinguishes that
-evidence from validation of a later candidate.
+Historical records retain the names and commands actually tested. The
+[friends validation](https://github.com/njs14/pkstack/blob/main/reviews/friends-validation.md)
+records the September 5 candidate and exact campaign scope; the
+[release status](../../../reviews/release-status.md) distinguishes tested
+behavior from a published release.
 
 Kiro CLI 2.21.0 has one observed discovery compatibility quirk: a valid
 read-only project agent without a top-level `toolsSettings` key can pass

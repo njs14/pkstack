@@ -61,8 +61,10 @@ The corrected exact product head passed
 [CI run 33966764291](https://github.com/njs14/pkstack/actions/runs/33966764291):
 177 repository Python tests, 17 JavaScript tests, and 854 Power tests, with one
 installed-Kiro check skipped on Linux. Lint, formatting, types, lockfile,
-Actionlint, and ShellCheck passed. The final documentation/export head still
-requires its own green PR check before merge.
+Actionlint, and ShellCheck passed. The documentation/export head
+`f84585ae8f7e4c47006d972dbc6c780eabb80766` then passed the same full gate in
+[CI run 33967873493](https://github.com/njs14/pkstack/actions/runs/33967873493).
+The final IDE-evidence commit requires its own green PR check before merge.
 
 The following documentation CI run caught one exact support-wording assertion:
 the report had changed `Kiro Web is untested` to a combined Web/Crew sentence.
@@ -91,7 +93,7 @@ feature-only fallback.
 | Campaign | Result and boundary |
 | --- | --- |
 | [CLI Standard and Quick Spec](friends-cli-validation.md) | Both native planning paths handed off to `pkstack` in the same conversation, bound the Spec, recorded a failing stored verifier, repaired only `account.py`, then passed all four unchanged tests. |
-| [IDE](friends-ide-validation.md) | Native Standard planning and same-tab agent selection completed. The Mac locked before the repair loop; Standard repair and Quick Spec remain pending. |
+| [IDE Standard and Quick Spec](friends-ide-validation.md) | Both native planning paths completed same-tab handoff, recorded failure, implementation-only repair, and pass at attempt 2/4 with unchanged tests and planning documents. |
 | [Six curated skills](friends-curated-validation.md) | Functional observations, including failures, are recorded separately. Do not treat successful skill discovery as a passing workflow. |
 
 All model campaigns used interactive Kiro, Luna / Low, and existing Kiro
@@ -105,8 +107,15 @@ The later curated-campaign `/usage` reading was **343.88 of 1,000** at
 an account-wide estimate, not an exclusive task charge. Curated turn displays
 sum to 0.28 credits.
 
+After both IDE campaigns, the refreshed native account meter read **348.68 of
+1,000**, with overages disabled. That is **8.24 credits** above the shared
+340.44 baseline, including any concurrent account use. The four displayed IDE
+turns sum to **0.90 credits**; these measurements are not interchangeable.
+
 These small fixtures do not prove production applications, every model, all
 native Spec modes, or universal skill obedience. Crew and Web remain untested.
+The IDE Standard fixture's four tests do not cover its prose Spec's ASCII
+edge case; the recorded passing predicate is not proof of every prose property.
 The CLI report also records a quoted/unquoted controller-command approval
 difference without claiming its cause or a new permission-boundary proof.
 
@@ -117,6 +126,13 @@ and reran 27 focused tests: no material findings. A fresh read-only reviewer
 inspected the review-context producer and consumer, exact-base/head binding,
 trusted workflow wiring, path/mode constraints, and fail-closed limits. It
 independently ran 100 guard and 14 stream tests: no material findings.
+
+The final IDE evidence review independently matched both goal histories,
+contract digests, timestamps, original read-only tests, native artifacts, and
+seven core installed files against the candidate. It found no material issue
+in the five-file evidence/support update. All 19 local links resolved; the
+128 focused asset, branding, and walkthrough checks passed after the support
+assertion update, followed by clean Ruff and formatting checks.
 
 These are scoped Codex reviews, not a new live Opus pipeline verdict. The existing
 Opus pipeline was extended in place; its schema and validation tests passed, but
@@ -151,4 +167,5 @@ the image for its small detail labels. The browser viewport was restored afterwa
 The final independent evidence audit found no material findings: 34 local links
 resolved, retained CLI goal/test hashes agreed with the reports, and the failed
 or pending smokes remained explicitly qualified. No 0.3.0 tag or release has
-been created. IDE completion and final-head CI remain the merge gates.
+been created. All four CLI/IDE Spec campaigns are complete; the final evidence
+commit still requires green exact-head CI and review before merge.

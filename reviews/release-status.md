@@ -31,7 +31,9 @@ Upstream methods and historical source identities are preserved.
   Spec-bound failure → implementation-only repair → pass. Both retained the
   four acceptance tests and planning artifacts unchanged.
 - **Kiro IDE:** IDE 1.0.437 imported the renamed Power and displayed all six
-  canonical skills. The installed skill files matched the source.
+  canonical skills. Its native Standard and Quick Spec campaigns then each
+  completed same-tab agent handoff and a Spec-bound failure → implementation-only
+  repair → pass. Tests and planning artifacts remained unchanged.
 - **Permissions:** The Linux smoke passed seven allowed writes and six denied
   paths, including protected-file checks and cleanup.
 
@@ -64,10 +66,9 @@ approval; the autonomous candidate gate does not depend on that additional run.
 ## Limits and release gate
 
 Kiro Web is untested. Crew remains an untested optional compatibility target.
-The latest IDE campaign completed native Standard
-planning and same-tab agent selection, then paused when the Mac locked. Its
-repair loop and Quick Spec campaign remain pending; import and discovery are
-not substitutes for that evidence.
+The IDE Standard and Quick Spec campaigns passed after manual unlock. These
+were two four-test fixtures, not every native planning mode or production
+application. Agent Focus was not exercised.
 
 All six curated helpers received bounded CLI smokes. The bundled Archify sample
 failed vertical containment. The control-loop retest skipped a required

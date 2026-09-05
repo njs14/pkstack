@@ -1045,8 +1045,10 @@ def test_surface_support_matrix_separates_targets_from_evidence() -> None:
     assert "Kiro Web is untested" in status
     assert "## Support and evidence matrix" in compatibility
     assert "First-class and exercised" in normalized_compatibility
-    assert "First-class with a bounded GUI smoke" in normalized_compatibility
-    assert "IDE goal-repair and Spec/Quick Spec execution paths remain untested" in (
+    assert "First-class with bounded GUI workflows" in normalized_compatibility
+    assert "Spec-bound failure, implementation-only repair, and pass" in (normalized_compatibility)
+    assert "two four-test fixtures, not every Spec mode" in normalized_compatibility
+    assert "IDE goal-repair and Spec/Quick Spec execution paths remain untested" not in (
         normalized_compatibility
     )
     assert "Agent Focus Mode remains experimental" in normalized_compatibility
