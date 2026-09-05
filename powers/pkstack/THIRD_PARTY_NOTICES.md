@@ -165,8 +165,8 @@ network update checker, and npm lock/install workflow are intentionally not
 included.
 
 - Project: `tt-a1i/archify`, `archify/` subtree
-- Source: <https://github.com/tt-a1i/archify/tree/06dd052602dd9a369e4d034e24faef0917b5a60c/archify>
-- Pinned commit: `06dd052602dd9a369e4d034e24faef0917b5a60c`
+- Source: <https://github.com/tt-a1i/archify/tree/d8e4daf2610d512821365f41b139d874b29efe81/archify>
+- Pinned commit: `d8e4daf2610d512821365f41b139d874b29efe81`
 - Copyright: Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI
 - License: MIT
 - Detailed file-level provenance: [`docs/tt-a1i-archify-provenance.md`](docs/tt-a1i-archify-provenance.md)

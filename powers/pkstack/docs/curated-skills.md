@@ -65,7 +65,7 @@ exception. The [pstack mapping](upstream-skill-parity.md) covers Poteto's ports.
 
 | Skill | Source | Runtime boundary |
 | --- | --- | --- |
-| [`archify`](../skills/archify/SKILL.md) | [`tt-a1i/archify`](https://github.com/tt-a1i/archify/commit/06dd052602dd9a369e4d034e24faef0917b5a60c) | [`tt-a1i-archify-bundle-manifest.json`](tt-a1i-archify-bundle-manifest.json); digest-pinned runtime with [documented local layout patches](tt-a1i-archify-provenance.md) under `skills/archify/upstream/` |
+| [`archify`](../skills/archify/SKILL.md) | [`tt-a1i/archify`](https://github.com/tt-a1i/archify/commit/d8e4daf2610d512821365f41b139d874b29efe81) | [`tt-a1i-archify-bundle-manifest.json`](tt-a1i-archify-bundle-manifest.json); digest-pinned runtime with [documented local layout patches](tt-a1i-archify-provenance.md) under `skills/archify/upstream/` |
 | [`build-iterated-agentic-loop`](../skills/build-iterated-agentic-loop/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | Kiro-safe loop builder with bounded references |
 | [`design-control-loop`](../skills/design-control-loop/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | Kiro-native control-system design method |
 | [`narrow-react-prop-types`](../skills/narrow-react-prop-types/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | React prop narrowing from live call sites |
