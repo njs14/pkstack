@@ -11,9 +11,10 @@ main commit is tagged and the release workflow succeeds.
 [v0.2.0](https://github.com/njs14/pkstack/releases/tag/v0.2.0) remains the
 previous published release.
 
-## Identity candidate
+## Merged identity cleanup
 
-The current change standardizes the product name as **PKStack**, the technical
+The [merged identity cleanup, PR #18](https://github.com/njs14/pkstack/pull/18),
+standardizes the product name as **PKStack**, the technical
 handle as `pkstack`, and the primary skill as `/pkstack`. It updates the
 package, managed workspace assets, six PKStack command routes, documentation,
 and banner while preserving upstream methods and immutable source identities.
@@ -41,12 +42,27 @@ to avoid further spending. No candidate was published or peer-reviewed.
 The exact inner failure is unproven because the retained diagnostic does not
 distinguish a missing proposal, invalid proposal/provenance, or source binding.
 
-A read-only follow-up found a prompt/input mismatch: the repair instructions
-refer to a detector `drift_count` field that is absent from the supplied
-detector JSON. The validated control plan contains that field and the selected
-action. Correcting this mismatch and adding bounded diagnostic coverage are
-next-phase repairs, not a proven explanation or fix for the historical run.
-The workflow stays disabled until that work is verified.
+A follow-up found and fixed a prompt/input mismatch: the repair instructions
+referred to a detector `drift_count` field absent from the supplied JSON. The
+repair now follows the validated controller action and emits fixed, safe
+proposal failure reasons. [PR #19](https://github.com/njs14/pkstack/pull/19)
+also updates the reviewed Linux runtime pin to 2.21.1 after the canary detected
+stable-version drift. The [pipeline validation report](pipeline-readiness-validation.md)
+records 146 passing policy tests, 17 Node tests, independent review, archive
+verification, and scoped live smoke results.
+
+The 2.21.1 credential and final
+[permission smoke](https://github.com/njs14/pkstack/actions/runs/33944622193)
+passed. The validator now handles 2.21.1's omitted preview originals and null
+diff originals. Seven allowed writes and all six denied paths passed, with
+exact policy-denial evidence, protected-file checksums, and cleanup.
+
+These fixes do not establish the historical failure's exact cause or prove a
+complete hands-off update. The owner has approved permanently re-enabling the
+autonomous updater. The workflow remains disabled pending the repair merge.
+A bounded live maintenance/candidate/peer-review
+campaign is still an outstanding release gate; approval does not establish
+that the workflow is enabled or that acceptance has passed.
 
 ## Release requirements
 

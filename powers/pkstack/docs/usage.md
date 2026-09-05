@@ -371,11 +371,10 @@ source-controlled knowledge.
 
 ## Upstream maintenance
 
-The hosted updater is disabled after a live proposal-validation failure.
-The commands below remain available for explicit, reviewed maintenance; they
-do not imply scheduled updates are currently shipping. See the
-[updater guide](upstream-control-loop.md) and
-[release status](../../../reviews/release-status.md).
+Use the commands below for explicit, reviewed maintenance. The
+[updater guide](upstream-control-loop.md) describes the hosted schedule and
+its limits; the [release status](../../../reviews/release-status.md) records
+live validation and whether that schedule is enabled.
 
 In this repository, use `/pkstack-maintain` or inspect the pinned sources with:
 

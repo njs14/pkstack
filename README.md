@@ -15,10 +15,9 @@ Feature contracts live in `Wiki/features/`. The wider Wiki holds architecture
 and decisions in OKF, with optional canonical `okn` validation and retrieval.
 Your selected Kiro model and effort carry through unchanged.
 
-The current source targets 0.3.0, which is **not released**. The automatic
-updater is disabled after a live proposal-validation failure. Installation
-and interactive use are separate from that pipeline. See the
-[release status](reviews/release-status.md) for the outstanding gate.
+The current source targets 0.3.0, which is **not released**. See the
+[release status](reviews/release-status.md) for validation results and updater
+status. Installation and interactive use do not depend on that pipeline.
 
 ## Install
 
@@ -166,7 +165,7 @@ Keep the feature contracts and Wiki under version control; goal state stays
 local and ignored. The [usage guide](powers/pkstack/docs/usage.md#refresh-managed-files)
 covers managed refreshes, clean reinstalls, and recovery. The
 [updater guide](powers/pkstack/docs/upstream-control-loop.md) explains the
-disabled GitHub Actions workflow and its Kiro-only model boundary.
+GitHub Actions schedule, automatic-update limits, and Kiro-only model boundary.
 
 ## Further reading
 

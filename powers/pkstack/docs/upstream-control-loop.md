@@ -1,15 +1,10 @@
 # Maintaining PKStack upstream ports
 
-The maintenance workflow is currently disabled (`disabled_manually`). Its last
-instrumented live run failed proposal validation before publishing a candidate;
-the 0.3.0 release remains withheld. The [release status](../../../reviews/release-status.md)
-records that failure. Do not enable the workflow until the proposal-stage issue
-has been reproduced, fixed, and reviewed.
-
 The configured schedule is daily at 13:17 UTC. When enabled, a change to an
-imported subtree can start one bounded Kiro repair and review cycle. The rest
-of this guide describes that intended behavior. Ordinary Kiro CLI and IDE
-sessions do not depend on the pipeline.
+imported subtree can start one bounded Kiro repair and review cycle. The
+[release status](../../../reviews/release-status.md) records activation and
+live validation results, separately from this workflow's design. Ordinary
+Kiro CLI and IDE sessions do not depend on the pipeline.
 
 ## What can ship automatically
 
@@ -100,8 +95,8 @@ remain available to that attempt.
 
 The workflow filename deliberately retains its original spelling to preserve
 its GitHub Actions identity. It is an internal operational identifier, not a
-Power or skill name. The retry command does not authorize enabling the paused
-workflow.
+Power or skill name. The retry command does not change whether the workflow
+is enabled; re-enabling a paused schedule requires the owner's approval.
 
 ## Local checks without model calls
 

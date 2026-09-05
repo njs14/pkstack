@@ -48,9 +48,8 @@ aliases, migrates no state, and deletes no user files.
 CLI 2.21.0 has recorded fail → repair → pass evidence. IDE 1.0.437 has recorded
 native import, setup, generated-profile selection, and command-approval proof;
 IDE goal and Spec execution remain untested. Web is untested end to end.
-The 0.3.0 release is withheld and the autonomous updater is disabled after a
-proposal-validation failure. See the evidence links below before relying on
-any broader claim.
+The 0.3.0 release is not published. See the evidence links below for validation
+results and updater status before relying on any broader claim.
 
 ## Package references
 
