@@ -1,4 +1,26 @@
 {
   "schema_version": 1,
-  "sources": {}
+  "sources": {
+    "okf-skills": {
+      "rejection_count": 1,
+      "report": {
+        "base_sha": "f53f0931ef3a6748242d2dd569fe0cef0ddb2106",
+        "candidate_run_id": 33969018679,
+        "content_sha256": "4872ec1acd9ae6b9cf016d7963c128d213f4ba64e59ec31fe18ee7d44ec0006b",
+        "head_sha": "ffe61777302f12812894ee38b5c80aaddeacb3bf",
+        "material_findings": [
+          "powers/pkstack/docs/okf-skills-parity.json: The per-file pinned baselines are rolled forward inconsistently while the top-level pinned is re-based from bf2448f0 to 85db7fd0. The backfill/scripts/okf_backfill_events.py entry advances pinned to 951e8a6f (the 85db7fd0-era blob), but the backfill/SKILL.md entry updates only current (5f634589/21302 -> 967b40df/35417) and leaves its pinned untouched. Since the recorded prior transition explicitly changed backfill/SKILL.md (version labels 0.9.2 -> 0.9.3), that entry's pinned still describes the bf2448f0-era blob and no longer matches the declared pinned commit, so the parity record is internally inconsistent and one of the two entries is wrong. Required fix: apply one convention to both excluded paths, i.e. set backfill/SKILL.md pinned to the 85db7fd0-era blob object_sha/size (5f634589/21302) to match the new top-level pinned, or leave both per-file pinned values at the originally adopted baseline and revert the okf_backfill_events.py pinned change.",
+          "powers/pkstack/docs/okf-skills-parity.json: retrieved_on remains 2026-09-05 although the inventory now records a newly retrieved upstream state (commit d8393f32, subtree 21eb933a). Required fix: update retrieved_on to the date the d8393f32 inventory was actually retrieved, or document in the provenance file why the field tracks the pinned baseline rather than the current inventory."
+        ],
+        "patch_sha256": "d471bdac072d21909cac703bfa990471859cca19aa4b0cb8fea28cf938e04107",
+        "schema_version": 1,
+        "source_commit": "d8393f329c97836980566c1cf4e4aa4fe47dc111",
+        "source_id": "okf-skills",
+        "source_run_id": 33968727837,
+        "source_subtree_sha": "21eb933ac68df2d2a81aedad6778970d71e99e8d",
+        "summary": "Metadata- and documentation-only change that advances the okf-skills upstream pin from 85db7fd0/2f9170d6 to d8393f32/21eb933a, records a new mandatory-review entry with disposition B for backfill/SKILL.md and backfill/scripts/okf_backfill_events.py, and appends a provenance narrative plus a machine-readable review marker. Cross-file bindings are otherwise coherent: upstreams.json, upstream-reviews.json, the parity source block, and the new provenance marker agree on prior/new commits and subtree SHAs, and the marker's inventory_sha256 (5eb562b5) matches the review entry. No executable code, Kiro CLI v3 or IDE current-session surface, projectctl behavior, verified-goal semantics, generated Power output, or permission scope is touched; both changed upstream paths, including the Git-diff-emitting Python helper, stay excluded pending a separately authorized, redacted, bounded migration, which is the safe disposition. Rejected because the parity record's per-file pinned baselines are updated asymmetrically against the re-based top-level pinned, leaving backfill/SKILL.md's pinned blob inconsistent with the declared pinned commit, and because retrieved_on was not refreshed for the newly retrieved inventory. Review was read-only against the exact candidate bundle; repository state beyond the supplied patch (including the unshown pinned block of the SKILL.md entry and any parity validation tests) was not verified.",
+        "verdict": "rejected"
+      }
+    }
+  }
 }
