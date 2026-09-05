@@ -23,8 +23,9 @@ and 17 JavaScript tests**, plus lint, formatting, types, lockfile checks,
 Actionlint, and ShellCheck. Kiro CLI 2.21.1 loaded `/pkstack` with Luna / Low.
 The renamed `/pkstack-verified-goal` campaign passed in the same CLI session:
 stored failure, an `account.py`-only repair, and all four unchanged tests passing
-on attempt two. The renamed Power's IDE import is still in flight and is not
-recorded as passed. The [identity validation report](pkstack-identity-validation.md)
+on attempt two. Kiro IDE 1.0.437 imported the renamed Power and displayed all
+six canonical skills; their installed files match the source. The
+[identity validation report](pkstack-identity-validation.md)
 records the candidate, commands, and completed results.
 
 ## Outstanding release gate

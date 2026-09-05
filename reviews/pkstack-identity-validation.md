@@ -110,9 +110,27 @@ The copied test and tracked fixture have the same SHA-256:
 `65932341be2d1b133366ec58e583f224751f1f89b9d8d26ebfeb897cab664974`.
 
 Kiro reported 0.01 credits for entry discovery and 0.03 for the repair turn
-(0.04 total). The account dashboard baseline was 294.49 of 1,000, with overages
-disabled; a refreshed account-wide after-reading is not yet recorded. Per-turn
-usage is direct CLI output, not an estimate of unrelated account activity.
+(0.04 total). The account dashboard went from 294.49 to 294.55 of 1,000, with
+overages disabled. The 0.06 account-wide difference includes everything metered
+between those snapshots and is not attributed solely to the two CLI turns.
+
+## Native IDE import
+
+Kiro IDE **1.0.437** imported the reviewed `powers/pkstack` folder through
+Powers → Add Custom Power → Import power from a folder, with the disposable
+workspace `/private/tmp/pkstack-ide-smoke.bSUF29` open. The native chooser and
+Power view initially displayed delayed state; selection eventually enabled,
+and refreshing the window revealed the completed import. No format workaround
+or runtime configuration change was made.
+
+The installed Power detail view listed all six canonical routes. Each of their
+installed `SKILL.md` files under `~/.kiro/powers/installed/pkstack` matched the
+reviewed source byte-for-byte, and the installed `plugin.json` matched too.
+The earlier `pk-stack` installation was left untouched; this was a new install,
+not a migration. No IDE model turn was needed to prove import and discovery.
+Luna / Low and Autopilot off remained selected. IDE workspace setup and agent
+selection were not repeated here; the CLI campaign exercised those generated
+assets, and prior-name IDE evidence remains separately scoped.
 
 ## Artwork and README layout
 
@@ -138,9 +156,8 @@ creation through the existing GitHub credentials succeeded. Ruleset inspection
 returned the existing plan-related 403; privacy was not changed to bypass it.
 App-specific integrations are not claimed verified merely from repository access.
 
-The renamed IDE import is not yet accepted: its native folder chooser currently
-leaves Select Folder disabled. Earlier IDE evidence covers the preceding name,
-not this renamed build. Kiro Web, Crew, and IDE goal/Spec execution are not newly
-tested here. The autonomous updater remains disabled; its proposal-stage defect
-is separate work. No tag or release was created. Merge and release readiness
-require completed live gates, not this report alone.
+The renamed IDE import and skill discovery passed. Kiro Web, Crew, and IDE
+goal/Spec execution are not newly tested here. The autonomous updater remains
+disabled; its proposal-stage defect is separate work. No tag or release was
+created. Merge and release readiness require completed live gates, not this
+report alone.
