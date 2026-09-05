@@ -1,0 +1,559 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "ac36b5c62ad726ab509920f6283277c48567ebe0",
+        "size": 435,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "build-iterated-agentic-loop/.claude-plugin/plugin.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "ac36b5c62ad726ab509920f6283277c48567ebe0",
+        "size": 435,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "96e4f053f20de4f1e12fae25ca46031a97cd27fd",
+        "size": 5896,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/references/agent-iteration.ts",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "96e4f053f20de4f1e12fae25ca46031a97cd27fd",
+        "size": 5896,
+        "type": "blob"
+      },
+      "rationale": "Example automation is excluded because its runner, credential, write, or comment-loop assumptions are weaker than PKStack policy."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "daf36be799217ab87021515124c5daae20917458",
+        "size": 4369,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/references/agent-runner-templates.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "daf36be799217ab87021515124c5daae20917458",
+        "size": 4369,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "c1f197f34da4e04bb332f6b43671a63e3254423c",
+        "size": 7466,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/references/example-skill.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "c1f197f34da4e04bb332f6b43671a63e3254423c",
+        "size": 7466,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "de9f4183a056cc1e45fe98f77db0999e4bfa51fa",
+        "size": 178,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/references/memory-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "de9f4183a056cc1e45fe98f77db0999e4bfa51fa",
+        "size": 178,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "f54cadec799680ca0e746cee28643782fd0630db",
+        "size": 1456,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/references/prompt-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "f54cadec799680ca0e746cee28643782fd0630db",
+        "size": 1456,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "629fced7e8947d7edcb5958fc69f113785b41a67",
+        "size": 2442,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/references/response-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "629fced7e8947d7edcb5958fc69f113785b41a67",
+        "size": 2442,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "d1b155cab73f9a0f18f6946e56ce4d0399d0326a",
+        "size": 1847,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/references/skill-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "d1b155cab73f9a0f18f6946e56ce4d0399d0326a",
+        "size": 1847,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a8c69e2d3d278d74ca1f2223b79b95440179b09f",
+        "size": 10521,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/references/workflow-template.yml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a8c69e2d3d278d74ca1f2223b79b95440179b09f",
+        "size": 10521,
+        "type": "blob"
+      },
+      "rationale": "Example automation is excluded because its runner, credential, write, or comment-loop assumptions are weaker than PKStack policy."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "6ac5e0e4f81d52fe0657745257d15e3aa9d160ae",
+        "size": 13553,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "build-iterated-agentic-loop/skills/build-iterated-agentic-loop/SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "6ac5e0e4f81d52fe0657745257d15e3aa9d160ae",
+        "size": 13553,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "03fb6aa49b3aedeb686208f6fe43a39e8883cd82",
+        "size": 609,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "design-control-loop/.claude-plugin/plugin.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "03fb6aa49b3aedeb686208f6fe43a39e8883cd82",
+        "size": 609,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "96e4f053f20de4f1e12fae25ca46031a97cd27fd",
+        "size": 5896,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "design-control-loop/skills/design-control-loop/references/agent-iteration.ts",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "96e4f053f20de4f1e12fae25ca46031a97cd27fd",
+        "size": 5896,
+        "type": "blob"
+      },
+      "rationale": "Example automation is excluded because its runner, credential, write, or comment-loop assumptions are weaker than PKStack policy."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "ad4bdaf7c637260771632e2d6c80b4393a788f0d",
+        "size": 4841,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "design-control-loop/skills/design-control-loop/references/agent-runner-templates.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "ad4bdaf7c637260771632e2d6c80b4393a788f0d",
+        "size": 4841,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "5e9827b6218e8cfd838524dadda3759f61a4feab",
+        "size": 5593,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "design-control-loop/skills/design-control-loop/references/control-loop-taxonomy.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "5e9827b6218e8cfd838524dadda3759f61a4feab",
+        "size": 5593,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "4538cd6f83fbed78903687bd4e8758284f9cef9d",
+        "size": 4241,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "design-control-loop/skills/design-control-loop/references/example-control-loop.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "4538cd6f83fbed78903687bd4e8758284f9cef9d",
+        "size": 4241,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "c1f197f34da4e04bb332f6b43671a63e3254423c",
+        "size": 7466,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "design-control-loop/skills/design-control-loop/references/example-skill.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "c1f197f34da4e04bb332f6b43671a63e3254423c",
+        "size": 7466,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "d7d644dc77412303e4fe3e26141b19ce206b93e3",
+        "size": 456,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "design-control-loop/skills/design-control-loop/references/memory-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "d7d644dc77412303e4fe3e26141b19ce206b93e3",
+        "size": 456,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "f51645a25b2e5bb5fae8f1ad0d35f82276e7e209",
+        "size": 1521,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "design-control-loop/skills/design-control-loop/references/prompt-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "f51645a25b2e5bb5fae8f1ad0d35f82276e7e209",
+        "size": 1521,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "629fced7e8947d7edcb5958fc69f113785b41a67",
+        "size": 2442,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "design-control-loop/skills/design-control-loop/references/response-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "629fced7e8947d7edcb5958fc69f113785b41a67",
+        "size": 2442,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "d1b155cab73f9a0f18f6946e56ce4d0399d0326a",
+        "size": 1847,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "design-control-loop/skills/design-control-loop/references/skill-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "d1b155cab73f9a0f18f6946e56ce4d0399d0326a",
+        "size": 1847,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "3093c3496b789cb87d29d07dd5b2d34fe62978a0",
+        "size": 12081,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "design-control-loop/skills/design-control-loop/references/workflow-template.yml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "3093c3496b789cb87d29d07dd5b2d34fe62978a0",
+        "size": 12081,
+        "type": "blob"
+      },
+      "rationale": "Example automation is excluded because its runner, credential, write, or comment-loop assumptions are weaker than PKStack policy."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "c9abc1b884d6002b4b76a7f611cf7686e91d59c8",
+        "size": 15495,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "design-control-loop/skills/design-control-loop/SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "c9abc1b884d6002b4b76a7f611cf7686e91d59c8",
+        "size": 15495,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "bb05dfd6f32686ea2c6787a6e53f0912014e7e2b",
+        "size": 397,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "improve-claude-md/.claude-plugin/plugin.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "bb05dfd6f32686ea2c6787a6e53f0912014e7e2b",
+        "size": 397,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "89a1333fbba11e623cef81925361dd098a81443e",
+        "size": 9450,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "improve-claude-md/skills/improve-claude-md/SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "89a1333fbba11e623cef81925361dd098a81443e",
+        "size": 9450,
+        "type": "blob"
+      },
+      "rationale": "The Claude-specific instruction method is intentionally not shipped; the runtime-neutral writing-for-agents source is the Kiro-native authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "59609db6688ac0286359d927719408f1590cd7db",
+        "size": 377,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "narrow-react-prop-types/.claude-plugin/plugin.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "59609db6688ac0286359d927719408f1590cd7db",
+        "size": 377,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "be8c0137ca8c5ffae0cdcbfc3711f8053cb27c17",
+        "size": 11103,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "narrow-react-prop-types/skills/narrow-react-prop-types/references/agent-narrow-component-props.yml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "be8c0137ca8c5ffae0cdcbfc3711f8053cb27c17",
+        "size": 11103,
+        "type": "blob"
+      },
+      "rationale": "Example automation is excluded because its runner, credential, write, or comment-loop assumptions are weaker than PKStack policy."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "15f220514ec308667e17229b31a44d600c2d57b4",
+        "size": 213,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "narrow-react-prop-types/skills/narrow-react-prop-types/references/narrow-component-props-memory.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "15f220514ec308667e17229b31a44d600c2d57b4",
+        "size": 213,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "8eab2377f382ae02fd3d55fa6e54cea17e8cd3a1",
+        "size": 1879,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "narrow-react-prop-types/skills/narrow-react-prop-types/references/response-template.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "8eab2377f382ae02fd3d55fa6e54cea17e8cd3a1",
+        "size": 1879,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "5ee3644aa827eb2452be3ead8f66c3b97ad7f4e5",
+        "size": 7764,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "narrow-react-prop-types/skills/narrow-react-prop-types/SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "5ee3644aa827eb2452be3ead8f66c3b97ad7f4e5",
+        "size": 7764,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "72376ddfb6f159b2719703127a35de76b89c19cf",
+        "size": 394,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "show-me/.claude-plugin/plugin.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "72376ddfb6f159b2719703127a35de76b89c19cf",
+        "size": 394,
+        "type": "blob"
+      },
+      "rationale": "Claude registration or source reference material informed the adaptation but is not a separate PKStack runtime authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "d57a0a0afc2800a4cc7a7765e65a9c6c18e67b4f",
+        "size": 3297,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "show-me/skills/show-me/SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "d57a0a0afc2800a4cc7a7765e65a9c6c18e67b4f",
+        "size": 3297,
+        "type": "blob"
+      },
+      "rationale": "Reviewed skill judgement or supporting semantics are preserved in the corresponding Kiro-native curated bundle."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3c2629142c5d437428269b1b722b08c0b87f574d",
+      "subtree_sha": "1dd095000af2d0bb29986a9f11f97e3742feb2b3"
+    },
+    "id": "humanlayer-skills",
+    "path": "plugins",
+    "pinned": {
+      "commit": "3c2629142c5d437428269b1b722b08c0b87f574d",
+      "subtree_sha": "1dd095000af2d0bb29986a9f11f97e3742feb2b3"
+    },
+    "repository": "humanlayer/skills",
+    "retrieved_on": "2026-09-03"
+  },
+  "summary": {
+    "A": 9,
+    "B": 6,
+    "C": 16,
+    "current_files": 31,
+    "pinned_files": 31
+  }
+}

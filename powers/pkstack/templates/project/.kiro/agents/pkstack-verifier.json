@@ -1,0 +1,35 @@
+{
+  "name": "pkstack-verifier",
+  "description": "Read-only PKStack verification sub-agent that inspects contracts and recorded evidence while the primary session owns every executable verifier run.",
+  "prompt": "Inspect the named verifier and recorded evidence without executing commands or editing files. The policy screen is not a sandbox, so identify side-effect risks and return the exact command plus PASS, ISSUES, or BLOCKED to the primary agent. Only the primary session may run projectctl or the project verifier.",
+  "tools": [
+    "read",
+    "knowledge"
+  ],
+  "includeMcpJson": false,
+  "includePowers": false,
+  "toolsSettings": {},
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "skill://.kiro/skills/*/SKILL.md"
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_read",
+        "match": [
+          "./**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "./**"
+        ],
+        "effect": "deny"
+      }
+    ]
+  },
+  "welcomeMessage": "Ready to inspect a verification contract and its recorded evidence without executing it."
+}

@@ -1,0 +1,1103 @@
+{
+  "schema_version": 1,
+  "artifact_type": "source-inventory",
+  "source": {
+    "id": "openknowledge-cli-contract",
+    "repository": "openknowledge-sh/openknowledge",
+    "path": "packages/cli/schemas/v1",
+    "pinned": {
+      "commit": "6e8bbe026448fd890ace9293bcfe89b53363cd1f",
+      "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf"
+    },
+    "current": {
+      "commit": "6e8bbe026448fd890ace9293bcfe89b53363cd1f",
+      "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf"
+    },
+    "retrieved_on": "2026-09-03"
+  },
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "summary": {
+    "A": 4,
+    "B": 19,
+    "C": 40,
+    "pinned_files": 63,
+    "current_files": 63
+  },
+  "files": [
+    {
+      "path": "agent-doctor.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "47e4a6f92dc4ac3150d449deb0b12291be3151fd",
+        "size": 790
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "47e4a6f92dc4ac3150d449deb0b12291be3151fd",
+        "size": 790
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "artifact.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "8cfc7d6fad91a6c9c550b544c61825465d945e48",
+        "size": 823
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "8cfc7d6fad91a6c9c550b544c61825465d945e48",
+        "size": 823
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "ast.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "a87ca88f9eff19178365e5dff34ae521ee49d527",
+        "size": 8432
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "a87ca88f9eff19178365e5dff34ae521ee49d527",
+        "size": 8432
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "audit-report.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "198a69d3b189d69a1f971679c5351bf29c579553",
+        "size": 2954
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "198a69d3b189d69a1f971679c5351bf29c579553",
+        "size": 2954
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "audit-source-baseline.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d369d7afbec6e1027011bbb1ebab1815dd5ec23e",
+        "size": 1022
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d369d7afbec6e1027011bbb1ebab1815dd5ec23e",
+        "size": 1022
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "bundle.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "41e7aa14cdb64c2ef935f82adb627168057ec005",
+        "size": 1400
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "41e7aa14cdb64c2ef935f82adb627168057ec005",
+        "size": 1400
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "check.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "af80a57a27a60897e54a65b9ec9aff681864db9e",
+        "size": 917
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "af80a57a27a60897e54a65b9ec9aff681864db9e",
+        "size": 917
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claim-replay-report.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "6b6fe54bb416a4658c138d6d86e684f01f446b0d",
+        "size": 2119
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "6b6fe54bb416a4658c138d6d86e684f01f446b0d",
+        "size": 2119
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-entities.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "1e04405bfd572165dca26393c112b8729f84abe9",
+        "size": 1054
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "1e04405bfd572165dca26393c112b8729f84abe9",
+        "size": 1054
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-entity-impact.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "a8a97957b012c28f63d1c9cf30faf465f64ead8b",
+        "size": 1336
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "a8a97957b012c28f63d1c9cf30faf465f64ead8b",
+        "size": 1336
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-entity-mutation.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "94d6f72656f64171d1e6188bea1733befd3ca9e9",
+        "size": 968
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "94d6f72656f64171d1e6188bea1733befd3ca9e9",
+        "size": 968
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-find.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "a177ab12f89bb7cc0f49cdce2430b8c2a8315819",
+        "size": 1765
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "a177ab12f89bb7cc0f49cdce2430b8c2a8315819",
+        "size": 1765
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-impact.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "db4f86a65b634ab8b309533e6c97fe6548c657f8",
+        "size": 1736
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "db4f86a65b634ab8b309533e6c97fe6548c657f8",
+        "size": 1736
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-mutation.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "7bfa90ea695183a4ce9ac6c0c6753d2641a6ad25",
+        "size": 682
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "7bfa90ea695183a4ce9ac6c0c6753d2641a6ad25",
+        "size": 682
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-reconcile.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "ccd29ab0bfb86188c80f46e5a0bf6db3bd0eddc0",
+        "size": 755
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "ccd29ab0bfb86188c80f46e5a0bf6db3bd0eddc0",
+        "size": 755
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-stale.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "52151c41fd9aaace60b0bc790b1269c24da53926",
+        "size": 595
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "52151c41fd9aaace60b0bc790b1269c24da53926",
+        "size": 595
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-suggestions.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "29c3a102d605ad7567740effb63542a1a890f613",
+        "size": 1200
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "29c3a102d605ad7567740effb63542a1a890f613",
+        "size": 1200
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "claims-validation.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "0171986c193249d10fd236ed374472f5d7075382",
+        "size": 1173
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "0171986c193249d10fd236ed374472f5d7075382",
+        "size": 1173
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "cli-error.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "78d002ff0983b01bbeff7501cb34fd4a512c2156",
+        "size": 801
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "78d002ff0983b01bbeff7501cb34fd4a512c2156",
+        "size": 801
+      },
+      "disposition": "A",
+      "rationale": "Adapt the canonical bounded machine contract used by PKStack at its optional okn process boundary."
+    },
+    {
+      "path": "common.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "1efe959b226bae40887d8b804409b520f01199fb",
+        "size": 9599
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "1efe959b226bae40887d8b804409b520f01199fb",
+        "size": 9599
+      },
+      "disposition": "A",
+      "rationale": "Adapt the canonical bounded machine contract used by PKStack at its optional okn process boundary."
+    },
+    {
+      "path": "datalog-query.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "a7fda8bbcaea49b05125bb89dffd0c11d68818df",
+        "size": 3388
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "a7fda8bbcaea49b05125bb89dffd0c11d68818df",
+        "size": 3388
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "deploy-plan.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "52963bfa03a55d08410d9b8deb5c276b20625a7d",
+        "size": 3527
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "52963bfa03a55d08410d9b8deb5c276b20625a7d",
+        "size": 3527
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "deploy-result.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "8c124876293d675c14510d3d7a5c624afb605b08",
+        "size": 776
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "8c124876293d675c14510d3d7a5c624afb605b08",
+        "size": 776
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "deploy-runtime-scaffold.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "75fc18625a2c4535545ec60a616b1b0e8ced7dac",
+        "size": 923
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "75fc18625a2c4535545ec60a616b1b0e8ced7dac",
+        "size": 923
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "eval-comparison.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "134af9e16a40fc09f351219980f5d4a328eb2dec",
+        "size": 3624
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "134af9e16a40fc09f351219980f5d4a328eb2dec",
+        "size": 3624
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "eval-report.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "39751f5c4622d641c398363ac09a0004278824bc",
+        "size": 6562
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "39751f5c4622d641c398363ac09a0004278824bc",
+        "size": 6562
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "evidence-pin.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c7105293085c924ce2037a2d8441d30a91fa3387",
+        "size": 1091
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c7105293085c924ce2037a2d8441d30a91fa3387",
+        "size": 1091
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "federated-search-context.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "690abbbf07704a9cd5e37a7e38ea6e919f97fc5d",
+        "size": 2319
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "690abbbf07704a9cd5e37a7e38ea6e919f97fc5d",
+        "size": 2319
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "federated-search-results.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d2afa17897b3d1055910673fcffd59ed97d42d22",
+        "size": 1213
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d2afa17897b3d1055910673fcffd59ed97d42d22",
+        "size": 1213
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "feedback-event.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "0e87b2a9c0444b234be55080f78263f1f5332bed",
+        "size": 1704
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "0e87b2a9c0444b234be55080f78263f1f5332bed",
+        "size": 1704
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "graph.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "422cd61a6e7b4f6dbd60deaabfc72c162b629459",
+        "size": 2200
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "422cd61a6e7b4f6dbd60deaabfc72c162b629459",
+        "size": 2200
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "hybrid-query.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "f2e072ec97a8d9af64801e4576c9b0dd2aa6b51f",
+        "size": 3917
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "f2e072ec97a8d9af64801e4576c9b0dd2aa6b51f",
+        "size": 3917
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "intervention-event.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "3f060c9bcf570780762d603e9568cb90fa60c65e",
+        "size": 5092
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "3f060c9bcf570780762d603e9568cb90fa60c65e",
+        "size": 5092
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "job-control.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "07bc7d0cacffc54d134c20481bf75ddac9f7311c",
+        "size": 449
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "07bc7d0cacffc54d134c20481bf75ddac9f7311c",
+        "size": 449
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "job-list.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "23a055c4f102df187156cda68675d417a0abd3f0",
+        "size": 1658
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "23a055c4f102df187156cda68675d417a0abd3f0",
+        "size": 1658
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "job-run-plan.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "22dc686c38c0ecac8c8c0d75287104af67028c5d",
+        "size": 4407
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "22dc686c38c0ecac8c8c0d75287104af67028c5d",
+        "size": 4407
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "job-run-record.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c5c5e42163df7fa3d06ca18b74c99eb32e549505",
+        "size": 3155
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c5c5e42163df7fa3d06ca18b74c99eb32e549505",
+        "size": 3155
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "job-run-summary.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "e57a43b95c251c8bbd9f8b6a947765b5e485f601",
+        "size": 1281
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "e57a43b95c251c8bbd9f8b6a947765b5e485f601",
+        "size": 1281
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "job-runs.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d6b7e98d316254a29d7723f77b6e004d10fd9eef",
+        "size": 738
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d6b7e98d316254a29d7723f77b6e004d10fd9eef",
+        "size": 738
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "job-start.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "802ca92540ab752345b85fbf46413bf99733a168",
+        "size": 477
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "802ca92540ab752345b85fbf46413bf99733a168",
+        "size": 477
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "job-status.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "08c944eaa3dcf42bd50eae2975927b37ab594c87",
+        "size": 1755
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "08c944eaa3dcf42bd50eae2975927b37ab594c87",
+        "size": 1755
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "job-validation.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "ebdfc7579d157022c5cb05b6906936da9422b2d4",
+        "size": 1082
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "ebdfc7579d157022c5cb05b6906936da9422b2d4",
+        "size": 1082
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "list.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "b8dd3ad473aad1a1e03fce4bb0da41d28d1d43ee",
+        "size": 1167
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "b8dd3ad473aad1a1e03fce4bb0da41d28d1d43ee",
+        "size": 1167
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "quality-report.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c2915273489e43b92322fa86125b2ed728525eed",
+        "size": 6892
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c2915273489e43b92322fa86125b2ed728525eed",
+        "size": 6892
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "rdf-dataset.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "851aa63727598f752b93b07296d3c6fbc22653df",
+        "size": 1639
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "851aa63727598f752b93b07296d3c6fbc22653df",
+        "size": 1639
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "README.md",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "b94d2612f65ce34c8f4094b040f17cec30a4707b",
+        "size": 10400
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "b94d2612f65ce34c8f4094b040f17cec30a4707b",
+        "size": 10400
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "registry-list.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "7cc1714bdb1d1c9664472a1a1e86f3b7f0138671",
+        "size": 1580
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "7cc1714bdb1d1c9664472a1a1e86f3b7f0138671",
+        "size": 1580
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "registry-status.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "e22c75ad035e77e6697b6bac097154b0376ec8a3",
+        "size": 3408
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "e22c75ad035e77e6697b6bac097154b0376ec8a3",
+        "size": 3408
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "retrieval-eval-report.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "987e7cd9aa097917e9e85eabde330583ecd8a718",
+        "size": 5830
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "987e7cd9aa097917e9e85eabde330583ecd8a718",
+        "size": 5830
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "runtime-build.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "53ee7b767159d141ea1926d56bcacfb38cec9fc0",
+        "size": 1959
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "53ee7b767159d141ea1926d56bcacfb38cec9fc0",
+        "size": 1959
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "runtime-cache.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "bdcd7e9e8590c258419565b30314ef00dc1b7de7",
+        "size": 1780
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "bdcd7e9e8590c258419565b30314ef00dc1b7de7",
+        "size": 1780
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "runtime-context.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "7c365409146b890db7478477db47a5513e166d54",
+        "size": 4933
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "7c365409146b890db7478477db47a5513e166d54",
+        "size": 4933
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "runtime-plan.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "ad15953eda088d5acdb2b73071238f28778b1802",
+        "size": 5957
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "ad15953eda088d5acdb2b73071238f28778b1802",
+        "size": 5957
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "runtime-release-action.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "751f260e60b8c9a68cccbc724035efe175faf590",
+        "size": 988
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "751f260e60b8c9a68cccbc724035efe175faf590",
+        "size": 988
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "runtime-releases.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "370f3fa75b4ca50ecfd11c4ae0099ae993c8f5ef",
+        "size": 1319
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "370f3fa75b4ca50ecfd11c4ae0099ae993c8f5ef",
+        "size": 1319
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "runtime-search.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "1ac0ed0b6365dfb4d7d8770e6bdf64b621d401a6",
+        "size": 6012
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "1ac0ed0b6365dfb4d7d8770e6bdf64b621d401a6",
+        "size": 6012
+      },
+      "disposition": "B",
+      "rationale": "Exclude deployment, job-control, runtime, or release-management interfaces from PKStack's local workflow boundary."
+    },
+    {
+      "path": "search-context.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "33995d0560df1534b056856e6ce7f44339d8e832",
+        "size": 2282
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "33995d0560df1534b056856e6ce7f44339d8e832",
+        "size": 2282
+      },
+      "disposition": "A",
+      "rationale": "Adapt the canonical bounded machine contract used by PKStack at its optional okn process boundary."
+    },
+    {
+      "path": "search-results.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c94f9b039dee1ee434341b995e55a6ca5e890d5d",
+        "size": 2192
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "c94f9b039dee1ee434341b995e55a6ca5e890d5d",
+        "size": 2192
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "semantic-facts.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "f5fd29bdd9a3bc073a71ffb79c2f74423b7f6799",
+        "size": 7416
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "f5fd29bdd9a3bc073a71ffb79c2f74423b7f6799",
+        "size": 7416
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "sparql-query.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "4d299c102874aff7da8c0134a442bb4ab9d83c02",
+        "size": 3035
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "4d299c102874aff7da8c0134a442bb4ab9d83c02",
+        "size": 3035
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "usage-event.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "cfa3337d3d117394551027af5587031551b5862e",
+        "size": 1911
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "cfa3337d3d117394551027af5587031551b5862e",
+        "size": 1911
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    },
+    {
+      "path": "validation.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "3fe0856e1f57331f8fa007d0ed775c43f5996e98",
+        "size": 2020
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "3fe0856e1f57331f8fa007d0ed775c43f5996e98",
+        "size": 2020
+      },
+      "disposition": "A",
+      "rationale": "Adapt the canonical bounded machine contract used by PKStack at its optional okn process boundary."
+    },
+    {
+      "path": "vector-search.schema.json",
+      "pinned": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d8b0b9413dae1a38d82ed224dd9f989dfc9b3a1b",
+        "size": 2220
+      },
+      "current": {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": "d8b0b9413dae1a38d82ed224dd9f989dfc9b3a1b",
+        "size": 2220
+      },
+      "disposition": "C",
+      "rationale": "Retain the public schema identity as provenance; PKStack does not implement or vendor this interface."
+    }
+  ]
+}

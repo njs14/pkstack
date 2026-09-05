@@ -1,0 +1,6 @@
+PKStack (Poteto Kiro)
+Copyright 2026 PKStack contributors
+
+This project is an independent Kiro-native implementation inspired by the
+public workflow ideas in Cursor's pstack plugin. It does not contain or ship
+Cursor's runtime, and Cursor is not required to use it.

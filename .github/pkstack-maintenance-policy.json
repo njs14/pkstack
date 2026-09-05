@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "source_workflows": [
+    {
+      "name": "PKStack Upstream Maintenance (Kiro)",
+      "provider": "kiro",
+      "path": ".github/workflows/pk-stack-upstream-maintenance-kiro.yml"
+    }
+  ],
+  "ci_authority": {
+    "path": ".kiro/agents/pkstack-maintainer.json",
+    "power_managed": false,
+    "candidate_mutable": false,
+    "tools": [
+      "read",
+      "grep",
+      "write"
+    ],
+    "runtime_trust_tools": [
+      "fs_read",
+      "fs_write",
+      "grep"
+    ],
+    "tools_settings": {},
+    "resources": [
+      "file://AGENTS.md",
+      "file://.pkstack-ci/control-plan.json",
+      "file://.pkstack-ci/loop-memory.md",
+      "file://.pkstack-ci/upstream-delta.json",
+      "file://.pkstack-ci/verification-feedback.txt"
+    ],
+    "write_patterns": [
+      ".pkstack-maintenance/proposal.json",
+      "powers/pkstack/README.md",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-spec-source-parity.json",
+      "powers/pkstack/docs/openknowledge-cli-contract-parity.json",
+      "powers/pkstack/docs/humanlayer-show-me-bundle-manifest.json",
+      "powers/pkstack/docs/humanlayer-skills-source-parity.json",
+      "powers/pkstack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
+      "powers/pkstack/docs/humanlayer-design-control-loop-bundle-manifest.json",
+      "powers/pkstack/docs/mattpocock-writing-for-agents-bundle-manifest.json",
+      "powers/pkstack/docs/mattpocock-writing-for-agents-provenance.md",
+      "powers/pkstack/docs/mattpocock-writing-for-agents-source-parity.json",
+      "powers/pkstack/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
+      "powers/pkstack/docs/tt-a1i-archify-bundle-manifest.json",
+      "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
+      "powers/pkstack/docs/upstream-skill-parity.json",
+      "powers/pkstack/dev.kiro/**/*.md",
+      "powers/pkstack/docs/**/*.md",
+      "powers/pkstack/skills/**/*.md",
+      "powers/pkstack/templates/project/**/*.json"
+    ],
+    "deny_patterns": [
+      ".github/**",
+      ".git/**",
+      ".kiro/**",
+      ".pkstack/**",
+      ".pkstack-ci/**",
+      ".claude/**",
+      ".codex/**",
+      ".cursor/**",
+      ".gemini/**",
+      "**/.claude/**",
+      "**/.codex/**",
+      "**/.cursor/**",
+      "**/.gemini/**",
+      "**/AGENTS.md",
+      "**/CLAUDE.local.md",
+      "**/CLAUDE.md",
+      "**/GEMINI.md",
+      "AGENTS.md",
+      "CLAUDE.local.md",
+      "CLAUDE.md",
+      "GEMINI.md",
+      "Wiki/**",
+      "maintenance/**",
+      "powers/pkstack/docs/validation-report.md",
+      "powers/pkstack/examples/**",
+      "powers/pkstack/pyproject.toml",
+      "powers/pkstack/reviews/**",
+      "powers/pkstack/src/pkstack/**",
+      "powers/pkstack/tests/**",
+      "powers/pkstack/uv.lock",
+      "projectctl",
+      "reviews/**"
+    ]
+  },
+  "pull_request": {
+    "author_id": 41898282,
+    "author_login": "github-actions[bot]",
+    "branch_prefix": "pkstack-upstream/",
+    "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+  },
+  "candidate_lifecycle": {
+    "workflow_name": "PKStack Upstream Candidate Gate",
+    "workflow_path": ".github/workflows/pk-stack-upstream-candidate.yml",
+    "run_title_prefix": "PKStack candidate gate for source run ",
+    "freshness_seconds": 21600
+  },
+  "candidate_review": {
+    "required": true,
+    "provider": "kiro",
+    "model": "claude-opus-5",
+    "effort": "xhigh",
+    "credential_secret": "KIRO_API_KEY",
+    "agent": "pkstack-ci-reviewer"
+  },
+  "limits": {
+    "max_changed_files": 48,
+    "max_patch_bytes": 524288,
+    "max_changed_lines": 12000,
+    "max_candidate_package_bytes": 33554432,
+    "max_review_ledger_bytes": 8388608,
+    "max_review_transitions": 512
+  },
+  "agent_allowed_exact": [
+    ".pkstack-maintenance/proposal.json",
+    "powers/pkstack/README.md",
+    "powers/pkstack/docs/okf-skills-parity.json",
+    "powers/pkstack/docs/okf-spec-source-parity.json",
+    "powers/pkstack/docs/openknowledge-cli-contract-parity.json",
+    "powers/pkstack/docs/humanlayer-show-me-bundle-manifest.json",
+    "powers/pkstack/docs/humanlayer-skills-source-parity.json",
+    "powers/pkstack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
+    "powers/pkstack/docs/humanlayer-design-control-loop-bundle-manifest.json",
+    "powers/pkstack/docs/mattpocock-writing-for-agents-bundle-manifest.json",
+    "powers/pkstack/docs/mattpocock-writing-for-agents-provenance.md",
+    "powers/pkstack/docs/mattpocock-writing-for-agents-source-parity.json",
+    "powers/pkstack/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
+    "powers/pkstack/docs/tt-a1i-archify-bundle-manifest.json",
+    "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
+    "powers/pkstack/docs/upstream-skill-parity.json"
+  ],
+  "agent_allowed_prefixes": {
+    "powers/pkstack/dev.kiro/": [
+      ".md"
+    ],
+    "powers/pkstack/docs/": [
+      ".md"
+    ],
+    "powers/pkstack/skills/": [
+      ".md"
+    ],
+    "powers/pkstack/templates/project/": [
+      ".json"
+    ]
+  },
+  "final_allowed_exact": [
+    ".pkstack/bin/projectctl",
+    ".pkstack/bootstrap.json",
+    ".pkstack/discovery.json",
+    ".pkstack/projectctl/README.md",
+    "Wiki/features/README.md",
+    "maintenance/upstream-reviews.json",
+    "maintenance/upstreams.json",
+    "powers/pkstack/README.md",
+    "powers/pkstack/docs/okf-skills-parity.json",
+    "powers/pkstack/docs/okf-spec-source-parity.json",
+    "powers/pkstack/docs/openknowledge-cli-contract-parity.json",
+    "powers/pkstack/docs/humanlayer-show-me-bundle-manifest.json",
+    "powers/pkstack/docs/humanlayer-skills-source-parity.json",
+    "powers/pkstack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
+    "powers/pkstack/docs/humanlayer-design-control-loop-bundle-manifest.json",
+    "powers/pkstack/docs/mattpocock-writing-for-agents-bundle-manifest.json",
+    "powers/pkstack/docs/mattpocock-writing-for-agents-provenance.md",
+    "powers/pkstack/docs/mattpocock-writing-for-agents-source-parity.json",
+    "powers/pkstack/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
+    "powers/pkstack/docs/tt-a1i-archify-bundle-manifest.json",
+    "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
+    "powers/pkstack/docs/upstream-skill-parity.json",
+    "projectctl"
+  ],
+  "final_allowed_prefixes": {
+    ".kiro/agents/": [
+      ".json"
+    ],
+    ".kiro/hooks/": [
+      ".json"
+    ],
+    ".kiro/skills/": [
+      ".md"
+    ],
+    ".kiro/steering/": [
+      ".md"
+    ],
+    "powers/pkstack/dev.kiro/": [
+      ".md"
+    ],
+    "powers/pkstack/docs/": [
+      ".md"
+    ],
+    "powers/pkstack/skills/": [
+      ".md"
+    ],
+    "powers/pkstack/templates/project/": [
+      ".json"
+    ]
+  },
+  "protected_exact": [
+    "maintenance/upstream-feedback.json",
+    ".github/pkstack-maintenance-policy.json",
+    ".kiro/agents/pkstack-ci-reviewer.json",
+    ".kiro/agents/pkstack-maintainer.json",
+    "AGENTS.md",
+    "Wiki/features/pkstack-upstream-maintenance.md",
+    "powers/pkstack/docs/validation-report.md"
+  ],
+  "protected_basenames": [
+    "AGENTS.md",
+    "CLAUDE.local.md",
+    "CLAUDE.md",
+    "GEMINI.md"
+  ],
+  "protected_path_components": [
+    ".claude",
+    ".codex",
+    ".cursor",
+    ".gemini"
+  ],
+  "protected_prefixes": [
+    ".github/",
+    "powers/pkstack/examples/",
+    "powers/pkstack/reviews/",
+    "powers/pkstack/src/pkstack/",
+    "powers/pkstack/tests/",
+    "reviews/"
+  ]
+}

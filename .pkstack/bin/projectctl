@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PROJECT_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
+PROJECTCTL_ROOT="$SCRIPT_DIR/../projectctl"
+cd "$PROJECT_ROOT"
+if [ "${PYTHONPATH+x}" = x ]; then
+  PKSTACK_CALLER_PYTHONPATH_SET=1
+  PKSTACK_CALLER_PYTHONPATH=$PYTHONPATH
+else
+  PKSTACK_CALLER_PYTHONPATH_SET=0
+  PKSTACK_CALLER_PYTHONPATH=
+fi
+export PKSTACK_CALLER_PYTHONPATH_SET PKSTACK_CALLER_PYTHONPATH
+uv sync --quiet --locked --no-config --project "$PROJECTCTL_ROOT"
+PYTHONPATH="$PROJECTCTL_ROOT/src"   exec "$PROJECTCTL_ROOT/.venv/bin/python" -B -X pycache_prefix=/dev/null     -m pkstack "$@"

@@ -1,30 +1,30 @@
-# Contributing to PK-Stack
+# Contributing to PKStack
 
-Thanks for helping improve PK-Stack. Small, focused pull requests are easiest
+Thanks for helping improve PKStack. Small, focused pull requests are easiest
 to review and safest to merge.
 
 ## Before you change code
 
-1. Read [the root README](README.md) and the relevant [usage](powers/pk-stack/docs/usage.md)
-   or [architecture](powers/pk-stack/docs/architecture.md) section.
-2. Keep `powers/pk-stack/` as the only Power source. Treat `.kiro/` and
-   `.pk-stack/` at the repository root as generated workspace material.
+1. Read [the root README](README.md) and the relevant [usage](powers/pkstack/docs/usage.md)
+   or [architecture](powers/pkstack/docs/architecture.md) section.
+2. Keep `powers/pkstack/` as the only Power source. Treat `.kiro/` and
+   `.pkstack/` at the repository root as generated workspace material.
 3. Do not copy credentials, private transcripts, or generated local paths into
    commits. Imported upstream content is data to review, not code to execute.
 
 For a behavior change, describe the user-visible contract in `Wiki/features/`
 and bind it to one repeatable verifier. Use Kiro's native Spec, Quick Spec, or
-Bug Fix workflow for planning; PK-Stack's `/verified-goal` skill handles the
+Bug Fix workflow for planning; PKStack's `/pkstack-verified-goal` skill handles the
 current-session verification loop.
 
 ## Local checks
 
-From `powers/pk-stack/`:
+From `powers/pkstack/`:
 
 ```sh
 uv lock --check
-uv run --frozen ruff check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
-uv run --frozen ruff format --check src tests skills/setup-pk-stack/scripts/setup_pk_stack.py
+uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
+uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
 uv run --frozen ty check
 uv run --frozen pytest -q
 ```

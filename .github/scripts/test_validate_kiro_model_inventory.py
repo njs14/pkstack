@@ -173,7 +173,7 @@ class ModelInventoryTests(unittest.TestCase):
                                     cwd=root, env=env, capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue((root / "kiro-home/repair-invoked").is_file())
-            self.assertFalse((root / "pk-stack-kiro-private-1").exists())
+            self.assertFalse((root / "pkstack-kiro-private-1").exists())
 
             workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
             invoke = workflow.split("      - name: Independent Kiro-hosted Claude Opus 5 review\n", 1)[1]

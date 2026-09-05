@@ -1,4 +1,4 @@
-name: PK-Stack Upstream Maintenance (Kiro)
+name: PKStack Upstream Maintenance (Kiro)
 
 on:
   schedule:
@@ -14,7 +14,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: pk-stack-upstream-maintenance-${{ github.repository }}
+  group: pkstack-upstream-maintenance-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
         with:
           script: |
             const { classifyOpenCandidate } = require(
-              `${process.env.GITHUB_WORKSPACE}/.github/scripts/pk_stack_pr_policy.js`
+              `${process.env.GITHUB_WORKSPACE}/.github/scripts/pkstack_pr_policy.js`
             );
             const { owner, repo } = context.repo;
             const repository = (await github.rest.repos.get({ owner, repo })).data;
@@ -63,7 +63,7 @@ jobs:
             const policyResponse = await github.rest.repos.getContent({
               owner,
               repo,
-              path: ".github/pk-stack-maintenance-policy.json",
+              path: ".github/pkstack-maintenance-policy.json",
               ref: process.env.BASE_SHA,
             });
             if (Array.isArray(policyResponse.data) || policyResponse.data.type !== "file") {
@@ -164,29 +164,29 @@ jobs:
       - name: Snapshot immutable sensor and controller
         env:
           BASE_SHA: ${{ needs.plan.outputs.base_sha }}
-          TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-trusted
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-trusted
         run: |
           set -euo pipefail
           mkdir -p "$TRUSTED_ROOT"
           git archive "$BASE_SHA" \
-            .pk-stack/projectctl \
-            .github/pk-stack-maintenance-policy.json \
-            .github/scripts/pk_stack_maintenance_guard.py \
-            .github/scripts/pk_stack_update_controller.py \
-            .github/scripts/pk_stack_review_feedback.py \
+            .pkstack/projectctl \
+            .github/pkstack-maintenance-policy.json \
+            .github/scripts/pkstack_maintenance_guard.py \
+            .github/scripts/pkstack_update_controller.py \
+            .github/scripts/pkstack_review_feedback.py \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --no-config \
-            --project "$TRUSTED_ROOT/.pk-stack/projectctl"
+            --project "$TRUSTED_ROOT/.pkstack/projectctl"
       - name: Re-prove pinned upstream identity and drift
         id: detect
         env:
-          TRUSTED_ROOT: ${{ runner.temp }}/pk-stack-trusted
-          EVIDENCE_ROOT: ${{ runner.temp }}/pk-stack-loop-evidence
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-trusted
+          EVIDENCE_ROOT: ${{ runner.temp }}/pkstack-loop-evidence
           READONLY_GITHUB_TOKEN: ${{ github.token }}
           RETRY_SOURCE: ${{ github.event.inputs.retry_source || '' }}
         run: |
           set -euo pipefail
-          trusted_projectctl="$TRUSTED_ROOT/.pk-stack/projectctl"
+          trusted_projectctl="$TRUSTED_ROOT/.pkstack/projectctl"
           mkdir -p "$EVIDENCE_ROOT"
           detector_path="$EVIDENCE_ROOT/upstream-check.json"
           control_plan_path="$EVIDENCE_ROOT/control-plan.json"
@@ -194,15 +194,15 @@ jobs:
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" \
             PYTHONPATH="$trusted_projectctl/src" \
             "$trusted_projectctl/.venv/bin/python" -B -X pycache_prefix=/dev/null \
-            -m pk_stack upstream check \
+            -m pkstack upstream check \
             --manifest maintenance/upstreams.json \
-            --power-root powers/pk-stack \
+            --power-root powers/pkstack \
             --output json >"$detector_path"
           detector_rc=$?
           set -e
-          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_maintenance_guard.py" \
+          python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
             validate-detector --detector "$detector_path"
-          python3 "$TRUSTED_ROOT/.github/scripts/pk_stack_update_controller.py" \
+          python3 "$TRUSTED_ROOT/.github/scripts/pkstack_update_controller.py" \
             --detector "$detector_path" \
             --feedback maintenance/upstream-feedback.json \
             --retry-source "$RETRY_SOURCE" \
@@ -241,8 +241,8 @@ jobs:
         if: steps.detect.outputs.needs_maintenance == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: pk-stack-detector-${{ github.run_id }}
-          path: ${{ runner.temp }}/pk-stack-loop-evidence
+          name: pkstack-detector-${{ github.run_id }}
+          path: ${{ runner.temp }}/pkstack-loop-evidence
           if-no-files-found: error
           retention-days: 1
           compression-level: 9
@@ -299,21 +299,21 @@ jobs:
         run: |
           set -euo pipefail
           {
-            printf 'TRUSTED_ROOT=%s\n' "$RUNNER_TEMP/pk-stack-trusted"
-            printf 'TRUSTED_PROJECTCTL_ROOT=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.pk-stack/projectctl"
-            printf 'GUARD_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/pk_stack_maintenance_guard.py"
-            printf 'VERIFY_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/verify_pk_stack_attempt.sh"
-            printf 'KIRO_RUNNER_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/run_kiro_maintenance_attempt.sh"
-            printf 'KIRO_SETUP_PATH=%s\n' "$RUNNER_TEMP/pk-stack-trusted/.github/scripts/prepare_kiro_maintenance_runtime.sh"
-            printf 'DETECTOR_PATH=%s\n' "$RUNNER_TEMP/pk-stack-detector/upstream-check.json"
-            printf 'CONTROL_PLAN_PATH=%s\n' "$RUNNER_TEMP/pk-stack-detector/control-plan.json"
-            printf 'FEEDBACK_PATH=%s\n' "$RUNNER_TEMP/pk-stack-verification-feedback.txt"
-            printf 'GOAL_STATUS_PATH=%s\n' "$RUNNER_TEMP/pk-stack-goal-status.json"
+            printf 'TRUSTED_ROOT=%s\n' "$RUNNER_TEMP/pkstack-trusted"
+            printf 'TRUSTED_PROJECTCTL_ROOT=%s\n' "$RUNNER_TEMP/pkstack-trusted/.pkstack/projectctl"
+            printf 'GUARD_PATH=%s\n' "$RUNNER_TEMP/pkstack-trusted/.github/scripts/pkstack_maintenance_guard.py"
+            printf 'VERIFY_PATH=%s\n' "$RUNNER_TEMP/pkstack-trusted/.github/scripts/verify_pkstack_attempt.sh"
+            printf 'KIRO_RUNNER_PATH=%s\n' "$RUNNER_TEMP/pkstack-trusted/.github/scripts/run_kiro_maintenance_attempt.sh"
+            printf 'KIRO_SETUP_PATH=%s\n' "$RUNNER_TEMP/pkstack-trusted/.github/scripts/prepare_kiro_maintenance_runtime.sh"
+            printf 'DETECTOR_PATH=%s\n' "$RUNNER_TEMP/pkstack-detector/upstream-check.json"
+            printf 'CONTROL_PLAN_PATH=%s\n' "$RUNNER_TEMP/pkstack-detector/control-plan.json"
+            printf 'FEEDBACK_PATH=%s\n' "$RUNNER_TEMP/pkstack-verification-feedback.txt"
+            printf 'GOAL_STATUS_PATH=%s\n' "$RUNNER_TEMP/pkstack-goal-status.json"
             printf 'KIRO_BIN_DIR=%s\n' "$RUNNER_TEMP/kiro-bin"
             printf 'KIRO_ARCHIVE=%s\n' "$RUNNER_TEMP/kiro-cache/kirocli-2.21.0.tar.xz"
             printf 'KIRO_HOME=%s\n' "$RUNNER_TEMP/kiro-home"
             printf 'KIRO_USER_HOME=%s\n' "$RUNNER_TEMP/kiro-user-home"
-            printf 'GIT_BOUNDARY_STATE=%s\n' "$RUNNER_TEMP/pk-stack-git-boundary-state"
+            printf 'GIT_BOUNDARY_STATE=%s\n' "$RUNNER_TEMP/pkstack-git-boundary-state"
           } >>"$GITHUB_ENV"
       - name: Check out immutable source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -325,7 +325,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           artifact-ids: ${{ needs.detect.outputs.artifact_id }}
-          path: ${{ runner.temp }}/pk-stack-detector
+          path: ${{ runner.temp }}/pkstack-detector
       - name: Verify detector artifact identity
         env:
           EXPECTED_SHA256: ${{ needs.detect.outputs.detector_sha256 }}
@@ -343,27 +343,27 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: powers/pk-stack/uv.lock
+          cache-dependency-glob: powers/pkstack/uv.lock
       - name: Materialize locked environments and trusted scripts
         run: |
           set -euo pipefail
           mkdir -p "$TRUSTED_ROOT"
           git archive "$BASE_SHA" \
-            Wiki/features/pk-stack-upstream-maintenance.md \
-            .pk-stack/projectctl \
-            .github/agent-memory/pk-stack-upstream.md \
+            Wiki/features/pkstack-upstream-maintenance.md \
+            .pkstack/projectctl \
+            .github/agent-memory/pkstack-upstream.md \
             .github/fixtures \
-            .github/pk-stack-maintenance-policy.json \
+            .github/pkstack-maintenance-policy.json \
             .github/scripts \
             .github/workflows \
             .kiro/agents \
             reviews \
             | tar -x -C "$TRUSTED_ROOT"
-          uv sync --quiet --locked --all-groups --project powers/pk-stack
+          uv sync --quiet --locked --all-groups --project powers/pkstack
           uv sync --quiet --locked --no-config --project "$TRUSTED_PROJECTCTL_ROOT"
           python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH"
           python3 "$GUARD_PATH" validate-ci-agent \
-            --agent .kiro/agents/pk-stack-maintainer.json
+            --agent .kiro/agents/pkstack-maintainer.json
           python3 "$GUARD_PATH" validate-trusted-snapshot \
             --base "$BASE_SHA" \
             --trusted-root "$TRUSTED_ROOT"
@@ -397,7 +397,7 @@ jobs:
           trusted_projectctl() {
             PYTHONPATH="$TRUSTED_PROJECTCTL_ROOT/src" \
               "$TRUSTED_PROJECTCTL_ROOT/.venv/bin/python" -B -X pycache_prefix=/dev/null \
-              -m pk_stack "$@"
+              -m pkstack "$@"
           }
           python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH" >/dev/null
           action=$(jq -er '.action' "$CONTROL_PLAN_PATH")
@@ -413,11 +413,11 @@ jobs:
             "$objective" \
             --command "$goal_value" \
             --max-attempts "$max_attempts" \
-            --output json >"$RUNNER_TEMP/pk-stack-goal-start.json"
+            --output json >"$RUNNER_TEMP/pkstack-goal-start.json"
           set +e
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" \
             trusted_projectctl goal verify --output json \
-            >"$RUNNER_TEMP/pk-stack-goal-initial-verify.json" 2>&1
+            >"$RUNNER_TEMP/pkstack-goal-initial-verify.json" 2>&1
           initial_rc=$?
           set -e
           test "$initial_rc" -ne 0
@@ -434,7 +434,7 @@ jobs:
             --detector "$DETECTOR_PATH" \
             --feedback "$FEEDBACK_PATH" \
             --control-plan "$CONTROL_PLAN_PATH" \
-            --memory "$TRUSTED_ROOT/.github/agent-memory/pk-stack-upstream.md" \
+            --memory "$TRUSTED_ROOT/.github/agent-memory/pkstack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
       - name: Kiro repair 1 of 4
@@ -457,7 +457,7 @@ jobs:
             --detector "$DETECTOR_PATH" \
             --feedback "$FEEDBACK_PATH" \
             --control-plan "$CONTROL_PLAN_PATH" \
-            --memory "$TRUSTED_ROOT/.github/agent-memory/pk-stack-upstream.md" \
+            --memory "$TRUSTED_ROOT/.github/agent-memory/pkstack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
       - name: Kiro repair 2 of 4
@@ -482,7 +482,7 @@ jobs:
             --detector "$DETECTOR_PATH" \
             --feedback "$FEEDBACK_PATH" \
             --control-plan "$CONTROL_PLAN_PATH" \
-            --memory "$TRUSTED_ROOT/.github/agent-memory/pk-stack-upstream.md" \
+            --memory "$TRUSTED_ROOT/.github/agent-memory/pkstack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
       - name: Kiro repair 3 of 4
@@ -507,7 +507,7 @@ jobs:
             --detector "$DETECTOR_PATH" \
             --feedback "$FEEDBACK_PATH" \
             --control-plan "$CONTROL_PLAN_PATH" \
-            --memory "$TRUSTED_ROOT/.github/agent-memory/pk-stack-upstream.md" \
+            --memory "$TRUSTED_ROOT/.github/agent-memory/pkstack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
       - name: Kiro repair 4 of 4
@@ -536,9 +536,9 @@ jobs:
       - name: Package the immutable candidate
         id: package
         env:
-          SOURCE_WORKFLOW: PK-Stack Upstream Maintenance (Kiro)
+          SOURCE_WORKFLOW: PKStack Upstream Maintenance (Kiro)
           SOURCE_RUN_ID: ${{ github.run_id }}
-          PACKAGE_PATH: ${{ runner.temp }}/pk-stack-candidate.json
+          PACKAGE_PATH: ${{ runner.temp }}/pkstack-candidate.json
         run: |
           set -euo pipefail
           umask 077
@@ -590,8 +590,8 @@ jobs:
         if: steps.package.outputs.has_changes == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: pk-stack-candidate-${{ github.run_id }}
-          path: ${{ runner.temp }}/pk-stack-candidate.json
+          name: pkstack-candidate-${{ github.run_id }}
+          path: ${{ runner.temp }}/pkstack-candidate.json
           if-no-files-found: error
           retention-days: 1
           compression-level: 9
@@ -625,7 +625,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           artifact-ids: ${{ needs.maintain.outputs.artifact_id }}
-          path: ${{ runner.temp }}/pk-stack-candidate
+          path: ${{ runner.temp }}/pkstack-candidate
       - name: Reconstruct and validate candidate without executing it
         env:
           BASE_SHA: ${{ needs.plan.outputs.base_sha }}
@@ -633,11 +633,11 @@ jobs:
           SOURCE_RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
-          python3 .github/scripts/pk_stack_maintenance_guard.py validate-package \
+          python3 .github/scripts/pkstack_maintenance_guard.py validate-package \
             --base "$BASE_SHA" \
-            --package "$RUNNER_TEMP/pk-stack-candidate/pk-stack-candidate.json" \
+            --package "$RUNNER_TEMP/pkstack-candidate/pkstack-candidate.json" \
             --expected-digest "$EXPECTED_DIGEST" \
-            --source-workflow 'PK-Stack Upstream Maintenance (Kiro)' \
+            --source-workflow 'PKStack Upstream Maintenance (Kiro)' \
             --source-run-id "$SOURCE_RUN_ID" \
             --provider kiro
       - name: Create one exact candidate commit and non-draft PR through the API
@@ -645,14 +645,14 @@ jobs:
         env:
           BASE_SHA: ${{ needs.plan.outputs.base_sha }}
           DEFAULT_BRANCH: ${{ needs.plan.outputs.default_branch }}
-          PACKAGE_PATH: ${{ runner.temp }}/pk-stack-candidate/pk-stack-candidate.json
+          PACKAGE_PATH: ${{ runner.temp }}/pkstack-candidate/pkstack-candidate.json
           PACKAGE_SHA256: ${{ needs.maintain.outputs.package_sha256 }}
         with:
           script: |
             const fs = require("fs");
             const { owner, repo } = context.repo;
             const candidate = JSON.parse(fs.readFileSync(process.env.PACKAGE_PATH, "utf8"));
-            const policyRaw = fs.readFileSync(".github/pk-stack-maintenance-policy.json", "utf8");
+            const policyRaw = fs.readFileSync(".github/pkstack-maintenance-policy.json", "utf8");
             const policy = JSON.parse(policyRaw);
             const repository = (await github.rest.repos.get({ owner, repo })).data;
             const branch = await github.rest.repos.getBranch({ owner, repo, branch: process.env.DEFAULT_BRANCH });
@@ -699,7 +699,7 @@ jobs:
               `- ${item.repository}/${item.path}: \`${item.previous_commit}\` -> \`${item.current_commit}\``
             ).join("\n");
             const body = [
-              "Automated PK-Stack semantic reconciliation by checksum-pinned Kiro CLI 2.21.0 / GPT-5.6 Sol with --effort max requested (Kiro stream metadata does not independently attest effort).",
+              "Automated PKStack semantic reconciliation by checksum-pinned Kiro CLI 2.21.0 / GPT-5.6 Sol with --effort max requested (Kiro stream metadata does not independently attest effort).",
               "",
               "Upstream identities:",
               upstreams,

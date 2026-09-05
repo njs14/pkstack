@@ -1,12 +1,12 @@
 ---
 okf_version: "0.2"
 type: Guide
-title: PK-Stack project knowledge
+title: PKStack project knowledge
 description: Navigation for the DO, PROVE, and KNOW interfaces.
-tags: [pk-stack, knowledge, navigation]
+tags: [pkstack, knowledge, navigation]
 ---
 
-# PK-Stack project knowledge
+# PKStack project knowledge
 
 This directory is the source-controlled **KNOW** layer. Start with the narrow
 feature map, then follow the smallest explicit link that answers the question.
@@ -24,17 +24,17 @@ is replaced by a broad knowledge search.
 | Understand the runtime boundary | [Architecture](architecture/native-kiro-composition.md) |
 | Keep planning and retrieval separate | [Planning decision](decisions/native-spec-and-okn.md) |
 | Decide how far to search | [Context-depth runbook](operations/context-depth.md) |
-| Install or recover the Power | [Usage guide](../powers/pk-stack/docs/usage.md) |
+| Install or recover the Power | [Usage guide](../powers/pkstack/docs/usage.md) |
 | Check release claims | [Release status](../reviews/release-status.md) |
 
 ## Layer map
 
 ```text
-DO      .pk-stack/bin/projectctl
+DO      .pkstack/bin/projectctl
   -> PROVE  Wiki/features/*.md + one executable verifier
   -> KNOW   this Wiki + optional canonical `okn`
 ```
 
-This scaffold is consumer-neutral: it does not link back into the PK-Stack
+This scaffold is consumer-neutral: it does not link back into the PKStack
 source repository or invent project knowledge. Add only pages owned by this
 project, and keep their links relative to this Wiki.

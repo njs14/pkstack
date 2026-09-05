@@ -2,6 +2,6 @@
 * @njs14
 
 # Keep explicit ownership visible for the installable Power and release files.
-/powers/pk-stack/ @njs14
+/powers/pkstack/ @njs14
 /reviews/ @njs14
 /.github/ @njs14

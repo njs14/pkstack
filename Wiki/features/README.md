@@ -1,8 +1,8 @@
 ---
 type: Guide
-title: PK-Stack feature map
+title: PKStack feature map
 description: Index of executable feature contracts.
-tags: [pk-stack, verification, feature-map]
+tags: [pkstack, verification, feature-map]
 ---
 
 # Feature map
@@ -16,14 +16,14 @@ in the broader [KNOW index](../index.md).
 
 | Contract | What it covers |
 | --- | --- |
-| [pk-stack-upstream-maintenance](pk-stack-upstream-maintenance.md) | Project-owned executable contract |
+| [pkstack-upstream-maintenance](pkstack-upstream-maintenance.md) | Project-owned executable contract |
 
 ## Create a contract
 
 Use the canonical project wrapper from the repository root:
 
 ```sh
-.pk-stack/bin/projectctl feature generate account-lookup \
+.pkstack/bin/projectctl feature generate account-lookup \
   --title "Account lookup" \
   --behavior "A caller can retrieve account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
@@ -45,15 +45,15 @@ one to five complete records and run `feature generate-map`; only the named
 representative is published until each remaining verifier passes.
 
 ```sh
-.pk-stack/bin/projectctl feature generate-map feature-plan.json \
+.pkstack/bin/projectctl feature generate-map feature-plan.json \
   --representative account-lookup --output json
-.pk-stack/bin/projectctl feature publish <slug> --output json
+.pkstack/bin/projectctl feature publish <slug> --output json
 ```
 
 Validate the map at any time:
 
 ```sh
-.pk-stack/bin/projectctl feature validate --output json
+.pkstack/bin/projectctl feature validate --output json
 ```
 
 If a contract needs deeper context, follow its `related` links before issuing

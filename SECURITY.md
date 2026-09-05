@@ -1,6 +1,6 @@
 # Security policy
 
-PK-Stack is a local developer tool. It can run project commands, write
+PKStack is a local developer tool. It can run project commands, write
 workspace configuration, and optionally call a separately installed knowledge
 tool, so treat its permissions and imported content as sensitive.
 
@@ -12,7 +12,7 @@ tool, so treat its permissions and imported content as sensitive.
 | `< 0.2.0` | Upgrade to the current release before reporting a known issue |
 
 The Power's release version is the `version` field in
-[`powers/pk-stack/plugin.json`](powers/pk-stack/plugin.json). A matching
+[`powers/pkstack/plugin.json`](powers/pkstack/plugin.json). A matching
 `v<version>` tag is required before calling that version released.
 
 ## Reporting a vulnerability

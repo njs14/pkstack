@@ -1,6 +1,6 @@
 # Code of Conduct
 
-PK-Stack contributors are expected to make participation safe, respectful, and
+PKStack contributors are expected to make participation safe, respectful, and
 useful for everyone.
 
 Examples of welcome behavior include:

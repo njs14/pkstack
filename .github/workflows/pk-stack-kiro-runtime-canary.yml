@@ -1,4 +1,4 @@
-name: PK-Stack Kiro Runtime Canary
+name: PKStack Kiro Runtime Canary
 
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: pk-stack-kiro-runtime-canary-${{ github.repository }}
+  group: pkstack-kiro-runtime-canary-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -65,7 +65,7 @@ jobs:
       - name: Resolve and probe the advertised stable Kiro runtime
         id: prepare
         env:
-          CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary
+          CANARY_ROOT: ${{ runner.temp }}/pkstack-kiro-runtime-canary
         run: |
           set -euo pipefail
           umask 077
@@ -82,7 +82,7 @@ jobs:
       - name: Validate live model inventory without a model turn
         if: steps.prepare.outputs.pin_match == 'true'
         env:
-          CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary
+          CANARY_ROOT: ${{ runner.temp }}/pkstack-kiro-runtime-canary
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
         run: |
           set -euo pipefail
@@ -94,7 +94,7 @@ jobs:
       - name: Enforce the reviewed stable pin and runtime contract
         if: always() && steps.prepare.outcome == 'success'
         env:
-          CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary
+          CANARY_ROOT: ${{ runner.temp }}/pkstack-kiro-runtime-canary
         run: |
           set -euo pipefail
           env -u KIRO_API_KEY \
@@ -104,7 +104,7 @@ jobs:
       - name: Remove every canary runtime and observation body
         if: always()
         env:
-          CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary
+          CANARY_ROOT: ${{ runner.temp }}/pkstack-kiro-runtime-canary
         run: |
           set -euo pipefail
           env -u KIRO_API_KEY \

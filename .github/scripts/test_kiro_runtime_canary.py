@@ -25,12 +25,12 @@ if SPEC is None or SPEC.loader is None:  # pragma: no cover - import contract gu
     raise RuntimeError("could not load Kiro runtime canary")
 canary = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(canary)
-MAINTENANCE_TEST_PATH = SCRIPT_DIR / "test_pk_stack_maintenance_guard.py"
+MAINTENANCE_TEST_PATH = SCRIPT_DIR / "test_pkstack_maintenance_guard.py"
 MAINTENANCE_TEST_SPEC = importlib.util.spec_from_file_location(
-    "pk_stack_maintenance_guard_tests", MAINTENANCE_TEST_PATH
+    "pkstack_maintenance_guard_tests", MAINTENANCE_TEST_PATH
 )
 if MAINTENANCE_TEST_SPEC is None or MAINTENANCE_TEST_SPEC.loader is None:
-    raise RuntimeError("could not load PK-Stack maintenance guard tests")
+    raise RuntimeError("could not load PKStack maintenance guard tests")
 maintenance_tests = importlib.util.module_from_spec(MAINTENANCE_TEST_SPEC)
 MAINTENANCE_TEST_SPEC.loader.exec_module(maintenance_tests)
 
@@ -385,7 +385,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         ).encode()
         self.assertEqual(canary._workspace_agents(output), tuple(sorted(canary.EXPECTED_AGENTS)))
         with self.assertRaisesRegex(canary.CanaryError, "duplicate"):
-            canary._workspace_agents(output + b"\n  pk-stack Workspace duplicate\n")
+            canary._workspace_agents(output + b"\n  pkstack Workspace duplicate\n")
 
     def test_runtime_probe_uses_only_non_chat_agent_commands(self) -> None:
         replies = [
@@ -592,7 +592,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         self.assertIn("permissions: {}", workflow)
         self.assertNotIn("    env:\n      CANARY_ROOT: ${{ runner.temp }}", workflow)
         self.assertEqual(
-            workflow.count("CANARY_ROOT: ${{ runner.temp }}/pk-stack-kiro-runtime-canary"),
+            workflow.count("CANARY_ROOT: ${{ runner.temp }}/pkstack-kiro-runtime-canary"),
             4,
         )
         self.assertNotIn("actions/upload-artifact", workflow)
@@ -631,7 +631,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         self.assertIn("needs: [plan, detect]", maintenance)
         self.assertIn("REVIEW_MODEL: claude-opus-5", candidate)
         self.assertIn("REVIEW_EFFORT: xhigh", candidate)
-        self.assertIn("--agent pk-stack-ci-reviewer", candidate)
+        self.assertIn("--agent pkstack-ci-reviewer", candidate)
         self.assertEqual(candidate.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 2)
         self.assertNotRegex(
             candidate,

@@ -42,12 +42,12 @@ DOC_EVIDENCE_PATHS = (
 )
 
 EXPECTED_AGENTS = (
-    "pk-stack",
-    "pk-stack-architect",
-    "pk-stack-ci-reviewer",
-    "pk-stack-maintainer",
-    "pk-stack-reviewer",
-    "pk-stack-verifier",
+    "pkstack",
+    "pkstack-architect",
+    "pkstack-ci-reviewer",
+    "pkstack-maintainer",
+    "pkstack-reviewer",
+    "pkstack-verifier",
 )
 TARGET_SELECTOR = {
     "kind": "deb",
@@ -78,7 +78,7 @@ MAX_PACKAGES = 64
 MAX_DOC_RECORDS = 24
 MAX_TAR_MEMBERS = 200_000
 STATE_NAME = "state.json"
-SCRATCH_PREFIX = "pk-stack-kiro-runtime-canary"
+SCRATCH_PREFIX = "pkstack-kiro-runtime-canary"
 SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
 VERSION_RE = re.compile(r"([0-9]+)\.([0-9]+)\.([0-9]+)\Z")
 ANSI_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
@@ -160,7 +160,7 @@ URL_OPENER = urllib.request.build_opener(_AllowlistedRedirectHandler())
 def _fetch_bytes(url: str, *, maximum: int) -> bytes:
     _validate_url(url)
     requested_host = urllib.parse.urlsplit(url).hostname
-    request = urllib.request.Request(url, headers={"User-Agent": "PK-Stack-Kiro-Canary/1"})
+    request = urllib.request.Request(url, headers={"User-Agent": "PKStack-Kiro-Canary/1"})
     try:
         with URL_OPENER.open(request, timeout=20) as response:
             final_url = _validate_url(response.geturl())
@@ -303,7 +303,7 @@ def _load_state(scratch: Path) -> dict[str, Any]:
 
 def _download_archive(target: dict[str, Any], destination: Path) -> None:
     url = _validate_url(target["download_url"])
-    request = urllib.request.Request(url, headers={"User-Agent": "PK-Stack-Kiro-Canary/1"})
+    request = urllib.request.Request(url, headers={"User-Agent": "PKStack-Kiro-Canary/1"})
     digest = hashlib.sha256()
     written = 0
     descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
@@ -419,7 +419,7 @@ def _run_bounded(
         "--norc",
         "-c",
         f'ulimit -f {file_limit_blocks}; umask 077; exec "$@"',
-        "pk-stack-kiro-canary",
+        "pkstack-kiro-canary",
         *command,
     ]
     with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
