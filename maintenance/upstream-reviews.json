@@ -231,7 +231,26 @@
       "path": "skills",
       "provenance_path": "powers/pkstack/docs/okf-skills-provenance.md",
       "repository": "scaccogatto/okf-skills",
-      "transitions": []
+      "transitions": [
+        {
+          "dispositions": [
+            {
+              "disposition": "B",
+              "path": "backfill/SKILL.md",
+              "rationale": "Version-label-only update remains excluded with transcript backfill pending a separately authorized, redacted, bounded migration design."
+            }
+          ],
+          "inventory_sha256": "625b339711cc4cdcfaac516f986d895e79ebff074a2da856981c93bcdc4558b9",
+          "new": {
+            "commit": "85db7fd0a8a66d07d984ac6c5f4fbb5063d00357",
+            "subtree_sha": "2f9170d6937027c2b1c487ef698f0c000bb47745"
+          },
+          "prior": {
+            "commit": "bf2448f03686a8348324e4741106697d30a867f9",
+            "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
+          }
+        }
+      ]
     },
     {
       "genesis": {
