@@ -15,12 +15,12 @@ by this record. The latest published release remains v0.2.0.
 | Curated helpers | All six perform bounded real tasks; generated outputs satisfy independent checks | All six bounded tasks passed with recorded follow-up/authoring corrections; Archify unchanged-input replays passed |
 | Installation | Archive installs cleanly; setup is idempotent and preserves user work | Source install, idempotence, and three conflict modes passed; final archive pending |
 | Legacy transition | v0.2.0 rejection makes no writes; documented clean transition preserves source and evidence | Three rejection modes preserved 302 files; clean transition preserved all four user fixtures |
-| Permissions | Allowed operations work; equivalent denied forms remain blocked | Three native hard-deny forms and one ask/cancel control passed; combined-short-option limitation retained |
-| DO / PROVE / KNOW | Generated parity, doctor, feature gates, and canonical okn validation pass | Doctor81, schema, canonical okn, generated parity passed; upstream freshness nonzero for two sources |
+| Permissions | Allowed operations work; equivalent denied forms remain blocked | Standalone and three grouped forms natively denied; ordinary ask/cancel preserved |
+| DO / PROVE / KNOW | Generated parity, doctor, feature gates, and canonical okn validation pass | Doctor81, schema, canonical okn, generated parity passed; Archify accepted, OKF freshness pending updater |
 | Updater | Current review context supports a bounded live campaign and correct accept/reject handling | Prior rejection context defect confirmed |
-| Deterministic gates | Repository, Power, formatting, lint, types, lockfile, and workflow checks pass | 184 repository / 861 Power tests passed; final delta checks pending |
+| Deterministic gates | Repository, Power, formatting, lint, types, lockfile, and workflow checks pass | 869 Power, 184 repository, 17 Node tests passed; lint/format/types/lock/workflow checks passed |
 | Packaging | Two identical archives, correct contents/checksum/version, extracted-consumer smoke | Pending candidate freeze |
-| Independent review | Frozen candidate accepted with no unresolved material findings | Pending |
+| Independent review | Frozen candidate accepted with no unresolved material findings | Initial security approval; product finding repaired, delta review pending |
 | Delivery | Exact PR/main commit CI, release notes, upgrade guide, and publication handoff | Pending |
 
 ## Findings
@@ -38,6 +38,7 @@ by this record. The latest published release remains v0.2.0.
 | R030-08 | Fresh Archify sequence caption moves inside its preceding band | Keep caption associated with its own band and verify unchanged fresh JSON |
 | R030-09 | Current feature documentation says six sources but manifest has seven | Corrected to reference the configured entries |
 | R030-10 | Native CLI rejects kiro_default and cannot discover Power-local setup after a Default swap | Corrected default-agent spelling and documented conditional Power discovery / tested script path |
+| R030-11 | Reviewed upstream Archify runtime delta reproduces invalid-argument output, uncaught watcher errors, and missing caption-width rejection | Three reproduced fixes and metadata checks passed; seven-path source update accepted transactionally |
 
 Additional findings enter this ledger when reproduced. External blocks stay
 incomplete; historical successes never stand in for current-candidate evidence.

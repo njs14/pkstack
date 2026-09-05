@@ -274,7 +274,56 @@
       "path": "archify",
       "provenance_path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
       "repository": "tt-a1i/archify",
-      "transitions": []
+      "transitions": [
+        {
+          "dispositions": [
+            {
+              "disposition": "A",
+              "path": "bin/archify.mjs",
+              "rationale": "Incorporate the reviewed render option and positional-arity guards as exact upstream bytes so malformed invocations fail before creating unintended output files."
+            },
+            {
+              "disposition": "A",
+              "path": "bin/preview.mjs",
+              "rationale": "Incorporate exact upstream asynchronous watcher-error handling: close the failed watcher once and retain polling-driven preview publication and shutdown."
+            },
+            {
+              "disposition": "A",
+              "path": "renderers/sequence/render-sequence.mjs",
+              "rationale": "Incorporate the upstream segment-frame width guard with the recorded local adaptation for participant clearance and bounded caption placement above or inside its own band. Retain exact new upstream blob identity; local bytes and inverse patch remain separately recorded."
+            },
+            {
+              "disposition": "B",
+              "path": "test/cli.test.mjs",
+              "rationale": "Keep upstream tests outside the runtime bundle. Local regressions reproduce unknown render options and excess positional arguments and verify rejection without unintended files."
+            },
+            {
+              "disposition": "B",
+              "path": "test/community-proof-intake.test.mjs",
+              "rationale": "Keep upstream community-template tests excluded; they inspect contributor and issue templates that are not shipped as the diagram runtime."
+            },
+            {
+              "disposition": "B",
+              "path": "test/layout-rules.test.mjs",
+              "rationale": "Keep upstream tests excluded. Local regressions cover exact-fit caption width and a caption that exceeds its frame while still fitting inside the SVG canvas."
+            },
+            {
+              "disposition": "B",
+              "path": "test/preview.test.mjs",
+              "rationale": "Keep upstream tests excluded. A focused local test injects a watcher error into the real preview, verifies polling publishes the edited input, and verifies one-time watcher cleanup and server shutdown."
+            }
+          ],
+          "inventory_sha256": "0d2a2cc66161261b4115b0f36a08cf8d0ec95cd700e84b2dcb03eb1997688871",
+          "new": {
+            "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
+            "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
+          },
+          "prior": {
+            "commit": "06dd052602dd9a369e4d034e24faef0917b5a60c",
+            "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
+          }
+        }
+      ]
     }
   ]
 }

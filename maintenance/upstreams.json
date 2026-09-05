@@ -63,14 +63,14 @@
       "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf"
     },
     {
-      "commit": "06dd052602dd9a369e4d034e24faef0917b5a60c",
+      "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
       "id": "tt-a1i-archify",
       "parity_path": "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
       "path": "archify",
       "provenance_path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
       "ref": "main",
       "repository": "tt-a1i/archify",
-      "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
+      "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
     }
   ]
 }

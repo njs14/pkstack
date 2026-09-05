@@ -22,8 +22,8 @@
       "handling": "byte-exact-runtime",
       "mode": "100755",
       "path": "upstream/bin/archify.mjs",
-      "sha256": "a9e02fa9e359ff853e4852c4fa378e438e50e85c63614a4a860bf369c14be640",
-      "size": 71546,
+      "sha256": "304fc9aa27d069b724dfd57f8df50e3aac574760199b20652dad987b3ca20594",
+      "size": 72093,
       "source_path": "archify/bin/archify.mjs"
     },
     {
@@ -38,8 +38,8 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/bin/preview.mjs",
-      "sha256": "c1f470655f3d09cf1a2f6745ab3cec407e5246926237b92a67d673c74e339e02",
-      "size": 23578,
+      "sha256": "6d41e491d42070c05b5e278548714da1fcef6e6adfd84a0391ab2bf12f47373c",
+      "size": 23722,
       "source_path": "archify/bin/preview.mjs"
     },
     {
@@ -310,8 +310,8 @@
       "handling": "adapted-runtime",
       "mode": "100644",
       "path": "upstream/renderers/sequence/render-sequence.mjs",
-      "sha256": "c7bf2a7b39ec22a838f160f003391768d9539be848fe49031935f1f0bd6f3c55",
-      "size": 22641,
+      "sha256": "340031217aa8cceca922ddbc243f5478555e13c04c89c240bd1affa1045721f4",
+      "size": 23132,
       "source_path": "archify/renderers/sequence/render-sequence.mjs"
     },
     {
@@ -574,7 +574,7 @@
   "schema_version": 1,
   "skill": "archify",
   "summary": {
-    "byte_count": 2240177,
+    "byte_count": 2241359,
     "file_count": 71
   }
 }

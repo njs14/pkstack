@@ -78,6 +78,17 @@ simulated user customization to its managed agent, dry-run, managed-update, and
 combined dry-run/update modes each reported the conflict and preserved every
 file hash. These results are retained in `setup-safety.json`.
 
+The first frozen candidate (`8e1554a`) ran 864 Power tests: 862 passed and
+two documentation checks failed. One stale assertion still required Web to be
+called untested despite its bounded observed run; the other caught core steering
+above its existing 2,000-character budget. The assertion now checks the limited
+evidence boundary, and the steering was shortened without changing the budget.
+All three directly affected checks passed. After runtime remediation, the full
+Power suite passed **869 tests in 166.33 seconds**; all **184 repository Python
+tests** and **17 Node tests** passed. Lock, Ruff lint/format, ty, Actionlint, and
+ShellCheck passed. Doctor again passed all 81 checks, and feature schema plus
+canonical `okn` validation passed.
+
 Final commit binding, CI, reproducible packaging, permission equivalence,
 additional native surfaces, and the live updater remain in the
 [acceptance ledger](release-030-acceptance.md).

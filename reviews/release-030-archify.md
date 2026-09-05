@@ -222,3 +222,52 @@ mobile readability or full mobile-product acceptance claim. Oversized authored
 diagrams may still require composition repair; the runtime continues to report
 overflow instead of hiding it. No other-browser campaign or full
 release-readiness verdict is supplied by this lane.
+
+## Completed upstream reconciliation
+
+This later phase supersedes the unchanged-upstream-pin statement and prior
+renderer byte identity above. The reviewed transition advances Archify from
+`06dd052602dd9a369e4d034e24faef0917b5a60c` to
+`d8e4daf2610d512821365f41b139d874b29efe81`, subtree
+`a7b9e1634b66a8e13d531cca4d18e8123c21f06a`. The exact seven-path comparison
+digest is `0d2a2cc66161261b4115b0f36a08cf8d0ec95cd700e84b2dcb03eb1997688871`.
+The three shipped patches were inspected as data, applied to verified prior
+bytes, and checked against their new upstream Git blob identities. The four
+changed upstream test files remain excluded from the runtime bundle.
+
+| Reproduced defect | Confirmed correction |
+| --- | --- |
+| `render architecture spec.json --json out.html` exited 0 and created a file literally named `--json`; an extra positional argument was also accepted. | The reviewed CLI rejects unknown render options and excess arguments before writing output. |
+| An injected `EMFILE` watcher error escaped the running preview. | The failed watcher closes once, polling publishes a subsequent edited input as revision 2, and shutdown does not close that watcher twice. |
+| A 136-character caption exceeded the 716px segment-frame width while still fitting inside the SVG and passing all nine showcase checks. | Frame-width validation rejects it with the minimum-width remedy; the 135-character exact-fit control remains valid. |
+
+Before reconciliation the focused runtime suite produced **4 failures and
+1 control pass**; retained output is
+`/private/tmp/pkstack-release-030-evidence/archify-upstream-reproduction-before.txt`.
+After reconciliation, **5 runtime tests and 4 provenance tests passed**
+(`9 passed in 1.60s`). The provenance checks were preserved: both 192-file
+upstream trees reconstruct exactly, and the recorded inverse patch recovers
+the new upstream bytes from the locally adapted runtime. Ruff, formatting,
+`ty`, and `git diff --check` also passed.
+
+Root refreshed the reviewed generated assets, completed acceptance dry-run,
+and accepted the expected upstream head transactionally. The retained
+`/private/tmp/pkstack-release-030-evidence/archify-accepted.json` records
+`accepted: true`, `dry_run: false`, `path_count: 7`, and the exact digest above.
+The manifest and review ledger advanced together; the source inventory keeps
+its prior pinned column and records the newly accepted source in its current
+column. The final bundle is **71 files / 2,241,359 bytes**. Its locally adapted
+sequence renderer is 23,132 bytes, SHA-256
+`340031217aa8cceca922ddbc243f5478555e13c04c89c240bd1affa1045721f4`.
+
+Both frozen input JSON files remain unchanged. Root replayed them through the
+new canonical runtime under
+`/private/tmp/pkstack-release-030-evidence/remediated-archify/`. The completed
+render output paths are retained in `original-render.txt` and
+`native-render.txt`. `original.html` is byte-identical to the previously
+validated and inspected artifact, SHA-256
+`477a57e580badc80413fc7700fabeb855a889d92e43a4bccacfec7b74acaf750`.
+`native.html` is likewise byte-identical, SHA-256
+`f88a52624b1f63714b5f8e520fb38d7b6054affcdd5f856a04c2082073051faf`.
+These are unchanged-output replays, not additional native authoring or a new
+browser campaign.

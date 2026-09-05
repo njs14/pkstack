@@ -306,6 +306,12 @@ function validateSequence() {
     if (segment.from < layout.topY || segment.to > layout.lifelineBottom + 20) {
       problems.push(`Segment "${segment.label}" extends outside the canvas — keep its y range between ${layout.topY} and ${layout.lifelineBottom + 20}.`);
     }
+    const labelBox = segmentLabelBox(segment);
+    const availableWidth = Math.max(0, viewBox[0] - 48 - labelBox.x);
+    if (labelBox.x + labelBox.width > viewBox[0] - 48) {
+      const requiredWidth = Math.ceil(labelBox.x + labelBox.width + 48);
+      problems.push(`Segment "${segment.label}" label (~${Math.round(labelBox.width)}px) exceeds the segment frame's available width (${availableWidth}px) — shorten the label or increase meta.viewBox[0] to at least ${requiredWidth}.`);
+    }
     const label = segmentLabelBox(segment);
     if (label.y < segmentLabelMinimumY(segment) || segmentLabelObstacles(segment).some((rect) => rectsOverlap(label, rect, 2))) {
       problems.push(`Segment label "${segment.label}" has no clear position above or within its band — move the segment or adjacent messages to leave label space.`);

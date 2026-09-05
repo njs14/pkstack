@@ -1042,7 +1042,7 @@ def test_surface_support_matrix_separates_targets_from_evidence() -> None:
         assert phrase in readme
     assert "](reviews/release-status.md)" in readme
     status = (REPO_ROOT / "reviews" / "release-status.md").read_text(encoding="utf-8")
-    assert "Kiro Web is untested" in status
+    assert "limited evidence" in status
     assert "## Support and evidence matrix" in compatibility
     assert "First-class and exercised" in normalized_compatibility
     assert "First-class with bounded GUI workflows" in normalized_compatibility
@@ -1394,6 +1394,10 @@ def test_primary_profile_denies_reordered_destructive_switch_flags() -> None:
         "-Ctopic",
         "--force-create topic",
         "--force-create=topic",
+        "-qf main",
+        "-dqf main",
+        "-qC topic",
+        "-qCtopic",
     )
     for git_prefix in ("git", "git -C nested", "git --no-pager -C nested"):
         for preceding_options in ("", "--no-guess ", "-t ", "--quiet ", "--progress ", "--detach "):
@@ -1411,6 +1415,11 @@ def test_primary_profile_denies_reordered_destructive_switch_flags() -> None:
             "--quiet -c feature",
             "--track origin/feature",
             "--detach HEAD",
+            "-q feature",
+            "-dq feature",
+            "--no-guess -q feature",
+            "--no-guess -dq feature",
+            "-q Case-sensitive-topic",
         ):
             command = f"{git_prefix} switch {benign_options}"
             assert effect(command) == "ask", command

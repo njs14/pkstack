@@ -22,12 +22,14 @@ goal state, and feature schemas are not automatically migrated.
 - Hardens the autonomous updater's isolated candidate tests, independent
   review context, immutable provenance, and rejection handling. The existing
   daily schedule stays enabled.
-- Denies forced `git switch` and force-create forms even when options are
-  reordered, while ordinary branch switching still requires approval.
+- Extends explicit `git switch` deny rules to tested reordered flags and the
+  grouped forms `-qf`, `-dqf`, and `-qC`; ordinary branch switching still requires
+  approval. These bounded rules do not parse every shell or Git spelling.
 - Fixes the compact Archify reader layout and sequence caption placement,
   and strengthens reusable control-loop attempt and baseline verification.
-  Local Archify adaptations retain their original upstream identities and
-  separately recorded bundle hashes.
+  It also rejects malformed render arguments, recovers from watcher errors,
+  and rejects captions wider than their sequence frames. Local adaptations
+  retain separately recorded upstream identities and bundle hashes.
 - Produces reproducible Power archives with commit-derived timestamps and
   SHA-256 checksums, and publishes version-specific release notes.
 

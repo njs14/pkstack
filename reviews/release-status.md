@@ -51,8 +51,10 @@ for the observed fixture. Earlier IDE Standard and Quick successes remain
 historical evidence in [friends validation](friends-validation.md).
 
 The authenticated upstream feature check validated all seven inventories,
-accepted provenance histories, and generated parity, but returned nonzero for
-unreconciled OKF-skills and Archify drift. That is not a freshness pass. A fresh
+accepted provenance histories, and generated parity, but initially returned nonzero for
+OKF-skills and Archify drift. Archify has since been reconciled through reviewed
+runtime fixes and transactional source acceptance. OKF-skills remains for the
+bounded updater campaign; no overall freshness pass is claimed yet. A fresh
 bounded updater campaign on the repaired controls, frozen-candidate independent
 review, exact-commit CI, and final reproducible archive installation remain
 required. These gates are recorded individually in the release ledger.
