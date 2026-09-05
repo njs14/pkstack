@@ -12,6 +12,8 @@ import tempfile
 import textwrap
 import unittest
 
+import pkstack_maintenance_guard as guard_module
+
 
 SCRIPT = Path(__file__).with_name("verify_pkstack_attempt.sh")
 SENTINEL = "UNTRUSTED_STDOUT_secret_like_value_123"
@@ -21,7 +23,14 @@ SENTINEL = "UNTRUSTED_STDOUT_secret_like_value_123"
     shutil.which("bash") and shutil.which("jq"), "requires bash and jq"
 )
 class VerifierExecutionTests(unittest.TestCase):
-    def execute(self, *, failure: bool = False, cleanup_failure: bool = False):
+    def execute(
+        self,
+        *,
+        failure: bool = False,
+        cleanup_failure: bool = False,
+        proposal_reason: str = "",
+        wrong_control_head: bool = False,
+    ):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         root = Path(temporary.name)
@@ -76,6 +85,10 @@ class VerifierExecutionTests(unittest.TestCase):
             if "validate-detector" in args:
                 result["drift_count"] = 0 if "post-accept" in args[-1] else 1
             elif "validate-proposal" in args:
+                if os.environ["TEST_PROPOSAL_REASON"]:
+                    print(os.environ["TEST_SENTINEL"], file=sys.stderr)
+                    print(json.dumps({"ok": False, "reason": os.environ["TEST_PROPOSAL_REASON"]}))
+                    raise SystemExit(1)
                 result.update(source_id="alpha", expected_head="b" * 40)
             print(json.dumps(result))
         """),
@@ -99,7 +112,10 @@ class VerifierExecutionTests(unittest.TestCase):
         detector.write_text("{}", encoding="utf-8")
         control = runner / "control.json"
         control.write_text(
-            json.dumps({"selected_source_id": "alpha", "expected_head": "b" * 40}),
+            json.dumps({
+                "selected_source_id": "alpha",
+                "expected_head": ("c" if wrong_control_head else "b") * 40,
+            }),
             encoding="utf-8",
         )
         output = runner / "output"
@@ -124,6 +140,7 @@ class VerifierExecutionTests(unittest.TestCase):
             "GIT_BOUNDARY_STATE": str(runner / "boundary"),
             "TEST_FAILURE": str(failure).lower(),
             "TEST_CLEANUP_FAILURE": str(cleanup_failure).lower(),
+            "TEST_PROPOSAL_REASON": proposal_reason,
             "TEST_SENTINEL": SENTINEL,
         }
         for key, name in (
@@ -150,6 +167,7 @@ class VerifierExecutionTests(unittest.TestCase):
         self.assertNotIn(SENTINEL, raw + result.stdout + result.stderr)
         self.assertIn(raw.strip(), result.stdout.splitlines())
         self.assertEqual(list(diagnostic_root.glob("*.stage")), [])
+        self.assertEqual(list(diagnostic_root.glob("*.reason")), [])
         return result, json.loads(raw), output, feedback, runner
 
     def test_real_shell_success_reaches_complete_and_emits_only_fixed_metadata(self):
@@ -166,6 +184,7 @@ class VerifierExecutionTests(unittest.TestCase):
                 "exit_code": 0,
                 "cleanup_exit_code": 0,
                 "passed": True,
+                "reason": None,
             },
         )
         self.assertEqual(output.read_text(), "passed=true\nattempt=1\n")
@@ -198,6 +217,35 @@ class VerifierExecutionTests(unittest.TestCase):
             (17, 19, False),
         )
         self.assertFalse(output.exists())
+
+
+    def test_proposal_failures_retain_only_allowlisted_reason_codes(self):
+        for reason in sorted(guard_module.PROPOSAL_FAILURE_REASONS):
+            with self.subTest(reason=reason):
+                result, report, output, feedback, _ = self.execute(proposal_reason=reason)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(
+                    (report["stage"], report["reason"], report["exit_code"], report["passed"]),
+                    ("proposal", reason, 1, False),
+                )
+                self.assertEqual(output.read_text(), "passed=false\nattempt=1\n")
+                self.assertIn(SENTINEL, feedback.read_text())
+                self.assertIn(f"Proposal validation failed: {reason}", feedback.read_text())
+
+    def test_candidate_controlled_reason_cannot_escape_to_public_diagnostics(self):
+        result, report, _, _, _ = self.execute(proposal_reason=SENTINEL + "\n::warning::injection")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual((report["stage"], report["reason"]), ("proposal", "proposal-invalid"))
+        self.assertNotIn("injection", result.stdout + result.stderr + json.dumps(report))
+
+    def test_proposal_guard_success_must_still_match_control_plan_head(self):
+        result, report, _, feedback, _ = self.execute(wrong_control_head=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(
+            (report["stage"], report["reason"], report["passed"]),
+            ("proposal", "proposal-control-mismatch", False),
+        )
+        self.assertIn("Proposal validation failed: proposal-control-mismatch", feedback.read_text())
 
 
 if __name__ == "__main__":

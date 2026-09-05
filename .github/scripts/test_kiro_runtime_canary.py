@@ -210,8 +210,8 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         self.assertEqual(
             canary.PINNED_BINARY_SIZES,
             {
-                "kirocli/bin/kiro-cli": 113_921_088,
-                "kirocli/bin/kiro-cli-chat": 838_911_376,
+                "kirocli/bin/kiro-cli": 113_925_216,
+                "kirocli/bin/kiro-cli-chat": 838_626_440,
             },
         )
         self.assertLessEqual(max(canary.PINNED_BINARY_SIZES.values()), canary.MAX_BINARY_BYTES)
@@ -301,7 +301,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         mutations = {
             "version": "2.22.0",
             "sha256": "a" * 64,
-            "download_url": canary.PINNED_CLI_URL.replace("2.21.0", "2.20.0"),
+            "download_url": canary.PINNED_CLI_URL.replace("2.21.1", "2.20.0"),
             "size": canary.PINNED_CLI_SIZE - 1,
         }
         for field, value in mutations.items():
@@ -374,7 +374,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
                 ) as run,
                 self.assertRaisesRegex(canary.CanaryError, "version probe"),
             ):
-                canary._probe_runtime(ROOT, scratch, "2.21.0")
+                canary._probe_runtime(ROOT, scratch, "2.21.1")
             self.assertEqual(run.call_count, 1)
 
     def test_workspace_discovery_requires_exact_workspace_rows(self) -> None:
@@ -389,7 +389,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
 
     def test_runtime_probe_uses_only_non_chat_agent_commands(self) -> None:
         replies = [
-            (0, b"kiro-cli 2.21.0\n", b""),
+            (0, b"kiro-cli 2.21.1\n", b""),
             *((0, b"valid\n", b"") for _ in canary.EXPECTED_AGENTS),
             (
                 0,
@@ -402,7 +402,7 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
             (scratch / "bin").mkdir()
             (scratch / "workspace/.kiro/agents").mkdir(parents=True)
             with mock.patch.object(canary, "_run_bounded", side_effect=replies) as run:
-                result = canary._probe_runtime(ROOT, scratch, "2.21.0")
+                result = canary._probe_runtime(ROOT, scratch, "2.21.1")
         commands = [call.args[0] for call in run.call_args_list]
         self.assertEqual(commands[0][-1], "--version")
         self.assertEqual(
@@ -715,12 +715,12 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
         mutations = {
             "maintenance-cache": (
                 "maintenance",
-                "kiro-cli-linux-x86-64-2.21.0-",
+                "kiro-cli-linux-x86-64-2.21.1-",
                 "kiro-cli-linux-x86-64-2.20.0-",
             ),
             "credential-probe": (
                 "credential-smoke",
-                '"kiro-cli 2.21.0"',
+                '"kiro-cli 2.21.1"',
                 '"kiro-cli 2.20.0"',
             ),
             "permission-sha": (
@@ -730,12 +730,12 @@ class KiroRuntimeCanaryTests(unittest.TestCase):
             ),
             "runtime-setup-version": (
                 "runtime-setup",
-                '"kiro-cli 2.21.0"',
+                '"kiro-cli 2.21.1"',
                 '"kiro-cli 2.20.0"',
             ),
             "canary-size": (
                 "runtime-canary",
-                "PINNED_CLI_SIZE = 536_335_872",
+                "PINNED_CLI_SIZE = 536_509_056",
                 "PINNED_CLI_SIZE = 536_335_871",
             ),
         }

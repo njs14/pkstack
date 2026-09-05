@@ -120,6 +120,38 @@ class GuardError(RuntimeError):
     """A candidate or workflow input crossed an immutable boundary."""
 
 
+PROPOSAL_FAILURE_REASONS = frozenset({
+    "proposal-missing",
+    "proposal-invalid",
+    "proposal-detector-invalid",
+    "proposal-binding-mismatch",
+    "proposal-dispositions-invalid",
+    "proposal-marker-missing",
+    "proposal-marker-invalid",
+    "proposal-control-mismatch",
+})
+
+
+class ProposalError(GuardError):
+    """A proposal rejection with a fixed, safe-to-publish diagnostic code."""
+
+    def __init__(self, reason: str, message: str) -> None:
+        if reason not in PROPOSAL_FAILURE_REASONS:
+            raise ValueError("unknown proposal failure reason")
+        self.reason = reason
+        super().__init__(message)
+
+
+@contextmanager
+def _proposal_failure(reason: str):
+    try:
+        yield
+    except ProposalError:
+        raise
+    except (GuardError, OSError, ValueError, RecursionError) as exc:
+        raise ProposalError(reason, str(exc)) from exc
+
+
 def _strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     value: dict[str, Any] = {}
     for key, item in pairs:
@@ -1449,6 +1481,7 @@ def validate_ci_agent(agent_path: Path, policy: dict[str, Any]) -> None:
         raise GuardError("CI agent resources differ from the immutable policy")
     prompt = agent.get("prompt")
     marker_requirements = (
+        "The immutable control plan action reconcile-source requires exactly one proposal",
         "use the exact selected_source_id from the immutable control plan",
         "proposal must name that source_id",
         "leave every other drifting source unchanged for a later cadence",
@@ -2571,6 +2604,11 @@ def _require_provenance_markers(
                 raise GuardError("selected upstream source no longer has detected drift")
             expected.append(_pending_review_marker(source))
         if len(marker_lines) != len(expected):
+            if selected_source_id is not None and len(marker_lines) < len(expected):
+                raise ProposalError(
+                    "proposal-marker-missing",
+                    "upstream provenance marker count disagrees with review state",
+                )
             raise GuardError("upstream provenance marker count disagrees with review state")
         for index, marker in enumerate(expected):
             actual = _review_marker_payload(
@@ -2588,86 +2626,93 @@ def validate_proposal(
 ) -> dict[str, Any]:
     """Independently bind an untrusted proposal to the exact detector inventory."""
 
-    detector = validate_detector(detector_path)
-    drift_sources = sorted(
-        (source for source in detector["sources"] if source["drift"] is True),
-        key=lambda item: item["id"],
-    )
-    if not drift_sources:
-        raise GuardError("an acceptance proposal requires detected upstream drift")
-    _, proposal = _load_json(
-        proposal_path,
-        maximum=512 * 1024,
-        label="upstream acceptance proposal",
-    )
-    _exact_keys(
-        proposal,
-        {"source_id", "prior", "new", "inventory_sha256", "dispositions"},
-        "upstream acceptance proposal",
-    )
-    source_id = proposal["source_id"]
-    if not isinstance(source_id, str) or not source_id:
-        raise GuardError("upstream acceptance proposal source_id is invalid")
-    if selected_source_id is not None and source_id != selected_source_id:
-        raise GuardError("upstream proposal does not match the controller-selected source")
-    source = next((item for item in drift_sources if item["id"] == source_id), None)
-    if source is None:
-        raise GuardError("upstream proposal does not select a drifting source")
-    prior = _identity(proposal["prior"], "upstream acceptance proposal prior")
-    new = _identity(proposal["new"], "upstream acceptance proposal new")
-    if prior != source["pinned"]:
-        raise GuardError("upstream acceptance proposal prior identity is stale")
-    if new != source["current"]:
-        raise GuardError("upstream acceptance proposal new identity is not the current head")
-    inventory_sha256 = _sha256(
-        proposal["inventory_sha256"],
-        "upstream acceptance proposal inventory_sha256",
-    )
-    comparison = source["comparison"]
-    if inventory_sha256 != comparison["inventory_sha256"]:
-        raise GuardError("upstream acceptance proposal inventory digest does not match reproof")
+    with _proposal_failure("proposal-detector-invalid"):
+        detector = validate_detector(detector_path)
+        drift_sources = sorted(
+            (source for source in detector["sources"] if source["drift"] is True),
+            key=lambda item: item["id"],
+        )
+        if not drift_sources:
+            raise GuardError("an acceptance proposal requires detected upstream drift")
+    with _proposal_failure("proposal-invalid"):
+        if not proposal_path.exists() and not proposal_path.is_symlink():
+            raise ProposalError("proposal-missing", "upstream acceptance proposal is missing")
+        _, proposal = _load_json(
+            proposal_path,
+            maximum=512 * 1024,
+            label="upstream acceptance proposal",
+        )
+        _exact_keys(
+            proposal,
+            {"source_id", "prior", "new", "inventory_sha256", "dispositions"},
+            "upstream acceptance proposal",
+        )
+    with _proposal_failure("proposal-binding-mismatch"):
+        source_id = proposal["source_id"]
+        if not isinstance(source_id, str) or not source_id:
+            raise GuardError("upstream acceptance proposal source_id is invalid")
+        if selected_source_id is not None and source_id != selected_source_id:
+            raise GuardError("upstream proposal does not match the controller-selected source")
+        source = next((item for item in drift_sources if item["id"] == source_id), None)
+        if source is None:
+            raise GuardError("upstream proposal does not select a drifting source")
+        prior = _identity(proposal["prior"], "upstream acceptance proposal prior")
+        new = _identity(proposal["new"], "upstream acceptance proposal new")
+        if prior != source["pinned"]:
+            raise GuardError("upstream acceptance proposal prior identity is stale")
+        if new != source["current"]:
+            raise GuardError("upstream acceptance proposal new identity is not the current head")
+        inventory_sha256 = _sha256(
+            proposal["inventory_sha256"],
+            "upstream acceptance proposal inventory_sha256",
+        )
+        comparison = source["comparison"]
+        if inventory_sha256 != comparison["inventory_sha256"]:
+            raise GuardError("upstream acceptance proposal inventory digest does not match reproof")
 
-    dispositions = proposal["dispositions"]
-    if not isinstance(dispositions, list) or len(dispositions) > 100:
-        raise GuardError("upstream acceptance proposal dispositions are not bounded")
-    by_path: dict[str, str] = {}
-    for index, value in enumerate(dispositions):
-        item = _exact_keys(
-            value,
-            {"path", "disposition", "rationale"},
-            f"upstream acceptance proposal disposition {index}",
+    with _proposal_failure("proposal-dispositions-invalid"):
+        dispositions = proposal["dispositions"]
+        if not isinstance(dispositions, list) or len(dispositions) > 100:
+            raise GuardError("upstream acceptance proposal dispositions are not bounded")
+        by_path: dict[str, str] = {}
+        for index, value in enumerate(dispositions):
+            item = _exact_keys(
+                value,
+                {"path", "disposition", "rationale"},
+                f"upstream acceptance proposal disposition {index}",
+            )
+            path = _normalized_path(
+                item["path"],
+                f"upstream acceptance proposal disposition {index} path",
+            )
+            if path in by_path:
+                raise GuardError("upstream acceptance proposal contains a duplicate path")
+            disposition = item["disposition"]
+            if not isinstance(disposition, str) or disposition not in {"A", "B", "C"}:
+                raise GuardError("upstream acceptance proposal disposition must be A, B, or C")
+            rationale = item["rationale"]
+            if (
+                not isinstance(rationale, str)
+                or not rationale
+                or rationale.strip() != rationale
+                or any(character in rationale for character in ("\0", "\r", "\n"))
+                or len(rationale.encode("utf-8")) > 2048
+            ):
+                raise GuardError("upstream acceptance proposal rationale is invalid")
+            by_path[path] = disposition
+        if sorted(by_path) != comparison["paths"]:
+            raise GuardError(
+                "upstream acceptance proposal dispositions do not exactly match comparison paths"
+            )
+        unavailable = comparison["review_constraints"]["unavailable_binary_paths"]
+        if any(by_path.get(path) != "B" for path in unavailable):
+            raise GuardError("unavailable binary paths require disposition B")
+    with _proposal_failure("proposal-marker-invalid"):
+        _require_provenance_markers(
+            root,
+            detector,
+            selected_source_id=source_id,
         )
-        path = _normalized_path(
-            item["path"],
-            f"upstream acceptance proposal disposition {index} path",
-        )
-        if path in by_path:
-            raise GuardError("upstream acceptance proposal contains a duplicate path")
-        disposition = item["disposition"]
-        if disposition not in {"A", "B", "C"}:
-            raise GuardError("upstream acceptance proposal disposition must be A, B, or C")
-        rationale = item["rationale"]
-        if (
-            not isinstance(rationale, str)
-            or not rationale
-            or rationale.strip() != rationale
-            or any(character in rationale for character in ("\0", "\r", "\n"))
-            or len(rationale.encode("utf-8")) > 2048
-        ):
-            raise GuardError("upstream acceptance proposal rationale is invalid")
-        by_path[path] = disposition
-    if sorted(by_path) != comparison["paths"]:
-        raise GuardError(
-            "upstream acceptance proposal dispositions do not exactly match comparison paths"
-        )
-    unavailable = comparison["review_constraints"]["unavailable_binary_paths"]
-    if any(by_path.get(path) != "B" for path in unavailable):
-        raise GuardError("unavailable binary paths require disposition B")
-    _require_provenance_markers(
-        root,
-        detector,
-        selected_source_id=source_id,
-    )
     return {
         "source_id": source["id"],
         "expected_head": new["commit"],
@@ -3659,6 +3704,9 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
+    except ProposalError as exc:
+        print(json.dumps({"ok": False, "reason": exc.reason}, sort_keys=True))
+        raise SystemExit(1) from exc
     except GuardError as exc:
         print(json.dumps({"ok": False, "error": str(exc)}), file=sys.stderr)
         raise SystemExit(1) from exc

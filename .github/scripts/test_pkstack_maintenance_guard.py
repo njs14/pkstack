@@ -6,6 +6,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import importlib.util
+import itertools
 import json
 import os
 import re
@@ -122,7 +123,7 @@ MAINTENANCE_MAINTAIN_STEPS = (
     ("Install uv and materialize protected lockfiles", ("uses", "with")),
     ("Materialize locked environments and trusted scripts", ("run",)),
     ("Restore pinned Kiro CLI archive", ("uses", "with")),
-    ("Verify checksum-pinned Kiro CLI 2.21.0 archive", ("run",)),
+    ("Verify checksum-pinned Kiro CLI 2.21.1 archive", ("run",)),
     ("Start immutable goal and record the required pre-edit failure", ("env", "run")),
     ("Prepare repair 1 without workspace hooks", ("run",)),
     ("Kiro repair 1 of 4", ("env", "run")),
@@ -2970,6 +2971,105 @@ class KiroPermissionStreamTests(unittest.TestCase):
             )
             self.assertEqual(denied["user_tool_calls"], 1)
             self.assertEqual(denied["resource"], resource)
+            self.assertEqual(
+                denied["preview_original_content"], {"start": True, "terminal": True}
+            )
+            self.assertEqual(denied["diff_original_content"], "empty")
+
+    def test_denied_previews_accept_optional_original_content_at_each_stage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            cases = itertools.product(
+                permission_stream_guard.DENIED_RESOURCES,
+                (False, True), (False, True), (None, ""),
+            )
+            for resource, start_present, terminal_present, old_text in cases:
+                with self.subTest(resource=resource, start=start_present, terminal=terminal_present, old_text=old_text):
+                    events = self.complete_events(workspace, denied_resource=resource)
+                    for event_index, present in ((2, start_present), (-3, terminal_present)):
+                        preview = events[event_index]["data"]["update"]["_meta"]["kiro"]["preview"]
+                        if not present:
+                            preview.pop("originalContent")
+                            self.assertEqual(preview, {
+                                "file": resource,
+                                "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+                            })
+                    events[-3]["data"]["update"]["content"][0]["oldText"] = old_text
+                    self.write_stream(stream, events)
+                    denied = permission_stream_guard.validate_denied_invocation(
+                        stream, stderr, return_code=0, api_key="test-secret",
+                        workspace=workspace, agent_path=agent, resource=resource,
+                    )
+                    self.assertEqual(denied["user_tool_calls"], 1)
+                    self.assertEqual(denied["resource"], resource)
+                    self.assertEqual(
+                        denied["preview_original_content"],
+                        {"start": start_present, "terminal": terminal_present},
+                    )
+                    self.assertEqual(
+                        denied["diff_original_content"], "unknown" if old_text is None else "empty"
+                    )
+
+    def test_denied_diff_rejects_malformed_originals_and_content(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            valid = {
+                "type": "diff", "path": resource, "oldText": None,
+                "newText": permission_stream_guard.DENIED_WRITE_TEXT,
+            }
+            cases = [
+                ("wrong_original", {**valid, "oldText": "UNTRUSTED_DIFF"}),
+                ("baseline_original", {**valid, "oldText": f"PROTECTED_BASELINE {resource}\n"}),
+                ("boolean_original", {**valid, "oldText": False}),
+                ("numeric_original", {**valid, "oldText": 0}),
+                ("missing_original", {key: value for key, value in valid.items() if key != "oldText"}),
+                ("extra_key", {**valid, "UNTRUSTED_DIFF": "UNTRUSTED_DIFF"}),
+                ("wrong_path", {**valid, "path": "UNTRUSTED_DIFF"}),
+                ("wrong_content", {**valid, "newText": "UNTRUSTED_DIFF"}),
+                ("wrong_type", {**valid, "type": "UNTRUSTED_DIFF"}),
+            ]
+            for case, content in cases:
+                with self.subTest(case=case):
+                    events = self.complete_events(workspace, denied_resource=resource)
+                    events[-3]["data"]["update"]["content"] = [content]
+                    self.write_stream(stream, events)
+                    with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                        permission_stream_guard.validate_denied_invocation(
+                            stream, stderr, return_code=0, api_key="test-secret",
+                            workspace=workspace, agent_path=agent, resource=resource,
+                        )
+                    self.assertEqual(str(caught.exception), "Kiro write diff content is invalid")
+
+    def test_denied_terminal_preview_rejects_malformed_originals_and_extra_keys(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            valid = {
+                "file": resource,
+                "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+            }
+            cases = [
+                ("wrong_original", {**valid, "originalContent": "UNTRUSTED_PREVIEW"}),
+                ("baseline_original", {**valid, "originalContent": f"PROTECTED_BASELINE {resource}\n"}),
+                ("null_original", {**valid, "originalContent": None}),
+                ("boolean_original", {**valid, "originalContent": False}),
+                ("extra_without_original", {**valid, "UNTRUSTED_PREVIEW": "UNTRUSTED_PREVIEW"}),
+                ("extra_with_original", {**valid, "originalContent": "", "UNTRUSTED_PREVIEW": None}),
+                ("wrong_file", {**valid, "file": "UNTRUSTED_PREVIEW"}),
+                ("wrong_modified", {**valid, "modifiedContent": "UNTRUSTED_PREVIEW"}),
+            ]
+            for case, preview in cases:
+                with self.subTest(case=case):
+                    events = self.complete_events(workspace, denied_resource=resource)
+                    events[-3]["data"]["update"]["_meta"]["kiro"]["preview"] = preview
+                    self.write_stream(stream, events)
+                    with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                        permission_stream_guard.validate_denied_invocation(
+                            stream, stderr, return_code=0, api_key="test-secret",
+                            workspace=workspace, agent_path=agent, resource=resource,
+                        )
+                    self.assertEqual(str(caught.exception), "Kiro denied-write preview is invalid")
 
     @staticmethod
     def read_start_diagnostic_from_error(
@@ -3115,6 +3215,110 @@ class KiroPermissionStreamTests(unittest.TestCase):
             self.assertFalse(facts["query"]["matches_expected"])
             self.assertEqual(facts["query"]["type"], "string")
 
+    def test_write_start_preview_diagnostic_is_bounded_and_never_echoes_values(self) -> None:
+        sensitive = "SENSITIVE-PREVIEW-VALUE-MUST-NEVER-APPEAR"
+        large = sensitive * 1000
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            for denied in (False, True):
+                with self.subTest(denied=denied):
+                    events = self.complete_events(
+                        workspace, denied_resource=resource if denied else None
+                    )
+                    start = events[2 if denied else 8]["data"]["update"]
+                    start["_meta"]["kiro"]["preview"] = {
+                        "file": f"file://{workspace}/{sensitive}",
+                        "modifiedContent": {sensitive: large},
+                        "originalContent": [large, "f" * 64],
+                        large: sensitive,
+                    }
+                    self.write_stream(stream, events)
+                    with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                        if denied:
+                            permission_stream_guard.validate_denied_invocation(
+                                stream, stderr, return_code=0, api_key="test-secret",
+                                workspace=workspace, agent_path=agent, resource=resource,
+                            )
+                        else:
+                            permission_stream_guard.validate_allowed_invocation(
+                                stream, stderr, return_code=0, api_key="test-secret",
+                                workspace=workspace,
+                            )
+                    message = str(caught.exception)
+                    for forbidden in (sensitive, "f" * 64, str(workspace), self.SESSION_ID, "test-secret"):
+                        self.assertNotIn(forbidden, message)
+                    raw = message.split("write_start_preview_diagnostic=", 1)[1]
+                    self.assertLessEqual(
+                        len(raw.encode("utf-8")),
+                        permission_stream_guard.MAX_WRITE_START_PREVIEW_DIAGNOSTIC_BYTES,
+                    )
+                    diagnostic = json.loads(raw)
+                    self.assertEqual(
+                        diagnostic["schema"],
+                        "pkstack-permission-write-start-preview-diagnostic-v1",
+                    )
+                    self.assertIs(diagnostic["denied"], denied)
+                    facts = diagnostic["preview"]
+                    self.assertEqual(facts["type"], "object")
+                    self.assertTrue(facts["unexpected_keys_present"])
+                    self.assertTrue(all(facts["expected_keys_present"].values()))
+                    self.assertEqual(facts["file"]["classification"], "other_string")
+                    self.assertEqual(
+                        facts["modified_content"],
+                        {"type": "object", "matches_expected": False},
+                    )
+                    self.assertEqual(
+                        facts["original_content"],
+                        {"present": True, "type": "array", "matches_expected": False, "is_empty": False},
+                    )
+
+    def test_write_start_preview_variants_remain_rejected_with_structural_facts(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            valid = {
+                "file": resource,
+                "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+                "originalContent": f"PROTECTED_BASELINE {resource}\n",
+            }
+            cases = [
+                ("wrong_original", {**valid, "originalContent": "UNTRUSTED_PREVIEW"}),
+                ("empty_original", {**valid, "originalContent": ""}),
+                ("null_original", {**valid, "originalContent": None}),
+                ("dot_relative", {**valid, "file": f"./{resource}"}),
+                ("exact_workspace_absolute", {**valid, "file": str(workspace / resource)}),
+                ("exact_workspace_file_uri", {**valid, "file": f"file://{workspace / resource}"}),
+                ("null", None),
+                ("array", ["UNTRUSTED_PREVIEW"]),
+                ("string", "UNTRUSTED_PREVIEW"),
+            ]
+            for case, preview in cases:
+                with self.subTest(case=case):
+                    events = self.complete_events(workspace, denied_resource=resource)
+                    events[2]["data"]["update"]["_meta"]["kiro"]["preview"] = preview
+                    self.write_stream(stream, events)
+                    with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                        permission_stream_guard.validate_denied_invocation(
+                            stream, stderr, return_code=0, api_key="test-secret",
+                            workspace=workspace, agent_path=agent, resource=resource,
+                        )
+                    message = str(caught.exception)
+                    self.assertNotIn("UNTRUSTED_PREVIEW", message)
+                    self.assertNotIn(str(workspace), message)
+                    diagnostic = json.loads(message.split("write_start_preview_diagnostic=", 1)[1])
+                    facts = diagnostic["preview"]
+                    if case in {"null", "array", "string"}:
+                        self.assertEqual(facts, {"type": case})
+                    elif case.endswith("original"):
+                        original = facts["original_content"]
+                        self.assertTrue(original["present"])
+                        self.assertEqual(original["is_empty"], case == "empty_original")
+                        self.assertFalse(original["matches_expected"])
+                        self.assertTrue(facts["expected_keys_present"]["originalContent"])
+                    else:
+                        self.assertEqual(facts["file"]["classification"], case)
+
     def test_denied_stream_rejects_policy_and_lifecycle_lookalikes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             workspace, agent, stream, stderr = self.fixture_workspace(temporary)
@@ -3217,6 +3421,8 @@ class KiroPermissionStreamTests(unittest.TestCase):
             )
             nonempty_final = clone()
             nonempty_final[-1]["data"]["finalText"] = "done"  # type: ignore[index]
+            unknown_original = clone()
+            unknown_original[-3]["data"]["update"]["content"][0]["oldText"] = None  # type: ignore[index]
 
             for events in (
                 missing_write,
@@ -3224,6 +3430,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 wrong_used_tools,
                 hidden_denial,
                 nonempty_final,
+                unknown_original,
             ):
                 with self.subTest(events=events), self.assertRaises(
                     permission_stream_guard.StreamError
@@ -4274,6 +4481,22 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             with self.assertRaises(guard.GuardError):
                 guard.validate_ci_agent(path, self.policy)
 
+    def test_ci_agent_uses_supplied_control_action_not_an_absent_detector_count(self) -> None:
+        document = json.loads(
+            (ROOT / ".kiro/agents/pkstack-maintainer.json").read_text(encoding="utf-8")
+        )
+        detector = drift_detector_fixture()
+        self.assertNotIn("drift_count", detector)
+        self.assertNotIn("drift_count", document["prompt"])
+        required = "The immutable control plan action reconcile-source requires exactly one proposal"
+        self.assertIn(required, document["prompt"])
+        document["prompt"] = document["prompt"].replace(required, "Create no proposal")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "agent.json"
+            path.write_text(json.dumps(document), encoding="utf-8")
+            with self.assertRaises(guard.GuardError):
+                guard.validate_ci_agent(path, self.policy)
+
     def test_operational_skill_patch_builds_mandatory_exact_review_input(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -5046,7 +5269,11 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "leave every other drifting source unchanged for a later cadence",
             kiro_runner,
         )
-        self.assertIn("When detector drift_count is zero, create no proposal", kiro_runner)
+        self.assertIn(
+            "The immutable control plan action reconcile-source requires exactly one proposal",
+            kiro_runner,
+        )
+        self.assertNotIn("drift_count", kiro_runner)
         self.assertIn("--trust-tools=fs_read,fs_write,grep", kiro_runner)
         self.assertNotIn("--trust-tools=read,grep", kiro_runner)
         self.assertIn("env -u KIRO_API_KEY python3", kiro_runner)
@@ -5658,6 +5885,188 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 provenance.read_text(encoding="utf-8").count("pk-stack-upstream-review:"), 1
             )
             guard._remove_git_state(root, git_state)
+
+
+@unittest.skipUnless(
+    shutil.which("bash") and shutil.which("jq"), "requires bash and jq"
+)
+class ProposalCliContractTests(unittest.TestCase):
+    SENTINEL = "UNTRUSTED_PROPOSAL_SECRET_LIKE_VALUE_123"
+
+    def run_proposal_contract(
+        self, case: str = "valid", *, expected_head: str = "c" * 40
+    ) -> tuple[subprocess.CompletedProcess[str], str]:
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        detector = drift_detector_fixture(transition_count=1)
+        proposal = json.loads(json.dumps(proposal_fixture(detector)))
+        selected_source_id = proposal["source_id"]
+        detector_path = root / "detector.json"
+        detector_path.write_text(json.dumps(detector), encoding="utf-8")
+        proposal_path = root / ".pkstack-maintenance/proposal.json"
+        proposal_path.parent.mkdir()
+        ledger_path = root / "maintenance/upstream-reviews.json"
+        ledger_path.parent.mkdir()
+        ledger_path.write_text(
+            json.dumps(review_ledger_fixture(detector)), encoding="utf-8"
+        )
+
+        for source in detector["sources"]:
+            provenance = root / source["provenance_path"]
+            provenance.parent.mkdir(parents=True, exist_ok=True)
+            markers = accepted_marker_lines(detector, source_id=source["id"])
+            if source["id"] == selected_source_id and case != "missing_marker":
+                pending = pending_marker_line(detector, source_id=source["id"])
+                if case == "noncanonical_marker":
+                    pending = pending.replace('\":', '\": ', 1)
+                elif case == "nested_marker_json":
+                    pending = (
+                        "<!-- pk-stack-upstream-review: {\"source_id\":"
+                        + "[" * 1500
+                        + json.dumps(self.SENTINEL)
+                        + "]" * 1500
+                        + "} -->"
+                    )
+                    self.assertLessEqual(len(pending), 4096)
+                elif case == "wrong_marker_binding":
+                    prefix = "<!-- pk-stack-upstream-review: "
+                    marker = json.loads(pending[len(prefix) : -len(" -->")])
+                    marker["source_id"] = self.SENTINEL
+                    pending = review_marker_line(marker)
+                markers.append(pending)
+            provenance.write_text(
+                "# Provenance\n\n" + "\n".join(markers) + "\n", encoding="utf-8"
+            )
+
+        if case == "wrong_source":
+            proposal["source_id"] = self.SENTINEL
+        elif case == "wrong_prior":
+            proposal["prior"]["commit"] = "9" * 40
+        elif case == "wrong_new":
+            proposal["new"]["commit"] = "9" * 40
+        elif case == "wrong_digest":
+            proposal["inventory_sha256"] = "9" * 64
+        elif case == "missing_disposition":
+            proposal["dispositions"] = []
+        elif case == "invalid_disposition":
+            proposal["dispositions"][0]["disposition"] = self.SENTINEL
+        elif case == "invalid_rationale":
+            proposal["dispositions"][0]["rationale"] = self.SENTINEL + "\n"
+        elif case == "invalid_schema":
+            proposal["unexpected"] = self.SENTINEL
+        raw_proposal = json.dumps(proposal)
+        if case == "malformed":
+            raw_proposal = '{"source_id":'
+        elif case == "nested_proposal_json":
+            raw_proposal = (
+                '{"source_id":'
+                + "[" * 1500
+                + json.dumps(self.SENTINEL)
+                + "]" * 1500
+                + "}"
+            )
+        elif case == "oversized_integer_json":
+            raw_proposal = "{" + json.dumps(self.SENTINEL) + ":" + "9" * 5000 + "}"
+        elif case == "duplicate_key":
+            raw_proposal = (
+                raw_proposal[:-1]
+                + ", "
+                + json.dumps(self.SENTINEL)
+                + ": 0, "
+                + json.dumps(self.SENTINEL)
+                + ": 1}"
+            )
+        if case != "missing_file":
+            proposal_path.write_text(raw_proposal, encoding="utf-8")
+
+        output_path = root / "guard-output.json"
+        result = subprocess.run(
+            [
+                "bash",
+                "-o",
+                "pipefail",
+                "-c",
+                textwrap.dedent("""\
+                    set -euo pipefail
+                    "$1" -B "$2" --root "$3" --policy "$4" validate-proposal \\
+                      --detector "$5" --proposal "$6" --selected-source-id "$7" \\
+                      | tee "$9" \\
+                      | jq -e --arg source_id "$7" --arg expected_head "$8" \\
+                        '.ok == true and .source_id == $source_id and .expected_head == $expected_head'
+                """),
+                "proposal-cli-contract",
+                sys.executable,
+                str(GUARD_PATH),
+                str(root),
+                str(ROOT / ".github/pkstack-maintenance-policy.json"),
+                str(detector_path),
+                str(proposal_path),
+                selected_source_id,
+                expected_head,
+                str(output_path),
+            ],
+            cwd=root,
+            env={**os.environ, "PYTHONINTMAXSTRDIGITS": "4300"},
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        return result, output_path.read_text(encoding="utf-8")
+
+    def test_valid_proposal_and_canonical_marker_pass_real_cli_and_jq(self) -> None:
+        result, raw = self.run_proposal_contract()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "true\n")
+        self.assertEqual(result.stderr, "")
+        self.assertEqual(
+            json.loads(raw),
+            {
+                "ok": True,
+                "source_id": "cursor-pstack",
+                "expected_head": "c" * 40,
+                "disposition_count": 1,
+            },
+        )
+
+    def test_proposal_failures_emit_only_fixed_reason_codes(self) -> None:
+        cases = {
+            "missing_file": "proposal-missing",
+            "malformed": "proposal-invalid",
+            "nested_proposal_json": "proposal-invalid",
+            "oversized_integer_json": "proposal-invalid",
+            "invalid_schema": "proposal-invalid",
+            "duplicate_key": "proposal-invalid",
+            "wrong_source": "proposal-binding-mismatch",
+            "wrong_prior": "proposal-binding-mismatch",
+            "wrong_new": "proposal-binding-mismatch",
+            "wrong_digest": "proposal-binding-mismatch",
+            "missing_disposition": "proposal-dispositions-invalid",
+            "invalid_disposition": "proposal-dispositions-invalid",
+            "invalid_rationale": "proposal-dispositions-invalid",
+            "missing_marker": "proposal-marker-missing",
+            "noncanonical_marker": "proposal-marker-invalid",
+            "nested_marker_json": "proposal-marker-invalid",
+            "wrong_marker_binding": "proposal-marker-invalid",
+        }
+        for case, reason in cases.items():
+            with self.subTest(case=case):
+                result, raw = self.run_proposal_contract(case)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stderr, "")
+                self.assertEqual(result.stdout, "false\n")
+                self.assertNotIn(self.SENTINEL, raw + result.stdout + result.stderr)
+                self.assertNotIn("Traceback", raw + result.stdout + result.stderr)
+                self.assertEqual(json.loads(raw), {"ok": False, "reason": reason})
+
+    def test_jq_rejects_control_plan_expected_head_mismatch(self) -> None:
+        result, raw = self.run_proposal_contract(expected_head="f" * 40)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "false\n")
+        self.assertEqual(result.stderr, "")
+        self.assertTrue(json.loads(raw)["ok"])
+        self.assertEqual(json.loads(raw)["expected_head"], "c" * 40)
 
 
 if __name__ == "__main__":
