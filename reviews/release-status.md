@@ -63,7 +63,8 @@ approval; the autonomous candidate gate does not depend on that additional run.
 
 ## Limits and release gate
 
-Kiro Web and Crew are untested. The latest IDE campaign completed native Standard
+Kiro Web is untested. Crew remains an untested optional compatibility target.
+The latest IDE campaign completed native Standard
 planning and same-tab agent selection, then paused when the Mac locked. Its
 repair loop and Quick Spec campaign remain pending; import and discovery are
 not substitutes for that evidence.

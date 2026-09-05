@@ -64,11 +64,27 @@ installed-Kiro check skipped on Linux. Lint, formatting, types, lockfile,
 Actionlint, and ShellCheck passed. The final documentation/export head still
 requires its own green PR check before merge.
 
+The following documentation CI run caught one exact support-wording assertion:
+the report had changed `Kiro Web is untested` to a combined Web/Crew sentence.
+The explicit Web sentence was restored without changing the test or support
+claim. That run's 853 passes, one failure, and one skip are not reported as green.
+The subsequent focused run of `test_kiro_assets.py`, `test_branding.py`, and
+`test_readme_walkthrough.py` passed all 128 tests; `git diff --check` also passed.
+
 Reviewed setup regenerated managed files without conflicts or stale files.
 The generated controller returned **81 doctor passes, zero failures or warnings**,
 and passed `feature validate` and `knowledge validate --require-okn` on the Mac.
 This is separate from host-package tests. The diagram-export follow-up passed
 all 12 branding tests and `git diff --check`.
+
+```sh
+.pkstack/bin/projectctl doctor --output json
+.pkstack/bin/projectctl feature validate --output json
+.pkstack/bin/projectctl knowledge validate --require-okn --output json
+```
+
+Knowledge validation reported `mode: canonical-okn`; it was not the narrow
+feature-only fallback.
 
 ## Live Kiro evidence
 
@@ -125,5 +141,14 @@ vendored version was deliberately not upgraded. Its separate live smoke's
 clipping failure therefore remains a limitation, not a contradiction of the
 three inspected documentation diagrams.
 
-Final GitHub desktop and narrow-width README checks remain pending on the
-diagram-only export commit. No 0.3.0 tag or release has been created.
+Both READMEs were inspected in GitHub on the diagram-only export commit
+`1df518be8daf4e932d604a52b90e3aba6304d7e3`, at 1440×1000 and
+390×844. The banner resolves from both paths; headings, prose, and installation
+steps fit the narrow layout. GitHub keeps the long clone command in a horizontally
+scrollable code block. The overview scales to fit; phone readers need to open
+the image for its small detail labels. The browser viewport was restored afterward.
+
+The final independent evidence audit found no material findings: 34 local links
+resolved, retained CLI goal/test hashes agreed with the reports, and the failed
+or pending smokes remained explicitly qualified. No 0.3.0 tag or release has
+been created. IDE completion and final-head CI remain the merge gates.
