@@ -17,11 +17,11 @@ by this record. The latest published release remains v0.2.0.
 | Legacy transition | v0.2.0 rejection makes no writes; documented clean transition preserves source and evidence | Three rejection modes preserved 302 files; clean transition preserved all four user fixtures |
 | Permissions | Allowed operations work; equivalent denied forms remain blocked | Standalone and three grouped forms natively denied; ordinary ask/cancel preserved |
 | DO / PROVE / KNOW | Generated parity, doctor, feature gates, and canonical okn validation pass | Doctor81, schema, canonical okn, generated parity passed; Archify accepted, OKF freshness pending updater |
-| Updater | Current review context supports a bounded live campaign and correct accept/reject handling | Source and correct Opus review passed; base browser timeout blocked merge and PR #34 was closed; harness investigation active |
-| Deterministic gates | Repository, Power, formatting, lint, types, lockfile, and workflow checks pass | 870 Power, 184 repository, 17 Node tests passed after cleanup repair; lint/format/types/lock/workflow checks passed |
+| Updater | Current review context supports a bounded live campaign and correct accept/reject handling | First campaign review approved but base failed; second source campaign failed retry preparation; no update accepted |
+| Deterministic gates | Repository, Power, formatting, lint, types, lockfile, and workflow checks pass | 870 Power passed; 185 repository and 17 Node tests passed after retry cleanup repair; static checks passed |
 | Packaging | Two identical archives, correct contents/checksum/version, extracted-consumer smoke | Main 3859f63 produced two identical archives and passed extracted-consumer checks; rebind if main advances |
-| Independent review | Frozen candidate accepted with no unresolved material findings | Security and product scopes approved through reviewed head 67b7e36; remaining surface acceptance stays open |
-| Delivery | Exact PR/main commit CI, release notes, upgrade guide, and publication handoff | PR #33 merged; CI 33976733214 and 33976929179 passed; commit-bound notes and upgrade guide prepared; publication held |
+| Independent review | Frozen candidate accepted with no unresolved material findings | Initial scopes approved; cleanup follow-up approved through 9c3e630; retry failure under investigation; surface acceptance stays open |
+| Delivery | Exact PR/main commit CI, release notes, upgrade guide, and publication handoff | PRs #33 and #35 merged after exact-head CI; main a1c0c9a CI passed; publication held |
 
 ## Findings
 
@@ -40,6 +40,7 @@ by this record. The latest published release remains v0.2.0.
 | R030-11 | Upstream Archify delta reproduces malformed-argument output, watcher crashes, and missing caption-width rejection | Three runtime fixes and metadata checks passed; seven-path update accepted transactionally; live detector reports Archify current |
 | R030-12 | Evidence index has broken package links and a stale current-version label | Active package paths and status label corrected; local targets verified; historical names retained |
 | R030-13 | Reader startup rejection bypasses cleanup and leaves its browser child/profile | Injected failure reproduced the leak; startup wait moved under existing cleanup; regression and real reader/export tests passed; initiating CI timeout remains unproven, as recorded in [browser harness report](release-030-browser-harness.md) |
+| R030-14 | Pending-marker cleanup exposes an invalid EOF separator and prevents the next repair | Real Git/prepare regression reproduced a clean-before/failing-after diff; narrow empty-separator cleanup passes while preserving prose, accepted-marker integrity, and unrelated whitespace rejection |
 
 Additional findings enter this ledger when reproduced. External blocks stay
 incomplete; historical successes never stand in for current-candidate evidence.

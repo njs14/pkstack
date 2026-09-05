@@ -161,3 +161,43 @@ before the repair and passes afterward. The complete local follow-up passed
 types, lockfile, workflow checks, doctor, feature validation, and canonical
 `okn`. No timeout, layout threshold, or existing assertion was relaxed. Exact
 patched-commit Linux CI and any fresh campaign remain distinct next checks.
+
+## Cleanup follow-up and second source campaign
+
+[PR #35](https://github.com/njs14/pkstack/pull/35) merged the independently
+approved harness repair at `9c3e6309076075010ab1d8dd9018f74aeba7348f` as main
+`a1c0c9ad0f88963fb46cea6c9339ae55272922ee`. Exact PR CI `33978687069` and main CI
+`33978845082` both passed on Ubuntu. This verifies the patched harness in those
+runs; it does not establish the initiating cause of the earlier CDP timeout.
+
+A fresh bounded source run,
+[33979038750](https://github.com/njs14/pkstack/actions/runs/33979038750), used
+that new main commit without a retry override. It failed before candidate
+publication. Verification 1 failed at `accept-preview` with exit 2 and successful
+cleanup; its detailed initiating error was not retained. Preparation for repair
+2 then failed with `okf-skills-provenance.md:31: new blank line at EOF.` The
+exact-title candidate workflow `33979242122` was entirely skipped. No candidate
+package, PR, isolated browser test, or independent verdict was produced.
+
+The guard runs pending-marker cleanup before its staged whitespace check. The
+cleanup removes only the pending marker line, which can expose its preceding
+paragraph separator as a new trailing blank line. A real Git/prepare-attempt
+regression reproduced that refusal: the staged diff was whitespace-clean before
+cleanup and failed afterward with the same EOF diagnostic. The narrow repair
+removes only empty separator lines exposed when the deleted pending marker was
+the final nonempty content. It preserves authored prose, accepted markers, and
+prose after the marker; unrelated trailing spaces still fail the unchanged
+staged guard. No write boundary, permission, or final validation was relaxed.
+
+The three focused retry/integrity cases passed, including duplicate and altered
+accepted-marker rejection. The complete local policy suite passed 185 Python
+tests and 17 Node tests; Actionlint, ShellCheck, and whitespace checks passed.
+The Power subtree is unchanged from the independently reviewed cleanup commit
+whose 870 local Power tests and exact Ubuntu CI passed. Evidence is retained in
+`provenance-eof-cleanup-before.log`, `provenance-eof-cleanup-after.log`, and
+`post-provenance-root-tests.log` under the campaign evidence directory.
+
+This proves the reproduced trusted cleanup defect and its repair. It does not
+reconstruct the unavailable live candidate's initiating accept-preview error or
+declare the failed second campaign accepted. Patched-commit review and CI plus a
+fresh bounded campaign remain required.

@@ -6374,6 +6374,88 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.assertNotEqual(wrong_attempt.returncode, 0)
             self.assertEqual(wrong_sentinel.read_text(encoding="utf-8"), "preserve\n")
 
+    def test_prepare_retry_removes_only_eof_marker_separator_and_keeps_whitespace_guard(
+        self,
+    ) -> None:
+        for trailing_space in (False, True):
+            with self.subTest(trailing_space=trailing_space), tempfile.TemporaryDirectory() as temporary:
+                sandbox = Path(temporary)
+                root = sandbox / "repo"
+                manifest = root / "maintenance/upstreams.json"
+                ledger = root / "maintenance/upstream-reviews.json"
+                provenance = root / "powers/pkstack/docs/provenance.md"
+                manifest.parent.mkdir(parents=True)
+                provenance.parent.mkdir(parents=True)
+                drift = drift_detector_fixture(transition_count=1)
+                accepted = accepted_marker_lines(drift)
+                self.assertEqual(len(accepted), 1)
+                base_ledger = json.dumps(review_ledger_fixture(drift)) + "\n"
+                base_provenance = (
+                    f"# Provenance\n\n{accepted[0]}\n\n"
+                    "Accepted review detail remains byte-for-byte intact.\n"
+                )
+                manifest.write_text('{"pin":"base"}\n', encoding="utf-8")
+                ledger.write_text(base_ledger, encoding="utf-8")
+                provenance.write_text(base_provenance, encoding="utf-8")
+                root, base_sha = GitControlBoundaryTests.make_repo(sandbox)
+
+                # A post-accept failure leaves authored prose, then the pending
+                # marker at EOF. Its separator is valid until cleanup removes it.
+                authored = "Attempt one authored review remains useful after rollback."
+                if trailing_space:
+                    authored += " "
+                expected_provenance = base_provenance + f"\n{authored}\n"
+                pending = pending_marker_line(drift)
+                provenance.write_text(expected_provenance + f"\n{pending}\n", encoding="utf-8")
+                manifest.write_text('{"pin":"accepted"}\n', encoding="utf-8")
+                ledger.write_text('{"ledger":"accepted"}\n', encoding="utf-8")
+                subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+                before = subprocess.run(
+                    ["git", "diff", "--cached", "--check", base_sha],
+                    cwd=root,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                if trailing_space:
+                    self.assertNotEqual(before.returncode, 0)
+                    self.assertIn("trailing whitespace", before.stdout)
+                else:
+                    self.assertEqual(before.returncode, 0, before.stdout + before.stderr)
+
+                detector = root / ".git/pkstack-test-detector.json"
+                detector.write_text(json.dumps(drift), encoding="utf-8")
+                feedback = root / ".git/pkstack-test-feedback.txt"
+                feedback.write_text("post-accept gate failed\n", encoding="utf-8")
+                git_state = sandbox / "git-boundary-state"
+                try:
+                    if trailing_space:
+                        with self.assertRaisesRegex(guard.GuardError, "trailing whitespace"):
+                            guard.prepare_attempt(
+                                root, base_sha, self.policy, detector, feedback, git_state
+                            )
+                        self.assertIn(f"{authored}\n", provenance.read_text(encoding="utf-8"))
+                        self.assertFalse(git_state.exists())
+                    else:
+                        guard.prepare_attempt(
+                            root, base_sha, self.policy, detector, feedback, git_state
+                        )
+                        self.assertEqual(
+                            provenance.read_text(encoding="utf-8"), expected_provenance
+                        )
+                        self.assertTrue((root / ".pkstack-maintenance").is_dir())
+                        self.assertTrue((root / ".pkstack-ci/upstream-delta.json").is_file())
+                        self.assertTrue(git_state.is_dir())
+                    cleaned = provenance.read_text(encoding="utf-8")
+                    self.assertTrue(cleaned.startswith(base_provenance))
+                    self.assertNotIn(pending, cleaned)
+                    self.assertEqual(cleaned.count("pk-stack-upstream-review:"), 1)
+                    self.assertEqual(manifest.read_text(encoding="utf-8"), '{"pin":"base"}\n')
+                    self.assertEqual(ledger.read_text(encoding="utf-8"), base_ledger)
+                finally:
+                    if git_state.exists():
+                        guard._remove_git_state(root, git_state)
+
     def test_post_accept_failure_restores_pin_and_ledger_for_attempt_two(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             sandbox = Path(temporary)
