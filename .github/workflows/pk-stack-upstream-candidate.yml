@@ -195,7 +195,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
           uv sync --quiet --locked --all-groups --project powers/pk-stack
           .pk-stack/bin/projectctl feature validate --output json
-          python3 .github/scripts/test_pk_stack_maintenance_guard.py
+          python3 -B .github/scripts/test_pk_stack_maintenance_guard.py
           (
             cd powers/pk-stack
             uv lock --check
@@ -340,7 +340,7 @@ jobs:
           fi
           trusted_projectctl feature validate --output json
           unset READONLY_GITHUB_TOKEN
-          python3 "$TRUSTED_ROOT/.github/scripts/test_pk_stack_maintenance_guard.py"
+          python3 -B "$TRUSTED_ROOT/.github/scripts/test_pk_stack_maintenance_guard.py"
           (
             cd powers/pk-stack
             uv lock --check

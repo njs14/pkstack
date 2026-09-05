@@ -367,7 +367,10 @@ jobs:
           python3 "$GUARD_PATH" validate-trusted-snapshot \
             --base "$BASE_SHA" \
             --trusted-root "$TRUSTED_ROOT"
-          python3 "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_model_inventory.py"
+          python3 -B "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_model_inventory.py"
+          python3 "$GUARD_PATH" validate-trusted-snapshot \
+            --base "$BASE_SHA" \
+            --trusted-root "$TRUSTED_ROOT"
           chmod -R a-w "$TRUSTED_ROOT"
       - name: Restore pinned Kiro CLI archive
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

@@ -183,10 +183,33 @@ transport and provider behavior were outside this local rereview.
 [PR #13](https://github.com/njs14/pk-stack/pull/13) contains the implementation
 at `3cc2f814f239336c1d7baca41da64363f0666d33` plus subsequent evidence-only edits.
 Its first [GitHub CI run](https://github.com/njs14/pk-stack/actions/runs/33930968676)
-passed: 128 policy tests, 17 JavaScript tests, and 810 Power tests with one
-environment-dependent skip. Hosted knowledge validation used feature-map-only
-mode because canonical `okn` was unavailable. Final PR checks, merge, one bounded
-main-branch maintenance run, and the 0.3.0 release are pending.
+passed: 128 policy tests, 17 JavaScript tests, and 810 Power tests with the local
+Kiro-agent CLI check skipped because Kiro was not installed in that CI job.
+Hosted knowledge validation used feature-map-only
+mode because canonical `okn` was unavailable. The final evidence-only head
+`2a587c8418a84f23c1f3661e50a1b5d781a58357` passed
+[CI run 33931307329](https://github.com/njs14/pk-stack/actions/runs/33931307329).
+PR #13 merged at `91d1370f9db8e5f3e996648033a4b5fd557fd5c6` on September 4,
+2026 at 23:59 UTC. Its
+[post-merge CI](https://github.com/njs14/pk-stack/actions/runs/33931443123)
+also passed. One bounded
+[main-branch maintenance run](https://github.com/njs14/pk-stack/actions/runs/33931459393)
+was then dispatched. The live detector found two changed sources and selected
+`okf-skills` (`backfill/SKILL.md`), leaving the Archify executable/test changes
+deferred. The first Kiro repair completed, but secretless verification rejected
+an unexpected immutable control file before any candidate was published.
+
+The failure reproduced in an isolated Python 3.12 archive: running the trusted
+model-inventory regression test wrote
+`.github/scripts/__pycache__/validate_kiro_model_inventory.cpython-312.pyc` inside
+the frozen snapshot. The system Python on this Mac uses a different cache
+location, which had masked that integration error locally. The fix disables
+bytecode writes for trusted preflight tests and checks snapshot integrity again
+immediately afterwards, before a paid model call. The regression forces Linux's
+in-tree cache behavior even on this Mac and verifies unchanged inventory/hashes.
+The revised policy suite passed 129 tests; JavaScript 17, Actionlint, and
+ShellCheck passed. Astra accepted the targeted fix and independently reran its
+11 affected tests. The follow-up live result and 0.3.0 publication are pending.
 
 - IDE Power import is not UI-validated. The installed desktop driver lacks
   macOS Accessibility and Screen Recording permission. The terminal campaign
