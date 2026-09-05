@@ -138,6 +138,8 @@ test ! -L "$diagnostics_root"
 mkdir -p "$diagnostics_root"
 stage_path="$diagnostics_root/attempt-${ATTEMPT_NUMBER}.stage"
 test ! -e "$stage_path" && test ! -L "$stage_path"
+reason_path="$diagnostics_root/attempt-${ATTEMPT_NUMBER}.reason"
+test ! -e "$reason_path" && test ! -L "$reason_path"
 mark_stage() { printf '%s\n' "$1" >"$stage_path"; }
 
 set +e
@@ -178,16 +180,27 @@ set +e
 
   if (( drift_count > 0 )); then
     mark_stage proposal
-    test -f .pkstack-maintenance/proposal.json
-    proposal_validation=$(python3 "$GUARD_PATH" validate-proposal \
+    if proposal_validation=$(python3 "$GUARD_PATH" validate-proposal \
       --detector "$DETECTOR_PATH" \
       --proposal .pkstack-maintenance/proposal.json \
-      --selected-source-id "$selected_source_id")
-    jq -e \
+      --selected-source-id "$selected_source_id"); then
+      if ! jq -e \
       --arg source_id "$selected_source_id" \
       --arg expected_head "$expected_head" \
       '.ok == true and .source_id == $source_id and .expected_head == $expected_head' \
-      <<<"$proposal_validation"
+      <<<"$proposal_validation"; then
+        printf '%s\n' proposal-control-mismatch >"$reason_path"
+        printf '%s\n' "Proposal validation failed: proposal-control-mismatch"
+        exit 1
+      fi
+    else
+      proposal_reason=$(jq -er '.reason | select(type == "string")' <<<"$proposal_validation") \
+        || proposal_reason=proposal-invalid
+      printf '%s\n' "$proposal_reason" >"$reason_path"
+      # The next repair reads this private log, not the retained public report.
+      printf 'Proposal validation failed: %s\n' "$proposal_reason"
+      exit 1
+    fi
     mark_stage accept-preview
     trusted_projectctl_network upstream accept \
       --manifest maintenance/upstreams.json \
@@ -313,7 +326,7 @@ fi
 
 # Actions retains this fixed-field stdout; never publish raw verifier output.
 python3 - "$stage_path" "$ATTEMPT_NUMBER" "$verification_rc" "$finalizer_rc" \
-  "$BASE_SHA" "${GITHUB_RUN_ID:?GITHUB_RUN_ID is required}" <<'PY'
+  "$BASE_SHA" "${GITHUB_RUN_ID:?GITHUB_RUN_ID is required}" "$reason_path" <<'PY'
 import json
 import re
 import sys
@@ -326,6 +339,18 @@ allowed = {"detector", "setup", "feature-contract", "generated-parity", "proposa
            "goal", "final-boundary", "complete"}
 attempt, exit_code, cleanup_exit = map(int, sys.argv[2:5])
 base_sha, run_id = sys.argv[5:7]
+reason_file = Path(sys.argv[7])
+proposal_reasons = {"proposal-missing", "proposal-invalid", "proposal-detector-invalid",
+                    "proposal-binding-mismatch", "proposal-dispositions-invalid",
+                    "proposal-marker-missing", "proposal-marker-invalid",
+                    "proposal-control-mismatch"}
+reason = None
+if stage == "proposal" and exit_code != 0:
+    reason = "proposal-invalid"
+    if reason_file.is_file() and not reason_file.is_symlink() and reason_file.stat().st_size <= 128:
+        candidate = reason_file.read_text(encoding="utf-8", errors="replace").strip()
+        if candidate in proposal_reasons:
+            reason = candidate
 if (stage not in allowed or not 1 <= attempt <= 4
         or not 0 <= exit_code <= 255 or not 0 <= cleanup_exit <= 255
         or re.fullmatch(r"[0-9a-f]{40}", base_sha) is None
@@ -333,12 +358,14 @@ if (stage not in allowed or not 1 <= attempt <= 4
     raise SystemExit("invalid trusted verifier diagnostic metadata")
 report = {"schema_version": 1, "source_run_id": int(run_id), "base_sha": base_sha,
           "attempt": attempt, "stage": stage, "exit_code": exit_code,
-          "cleanup_exit_code": cleanup_exit, "passed": exit_code == cleanup_exit == 0}
+          "cleanup_exit_code": cleanup_exit, "passed": exit_code == cleanup_exit == 0,
+          "reason": reason}
 encoded = json.dumps(report, sort_keys=True, separators=(",", ":")) + "\n"
 destination = stage_file.with_suffix(".json")
 with destination.open("x", encoding="utf-8") as output:
     output.write(encoded)
 stage_file.unlink()
+reason_file.unlink(missing_ok=True)
 print(encoded, end="")
 if not report["passed"]:
     print(f"::warning::PKStack verification failed at {stage} (exit {exit_code}; cleanup {cleanup_exit})")

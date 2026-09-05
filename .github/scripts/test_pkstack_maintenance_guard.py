@@ -4274,6 +4274,22 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             with self.assertRaises(guard.GuardError):
                 guard.validate_ci_agent(path, self.policy)
 
+    def test_ci_agent_uses_supplied_control_action_not_an_absent_detector_count(self) -> None:
+        document = json.loads(
+            (ROOT / ".kiro/agents/pkstack-maintainer.json").read_text(encoding="utf-8")
+        )
+        detector = drift_detector_fixture()
+        self.assertNotIn("drift_count", detector)
+        self.assertNotIn("drift_count", document["prompt"])
+        required = "The immutable control plan action reconcile-source requires exactly one proposal"
+        self.assertIn(required, document["prompt"])
+        document["prompt"] = document["prompt"].replace(required, "Create no proposal")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "agent.json"
+            path.write_text(json.dumps(document), encoding="utf-8")
+            with self.assertRaises(guard.GuardError):
+                guard.validate_ci_agent(path, self.policy)
+
     def test_operational_skill_patch_builds_mandatory_exact_review_input(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -5046,7 +5062,11 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "leave every other drifting source unchanged for a later cadence",
             kiro_runner,
         )
-        self.assertIn("When detector drift_count is zero, create no proposal", kiro_runner)
+        self.assertIn(
+            "The immutable control plan action reconcile-source requires exactly one proposal",
+            kiro_runner,
+        )
+        self.assertNotIn("drift_count", kiro_runner)
         self.assertIn("--trust-tools=fs_read,fs_write,grep", kiro_runner)
         self.assertNotIn("--trust-tools=read,grep", kiro_runner)
         self.assertIn("env -u KIRO_API_KEY python3", kiro_runner)
@@ -5658,6 +5678,188 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 provenance.read_text(encoding="utf-8").count("pk-stack-upstream-review:"), 1
             )
             guard._remove_git_state(root, git_state)
+
+
+@unittest.skipUnless(
+    shutil.which("bash") and shutil.which("jq"), "requires bash and jq"
+)
+class ProposalCliContractTests(unittest.TestCase):
+    SENTINEL = "UNTRUSTED_PROPOSAL_SECRET_LIKE_VALUE_123"
+
+    def run_proposal_contract(
+        self, case: str = "valid", *, expected_head: str = "c" * 40
+    ) -> tuple[subprocess.CompletedProcess[str], str]:
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        detector = drift_detector_fixture(transition_count=1)
+        proposal = json.loads(json.dumps(proposal_fixture(detector)))
+        selected_source_id = proposal["source_id"]
+        detector_path = root / "detector.json"
+        detector_path.write_text(json.dumps(detector), encoding="utf-8")
+        proposal_path = root / ".pkstack-maintenance/proposal.json"
+        proposal_path.parent.mkdir()
+        ledger_path = root / "maintenance/upstream-reviews.json"
+        ledger_path.parent.mkdir()
+        ledger_path.write_text(
+            json.dumps(review_ledger_fixture(detector)), encoding="utf-8"
+        )
+
+        for source in detector["sources"]:
+            provenance = root / source["provenance_path"]
+            provenance.parent.mkdir(parents=True, exist_ok=True)
+            markers = accepted_marker_lines(detector, source_id=source["id"])
+            if source["id"] == selected_source_id and case != "missing_marker":
+                pending = pending_marker_line(detector, source_id=source["id"])
+                if case == "noncanonical_marker":
+                    pending = pending.replace('\":', '\": ', 1)
+                elif case == "nested_marker_json":
+                    pending = (
+                        "<!-- pk-stack-upstream-review: {\"source_id\":"
+                        + "[" * 1500
+                        + json.dumps(self.SENTINEL)
+                        + "]" * 1500
+                        + "} -->"
+                    )
+                    self.assertLessEqual(len(pending), 4096)
+                elif case == "wrong_marker_binding":
+                    prefix = "<!-- pk-stack-upstream-review: "
+                    marker = json.loads(pending[len(prefix) : -len(" -->")])
+                    marker["source_id"] = self.SENTINEL
+                    pending = review_marker_line(marker)
+                markers.append(pending)
+            provenance.write_text(
+                "# Provenance\n\n" + "\n".join(markers) + "\n", encoding="utf-8"
+            )
+
+        if case == "wrong_source":
+            proposal["source_id"] = self.SENTINEL
+        elif case == "wrong_prior":
+            proposal["prior"]["commit"] = "9" * 40
+        elif case == "wrong_new":
+            proposal["new"]["commit"] = "9" * 40
+        elif case == "wrong_digest":
+            proposal["inventory_sha256"] = "9" * 64
+        elif case == "missing_disposition":
+            proposal["dispositions"] = []
+        elif case == "invalid_disposition":
+            proposal["dispositions"][0]["disposition"] = self.SENTINEL
+        elif case == "invalid_rationale":
+            proposal["dispositions"][0]["rationale"] = self.SENTINEL + "\n"
+        elif case == "invalid_schema":
+            proposal["unexpected"] = self.SENTINEL
+        raw_proposal = json.dumps(proposal)
+        if case == "malformed":
+            raw_proposal = '{"source_id":'
+        elif case == "nested_proposal_json":
+            raw_proposal = (
+                '{"source_id":'
+                + "[" * 1500
+                + json.dumps(self.SENTINEL)
+                + "]" * 1500
+                + "}"
+            )
+        elif case == "oversized_integer_json":
+            raw_proposal = "{" + json.dumps(self.SENTINEL) + ":" + "9" * 5000 + "}"
+        elif case == "duplicate_key":
+            raw_proposal = (
+                raw_proposal[:-1]
+                + ", "
+                + json.dumps(self.SENTINEL)
+                + ": 0, "
+                + json.dumps(self.SENTINEL)
+                + ": 1}"
+            )
+        if case != "missing_file":
+            proposal_path.write_text(raw_proposal, encoding="utf-8")
+
+        output_path = root / "guard-output.json"
+        result = subprocess.run(
+            [
+                "bash",
+                "-o",
+                "pipefail",
+                "-c",
+                textwrap.dedent("""\
+                    set -euo pipefail
+                    "$1" -B "$2" --root "$3" --policy "$4" validate-proposal \\
+                      --detector "$5" --proposal "$6" --selected-source-id "$7" \\
+                      | tee "$9" \\
+                      | jq -e --arg source_id "$7" --arg expected_head "$8" \\
+                        '.ok == true and .source_id == $source_id and .expected_head == $expected_head'
+                """),
+                "proposal-cli-contract",
+                sys.executable,
+                str(GUARD_PATH),
+                str(root),
+                str(ROOT / ".github/pkstack-maintenance-policy.json"),
+                str(detector_path),
+                str(proposal_path),
+                selected_source_id,
+                expected_head,
+                str(output_path),
+            ],
+            cwd=root,
+            env={**os.environ, "PYTHONINTMAXSTRDIGITS": "4300"},
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        return result, output_path.read_text(encoding="utf-8")
+
+    def test_valid_proposal_and_canonical_marker_pass_real_cli_and_jq(self) -> None:
+        result, raw = self.run_proposal_contract()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "true\n")
+        self.assertEqual(result.stderr, "")
+        self.assertEqual(
+            json.loads(raw),
+            {
+                "ok": True,
+                "source_id": "cursor-pstack",
+                "expected_head": "c" * 40,
+                "disposition_count": 1,
+            },
+        )
+
+    def test_proposal_failures_emit_only_fixed_reason_codes(self) -> None:
+        cases = {
+            "missing_file": "proposal-missing",
+            "malformed": "proposal-invalid",
+            "nested_proposal_json": "proposal-invalid",
+            "oversized_integer_json": "proposal-invalid",
+            "invalid_schema": "proposal-invalid",
+            "duplicate_key": "proposal-invalid",
+            "wrong_source": "proposal-binding-mismatch",
+            "wrong_prior": "proposal-binding-mismatch",
+            "wrong_new": "proposal-binding-mismatch",
+            "wrong_digest": "proposal-binding-mismatch",
+            "missing_disposition": "proposal-dispositions-invalid",
+            "invalid_disposition": "proposal-dispositions-invalid",
+            "invalid_rationale": "proposal-dispositions-invalid",
+            "missing_marker": "proposal-marker-missing",
+            "noncanonical_marker": "proposal-marker-invalid",
+            "nested_marker_json": "proposal-marker-invalid",
+            "wrong_marker_binding": "proposal-marker-invalid",
+        }
+        for case, reason in cases.items():
+            with self.subTest(case=case):
+                result, raw = self.run_proposal_contract(case)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stderr, "")
+                self.assertEqual(result.stdout, "false\n")
+                self.assertNotIn(self.SENTINEL, raw + result.stdout + result.stderr)
+                self.assertNotIn("Traceback", raw + result.stdout + result.stderr)
+                self.assertEqual(json.loads(raw), {"ok": False, "reason": reason})
+
+    def test_jq_rejects_control_plan_expected_head_mismatch(self) -> None:
+        result, raw = self.run_proposal_contract(expected_head="f" * 40)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "false\n")
+        self.assertEqual(result.stderr, "")
+        self.assertTrue(json.loads(raw)["ok"])
+        self.assertEqual(json.loads(raw)["expected_head"], "c" * 40)
 
 
 if __name__ == "__main__":
