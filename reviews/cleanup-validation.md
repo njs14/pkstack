@@ -341,9 +341,9 @@ estimated account-wide counter, not exact task billing. No additional-credit
 purchase or separate provider API credential was used. The live updater gate
 remains unresolved; **0.3.0 was not tagged or released**.
 
-- IDE Power import is not UI-validated. The installed desktop driver lacks
-  macOS Accessibility and Screen Recording permission. The terminal campaign
-  used the documented Power-local fallback and did not bypass those permissions.
+- Native IDE Power import, setup, and generated-agent validation passed the
+  September 4 smoke test below. An IDE verified-goal repair loop was not run;
+  the recorded fail/repair/pass loops above are CLI evidence.
 - Kiro Web remains untested; Kiro Crew Nightly was not rerun in this cleanup.
 - Kiro owns the native planning behavior. This work does not claim native
   `/goal` support or restore v2-only commands in v3.
@@ -361,3 +361,71 @@ If the candidate fails a release gate, do not tag it. If a released cleanup
 regresses a core flow, use the prior v0.2.0 archive in a clean consumer and revert
 the cleanup through a reviewed PR. Do not overwrite user-modified installations
 or migrate old goal/schema-1 state implicitly.
+
+## Native IDE smoke test — September 4, 2026
+
+Kiro IDE **1.0.437** accepted the Power through **Powers → Add Custom Power →
+Import power from a folder**. The selected folder was
+`/private/tmp/pk-stack-cleanup.kOHcaP/powers/pk-stack`, not the repository root.
+The UI confirmed `Power "pk-stack" installed successfully.` This validates the
+current `plugin.json` package format without adding a legacy `POWER.md`.
+The imported source tree was `5fe30be3bad9cc34bf6f26c0b45b5164bd0d8758`,
+identical to main commit `1c5f9df6b98bb7219e378278b2510ff2ac900a07`.
+
+The test used a new empty workspace, `/private/tmp/pk-stack-ide-smoke.Is5Xlm`,
+with **GPT 5.6 Luna / Low**. The Default agent activated the installed Power,
+read `setup-pk-stack`, located its installed script without being given that
+path, and executed this no-write preview:
+
+```sh
+python3 /Users/noahsutter/.kiro/powers/installed/pk-stack/skills/setup-pk-stack/scripts/setup_pk_stack.py --root . --dry-run --output json
+```
+
+The result was `ok: true`, with 168 proposed paths and no conflicts or pending
+updates. An independent filesystem check confirmed the workspace remained
+empty. The installed shim's SHA-256 matched the source shim. After an explicit
+scratch-only setup instruction, the IDE agent ran:
+
+```sh
+python3 /Users/noahsutter/.kiro/powers/installed/pk-stack/skills/setup-pk-stack/scripts/setup_pk_stack.py --root /private/tmp/pk-stack-ide-smoke.Is5Xlm --output json
+./.pk-stack/bin/projectctl doctor --output json
+./.pk-stack/bin/projectctl feature validate --output json
+./.pk-stack/bin/projectctl knowledge validate --output json
+```
+
+Setup succeeded without conflicts or pending updates. In a fresh chat, the
+IDE agent selector listed all four generated workspace agents. Selecting
+`pk-stack` and sending a read-only validation request loaded its orientation
+hook and steering. Each of these commands required a separate **Allow**:
+
+```sh
+.pk-stack/bin/projectctl doctor --output json
+.pk-stack/bin/projectctl feature validate --output json
+.pk-stack/bin/projectctl knowledge validate --output json
+```
+
+Both validation turns reported exit 0 for all three commands:
+
+| Check | Observed result |
+| --- | --- |
+| Doctor | 81 passed; no failures or warnings; runtime and receipt integrity passed |
+| Feature map | `ok: true`; zero contracts, errors, or warnings in the empty consumer |
+| Knowledge | `canonical-okn`; `okn` 0.13.0, OKF 0.2; all 10 checks passed; no errors or warnings |
+
+Independent file inspection confirmed the executable runner, managed receipt,
+workspace skills, steering, and four agent profiles. The primary profile has
+no model/effort override, `includeMcpJson: false`, and `includePowers: false`.
+Its controller commands and ordinary writes are `ask`; managed assets have
+write denials. This test observed the command approval boundary, not every
+denial rule. Autopilot was off for each submitted test turn. No nested Kiro
+chat, optional-tool installation, or billing change was performed.
+
+The account dashboard increased from **294.32 to 294.49 of 1,000 credits**
+(**0.17** account-wide); individual turn estimates were 0.05, 0.06, and 0.01.
+The account counter is not exact task billing. Overages remained disabled.
+
+Desktop capture and accessibility state intermittently disagreed; refreshing
+the window layout restored consistent controls. No PK-Stack code change was
+needed for this smoke test. Native Spec/Quick Spec choices were visible, but
+their IDE execution and the IDE verified-goal loop remain untested. This
+result does not clear the paused updater's proposal-stage release blocker.

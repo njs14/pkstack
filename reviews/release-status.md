@@ -51,9 +51,14 @@ hands-off upstream updates have not passed live acceptance.
 - The private PR passes its checks before merge; the release tag resolves to
   the reviewed main commit.
 
-IDE Power import currently lacks a completed UI test. Kiro Web remains
-untested; Crew is an optional compatibility target. These limits must stay
-visible in the release report, not be inferred away from CLI results.
+Native Power import, workspace setup, and generated-agent selection passed
+the September 4 Kiro IDE 1.0.437 smoke test with Luna / Low. All three
+controller validations passed under the selected `pk-stack` profile, with
+separate command approvals. The [cleanup report](cleanup-validation.md#native-ide-smoke-test--september-4-2026)
+records commands, usage, and scope. The IDE verified-goal and Spec/Quick Spec
+execution paths remain untested; CLI results do not prove them. Kiro Web is
+untested, and Crew remains an optional compatibility target. The paused
+updater's proposal-stage issue still blocks the release.
 
 ## Historical evidence
 
