@@ -590,8 +590,8 @@ def _write_start_preview_diagnostic(
                 "present": "originalContent" in preview,
                 "type": _diagnostic_type(original),
                 "matches_expected": (
-                    original == f"PROTECTED_BASELINE {relative_path}\n"
-                    if denied else "originalContent" not in preview
+                    "originalContent" not in preview
+                    or (denied and original == f"PROTECTED_BASELINE {relative_path}\n")
                 ),
                 "is_empty": original == "",
             },
@@ -848,11 +848,14 @@ def _validate_write_group(
         "file": relative_path,
         "modifiedContent": expected_text,
     }
-    if denied:
+    start_preview = start_kiro.get("preview")
+    # Kiro 2.21.1 can omit originalContent on denied starts; if supplied, it must
+    # still identify the exact protected baseline as in earlier stream shapes.
+    if denied and isinstance(start_preview, dict) and "originalContent" in start_preview:
         expected_start_preview["originalContent"] = f"PROTECTED_BASELINE {relative_path}\n"
-    if start_kiro.get("preview") != expected_start_preview:
+    if start_preview != expected_start_preview:
         diagnostic = _write_start_preview_diagnostic(
-            start_kiro.get("preview"),
+            start_preview,
             workspace=workspace,
             relative_path=relative_path,
             expected_text=expected_text,

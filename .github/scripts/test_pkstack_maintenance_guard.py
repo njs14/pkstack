@@ -2971,6 +2971,26 @@ class KiroPermissionStreamTests(unittest.TestCase):
             self.assertEqual(denied["user_tool_calls"], 1)
             self.assertEqual(denied["resource"], resource)
 
+    def test_kiro_2_21_1_denied_start_without_original_content_validates(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            for resource in permission_stream_guard.DENIED_RESOURCES:
+                with self.subTest(resource=resource):
+                    events = self.complete_events(workspace, denied_resource=resource)
+                    preview = events[2]["data"]["update"]["_meta"]["kiro"]["preview"]
+                    preview.pop("originalContent")
+                    self.assertEqual(preview, {
+                        "file": resource,
+                        "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+                    })
+                    self.write_stream(stream, events)
+                    denied = permission_stream_guard.validate_denied_invocation(
+                        stream, stderr, return_code=0, api_key="test-secret",
+                        workspace=workspace, agent_path=agent, resource=resource,
+                    )
+                    self.assertEqual(denied["user_tool_calls"], 1)
+                    self.assertEqual(denied["resource"], resource)
+
     @staticmethod
     def read_start_diagnostic_from_error(
         error: permission_stream_guard.StreamError,
@@ -3183,7 +3203,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 "originalContent": f"PROTECTED_BASELINE {resource}\n",
             }
             cases = [
-                ("missing_original", {key: value for key, value in valid.items() if key != "originalContent"}),
+                ("wrong_original", {**valid, "originalContent": "UNTRUSTED_PREVIEW"}),
                 ("empty_original", {**valid, "originalContent": ""}),
                 ("null_original", {**valid, "originalContent": None}),
                 ("dot_relative", {**valid, "file": f"./{resource}"}),
@@ -3212,13 +3232,10 @@ class KiroPermissionStreamTests(unittest.TestCase):
                         self.assertEqual(facts, {"type": case})
                     elif case.endswith("original"):
                         original = facts["original_content"]
-                        self.assertEqual(original["present"], case != "missing_original")
+                        self.assertTrue(original["present"])
                         self.assertEqual(original["is_empty"], case == "empty_original")
                         self.assertFalse(original["matches_expected"])
-                        self.assertEqual(
-                            facts["expected_keys_present"]["originalContent"],
-                            case != "missing_original",
-                        )
+                        self.assertTrue(facts["expected_keys_present"]["originalContent"])
                     else:
                         self.assertEqual(facts["file"]["classification"], case)
 
