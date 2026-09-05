@@ -2,11 +2,9 @@ name: PKStack CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 permissions: {}
 
@@ -14,14 +12,18 @@ concurrency:
   group: pkstack-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
 jobs:
-  deterministic:
+  classify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 5
     permissions:
       contents: read
-    env:
-      PYTHONDONTWRITEBYTECODE: "1"
+    outputs:
+      profile: ${{ steps.plan.outputs.profile }}
+      browser_profile: ${{ steps.plan.outputs.browser_profile }}
     steps:
       - name: Harden read-only CI networking
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
@@ -35,16 +37,325 @@ jobs:
             pypi.org:443
             release-assets.githubusercontent.com:443
             results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
       - name: Check out source without persisted credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 1
+          fetch-depth: 0
+      - name: Select explicit coverage profile
+        id: plan
+        env:
+          CHECK_EVENT: ${{ github.event_name }}
+          CHECK_BASE: ${{ github.event.pull_request.base.sha }}
+          CHECK_HEAD: ${{ github.sha }}
+        run: |
+          python3 -B .github/scripts/pkstack_checks.py classify \
+            --event "$CHECK_EVENT" --base "$CHECK_BASE" --head "$CHECK_HEAD" \
+            --output "$RUNNER_TEMP/pkstack-ci/plan/plan.json"
+      - name: Save immutable execution plan
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/plan/plan.json
+          if-no-files-found: error
+          retention-days: 14
+  fast:
+    needs: classify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Harden read-only CI networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Download execution plan
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pkstack-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/plan
       - name: Install uv
+        if: needs.classify.outputs.profile == 'normal'
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
           cache-dependency-glob: powers/pkstack/uv.lock
+      - name: Materialize the locked Power environment
+        if: needs.classify.outputs.profile == 'normal'
+        run: uv sync --quiet --locked --all-groups --project powers/pkstack
+      - name: Run shared fast checks
+        env:
+          PKSTACK_DIAGNOSTICS: ${{ runner.temp }}/pkstack-ci/diagnostics
+          CHECK_LANE: fast
+        run: |
+          python3 -B .github/scripts/pkstack_checks.py run \
+            --plan "$RUNNER_TEMP/pkstack-ci/plan/plan.json" --lane "$CHECK_LANE" \
+            --receipt "$RUNNER_TEMP/pkstack-ci/receipts/$CHECK_LANE.json"
+      - name: Retain fast receipts and diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-receipt-fast-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/receipts/*.json
+          if-no-files-found: error
+          retention-days: 14
+  browser:
+    needs: classify
+    if: needs.classify.outputs.profile == 'normal'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Harden read-only CI networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Download execution plan
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pkstack-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/plan
+      - name: Install uv
+        if: needs.classify.outputs.profile == 'normal'
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: powers/pkstack/uv.lock
+      - name: Materialize the locked Power environment
+        if: needs.classify.outputs.profile == 'normal'
+        run: uv sync --quiet --locked --all-groups --project powers/pkstack
+      - name: Require browser runtime
+        run: |
+          set -euo pipefail
+          node --version
+          google-chrome --version
+      - name: Run shared browser checks
+        env:
+          PKSTACK_DIAGNOSTICS: ${{ runner.temp }}/pkstack-ci/diagnostics
+          CHECK_LANE: browser
+        run: |
+          python3 -B .github/scripts/pkstack_checks.py run \
+            --plan "$RUNNER_TEMP/pkstack-ci/plan/plan.json" --lane "$CHECK_LANE" \
+            --receipt "$RUNNER_TEMP/pkstack-ci/receipts/$CHECK_LANE.json"
+      - name: Retain browser receipts and diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-receipt-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/receipts/*.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Retain failed browser screenshots and fixture diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-browser-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/diagnostics/browser
+          if-no-files-found: warn
+          retention-days: 14
+  package:
+    needs: classify
+    if: needs.classify.outputs.profile == 'normal'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Harden read-only CI networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Download execution plan
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pkstack-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/plan
+      - name: Install uv
+        if: needs.classify.outputs.profile == 'normal'
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: powers/pkstack/uv.lock
+      - name: Materialize the locked Power environment
+        if: needs.classify.outputs.profile == 'normal'
+        run: uv sync --quiet --locked --all-groups --project powers/pkstack
+      - name: Run shared package checks
+        env:
+          PKSTACK_DIAGNOSTICS: ${{ runner.temp }}/pkstack-ci/diagnostics
+          CHECK_LANE: package
+        run: |
+          python3 -B .github/scripts/pkstack_checks.py run \
+            --plan "$RUNNER_TEMP/pkstack-ci/plan/plan.json" --lane "$CHECK_LANE" \
+            --receipt "$RUNNER_TEMP/pkstack-ci/receipts/$CHECK_LANE.json"
+      - name: Build and validate reproducible main artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          python3 -B .github/scripts/pkstack_ci_package.py build \
+            --repo-root . --output-dir "$RUNNER_TEMP/pkstack-release-package" \
+            --repository "$GITHUB_REPOSITORY" --repository-id "$GITHUB_REPOSITORY_ID" \
+            --sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
+      - name: Retain immutable release package
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-release-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-release-package/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+      - name: Retain package receipts and diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-receipt-package-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/receipts/*.json
+          if-no-files-found: error
+          retention-days: 14
+  core:
+    needs: classify
+    if: needs.classify.outputs.profile == 'normal'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    steps:
+      - name: Harden read-only CI networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Download execution plan
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pkstack-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/plan
+      - name: Install uv
+        if: needs.classify.outputs.profile == 'normal'
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: powers/pkstack/uv.lock
+      - name: Materialize the locked Power environment
+        if: needs.classify.outputs.profile == 'normal'
+        run: uv sync --quiet --locked --all-groups --project powers/pkstack
+      - name: Run shared core checks
+        env:
+          PKSTACK_DIAGNOSTICS: ${{ runner.temp }}/pkstack-ci/diagnostics
+          CHECK_LANE: core-${{ matrix.shard }}
+        run: |
+          python3 -B .github/scripts/pkstack_checks.py run \
+            --plan "$RUNNER_TEMP/pkstack-ci/plan/plan.json" --lane "$CHECK_LANE" \
+            --receipt "$RUNNER_TEMP/pkstack-ci/receipts/$CHECK_LANE.json"
+      - name: Retain core receipts and diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-receipt-core-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/receipts/*.json
+          if-no-files-found: error
+          retention-days: 14
+  policy:
+    needs: classify
+    if: needs.classify.outputs.profile == 'normal'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Harden read-only CI networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Download execution plan
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pkstack-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/plan
+      - name: Install uv
+        if: needs.classify.outputs.profile == 'normal'
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: powers/pkstack/uv.lock
+      - name: Materialize the locked Power environment
+        if: needs.classify.outputs.profile == 'normal'
+        run: uv sync --quiet --locked --all-groups --project powers/pkstack
       - name: Install checksum-pinned static analyzers
         env:
           ACTIONLINT_VERSION: 1.7.7
@@ -75,51 +386,71 @@ jobs:
           export PATH="$STATIC_TOOLS/bin:$PATH"
           actionlint -version
           shellcheck --version | sed -n '1,4p'
-      - name: Run workflow and shell-script static checks
+      - name: Run shared policy checks
+        env:
+          PKSTACK_DIAGNOSTICS: ${{ runner.temp }}/pkstack-ci/diagnostics
+          CHECK_LANE: policy
         run: |
-          set -euo pipefail
-          actionlint .github/workflows/*.yml
-          shellcheck .github/scripts/*.sh
-      - name: Run repository policy and stream regressions
+          python3 -B .github/scripts/pkstack_checks.py run \
+            --plan "$RUNNER_TEMP/pkstack-ci/plan/plan.json" --lane "$CHECK_LANE" \
+            --receipt "$RUNNER_TEMP/pkstack-ci/receipts/$CHECK_LANE.json"
+      - name: Retain policy receipts and diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-receipt-policy-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/receipts/*.json
+          if-no-files-found: error
+          retention-days: 14
+  deterministic:
+    if: always()
+    needs: [classify, fast, browser, package, core, policy]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Harden read-only CI networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+      - name: Check out source without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Download execution plan
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pkstack-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/plan
+      - name: Download execution receipts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: pkstack-receipt-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/receipts
+          merge-multiple: true
+      - name: Require complete disjoint passing execution
+        env:
+          CHECK_NEEDS: ${{ toJSON(needs) }}
         run: |
-          set -euo pipefail
-          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
-          node --test .github/scripts/test_pkstack_pr_policy.js
-      - name: Materialize the locked Power environment
-        run: uv sync --quiet --locked --all-groups --project powers/pkstack
-      - name: Run full deterministic Power gates
-        working-directory: powers/pkstack
-        run: |
-          set -euo pipefail
-          uv lock --check
-          uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-          uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-          uv run --frozen ty check
-          uv run --frozen pytest -q
-      - name: Run version, documentation, and curated bundle checks
-        run: |
-          set -euo pipefail
-          ./.pkstack/bin/projectctl version --output json
-          ./.pkstack/bin/projectctl feature validate --output json
-          if command -v openknowledge >/dev/null 2>&1; then
-            ./.pkstack/bin/projectctl knowledge validate --require-okn --output json
-          else
-            ./.pkstack/bin/projectctl knowledge validate --output json
-          fi
-          python3 - <<'PY'
-          import json
-          import re
-          import tomllib
-          from pathlib import Path
-
-          power = Path("powers/pkstack")
-          pyproject = tomllib.loads((power / "pyproject.toml").read_text(encoding="utf-8"))
-          manifest = json.loads((power / "plugin.json").read_text(encoding="utf-8"))
-          source = (power / "src/pkstack/__init__.py").read_text(encoding="utf-8")
-          version = pyproject["project"]["version"]
-          if not re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version) or manifest.get("version") != version:
-              raise SystemExit("Power package and plugin versions are inconsistent or invalid")
-          match = re.search(r'^__version__ = "([^"]+)"$', source, re.MULTILINE)
-          if match is None or match.group(1) != version:
-              raise SystemExit("Power runtime version does not match its package metadata")
-          PY
+          python3 -B .github/scripts/pkstack_checks.py aggregate \
+            --plan "$RUNNER_TEMP/pkstack-ci/plan/plan.json" --receipts "$RUNNER_TEMP/pkstack-ci/receipts" \
+            --needs "$CHECK_NEEDS" --output "$RUNNER_TEMP/pkstack-ci/summary/summary.json"
+      - name: Retain timing and aggregate evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pkstack-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pkstack-ci/summary/summary.json
+          if-no-files-found: warn
+          retention-days: 30

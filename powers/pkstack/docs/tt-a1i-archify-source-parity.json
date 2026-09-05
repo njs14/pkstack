@@ -89,7 +89,7 @@
         "size": 33390,
         "type": "blob"
       },
-      "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
+      "rationale": "Reviewed upstream identity is retained with the documented PKStack CDP lifecycle and timeout-diagnostic adaptation; the original bytes are reconstructed by reversing the provenance patch."
     },
     {
       "current": {

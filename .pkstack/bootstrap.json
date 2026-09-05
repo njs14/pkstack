@@ -13,7 +13,7 @@
     ".kiro/skills/archify/upstream/bin/archify.mjs": "304fc9aa27d069b724dfd57f8df50e3aac574760199b20652dad987b3ca20594",
     ".kiro/skills/archify/upstream/bin/open-artifact.mjs": "add1722186683c12770c575585bbb8774919c15b87361e10d2fe834623223159",
     ".kiro/skills/archify/upstream/bin/preview.mjs": "6d41e491d42070c05b5e278548714da1fcef6e6adfd84a0391ab2bf12f47373c",
-    ".kiro/skills/archify/upstream/bin/visual-check.mjs": "8fa8c6f233f3598f4f22e58c48a4de6f45b3b072ad8e7aee4731c49b4bfbdc52",
+    ".kiro/skills/archify/upstream/bin/visual-check.mjs": "9ee9fc57a1f2043fc476527e9c32c8ef9baaab70d6417cb154f6d73d3b15582b",
     ".kiro/skills/archify/upstream/brand-marks/README.md": "8b771a16322ce9ea47fdc00b9935e33adf0f3af608f2d735235443e15ef622e2",
     ".kiro/skills/archify/upstream/brand-marks/catalog.json": "e1a6c555cbf8ea36fb8100a4a25824e7ab87bebe9871e450ba05b6dea3b036d6",
     ".kiro/skills/archify/upstream/delta/architecture-delta.mjs": "f75aa96a22cdd640762f6f2cebdd1b89188d7d2f2cf354a764de1063c95b78ae",

@@ -43,11 +43,11 @@
       "source_path": "archify/bin/preview.mjs"
     },
     {
-      "handling": "byte-exact-runtime",
+      "handling": "adapted-runtime",
       "mode": "100644",
       "path": "upstream/bin/visual-check.mjs",
-      "sha256": "8fa8c6f233f3598f4f22e58c48a4de6f45b3b072ad8e7aee4731c49b4bfbdc52",
-      "size": 33390,
+      "sha256": "9ee9fc57a1f2043fc476527e9c32c8ef9baaab70d6417cb154f6d73d3b15582b",
+      "size": 34145,
       "source_path": "archify/bin/visual-check.mjs"
     },
     {
@@ -574,7 +574,7 @@
   "schema_version": 1,
   "skill": "archify",
   "summary": {
-    "byte_count": 2241359,
+    "byte_count": 2242114,
     "file_count": 71
   }
 }
