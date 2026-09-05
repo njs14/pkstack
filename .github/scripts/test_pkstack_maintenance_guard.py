@@ -96,21 +96,21 @@ CANDIDATE_REVIEW_ENV_BLOCKS = {
         "          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}\n"
         "          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}\n"
         "          HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}\n"
-        "          CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}\n"
-        "          PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}\n"
+        "          CONTENT_SHA256: ${{ needs.candidate_prepare.outputs.review_content_sha256 }}\n"
+        "          PATCH_SHA256: ${{ needs.candidate_prepare.outputs.review_patch_sha256 }}\n"
     ),
     "Validate exact no-tool approval and publish only bound hashes": (
         "        env:\n"
         "          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}\n"
         "          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}\n"
         "          HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}\n"
-        "          CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}\n"
-        "          PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}\n"
+        "          CONTENT_SHA256: ${{ needs.candidate_prepare.outputs.review_content_sha256 }}\n"
+        "          PATCH_SHA256: ${{ needs.candidate_prepare.outputs.review_patch_sha256 }}\n"
         "          REVIEW_RETURN_CODE: ${{ steps.invoke.outputs.return_code }}\n"
         "          REVIEW_BUNDLE: ${{ runner.temp }}/pkstack-peer-review-workspace/.pkstack-ci/review-input.json\n"
-        "          SELECTED_SOURCE_ID: ${{ needs.candidate_tests.outputs.selected_source_id }}\n"
-        "          SOURCE_SUBTREE_SHA: ${{ needs.candidate_tests.outputs.source_subtree_sha }}\n"
-        "          SOURCE_COMMIT: ${{ needs.candidate_tests.outputs.source_commit }}\n"
+        "          SELECTED_SOURCE_ID: ${{ needs.candidate_prepare.outputs.selected_source_id }}\n"
+        "          SOURCE_SUBTREE_SHA: ${{ needs.candidate_prepare.outputs.source_subtree_sha }}\n"
+        "          SOURCE_COMMIT: ${{ needs.candidate_prepare.outputs.source_commit }}\n"
         "          SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}\n"
     ),
 }
@@ -875,7 +875,7 @@ def validate_candidate_workflow_secret_contract(source: str) -> None:
         )
 
     job_ranges = _workflow_job_ranges(lines)
-    for job in ("candidate_tests", "kiro_peer_review"):
+    for job in ("candidate_prepare", "candidate_tests", "kiro_peer_review"):
         if job not in job_ranges:
             raise WorkflowContractError(f"candidate workflow must contain {job!r} job")
 
@@ -4727,6 +4727,27 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.policy,
         )
 
+    def test_candidate_review_overlaps_tests_but_publication_waits(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
+        lines = _yaml_structural_lines(workflow)
+        jobs = _workflow_job_ranges(lines)
+        def block(name: str) -> str:
+            start, end = jobs[name]
+            return "\n".join(line.raw for line in lines[start:end])
+        for name in ("candidate_tests", "kiro_peer_review"):
+            self.assertIn("    needs: [resolve, candidate_prepare]", block(name))
+        for name in ("merge", "record_rejection", "cleanup_failed_candidate"):
+            dependency_line = next(line for line in block(name).splitlines()
+                                   if line.startswith("    needs:"))
+            for required in ("candidate_prepare", "base_tests", "candidate_tests", "kiro_peer_review"):
+                self.assertIn(required, dependency_line)
+        self.assertIn("needs.candidate_tests.result == 'success'", block("record_rejection"))
+        self.assertIn("needs.candidate_tests.result != 'success'", block("cleanup_failed_candidate"))
+        self.assertNotIn("secrets.", block("candidate_prepare"))
+        self.assertNotIn("github.token", block("candidate_tests"))
+        self.assertNotIn("pytest", block("candidate_prepare"))
+        self.assertIn("validate-serialized-acceptance", block("candidate_prepare"))
+
     def test_trusted_snapshot_archives_include_exact_required_prefixes(self) -> None:
         for filename, step_name in (
             ("pk-stack-upstream-maintenance-kiro.yml", "Materialize locked environments and trusted scripts"),
@@ -4735,17 +4756,16 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             with self.subTest(workflow=filename):
                 workflow = (ROOT / ".github/workflows" / filename).read_text()
                 marker = f"      - name: {step_name}\n"
-                self.assertEqual(workflow.count(marker), 1)
-                step = workflow.split(marker, 1)[1].split("\n      - name: ", 1)[0]
-                self.assertIn("validate-trusted-snapshot", step)
-                archives = re.findall(
-                    r'(?ms)^          git archive "\$BASE_SHA" \\\n(.*?)'
-                    r'^            \| tar -x -C "\$TRUSTED_ROOT"$',
-                    step,
-                )
-                self.assertEqual(len(archives), 1)
-                paths = shlex.split(archives[0].replace("\\\n", " "))
-                self.assertCountEqual(paths, guard.TRUSTED_SNAPSHOT_PREFIXES)
+                expected = 2 if filename == "pk-stack-upstream-candidate.yml" else 1
+                self.assertEqual(workflow.count(marker), expected)
+                for section in workflow.split(marker)[1:]:
+                    step = section.split("\n      - name: ", 1)[0]
+                    self.assertIn("validate-trusted-snapshot", step)
+                    archive = step.split('git archive "$BASE_SHA"', 1)[1].split(
+                        '| tar -x -C "$TRUSTED_ROOT"', 1
+                    )[0]
+                    paths = shlex.split(archive.replace("\\\n", " "))
+                    self.assertCountEqual(paths, guard.TRUSTED_SNAPSHOT_PREFIXES)
 
     def test_trusted_inventory_preflight_leaves_snapshot_unchanged(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
@@ -4762,7 +4782,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             following = workflow.split(command, 1)[1].split('chmod -R a-w "$TRUSTED_ROOT"', 1)[0]
             self.assertIn("validate-trusted-snapshot", following)
         candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
-        self.assertIn('python3 -B "$TRUSTED_ROOT/.github/scripts/test_pkstack_maintenance_guard.py"', candidate)
+        self.assertIn("python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'", candidate)
 
         with tempfile.TemporaryDirectory() as directory:
             snapshot = Path(directory) / "trusted"

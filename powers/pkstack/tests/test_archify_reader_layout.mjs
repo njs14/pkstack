@@ -10,6 +10,8 @@ const tests = path.dirname(fileURLToPath(import.meta.url));
 const runtime = path.resolve(tests, '../skills/archify/upstream');
 const output = path.resolve(process.argv[2]);
 const source = path.join(tests, 'fixtures/archify-account-request.sequence.json');
+const profile = process.env.PKSTACK_BROWSER_PROFILE ?? 'full';
+assert.ok(['smoke', 'full'].includes(profile), `Unknown PKSTACK_BROWSER_PROFILE: ${profile}`);
 const chrome = findChrome();
 if (!chrome) {
   console.log('Chrome unavailable; set ARCHIFY_CHROME to run the Archify browser regression.');
@@ -39,9 +41,9 @@ async function evaluate(expression) {
   return response.result.value;
 }
 async function inspect(artifactPath, width, height, theme, name) {
-  const metrics = await browser.inspect({ artifactPath, width, height, theme,
-    screenshotPath: path.join(output, `${name}-${width}x${height}-${theme}.png`) });
+  const metrics = await browser.inspect({ artifactPath, width, height, theme });
   observations.push({ name, width, height, theme, ...metrics });
+  assert.equal(metrics.resolvedTheme, theme);
   assert.ok(metrics.scrollWidth <= width, JSON.stringify(metrics));
   const toolbar = await evaluate(`Array.from(document.querySelectorAll('.toolbar > button, .toolbar > div > button'))
     .filter(function (button) { return button.getBoundingClientRect().width > 0; })
@@ -94,25 +96,31 @@ async function download(format, directory) {
 
 try {
   session = await browser.sessionPromise;
-  for (const { width, height } of VISUAL_CHECK_VIEWPORTS) {
-    for (const theme of ['light', 'dark']) await inspect(artifact, width, height, theme, 'account');
-  }
-  for (const theme of ['light', 'dark']) {
-    await inspect(artifact, 390, 844, theme, 'mobile');
-    await inspect(artifact, 720, 900, theme, 'narrow');
-  }
-  // A valid wide variant exercises the unchanged wide-reader floor and path.
-  const wide = JSON.parse(fs.readFileSync(source, 'utf8'));
-  wide.meta.viewBox[0] = 1000;
-  const wideSource = path.join(output, 'wide.json');
-  fs.writeFileSync(wideSource, JSON.stringify(wide));
-  const wideArtifact = path.join(output, 'wide.html');
-  deliver(wideSource, wideArtifact);
-  for (const theme of ['light', 'dark']) {
-    const metrics = await inspect(wideArtifact, 1440, 900, theme, 'wide');
-    assert.ok(metrics.readerWidth >= 960);
+  if (profile === 'full') {
+    for (const { width, height } of VISUAL_CHECK_VIEWPORTS) {
+      for (const theme of ['light', 'dark']) await inspect(artifact, width, height, theme, 'account');
+    }
+    for (const theme of ['light', 'dark']) {
+      await inspect(artifact, 390, 844, theme, 'mobile');
+      await inspect(artifact, 720, 900, theme, 'narrow');
+    }
+    // A valid wide variant exercises the unchanged wide-reader floor and path.
+    const wide = JSON.parse(fs.readFileSync(source, 'utf8'));
+    wide.meta.viewBox[0] = 1000;
+    const wideSource = path.join(output, 'wide.json');
+    fs.writeFileSync(wideSource, JSON.stringify(wide));
+    const wideArtifact = path.join(output, 'wide.html');
+    deliver(wideSource, wideArtifact);
+    for (const theme of ['light', 'dark']) {
+      const metrics = await inspect(wideArtifact, 1440, 900, theme, 'wide');
+      assert.ok(metrics.readerWidth >= 960);
+    }
+  } else {
+    await inspect(artifact, 390, 844, 'light', 'mobile');
+    await inspect(artifact, 1440, 900, 'dark', 'account');
   }
 
+  // End layout checks on the desktop light page used for interaction and export.
   await inspect(artifact, 1440, 900, 'light', 'interaction');
   const geometry = await evaluate(`(function () {
     function box(node) { var b = node.getBBox(); return { x:b.x, y:b.y, width:b.width, height:b.height }; }
@@ -144,7 +152,8 @@ try {
   assert.ok(panned.x !== zoomed.camera.x || panned.y !== zoomed.camera.y, JSON.stringify({ zoomed, panned }));
 
   const exports = [];
-  for (const format of ['svg', 'png', 'jpeg', 'webp', 'share-card', 'webm']) {
+  const formats = profile === 'full' ? ['svg', 'png', 'jpeg', 'webp', 'share-card', 'webm'] : ['svg', 'png'];
+  for (const format of formats) {
     exports.push(await download(format, path.join(output, `export-${format}`)));
   }
   assert.equal(exports.find((item) => item.format === 'svg').sha256, baselineSvg.sha256,
@@ -156,9 +165,11 @@ try {
   const png = fs.readFileSync(exports.find((item) => item.format === 'png').file);
   assert.equal(png.readUInt32BE(16), 760 * 4);
   assert.equal(png.readUInt32BE(20), 620 * 4);
-  const share = fs.readFileSync(exports.find((item) => item.format === 'share-card').file);
-  assert.equal(share.readUInt32BE(16), 1200);
-  assert.equal(share.readUInt32BE(20), 630);
+  if (profile === 'full') {
+    const share = fs.readFileSync(exports.find((item) => item.format === 'share-card').file);
+    assert.equal(share.readUInt32BE(16), 1200);
+    assert.equal(share.readUInt32BE(20), 630);
+  }
   const reset = await evaluate(`(function () {
     document.querySelector('[data-view="reset"]').click();
     return Archify.view.state();
@@ -167,9 +178,33 @@ try {
   assert.equal(digest(source), sourceHash);
   assert.equal(digest(artifact), artifactHash, 'Browser checks mutated the delivered HTML');
   fs.writeFileSync(path.join(output, 'browser-evidence.json'), JSON.stringify({
-    sourceHash, artifactHash, geometry, zoomed: zoomed.camera, panned, reset, observations, exports,
+    profile, sourceHash, artifactHash, geometry, baselineSvg, zoomed: zoomed.camera, panned, reset, observations, exports,
   }, null, 2) + '\n');
-  console.log(JSON.stringify({ ok: true, viewports: observations.length, exports: exports.map((item) => item.format), evidence: output }));
+  console.log(JSON.stringify({ ok: true, profile, viewports: observations.length, exports: exports.map((item) => item.format), evidence: output }));
+} catch (error) {
+  const diagnostics = {
+    profile, chrome, node: process.version,
+    uid: typeof process.getuid === 'function' ? process.getuid() : null,
+    args: browser.child.spawnargs,
+    process: browser.cdp.failureDetails(),
+    pipes: browser.child.stdio.slice(3, 5).map((pipe) => ({
+      destroyed: pipe.destroyed, readableEnded: pipe.readableEnded, writableEnded: pipe.writableEnded,
+    })),
+    error: error.message,
+  };
+  if (session && !browser.cdp.terminalError) {
+    try {
+      const capture = await browser.cdp.send('Page.captureScreenshot', {
+        format: 'png', fromSurface: true, captureBeyondViewport: false,
+      }, session, 2000);
+      if (capture.data) fs.writeFileSync(path.join(output, 'failure.png'), Buffer.from(capture.data, 'base64'));
+    } catch (captureError) {
+      diagnostics.screenshotError = captureError.message;
+    }
+  }
+  fs.writeFileSync(path.join(output, 'browser-failure.json'), JSON.stringify(diagnostics, null, 2) + '\n');
+  console.error(JSON.stringify(diagnostics));
+  throw error;
 } finally {
   await browser.close();
 }

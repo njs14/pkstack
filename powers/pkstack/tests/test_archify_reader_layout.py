@@ -97,6 +97,8 @@ def test_archify_keeps_a_native_authored_caption_with_its_band(
 
 def test_archify_reader_layout_and_exports(tmp_path: Path) -> None:
     """Exercise the vendored viewer in a fresh browser against the release repro."""
+    profile = os.environ.get("PKSTACK_BROWSER_PROFILE", "full")
+    assert profile in {"smoke", "full"}, f"Unknown PKSTACK_BROWSER_PROFILE: {profile}"
     node = shutil.which("node")
     if node is None:
         pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
@@ -110,6 +112,13 @@ def test_archify_reader_layout_and_exports(tmp_path: Path) -> None:
     if result.returncode == 77:
         pytest.skip(result.stdout.strip())  # ty: ignore[too-many-positional-arguments]
     assert result.returncode == 0, result.stdout + result.stderr
+    receipt = json.loads(result.stdout)
+    assert receipt["profile"] == profile
+    if profile == "smoke":
+        assert receipt["viewports"] == 3
+        assert receipt["exports"] == ["svg", "png"]
+    else:
+        assert receipt["exports"] == ["svg", "png", "jpeg", "webp", "share-card", "webm"]
 
 
 def test_archify_reader_closes_browser_after_startup_rejection(tmp_path: Path) -> None:

@@ -2,7 +2,7 @@
 
 PKStack retains the reviewed upstream source identity separately from its local
 runtime bytes. The Kiro wrapper is adapted, and the bundled runtime is
-byte-exact upstream except for the two documented local layout patches below.
+byte-exact upstream except for the three documented local runtime patches below.
 Tests, rendered demos, build/gallery tooling, and the network update checker
 remain excluded from the bundle.
 
@@ -33,12 +33,12 @@ failures and validate their corrections. Existing local layout patches remain
 recorded below as diffs against the new reviewed upstream bytes. The genesis
 marker and the inventory's prior pinned identities are preserved.
 
-## PKStack 0.3.0 local layout patches
+## PKStack 0.3.0 local runtime patches
 
 The inventory retains the prior reviewed source in its pinned column and the
 new reviewed source in its current column. Upstream identities remain separate
 from the locally adapted runtime bytes.
-Disposition A means incorporated: for these two files it includes the explicitly
+Disposition A means incorporated: for these three files it includes the explicitly
 reviewed adaptation recorded here. The bundle manifest marks those files
 `adapted-runtime`; all other runtime files remain `byte-exact-runtime`.
 
@@ -48,6 +48,12 @@ reviewed adaptation recorded here. The bundle manifest marks those files
 - Sequence caption placement avoids opaque participant headers and preceding
   bands. It uses clear positions above or inside its own band and rejects
   exhausted placements, preserving the same geometry for rendering and validation.
+- The visual-check transport treats process exit and read-pipe EOF/closure as
+  terminal, rejects later calls with the first failure, and includes bounded
+  process diagnostics on a request timeout. The default 15-second command deadline and
+  Chrome launch policy are unchanged. Real-subprocess regressions reproduce the
+  lifecycle failures; they do not identify the initiating cause of the Ubuntu CI
+  startup timeout.
 
 The [release repair evidence](../../../reviews/release-030-archify.md) records
 unchanged-input reproduction, browser containment and visual inspection,
@@ -101,6 +107,22 @@ source inventory. No network access or historical checkout is required.
         "object_sha": "681227d9917698122491d455bce270ec72296e98",
         "size": 23132,
         "sha256": "340031217aa8cceca922ddbc243f5478555e13c04c89c240bd1affa1045721f4"
+      }
+    },
+    {
+      "path": "bin/visual-check.mjs",
+      "reason": "Reject known CDP pipe EOF, closure, and process exit immediately; preserve terminal failures for future calls and include the captured process/stderr details on request timeout without changing deadlines or launch policy.",
+      "upstream": {
+        "mode": "100644",
+        "object_sha": "8adb154b8db4ba8da5fc822599a1520aad106d12",
+        "size": 33390,
+        "sha256": "8fa8c6f233f3598f4f22e58c48a4de6f45b3b072ad8e7aee4731c49b4bfbdc52"
+      },
+      "local": {
+        "mode": "100644",
+        "object_sha": "8572caa34f6fbe1dd67dea8dfdfd2e1db5b02675",
+        "size": 34145,
+        "sha256": "9ee9fc57a1f2043fc476527e9c32c8ef9baaab70d6417cb154f6d73d3b15582b"
       }
     }
   ]
@@ -234,6 +256,75 @@ index 1cfc032..681227d 100644
      }
    }
 
+diff --git a/bin/visual-check.mjs b/bin/visual-check.mjs
+index 8adb154..8572caa 100644
+--- a/bin/visual-check.mjs
++++ b/bin/visual-check.mjs
+@@ -146,13 +146,20 @@
+     this.buffer = '';
+     this.pending = new Map();
+     this.waiters = [];
++    this.terminalError = null;
+     this.writePipe = child.stdio[3];
+     this.readPipe = child.stdio[4];
+     this.readPipe.setEncoding('utf8');
+     this.readPipe.on('data', (chunk) => this.consume(chunk));
+     this.writePipe.on('error', (error) => this.failAll(this.failure('write pipe', error)));
+     this.readPipe.on('error', (error) => this.failAll(this.failure('read pipe', error)));
++    this.readPipe.once('end', () => this.failAll(this.failure('read pipe', new Error('Chrome pipe ended'))));
++    this.readPipe.once('close', () => this.failAll(this.failure('read pipe', new Error('Chrome pipe closed'))));
+     child.once('error', (error) => this.failAll(this.failure('process launch', error)));
++    child.once('exit', (code, signal) => {
++      const ending = signal ? `signal ${signal}` : `exit code ${code}`;
++      this.failAll(this.failure('process exit', new Error(`Chrome exited with ${ending}`)));
++    });
+     child.once('close', (code, signal) => {
+       const ending = signal ? `signal ${signal}` : `exit code ${code}`;
+       this.failAll(this.failure('process exit', new Error(`Chrome closed with ${ending}`)));
+@@ -202,13 +209,17 @@
+   }
+
+   send(method, params = {}, sessionId = undefined, timeoutMs = 15000) {
++    if (this.terminalError) return Promise.reject(this.terminalError);
+     const id = this.nextId++;
+     const message = { id, method, params };
+     if (sessionId) message.sessionId = sessionId;
+     return new Promise((resolve, reject) => {
+       const timer = setTimeout(() => {
+         this.pending.delete(id);
+-        reject(new Error(`${method}: timed out after ${timeoutMs}ms`));
++        reject(new Error([
++          `${method}: timed out after ${timeoutMs}ms`,
++          this.failureDetails(),
++        ].filter(Boolean).join('\n')));
+       }, timeoutMs);
+       this.pending.set(id, { method, resolve, reject, timer });
+       try {
+@@ -222,6 +233,7 @@
+   }
+
+   waitFor(method, sessionId, timeoutMs = 15000) {
++    if (this.terminalError) return Promise.reject(this.terminalError);
+     return new Promise((resolve, reject) => {
+       const waiter = { method, sessionId, resolve, reject, timer: null };
+       waiter.timer = setTimeout(() => {
+@@ -233,13 +245,14 @@
+   }
+
+   failAll(error) {
++    this.terminalError ||= error;
+     for (const pending of this.pending.values()) {
+       clearTimeout(pending.timer);
+-      pending.reject(error);
++      pending.reject(this.terminalError);
+     }
+     for (const waiter of this.waiters) {
+       clearTimeout(waiter.timer);
+-      waiter.reject(error);
++      waiter.reject(this.terminalError);
+     }
+     this.pending.clear();
+     this.waiters = [];
 ```
 
 <!-- pk-stack-upstream-review: {"inventory_sha256":"0d2a2cc66161261b4115b0f36a08cf8d0ec95cd700e84b2dcb03eb1997688871","new":{"commit":"d8e4daf2610d512821365f41b139d874b29efe81","subtree_sha":"a7b9e1634b66a8e13d531cca4d18e8123c21f06a"},"path":"archify","prior":{"commit":"06dd052602dd9a369e4d034e24faef0917b5a60c","subtree_sha":"cff24583cbdc3b7c7313580f3fa0636ade2e5279"},"repository":"tt-a1i/archify","source_id":"tt-a1i-archify"} -->

@@ -19,19 +19,45 @@ current-session verification loop.
 
 ## Local checks
 
-From `powers/pkstack/`:
+Run focused regressions for the behavior you changed, then the fast contract lane
+before pushing a reviewed checkpoint. From the repository root:
 
 ```sh
-uv lock --check
-uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-uv run --frozen ty check
-uv run --frozen pytest -q
+uv sync --locked --all-groups --project powers/pkstack
+uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local fast
 ```
 
-From the repository root, also run the documentation and metadata checks
-described in the release status. Keep the exact command and result in the pull
-request when a check cannot run on your machine.
+Use the shared complete check driver when investigating a broad failure or when
+GitHub CI is unavailable:
+
+```sh
+uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local full
+```
+
+The complete driver needs Node.js, Chrome, uv, actionlint, and shellcheck on PATH.
+Each local invocation writes receipts to a fresh temporary directory and prints
+its path. Local lanes run sequentially; CI runs the same checks on separate
+runners and reconciles their receipts. The installed-Kiro discovery probe may be unavailable
+on machines without Kiro; browser dependencies are required for complete proof.
+
+PR CI uses a narrow allowlist for release-report-only changes. It checks local
+links, referenced files, and diff integrity without starting the product suite.
+Mixed changes, reviewer prompts, policy, dependencies, and unknown paths use normal
+CI. Normal CI retains the core suite and a small browser smoke; Archify, dependency,
+and CI/browser changes select expanded browser coverage. Main always runs the
+complete retained suite, expanded browser coverage, and reproducible archive build
+plus an extracted-package installation check.
+
+Batch related corrections rather than pushing each line separately. Keep one
+owner for shared/generated files when working in parallel; refresh generated
+outputs after canonical changes settle. Review the frozen candidate once, then
+review only the relevant delta for later corrections. A new candidate still needs
+its own applicable CI results. Do not repeat unchanged full local checks before
+or after a successful CI run unless new evidence warrants it.
+
+Report failed checks and their exact commands. Capture diagnostics once per
+failure and retain the commit/run identity; do not retry until green or treat a
+previous successful commit as validation of a changed candidate.
 
 ## Pull requests
 
