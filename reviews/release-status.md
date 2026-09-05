@@ -72,6 +72,16 @@ timeout remains under investigation; a startup-rejection cleanup gap in the test
 harness was also identified. Overall freshness remains incomplete, and later
 main changes require final CI, notes, and artifact evidence to be rebound.
 
+The cleanup fix was independently approved and merged in PR #35; exact PR and
+main CI passed on `a1c0c9ad0f88963fb46cea6c9339ae55272922ee`. The subsequent
+source run `33979038750` stopped before candidate publication: its second repair
+preparation rejected a trailing blank line after pending-marker cleanup. That
+retry path was reproduced with a valid initial diff and repaired without
+relaxing whitespace or accepted-marker validation. All 185 repository policy
+tests and 17 Node tests pass locally. The failed campaign ran no candidate tests
+or review, and it did not advance the upstream pin; patched-commit review, CI,
+and a fresh bounded campaign remain required.
+
 ## Publication boundary
 
 The updater remains enabled at its existing daily 13:17 UTC cadence. It selects

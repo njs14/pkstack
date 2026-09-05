@@ -2590,7 +2590,14 @@ def _cleanup_unaccepted_provenance_tail(root: Path, detector: dict[str, Any]) ->
             continue
         if extras != 1 or source["drift"] is not True:
             raise GuardError("upstream provenance has more than one unaccepted tail marker")
-        del lines[marker_lines[-1][0]]
+        marker_index = marker_lines[-1][0]
+        del lines[marker_index]
+        # Removing a final pending marker can expose its paragraph separator as
+        # a new blank line at EOF. Remove only empty separators exposed there;
+        # preserve following prose and leave unrelated whitespace errors strict.
+        if not any(line.rstrip("\r\n") for line in lines[marker_index:]):
+            while lines and not lines[-1].rstrip("\r\n"):
+                lines.pop()
         path.write_bytes("".join(lines).encode("utf-8"))
 
 
