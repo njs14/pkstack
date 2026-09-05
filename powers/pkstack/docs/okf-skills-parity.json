@@ -10,8 +10,8 @@
       "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
     },
     "current": {
-      "commit": "bf2448f03686a8348324e4741106697d30a867f9",
-      "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
+      "commit": "85db7fd0a8a66d07d984ac6c5f4fbb5063d00357",
+      "subtree_sha": "2f9170d6937027c2b1c487ef698f0c000bb47745"
     },
     "retrieved_on": "2026-09-03"
   },
@@ -56,11 +56,11 @@
       "current": {
         "type": "blob",
         "mode": "100644",
-        "object_sha": "9335fe0ed3404787d9f3336cae77b25cdc057516",
+        "object_sha": "951e8a6f38ec90a59e70c2fee5864da5d395fe72",
         "size": 10577
       },
       "disposition": "B",
-      "rationale": "Exclude transcript-oriented historical backfill from the default product pending a separately authorized, redacted, bounded migration design."
+      "rationale": "Exclude the transcript-backfill workflow, including its okf-backfill/0.9.3 producer-label documentation, pending a separately authorized, redacted, bounded migration design."
     },
     {
       "path": "okf/reference/APACHE-2.0.txt",
