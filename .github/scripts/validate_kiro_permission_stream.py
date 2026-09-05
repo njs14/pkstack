@@ -15,6 +15,7 @@ MAX_EVENTS = 8192
 MAX_DIAGNOSTIC_TEXT_BYTES = 8192
 MAX_READ_START_DIAGNOSTIC_BYTES = 4096
 MAX_GREP_INPUT_DIAGNOSTIC_BYTES = 4096
+MAX_WRITE_START_PREVIEW_DIAGNOSTIC_BYTES = 4096
 PERMISSION_AGENT_NAME = "pkstack-permission-fixture"
 PERMISSION_AGENT_DESCRIPTION = (
     "Manual CI-only proof that Kiro 2.21 honors the exact production "
@@ -461,13 +462,15 @@ def _diagnostic_integer(value: Any, expected: int) -> dict[str, Any]:
     return facts
 
 
-def _diagnostic_path(value: Any, *, workspace: Path) -> dict[str, Any]:
+def _diagnostic_path(
+    value: Any, *, workspace: Path, relative_path: str = FIXTURE_INPUT_PATH
+) -> dict[str, Any]:
     if not isinstance(value, str):
         return {"classification": "non_string", "type": _diagnostic_type(value)}
-    absolute = str(workspace / FIXTURE_INPUT_PATH)
+    absolute = str(workspace / relative_path)
     classification = {
-        FIXTURE_INPUT_PATH: "exact_relative",
-        f"./{FIXTURE_INPUT_PATH}": "dot_relative",
+        relative_path: "exact_relative",
+        f"./{relative_path}": "dot_relative",
         absolute: "exact_workspace_absolute",
         f"file://{absolute}": "exact_workspace_file_uri",
     }.get(value, "other_string")
@@ -557,6 +560,52 @@ def _grep_input_diagnostic(group: list[tuple[int, dict[str, Any]]], *, workspace
     if len(encoded.encode("utf-8")) > MAX_GREP_INPUT_DIAGNOSTIC_BYTES:
         return (
             '{"diagnostic_truncated":true,"schema":"pkstack-permission-grep-input-diagnostic-v1"}'
+        )
+    return encoded
+
+
+def _write_start_preview_diagnostic(
+    preview: Any,
+    *,
+    workspace: Path,
+    relative_path: str,
+    expected_text: str,
+    denied: bool,
+) -> str:
+    facts: dict[str, Any] = {"type": _diagnostic_type(preview)}
+    if isinstance(preview, dict):
+        expected_keys = {"file", "modifiedContent"} | ({"originalContent"} if denied else set())
+        original = preview.get("originalContent")
+        facts.update({
+            "expected_keys_present": {key: key in preview for key in sorted(expected_keys)},
+            "unexpected_keys_present": any(key not in expected_keys for key in preview),
+            "file": _diagnostic_path(
+                preview.get("file"), workspace=workspace, relative_path=relative_path
+            ),
+            "modified_content": {
+                "type": _diagnostic_type(preview.get("modifiedContent")),
+                "matches_expected": preview.get("modifiedContent") == expected_text,
+            },
+            "original_content": {
+                "present": "originalContent" in preview,
+                "type": _diagnostic_type(original),
+                "matches_expected": (
+                    original == f"PROTECTED_BASELINE {relative_path}\n"
+                    if denied else "originalContent" not in preview
+                ),
+                "is_empty": original == "",
+            },
+        })
+    diagnostic = {
+        "schema": "pkstack-permission-write-start-preview-diagnostic-v1",
+        "denied": denied,
+        "preview": facts,
+    }
+    encoded = json.dumps(diagnostic, separators=(",", ":"), sort_keys=True)
+    if len(encoded.encode("utf-8")) > MAX_WRITE_START_PREVIEW_DIAGNOSTIC_BYTES:
+        return (
+            '{"diagnostic_truncated":true,'
+            '"schema":"pkstack-permission-write-start-preview-diagnostic-v1"}'
         )
     return encoded
 
@@ -802,7 +851,16 @@ def _validate_write_group(
     if denied:
         expected_start_preview["originalContent"] = f"PROTECTED_BASELINE {relative_path}\n"
     if start_kiro.get("preview") != expected_start_preview:
-        raise StreamError("Kiro write start preview is invalid")
+        diagnostic = _write_start_preview_diagnostic(
+            start_kiro.get("preview"),
+            workspace=workspace,
+            relative_path=relative_path,
+            expected_text=expected_text,
+            denied=denied,
+        )
+        raise StreamError(
+            f"Kiro write start preview is invalid; write_start_preview_diagnostic={diagnostic}"
+        )
 
     if set(pending) != {
         "_meta",

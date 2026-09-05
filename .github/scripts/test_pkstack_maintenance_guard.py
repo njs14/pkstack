@@ -3115,6 +3115,113 @@ class KiroPermissionStreamTests(unittest.TestCase):
             self.assertFalse(facts["query"]["matches_expected"])
             self.assertEqual(facts["query"]["type"], "string")
 
+    def test_write_start_preview_diagnostic_is_bounded_and_never_echoes_values(self) -> None:
+        sensitive = "SENSITIVE-PREVIEW-VALUE-MUST-NEVER-APPEAR"
+        large = sensitive * 1000
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            for denied in (False, True):
+                with self.subTest(denied=denied):
+                    events = self.complete_events(
+                        workspace, denied_resource=resource if denied else None
+                    )
+                    start = events[2 if denied else 8]["data"]["update"]
+                    start["_meta"]["kiro"]["preview"] = {
+                        "file": f"file://{workspace}/{sensitive}",
+                        "modifiedContent": {sensitive: large},
+                        "originalContent": [large, "f" * 64],
+                        large: sensitive,
+                    }
+                    self.write_stream(stream, events)
+                    with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                        if denied:
+                            permission_stream_guard.validate_denied_invocation(
+                                stream, stderr, return_code=0, api_key="test-secret",
+                                workspace=workspace, agent_path=agent, resource=resource,
+                            )
+                        else:
+                            permission_stream_guard.validate_allowed_invocation(
+                                stream, stderr, return_code=0, api_key="test-secret",
+                                workspace=workspace,
+                            )
+                    message = str(caught.exception)
+                    for forbidden in (sensitive, "f" * 64, str(workspace), self.SESSION_ID, "test-secret"):
+                        self.assertNotIn(forbidden, message)
+                    raw = message.split("write_start_preview_diagnostic=", 1)[1]
+                    self.assertLessEqual(
+                        len(raw.encode("utf-8")),
+                        permission_stream_guard.MAX_WRITE_START_PREVIEW_DIAGNOSTIC_BYTES,
+                    )
+                    diagnostic = json.loads(raw)
+                    self.assertEqual(
+                        diagnostic["schema"],
+                        "pkstack-permission-write-start-preview-diagnostic-v1",
+                    )
+                    self.assertIs(diagnostic["denied"], denied)
+                    facts = diagnostic["preview"]
+                    self.assertEqual(facts["type"], "object")
+                    self.assertTrue(facts["unexpected_keys_present"])
+                    self.assertTrue(all(facts["expected_keys_present"].values()))
+                    self.assertEqual(facts["file"]["classification"], "other_string")
+                    self.assertEqual(
+                        facts["modified_content"],
+                        {"type": "object", "matches_expected": False},
+                    )
+                    self.assertEqual(
+                        facts["original_content"],
+                        {"present": True, "type": "array", "matches_expected": False, "is_empty": False},
+                    )
+
+    def test_write_start_preview_variants_remain_rejected_with_structural_facts(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace, agent, stream, stderr = self.fixture_workspace(temporary)
+            resource = permission_stream_guard.DENIED_RESOURCES[0]
+            valid = {
+                "file": resource,
+                "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+                "originalContent": f"PROTECTED_BASELINE {resource}\n",
+            }
+            cases = [
+                ("missing_original", {key: value for key, value in valid.items() if key != "originalContent"}),
+                ("empty_original", {**valid, "originalContent": ""}),
+                ("null_original", {**valid, "originalContent": None}),
+                ("dot_relative", {**valid, "file": f"./{resource}"}),
+                ("exact_workspace_absolute", {**valid, "file": str(workspace / resource)}),
+                ("exact_workspace_file_uri", {**valid, "file": f"file://{workspace / resource}"}),
+                ("null", None),
+                ("array", ["UNTRUSTED_PREVIEW"]),
+                ("string", "UNTRUSTED_PREVIEW"),
+            ]
+            for case, preview in cases:
+                with self.subTest(case=case):
+                    events = self.complete_events(workspace, denied_resource=resource)
+                    events[2]["data"]["update"]["_meta"]["kiro"]["preview"] = preview
+                    self.write_stream(stream, events)
+                    with self.assertRaises(permission_stream_guard.StreamError) as caught:
+                        permission_stream_guard.validate_denied_invocation(
+                            stream, stderr, return_code=0, api_key="test-secret",
+                            workspace=workspace, agent_path=agent, resource=resource,
+                        )
+                    message = str(caught.exception)
+                    self.assertNotIn("UNTRUSTED_PREVIEW", message)
+                    self.assertNotIn(str(workspace), message)
+                    diagnostic = json.loads(message.split("write_start_preview_diagnostic=", 1)[1])
+                    facts = diagnostic["preview"]
+                    if case in {"null", "array", "string"}:
+                        self.assertEqual(facts, {"type": case})
+                    elif case.endswith("original"):
+                        original = facts["original_content"]
+                        self.assertEqual(original["present"], case != "missing_original")
+                        self.assertEqual(original["is_empty"], case == "empty_original")
+                        self.assertFalse(original["matches_expected"])
+                        self.assertEqual(
+                            facts["expected_keys_present"]["originalContent"],
+                            case != "missing_original",
+                        )
+                    else:
+                        self.assertEqual(facts["file"]["classification"], case)
+
     def test_denied_stream_rejects_policy_and_lifecycle_lookalikes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             workspace, agent, stream, stderr = self.fixture_workspace(temporary)
