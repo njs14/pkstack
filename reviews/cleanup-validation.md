@@ -292,6 +292,55 @@ credits used. That is **25.95** above the initial reading, including the
 interactive checks and two live pipeline campaigns. The value is account-wide
 and may include concurrent usage; it is not exact task billing.
 
+[PR #15](https://github.com/njs14/pk-stack/pull/15) merged the follow-up at
+`f7022d6309e17f70d812817de6bfacc2363e3c25` after
+[CI run 33934118636](https://github.com/njs14/pk-stack/actions/runs/33934118636)
+passed 134 policy tests, 17 JavaScript tests, and 812 Power tests with the same
+one Kiro-not-installed skip. Its
+[post-merge CI](https://github.com/njs14/pk-stack/actions/runs/33934250137)
+also passed. The final instrumented campaign is
+[run 33934250700](https://github.com/njs14/pk-stack/actions/runs/33934250700),
+dispatched from that exact main commit. Its detector selected the same
+`okf-skills` commit above and deferred Archify.
+
+The first repair completed. The first secretless verifier passed setup,
+feature-contract, and generated-parity stages, then recorded this fixed result:
+
+```json
+{"attempt":1,"base_sha":"f7022d6309e17f70d812817de6bfacc2363e3c25","cleanup_exit_code":0,"exit_code":1,"passed":false,"schema_version":1,"source_run_id":33934250700,"stage":"proposal"}
+```
+
+The failed stage covers proposal presence, proposal/provenance validation, and
+binding to the selected source/head. It does not identify which of those inner
+checks failed. No raw model output or candidate patch was retained, so this
+report does not assign an unproven root cause. The trusted failure cleanup
+succeeded. Once the workflow advanced to repair two, the operator requested
+cancellation; repair two was cancelled and turns three/four never ran. No
+candidate was published, peer-reviewed, or merged. The final workflow status
+is `cancelled`, not success and not exhaustion of all four turns.
+
+A bounded local follow-up confirmed preparation and cleanup preserve proposal
+bytes, and the coherent saved-detector proposal passes the exact guard CLI
+plus selected-source/head `jq` predicate used in CI. Two preparation/source
+tests also passed. That rules out a guaranteed interface mismatch in those
+local cases; it does not establish why the hosted proposal failed.
+
+The paid **PK-Stack Upstream Maintenance (Kiro)** workflow is now
+`disabled_manually` to prevent the daily cadence from repeatedly spending on
+this unresolved gate. Deterministic CI remains enabled. Resume only after the
+proposal-stage issue is reproduced and corrected:
+
+```sh
+gh workflow enable pk-stack-upstream-maintenance-kiro.yml --repo njs14/pk-stack
+gh workflow run pk-stack-upstream-maintenance-kiro.yml --repo njs14/pk-stack --ref main
+```
+
+The final `/usage` reading was **294.32 of 1,000**: **10.55** above the final
+campaign's baseline and **36.50** above the cleanup's initial reading. It is an
+estimated account-wide counter, not exact task billing. No additional-credit
+purchase or separate provider API credential was used. The live updater gate
+remains unresolved; **0.3.0 was not tagged or released**.
+
 - IDE Power import is not UI-validated. The installed desktop driver lacks
   macOS Accessibility and Screen Recording permission. The terminal campaign
   used the documented Power-local fallback and did not bypass those permissions.
