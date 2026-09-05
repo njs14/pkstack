@@ -579,3 +579,71 @@ selected date persisted, and other sources' parity, provenance, and history
 remained unchanged. Actionlint, ShellCheck, Ruff, formatting, and diff checks
 passed. Root reviewed all remediation and archive diffs with no material
 unresolved finding. Full PR CI and the next live campaign remain required.
+
+[PR #28](https://github.com/njs14/pkstack/pull/28) first exposed a missing
+type annotation in the expanded test fixture. The one-line annotation fix
+passed types, lint/formatting, and both acceptance cases. Final head
+`fcff2a06b2635fc7acd475ce0daec071aaca8f6c` then passed
+[CI 33951027441](https://github.com/njs14/pkstack/actions/runs/33951027441):
+167 repository tests, 17 JavaScript tests, 829 Power tests with one
+installed-Kiro test skipped, and all static, lockfile, and generated checks.
+It merged as `3063f069721e0d159cec0a1ce49a93846dccea38`.
+
+```sh
+gh pr merge 28 --repo njs14/pkstack --squash \
+  --match-head-commit fcff2a06b2635fc7acd475ce0daec071aaca8f6c
+gh workflow run pk-stack-upstream-maintenance-kiro.yml --repo njs14/pkstack --ref main
+```
+
+The [remediated live campaign](https://github.com/njs14/pkstack/actions/runs/33951163753)
+passed on repair one and published [PR #29](https://github.com/njs14/pkstack/pull/29),
+head `31368693e3078bdfe593ce91ba3bb5bf74b6f59a`. Its four-file diff preserves the
+original backfill safety rationale verbatim, changes `retrieved_on` to the trusted
+`2026-09-05` date, and ends the new provenance marker with LF. All three local
+review criteria are present in the actual generated candidate.
+
+The exact bot identity, head/base, CI path, and diff were inspected before owner
+approval started the supplementary
+[ordinary PR CI](https://github.com/njs14/pkstack/actions/runs/33951474263).
+The independent [candidate gate](https://github.com/njs14/pkstack/actions/runs/33951477875)
+runs separately and remains the merge authority.
+
+## Accepted end-to-end outcome
+
+**The complete live campaign passed.** Source run `33951163753` passed on repair
+one. Candidate run `33951477875` passed base tests, candidate tests, exact no-tool
+Opus stream/verdict validation, private-state cleanup, and exact-SHA automatic
+merge. Its [retained approval](ci-opus-updater-approval-2026-09-05.json) has an
+empty material-findings array. The three local findings are resolved in the
+actual candidate, not merely in proposed instructions.
+
+| Binding | Recorded value |
+| --- | --- |
+| Trusted base | `3063f069721e0d159cec0a1ce49a93846dccea38` |
+| Reviewed candidate | `31368693e3078bdfe593ce91ba3bb5bf74b6f59a` |
+| Review content SHA-256 | `e2ae932115d5df8ffacd08e5d1e7765b55f001c6e954cf0d3f5f34e296000a9a` |
+| Review patch SHA-256 | `c954a91d07c9ddefcab7575e2d33cf87f6e3e5eb8f2d3530608be8137f52bed2` |
+| Review report SHA-256 | `ae865bfff99d482cc16c67e2ffbd83329eb40c7b342aeb8ac7a1ec2569ba2b3d` |
+| Attestation SHA-256 | `35efee9491db7c3e1427af669aafdeaeb09ac1907b8fda40d1e3264b7433f55e` |
+| Automatic merge commit | `db35a9f221d5c6ef0bbdb685c367ae23161ae43f` |
+| Merge time | `2026-09-05T07:08:02Z` |
+
+The validated model was `claude-opus-5`; configured effort was `xhigh`. Kiro
+does not independently attest effort in the stream. The reviewer did not fetch
+upstream content itself and explicitly bounded its approval to the exact
+metadata/exclusion patch. Deterministic source-inventory checks supplied the
+source binding. This does not prove every future upstream change can be safely
+adapted without human work.
+
+Ordinary PR CI `33951474263` also passed after explicit owner approval, but was
+not a dependency of the automatic merge job. The updater remains **active** on
+the daily **13:17 UTC** schedule. The accepted source was OKF Skills; Archify's
+detected drift is deferred to that normal cadence. No extra provider key,
+GitHub Copilot subscription, approval bypass, release tag, or release was added.
+
+The release archive dry run on merged repair commit `3063f069...` contained 350
+Power-only entries, all ten required README/manifest/artwork/route paths, and
+the 1983×793 banner. Its SHA-256 was
+`08c286e09f7a0fd3a77e038de35e26a78a6a1379a12337f9096f294c8a2fc3cc`.
+The archive timestamp is bound to the selected commit; a later release commit
+will have its own checksum. No archive was published as a release.
