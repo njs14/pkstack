@@ -43,14 +43,14 @@
       "subtree_sha": "ad2925850efb8973a72d2e666f7a975f9a2d4a9b"
     },
     {
-      "commit": "bf2448f03686a8348324e4741106697d30a867f9",
+      "commit": "85db7fd0a8a66d07d984ac6c5f4fbb5063d00357",
       "id": "okf-skills",
       "parity_path": "powers/pkstack/docs/okf-skills-parity.json",
       "path": "skills",
       "provenance_path": "powers/pkstack/docs/okf-skills-provenance.md",
       "ref": "main",
       "repository": "scaccogatto/okf-skills",
-      "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
+      "subtree_sha": "2f9170d6937027c2b1c487ef698f0c000bb47745"
     },
     {
       "commit": "6e8bbe026448fd890ace9293bcfe89b53363cd1f",
