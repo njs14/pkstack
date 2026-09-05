@@ -38,6 +38,14 @@ and maximum price are checked; changes to provider marketing descriptions are no
 grounds for blocking a run. Requested effort is not independently attested by
 Kiro's stream metadata.
 
+The autonomous candidate gate starts through `workflow_run` and owns the
+update's test, review, and merge decision. GitHub also queues ordinary PR CI
+for a PR created with `GITHUB_TOKEN`, but requires a human to approve those
+additional runs. Unapproved runs can expire without executing any job. This
+does not replace or unblock the candidate gate. PKStack does not add a PAT,
+another GitHub App credential, or automatic workflow approval to avoid that
+GitHub restriction. See [GitHub's token documentation](https://docs.github.com/en/actions/concepts/security/github_token).
+
 ## Reviewer feedback and credit limits
 
 [`maintenance/upstream-feedback.json`](../../../maintenance/upstream-feedback.json)

@@ -492,7 +492,7 @@ jobs:
           mkdir -m 0700 "$REVIEW_WORKSPACE" "$REVIEW_WORKSPACE/.pkstack-ci" "$REVIEW_PRIVATE"
           install -m 0400 "$input" "$REVIEW_WORKSPACE/.pkstack-ci/review-input.json"
           TRUSTED_ROOT="$TRUSTED_REVIEW_ROOT"             KIRO_AGENT_NAME=pkstack-ci-reviewer             bash "$TRUSTED_REVIEW_ROOT/.github/scripts/prepare_kiro_maintenance_runtime.sh"
-          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             "$KIRO_BIN_DIR/kiro-cli" agent validate             --path "$TRUSTED_REVIEW_ROOT/.kiro/agents/pkstack-ci-reviewer.json"
+          env -i             HOME="$KIRO_USER_HOME"             KIRO_HOME="$KIRO_HOME"             PATH="$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin"             LANG=C.UTF-8             "$KIRO_BIN_DIR/kiro-cli-chat" agent validate             --path "$TRUSTED_REVIEW_ROOT/.kiro/agents/pkstack-ci-reviewer.json"
           chmod -R a-w "$REVIEW_WORKSPACE"
       - name: Independent Kiro-hosted Claude Opus 5 review
         id: invoke
