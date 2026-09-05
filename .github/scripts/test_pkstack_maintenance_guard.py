@@ -4359,15 +4359,18 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_trusted_inventory_preflight_leaves_snapshot_unchanged(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
-        command = next(
+        commands = [
             line.strip() for line in workflow.splitlines()
             if line.strip().startswith("python3 ")
-            and "/test_validate_kiro_model_inventory.py" in line
-        )
-        arguments = shlex.split(command)
-        self.assertEqual(arguments[:2], ["python3", "-B"])
-        following = workflow.split(command, 1)[1].split('chmod -R a-w "$TRUSTED_ROOT"', 1)[0]
-        self.assertIn("validate-trusted-snapshot", following)
+            and any(name in line for name in (
+                "/test_validate_kiro_model_inventory.py", "/test_validate_kiro_maintenance_stream.py"
+            ))
+        ]
+        self.assertEqual(len(commands), 2)
+        for command in commands:
+            self.assertEqual(shlex.split(command)[:2], ["python3", "-B"])
+            following = workflow.split(command, 1)[1].split('chmod -R a-w "$TRUSTED_ROOT"', 1)[0]
+            self.assertIn("validate-trusted-snapshot", following)
         candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
         self.assertIn('python3 -B "$TRUSTED_ROOT/.github/scripts/test_pkstack_maintenance_guard.py"', candidate)
 
@@ -4375,6 +4378,9 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             snapshot = Path(directory) / "trusted"
             shutil.copytree(ROOT / ".github", snapshot / ".github",
                             ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+            profile = Path(".kiro/agents/pkstack-maintainer.json")
+            (snapshot / profile).parent.mkdir(parents=True)
+            shutil.copyfile(ROOT / profile, snapshot / profile)
 
             def inventory() -> dict[str, str]:
                 return {str(path.relative_to(snapshot)): hashlib.sha256(path.read_bytes()).hexdigest()
@@ -4385,14 +4391,17 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                            if key not in {"PYTHONDONTWRITEBYTECODE", "PYTHONPYCACHEPREFIX"}}
             # Apple Python relocates bytecode caches by default. Force Linux's
             # in-tree cache behavior so this regression cannot be masked locally.
-            runner = ("import runpy,sys; sys.pycache_prefix=None; "
-                      "sys.argv=[sys.argv[1]]; runpy.run_path(sys.argv[0], run_name='__main__')")
-            result = subprocess.run(
-                [sys.executable, *arguments[1:-1], "-c", runner,
-                 arguments[-1].replace("$TRUSTED_ROOT", str(snapshot))],
-                env=environment, capture_output=True, text=True, timeout=30,
-            )
-            self.assertEqual(result.returncode, 0, result.stderr)
+            runner = ("import runpy,sys; from pathlib import Path; sys.pycache_prefix=None; "
+                      "sys.argv=[sys.argv[1]]; sys.path.insert(0,str(Path(sys.argv[0]).parent)); "
+                      "runpy.run_path(sys.argv[0], run_name='__main__')")
+            for command in commands:
+                arguments = shlex.split(command)
+                result = subprocess.run(
+                    [sys.executable, *arguments[1:-1], "-c", runner,
+                     arguments[-1].replace("$TRUSTED_ROOT", str(snapshot))],
+                    env=environment, capture_output=True, text=True, timeout=30,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(inventory(), before)
             self.assertFalse(list(snapshot.rglob("*.pyc")))
 
@@ -4666,11 +4675,14 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 self.assertIn('install -m 0600 /dev/null "$settings_path"', source)
                 self.assertIn("stat -c '%a'", source)
                 self.assertIn("settings/mcp.json", source)
-                self.assertTrue(
-                    'test ! -e "$KIRO_USER_HOME/.kiro"' in source
-                    or 'test ! -e "$SMOKE_ROOT/user-home/.kiro"' in source
-                    or 'test ! -e "$case_root/user-home/.kiro"' in source
-                )
+                if label == "maintenance setup":
+                    self.assertIn('[[ "$KIRO_HOME" == "$KIRO_USER_HOME/.kiro" ]]', source)
+                    self.assertIn('test -d "$KIRO_USER_HOME/.kiro"', source)
+                else:
+                    self.assertTrue(
+                        'test ! -e "$SMOKE_ROOT/user-home/.kiro"' in source
+                        or 'test ! -e "$case_root/user-home/.kiro"' in source
+                    )
                 for key in (
                     "app.disableAutoupdates",
                     "chat.disableInheritingDefaultResources",
@@ -4678,6 +4690,103 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 ):
                     self.assertEqual(source.count(f'"{key}"'), 1)
                     self.assertNotIn(f" settings {key} ", source)
+
+    def test_global_runtime_agent_uses_one_fresh_home_for_both_cli_lookups(self) -> None:
+        setup = (ROOT / ".github/scripts/prepare_kiro_maintenance_runtime.sh").read_text()
+        for filename, home_name in (
+            ("pk-stack-upstream-maintenance-kiro.yml", "kiro-user-home"),
+            ("pk-stack-upstream-candidate.yml", "kiro-review-user-home"),
+        ):
+            workflow = (ROOT / ".github/workflows" / filename).read_text()
+            self.assertIn(f'printf \'KIRO_HOME=%s\\n\' "$RUNNER_TEMP/{home_name}/.kiro"', workflow)
+            self.assertIn(f'printf \'KIRO_USER_HOME=%s\\n\' "$RUNNER_TEMP/{home_name}"', workflow)
+        self.assertEqual(setup.count('install -m 0600 "$trusted_agent"'), 1)
+        self.assertEqual(setup.count('"$KIRO_HOME/agents/${agent_name}.json"'), 1)
+        self.assertEqual(setup.count('settings_path="$KIRO_HOME/settings/cli.json"'), 1)
+        marker = '[[ -f "$KIRO_ARCHIVE" && ! -L "$KIRO_ARCHIVE" ]]'
+        self.assertEqual(setup.count(marker), 1)
+        guards = setup.split(marker, maxsplit=1)[0]
+        for case in ("valid", "sibling_home", "existing_user", "symlink_user", "nested_user", "shared_bin_user"):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
+                runner = Path(temporary) / "runner"
+                runner.mkdir()
+                user = runner / "kiro-user-home"
+                binary = runner / "kiro-bin"
+                if case == "existing_user":
+                    user.mkdir()
+                elif case == "symlink_user":
+                    user.symlink_to(runner, target_is_directory=True)
+                elif case == "nested_user":
+                    user = runner / "nested" / "kiro-user-home"
+                elif case == "shared_bin_user":
+                    binary = user
+                kiro_home = runner / "kiro-home" if case == "sibling_home" else user / ".kiro"
+                environment = {
+                    "PATH": os.environ["PATH"], "RUNNER_TEMP": str(runner),
+                    "KIRO_BIN_DIR": str(binary), "KIRO_USER_HOME": str(user),
+                    "KIRO_HOME": str(kiro_home), "KIRO_ARCHIVE": str(runner / "archive"),
+                    "TRUSTED_ROOT": str(runner / "trusted"),
+                }
+                result = subprocess.run(
+                    ["bash", "-c", guards], env=environment,
+                    capture_output=True, text=True, timeout=10, check=False,
+                )
+                self.assertEqual(result.returncode == 0, case == "valid", result.stderr)
+                self.assertFalse(binary.exists())
+                self.assertFalse(kiro_home.exists())
+
+    def test_candidate_review_cleanup_validates_nested_home_before_deleting_roots(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
+        marker = "      - name: Remove private Kiro review state\n"
+        self.assertEqual(workflow.count(marker), 1)
+        step = workflow.split(marker, maxsplit=1)[1].split("\n  merge:", maxsplit=1)[0]
+        cleanup = textwrap.dedent(step.split("        run: |\n", maxsplit=1)[1])
+        for targets in re.findall(r"(?m)^for target in (.*); do$", cleanup):
+            self.assertNotIn('"$KIRO_HOME"', targets)
+        for case in ("valid", "sibling_home", "symlink_home", "symlink_user", "wrong_private", "file_bin"):
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
+                runner = Path(temporary) / "runner"
+                runner.mkdir()
+                roots = {
+                    "REVIEW_PRIVATE": runner / "pkstack-peer-review-private",
+                    "REVIEW_WORKSPACE": runner / "pkstack-peer-review-workspace",
+                    "KIRO_USER_HOME": runner / "kiro-review-user-home",
+                    "KIRO_BIN_DIR": runner / "kiro-review-bin",
+                }
+                for directory in roots.values():
+                    directory.mkdir()
+                    (directory / "retained.txt").write_text("private fixture")
+                kiro_home = roots["KIRO_USER_HOME"] / ".kiro"
+                kiro_home.mkdir()
+                (kiro_home / "settings.json").write_text("private fixture")
+                sentinel = runner / "unrelated.txt"
+                sentinel.write_text("keep")
+                if case == "sibling_home":
+                    kiro_home = runner / "kiro-home"
+                elif case == "symlink_home":
+                    shutil.rmtree(kiro_home)
+                    kiro_home.symlink_to(runner, target_is_directory=True)
+                elif case == "symlink_user":
+                    shutil.rmtree(roots["KIRO_USER_HOME"])
+                    roots["KIRO_USER_HOME"].symlink_to(runner, target_is_directory=True)
+                elif case == "wrong_private":
+                    roots["REVIEW_PRIVATE"] = runner
+                elif case == "file_bin":
+                    shutil.rmtree(roots["KIRO_BIN_DIR"])
+                    roots["KIRO_BIN_DIR"].write_text("keep invalid file")
+                environment = {
+                    "PATH": os.environ["PATH"], "RUNNER_TEMP": str(runner),
+                    "KIRO_HOME": str(kiro_home),
+                    **{key: str(path) for key, path in roots.items()},
+                }
+                result = subprocess.run(
+                    ["bash", "-c", cleanup], env=environment,
+                    capture_output=True, text=True, timeout=10, check=False,
+                )
+                self.assertEqual(result.returncode == 0, case == "valid", result.stderr)
+                self.assertEqual(sentinel.read_text(), "keep")
+                for directory in roots.values():
+                    self.assertEqual(directory.exists(), case != "valid")
 
     def test_maintenance_uses_only_four_scoped_kiro_credentials(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()

@@ -31,9 +31,14 @@ records the candidate, commands, and completed results.
 
 ## Outstanding release gate
 
-**The 0.3.0 release is withheld.** The paid upstream-maintenance workflow
-remains `disabled_manually`; normal CI is enabled. Hands-off upstream updates
-have not passed live acceptance.
+**The 0.3.0 release is withheld pending the first complete updater campaign.**
+The owner approved re-enabling the autonomous updater after
+[PR #19](https://github.com/njs14/pkstack/pull/19). The
+[first enabled run](https://github.com/njs14/pkstack/actions/runs/33945088358)
+failed all four bounded attempts: two missing proposals, then two missing
+provenance markers. It published no candidate and did not reach peer review.
+The updater is temporarily paused while its agent-loading defect is repaired;
+the approved daily schedule remains 13:17 UTC.
 
 The last instrumented updater [run 33934250700](https://github.com/njs14/pkstack/actions/runs/33934250700)
 failed at proposal validation (exit 1; cleanup 0) after setup, feature
@@ -57,12 +62,14 @@ passed. The validator now handles 2.21.1's omitted preview originals and null
 diff originals. Seven allowed writes and all six denied paths passed, with
 exact policy-denial evidence, protected-file checksums, and cleanup.
 
-These fixes do not establish the historical failure's exact cause or prove a
-complete hands-off update. The owner has approved permanently re-enabling the
-autonomous updater. The workflow remains disabled pending the repair merge.
-A bounded live maintenance/candidate/peer-review
-campaign is still an outstanding release gate; approval does not establish
-that the workflow is enabled or that acceptance has passed.
+A local Kiro 2.21.1 probe exposed a separate runtime defect: `agent list`
+recognized the maintainer under `KIRO_HOME`, but v3 chat ignored that location
+and selected Default. The production layout likewise separated `KIRO_HOME`
+from `HOME/.kiro`. Its private streams were deleted during cleanup, so the
+historical production selection is not directly attested. The repair aligns
+those paths and requires direct selected-agent evidence before a maintenance
+result can be accepted. The full update and independent-review campaign still
+needs to pass.
 
 ## Release requirements
 
@@ -75,7 +82,7 @@ that the workflow is enabled or that acceptance has passed.
   explicit permissions.
 - Independent review has no material unresolved finding.
 - The repaired updater passes a bounded live acceptance campaign before
-  hands-off cadence resumes.
+  hands-off updates are declared validated.
 - The private PR passes its checks before merge; the release tag resolves to
   the reviewed main commit.
 

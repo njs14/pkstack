@@ -15,14 +15,21 @@ if [[ ! "$agent_name" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
 fi
 
 expected_sha256=7fc0564fd02295a64470c4bf52752f5475f3280be3fa4dd9db255162e07e9825
-for target in "$KIRO_BIN_DIR" "$KIRO_HOME" "$KIRO_USER_HOME"; do
-  [[ ! -e "$target" && ! -L "$target" ]]
-  [[ "$(dirname "$target")" == "$RUNNER_TEMP" ]]
+[[ -d "$RUNNER_TEMP" && ! -L "$RUNNER_TEMP" ]] || exit 1
+[[ "$KIRO_BIN_DIR" != "$KIRO_USER_HOME" ]] || exit 1
+# v3 reads global agents from HOME/.kiro; keep both CLI lookup paths identical.
+[[ "$KIRO_HOME" == "$KIRO_USER_HOME/.kiro" ]] || exit 1
+for target in "$KIRO_BIN_DIR" "$KIRO_USER_HOME"; do
+  [[ ! -e "$target" && ! -L "$target" ]] || exit 1
+  [[ "$(dirname "$target")" == "$RUNNER_TEMP" ]] || exit 1
+  [[ "$(basename "$target")" =~ ^kiro-[a-z0-9-]+$ ]] || exit 1
 done
-[[ -f "$KIRO_ARCHIVE" && ! -L "$KIRO_ARCHIVE" ]]
+[[ ! -e "$KIRO_HOME" && ! -L "$KIRO_HOME" ]] || exit 1
+[[ -f "$KIRO_ARCHIVE" && ! -L "$KIRO_ARCHIVE" ]] || exit 1
 printf '%s  %s\n' "$expected_sha256" "$KIRO_ARCHIVE" | sha256sum --check
 
-mkdir -m 0700 "$KIRO_BIN_DIR" "$KIRO_HOME" "$KIRO_USER_HOME"
+mkdir -m 0700 "$KIRO_BIN_DIR" "$KIRO_USER_HOME"
+mkdir -m 0700 "$KIRO_HOME"
 mkdir -m 0700 "$KIRO_HOME/agents" "$KIRO_HOME/settings"
 tar --extract --xz --file "$KIRO_ARCHIVE" --directory "$KIRO_BIN_DIR" \
   --strip-components=2 \
@@ -30,7 +37,7 @@ tar --extract --xz --file "$KIRO_ARCHIVE" --directory "$KIRO_BIN_DIR" \
   kirocli/bin/kiro-cli-chat
 test "$("$KIRO_BIN_DIR/kiro-cli" --version)" = "kiro-cli 2.21.1"
 trusted_agent="$TRUSTED_ROOT/.kiro/agents/${agent_name}.json"
-[[ -f "$trusted_agent" && ! -L "$trusted_agent" ]]
+[[ -f "$trusted_agent" && ! -L "$trusted_agent" ]] || exit 1
 install -m 0600 "$trusted_agent" \
   "$KIRO_HOME/agents/${agent_name}.json"
 
@@ -47,5 +54,5 @@ printf '%s  %s\n' \
   "$settings_path" | sha256sum --check
 test "$(stat -c '%a' "$settings_path")" = 600
 test ! -e "$KIRO_HOME/settings/mcp.json"
-test ! -e "$KIRO_USER_HOME/.kiro"
+test -d "$KIRO_USER_HOME/.kiro"
 test ! -d "$KIRO_HOME/hooks"

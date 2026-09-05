@@ -33,7 +33,7 @@ class VerifierExecutionTests(unittest.TestCase):
     ):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
-        root = Path(temporary.name)
+        root = Path(temporary.name).resolve()
         project = root / "project"
         runner = root / "runner"
         trusted = root / "trusted"
@@ -145,11 +145,16 @@ class VerifierExecutionTests(unittest.TestCase):
         }
         for key, name in (
             ("KIRO_BIN_DIR", "kiro-bin"),
-            ("KIRO_HOME", "kiro-home"),
             ("KIRO_USER_HOME", "kiro-user"),
         ):
             (runner / name).mkdir()
             environment[key] = str(runner / name)
+        kiro_home = runner / "kiro-user/.kiro"
+        kiro_home.mkdir()
+        environment["KIRO_HOME"] = str(kiro_home)
+        unrelated = runner / "unrelated-sibling"
+        unrelated.mkdir()
+        (unrelated / "keep.txt").write_text("preserve unrelated runtime data\n")
         result = subprocess.run(
             ["bash", str(SCRIPT)],
             cwd=project,
@@ -190,6 +195,12 @@ class VerifierExecutionTests(unittest.TestCase):
         self.assertEqual(output.read_text(), "passed=true\nattempt=1\n")
         self.assertFalse(feedback.exists())
         self.assertFalse((runner / "pkstack-verify-1.log").exists())
+        self.assertFalse((runner / "kiro-bin").exists())
+        self.assertFalse((runner / "kiro-user").exists())
+        self.assertEqual(
+            (runner / "unrelated-sibling/keep.txt").read_text(),
+            "preserve unrelated runtime data\n",
+        )
 
     def test_real_shell_failure_keeps_untrusted_output_out_of_retained_report(self):
         result, report, output, feedback, runner = self.execute(failure=True)
@@ -246,6 +257,124 @@ class VerifierExecutionTests(unittest.TestCase):
             ("proposal", "proposal-control-mismatch", False),
         )
         self.assertIn("Proposal validation failed: proposal-control-mismatch", feedback.read_text())
+
+
+class VerifierRuntimeCleanupTests(unittest.TestCase):
+    def execute_cleanup(self, runner: Path, binary: Path, home: Path, user: Path):
+        source = SCRIPT.read_text(encoding="utf-8")
+        marker = 'python3 - "$RUNNER_TEMP" "$KIRO_BIN_DIR" "$KIRO_HOME" "$KIRO_USER_HOME" <<\'PY\'\n'
+        self.assertEqual(source.count(marker), 1)
+        cleanup = source.split(marker, 1)[1].split("\nPY\n", 1)[0]
+        harness = textwrap.dedent("""\
+            import json
+            import shutil
+            from pathlib import Path
+
+            removals = []
+            original_rmtree = shutil.rmtree
+
+            def recording_rmtree(path, *args, **kwargs):
+                removals.append(str(Path(path)))
+                return original_rmtree(path, *args, **kwargs)
+
+            shutil.rmtree = recording_rmtree
+            try:
+                exec(compile(CLEANUP_SOURCE, "verifier-runtime-cleanup", "exec"))
+            finally:
+                print(json.dumps(removals))
+        """).replace("CLEANUP_SOURCE", repr(cleanup), 1)
+        result = subprocess.run(
+            [sys.executable, "-B", "-", str(runner), str(binary), str(home), str(user)],
+            input=harness,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        return result, json.loads(result.stdout)
+
+    def snapshot(self, root: Path):
+        snapshot = {}
+        for path in root.rglob("*"):
+            relative = path.relative_to(root).as_posix()
+            if path.is_symlink():
+                snapshot[relative] = ("symlink", os.readlink(path))
+            elif path.is_dir():
+                snapshot[relative] = ("directory", None)
+            else:
+                snapshot[relative] = ("file", path.read_bytes())
+        return snapshot
+
+    def test_cleanup_removes_only_bin_and_nested_user_parent_once(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            runner = root / "runner"
+            binary = runner / "kiro-bin"
+            user = runner / "kiro-user"
+            home = user / ".kiro"
+            unrelated = runner / "unrelated-sibling"
+            for directory in (binary, home, unrelated):
+                directory.mkdir(parents=True)
+                (directory / "keep.txt").write_text("fixture data\n")
+
+            result, removals = self.execute_cleanup(runner, binary, home, user)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stderr, "")
+            self.assertCountEqual(removals, [str(binary), str(user)])
+            self.assertFalse(binary.exists())
+            self.assertFalse(user.exists())
+            self.assertEqual((unrelated / "keep.txt").read_text(), "fixture data\n")
+
+    def test_unsafe_runtime_paths_are_rejected_before_any_deletion(self):
+        cases = (
+            "sibling_home",
+            "symlink_home",
+            "nested_user",
+            "traversal_user",
+            "outside_user",
+            "outside_bin",
+            "symlink_user",
+        )
+        for case in cases:
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                runner = root / "runner"
+                runner.mkdir()
+                binary = runner / "kiro-bin"
+                user = runner / "kiro-user"
+                home = user / ".kiro"
+                if case == "sibling_home":
+                    home = runner / "kiro-home"
+                elif case == "symlink_home":
+                    user.mkdir()
+                    home.symlink_to(root / "kiro-home-target", target_is_directory=True)
+                elif case == "nested_user":
+                    user = runner / "nested/kiro-user"
+                    home = user / ".kiro"
+                elif case == "traversal_user":
+                    (runner / "traversal").mkdir()
+                    user = runner / "traversal/../kiro-user"
+                    home = user / ".kiro"
+                elif case == "outside_user":
+                    user = root / "kiro-outside-user"
+                    home = user / ".kiro"
+                elif case == "outside_bin":
+                    binary = root / "kiro-outside-bin"
+                elif case == "symlink_user":
+                    user.symlink_to(root / "kiro-user-target", target_is_directory=True)
+                for index, directory in enumerate(
+                    (binary.resolve(), user.resolve(), home.resolve(), runner / "unrelated-sibling")
+                ):
+                    directory.mkdir(parents=True, exist_ok=True)
+                    (directory / f"keep-{index}.txt").write_text("preserve this data\n")
+                before = self.snapshot(root)
+
+                result, removals = self.execute_cleanup(runner, binary, home, user)
+
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(removals, [])
+                self.assertEqual(self.snapshot(root), before)
 
 
 if __name__ == "__main__":

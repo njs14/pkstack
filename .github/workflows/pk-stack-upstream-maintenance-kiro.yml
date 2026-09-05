@@ -311,7 +311,7 @@ jobs:
             printf 'GOAL_STATUS_PATH=%s\n' "$RUNNER_TEMP/pkstack-goal-status.json"
             printf 'KIRO_BIN_DIR=%s\n' "$RUNNER_TEMP/kiro-bin"
             printf 'KIRO_ARCHIVE=%s\n' "$RUNNER_TEMP/kiro-cache/kirocli-2.21.1.tar.xz"
-            printf 'KIRO_HOME=%s\n' "$RUNNER_TEMP/kiro-home"
+            printf 'KIRO_HOME=%s\n' "$RUNNER_TEMP/kiro-user-home/.kiro"
             printf 'KIRO_USER_HOME=%s\n' "$RUNNER_TEMP/kiro-user-home"
             printf 'GIT_BOUNDARY_STATE=%s\n' "$RUNNER_TEMP/pkstack-git-boundary-state"
           } >>"$GITHUB_ENV"
@@ -368,6 +368,7 @@ jobs:
             --base "$BASE_SHA" \
             --trusted-root "$TRUSTED_ROOT"
           python3 -B "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_model_inventory.py"
+          python3 -B "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_maintenance_stream.py"
           python3 "$GUARD_PATH" validate-trusted-snapshot \
             --base "$BASE_SHA" \
             --trusted-root "$TRUSTED_ROOT"
