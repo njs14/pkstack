@@ -3,6 +3,13 @@
   "artifact_type": "source-inventory",
   "files": [
     {
+      "current": {"mode": "100644", "object_sha": "079c933b75743dec18b5d0c01006def20b6aad26", "size": 102, "type": "blob"},
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {"mode": "100644", "object_sha": "079c933b75743dec18b5d0c01006def20b6aad26", "size": 102, "type": "blob"},
+      "rationale": "OpenAI UI metadata is recorded as provenance but is not a Kiro runtime authority."
+    },
+    {
       "current": {"mode": "100644", "object_sha": "9cdbdb22aadc438755392216e75ad9a14cc9832e", "size": 2629, "type": "blob"},
       "disposition": "A",
       "path": "SKILL-MECHANICS.md",
@@ -15,13 +22,6 @@
       "path": "SKILL.md",
       "pinned": {"mode": "100644", "object_sha": "a37608daf6e835e767deecfb498facecaaba82ba", "size": 10886, "type": "blob"},
       "rationale": "The agent-writing method is adapted to AGENTS.md, Kiro Skills, steering, and pointer-linked references."
-    },
-    {
-      "current": {"mode": "100644", "object_sha": "079c933b75743dec18b5d0c01006def20b6aad26", "size": 102, "type": "blob"},
-      "disposition": "C",
-      "path": "agents/openai.yaml",
-      "pinned": {"mode": "100644", "object_sha": "079c933b75743dec18b5d0c01006def20b6aad26", "size": 102, "type": "blob"},
-      "rationale": "OpenAI UI metadata is recorded as provenance but is not a Kiro runtime authority."
     }
   ],
   "schema_version": 1,

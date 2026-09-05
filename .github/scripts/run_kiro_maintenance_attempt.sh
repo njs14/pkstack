@@ -18,6 +18,8 @@ fi
 
 script_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 model_validator="$script_dir/validate_kiro_model_inventory.py"
+stream_validator="$script_dir/validate_kiro_maintenance_stream.py"
+trusted_agent="$script_dir/../../.kiro/agents/pkstack-maintainer.json"
 private_root="$RUNNER_TEMP/pkstack-kiro-private-${ATTEMPT_NUMBER}"
 private_created=false
 
@@ -176,31 +178,6 @@ if grep -aFq -- "$KIRO_API_KEY" "$stream_path" "$stderr_path"; then
   exit 1
 fi
 
-python3 - "$stream_path" "$stderr_path" <<'PY'
-from __future__ import annotations
-
-import json
-import sys
-from pathlib import Path
-
-paths = [Path(value) for value in sys.argv[1:]]
-for path in paths:
-    if path.stat().st_size > 16 * 1024 * 1024:
-        raise SystemExit("Kiro output exceeded the bounded log size")
-stream = paths[0].read_text(encoding="utf-8")
-events = 0
-for line in stream.splitlines():
-    if not line.strip():
-        continue
-    value = json.loads(line)
-    if not isinstance(value, dict):
-        raise SystemExit("Kiro stream-json line was not an object")
-    events += 1
-if events == 0:
-    raise SystemExit("Kiro emitted no stream-json events")
-PY
-
-if [[ "$kiro_rc" -ne 0 ]]; then
-  echo "Kiro headless repair failed with exit code $kiro_rc; private output discarded" >&2
-  exit "$kiro_rc"
-fi
+python3 -B "$stream_validator" \
+  --stream "$stream_path" --stderr "$stderr_path" \
+  --agent "$trusted_agent" --return-code "$kiro_rc"

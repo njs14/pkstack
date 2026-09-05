@@ -113,18 +113,29 @@ import shutil
 import sys
 from pathlib import Path
 
-temporary = Path(sys.argv[1]).resolve()
-for raw in sys.argv[2:]:
-    target = Path(raw)
+runner = Path(sys.argv[1])
+if runner.is_symlink() or not runner.is_dir():
+    raise SystemExit("refusing invalid runner temp directory")
+temporary = runner.resolve()
+binary, kiro_home, user_home = (Path(raw) for raw in sys.argv[2:])
+if binary == user_home or kiro_home != user_home / ".kiro":
+    raise SystemExit("refusing invalid Kiro runtime home layout")
+for target in (binary, user_home):
     if target.is_symlink():
         raise SystemExit(f"refusing symlinked Kiro runtime path: {target}")
     resolved = target.resolve()
-    if resolved.parent != temporary or not resolved.name.startswith("kiro-"):
+    if target.parent != runner or resolved.parent != temporary or not resolved.name.startswith("kiro-"):
         raise SystemExit(f"refusing Kiro runtime path outside runner temp: {target}")
-    if resolved.exists():
-        if not resolved.is_dir():
-            raise SystemExit(f"Kiro runtime path is not a directory: {target}")
-        shutil.rmtree(resolved)
+    if resolved.exists() and not resolved.is_dir():
+        raise SystemExit(f"Kiro runtime path is not a directory: {target}")
+if kiro_home.is_symlink() or (kiro_home.exists() and not kiro_home.is_dir()):
+    raise SystemExit("refusing invalid nested Kiro home")
+if kiro_home.resolve() != user_home.resolve() / ".kiro":
+    raise SystemExit("refusing Kiro home outside isolated user home")
+# Validate the whole layout before deleting anything; the user parent owns .kiro.
+for target in (binary, user_home):
+    if target.exists():
+        shutil.rmtree(target)
 PY
 unset KIRO_BIN_DIR KIRO_HOME KIRO_USER_HOME
 python3 "$GUARD_PATH" --root "$project_root" validate-trusted-snapshot \

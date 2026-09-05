@@ -2,7 +2,8 @@
 
 Recorded September 5, 2026 UTC. The [identity cleanup, PR #18](https://github.com/njs14/pkstack/pull/18)
 merged as `a6bcdb8f64a0765494d55140825af42a2d53eb25` after final CI passed.
-[PR #19](https://github.com/njs14/pkstack/pull/19) contains the pipeline repairs.
+[PR #19](https://github.com/njs14/pkstack/pull/19) merged the pipeline repairs as
+`d81af3280b948f8d69faa6f132473c723f49ca47` after its final CI passed.
 
 ## Proposal contract
 
@@ -115,6 +116,11 @@ present among 350 entries; no `.venv`, `__pycache__`, or `.git` entries were
 included. This proves local packaging only. The tag-driven release workflow
 has not run, and no release was created.
 
+The same packaging check passed again on merged commit `d81af3280b948f8d69faa6f132473c723f49ca47`.
+Its updated Power archive SHA-256 is
+`ac5c363bab7bea7af3887858e5bfd215a137c53e32155d0633a2191f272b2010`;
+the 350-entry inventory and required-file/cache checks also passed.
+
 ## Live gate ledger
 
 | Gate | Exact scope | Result |
@@ -130,8 +136,9 @@ has not run, and no release was created.
 | Start-preview compatibility rerun | `7df46d3` | [Start passed; terminal preview mismatch](https://github.com/njs14/pkstack/actions/runs/33943940381) |
 | Full-preview compatibility rerun | `8015689` | [Policy denial passed; diff original mismatch](https://github.com/njs14/pkstack/actions/runs/33944226318) |
 | Final 2.21.1 permission smoke | `439d816` | [Passed all allowed operations and six denied paths](https://github.com/njs14/pkstack/actions/runs/33944622193) |
-| Updated stable canary | Merged default-branch controls | Must run after merge; final result recorded on PR #19 |
-| Complete upstream update and peer review | Repaired proposal contract | Not run; updater disabled |
+| Final PR #19 CI | `eee8898` | [Passed](https://github.com/njs14/pkstack/actions/runs/33944941658) |
+| Updated stable canary | Merged `d81af328` controls | [Passed](https://github.com/njs14/pkstack/actions/runs/33945088250) |
+| First re-enabled upstream campaign | Merged `d81af328` controls | [Failed proposal/marker checks; no candidate published](https://github.com/njs14/pkstack/actions/runs/33945088358) |
 
 The 2.21.1 permission smoke passed its allowed-write case and the following
 protected-file integrity checks. The first deny case then failed in the stream
@@ -188,6 +195,8 @@ writes), six isolated denied writes, exact matched-rule provenance, every
 protected-file checksum, exact file/directory inventories, and cleanup. All six
 denials reported both preview originals absent and a null diff original. This
 establishes the observed 2.21.1 Linux format and the complete tested boundary.
+Its seven validated turn summaries total 0.7500153854726368 credits. This is
+the successful campaign only, not a total for earlier failed probes.
 
 The existing Kiro secret is the only model-provider credential used by these
 workflows. No key values or session state were copied between products.
@@ -195,9 +204,103 @@ Local rename validation reported 0.04 credits across its two Luna/Low turns;
 the account snapshot changed from 294.49 to 294.55 of 1,000. Pipeline credit
 consumption is not yet attributed by a separate before/after account snapshot.
 
-The owner has explicitly approved re-enabling the autonomous updater's
-permanent cadence. The workflow is still disabled: activation is pending the
-pipeline repair merge; the credential and permission smokes have passed.
-Successful smoke tests do not replace the
-complete live maintenance/candidate/peer-review campaign. Approval is recorded
-here, not an enabled-state or acceptance claim. No tag or release was created.
+The merged canary confirmed the 2.21.1 pin, all six agent schemas and workspace
+discovery, authenticated model inventory without a model turn, and cleanup.
+Eleven recorded documentation hashes matched; `models/available-models.md` and
+`llms.txt` differed from historical snapshots. The reviewed fresh observations
+above retain those changes without inventing their semantic impact. IDE and
+Crew feed versions are observations, not new IDE/Crew end-to-end tests.
+
+After explicit owner approval, the autonomous updater was re-enabled following
+the repair merge on September 5, 2026. GitHub reported workflow `349041529` as
+`active`; its existing daily 13:17 UTC schedule is unchanged. The first manual
+acceptance run uses the same main-branch workflow, bounds, Kiro credential,
+and peer-review gate as that cadence. It failed after four attempts: attempts
+one and two reported `proposal-missing`; three and four reported
+`proposal-marker-missing`. All four reported cleanup exit 0. No candidate was
+published, no peer-review turn ran, and no tag or release was created.
+
+```sh
+gh pr merge 19 --repo njs14/pkstack --squash \
+  --match-head-commit eee8898a045d33e671c6e735997e82871c29cf1c
+gh workflow enable pk-stack-upstream-maintenance-kiro.yml --repo njs14/pkstack
+gh workflow run pk-stack-upstream-maintenance-kiro.yml --repo njs14/pkstack --ref main
+gh workflow run pk-stack-kiro-runtime-canary.yml --repo njs14/pkstack --ref main
+```
+
+## Global-agent loading defect
+
+A local Kiro CLI 2.21.1 / Luna / Low discovery probe reproduced a configuration
+mismatch. `kiro-cli agent list` listed the trusted `pkstack-maintainer` profile
+under an isolated `KIRO_HOME`. In the same environment, v3 chat reported
+`agent "pkstack-maintainer" not found, using "default"`. Every direct mode event
+selected `vibe`; the requested agent was absent from the advertised choices.
+The probe workspace had no `.kiro` directory.
+
+```sh
+KIRO_HOME="$probe_root/kiro-home" kiro-cli agent list
+KIRO_HOME="$probe_root/kiro-home" kiro-cli chat --v3 \
+  --agent pkstack-maintainer --model gpt-5.6-luna --effort low \
+  --no-interactive --trust-tools= --output-format stream-json \
+  'This is a discovery-only probe with no maintenance requested. Do not use tools, edit files, or write a proposal. Reply exactly GLOBAL_AGENT_OK.'
+```
+
+The production preparer used the same split between `KIRO_HOME` and
+`HOME/.kiro`; its runner accepted any nonempty JSON-object stream, even `{}`.
+That explains how fallback could go undetected. Production raw streams were
+deleted as designed, so they cannot establish the earlier runs' selected agent.
+The passing runtime canary tested workspace agents, not this global layout.
+
+After reproducing the defect, the updater was temporarily disabled with
+`gh workflow disable pk-stack-upstream-maintenance-kiro.yml --repo njs14/pkstack`;
+GitHub confirmed `disabled_manually`. Owner approval to re-enable it remains
+in effect. The fix uses one isolated `HOME/.kiro` directory for both maintenance
+and review, and rejects unbound or fallback maintenance streams.
+
+A second local probe used an isolated `HOME` with the aligned layout. It could
+not authenticate without the user's existing home state, so no model turn ran
+and it does not prove successful discovery. No credentials were copied. Linux
+acceptance must prove the corrected global-agent path using the existing Kiro
+workflow secret.
+
+The corrected Power gate passed 828 tests on the Mac, plus Ruff lint and
+formatting, `ty check`, and `uv lock --check`. The initial root-directory pytest
+invocation incorrectly collected the standalone failing-demo fixture. A later
+run lacked Homebrew on `PATH`, causing 16 subprocess failures because `uv` was
+not found. Running from `powers/pkstack` with Homebrew and the installed Kiro
+CLI on `PATH` passed. These were test-invocation errors, not product changes.
+
+The maintenance stream tests cover direct global identity, session binding,
+selection before model/user-tool activity, later fallback, nested or
+advertised-only identities, strict JSON, bounded evidence, and secret-safe
+errors. The real captured fallback stream returns `maintenance-agent-fallback`.
+The shell regression proves `{}` is rejected and private output is cleaned.
+Nested-home tests execute preparation and cleanup guards against valid,
+symlinked, sibling, traversal, and out-of-runner paths; invalid layouts delete
+nothing. Linux live discovery remains the outstanding proof.
+
+The final local repository gate passed 158 Python policy/stream tests and
+17 Node policy tests. Actionlint, ShellCheck, and `git diff --check` passed.
+A separate read-only reviewer approved the four attestation/runner files with
+no material finding; the root agent independently reviewed the nested-home
+preparer, workflow bindings, and cleanup changes. These are code and
+deterministic-test approvals, not a completed live updater verdict.
+
+GitHub confirmed the repository remains private, uses `main`, and automatically
+deletes merged branches. Its branch-protection API returned HTTP 403 with a
+GitHub Pro requirement for this private repository. No account plan or privacy
+setting was changed. This task checks exact-head CI before merging, and the
+autonomous candidate workflow has its own exact-candidate acceptance gate;
+neither substitutes for server-enforced protection against an owner's direct push.
+
+## Source-inventory ordering correction
+
+The detector also reported an invalid Matt Pocock source inventory despite no
+upstream change. GitHub's complete tree at
+`ad2925850efb8973a72d2e666f7a975f9a2d4a9b` confirmed all three recorded objects,
+hashes, modes, types, and sizes. Only their array order violated the existing
+case-insensitive sort contract. The correction reorders those entries without
+changing any source fact, pin, disposition, or history. A regression checks the
+canonical order and unique paths in all six manifest-referenced inventories;
+it failed before the correction and passed afterward. Independent review
+confirmed that the parsed artifact is otherwise unchanged.

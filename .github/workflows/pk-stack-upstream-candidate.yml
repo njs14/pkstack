@@ -196,6 +196,7 @@ jobs:
           uv sync --quiet --locked --all-groups --project powers/pkstack
           .pkstack/bin/projectctl feature validate --output json
           python3 -B .github/scripts/test_pkstack_maintenance_guard.py
+          python3 -B .github/scripts/test_validate_kiro_maintenance_stream.py
           (
             cd powers/pkstack
             uv lock --check
@@ -341,6 +342,7 @@ jobs:
           trusted_projectctl feature validate --output json
           unset READONLY_GITHUB_TOKEN
           python3 -B "$TRUSTED_ROOT/.github/scripts/test_pkstack_maintenance_guard.py"
+          python3 -B "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_maintenance_stream.py"
           (
             cd powers/pkstack
             uv lock --check
@@ -458,7 +460,7 @@ jobs:
             printf 'REVIEW_PRIVATE=%s\n' "$RUNNER_TEMP/pkstack-peer-review-private"
             printf 'KIRO_BIN_DIR=%s\n' "$RUNNER_TEMP/kiro-review-bin"
             printf 'KIRO_ARCHIVE=%s\n' "$RUNNER_TEMP/kiro-review-cache/kirocli-2.21.1.tar.xz"
-            printf 'KIRO_HOME=%s\n' "$RUNNER_TEMP/kiro-review-home"
+            printf 'KIRO_HOME=%s\n' "$RUNNER_TEMP/kiro-review-user-home/.kiro"
             printf 'KIRO_USER_HOME=%s\n' "$RUNNER_TEMP/kiro-review-user-home"
           } >>"$GITHUB_ENV"
       - name: Restore pinned Kiro CLI archive
@@ -592,11 +594,21 @@ jobs:
         if: always()
         run: |
           set -euo pipefail
-          for target in "$REVIEW_PRIVATE" "$REVIEW_WORKSPACE" "$KIRO_HOME" "$KIRO_USER_HOME" "$KIRO_BIN_DIR"; do
-            case "$target" in
-              "$RUNNER_TEMP"/pkstack-peer-review-*|"$RUNNER_TEMP"/kiro-review-*) ;;
-              *) echo "refusing unsafe Kiro review cleanup target" >&2; exit 1 ;;
-            esac
+          test -d "$RUNNER_TEMP"
+          test ! -L "$RUNNER_TEMP"
+          test "$REVIEW_PRIVATE" = "$RUNNER_TEMP/pkstack-peer-review-private"
+          test "$REVIEW_WORKSPACE" = "$RUNNER_TEMP/pkstack-peer-review-workspace"
+          test "$KIRO_USER_HOME" = "$RUNNER_TEMP/kiro-review-user-home"
+          test "$KIRO_BIN_DIR" = "$RUNNER_TEMP/kiro-review-bin"
+          test "$KIRO_HOME" = "$KIRO_USER_HOME/.kiro"
+          test ! -L "$KIRO_HOME"
+          if [[ -e "$KIRO_HOME" ]]; then test -d "$KIRO_HOME"; fi
+          # Validate every root before removing any; .kiro is owned by its parent.
+          for target in "$REVIEW_PRIVATE" "$REVIEW_WORKSPACE" "$KIRO_USER_HOME" "$KIRO_BIN_DIR"; do
+            test ! -L "$target"
+            if [[ -e "$target" ]]; then test -d "$target"; fi
+          done
+          for target in "$REVIEW_PRIVATE" "$REVIEW_WORKSPACE" "$KIRO_USER_HOME" "$KIRO_BIN_DIR"; do
             if [[ -e "$target" ]]; then
               chmod -R u+rwX "$target"
               rm -rf -- "$target"

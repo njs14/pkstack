@@ -11,6 +11,8 @@ import textwrap
 import unittest
 from pathlib import Path
 
+from test_validate_kiro_maintenance_stream import attested_events, stream_bytes
+
 ROOT = Path(__file__).resolve().parents[2]
 MODULE_PATH = ROOT / ".github/scripts/validate_kiro_model_inventory.py"
 SPEC = importlib.util.spec_from_file_location("validate_kiro_model_inventory", MODULE_PATH)
@@ -140,16 +142,22 @@ class ModelInventoryTests(unittest.TestCase):
             root = Path(directory)
             binary = root / "bin"
             binary.mkdir()
-            for name in ("kiro-home", "kiro-user", "private"):
+            for name in ("kiro-user", "private"):
                 (root / name).mkdir()
+            (root / "kiro-user/.kiro").mkdir()
             fake = binary / "kiro-cli"
+            repair_stream = root / "repair-fixture.jsonl"
+            repair_stream.write_bytes(stream_bytes(attested_events()))
+            repair_stderr = root / "repair-fixture.stderr"
+            repair_stderr.write_text("")
             fake.write_text(f"#!{sys.executable}\n" + textwrap.dedent(f'''\
                 import json, os, pathlib, sys
                 if "--list-models" in sys.argv:
                     print({json.dumps(inventory)!r})
                 else:
                     pathlib.Path(os.environ["KIRO_HOME"], "repair-invoked").touch()
-                    print("{{}}")
+                    print(pathlib.Path({str(repair_stream)!r}).read_text(), end="")
+                    print(pathlib.Path({str(repair_stderr)!r}).read_text(), end="", file=sys.stderr)
                 '''))
             fake.chmod(0o755)
             timeout = binary / "timeout"
@@ -165,15 +173,33 @@ class ModelInventoryTests(unittest.TestCase):
             guard = root / "guard.py"
             guard.write_text("import os\nassert 'KIRO_API_KEY' not in os.environ\n")
             env = {**os.environ, "KIRO_API_KEY": "test-only-noncredential",
-                   "KIRO_BIN_DIR": str(binary), "KIRO_HOME": str(root / "kiro-home"),
+                   "KIRO_BIN_DIR": str(binary), "KIRO_HOME": str(root / "kiro-user/.kiro"),
                    "KIRO_USER_HOME": str(root / "kiro-user"), "RUNNER_TEMP": str(root),
                    "BASE_SHA": "a" * 40, "GUARD_PATH": str(guard), "ATTEMPT_NUMBER": "1",
                    "GIT_BOUNDARY_STATE": str(root / "git-boundary")}
             result = subprocess.run(["bash", str(ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh")],
                                     cwd=root, env=env, capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertTrue((root / "kiro-home/repair-invoked").is_file())
+            self.assertTrue((root / "kiro-user/.kiro/repair-invoked").is_file())
             self.assertFalse((root / "pkstack-kiro-private-1").exists())
+            self.assertIn('"selected_agent": "pkstack-maintainer"', result.stdout)
+
+            for stream, stderr, reason in (
+                (b"{}\n", "", "maintenance-agent-selection-missing"),
+                (stream_bytes(attested_events()), 'Agent not found, using "default"\n',
+                 "maintenance-agent-fallback"),
+            ):
+                with self.subTest(reason=reason):
+                    repair_stream.write_bytes(stream)
+                    repair_stderr.write_text(stderr)
+                    result = subprocess.run(
+                        ["bash", str(ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh")],
+                        cwd=root, env=env, capture_output=True, text=True, timeout=10,
+                    )
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(reason, result.stderr)
+                    self.assertNotIn("test-only-noncredential", result.stderr + result.stdout)
+                    self.assertFalse((root / "pkstack-kiro-private-1").exists())
 
             workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
             invoke = workflow.split("      - name: Independent Kiro-hosted Claude Opus 5 review\n", 1)[1]

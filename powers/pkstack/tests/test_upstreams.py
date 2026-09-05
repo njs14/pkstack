@@ -147,6 +147,19 @@ def test_committed_maintenance_campaign_matches_recorded_transition_and_manifest
     assert prior["attempt_evidence"]["bootstrap_preview"] is None
 
 
+def test_committed_source_inventories_use_canonical_casefold_path_order() -> None:
+    manifest = load_upstream_manifest(REPOSITORY_ROOT)
+    checked_sources = set()
+    for source in manifest.sources:
+        parity = json.loads((REPOSITORY_ROOT / source.parity_path).read_text(encoding="utf-8"))
+        if parity.get("artifact_type") != "source-inventory":
+            continue
+        paths = [entry["path"] for entry in parity["files"]]
+        assert paths == sorted(set(paths), key=str.casefold), source.parity_path
+        checked_sources.add(source.source_id)
+    assert "mattpocock-writing-for-agents" in checked_sources
+
+
 def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_scoped() -> None:
     manifest = json.loads(
         (REPOSITORY_ROOT / "maintenance" / "upstreams.json").read_text(encoding="utf-8")
