@@ -25,8 +25,9 @@ the current session. Use `/spawn` only when the user requests a separate session
 Treat feature maps and goal state as projectctl-owned. Never hand-edit them to manufacture success;
 completion requires the named executable verifier to pass.
 
-The `pkstack` profile excludes installed Powers. For setup or refresh, use the IDE agent picker
-or CLI `/agent swap kiro_default` to select the Power-enabled setup agent. Invoke `/pkstack-setup`,
-then return with `/agent swap pkstack` or the IDE picker. Crew opens only locally bootstrapped
-projects. Web uses reviewed, committed assets; Configuration Sync does not install PKStack.
-Cached `.pkstack/bin/projectctl setup` requires an explicitly reviewed `--power-root`.
+The `pkstack` profile excludes Powers. For setup or refresh, use the IDE picker or
+CLI `/agent swap default`. Swapping alone does not discover a Power. Invoke `/pkstack-setup`
+only if the reviewed Power is available; otherwise run its Power-local script from a terminal
+(usage.md). Return with `/agent swap pkstack` or the IDE picker. Crew requires local bootstrap;
+Web requires reviewed, committed assets. Configuration Sync does not install PKStack.
+Cached `.pkstack/bin/projectctl setup` requires a reviewed `--power-root`.

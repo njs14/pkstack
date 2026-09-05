@@ -8,14 +8,15 @@ description: Create polished, validated, offline-capable architecture, workflow,
 Treat the request text that activated this skill as the task input; do not
 depend on CLI-only argument substitution.
 
-Use the reviewed, byte-exact runtime in `upstream/` to turn a small typed JSON
+Use the reviewed, digest-pinned runtime in `upstream/` to turn a small typed JSON
 specification into a self-contained interactive HTML diagram. The runtime is
 bundled with this skill, so ordinary rendering, validation, delivery, and
 visual-check work is offline-capable and does not need npm install.
 
 Keep this Kiro wrapper separate from `upstream/`: this file is the
 Kiro-native routing and safety contract, while `upstream/` is the reviewed
-runtime snapshot recorded by the curated-skill manifests.
+runtime snapshot and documented PKStack maintenance patches recorded by the
+curated-skill manifests and Archify provenance record.
 
 ## Route and choose a mode
 

@@ -195,8 +195,10 @@ jobs:
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
           uv sync --quiet --locked --all-groups --project powers/pkstack
           .pkstack/bin/projectctl feature validate --output json
-          python3 -B .github/scripts/test_pkstack_maintenance_guard.py
-          python3 -B .github/scripts/test_validate_kiro_maintenance_stream.py
+          .pkstack/bin/projectctl version --output json
+          .pkstack/bin/projectctl knowledge validate --output json
+          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
+          node --test .github/scripts/test_pkstack_pr_policy.js
           (
             cd powers/pkstack
             uv lock --check
@@ -342,8 +344,14 @@ jobs:
           fi
           trusted_projectctl feature validate --output json
           unset READONLY_GITHUB_TOKEN
+          trusted_projectctl version --output json
+          trusted_projectctl knowledge validate --output json
           python3 -B "$TRUSTED_ROOT/.github/scripts/test_pkstack_maintenance_guard.py"
           python3 -B "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_maintenance_stream.py"
+          # Protected controls were checked against the base snapshot above; run
+          # the complete suite against the candidate data, as ordinary CI does.
+          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
+          node --test .github/scripts/test_pkstack_pr_policy.js
           (
             cd powers/pkstack
             uv lock --check

@@ -127,6 +127,13 @@ jobs:
           test -s "$checksum"
           printf 'ARCHIVE=%s\n' "$archive" >>"$GITHUB_ENV"
           printf 'CHECKSUM=%s\n' "$checksum" >>"$GITHUB_ENV"
+      - name: Extract the reviewed version-specific release notes
+        run: |
+          set -euo pipefail
+          notes="$RUNNER_TEMP/pkstack-release/notes.md"
+          python3 -B .github/scripts/pkstack_release_notes.py --tag "$EXPECTED_TAG" \
+            --repository "$GITHUB_REPOSITORY" --commit "$RELEASE_SHA" >"$notes"
+          printf 'RELEASE_NOTES=%s\n' "$notes" >>"$GITHUB_ENV"
       - name: Create the private GitHub Release with the repository token
         env:
           GH_TOKEN: ${{ github.token }}
@@ -136,5 +143,5 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --verify-tag \
             --title "PKStack $EXPECTED_TAG" \
-            --notes "PKStack $EXPECTED_TAG Power archive. The repository is private; assets are published only to its private GitHub Release." \
+            --notes-file "$RELEASE_NOTES" \
             "$ARCHIVE" "$CHECKSUM"

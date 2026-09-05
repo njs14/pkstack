@@ -21,13 +21,13 @@
         "size": 678398,
         "type": "blob"
       },
-      "rationale": "Required offline runtime template is preserved byte-for-byte in the curated bundle."
+      "rationale": "Incorporated with a reviewed PKStack runtime adaptation: Apply desktop viewport adaptation to compact diagrams without desktop-width inflation, and contain narrow toolbar controls by resetting desktop offsets and allowing wrapping. Pinned and current identify upstream bytes; the bundle manifest and Archify provenance record bind the separate local patch."
     },
     {
       "current": {
         "mode": "100755",
-        "object_sha": "2b8cc7a793b42611d8cc8241727deae5947e6bc0",
-        "size": 71546,
+        "object_sha": "034342ea5d2101c44ef3335d8d24e83034d67b54",
+        "size": 72093,
         "type": "blob"
       },
       "disposition": "A",
@@ -38,7 +38,7 @@
         "size": 71546,
         "type": "blob"
       },
-      "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
+      "rationale": "Incorporate the reviewed render option and positional-arity guards as exact upstream bytes so malformed invocations fail before creating unintended output files."
     },
     {
       "current": {
@@ -60,8 +60,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "449383f8beb1276f6b0c9e1d7eb20dc86736e23f",
-        "size": 23578,
+        "object_sha": "16ed94ed61d18a92b65394fc0ba5c50d8c26e147",
+        "size": 23722,
         "type": "blob"
       },
       "disposition": "A",
@@ -72,7 +72,7 @@
         "size": 23578,
         "type": "blob"
       },
-      "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
+      "rationale": "Incorporate exact upstream asynchronous watcher-error handling: close the failed watcher once and retain polling-driven preview publication and shutdown."
     },
     {
       "current": {
@@ -740,8 +740,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "02d778175efc949d1cc0c8d4f6dcb0cda500d6bb",
-        "size": 21146,
+        "object_sha": "1cfc032a12ed72a0d2b0bb09797d337c039218b3",
+        "size": 21734,
         "type": "blob"
       },
       "disposition": "A",
@@ -752,7 +752,7 @@
         "size": 21146,
         "type": "blob"
       },
-      "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
+      "rationale": "Incorporate the upstream segment-frame width guard with the recorded local adaptation for participant clearance and bounded caption placement above or inside its own band. Retain exact new upstream blob identity; local bytes and inverse patch remain separately recorded."
     },
     {
       "current": {
@@ -1573,8 +1573,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "8cf6198e5428d5868d762025496e721140251080",
-        "size": 34991,
+        "object_sha": "56d48fb2c4120f70ab958f546b5c0f6d817a9bf1",
+        "size": 36099,
         "type": "blob"
       },
       "disposition": "B",
@@ -1585,13 +1585,13 @@
         "size": 34991,
         "type": "blob"
       },
-      "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+      "rationale": "Keep upstream tests outside the runtime bundle. Local regressions reproduce unknown render options and excess positional arguments and verify rejection without unintended files."
     },
     {
       "current": {
         "mode": "100644",
-        "object_sha": "5557da93646a11963cf776296da64634f5cd5eec",
-        "size": 3400,
+        "object_sha": "3369ceadd76b7181ad60375b4e795c3fd2fc36cb",
+        "size": 4836,
         "type": "blob"
       },
       "disposition": "B",
@@ -1602,7 +1602,7 @@
         "size": 3400,
         "type": "blob"
       },
-      "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+      "rationale": "Keep upstream community-template tests excluded; they inspect contributor and issue templates that are not shipped as the diagram runtime."
     },
     {
       "current": {
@@ -2202,8 +2202,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "b432ddab1cf6d8892d93fb84b39a3ef94d22ca7f",
-        "size": 61847,
+        "object_sha": "1182dc9c8d45cac3a21d2e24789dc0cadcc2527d",
+        "size": 64392,
         "type": "blob"
       },
       "disposition": "B",
@@ -2214,7 +2214,7 @@
         "size": 61847,
         "type": "blob"
       },
-      "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+      "rationale": "Keep upstream tests excluded. Local regressions cover exact-fit caption width and a caption that exceeds its frame while still fitting inside the SVG canvas."
     },
     {
       "current": {
@@ -2355,8 +2355,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "fc381fbe9096da2882c44bc4889da5bf2604f3d1",
-        "size": 22454,
+        "object_sha": "6ffd8cde20cb9daf5713bbcec68985926b2c11e5",
+        "size": 24185,
         "type": "blob"
       },
       "disposition": "B",
@@ -2367,7 +2367,7 @@
         "size": 22454,
         "type": "blob"
       },
-      "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+      "rationale": "Keep upstream tests excluded. A focused local test injects a watcher error into the real preview, verifies polling publishes the edited input, and verifies one-time watcher cleanup and server shutdown."
     },
     {
       "current": {
@@ -3274,8 +3274,8 @@
   "schema_version": 1,
   "source": {
     "current": {
-      "commit": "06dd052602dd9a369e4d034e24faef0917b5a60c",
-      "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
+      "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
+      "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
     },
     "id": "tt-a1i-archify",
     "path": "archify",
@@ -3284,7 +3284,7 @@
       "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
     },
     "repository": "tt-a1i/archify",
-    "retrieved_on": "2026-09-03"
+    "retrieved_on": "2026-09-05"
   },
   "summary": {
     "A": 71,

@@ -23,7 +23,7 @@ PATHS_SHA256 = hashlib.sha256(
     json.dumps(PATHS, separators=(",", ":")).encode()
 ).hexdigest()
 BUNDLE = {
-    "schema_version": 2,
+    "schema_version": 3,
     "review_type": "mandatory-independent-exact-candidate",
     "base_sha": BASE,
     "head_sha": HEAD,
@@ -35,6 +35,7 @@ BUNDLE = {
     "patch_sha256": PATCH,
     "patch": PATCH_TEXT,
     "skill_compatibility": {},
+    "source_inventory": [],
 }
 BUNDLE_RAW = (json.dumps(BUNDLE, sort_keys=True, separators=(",", ":")) + "\n").encode()
 CONTENT = hashlib.sha256(BUNDLE_RAW).hexdigest()
@@ -107,7 +108,10 @@ class KiroReviewStreamTests(unittest.TestCase):
             "summary must be a trimmed, nonempty string of at most 4000 UTF-8 bytes",
             '"approved" if and only if material_findings is []',
             'otherwise use "rejected"',
-            "schema v2 skill_compatibility context",
+            "schema v3 skill_compatibility context",
+            "complete changed file records at base and head, keyed by upstream path",
+            "An unchanged retrieved_on is valid for multiple inventory retrievals on the same UTC date",
+            "Do not invent omitted context",
             "immutable base fixture",
             "Block supported conflicting instructions",
             "duplicated mandatory work or competing ownership",

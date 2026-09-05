@@ -276,9 +276,13 @@ from that absence that the catalog is unlimited.
 The cached `projectctl setup` surface requires an explicit `--power-root` and
 cannot silently use its own stale cache as upgrade authority. After selecting
 `pkstack`, a managed refresh remains in the current chat. IDE users switch
-through the agent picker; CLI users run `/agent swap kiro_default`,
-`/pkstack-setup`, then `/agent swap pkstack` (or use the local Power-enabled agent
-name in place of `kiro_default`).
+through the agent picker. CLI v3 2.21.1 uses `/agent swap default` to leave the
+restricted profile, but that swap does not make an imported Power discoverable.
+Invoke `/pkstack-setup` only where the reviewed Power is available; otherwise
+run its Power-local setup script from a terminal as documented in [usage](usage.md),
+then use `/agent swap pkstack` in the same conversation. The native CLI campaign
+observed all five installed command skills and an explicit missing-skill result
+for Power-local setup; direct setup-script success is separate evidence.
 Setup also validates its required source modules and Power assets before target
 writes. Its deterministic repository discovery uses sorted root-relative paths
 and refreshes as an owned observation rather than a managed code upgrade.

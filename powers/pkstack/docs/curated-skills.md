@@ -12,7 +12,7 @@ reviewed skills, not a promise to install every upstream plugin.
 | [Poteto’s pstack in Cursor plugins](https://github.com/cursor/plugins/tree/main/pstack) | Engineering workflows, verification, reviews, and principles | Preserve the working method; use Kiro’s native planning and subagents in place of Cursor-specific orchestration. [Full mapping](upstream-skill-parity.md). |
 | [HumanLayer skills](https://github.com/humanlayer/skills) | `show-me`, `design-control-loop`, `build-iterated-agentic-loop`, `narrow-react-prop-types` | Visual explanations, bounded automation, and live-call-site type narrowing. Replace provider-specific execution and broad permissions with the Kiro boundary. |
 | [Matt Pocock skills](https://github.com/mattpocock/skills) | `writing-for-agents` | Make skill descriptions, steering, `AGENTS.md`, and references easier for an agent to find and follow. It does not replace human-facing technical writing. |
-| [Archify](https://github.com/tt-a1i/archify) | `archify` and its reviewed renderer | Produce validated diagrams without installing a renderer on each run. Keep the Kiro wrapper separate from the exact runtime snapshot. |
+| [Archify](https://github.com/tt-a1i/archify) | `archify` and its reviewed renderer | Produce validated diagrams without installing a renderer on each run. Keep the Kiro wrapper and documented PKStack layout patches distinct from the pinned upstream source. |
 | [OKF skills](https://github.com/scaccogatto/okf-skills) | Durable knowledge-working methods in `/okf` | Produce, maintain, and consume the project Wiki. Exclude transcript backfill, upstream executables, hooks, and MCP activation. |
 | [Google’s OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) and [OpenKnowledge](https://github.com/openknowledge-sh/openknowledge) | Knowledge format and the external `okn` interface | Keep source-controlled knowledge and bounded retrieval without building another knowledge engine. |
 
@@ -45,10 +45,12 @@ competing acceptance checks, and unrequested writes are conflicts.
 Setup installs and checks the reviewed bundle. It reports optional capabilities
 and suggests next steps; it does not run all these workflows as onboarding.
 
-The [live Luna/Low smokes](https://github.com/njs14/pkstack/blob/main/reviews/friends-curated-validation.md) record
+The historical [live Luna/Low smokes](https://github.com/njs14/pkstack/blob/main/reviews/friends-curated-validation.md) record
 what each helper actually did. They include an Archify clipping failure and
 control-loop design/builder limitations; installation is not proof that generated
-output is correct. Keep each skill's verification and review checkpoints.
+output is correct. The [Archify release repair](../../../reviews/release-030-archify.md)
+records the reproduced clipping defect, runtime corrections, and fresh browser
+and export checks. Keep each skill's verification and review checkpoints.
 
 ## Reviewed bundles
 
@@ -63,7 +65,7 @@ exception. The [pstack mapping](upstream-skill-parity.md) covers Poteto's ports.
 
 | Skill | Source | Runtime boundary |
 | --- | --- | --- |
-| [`archify`](../skills/archify/SKILL.md) | [`tt-a1i/archify`](https://github.com/tt-a1i/archify/commit/06dd052602dd9a369e4d034e24faef0917b5a60c) | [`tt-a1i-archify-bundle-manifest.json`](tt-a1i-archify-bundle-manifest.json); byte-exact runtime under `skills/archify/upstream/` |
+| [`archify`](../skills/archify/SKILL.md) | [`tt-a1i/archify`](https://github.com/tt-a1i/archify/commit/d8e4daf2610d512821365f41b139d874b29efe81) | [`tt-a1i-archify-bundle-manifest.json`](tt-a1i-archify-bundle-manifest.json); digest-pinned runtime with [documented local layout patches](tt-a1i-archify-provenance.md) under `skills/archify/upstream/` |
 | [`build-iterated-agentic-loop`](../skills/build-iterated-agentic-loop/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | Kiro-safe loop builder with bounded references |
 | [`design-control-loop`](../skills/design-control-loop/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | Kiro-native control-system design method |
 | [`narrow-react-prop-types`](../skills/narrow-react-prop-types/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | React prop narrowing from live call sites |
