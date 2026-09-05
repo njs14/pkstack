@@ -3112,7 +3112,7 @@ def test_multisource_accept_serializes_one_source_without_mutating_the_other(
     canonical_power = _prepare_accept_root(tmp_path)
     paths = _add_parallel_source(tmp_path)
     responses = _fake_responses()
-    parity = json.loads(paths["parity"].read_text(encoding="utf-8"))
+    parity: dict[str, Any] = json.loads(paths["parity"].read_text(encoding="utf-8"))
     if artifact_type == "source-inventory":
         identities = {}
         for revision, tree in (("pinned", PIN_TREE), ("current", HEAD_TREE)):
