@@ -318,6 +318,189 @@ class KiroReviewStreamTests(unittest.TestCase):
             ):
                 review.validate(args)
 
+    THOUGHT_SENTINEL = "INERT_THOUGHT_SENTINEL_DO_NOT_PUBLISH"
+    THOUGHT_SESSION = "sess_00000000-0000-4000-8000-000000000001"
+
+    def _review_envelope(self, update: dict[str, object]) -> dict[str, object]:
+        return {
+            "type": "sessionUpdate",
+            "data": {"sessionId": self.THOUGHT_SESSION, "update": update},
+        }
+
+    def _review_bootstrap(self) -> list[dict[str, object]]:
+        call_id = "00000000-0000-4000-8000-000000000002"
+        return [
+            self._review_envelope({
+                "sessionUpdate": "tool_call",
+                "toolCallId": call_id,
+                "status": "in_progress",
+                "title": "Fetching your cloud config",
+                "_meta": {"kiro": {"toolId": "fetch_cloud_config"}},
+            }),
+            self._review_envelope({
+                "sessionUpdate": "tool_call_update",
+                "toolCallId": call_id,
+                "status": "completed",
+            }),
+        ]
+
+    def _review_thought_events(self, thought_count: int = 2) -> list[dict[str, object]]:
+        profile = json.loads(
+            (Path(__file__).resolve().parents[2] / ".kiro/agents/pkstack-ci-reviewer.json")
+            .read_text(encoding="utf-8")
+        )
+        mode = {
+            "id": "mode", "name": "Mode", "category": "mode", "type": "select",
+            "currentValue": review.REQUIRED_AGENT,
+            "options": [{
+                "name": review.REQUIRED_AGENT,
+                "value": review.REQUIRED_AGENT,
+                "description": profile["description"],
+                "_meta": {"kiro": {
+                    "source": "global",
+                    "welcomeMessage": profile["welcomeMessage"],
+                    "resource": {"resourceType": "agent", "source": {"origin": "user"}},
+                }},
+            }],
+        }
+        model = model_event()["data"]["update"]
+        model["sessionUpdate"] = "config_option_update"
+        return [
+            {"type": "runStarted", "data": {
+                "payloadSchema": "acp", "acpProtocolVersion": 1, "engine": "v3",
+            }},
+            self._review_envelope({"sessionUpdate": "config_option_update", "configOptions": [mode]}),
+            self._review_envelope(model),
+            *[
+                self._review_envelope({
+                    "sessionUpdate": "agent_thought_chunk",
+                    "_meta": {"kiro": {"replayId": "t" * 40}},
+                    "content": {"type": "text", "text": self.THOUGHT_SENTINEL},
+                })
+                for _ in range(thought_count)
+            ],
+            self._review_envelope({
+                "sessionUpdate": "agent_message_chunk",
+                "_meta": {"kiro": {"replayId": "m" * 40}},
+                "content": {"type": "text", "text": verdict()},
+            }),
+            {"type": "runFinished", "data": {
+                "sessionId": self.THOUGHT_SESSION,
+                "status": "success", "stopReason": "end_turn",
+                "finalText": verdict(), "finalTextTruncated": False,
+            }},
+        ]
+
+    def _review_lifecycle_args(
+        self, root: Path, events: list[dict[str, object]]
+    ) -> argparse.Namespace:
+        args = self._args(root)
+        args.stream.write_text(
+            "".join(json.dumps(event) + "\n" for event in events), encoding="utf-8"
+        )
+        args.report_path = root / "report.json"
+        args.source_id = "alpha"
+        args.source_commit = "a" * 40
+        args.source_subtree_sha = "b" * 40
+        args.source_run_id = 10
+        args.candidate_run_id = 11
+        return args
+
+    def test_unmocked_review_thoughts_are_excluded_from_verdict_and_report(self) -> None:
+        for count in (1, 2):
+            with self.subTest(thoughts=count), tempfile.TemporaryDirectory() as directory:
+                events = self._review_thought_events(count)
+                events[3:3] = self._review_bootstrap()
+                args = self._review_lifecycle_args(Path(directory), events)
+                with mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}):
+                    result = review.validate(args)
+                report_raw = args.report_path.read_text(encoding="utf-8")
+                report = json.loads(report_raw)
+                self.assertEqual(result["review_verdict"], "approved")
+                self.assertEqual(result["reviewed_agent"], review.REQUIRED_AGENT)
+                self.assertEqual(result["reviewed_model"], MODEL)
+                self.assertEqual(result["reviewed_effort"], EFFORT)
+                self.assertEqual(
+                    result["verdict_sha256"], hashlib.sha256(verdict().encode()).hexdigest()
+                )
+                self.assertEqual(report["material_findings"], [])
+                self.assertEqual(report["summary"], json.loads(verdict())["summary"])
+                self.assertNotIn(self.THOUGHT_SENTINEL, report_raw + json.dumps(result))
+
+    def test_unmocked_review_rejects_malformed_and_spoofed_thoughts(self) -> None:
+        missing = object()
+        cases = (
+            ("extra_update_key", ("unexpected",), self.THOUGHT_SENTINEL),
+            ("missing_metadata", ("_meta",), missing),
+            ("missing_content", ("content",), missing),
+            ("missing_kind", ("sessionUpdate",), missing),
+            ("extra_metadata_key", ("_meta", "unexpected"), self.THOUGHT_SENTINEL),
+            ("missing_kiro_metadata", ("_meta", "kiro"), missing),
+            ("missing_replay", ("_meta", "kiro", "replayId"), missing),
+            ("extra_kiro_key", ("_meta", "kiro", "unexpected"), self.THOUGHT_SENTINEL),
+            ("invalid_replay", ("_meta", "kiro", "replayId"), "short"),
+            ("null_content", ("content",), None),
+            ("missing_content_type", ("content", "type"), missing),
+            ("missing_content_text", ("content", "text"), missing),
+            ("null_text", ("content", "text"), None),
+            ("empty_text", ("content", "text"), ""),
+            ("non_string_text", ("content", "text"), [self.THOUGHT_SENTINEL]),
+            ("wrong_content_type", ("content", "type"), "image"),
+            ("nested_tool", ("content", "nested"), {"sessionUpdate": "tool_call"}),
+            ("nested_message", ("content", "nested"), {"sessionUpdate": "agent_message_chunk"}),
+            ("unknown_kind", ("sessionUpdate",), "agent_unknown_chunk"),
+        )
+        for name, path, replacement in cases:
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as directory:
+                events = self._review_thought_events()
+                target = events[3]["data"]["update"]
+                for key in path[:-1]:
+                    target = target[key]
+                if replacement is missing:
+                    del target[path[-1]]
+                else:
+                    target[path[-1]] = replacement
+                args = self._review_lifecycle_args(Path(directory), events)
+                with (
+                    mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
+                    self.assertRaises(review.ReviewError) as caught,
+                ):
+                    review.validate(args)
+                self.assertNotIn(self.THOUGHT_SENTINEL, str(caught.exception))
+                self.assertFalse(args.report_path.exists())
+
+    def test_unmocked_review_rejects_thought_identity_and_ordering_failures(self) -> None:
+        cases = (
+            "wrong_session", "changed_replay", "pending_bootstrap", "after_message",
+            "late_bootstrap", "thought_only", "mismatched_final_text",
+        )
+        for case in cases:
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as directory:
+                events = self._review_thought_events()
+                if case == "wrong_session":
+                    events[3]["data"]["sessionId"] = "sess_00000000-0000-4000-8000-000000000099"
+                elif case == "changed_replay":
+                    events[4]["data"]["update"]["_meta"]["kiro"]["replayId"] = "q" * 40
+                elif case == "pending_bootstrap":
+                    start, terminal = self._review_bootstrap()
+                    events[3:5] = [start, *events[3:5], terminal]
+                elif case == "after_message":
+                    events[4], events[5] = events[5], events[4]
+                elif case == "late_bootstrap":
+                    events[4:4] = self._review_bootstrap()
+                elif case == "thought_only":
+                    del events[5]
+                elif case == "mismatched_final_text":
+                    events[-1]["data"]["finalText"] = verdict(head="5" * 40)
+                args = self._review_lifecycle_args(Path(directory), events)
+                with (
+                    mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
+                    self.assertRaises(review.ReviewError) as caught,
+                ):
+                    review.validate(args)
+                self.assertNotIn(self.THOUGHT_SENTINEL, str(caught.exception))
+                self.assertFalse(args.report_path.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

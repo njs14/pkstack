@@ -418,5 +418,68 @@ CI=true /Users/noahsutter/.local/bin/kiro-cli-chat agent validate \
   --path /private/tmp/pkstack-rebrand.N2MfUP/.kiro/agents/pkstack-ci-reviewer.json
 ```
 
-The next exact-head CI and full updater campaign must pass before this repair
-is accepted end to end.
+[PR #24](https://github.com/njs14/pkstack/pull/24), head
+`1bd84315725a183ead44c44471c3c1cc613ac034`, passed
+[CI 33948306200](https://github.com/njs14/pkstack/actions/runs/33948306200)
+and independent read-only review. It merged as
+`f4d1019359f40c4719fe0c986d49beacf4ecbd0f`; its
+[post-merge CI](https://github.com/njs14/pkstack/actions/runs/33948406703)
+also passed.
+
+The [next source run](https://github.com/njs14/pkstack/actions/runs/33948407146)
+passed on repair one and published [PR #25](https://github.com/njs14/pkstack/pull/25),
+head `9c08e81e93efcbd1d2c0568a996b28d61eca296a`. The exact four-file OKF
+source-accounting diff retained backfill's excluded disposition. After checking
+its exact head/base, bot identity, workflow path, and diff, local owner approval
+started supplementary [PR CI 33948671376](https://github.com/njs14/pkstack/actions/runs/33948671376),
+which passed.
+
+The [candidate gate 33948673559](https://github.com/njs14/pkstack/actions/runs/33948673559)
+passed base tests, candidate tests, offline reviewer preparation, and authenticated
+review invocation. The Opus process exited 0, but validation rejected an unknown
+session-update kind. No validated verdict was retained, and no rejection budget
+was consumed. Cleanup closed PR #25 without merging at 06:05:27 UTC. The private
+stream was deleted, so its exact unrecognized kind is not directly recoverable.
+This is a stream-validation failure, not evidence of an Opus rejection.
+
+## Opus stream-shape regression
+
+A fresh local Kiro 2.21.1 no-tool probe with Opus / Low reproduced the exact
+unknown-kind failure in the unmodified parser. The disposable workspace was
+`/private/tmp/pkstack-opus-stream-shape.YYsNIr`; it used the existing Kiro login,
+not copied authentication or an additional API key. Its minimal agent had no
+tools, resources, MCP servers, or Powers. The prompt asked one small probability
+question, and the process exited 0.
+
+```sh
+CI=true NO_COLOR=1 kiro-cli chat --v3 --agent pkstack-stream-probe \
+  --model claude-opus-5 --effort low --no-interactive --trust-tools= \
+  --output-format stream-json \
+  'A box has 3 red and 2 blue balls. Draw two without replacement. What is the probability they have the same color? Give only the reduced fraction.'
+```
+
+Only structural evidence was inspected: 54 events, including 31
+`agent_thought_chunk` events and one `agent_message_chunk`. Each thought had
+the exact text-content and Kiro replay-ID envelope. Thought chunks shared one
+replay identity, separate from the final message; all events shared one session.
+Thought content was not printed or committed. This proves the local parser
+defect, while the deleted CI stream's exact event remains unverified.
+The local probe's prompt-turn summary reports `0.07385851346600332` credits.
+This is the probe's cost only, not an account-wide or pipeline total.
+
+The parser now validates that observed thought envelope with the same strict
+text-event checks as final messages, but tracks thought replay identity
+separately. Thoughts must precede the answer, cannot overlap bootstrap calls,
+and never contribute to the verdict or public report. Unknown event kinds,
+agent-visible tools, malformed payloads, mixed sessions, changed replay IDs,
+thought-only responses, and mismatched final answers remain rejected.
+The captured local stream passes this repaired parser. Three unmocked review
+regressions cover full approval, malformed/spoofed events, and ordering/identity
+failures using inert text rather than copied reasoning. Independent root
+review found no material issue in the parser or regression diff.
+
+All 163 repository tests passed, including 12 reviewer tests and the 17 existing
+credential-stream tests. Actionlint, ShellCheck, and `git diff --check` passed.
+The credential-smoke workflow's generated parser copy and checksum were
+refreshed mechanically. Independent decoding confirmed byte-for-byte equality
+and SHA-256 `76b045ad9973bb3f702bd35ea577fba62c21344ab5f962b44f305d9ce829ecef`.

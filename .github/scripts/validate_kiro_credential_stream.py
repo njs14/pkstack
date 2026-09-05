@@ -21,6 +21,7 @@ _AGENT_MESSAGE_TAGS = {"agentmessagechunk", "assistantmessagechunk"}
 _DISCRIMINATOR_KEYS = {"kind", "sessionupdate", "type", "updatetype"}
 _SESSION_UPDATE_KINDS = {
     "agent_message_chunk",
+    "agent_thought_chunk",
     "available_commands_update",
     "config_option_update",
     "session_info_update",
@@ -278,27 +279,30 @@ def _bootstrap_tool_event(event: dict[str, Any]) -> tuple[str, str, str]:
     raise StreamError("Kiro attempted a non-bootstrap tool call during the no-tool smoke")
 
 
-def _agent_message_event(event: dict[str, Any]) -> tuple[str, str, str]:
-    session_id, update = _session_envelope(event, label="agent-message chunk")
+def _agent_text_event(
+    event: dict[str, Any], *, expected_kind: str
+) -> tuple[str, str, str]:
+    label = "agent-thought" if expected_kind == "agent_thought_chunk" else "agent-message"
+    session_id, update = _session_envelope(event, label=f"{label} chunk")
     if set(update) != {"_meta", "content", "sessionUpdate"}:
-        raise StreamError("Kiro emitted a malformed agent-message chunk")
-    if update.get("sessionUpdate") != "agent_message_chunk":
-        raise StreamError("Kiro emitted a legacy or nested agent-message chunk")
+        raise StreamError(f"Kiro emitted a malformed {label} chunk")
+    if update.get("sessionUpdate") != expected_kind:
+        raise StreamError(f"Kiro emitted a legacy or nested {label} chunk")
     metadata = update.get("_meta")
     if not isinstance(metadata, dict) or set(metadata) != {"kiro"}:
-        raise StreamError("Kiro emitted malformed agent-message metadata")
+        raise StreamError(f"Kiro emitted malformed {label} metadata")
     kiro_metadata = metadata.get("kiro")
     if not isinstance(kiro_metadata, dict) or set(kiro_metadata) != {"replayId"}:
-        raise StreamError("Kiro emitted malformed agent-message Kiro metadata")
+        raise StreamError(f"Kiro emitted malformed {label} Kiro metadata")
     replay_id = kiro_metadata.get("replayId")
     if not isinstance(replay_id, str) or _REPLAY_ID.fullmatch(replay_id) is None:
-        raise StreamError("Kiro emitted an invalid agent-message replay ID")
+        raise StreamError(f"Kiro emitted an invalid {label} replay ID")
     content = update.get("content")
     if not isinstance(content, dict) or set(content) != {"text", "type"}:
-        raise StreamError("Kiro emitted malformed agent-message content")
+        raise StreamError(f"Kiro emitted malformed {label} content")
     text = content.get("text")
     if content.get("type") != "text" or not isinstance(text, str) or not text:
-        raise StreamError("Kiro emitted a non-text or empty agent-message chunk")
+        raise StreamError(f"Kiro emitted a non-text or empty {label} chunk")
     return session_id, replay_id, text
 
 
@@ -404,6 +408,7 @@ def _validated_assistant_text(
     bootstrap_session: str | None = None
     agent_session: str | None = None
     replay_id: str | None = None
+    thought_replay_id: str | None = None
     agent_seen = False
     chunks: list[str] = []
 
@@ -423,7 +428,7 @@ def _validated_assistant_text(
         message_event = any(tag in _AGENT_MESSAGE_TAGS for tag in tags)
 
         if tool_event:
-            if agent_seen:
+            if agent_seen or thought_replay_id is not None:
                 raise StreamError("Kiro emitted cloud-config bootstrap metadata after agent text")
             kind, session_id, call_id = _bootstrap_tool_event(event)
             if kind == "start":
@@ -440,10 +445,25 @@ def _validated_assistant_text(
             bootstrap_pending = None
             continue
 
+        if update.get("sessionUpdate") == "agent_thought_chunk":
+            if bootstrap_pending is not None or agent_seen:
+                raise StreamError("Kiro emitted agent thoughts outside the pre-answer phase")
+            _, current_replay_id, _ = _agent_text_event(
+                event, expected_kind="agent_thought_chunk"
+            )
+            if thought_replay_id is not None and thought_replay_id != current_replay_id:
+                raise StreamError("Kiro agent-thought identity changed between chunks")
+            thought_replay_id = current_replay_id
+            # Observed Opus thoughts have their own replay ID. They are never
+            # assistant-response chunks and cannot satisfy the final verdict.
+            continue
+
         if message_event:
             if bootstrap_pending is not None:
                 raise StreamError("Kiro agent text straddled cloud-config bootstrap metadata")
-            session_id, current_replay_id, text = _agent_message_event(event)
+            session_id, current_replay_id, text = _agent_text_event(
+                event, expected_kind="agent_message_chunk"
+            )
             if agent_session is None:
                 agent_session = session_id
                 replay_id = current_replay_id
