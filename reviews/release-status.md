@@ -53,7 +53,7 @@ already covered by 24 independent process/state cases.
 - **GUI coverage assumed by user direction:** IDE Standard, Quick, and setup;
   Agent Focus; Crew; and Web final follow-up were not completed in this campaign.
   They are no longer release blockers. The Web fixture's stored
-  failure/repair/pass and earlier IDE results remain bounded evidence; the waiver
+  failure/repair/pass and earlier IDE results remain limited evidence; the waiver
   does not establish fresh passing results for these surfaces.
 - **Final artifact:** Reproducible archives and extracted-consumer checks for
   main `3859f63` are historical evidence. Notes, archive, checksum, and acceptance
