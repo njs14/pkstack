@@ -4150,6 +4150,45 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.policy,
         )
 
+    def test_trusted_inventory_preflight_leaves_snapshot_unchanged(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        command = next(
+            line.strip() for line in workflow.splitlines()
+            if line.strip().startswith("python3 ")
+            and "/test_validate_kiro_model_inventory.py" in line
+        )
+        arguments = shlex.split(command)
+        self.assertEqual(arguments[:2], ["python3", "-B"])
+        following = workflow.split(command, 1)[1].split('chmod -R a-w "$TRUSTED_ROOT"', 1)[0]
+        self.assertIn("validate-trusted-snapshot", following)
+        candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
+        self.assertIn('python3 -B "$TRUSTED_ROOT/.github/scripts/test_pk_stack_maintenance_guard.py"', candidate)
+
+        with tempfile.TemporaryDirectory() as directory:
+            snapshot = Path(directory) / "trusted"
+            shutil.copytree(ROOT / ".github", snapshot / ".github",
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+
+            def inventory() -> dict[str, str]:
+                return {str(path.relative_to(snapshot)): hashlib.sha256(path.read_bytes()).hexdigest()
+                        for path in snapshot.rglob("*") if path.is_file()}
+
+            before = inventory()
+            environment = {key: value for key, value in os.environ.items()
+                           if key not in {"PYTHONDONTWRITEBYTECODE", "PYTHONPYCACHEPREFIX"}}
+            # Apple Python relocates bytecode caches by default. Force Linux's
+            # in-tree cache behavior so this regression cannot be masked locally.
+            runner = ("import runpy,sys; sys.pycache_prefix=None; "
+                      "sys.argv=[sys.argv[1]]; runpy.run_path(sys.argv[0], run_name='__main__')")
+            result = subprocess.run(
+                [sys.executable, *arguments[1:-1], "-c", runner,
+                 arguments[-1].replace("$TRUSTED_ROOT", str(snapshot))],
+                env=environment, capture_output=True, text=True, timeout=30,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(inventory(), before)
+            self.assertFalse(list(snapshot.rglob("*.pyc")))
+
     def test_permission_smoke_fixture_matches_production_and_policy_exactly(self) -> None:
         fixture = json.loads(
             (ROOT / ".github/fixtures/kiro-permission-agent.json").read_text(encoding="utf-8")

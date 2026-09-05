@@ -24,7 +24,8 @@ and 17 JavaScript tests, plus lint, formatting, types, Actionlint, and ShellChec
 Independent bounded runtime and pipeline reviews accepted the implementation.
 Real Kiro CLI v3 sessions passed both the direct-command and native Quick Spec
 handoffs, with recorded failures before repair. [PR #13](https://github.com/njs14/pk-stack/pull/13)
-is the release candidate; merge and the live updater campaign remain pending.
+merged at `91d1370f9db8e5f3e996648033a4b5fd557fd5c6` after its final CI passed.
+The live updater campaign and release publication remain pending.
 
 ## Release requirements
 

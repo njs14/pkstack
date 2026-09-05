@@ -122,7 +122,7 @@ class ModelInventoryTests(unittest.TestCase):
         self.assertEqual(workflow.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 4)
         self.assertEqual(workflow.count('run: bash "$KIRO_RUNNER_PATH"'), 4)
         self.assertIn(
-            'python3 "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_model_inventory.py"',
+            'python3 -B "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_model_inventory.py"',
             workflow,
         )
 
