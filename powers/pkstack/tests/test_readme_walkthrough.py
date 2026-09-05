@@ -26,11 +26,14 @@ def _json_documents(output: str) -> list[dict[str, Any]]:
     return documents
 
 
-def test_readme_demo_records_failure_before_repair_and_pass(tmp_path: Path) -> None:
+def test_linked_first_task_records_failure_before_repair_and_pass(tmp_path: Path) -> None:
     readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
-    blocks = re.findall(r"^```sh\n(.*?)^```", readme, flags=re.MULTILINE | re.DOTALL)
+    assert "powers/pkstack/docs/first-task.md" in readme
+    guide = (POWER_ROOT / "docs/first-task.md").read_text(encoding="utf-8")
+    blocks = re.findall(r"^```sh\n(.*?)^```", guide, flags=re.MULTILINE | re.DOTALL)
     walkthroughs = [block for block in blocks if block.startswith("PKSTACK_DEMO=$(mktemp")]
-    assert len(walkthroughs) == 1, "Keep one complete executable first-run block in the README"
+    goals = [block for block in blocks if block.startswith(".pkstack/bin/projectctl goal start")]
+    assert len(walkthroughs) == len(goals) == 1, "Keep one setup and one failure block in the guide"
     source = POWER_ROOT / "examples/verified-goal-demo/account.py"
     source_before = source.read_bytes()
     environment = {
@@ -45,7 +48,7 @@ def test_readme_demo_records_failure_before_repair_and_pass(tmp_path: Path) -> N
         UV_OFFLINE="1",
     )
     first_run = subprocess.run(
-        ["/bin/sh", "-eu", "-c", walkthroughs[0]],
+        ["/bin/sh", "-eu", "-c", walkthroughs[0] + "\n" + goals[0]],
         cwd=tmp_path,
         env=environment,
         capture_output=True,

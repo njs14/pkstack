@@ -65,6 +65,13 @@ Report:
 - doctor and validation status;
 - any approval or restart still required.
 
+Setup ends with installation, checks, and this report. Offer one relevant next step from the
+user's context: [`show-me`](../show-me/SKILL.md) for a visual tour,
+[`writing-for-agents`](../writing-for-agents/SKILL.md) for existing agent instructions, or
+[`create-verification-skill`](../create-verification-skill/SKILL.md) for missing live proof.
+Do not start onboarding, a diagram, a documentation rewrite, or a verification workflow merely
+because setup succeeded. An explicitly requested follow-up may proceed within its own scope.
+
 Kiro discovers newly copied workspace skills at session startup. After setup,
 the generated Poteto Kiro (`pkstack`) permission profile does not attach
 retroactively. In Kiro IDE 1.x, use the agent selector in the chat panel or

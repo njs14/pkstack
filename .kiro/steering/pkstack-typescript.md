@@ -21,3 +21,4 @@ tests, and lint.
 
 Use the `typescript-best-practices` skill when the task needs the complete
 review workflow and examples.
+For React props broader than live usage, follow its `narrow-react-prop-types` pointer.

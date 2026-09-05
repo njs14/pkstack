@@ -22,3 +22,7 @@ Find decisions, constraints, abandoned approaches, and evidence that could chang
 step. Prefer original artifacts over summaries and verify drift-prone claims against the live
 repository. Label each result as current evidence, historical decision, or inference. Return a
 compact reconstruction with source locations, conflicts, and anything that could not be recovered.
+
+Retrieval ends with that reconstruction. Use [`reflect`](../reflect/SKILL.md) to propose lessons
+from completed work and [`okf`](../okf/SKILL.md) when the user requests durable project knowledge.
+Pass the inspected sources forward; recall alone does not write either lessons or knowledge.

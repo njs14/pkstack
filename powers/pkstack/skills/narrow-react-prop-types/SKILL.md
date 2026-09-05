@@ -8,6 +8,11 @@ description: Narrow React component prop types to the states used by live applic
 Treat the request text that activated this skill as the narrowing task. Treat production routes, wired components, providers, hooks, and exported production packages as the
 contract. Stories, tests, fixtures, mocks, and demos are support code and must not widen it.
 
+Use this method when React props permit states that live callers do not use. Use
+[`typescript-best-practices`](../typescript-best-practices/SKILL.md) for broader TypeScript
+domain or boundary work; it may call this method for the prop-contract portion. A general
+typecheck failure or a nullable state used in production is not evidence for narrowing.
+
 1. Find every import and usage of the component, its exported prop type, and affected child
    primitives. Classify each call site as live or support code.
 2. From live call sites, classify each prop as required, meaningfully optional, nullable, or unused.

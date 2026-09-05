@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from pkstack_maintenance_guard import GuardError, validate_skill_review_context
 from validate_kiro_credential_stream import (
     StreamError,
     parse_no_tool_stream_bytes,
@@ -153,11 +154,13 @@ def _validate_bundle(
         "paths_sha256",
         "patch_sha256",
         "patch",
+        "skill_compatibility",
     }
     if not isinstance(bundle, dict) or set(bundle) != expected_keys:
         raise ReviewError("candidate review bundle contract changed")
     if (
-        bundle.get("schema_version") != 1
+        type(bundle.get("schema_version")) is not int
+        or bundle.get("schema_version") != 2
         or bundle.get("review_type") != "mandatory-independent-exact-candidate"
         or bundle.get("requires_review") is not True
         or bundle.get("base_sha") != base_sha
@@ -173,9 +176,9 @@ def _validate_bundle(
     if (
         not isinstance(paths, list)
         or not paths
+        or not all(isinstance(path, str) and path for path in paths)
         or paths != sorted(paths)
         or len(paths) != len(set(paths))
-        or not all(isinstance(path, str) and path for path in paths)
         or type(changed_files) is not int
         or changed_files != len(paths)
         or type(changed_lines) is not int
@@ -188,6 +191,10 @@ def _validate_bundle(
     computed_paths_sha256 = hashlib.sha256(paths_raw).hexdigest()
     if paths_sha256 != computed_paths_sha256:
         raise ReviewError("candidate review bundle paths digest changed")
+    try:
+        validate_skill_review_context(bundle["skill_compatibility"], paths, base_sha, head_sha)
+    except (GuardError, UnicodeError, ValueError, RecursionError) as exc:
+        raise ReviewError(f"candidate review bundle skill compatibility is invalid: {exc}") from exc
     return changed_files, computed_paths_sha256
 
 

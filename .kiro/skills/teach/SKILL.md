@@ -14,8 +14,8 @@ learning the subject.
 
 ## Compose `how` and `why`
 
-Read only enough code to locate the subject. Then apply the `how` skill to its
-runtime mechanics and the `why` skill to its rationale. These are real skill
+Read only enough code to locate the subject. Then apply [`how`](../how/SKILL.md) to its
+runtime mechanics and [`why`](../why/SKILL.md) to its rationale. These are real skill
 applications, not labels for a hand-written substitute. For a subsystem, run
 them independently in parallel through bounded native sub-agents when
 available, then synthesize their results. One may be enough for a very small
@@ -41,7 +41,9 @@ moving parts, use a progressive series: draw the first relationship, redraw it
 and add exactly one part, then redraw again for the next part or return edge.
 Do not replace teaching with one crowded final diagram. Use a simple text or
 Mermaid diagram supported by the selected Kiro surface; a single simple point
-needs no figure.
+needs no figure. Use [`show-me`](../show-me/SKILL.md) for the presentation step and
+[`archify`](../archify/SKILL.md) only when a polished interactive artifact serves the lesson.
+Reuse the `how` and `why` evidence packet; a diagram does not add proof or remove uncertainty.
 
 Keep it conversational and let the user choose whether to go deeper. Do not
 quiz the user, assign an exercise, demand a restatement, announce a fake pause,

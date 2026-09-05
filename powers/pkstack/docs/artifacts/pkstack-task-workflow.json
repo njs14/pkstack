@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {"title": "From a native Kiro plan to a passing check", "locale": "en", "quality_profile": "showcase"},
+  "lanes": [
+    {"id": "kiro", "label": "Kiro conversation"},
+    {"id": "controller", "label": "projectctl"},
+    {"id": "stop", "label": "Unfinished work", "variant": "exception"}
+  ],
+  "mainPath": ["native_plan", "return_agent", "bind_start", "verify_once", "passed"],
+  "nodes": [
+    {"id": "native_plan", "lane": "kiro", "col": 0, "type": "frontend", "label": "Spec / Quick Spec", "sublabel": "Kiro owns the plan", "width": 172},
+    {"id": "return_agent", "lane": "kiro", "col": 1, "type": "backend", "label": "Select pkstack", "sublabel": "Same conversation", "width": 172},
+    {"id": "bind_start", "lane": "controller", "col": 2, "type": "database", "label": "Bind & start goal", "sublabel": "One stored verifier", "width": 172},
+    {"id": "verify_once", "lane": "controller", "col": 3, "type": "backend", "label": "goal verify", "sublabel": "One recorded attempt", "width": 172},
+    {"id": "passed", "lane": "controller", "col": 4, "type": "database", "label": "Passed", "sublabel": "Report exact evidence", "width": 172},
+    {"id": "repair", "lane": "kiro", "col": 3, "type": "backend", "label": "Diagnose & repair", "sublabel": "Keep the same check", "width": 172},
+    {"id": "exhausted", "lane": "stop", "col": 3, "type": "security", "label": "Exhausted", "sublabel": "Ask before more attempts", "width": 172}
+  ],
+  "edges": [
+    {"id": "plan_handoff", "from": "native_plan", "to": "return_agent", "label": "plan ready", "role": "main"},
+    {"id": "bind_contract", "from": "return_agent", "to": "bind_start", "label": "review check", "role": "main"},
+    {"id": "first_attempt", "from": "bind_start", "to": "verify_once", "label": "before edits", "role": "main"},
+    {"id": "success", "from": "verify_once", "to": "passed", "label": "pass", "role": "main", "variant": "emphasis"},
+    {"id": "failed_attempt", "from": "verify_once", "to": "repair", "label": "fail · budget remains", "role": "branch"},
+    {"id": "retry_check", "from": "repair", "to": "verify_once", "label": "verify again", "role": "return", "variant": "dashed"},
+    {"id": "budget_stop", "from": "verify_once", "to": "exhausted", "label": "fail · no budget", "role": "error", "variant": "security"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "Visible handoff", "items": ["Choose the native workflow, then select the workspace agent."]},
+    {"dot": "emerald", "title": "One acceptance check", "items": ["Kiro edits the implementation; projectctl records the result."]},
+    {"dot": "rose", "title": "Bounded continuation", "items": ["The skill guides the loop; it cannot force the runtime to continue."]}
+  ]
+}

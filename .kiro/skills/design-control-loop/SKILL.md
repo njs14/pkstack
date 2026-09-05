@@ -9,6 +9,13 @@ Treat the request text that activated this skill as the desired outcome. Read `r
 repository before asking questions. Propose concrete options from existing commands, patterns, CI,
 and permissions; ask only when a choice would materially change the design.
 
+This method defines reusable automation. For completing the current task, use
+[`pkstack-verified-goal`](../pkstack-verified-goal/SKILL.md). Use
+[`architect`](../architect/SKILL.md) for an unresolved component boundary or
+[`arena`](../arena/SKILL.md) for a distinct contested artifact, passing the agreed control
+contract forward. Do not repeat a completed alternatives comparison. Keep any native Kiro
+Spec as the planning authority.
+
 ## Design phases
 
 1. Define a measurable set point and the directories the loop may write or only inspect.
@@ -23,7 +30,12 @@ and permissions; ask only when a choice would materially change the design.
 
 Do not manufacture separate components where they are genuinely fused. Do not introduce external
 model API keys, broad write access, floating dependencies, or an unbounded PR/comment loop. When
-GitHub Actions is selected, use `build-iterated-agentic-loop` for implementation.
+implementation is requested, pass the agreed contract to
+[`build-iterated-agentic-loop`](../build-iterated-agentic-loop/SKILL.md), including when
+GitHub Actions is selected. A design request does not authorize wiring or enabling automation.
 
 Completion criterion: the design identifies every authority, transition, proof, failure state, and
 local command well enough to test the loop without CI.
+
+Label proposed commands and hypothetical transitions as unexecuted. Call a result observed only
+when an actual run supplies evidence; a worked example is not a run.

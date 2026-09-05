@@ -10,6 +10,11 @@ Use this method for any document an agent consumes: `AGENTS.md`, a Kiro Skill,
 `.kiro/steering/`, or a reference reached through one of those files. Preserve the
 repository's intent and safety boundaries while making the agent's path predictable.
 
+Use [`technical-writing`](../technical-writing/SKILL.md) for human-facing documentation.
+If both audiences need the same facts, link their distinct instructions to one authoritative
+reference. Finish prose with [`unslop`](../unslop/SKILL.md), preserving exact triggers,
+checkpoints, permissions, and completion criteria.
+
 For skill frontmatter, invocation, and router decisions, read
 [`SKILL-MECHANICS.md`](SKILL-MECHANICS.md).
 

@@ -8,6 +8,12 @@ description: Produce a compact, auditable decision trail that connects requireme
 Treat the request text that activated this skill as the work whose visible evidence should be
 audited.
 
+Use this method when the user requests a decision trail or the selected workflow requires one.
+For "show me what you did" without that context, summarize existing evidence and gaps without
+creating a new log. For a visual explanation, use [`show-me`](../show-me/SKILL.md).
+When a visual artifact accompanies a requested trail, reference that artifact's existing evidence
+rather than repeating its investigation.
+
 At the start, choose a stable slug. Do not create or edit the trail by hand. Append every material
 decision or checkpoint through the deterministic projectctl lever:
 

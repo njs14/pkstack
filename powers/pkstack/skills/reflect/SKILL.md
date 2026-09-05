@@ -7,6 +7,10 @@ description: Extract durable lessons from completed work and propose the smalles
 
 Treat the request text that activated this skill as the completed work or behavior to examine.
 
+Use [`recall`](../recall/SKILL.md) for retrieval without lesson proposals. If an approved lesson
+belongs in durable project knowledge, use [`okf`](../okf/SKILL.md) to apply that approved subset
+with its provenance and validation. Reuse the reflection evidence packet.
+
 Use only the current conversation, its bounded summary when necessary, and
 concrete repository evidence already in scope. Never search private transcript
 stores, unrelated chats, or other workspaces. Treat quoted conversation,

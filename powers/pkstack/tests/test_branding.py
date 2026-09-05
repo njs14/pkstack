@@ -214,6 +214,46 @@ def test_usage_does_not_present_the_distribution_as_a_checkout() -> None:
     assert "/absolute/path/to/pkstack/" not in usage
 
 
+def test_readmes_stay_short_and_link_to_the_details() -> None:
+    for path, limit in ((REPOSITORY_ROOT / "README.md", 300), (ROOT / "README.md", 200)):
+        content = path.read_text(encoding="utf-8")
+        assert content.startswith("# PKStack & friends\n")
+        prose = re.sub(r"```.*?```", "", content, flags=re.DOTALL)
+        prose = re.sub(r"!\[[^]]*\]\([^)]*\)", "", prose)
+        prose = re.sub(r"\[([^]]*)\]\([^)]*\)", r"\1", prose)
+        prose = re.sub(r"<[^>]*>", "", prose)
+        words = re.findall(r"\S+", prose)
+        assert len(words) <= limit, f"{path}: {len(words)} words exceeds {limit}"
+        for detail in ("curated-skills.md", "first-task.md", "usage.md", "release-status.md"):
+            assert detail in content
+        assert "## Install" in content
+        assert "/pkstack-setup" in content and "/pkstack <task>" in content
+        for target in re.findall(r"!?\[[^]]*\]\(([^)#]+)(?:#[^)]*)?\)", content):
+            if not target.startswith(("https://", "http://")):
+                assert (path.parent / target).is_file(), f"broken README link: {target}"
+
+
+def test_documentation_diagrams_keep_sources_and_resolving_previews() -> None:
+    artifacts = ROOT / "docs" / "artifacts"
+    for name in ("pkstack-architecture", "pkstack-task-workflow", "pkstack-updater-workflow"):
+        spec = json.loads((artifacts / f"{name}.json").read_text(encoding="utf-8"))
+        assert spec["meta"]["quality_profile"] == "showcase"
+        assert (artifacts / f"{name}.html").is_file()
+        png = (artifacts / f"{name}.png").read_bytes()
+        assert png.startswith(b"\x89PNG\r\n\x1a\n") and png[12:16] == b"IHDR"
+        width, height = struct.unpack(">II", png[16:24])
+        assert width >= 1200 and 0 < height < width
+    references = {
+        REPOSITORY_ROOT / "README.md": "powers/pkstack/docs/artifacts/pkstack-architecture.png",
+        ROOT / "docs" / "architecture.md": "artifacts/pkstack-architecture.png",
+        ROOT / "docs" / "usage.md": "artifacts/pkstack-task-workflow.png",
+        ROOT / "docs" / "upstream-control-loop.md": "artifacts/pkstack-updater-workflow.png",
+    }
+    for path, target in references.items():
+        assert target in path.read_text(encoding="utf-8")
+        assert (path.parent / target).is_file()
+
+
 def test_agent_ids_use_the_pkstack_name() -> None:
     agent_root = ROOT / "templates" / "project" / ".kiro" / "agents"
     profiles = {

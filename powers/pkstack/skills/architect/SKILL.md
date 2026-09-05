@@ -15,6 +15,12 @@ semantics; it is not a separate planner runtime. Read
 [`references/design-contract.md`](references/design-contract.md) before
 comparing candidates.
 
+For a reusable feedback loop without an agreed control contract, first use
+[`design-control-loop`](../design-control-loop/SKILL.md) to define its control contract;
+use this skill for unresolved component boundaries within that contract. Its architecture
+arena satisfies the alternatives checkpoint. Invoke [`arena`](../arena/SKILL.md) separately
+only for a distinct contested artifact, reusing the constraints and candidate evidence.
+
 ## Ground the decision
 
 1. Inspect the relevant code, tests, feature record, and repository guidance.

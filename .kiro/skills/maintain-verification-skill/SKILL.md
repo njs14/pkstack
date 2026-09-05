@@ -7,6 +7,10 @@ description: Audit and update an existing verification workflow against current 
 
 Treat the request text that activated this skill as the verification surface to audit.
 
+This method repairs verifier drift. When evidence exposes a product defect, report it and route
+authorized product repairs to [`pkstack-verified-goal`](../pkstack-verified-goal/SKILL.md) with
+the unchanged expectation. A verifier-maintenance request alone does not authorize product edits.
+
 Do not assume a passing old check still covers current behavior. Preserve this sequence:
 
 1. **Locate the surface.** Find the authoritative verification skill, its feature-map index, every

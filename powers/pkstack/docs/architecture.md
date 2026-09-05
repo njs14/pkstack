@@ -29,35 +29,12 @@ or claim that CLI v3 supplies native `/goal`.
 
 ## Component map
 
-For a browsable version with guided views, theme switching, zoom, and export,
+![Kiro owns execution and planning; PKStack skills guide the work; projectctl runs the verifier and consults project knowledge.](artifacts/pkstack-architecture.png)
+
+For a browsable version with theme switching, zoom, and export,
 open the [interactive PKStack architecture artifact](artifacts/pkstack-architecture.html).
 Its [Archify source specification](artifacts/pkstack-architecture.json) is
 committed beside it so the diagram can be reviewed and regenerated.
-
-```mermaid
-flowchart LR
-    User[User in Kiro IDE or CLI v3]
-    Plan[Native Spec / Quick Spec / Bug Fix / Plan]
-    Skill[PKStack skills and pkstack agent]
-    CLI[.pkstack/bin/projectctl]
-    Services[Typed Python services]
-    Contract[Wiki/features contract]
-    Goal[.pkstack/state/goal.json]
-    Runner[Shell-free bounded runner]
-    Project[Project files and verifier]
-    Wiki[Source-controlled Wiki]
-    Okn[Optional canonical okn]
-
-    User --> Plan --> Skill --> CLI
-    CLI --> Services
-    Services --> Contract
-    Services --> Goal
-    Contract --> Runner
-    Goal --> Runner
-    Runner --> Project
-    Services --> Wiki
-    Services -. bounded delegation .-> Okn
-```
 
 The Python package parses explicit inputs, validates data, runs the stored
 verifier, and persists small, inspectable records. It does not call a model.

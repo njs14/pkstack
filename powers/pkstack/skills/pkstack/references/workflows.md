@@ -52,8 +52,11 @@ Before asking the user to choose an implementation path, decide whether a revers
 probe, or prototype can answer the question. Run that safe experiment when it can; reserve questions
 for real product, preference, permission, or irreversible choices. For any code, name the domain data
 shape first. A nontrivial change starts with `how`; code crossing a function or module boundary uses
-`architect`; parallel coverage uses `swarm`; a contested design uses `interrogate`. Apply `unslop` to
-every prose surface, `technical-writing` to durable documentation, and `no-comments` before review.
+`architect`; parallel coverage uses `swarm`; a contested design uses `interrogate`.
+Apply `unslop` to every prose surface,
+[`technical-writing`](../../technical-writing/SKILL.md) to human documentation,
+[`writing-for-agents`](../../writing-for-agents/SKILL.md) to agent instructions, and `no-comments`
+before review.
 Use the product's existing project-local verification skill to drive an IDE, CLI, UI, service, or
 other user surface; do not substitute internal setters or static inspection for that proof.
 
@@ -62,6 +65,18 @@ scope, inherit the session's selected model and effort unless the user made anot
 review its artifacts, and synthesize the result in the coordinating session. A broken reusable skill
 is reported and repaired as its own explicit work item; do not silently bypass it. Long or unattended
 work composes `show-me-your-work`, PR-status work uses Babysit, and landing work uses Shipping.
+
+An explicit skill invocation selects its method without broadening authority. Choose helpers for
+distinct outputs and reuse the evidence packet. Leaf skills own their boundaries; preserve the
+ordered checkpoints here when a helper supplies one of them.
+
+Use [`show-me`](../../show-me/SKILL.md) to present an explanation visually and
+[`archify`](../../archify/SKILL.md) for a polished interactive diagram. For React prop contracts
+broader than live usage, use [`narrow-react-prop-types`](../../narrow-react-prop-types/SKILL.md)
+during the implementation step. A reusable automation request moves from
+[`design-control-loop`](../../design-control-loop/SKILL.md) to
+[`build-iterated-agentic-loop`](../../build-iterated-agentic-loop/SKILL.md) when implementation is
+requested; the current task's completion still uses `pkstack-verified-goal`.
 
 ## Investigation
 
@@ -183,7 +198,8 @@ work composes `show-me-your-work`, PR-status work uses Babysit, and landing work
 
 1. Use the platform's skill-authoring guidance and create a project-local, user-owned skill. Never
    overwrite a receipt-managed PKStack skill.
-2. Validate frontmatter, concise activation wording, references, and cross-skill links.
+2. Apply [`writing-for-agents`](../../writing-for-agents/SKILL.md); validate frontmatter,
+   concise activation wording, references, and cross-skill links. Finish prose with `unslop`.
 3. Add structural tests for machine-checkable behavior; label subjective review as such.
 4. Report the skill path, decisions, and validation. Publishing is a separate authorization.
 

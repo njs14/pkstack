@@ -7,6 +7,11 @@ description: Write or revise technical documentation for a specific reader and t
 
 Treat the request text that activated this skill as the document, audience, and outcome.
 
+This method serves human readers: tutorials, how-to guides, references, and explanations.
+For instructions consumed by an agent, use
+[`writing-for-agents`](../writing-for-agents/SKILL.md). For mixed audiences, keep each audience's
+instructions in its own linked document and reuse verified facts across them.
+
 Write for a tired engineer who needs the correct result on the first read.
 Inspect the implementation and existing documentation before writing. Use the
 real symbol, file, flag, command, and product name; do not invent a synonym for

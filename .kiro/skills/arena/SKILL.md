@@ -7,6 +7,12 @@ description: Compare multiple structurally distinct solutions to one artifact un
 
 Treat the request text that activated this skill as the artifact or question.
 
+Use [`architect`](../architect/SKILL.md) when the work needs architecture grounding and a
+usage-first scaffold; its built-in arena already compares those candidates. Use
+[`design-control-loop`](../design-control-loop/SKILL.md) to define a loop's control contract.
+Run this contest only for a distinct unresolved choice, with the existing brief and evidence.
+Do not start a second contest for a decision that the selected method already settled.
+
 ## Frame one contest
 
 Define exactly one artifact and 3-6 gradeable criteria. Include correctness and verification; add safety, maintainability, operability, or performance only when relevant. State the selection rule before generating candidates.
