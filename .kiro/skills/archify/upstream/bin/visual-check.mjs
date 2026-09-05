@@ -146,13 +146,20 @@ class PipeCdp {
     this.buffer = '';
     this.pending = new Map();
     this.waiters = [];
+    this.terminalError = null;
     this.writePipe = child.stdio[3];
     this.readPipe = child.stdio[4];
     this.readPipe.setEncoding('utf8');
     this.readPipe.on('data', (chunk) => this.consume(chunk));
     this.writePipe.on('error', (error) => this.failAll(this.failure('write pipe', error)));
     this.readPipe.on('error', (error) => this.failAll(this.failure('read pipe', error)));
+    this.readPipe.once('end', () => this.failAll(this.failure('read pipe', new Error('Chrome pipe ended'))));
+    this.readPipe.once('close', () => this.failAll(this.failure('read pipe', new Error('Chrome pipe closed'))));
     child.once('error', (error) => this.failAll(this.failure('process launch', error)));
+    child.once('exit', (code, signal) => {
+      const ending = signal ? `signal ${signal}` : `exit code ${code}`;
+      this.failAll(this.failure('process exit', new Error(`Chrome exited with ${ending}`)));
+    });
     child.once('close', (code, signal) => {
       const ending = signal ? `signal ${signal}` : `exit code ${code}`;
       this.failAll(this.failure('process exit', new Error(`Chrome closed with ${ending}`)));
@@ -202,13 +209,17 @@ class PipeCdp {
   }
 
   send(method, params = {}, sessionId = undefined, timeoutMs = 15000) {
+    if (this.terminalError) return Promise.reject(this.terminalError);
     const id = this.nextId++;
     const message = { id, method, params };
     if (sessionId) message.sessionId = sessionId;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(id);
-        reject(new Error(`${method}: timed out after ${timeoutMs}ms`));
+        reject(new Error([
+          `${method}: timed out after ${timeoutMs}ms`,
+          this.failureDetails(),
+        ].filter(Boolean).join('\n')));
       }, timeoutMs);
       this.pending.set(id, { method, resolve, reject, timer });
       try {
@@ -222,6 +233,7 @@ class PipeCdp {
   }
 
   waitFor(method, sessionId, timeoutMs = 15000) {
+    if (this.terminalError) return Promise.reject(this.terminalError);
     return new Promise((resolve, reject) => {
       const waiter = { method, sessionId, resolve, reject, timer: null };
       waiter.timer = setTimeout(() => {
@@ -233,13 +245,14 @@ class PipeCdp {
   }
 
   failAll(error) {
+    this.terminalError ||= error;
     for (const pending of this.pending.values()) {
       clearTimeout(pending.timer);
-      pending.reject(error);
+      pending.reject(this.terminalError);
     }
     for (const waiter of this.waiters) {
       clearTimeout(waiter.timer);
-      waiter.reject(error);
+      waiter.reject(this.terminalError);
     }
     this.pending.clear();
     this.waiters = [];

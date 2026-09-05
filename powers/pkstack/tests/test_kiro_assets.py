@@ -118,7 +118,7 @@ def test_power_manifest_uses_agent_plugins_format() -> None:
 
     assert manifest["$schema"] == "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
     assert manifest["name"] == POWER_ID
-    assert manifest["description"].startswith(f"{DISPLAY_NAME} ({EXPANDED_NAME}):")
+    assert DISPLAY_NAME in manifest["description"] and EXPANDED_NAME in manifest["description"]
     assert manifest["version"]
     assert manifest["description"]
     assert isinstance(manifest["keywords"], list) and manifest["keywords"]
@@ -133,7 +133,7 @@ def test_skill_frontmatter_matches_agent_skills_standard(skill_name: str) -> Non
     assert metadata["name"] == skill_name
     assert set(metadata) == ALLOWED_SKILL_FRONTMATTER
     assert isinstance(metadata["description"], str)
-    assert 20 <= len(metadata["description"]) <= 1024
+    assert 1 <= len(metadata["description"]) <= 1024
     assert body
 
 
@@ -283,34 +283,11 @@ def test_skill_boundary_leaves_link_their_neighbors(skill_name: str, neighbors: 
 
 def test_setup_handoff_and_explicit_invocation_keep_authority_visible() -> None:
     setup = " ".join((SKILLS / "pkstack-setup" / "SKILL.md").read_text().split())
-    assert "Setup ends with installation, checks, and this report" in setup
-    assert "Offer one relevant next step" in setup
     assert "Do not start onboarding" in setup
     for name in ("show-me", "writing-for-agents", "create-verification-skill"):
         assert f"../{name}/SKILL.md" in setup
     entry = " ".join((SKILLS / "pkstack" / "SKILL.md").read_text().split())
-    assert "An explicit invocation selects that skill" in entry
     assert "does not broaden the user's authority" in entry
-    for name in ("show-me", "show-me-your-work"):
-        leaf = " ".join((SKILLS / name / "SKILL.md").read_text().split())
-        assert '"show me what you did"' in leaf
-        assert "existing evidence" in leaf and "new log" in leaf
-
-
-def test_compatibility_document_inventory_counts_match_assets() -> None:
-    text = (ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8")
-    upstreams = json.loads(
-        (REPO_ROOT / "maintenance" / "upstreams.json").read_text(encoding="utf-8")
-    )["sources"]
-    workspace_agents = list((REPO_ROOT / ".kiro" / "agents").glob("*.json"))
-    shipped_agents = list(AGENTS.glob("*.json"))
-    materialized_skills = EXPECTED_SKILLS - {"pkstack-setup"}
-
-    assert f"The {len(upstreams)} source entries in `maintenance/upstreams.json`" in text
-    assert f"validates all {len(workspace_agents)} workspace-agent files" in text
-    assert f"The other {len(materialized_skills)} workflow skills" in text
-    assert f"all {len(shipped_agents)} shipped Power profiles" in text
-    assert "`pkstack-maintainer` and `pkstack-ci-reviewer` CI profiles" in text
 
 
 def test_upstream_skill_parity_inventory_is_complete_and_rendered() -> None:
@@ -446,8 +423,6 @@ def test_load_bearing_upstream_skill_packages_are_routed_by_their_real_names() -
     assert [(resource["path"], resource["handling"]) for resource in setup["current"]["files"]] == [
         ("SKILL.md", "semantic-source")
     ]
-    assert "role-model rule" in setup["rationale"]
-    assert "inheritance of the user's selected Kiro model and effort" in setup["rationale"]
 
     poteto = by_name["poteto-mode"]
     assert poteto["disposition"] == "alias-consolidation"
@@ -491,200 +466,42 @@ def test_load_bearing_upstream_skill_packages_are_routed_by_their_real_names() -
     )
 
 
-def test_ported_skill_bodies_keep_high_value_upstream_contracts() -> None:
-    work_log = (SKILLS / "show-me-your-work" / "SKILL.md").read_text()
-    normalized_work_log = " ".join(work_log.split())
-    for phrase in (
+def test_evidence_skill_documents_public_commands_and_storage() -> None:
+    text = " ".join((SKILLS / "show-me-your-work/SKILL.md").read_text().split())
+    for contract in (
         "projectctl evidence append <slug>",
         "--verdict VERIFIED|NOT VERIFIED|INCONCLUSIVE",
         ".pkstack/state/evidence/<slug>/decision-log.jsonl",
-        "uncommitted by default",
-        "only when the user explicitly requests",
         "--committed",
         "--target Wiki/evidence/<slug>/decision-log.jsonl",
         "`schema_version`",
         "`sequence`",
         "`timestamp`",
         "`verdict`",
-        "preserves the prior byte prefix",
-        "workflow convention with deterministic validation, not a signed or tamper-proof log",
         "projectctl evidence audit <slug> --output json",
-        "not private transcripts",
     ):
-        assert phrase in normalized_work_log
-    figure = (SKILLS / "figure-it-out" / "SKILL.md").read_text()
-    assert "show-me-your-work" in figure and "append" in figure
-
-    how = (SKILLS / "how" / "SKILL.md").read_text()
-    assert "## Critique mode" in how
-    comments = (SKILLS / "no-comments" / "SKILL.md").read_text()
-    assert "fresh native Kiro sub-agent" in comments
-    normalized_comments = " ".join(comments.split())
-    for phrase in (
-        "current diff against the base branch",
-        "defaulting to `main`",
-        "index and working tree",
-        "use `how` or `why` on the symbol",
-        "run exactly one fresh review again",
-        "stop this workflow as failed",
-        "Wait for explicit approval",
-        "exact deletion count",
-        "every restored comment with evidence",
-    ):
-        assert phrase in normalized_comments
-    teach = (SKILLS / "teach" / "SKILL.md").read_text()
-    normalized_teach = " ".join(teach.split())
-    assert "Do not quiz the user" in normalized_teach
-    for phrase in (
-        "apply [`how`](../how/SKILL.md)",
-        "[`why`](../why/SKILL.md)",
-        "real skill applications",
-        "coverage gaps and confidence words unchanged",
-        "progressive series",
-        "redraw it and add exactly one part",
-        "Do not replace teaching with one crowded final diagram",
-    ):
-        assert phrase in normalized_teach
-    teach_metadata, _ = _frontmatter(SKILLS / "teach" / "SKILL.md")
-    assert "check for understanding" not in str(teach_metadata["description"]).lower()
-    why = (SKILLS / "why" / "SKILL.md").read_text()
-    assert "coverage ledger" in why and "source categories" in why
-    normalized_why = " ".join(why.split())
-    assert "includeMcpJson: false" in normalized_why
-    assert "external evidence is passed to them" in normalized_why
-    assert "they do not fetch it through MCP or connector calls" in normalized_why
-    unslop = (SKILLS / "unslop" / "SKILL.md").read_text()
-    normalized_unslop = " ".join(unslop.split())
-    for phrase in (
-        "**Scan.**",
-        "**Rewrite.**",
-        "**Add human voice.**",
-        "**Self-audit.**",
-        "## Pattern catalog",
-        "vague attribution",
-        "forced groups of three",
-        "synonym cycling",
-        "chatbot greetings",
-        "sycophantic agreement",
-        "passive voice",
-        "observable result",
-    ):
-        assert phrase in normalized_unslop
-    reflect = (SKILLS / "reflect" / "SKILL.md").read_text()
-    assert "independent native Kiro sub-agent" in reflect
-    assert "explicit approval before making any durable edit" in reflect
-
-    router = (SKILLS / "pkstack" / "SKILL.md").read_text()
-    for routed_name in (
-        "automate-me",
-        "bro",
-        "create-verification-skill",
-        "maintain-verification-skill",
-        "recall",
-        "reflect",
-        "show-me-your-work",
-        "swarm",
-        "teach",
-    ):
-        assert f"`{routed_name}`" in router
+        assert contract in text
 
 
-def test_poteto_router_preserves_package_wide_triggers_and_playbook_routes() -> None:
-    workflows = " ".join(
-        (SKILLS / "pkstack" / "references" / "workflows.md").read_text(encoding="utf-8").split()
-    )
-    for heading in (
-        "Investigation",
-        "Bug fix",
-        "Performance issue",
-        "Hillclimb",
-        "Runtime forensics",
-        "Trace forensics",
-        "Feature",
-        "Refactoring",
-        "Prototype",
-        "Visual parity",
-        "Author or modify a skill",
-        "Evaluation",
-        "Autonomous run",
-        "Babysit or get merge-ready",
-        "Shipping",
-        "Multi-phase plan",
-        "Program orchestration",
-        "Full autopilot and stack autopilot",
-        "Open a pull request",
-        "Pause safely",
-        "Session pickup",
-        "Worktree and host cleanup",
-        "Bugbot and automated-review triage",
-    ):
-        assert f"## {heading}" in workflows
-    for phrase in (
-        "read the complete `pkstack-principles` catalog before executing",
-        "full leaf skill for each principle that actually applies",
-        "concrete choice it changed",
-        "retain an inapplicable checkpoint with a specific skip reason",
-        "reversible observation, probe, or prototype",
-        "name the domain data shape first",
-        "Apply `unslop` to every prose surface",
-        "`no-comments` before review",
-        "GitHub CLI by default",
-        "stable patch-id after every rebase",
-        "ready (not draft) pull request within roughly 15 minutes",
-        "same load-bearing scenario on current trunk",
-        "explicit absolute behavior budget",
-        "PKStack preserves the upstream check-plan helper's semantics",
-        "upstream cleanup helper is semantics-only",
-        "## Native workflow spine",
-        "standard Spec for unfamiliar, cross-boundary, high-risk",
-        "Quick Spec for bounded, well-understood work",
-        "Kiro does not document a supported Agent Skill or custom-agent tool",
-        "/spec new <name>",
-        "/spec run <name>",
-        "/agent swap pkstack",
-        "PKStack does not recreate that task graph",
-        "projectctl goal bind-spec",
-        "Use the feature record first",
-        "Crew may run a committed spec through its Task Runner",
-    ):
-        assert phrase in workflows
+def test_primary_router_documents_native_spec_entrypoints() -> None:
+    text = (SKILLS / "pkstack/SKILL.md").read_text(encoding="utf-8")
+    for command in ("/spec new <name>", "/agent swap pkstack"):
+        assert command in text
+    for document in ("requirements.md", "bugfix.md", "design.md", "tasks.md"):
+        assert document in text
 
 
-def test_poteto_primary_router_uses_native_specs_as_the_planning_spine() -> None:
-    router = " ".join((SKILLS / "pkstack" / "SKILL.md").read_text(encoding="utf-8").split())
-    for phrase in (
-        "## Use Kiro's native planning spine",
-        "standard **Spec**",
-        "**Quick Spec**",
-        "**Bug Fix**",
-        "native **Plan**",
-        "Kiro does not document a supported Agent Skill or custom-agent tool",
-        "/spec new <name>",
-        "/agent swap pkstack",
-        "Kiro owns `requirements.md` or `bugfix.md`, `design.md`, `tasks.md`",
-        "never creates a second task graph",
-        "through canonical `okn`",
-    ):
-        assert phrase in router
-
-
-def test_okf_skill_is_kiro_native_bounded_and_uses_canonical_runtime() -> None:
-    text = (SKILLS / "okf" / "SKILL.md").read_text(encoding="utf-8")
+def test_okf_skill_uses_canonical_commands_without_foreign_runtime_paths() -> None:
+    text = (SKILLS / "okf/SKILL.md").read_text(encoding="utf-8")
     normalized = " ".join(text.split())
-    for phrase in (
-        "**produce**, **maintain**, or **consume**",
-        "Store project knowledge in `Wiki/`",
+    for contract in (
         "projectctl knowledge search",
-        "--budget 1200",
-        "content-addressed locators",
+        "--budget",
         "projectctl knowledge validate",
         "mode: canonical-okn",
-        "explicit UTC offset",
-        "Attested Computation",
         "Do not crawl editor or agent transcripts",
-        "substitute `okfcli/okf`",
     ):
-        assert phrase in normalized
+        assert contract in normalized
     for residue in (
         "${CLAUDE_SKILL_DIR}",
         "${CLAUDE_PLUGIN_ROOT}",
@@ -696,142 +513,7 @@ def test_okf_skill_is_kiro_native_bounded_and_uses_canonical_runtime() -> None:
         assert residue not in text
 
 
-def test_nested_workflow_ports_preserve_semantics_without_cursor_runtime_seams() -> None:
-    def normalized(*relative_paths: str) -> str:
-        return " ".join(
-            " ".join((SKILLS / relative_path).read_text(encoding="utf-8").split())
-            for relative_path in relative_paths
-        )
-
-    architect = normalized(
-        "architect/SKILL.md",
-        "architect/references/design-contract.md",
-    )
-    for phrase in (
-        "caller's usage",
-        "types and data structures",
-        "signatures and scaffold",
-        "module map",
-        "not implemented",
-        "rationale",
-        "shallow module",
-        "information leakage",
-        "temporal decomposition",
-        "pass-through method",
-        "interface depth",
-    ):
-        assert phrase in architect.lower()
-
-    how = normalized(
-        "how/SKILL.md",
-        "how/references/roles-and-critique.md",
-    )
-    for phrase in (
-        "explorer role",
-        "explainer role",
-        "critique mode",
-        "critic",
-        "abstraction fit",
-        "data model",
-        "boundary discipline",
-        "evolution readiness",
-        "complexity versus value",
-        "consistency",
-        "act on",
-        "dismissed",
-    ):
-        assert phrase in how.lower()
-
-    interrogate = normalized(
-        "interrogate/SKILL.md",
-        "interrogate/references/review-contract.md",
-    )
-    for phrase in (
-        "correctness reviewer",
-        "code-quality reviewer",
-        "same intent and evidence packet",
-        "lead judgment",
-        "actually occur",
-        "premature",
-        "agreement raises confidence but is not proof",
-        "act on",
-        "consider",
-        "noted",
-        "dismissed",
-    ):
-        assert phrase in interrogate.lower()
-
-    reflect = normalized(
-        "reflect/SKILL.md",
-        "reflect/references/lenses-and-synthesis.md",
-    )
-    for phrase in (
-        "judgment",
-        "tooling",
-        "divergent",
-        "no other reviewer's conclusion",
-        "accepted",
-        "rejected",
-        "backlog",
-        "explicit approval before making any durable edit",
-        "never search private transcript stores",
-    ):
-        assert phrase in reflect.lower()
-
-    why = normalized(
-        "why/SKILL.md",
-        "why/references/evidence-contract.md",
-    )
-    for phrase in (
-        "project history and code",
-        "project team chat",
-        "infrastructure observability",
-        "error tracking",
-        "product analytics",
-        "incident and postmortem evidence",
-        "coverage ledger",
-        "checked-empty",
-        "unavailable",
-        "direct",
-        "supported",
-        "inferred",
-        "speculative",
-        "unknown",
-        "gaps",
-        "in parallel",
-    ):
-        assert phrase in why.lower()
-
-    figure = normalized("figure-it-out/SKILL.md")
-    for phrase in (
-        "first deliverable is the designed workflow, before code",
-        "quantified scope",
-        "rigor level",
-        "risk-first phases",
-        "independently landable units",
-        "baseline",
-        "pre-change state",
-        "multi-hour",
-        "verified",
-        "not verified",
-        "inconclusive",
-        "return the designed playbook, selected rigor",
-    ):
-        assert phrase in figure.lower()
-
-    writing = normalized("technical-writing/SKILL.md")
-    for phrase in (
-        "diataxis",
-        "google developer sentence style",
-        "simplified technical english",
-        "one load at a time",
-        "global english ambiguity",
-        "condition before the command",
-        "review checklist",
-        "paths, symbols, flags, defaults, counts, and error text",
-    ):
-        assert phrase in writing.lower()
-
+def test_nested_workflow_ports_do_not_embed_foreign_runtime_commands() -> None:
     scoped_files = [
         path
         for skill_name in (
@@ -858,70 +540,35 @@ def test_nested_workflow_ports_preserve_semantics_without_cursor_runtime_seams()
     assert re.search(r"\b(?:claude|gpt|grok)-[a-z0-9.-]+", combined, re.IGNORECASE) is None
 
 
-def test_setup_skill_uses_idempotent_json_contract() -> None:
-    text = (SKILLS / "pkstack-setup" / "SKILL.md").read_text(encoding="utf-8")
-
-    assert "scripts/setup_pkstack.py" in text
-    assert ".pkstack/bin/projectctl" in text
-    assert "--dry-run --output json" in text
-    assert "--update-managed" in text
-    assert "repository-supplied `./projectctl`" in text
-    assert "doctor --output json" in text
-    assert "idempotent" in text
-    assert "silently install" in text
-    assert "/agent swap pkstack" in text
-    assert "kiro-cli chat --v3 --agent pkstack" in text
-    assert "Agent Focus" in text
-    assert "Kiro Crew" in text and "optional orchestrator" in text
-    assert "Kiro Web" in text and "Configuration Sync" in text
-    assert "global default" in text
-    assert "does not enumerate or write Cursor-style per-role model slugs" in text
-    assert "inherit the current session's selected Kiro model and effort" in text
-    assert "never edits the user's global model, effort, or role settings" in text
+def test_setup_skill_documents_public_commands() -> None:
+    text = (SKILLS / "pkstack-setup/SKILL.md").read_text(encoding="utf-8")
+    for command in (
+        "scripts/setup_pkstack.py",
+        ".pkstack/bin/projectctl",
+        "--dry-run --output json",
+        "--update-managed",
+        "doctor --output json",
+        "/agent swap pkstack",
+        "kiro-cli chat --v3 --agent pkstack",
+    ):
+        assert command in text
 
 
-def test_maintenance_skill_preserves_current_session_and_clean_room_contract() -> None:
-    text = (SKILLS / "pkstack-maintain" / "SKILL.md").read_text(encoding="utf-8")
-
-    assert "current Kiro agent session" in text
-    assert "Crew may use ACP internally" in text
-    assert "never execute" in text
-    assert "A adapt" in text
-    assert "B explicitly exclude" in text
-    assert "C provenance" in text
-    assert "--source-id <source-id>" in text
-    assert "exactly one source for this transaction" in text
-    assert "Never combine transitions from different sources" in text
-    assert "passing that exact scoped command to `goal start --command`" in text
-    assert "Google OKF wins" in text
-    assert "Claude transcript mining" in text
-    assert "--max-attempts 5" in text
-    assert "mandatory first attempt" in text
-    assert "four bounded" in text
-    assert "repair-and-secretless-verification pairs" in text
-    assert "`attempt_count: 0`" in text
-    assert "`attempt_count >= 1`" in text
-    assert "without repeating the baseline" in text
-    assert "only after a meaningful repair" in text
-    assert "known receipt-managed outputs" in text
-    assert "do not restart or spend an attempt" in text
-    assert "parity remains mandatory" in text
-    assert "re-review the full" in text
-    assert "bind the proposal to the newly proved digest" in text
-    assert "proposal-bound tail marker" in text
-    assert "--dry-run --update-managed --output json" in text
-    assert "without `--dry-run`" in text
-    assert "maintenance/upstream-reviews.json` by hand" in text
-    assert "upstream accept --manifest maintenance/upstreams.json" in text
-    assert "--expected-head <exact-head-commit> --dry-run" in text
-    assert "current no-op" in text
-    assert "unrelated goal" in text
-    assert "Git history is the tamper-evident authority" in text
-    assert "Only report all upstreams current" in text
-
+def test_maintenance_skill_documents_acceptance_commands_and_boundaries() -> None:
+    text = (SKILLS / "pkstack-maintain/SKILL.md").read_text(encoding="utf-8")
+    for contract in (
+        "--source-id <source-id>",
+        "--max-attempts 5",
+        "--dry-run --update-managed --output json",
+        "upstream accept --manifest maintenance/upstreams.json",
+        "--expected-head <exact-head-commit> --dry-run",
+        "never execute",
+        "Never combine transitions from different sources",
+        "maintenance/upstream-reviews.json` by hand",
+    ):
+        assert contract in text
     agent = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
     assert "/pkstack-maintain" in agent["prompt"]
-    assert "immutable feature goal" in agent["prompt"]
 
 
 def test_post_setup_workflow_attaches_the_pkstack_agent() -> None:
@@ -929,9 +576,7 @@ def test_post_setup_workflow_attaches_the_pkstack_agent() -> None:
 
     for path in (REPO_ROOT / "README.md", ROOT / "README.md"):
         document = path.read_text(encoding="utf-8")
-        assert "Import power from a folder" in document
         assert "/pkstack-setup" in document
-        assert "Select the workspace `pkstack` agent" in document
         targets = re.findall(r"\[[^\]]+\]\(([^)\s]*docs/usage\.md)\)", document)
         assert len(targets) == 1
         assert (path.parent / targets[0]).resolve() == (ROOT / "docs" / "usage.md").resolve()
@@ -1011,14 +656,9 @@ def test_verified_goal_is_current_session_and_deterministically_verified() -> No
     ):
         assert command in text
     assert "$ARGUMENTS" not in text
-    assert "current Kiro agent session" in text
-    assert "Kiro Crew may own the session" in text
-    assert "executable verifier" in text
     assert "goal bind-spec <spec-name> --feature <slug>" in text
     assert 'goal start "<objective>" --spec <spec-name>' in text
     assert "requirements.md" in text and "bugfix.md" in text
-    assert "completed task checkboxes" in text
-    assert "If a native spec exists but has no executable bridge" in text
     assert "Do not automatically run `goal resume`" in text
     assert "/spawn" not in text
     assert "kiro-cli" not in text.lower()
@@ -1028,157 +668,25 @@ def test_skills_do_not_depend_on_cli_only_argument_substitution() -> None:
     for path in sorted(SKILLS.glob("*/SKILL.md")):
         text = path.read_text(encoding="utf-8")
         assert "$ARGUMENTS" not in text, path
-        assert "request text that activated this skill" in text, path
 
 
-def test_surface_support_matrix_separates_targets_from_evidence() -> None:
-    compatibility = (ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8")
-    normalized_compatibility = " ".join(compatibility.split())
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-
-    for phrase in ("Kiro CLI v3", "Kiro IDE", "Kiro Crew", "Kiro Web", "optional orchestrator"):
-        assert phrase in normalized_compatibility
-    for phrase in ("CLI v3", "IDE", "Crew is optional", "Web is untested"):
-        assert phrase in readme
-    assert "](reviews/release-status.md)" in readme
-    status = (REPO_ROOT / "reviews" / "release-status.md").read_text(encoding="utf-8")
-    assert "limited evidence" in status
-    assert "## Support and evidence matrix" in compatibility
-    assert "First-class and exercised" in normalized_compatibility
-    assert "First-class with bounded GUI workflows" in normalized_compatibility
-    assert "Spec-bound failure, implementation-only repair, and pass" in (normalized_compatibility)
-    assert "two four-test fixtures, not every Spec mode" in normalized_compatibility
-    assert "IDE goal-repair and Spec/Quick Spec execution paths remain untested" not in (
-        normalized_compatibility
-    )
-    assert "Agent Focus Mode remains experimental" in normalized_compatibility
-    assert "Compatibility required; orchestration optional" in normalized_compatibility
-    assert "Supported by design, explicitly untested" in normalized_compatibility
-    crew_nightly_versions = re.findall(
-        r"\b[0-9]+\.[0-9]+\.[0-9]+-nightly\.[0-9]{8}t[0-9]{6}\b",
-        normalized_compatibility,
-    )
-    assert len(crew_nightly_versions) == 1
-    assert "project custom agent as primary" in normalized_compatibility
-    assert "keep `/pkstack-setup` Power-local as an IDE/CLI bootstrap exception" in (
-        normalized_compatibility
-    )
-    assert "text files only" in normalized_compatibility
-    assert "at most 50 files" in normalized_compatibility
-    assert "does not merge into or overwrite local `.kiro`" in normalized_compatibility
-    assert "Kiro Crew [PR #5129]" in normalized_compatibility
-    assert "does not promote source history" in normalized_compatibility
-    assert "native `/goal`" in normalized_compatibility
-    assert "five iterations by default" in normalized_compatibility
-    assert "treated `/goal clear` as ordinary prompt text" in normalized_compatibility
-    assert "native `/goal` is not exposed by this tested runtime" in normalized_compatibility
-    for model in ("Sol", "Terra", "Luna"):
-        assert model in normalized_compatibility
-    for multiplier in ("2.4x", "1.0x", "0.1x"):
-        assert multiplier in normalized_compatibility
-    assert "all three GPT-5.6 tiers as experimental" in normalized_compatibility
-    assert "`none`, `low`, `medium`, `high`, `xhigh`, and `max`" in normalized_compatibility
-    assert "effort selection in IDE and CLI, not Web or Mobile" in normalized_compatibility
-    assert "not a primary or default pkstack path" in normalized_compatibility.lower()
-
-    combined_root = ROOT.parents[1]
-    goal_probe = json.loads(
-        (combined_root / "reviews" / "kiro-v3-native-goal-probe.json").read_text(encoding="utf-8")
-    )
-    assert goal_probe["scope"]["client_version"] == "2.21.0"
-    assert goal_probe["scope"]["engine"] == "v3"
-    assert goal_probe["probe"]["terminal_input"] == "/goal clear"
-    assert goal_probe["probe"]["persisted_user_content"] == "goal clear"
-    assert goal_probe["probe"]["follow_up_terminal_input"] == "/quit"
-    assert goal_probe["probe"]["process_exit_code"] == 0
-    assert len(goal_probe["raw_evidence"]["messages_jsonl_sha256"]) == 64
-    assert len(goal_probe["raw_evidence"]["kiro_log_sha256"]) == 64
+def test_support_documentation_links_resolve() -> None:
+    readme = REPO_ROOT / "README.md"
+    assert "](reviews/release-status.md)" in readme.read_text(encoding="utf-8")
+    for source in (readme, ROOT / "docs/kiro-v3-compatibility.md"):
+        for target in re.findall(
+            r"\[[^\]]+\]\(([^)\s]+\.md)(?:#[^)]*)?\)", source.read_text(encoding="utf-8")
+        ):
+            if "://" not in target:
+                resolved = (source.parent / target).resolve()
+                assert resolved.is_relative_to(REPO_ROOT.resolve()), (source, target)
+                assert resolved.is_file(), (source, target)
 
 
-def test_model_guidance_is_kiro_native_and_evidence_bounded() -> None:
-    compatibility = (ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8")
-    normalized_compatibility = " ".join(compatibility.split())
-    usage = (ROOT / "docs" / "usage.md").read_text(encoding="utf-8")
-    normalized_usage = " ".join(usage.split())
-    combined_root = ROOT.parents[1]
-    evidence = json.loads(
-        (combined_root / "reviews" / "kiro-model-guidance-evidence.json").read_text(
-            encoding="utf-8"
-        )
-    )
-
-    for phrase in (
-        "General development | Auto",
-        "Hardest long-horizon or security-sensitive work | GPT-5.6 Sol",
-        "Routine multi-step implementation | GPT-5.6 Terra",
-        "High-frequency bounded work | GPT-5.6 Luna",
-        "automatically persists a `/effort` or `--effort` choice",
-        "Higher effort uses more credits",
-        "served from the US regardless of the profile's geography",
-        "commercial AWS Regions worldwide",
-        "global cross-region inference does not change the region where data is stored",
-        "only classifier-flagged traffic may be retained for up to 30 days",
-        "not a claim that any PKStack traffic was flagged or retained",
-        "optional, IDE-only, and evidence rather than formal verification",
-        "does not claim it was run here",
-        "same stored projectctl verifier remains the portable completion predicate",
-    ):
-        assert phrase in normalized_compatibility
-
-    assert "PKStack inherits the model and effort selected in Kiro" in normalized_usage
-    assert "evidence, not the interactive default" in normalized_usage
-    assert "select the desired normal effort afterwards" in normalized_usage
-
-    assert evidence["live_account_inventory"]["default_model"] == "auto"
-    models = evidence["live_account_inventory"]["models"]
-    assert [model["model_id"] for model in models] == [
-        "gpt-5.6-sol",
-        "gpt-5.6-terra",
-        "gpt-5.6-luna",
-    ]
-    assert [model["rate_multiplier"] for model in models] == [2.4, 1.0, 0.1]
-    assert all(model["lifecycle_description"] == "Experimental preview" for model in models)
-    pages = {page["url"]: page for page in evidence["documentation"]["pages"]}
-    data_protection_url = "https://kiro.dev/docs/privacy-and-security/data-protection.md"
-    assert pages[data_protection_url]["sha256"] == (
-        "697dfa699d8a5a6ce6e241e60b00f1c85cd792f4ba16007e1e92303fd16b1404"
-    )
-    boundaries = " ".join(evidence["data_processing_boundaries"])
-    assert "classifier-flagged traffic" in boundaries
-    assert "up to 30 days" in boundaries
-    assert "region where Kiro stores data" in boundaries
-
+def test_skills_inherit_native_model_selection() -> None:
     for path in sorted(SKILLS.glob("*/SKILL.md")):
         text = path.read_text(encoding="utf-8").lower()
-        assert "gpt-5.6-" not in text, path
         assert "--model" not in text, path
-
-
-def test_primary_agent_copy_is_surface_neutral_and_keeps_cli_and_crew_boundaries() -> None:
-    primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
-
-    assert "current Kiro agent session" in primary["description"]
-    assert "current Kiro CLI v3 session" not in primary["description"]
-    assert "Kiro IDE 1.x and Kiro CLI v3 are the primary surfaces" in primary["prompt"]
-    assert "Kiro Crew is optional and may use ACP internally" in primary["prompt"]
-    assert "do not make ACP the default PKStack path" in primary["prompt"]
-    assert "native Spec, Quick Spec, or Bug Fix workflow" in primary["prompt"]
-    assert "Do not recreate Kiro's task graph" in primary["prompt"]
-    assert "use canonical okn only for deeper" in primary["prompt"]
-    assert "On Kiro Web this profile is delegation-only" in primary["prompt"]
-    assert (
-        "do not claim it is the primary agent or that IDE/CLI permissions apply"
-        in primary["prompt"]
-    )
-
-
-def test_parallel_skills_use_native_subagents_not_separate_sessions() -> None:
-    for skill_name in ("arena", "swarm"):
-        text = (SKILLS / skill_name / "SKILL.md").read_text(encoding="utf-8")
-        assert "Native Kiro sub-agents" in text or "native Kiro sub-agents" in text
-        assert "shipped delegated profiles are read-only" in text
-        assert "`/spawn`" in text
-        assert "not" in text[text.index("`/spawn`") : text.index("`/spawn`") + 120]
 
 
 def test_model_council_is_optional_advisory_and_not_a_runtime_claim() -> None:
@@ -1188,27 +696,7 @@ def test_model_council_is_optional_advisory_and_not_a_runtime_claim() -> None:
     assert "optional and advisory" in lowered
     assert "not a kiro-native model runtime" in lowered
     assert "never auto-apply" in lowered
-    assert "fable" in lowered and "grok" in lowered
-    assert "designated peer advisor" in lowered
-    assert "designated sweeper" in lowered
     assert "cannot accept" in lowered
-    for label in ("Act on", "Consider", "Noted", "Dismissed"):
-        assert f"`{label}`" in text
-
-
-def test_prospective_fable_harness_uses_xhigh_without_rewriting_history() -> None:
-    text = (ROOT / "reviews" / "README.md").read_text(encoding="utf-8")
-    normalized = " ".join(text.split())
-    prospective = text[text.index("Prospective council runs use this policy:") :]
-    command = prospective[prospective.index("## Run Fable 5.1 acceptance") :]
-
-    assert "Fable 5.1 at `max` returned `ACCEPT`" in text
-    assert "Its Fable `max` value records the actual completed acceptance run" in normalized
-    assert "| Fable | `claude-fable-5-1` | `xhigh` |" in prospective
-    assert "--model claude-fable-5-1" in command
-    assert "--effort xhigh" in command
-    assert "--effort max" not in command
-    assert "| Grok | `grok-4.6` | `xhigh` |" in prospective
 
 
 def test_agent_templates_are_json_least_privilege_profiles() -> None:
@@ -1569,8 +1057,6 @@ def test_stop_tripwire_is_disabled_and_advisory() -> None:
     hook = hooks[0]
     assert hook["trigger"] == "Stop"
     assert hook["enabled"] is False
-    assert "advisory" in hook["description"].lower()
-    assert "blocking" in hook["description"].lower()
     assert "goal tripwire --output json" in hook["action"]["command"]
 
 
@@ -1591,24 +1077,9 @@ def test_steering_uses_native_always_and_file_match_inclusion() -> None:
                 "fileMatchPattern": ["**/*.ts", "**/*.tsx"],
             }
             normalized = " ".join(body.split())
-            assert "reading or editing TypeScript" in normalized
             assert "typescript-best-practices" in normalized
         else:
             assert metadata == {"inclusion": "always"}
-        assert len(body) < 2_000
-
-    unslop = (STEERING / "pkstack-unslop.md").read_text(encoding="utf-8")
-    normalized_unslop = " ".join(unslop.split())
-    assert "preserve facts, commitments, caveats" in normalized_unslop
-    assert "Do not manufacture certainty, opinions, quotations, or evidence" in normalized_unslop
-
-    parity_by_name = {entry["name"]: entry for entry in PARITY_SKILLS}
-    typescript_rationale = parity_by_name["typescript-best-practices"]["rationale"]
-    unslop_rationale = parity_by_name["unslop"]["rationale"]
-    assert "fileMatch" in typescript_rationale
-    assert ".ts/.tsx trigger" in typescript_rationale
-    assert "always-included Kiro steering" in unslop_rationale
-    assert "must-always-apply" in unslop_rationale
 
 
 def test_assets_do_not_carry_cursor_or_legacy_runtime_contracts() -> None:

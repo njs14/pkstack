@@ -218,7 +218,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
           printf 'tested_sha=%s\n' "$EXPECTED_SHA" >>"$GITHUB_OUTPUT"
 
-  candidate_tests:
+  candidate_prepare:
     needs: resolve
     if: needs.resolve.outputs.has_candidate == 'true'
     runs-on: ubuntu-24.04
@@ -226,7 +226,6 @@ jobs:
       actions: read
       contents: read
     outputs:
-      tested_sha: ${{ steps.immutable.outputs.tested_sha }}
       selected_source_id: ${{ steps.selection.outputs.selected_source_id }}
       source_subtree_sha: ${{ steps.selection.outputs.source_subtree_sha }}
       source_commit: ${{ steps.selection.outputs.expected_head }}
@@ -305,7 +304,7 @@ jobs:
             --github-output "$GITHUB_OUTPUT" validate-control-plan \
             --detector "$RUNNER_TEMP/pkstack-source-plan/upstream-check.json" \
             --control-plan "$RUNNER_TEMP/pkstack-source-plan/control-plan.json"
-      - name: Run candidate gates with no write token or secrets
+      - name: Validate candidate source acceptance with trusted controls
         env:
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
           EXPECTED_SHA: ${{ needs.resolve.outputs.head_sha }}
@@ -315,7 +314,6 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          uv sync --quiet --locked --all-groups --project powers/pkstack
           trusted_projectctl() {
             PYTHONPATH="$TRUSTED_ROOT/.pkstack/projectctl/src" \
               "$TRUSTED_ROOT/.pkstack/projectctl/.venv/bin/python" \
@@ -342,24 +340,7 @@ jobs:
           else
             test "$detector_rc" -eq 0
           fi
-          trusted_projectctl feature validate --output json
           unset READONLY_GITHUB_TOKEN
-          trusted_projectctl version --output json
-          trusted_projectctl knowledge validate --output json
-          python3 -B "$TRUSTED_ROOT/.github/scripts/test_pkstack_maintenance_guard.py"
-          python3 -B "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_maintenance_stream.py"
-          # Protected controls were checked against the base snapshot above; run
-          # the complete suite against the candidate data, as ordinary CI does.
-          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
-          node --test .github/scripts/test_pkstack_pr_policy.js
-          (
-            cd powers/pkstack
-            uv lock --check
-            uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-            uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-            uv run --frozen ty check
-            uv run --frozen pytest -q
-          )
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
           test -z "$(git status --porcelain=v1 --untracked-files=all)"
       - name: Build deterministic exact-candidate review input
@@ -388,6 +369,99 @@ jobs:
           if-no-files-found: error
           retention-days: 7
           compression-level: 9
+
+  candidate_tests:
+    needs: [resolve, candidate_prepare]
+    if: needs.resolve.outputs.has_candidate == 'true' && needs.candidate_prepare.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      tested_sha: ${{ steps.immutable.outputs.tested_sha }}
+    steps:
+      - name: Harden read-only test runner networking
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: block
+          disable-sudo: true
+          allowed-endpoints: |
+            api.github.com:443
+            files.pythonhosted.org:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            release-assets.githubusercontent.com:443
+            results-receiver.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+      - name: Check out exact untrusted candidate without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.resolve.outputs.head_sha }}
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: powers/pkstack/uv.lock
+      - name: Snapshot immutable base controller and review guards
+        env:
+          BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-candidate-trusted
+        run: |
+          set -euo pipefail
+          git cat-file -e "$BASE_SHA^{commit}"
+          mkdir -p "$TRUSTED_ROOT"
+          git archive "$BASE_SHA" \
+            Wiki/features/pkstack-upstream-maintenance.md \
+            .pkstack/projectctl \
+            .github/agent-memory/pkstack-upstream.md \
+            .github/fixtures \
+            .github/pkstack-maintenance-policy.json \
+            .github/scripts \
+            .github/workflows \
+            .kiro/agents \
+            reviews \
+            | tar -x -C "$TRUSTED_ROOT"
+          uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pkstack/projectctl"
+          python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
+            --root . \
+            --policy "$TRUSTED_ROOT/.github/pkstack-maintenance-policy.json" \
+            validate-trusted-snapshot \
+            --base "$BASE_SHA" \
+            --trusted-root "$TRUSTED_ROOT"
+          chmod -R a-w "$TRUSTED_ROOT"
+      - name: Run candidate gates without credentials
+        env:
+          EXPECTED_SHA: ${{ needs.resolve.outputs.head_sha }}
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-candidate-trusted
+          PKSTACK_BROWSER_PROFILE: full
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          uv sync --quiet --locked --all-groups --project powers/pkstack
+          trusted_projectctl() {
+            PYTHONPATH="$TRUSTED_ROOT/.pkstack/projectctl/src" \
+              "$TRUSTED_ROOT/.pkstack/projectctl/.venv/bin/python" \
+              -B -X pycache_prefix=/dev/null -m pkstack "$@"
+          }
+          trusted_projectctl feature validate --output json
+          trusted_projectctl version --output json
+          trusted_projectctl knowledge validate --output json
+          # Protected controls match the base; discovery also includes the
+          # maintenance guard and stream regressions, once each.
+          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
+          node --test .github/scripts/test_pkstack_pr_policy.js
+          (
+            cd powers/pkstack
+            uv lock --check
+            uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
+            uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
+            uv run --frozen ty check
+            uv run --frozen pytest -q
+          )
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
       - name: Bind successful gates to candidate SHA
         id: immutable
         env:
@@ -398,8 +472,8 @@ jobs:
           printf 'tested_sha=%s\n' "$EXPECTED_SHA" >>"$GITHUB_OUTPUT"
 
   kiro_peer_review:
-    needs: [resolve, candidate_tests]
-    if: needs.resolve.outputs.has_candidate == 'true' && needs.candidate_tests.result == 'success'
+    needs: [resolve, candidate_prepare]
+    if: needs.resolve.outputs.has_candidate == 'true' && needs.candidate_prepare.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:
@@ -488,11 +562,11 @@ jobs:
       - name: Download exact candidate review input
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          artifact-ids: ${{ needs.candidate_tests.outputs.review_artifact_id }}
+          artifact-ids: ${{ needs.candidate_prepare.outputs.review_artifact_id }}
           path: ${{ runner.temp }}/pkstack-peer-review-input
       - name: Prepare immutable no-tool Kiro reviewer
         env:
-          EXPECTED_CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
+          EXPECTED_CONTENT_SHA256: ${{ needs.candidate_prepare.outputs.review_content_sha256 }}
         run: |
           set -euo pipefail
           input="$RUNNER_TEMP/pkstack-peer-review-input/review-input.json"
@@ -508,8 +582,8 @@ jobs:
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
           HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
-          CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
-          PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
+          CONTENT_SHA256: ${{ needs.candidate_prepare.outputs.review_content_sha256 }}
+          PATCH_SHA256: ${{ needs.candidate_prepare.outputs.review_patch_sha256 }}
         working-directory: ${{ runner.temp }}/pkstack-peer-review-workspace
         run: |
           set -euo pipefail
@@ -563,13 +637,13 @@ jobs:
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
           HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
-          CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
-          PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
+          CONTENT_SHA256: ${{ needs.candidate_prepare.outputs.review_content_sha256 }}
+          PATCH_SHA256: ${{ needs.candidate_prepare.outputs.review_patch_sha256 }}
           REVIEW_RETURN_CODE: ${{ steps.invoke.outputs.return_code }}
           REVIEW_BUNDLE: ${{ runner.temp }}/pkstack-peer-review-workspace/.pkstack-ci/review-input.json
-          SELECTED_SOURCE_ID: ${{ needs.candidate_tests.outputs.selected_source_id }}
-          SOURCE_SUBTREE_SHA: ${{ needs.candidate_tests.outputs.source_subtree_sha }}
-          SOURCE_COMMIT: ${{ needs.candidate_tests.outputs.source_commit }}
+          SELECTED_SOURCE_ID: ${{ needs.candidate_prepare.outputs.selected_source_id }}
+          SOURCE_SUBTREE_SHA: ${{ needs.candidate_prepare.outputs.source_subtree_sha }}
+          SOURCE_COMMIT: ${{ needs.candidate_prepare.outputs.source_commit }}
           SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
@@ -625,7 +699,7 @@ jobs:
           done
 
   merge:
-    needs: [resolve, base_tests, candidate_tests, kiro_peer_review]
+    needs: [resolve, candidate_prepare, base_tests, candidate_tests, kiro_peer_review]
     if: >-
       needs.resolve.outputs.has_candidate == 'true'
       && needs.base_tests.result == 'success'
@@ -667,10 +741,10 @@ jobs:
           REVIEWED_AGENT: ${{ needs.kiro_peer_review.outputs.reviewed_agent }}
           REVIEWED_MODEL: ${{ needs.kiro_peer_review.outputs.reviewed_model }}
           REVIEWED_EFFORT: ${{ needs.kiro_peer_review.outputs.reviewed_effort }}
-          EXPECTED_REVIEW_CONTENT_SHA256: ${{ needs.candidate_tests.outputs.review_content_sha256 }}
-          EXPECTED_REVIEW_PATCH_SHA256: ${{ needs.candidate_tests.outputs.review_patch_sha256 }}
-          EXPECTED_REVIEW_CHANGED_FILES: ${{ needs.candidate_tests.outputs.review_changed_files }}
-          EXPECTED_REVIEW_PATHS_SHA256: ${{ needs.candidate_tests.outputs.review_paths_sha256 }}
+          EXPECTED_REVIEW_CONTENT_SHA256: ${{ needs.candidate_prepare.outputs.review_content_sha256 }}
+          EXPECTED_REVIEW_PATCH_SHA256: ${{ needs.candidate_prepare.outputs.review_patch_sha256 }}
+          EXPECTED_REVIEW_CHANGED_FILES: ${{ needs.candidate_prepare.outputs.review_changed_files }}
+          EXPECTED_REVIEW_PATHS_SHA256: ${{ needs.candidate_prepare.outputs.review_paths_sha256 }}
           EXPECTED_REVIEW_AGENT: pkstack-ci-reviewer
           EXPECTED_REVIEW_MODEL: claude-opus-5
           EXPECTED_REVIEW_EFFORT: xhigh
@@ -858,8 +932,8 @@ jobs:
             core.notice(`merged PR #${pull.number} from exact tested SHA ${process.env.TESTED_SHA}`);
 
   record_rejection:
-    needs: [resolve, candidate_tests, kiro_peer_review]
-    if: always() && needs.kiro_peer_review.outputs.review_verdict == 'rejected'
+    needs: [resolve, candidate_prepare, base_tests, candidate_tests, kiro_peer_review]
+    if: always() && needs.candidate_tests.result == 'success' && needs.kiro_peer_review.outputs.review_verdict == 'rejected'
     runs-on: ubuntu-24.04
     permissions:
       actions: read
@@ -910,7 +984,7 @@ jobs:
           SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
           HEAD_SHA: ${{ needs.resolve.outputs.head_sha }}
-          RETRY_OVERRIDE: ${{ needs.candidate_tests.outputs.retry_override }}
+          RETRY_OVERRIDE: ${{ needs.candidate_prepare.outputs.retry_override }}
         run: |
           python3 .github/scripts/pkstack_review_feedback.py \
             --ledger "$RUNNER_TEMP/pkstack-feedback-current.json" \
@@ -942,12 +1016,12 @@ jobs:
               sha: commit.sha, force: false});
 
   cleanup_failed_candidate:
-    needs: [resolve, base_tests, candidate_tests, kiro_peer_review, merge, record_rejection]
+    needs: [resolve, candidate_prepare, base_tests, candidate_tests, kiro_peer_review, merge, record_rejection]
     if: >-
       always()
       && github.event.workflow_run.conclusion == 'success'
       && needs.merge.result != 'success'
-      && (needs.kiro_peer_review.outputs.review_verdict != 'rejected' || needs.record_rejection.result == 'success')
+      && (needs.candidate_tests.result != 'success' || needs.kiro_peer_review.outputs.review_verdict != 'rejected' || needs.record_rejection.result == 'success')
     runs-on: ubuntu-24.04
     permissions:
       actions: read

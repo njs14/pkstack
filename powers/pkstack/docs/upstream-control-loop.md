@@ -29,7 +29,10 @@ or workflow controls. Those changes require a maintainer.
    Other drifting sources remain deferred; their pins, review histories, and
    provenance must remain unchanged. Unrelated remote drift does not block the
    selected candidate.
-5. A separate Kiro-hosted reviewer checks the exact candidate. Only a valid
+5. Trusted candidate preparation validates source acceptance and builds the exact
+   review bundle. Base tests run independently; candidate tests and the isolated
+   Kiro-hosted reviewer then run concurrently. The test runner has no review
+   credential. Only a valid
    `approved` verdict with no material findings can reach the exact-SHA merge.
    GitHub App signals are advisory; the pipeline needs no separate provider API
    key or GitHub Copilot subscription.
@@ -86,6 +89,9 @@ budget. A later repository commit with identical imported content does not.
 
 Three substantive peer-review rejections exhaust that source/content budget.
 Infra failures, malformed output, and unauthenticated reports do not consume it.
+An early rejection is recorded only after candidate tests pass, preserving the
+previous spending rule when review and test failures occur together. Cleanup waits
+for every test/review job; it cannot close an actively tested candidate.
 Exhausted sources are skipped so other changed sources can proceed. The latest
 findings accompany the next eligible attempt.
 
@@ -101,8 +107,10 @@ credentials are never published. Artifact expiry does not reset the durable coun
 - A fresh active candidate suppresses another run. Any stale, terminal, or missing
   candidate run that leaves its PR open requires operator recovery. The next
   cadence will not close it and silently discard potentially unrecorded findings.
-- A material rejection is recorded before authenticated in-run cleanup closes its
-  PR. Failed report publication or a failed feedback write leaves the PR open.
+- A material rejection with passing candidate tests is recorded before authenticated
+  in-run cleanup closes its PR. Failed report publication or a failed feedback write
+  leaves the PR open. If candidate tests fail too, cleanup closes the failed candidate
+  without spending a substantive-rejection count.
 - A generated-only parity mismatch produces `manual-parity`, with no model call.
   Run setup from reviewed Power source, inspect the generated diff, and run the
   deterministic tests. An LLM is not needed to regenerate known outputs.

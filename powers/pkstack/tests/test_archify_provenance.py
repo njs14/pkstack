@@ -13,7 +13,11 @@ import pytest
 
 POWER = Path(__file__).resolve().parents[1]
 RUNTIME = POWER / "skills/archify/upstream"
-ADAPTED_PATHS = {"assets/template.html", "renderers/sequence/render-sequence.mjs"}
+ADAPTED_PATHS = {
+    "assets/template.html",
+    "bin/visual-check.mjs",
+    "renderers/sequence/render-sequence.mjs",
+}
 
 
 def _artifacts() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
