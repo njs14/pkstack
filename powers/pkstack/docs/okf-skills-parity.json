@@ -6,12 +6,12 @@
     "repository": "scaccogatto/okf-skills",
     "path": "skills",
     "pinned": {
-      "commit": "bf2448f03686a8348324e4741106697d30a867f9",
-      "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
-    },
-    "current": {
       "commit": "85db7fd0a8a66d07d984ac6c5f4fbb5063d00357",
       "subtree_sha": "2f9170d6937027c2b1c487ef698f0c000bb47745"
+    },
+    "current": {
+      "commit": "d8393f329c97836980566c1cf4e4aa4fe47dc111",
+      "subtree_sha": "21eb933ac68df2d2a81aedad6778970d71e99e8d"
     },
     "retrieved_on": "2026-09-05"
   },
@@ -39,8 +39,8 @@
       "current": {
         "type": "blob",
         "mode": "100644",
-        "object_sha": "5f63458991555ef4cd51bef7068ad1daf5358de3",
-        "size": 21302
+        "object_sha": "967b40dfe30af074b6e4fd969f1b0660054538d4",
+        "size": 35417
       },
       "disposition": "B",
       "rationale": "Exclude transcript-oriented historical backfill from the default product pending a separately authorized, redacted, bounded migration design."
@@ -50,14 +50,14 @@
       "pinned": {
         "type": "blob",
         "mode": "100644",
-        "object_sha": "9335fe0ed3404787d9f3336cae77b25cdc057516",
+        "object_sha": "951e8a6f38ec90a59e70c2fee5864da5d395fe72",
         "size": 10577
       },
       "current": {
         "type": "blob",
         "mode": "100644",
-        "object_sha": "951e8a6f38ec90a59e70c2fee5864da5d395fe72",
-        "size": 10577
+        "object_sha": "679849373a2612a6e4772c03820e1d9b6b44089a",
+        "size": 14817
       },
       "disposition": "B",
       "rationale": "Exclude transcript-oriented historical backfill from the default product pending a separately authorized, redacted, bounded migration design."
