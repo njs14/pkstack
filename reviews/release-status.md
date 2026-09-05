@@ -6,7 +6,9 @@ version_authority: powers/pkstack/plugin.json
 
 # PKStack release status
 
-PKStack 0.3.0 has passed product and updater acceptance. It is not yet released.
+PKStack 0.3.0 is an unreleased candidate. The identity cleanup and a bounded
+updater campaign passed their acceptance gates; the subsequent PKStack & friends
+changes have green deterministic CI, with live limitations recorded below.
 [v0.2.0](https://github.com/njs14/pkstack/releases/tag/v0.2.0) remains the latest
 published release. Publishing 0.3.0 requires a tag on the reviewed main commit
 and a successful release workflow.
@@ -18,21 +20,25 @@ Upstream methods and historical source identities are preserved.
 
 ## What has passed
 
-- **Deterministic checks:** 167 repository tests, 17 JavaScript tests, and
-  829 Power tests passed in CI, with one installed-Kiro check skipped there.
+- **Deterministic checks:** 177 repository tests, 17 JavaScript tests, and
+  854 Power tests passed on the friends product head in CI, with one
+  installed-Kiro check skipped there.
   Tests also prove retrieval-date updates through both inventory formats and
   reproducible release archives.
   Lint, formatting, types, lockfile checks, Actionlint, and ShellCheck passed.
-- **Kiro CLI:** CLI 2.21.1 with Luna / Low discovered `/pkstack` and completed
-  a same-session `/pkstack-verified-goal` failure → repair → pass.
+- **Kiro CLI:** CLI 2.21.1 with Luna / Low completed both native Standard and
+  Quick Spec planning, then a same-conversation handoff to `pkstack` and a
+  Spec-bound failure → implementation-only repair → pass. Both retained the
+  four acceptance tests and planning artifacts unchanged.
 - **Kiro IDE:** IDE 1.0.437 imported the renamed Power and displayed all six
   canonical skills. The installed skill files matched the source.
 - **Permissions:** The Linux smoke passed seven allowed writes and six denied
   paths, including protected-file checks and cleanup.
 
-The [identity report](pkstack-identity-validation.md) and
-[pipeline report](pipeline-readiness-validation.md) record exact commands,
-commits, usage, and results.
+The [friends report](friends-validation.md),
+[identity report](pkstack-identity-validation.md), and
+[pipeline report](pipeline-readiness-validation.md) separate exact commands,
+commits, usage, results, and review scope.
 
 ## Autonomous updates
 
@@ -57,9 +63,22 @@ approval; the autonomous candidate gate does not depend on that additional run.
 
 ## Limits and release gate
 
-Kiro Web is untested. Crew remains an optional compatibility target. IDE
-import and discovery do not prove an IDE verified-goal repair loop or native
-Spec/Quick Spec execution.
+Kiro Web and Crew are untested. The latest IDE campaign completed native Standard
+planning and same-tab agent selection, then paused when the Mac locked. Its
+repair loop and Quick Spec campaign remain pending; import and discovery are
+not substitutes for that evidence.
+
+All six curated helpers received bounded CLI smokes. The bundled Archify sample
+failed vertical containment. The control-loop retest skipped a required
+reference, and the builder's generated sample had verification/attempt-bound
+defects. These limits are retained in the
+[curated report](friends-curated-validation.md), not counted as passing workflows.
+No bundled upstream executable was changed to hide those findings.
+
+The friends update extends the existing Opus review with digest-bound catalog,
+neighboring instructions, and trusted-base routing cases. Oversized or uncovered
+changes require manual review. Deterministic tests and independent code review
+cover the change; it has not received a new live autonomous-updater run.
 
 Release readiness does not publish a version: the reviewed main commit must
 still receive a release tag and complete the release workflow. No 0.3.0 tag or

@@ -45,6 +45,11 @@ competing acceptance checks, and unrequested writes are conflicts.
 Setup installs and checks the reviewed bundle. It reports optional capabilities
 and suggests next steps; it does not run all these workflows as onboarding.
 
+The [live Luna/Low smokes](https://github.com/njs14/pkstack/blob/main/reviews/friends-curated-validation.md) record
+what each helper actually did. They include an Archify clipping failure and
+control-loop design/builder limitations; installation is not proof that generated
+output is correct. Keep each skill's verification and review checkpoints.
+
 ## Reviewed bundles
 
 PKStack keeps curated skills in a registry separate from the pstack parity
