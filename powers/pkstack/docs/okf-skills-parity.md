@@ -1,9 +1,11 @@
 # OKF skills source parity
 
-This is the human-readable view of the
-[source-scoped machine inventory](okf-skills-parity.json) for
-`scaccogatto/okf-skills` at commit `bf2448f03686a8348324e4741106697d30a867f9` and
-`skills/` tree `8cc9ed3986cf6c942f718439e1ee8249eb17a2ad`. The JSON accounts for all 13
+This catalog records PKStack's baseline decisions for `scaccogatto/okf-skills`,
+first reviewed at commit `bf2448f03686a8348324e4741106697d30a867f9` and
+`skills/` tree `8cc9ed3986cf6c942f718439e1ee8249eb17a2ad`. See the
+[source-scoped machine inventory](okf-skills-parity.json) for current identities
+and [provenance](okf-skills-provenance.md) for accepted transitions.
+The JSON accounts for all 13
 regular blobs by Git object identity, mode, size, and A/B/C disposition. No upstream file is
 redistributed by these records.
 

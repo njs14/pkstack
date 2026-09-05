@@ -19,7 +19,7 @@ handle as `pkstack`, and the primary skill as `/pkstack`. It updates the
 package, managed workspace assets, six PKStack command routes, documentation,
 and banner while preserving upstream methods and immutable source identities.
 
-The current local gates passed **827 Power tests, 134 repository-policy tests,
+The identity candidate's local gates passed **827 Power tests, 134 repository-policy tests,
 and 17 JavaScript tests**, plus lint, formatting, types, lockfile checks,
 Actionlint, and ShellCheck. Kiro CLI 2.21.1 loaded `/pkstack` with Luna / Low.
 The renamed `/pkstack-verified-goal` campaign passed in the same CLI session:
@@ -37,8 +37,13 @@ The owner approved re-enabling the autonomous updater after
 [first enabled run](https://github.com/njs14/pkstack/actions/runs/33945088358)
 failed all four bounded attempts: two missing proposals, then two missing
 provenance markers. It published no candidate and did not reach peer review.
-The updater is temporarily paused while its agent-loading defect is repaired;
-the approved daily schedule remains 13:17 UTC.
+[PR #20](https://github.com/njs14/pkstack/pull/20) repaired agent loading after
+exact-head CI passed. The updater is enabled again on the approved daily
+13:17 UTC schedule. Its [corrected acceptance run](https://github.com/njs14/pkstack/actions/runs/33946810878)
+passed direct global-agent attestation and secretless verification on repair
+one. Its candidate gate then rejected an incomplete trusted snapshot before
+Opus review. The missing snapshot path is being repaired; the updater remains
+enabled, but end-to-end acceptance is still outstanding.
 
 The last instrumented updater [run 33934250700](https://github.com/njs14/pkstack/actions/runs/33934250700)
 failed at proposal validation (exit 1; cleanup 0) after setup, feature
@@ -68,8 +73,10 @@ and selected Default. The production layout likewise separated `KIRO_HOME`
 from `HOME/.kiro`. Its private streams were deleted during cleanup, so the
 historical production selection is not directly attested. The repair aligns
 those paths and requires direct selected-agent evidence before a maintenance
-result can be accepted. The full update and independent-review campaign still
-needs to pass.
+result can be accepted. The corrected Linux run passed that attestation. The
+candidate was [PR #21](https://github.com/njs14/pkstack/pull/21), which the
+failed-candidate cleanup closed without merging. The full update and
+independent-review campaign still needs to pass.
 
 ## Release requirements
 

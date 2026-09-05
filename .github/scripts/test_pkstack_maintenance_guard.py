@@ -4357,6 +4357,26 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.policy,
         )
 
+    def test_trusted_snapshot_archives_include_exact_required_prefixes(self) -> None:
+        for filename, step_name in (
+            ("pk-stack-upstream-maintenance-kiro.yml", "Materialize locked environments and trusted scripts"),
+            ("pk-stack-upstream-candidate.yml", "Snapshot immutable base controller and review guards"),
+        ):
+            with self.subTest(workflow=filename):
+                workflow = (ROOT / ".github/workflows" / filename).read_text()
+                marker = f"      - name: {step_name}\n"
+                self.assertEqual(workflow.count(marker), 1)
+                step = workflow.split(marker, 1)[1].split("\n      - name: ", 1)[0]
+                self.assertIn("validate-trusted-snapshot", step)
+                archives = re.findall(
+                    r'(?ms)^          git archive "\$BASE_SHA" \\\n(.*?)'
+                    r'^            \| tar -x -C "\$TRUSTED_ROOT"$',
+                    step,
+                )
+                self.assertEqual(len(archives), 1)
+                paths = shlex.split(archives[0].replace("\\\n", " "))
+                self.assertCountEqual(paths, guard.TRUSTED_SNAPSHOT_PREFIXES)
+
     def test_trusted_inventory_preflight_leaves_snapshot_unchanged(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         commands = [

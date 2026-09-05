@@ -304,3 +304,54 @@ changing any source fact, pin, disposition, or history. A regression checks the
 canonical order and unique paths in all six manifest-referenced inventories;
 it failed before the correction and passed afterward. Independent review
 confirmed that the parsed artifact is otherwise unchanged.
+
+## Corrected updater acceptance
+
+[PR #20](https://github.com/njs14/pkstack/pull/20), head
+`5e2470cdd9fe7f915f3166be111bb1fbdbdd0b0e`, passed
+[CI 33946675881](https://github.com/njs14/pkstack/actions/runs/33946675881):
+158 repository tests, 17 Node tests, 827 Power tests with one installed-CLI test
+skipped, and all static gates. It merged as
+`43e70c868cda60fed9915adde1269c03a2e8470a`; its
+[post-merge CI](https://github.com/njs14/pkstack/actions/runs/33946809672)
+also passed.
+
+```sh
+gh pr merge 20 --repo njs14/pkstack --squash \
+  --match-head-commit 5e2470cdd9fe7f915f3166be111bb1fbdbdd0b0e
+gh workflow enable pk-stack-upstream-maintenance-kiro.yml --repo njs14/pkstack
+gh workflow run pk-stack-upstream-maintenance-kiro.yml --repo njs14/pkstack --ref main
+```
+
+GitHub confirmed workflow `349041529` is active again. The
+[corrected run 33946810878](https://github.com/njs14/pkstack/actions/runs/33946810878)
+uses the merged controls. Its detector found all seven inventories valid and
+two genuine upstream drifts: OKF Skills and Archify. Repair one completed
+successfully in 72 seconds, including the new direct global-agent attestation.
+That proves Linux v3 selected the trusted maintainer from the aligned home.
+Secretless verification passed on attempt one with `stage=complete`, exit 0,
+and cleanup exit 0. The maintenance workflow succeeded and published
+[PR #21](https://github.com/njs14/pkstack/pull/21), head
+`e3a14b1192a6c1bdd3843f46a637aae79c07e0f5`. It changed only four source-accounting
+files; an independent read-only check found no material semantic or safety
+issue and confirmed that backfill remains excluded.
+
+The [candidate gate 33947094756](https://github.com/njs14/pkstack/actions/runs/33947094756)
+passed its base tests but failed while constructing the immutable candidate
+controls. Its archive command omitted `.github/agent-memory/pkstack-upstream.md`,
+which `validate-trusted-snapshot` requires. The guard rejected the missing file
+before candidate tests or Opus review. Failed-candidate cleanup succeeded and
+closed PR #21 without merging. No review-rejection budget was consumed.
+
+The follow-up restores that required archive input and tests archive coverage
+against the existing trusted-prefix contract. It does not change the guard's
+acceptance rules. The human-readable OKF catalog also labels its original
+commit/tree as baseline evidence and links current identities to the JSON
+inventory, so future accepted transitions do not leave a stale current-version
+claim in that introduction.
+
+The snapshot correction passed 159 repository policy/stream tests, 135 focused
+Power upstream/branding/release-metadata tests, Actionlint, ShellCheck, and
+`git diff --check`. The archive-prefix regression failed on the missing file
+before the one-line workflow fix, then passed. Full deterministic CI is required
+on the repair PR before the next acceptance campaign.
