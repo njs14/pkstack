@@ -4,7 +4,7 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
-## [0.3.0] — Unreleased
+## [0.3.0] — 2026-09-05
 
 PKStack 0.3.0 consolidates the product identity and its Kiro-native workflows.
 It requires a clean installation when moving from 0.2.0; old installations,
