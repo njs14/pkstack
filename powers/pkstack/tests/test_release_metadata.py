@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
+import os
 import re
+import subprocess
+import tarfile
 import tomllib
 from pathlib import Path
 
@@ -79,6 +83,73 @@ def test_release_reproves_tagged_default_branch_commit_and_portable_checksum() -
     assert 'sha256sum "$(basename "$archive")"' in workflow
     assert 'sha256sum --check "$(basename "$checksum")"' in workflow
     assert 'sha256sum "$archive" >"$checksum"' not in workflow
+
+
+def test_release_archive_repeats_exact_bytes_and_uses_commit_time(tmp_path: Path) -> None:
+    workflow = yaml.safe_load(
+        (REPOSITORY_ROOT / ".github/workflows/pk-stack-release.yml").read_text(encoding="utf-8")
+    )
+    build = next(
+        step["run"]
+        for step in workflow["jobs"]["release"]["steps"]
+        if step["name"] == "Build deterministic PKStack Power archive and SHA-256"
+    )
+    # Exercise the actual archive/gzip commands, stopping before checksum
+    # publication (sha256sum is not installed by default on macOS).
+    archive_commands = build.split("\n(\n", 1)[0]
+    assert archive_commands.rstrip().endswith('gzip --no-name --stdout "$raw_archive" >"$archive"')
+    environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    environment.update(
+        GIT_CONFIG_GLOBAL=os.devnull,
+        GIT_CONFIG_NOSYSTEM="1",
+        GIT_AUTHOR_NAME="Archive fixture",
+        GIT_AUTHOR_EMAIL="archive@example.invalid",
+        GIT_COMMITTER_NAME="Archive fixture",
+        GIT_COMMITTER_EMAIL="archive@example.invalid",
+        GIT_AUTHOR_DATE="2000-01-01T00:00:00+00:00",
+        GIT_COMMITTER_DATE="2000-01-01T00:00:00+00:00",
+    )
+    repository = tmp_path / "repository"
+    power = repository / "powers/pkstack"
+    power.mkdir(parents=True)
+    (power / "README.md").write_text("Power-only fixture\n", encoding="utf-8")
+    (repository / "outside.txt").write_text("Do not ship\n", encoding="utf-8")
+
+    def git(*arguments: str) -> str:
+        return subprocess.run(
+            ["git", "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgSign=false", *arguments],
+            cwd=repository,
+            env=environment,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+
+    git("init", "--quiet")
+    git("add", ".")
+    git("commit", "--quiet", "--message", "Archive fixture")
+    environment.update(RELEASE_SHA=git("rev-parse", "HEAD"), EXPECTED_TAG="v0.3.0")
+    hashes = []
+    for attempt in range(2):
+        runner_temp = tmp_path / f"run-{attempt}"
+        runner_temp.mkdir()
+        subprocess.run(
+            ["bash", "-c", archive_commands],
+            cwd=repository,
+            env={**environment, "RUNNER_TEMP": str(runner_temp)},
+            check=True,
+            capture_output=True,
+        )
+        archive = runner_temp / "pkstack-release/pkstack-v0.3.0.tar.gz"
+        hashes.append(hashlib.sha256(archive.read_bytes()).hexdigest())
+        with tarfile.open(archive, "r:gz") as package:
+            members = package.getmembers()
+            assert {member.name.rstrip("/") for member in members} == {
+                "pkstack",
+                "pkstack/README.md",
+            }
+            assert {member.mtime for member in members} == {946684800}
+    assert hashes[0] == hashes[1]
 
 
 def test_ci_static_analyzers_are_on_path_before_same_step_probe() -> None:

@@ -137,6 +137,7 @@ jobs:
       control_plan_sha256: ${{ steps.detect.outputs.control_plan_sha256 }}
       control_action: ${{ steps.detect.outputs.control_action }}
       selected_source_id: ${{ steps.detect.outputs.selected_source_id }}
+      retrieved_on: ${{ steps.detect.outputs.retrieved_on }}
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
     steps:
       - name: Harden runner networking
@@ -190,6 +191,7 @@ jobs:
           mkdir -p "$EVIDENCE_ROOT"
           detector_path="$EVIDENCE_ROOT/upstream-check.json"
           control_plan_path="$EVIDENCE_ROOT/control-plan.json"
+          retrieved_on=$(date -u +%F)
           set +e
           GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" \
             PYTHONPATH="$trusted_projectctl/src" \
@@ -202,6 +204,10 @@ jobs:
           set -e
           python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
             validate-detector --detector "$detector_path"
+          if [[ "$(date -u +%F)" != "$retrieved_on" ]]; then
+            echo "upstream inventory retrieval crossed a UTC date boundary" >&2
+            exit 1
+          fi
           python3 "$TRUSTED_ROOT/.github/scripts/pkstack_update_controller.py" \
             --detector "$detector_path" \
             --feedback maintenance/upstream-feedback.json \
@@ -235,6 +241,7 @@ jobs:
             printf 'control_plan_sha256=%s\n' "$control_plan_sha256"
             printf 'control_action=%s\n' "$control_action"
             printf 'selected_source_id=%s\n' "$selected_source_id"
+            printf 'retrieved_on=%s\n' "$retrieved_on"
           } >>"$GITHUB_OUTPUT"
       - name: Upload bounded detector evidence
         id: upload
@@ -264,6 +271,7 @@ jobs:
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
     env:
       BASE_SHA: ${{ needs.plan.outputs.base_sha }}
+      PKSTACK_UPSTREAM_RETRIEVED_ON: ${{ needs.detect.outputs.retrieved_on }}
     steps:
       - name: Harden runner networking
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1

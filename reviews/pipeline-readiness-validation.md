@@ -483,3 +483,99 @@ credential-stream tests. Actionlint, ShellCheck, and `git diff --check` passed.
 The credential-smoke workflow's generated parser copy and checksum were
 refreshed mechanically. Independent decoding confirmed byte-for-byte equality
 and SHA-256 `76b045ad9973bb3f702bd35ea577fba62c21344ab5f962b44f305d9ce829ecef`.
+
+[PR #26](https://github.com/njs14/pkstack/pull/26), head
+`2b19ad9aa54c40d81a6f024f73adaebed273f844`, passed the
+[full CI gate](https://github.com/njs14/pkstack/actions/runs/33949434536)
+and merged as `a70a881f791a281b41835769ff3155674de89b10`.
+The fresh [credential smoke](https://github.com/njs14/pkstack/actions/runs/33949568660)
+passed on that merged commit, including the updated embedded parser and cleanup.
+The [full updater retry](https://github.com/njs14/pkstack/actions/runs/33949567639)
+was dispatched from the same commit.
+
+```sh
+gh pr merge 26 --repo njs14/pkstack --squash \
+  --match-head-commit 2b19ad9aa54c40d81a6f024f73adaebed273f844
+gh workflow run pk-stack-upstream-maintenance-kiro.yml --repo njs14/pkstack --ref main
+gh workflow run pk-stack-kiro-credential-smoke.yml --repo njs14/pkstack --ref main
+```
+
+The source run passed repair one and published
+[PR #27](https://github.com/njs14/pkstack/pull/27), head
+`520e6ff98eceb70369c30c711b0d77732f723fa4`, on base
+`a70a881f791a281b41835769ff3155674de89b10`. The
+[candidate gate](https://github.com/njs14/pkstack/actions/runs/33949846412)
+passed both test suites and the repaired stream, model, and agent checks.
+Opus exited 0 and all six candidate identity fields matched, but the verdict's
+material findings failed their shape/size contract. Cleanup closed the PR
+without merging; there was no validated review verdict or rejection-budget
+entry. The deleted private response's exact findings shape is unverified.
+
+The immutable reviewer prompt listed field names but omitted the existing
+validator's findings and summary types/limits. The correction makes that
+contract explicit without relaxing the validator. The exact retained candidate
+bundle was retrieved for a local Kiro-hosted review; its SHA-256 matched the CI
+binding `99406909055dc4d9fb0c812f0facc777dcb34b61b77f095ad7f9167ae7d7c228`.
+
+The local Opus / xhigh review used that same bundle and the clarified profile
+in `/private/tmp/pkstack-exact-opus-review.2TwZpG`. Its 612-event stream completed
+successfully and passed the real stream, model, agent, binding, and verdict
+validators. The resulting verdict was **rejected**, not an approval. The local
+OAuth review is separate evidence and was not inserted into the CI rejection
+ledger. Its prompt-turn cost was `1.2230894545605309` Kiro credits. A non-secret
+local sentinel was supplied only to the offline validator, never to Kiro.
+
+The three findings became explicit acceptance criteria:
+
+- Preserve the existing backfill rationale's separately authorized, redacted,
+  bounded-migration prerequisite. Put the version-only change explanation in
+  the new transition/provenance text instead of replacing that prerequisite.
+- Refresh the selected inventory's `source.retrieved_on` from its actual trusted
+  retrieval date. Code inspection found no immutable-baseline meaning for that
+  field; genesis facts and historical review markers remain unchanged.
+- End the new provenance marker with LF. Existing marker parsing accepts a
+  missing newline, so this is hygiene, not a current parser vulnerability.
+
+The explicit reviewer schema and strict boundary tests passed all 165 repository
+tests. No validator rules, permissions, or model policy were relaxed.
+The [sanitized local verdict](local-opus-updater-review-2026-09-05.json) retains
+only the review summary, findings, and candidate bindings; its run IDs identify
+the candidate under review, not a successful CI verdict.
+
+## Reproducible release archive
+
+Two builds of `a70a881f791a281b41835769ff3155674de89b10:powers/pkstack`
+had different tar/gzip hashes despite `gzip --no-name`. A subtree expression
+resolves to a tree, so Git used each build's current time: `1788589639` and
+`1788589642`, rather than the commit timestamp `1788589257`.
+
+The release workflow now reads the reviewed commit's timestamp and passes
+`--mtime="@$release_timestamp"` to `git archive`. Two corrected builds matched
+SHA-256 `2e5c67d934ede8137bb05caf9ef83051cb7f07706a184f0f82ab6b95ac84db91`,
+and all 350 members used that commit timestamp. The new regression executes
+the actual workflow archive/gzip commands twice in an isolated Git fixture;
+it failed before the fix and passed afterward. Root reviewed the workflow and
+test diff. All 829 local Power tests passed, including the installed-Kiro check.
+Ruff, formatting, types, Actionlint, and ShellCheck passed. This is a packaging
+dry run, not a release publication.
+
+## Review-finding remediation
+
+The maintainer now preserves unchanged safety rationale, records delta-specific
+explanations in the new proposal/provenance, and terminates the new marker with
+LF. The detector captures its UTC retrieval date before fetching inventories,
+confirms the date did not change during retrieval, and supplies the date as a
+trusted job output. The runner validates that date before any authenticated
+inventory or model call and includes it in the invocation. Neither the model's
+clock nor candidate content supplies provenance dates. No detector/controller
+schema, validator rule, or permission changed.
+
+All 167 repository tests passed. Real-shell negatives cover missing, empty,
+compact, impossible, and newline-injected dates; none reaches the inventory or
+repair call. The same-day workflow guard is exercised on success and midnight
+failure. Existing multisource acceptance tests now cover a changed retrieval
+date for both skill-catalog and source-inventory artifacts: both passed, the
+selected date persisted, and other sources' parity, provenance, and history
+remained unchanged. Actionlint, ShellCheck, Ruff, formatting, and diff checks
+passed. Root reviewed all remediation and archive diffs with no material
+unresolved finding. Full PR CI and the next live campaign remain required.

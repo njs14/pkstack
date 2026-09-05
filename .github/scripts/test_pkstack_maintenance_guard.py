@@ -4526,6 +4526,50 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             with self.assertRaises(guard.GuardError):
                 guard.validate_ci_agent(path, self.policy)
 
+    def test_ci_agent_preserves_parity_safety_and_provenance_format(self) -> None:
+        document = json.loads(
+            (ROOT / ".kiro/agents/pkstack-maintainer.json").read_text(encoding="utf-8")
+        )
+        for requirement in (
+            "Preserve existing parity rationale verbatim",
+            "put delta-specific explanations in the new proposal and provenance prose",
+            "authorization, redaction, and bounded-migration requirements",
+            "source.retrieved_on only from the trusted inventory_retrieved_on value",
+            "UTC date of this inventory retrieval, not the initial baseline date",
+            "Never infer it from candidate content or your clock",
+            "Terminate the new final marker line with one LF newline",
+            "preserve the genesis marker and all accepted history unchanged",
+        ):
+            with self.subTest(requirement=requirement):
+                self.assertIn(requirement, document["prompt"])
+        guard.validate_ci_agent(ROOT / ".kiro/agents/pkstack-maintainer.json", self.policy)
+
+    def test_workflow_supplies_date_from_same_day_trusted_inventory_retrieval(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        capture = '          retrieved_on=$(date -u +%F)\n'
+        boundary = '          if [[ "$(date -u +%F)" != "$retrieved_on" ]]; then\n'
+        self.assertLess(workflow.index(capture), workflow.index("-m pkstack upstream check"))
+        self.assertLess(workflow.index("validate-detector --detector"), workflow.index(boundary))
+        self.assertIn("retrieved_on: ${{ steps.detect.outputs.retrieved_on }}", workflow)
+        self.assertIn("printf 'retrieved_on=%s\\n' \"$retrieved_on\"", workflow)
+        self.assertIn(
+            "PKSTACK_UPSTREAM_RETRIEVED_ON: ${{ needs.detect.outputs.retrieved_on }}",
+            workflow,
+        )
+        script = textwrap.dedent(
+            boundary + workflow.split(boundary, 1)[1].split("          fi\n", 1)[0]
+            + "          fi\n"
+        )
+        for current_date, expected_rc in (("2026-09-05", 0), ("2026-09-06", 1)):
+            with self.subTest(current_date=current_date):
+                result = subprocess.run(
+                    ["bash", "-c",
+                     f'retrieved_on=2026-09-05; date() {{ printf "%s\\n" {current_date}; }};\n'
+                     + script],
+                    capture_output=True, text=True, timeout=5,
+                )
+                self.assertEqual(result.returncode, expected_rc, result.stderr)
+
     def test_operational_skill_patch_builds_mandatory_exact_review_input(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

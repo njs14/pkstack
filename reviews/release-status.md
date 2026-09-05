@@ -18,8 +18,9 @@ Upstream methods and historical source identities are preserved.
 
 ## What has passed
 
-- **Deterministic checks:** 163 repository tests, 17 JavaScript tests, and
-  827 Power tests passed. CI skipped one additional installed-Kiro test.
+- **Deterministic checks:** 167 repository tests, 17 JavaScript tests, and
+  the full Power suite passed. New targeted tests also prove retrieval-date
+  updates through both inventory formats and reproducible release archives.
   Lint, formatting, types, lockfile checks, Actionlint, and ShellCheck passed.
 - **Kiro CLI:** CLI 2.21.1 with Luna / Low discovered `/pkstack` and completed
   a same-session `/pkstack-verified-goal` failure → repair → pass.
@@ -38,14 +39,16 @@ The owner-approved updater is enabled daily at **13:17 UTC**. It reconciles
 one selected upstream source, runs deterministic checks, and requires an
 independent Kiro-hosted Opus review before merging.
 
-The [live source run](https://github.com/njs14/pkstack/actions/runs/33948407146)
+The [live source run](https://github.com/njs14/pkstack/actions/runs/33949567639)
 passed on its first attempt and published
-[PR #25](https://github.com/njs14/pkstack/pull/25). Its
-[candidate gate](https://github.com/njs14/pkstack/actions/runs/33948673559)
-passed both test suites and invoked Opus successfully, but rejected an unknown
-stream event before accepting a verdict. Cleanup closed the PR without merging.
-The repaired parser passes the captured local Opus stream and unmocked review
-regressions; a fresh full campaign is still required for end-to-end acceptance.
+[PR #27](https://github.com/njs14/pkstack/pull/27). Its
+[candidate gate](https://github.com/njs14/pkstack/actions/runs/33949846412)
+passed both test suites, Opus stream validation, and all candidate bindings,
+but rejected the verdict's malformed findings field. Cleanup closed the PR
+without merging. A local review with the clarified schema returned three
+findings. Their fixes preserve safety rationale, use the detector's trusted
+retrieval date, and terminate the new marker with LF. A fresh full campaign
+is still required for end-to-end acceptance.
 
 ## Limits and release gate
 
