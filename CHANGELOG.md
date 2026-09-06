@@ -17,6 +17,8 @@ rules are unchanged.
   behavior, including first-use downloads and offline cache requirements.
 - Connects installation to the included failing task and shows the expected
   failure, Kiro repair, and stored passing result.
+- Documents user-owned saved requests, their role beside skills and executable
+  goals, and the observed v3 prompt-menu compatibility limit.
 - Exercises the documented source-to-target commands and packaged-Power paths
   in onboarding regressions. Scripted repair remains controller evidence;
   native Kiro campaign results are recorded separately in the release status.

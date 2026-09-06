@@ -18,7 +18,7 @@ The design has one simple rule:
 | Surface | Owns | Does not own |
 | --- | --- | --- |
 | Kiro IDE/CLI | Native Spec, Quick Spec, Bug Fix, Plan, tools, model, permissions, and task execution | PKStack goal state or feature proof |
-| PKStack skills | Prompts, workflow sequencing, and current-session handoff | A replacement agent runtime or native planner |
+| PKStack skills | Workflow instructions, sequencing, and current-session handoff | A replacement agent runtime or native planner |
 | `.pkstack/bin/projectctl` | Setup receipt, discovery, feature records, evidence, goals, and bounded command execution | Kiro orchestration or semantic correctness of arbitrary scripts |
 | `Wiki/features/*.md` | User-visible contracts and one executable verifier per contract | Broad architecture context or permanent correctness |
 | `Wiki/knowledge/`, `Wiki/features/`, and native specs | Authoritative source files for bounded Kiro ACP retrieval | A second feature-verification authority |
@@ -59,6 +59,25 @@ second task graph. `goal bind-spec` writes a small bridge to an executable
 command or a published feature and records snapshots of the native intent, design, and
 bridge. `tasks.md` remains mutable so Kiro can track work. A task checkbox or
 prose acceptance criterion is not executable proof.
+
+## Saved requests and workflow ownership
+
+Native saved prompts are an optional entry layer: they preserve a request the
+user chooses to submit. Skills define reusable workflow instructions; agent
+profiles configure the working context; steering supplies persistent project
+guidance. Native Specs retain planning provenance, and `projectctl` retains the
+executable predicate and its results. Saving or expanding a prompt does not
+change those authorities.
+
+User-created workspace prompts in `.kiro/prompts/` remain outside PKStack's
+managed-file receipt. This lets users customize them through Kiro without
+turning normal prompt edits into setup conflicts. A saved request should name
+the relevant skill and supply task context, not duplicate its instructions,
+choose a model, change permissions, or introduce another execution loop.
+
+PKStack adds no prompt renderer, argument-substitution layer, or MCP dependency
+for this purpose. See [saved requests in usage](usage.md#save-a-recurring-request-in-kiro)
+for the documented CLI interface and its current verification limits.
 
 ## Distribution and generated workspace
 

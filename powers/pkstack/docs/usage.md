@@ -191,6 +191,36 @@ the controller's checks but are not an operating-system sandbox.
 Imported skills keep their names. The [sources guide](curated-skills.md) explains
 their roles and handoffs. For a runnable example, [try one failing task](first-task.md).
 
+## Save a recurring request in Kiro
+
+Kiro documents saved prompts for requests you use repeatedly. A saved prompt
+carries the task and its context; a PKStack skill supplies the workflow. For
+example, you could save the complete account-ID request from the
+[first-task guide](first-task.md) instead of retyping it.
+
+The [CLI prompt guide](https://kiro.dev/docs/cli/chat/manage-prompts/) describes
+workspace prompts in `.kiro/prompts/` and invocation with `@<name>`. File-based
+prompts do not accept template arguments. Prefer a distinctive project-specific
+name because workspace prompts take precedence over global prompts with the
+same name.
+
+Keep these prompts user-owned. PKStack does not install a prompt catalog or
+manage your `.kiro/prompts/` files. Refer to the existing PKStack skill rather
+than copying its verification loop into a prompt. A saved request does not
+select the `pkstack` agent, bind a native Spec, or establish a passing result
+by itself; confirm the intended skill actually loads and inspect the stored
+verifier evidence.
+
+**Installed CLI boundary:** on macOS with Kiro CLI 2.21.1 in v3 mode,
+`/prompts` opened a selection menu that included skills, with a right-arrow
+control to view details. The general guide's `/prompts details <name>` syntax
+instead submitted an ordinary model request in our probe; do not use it as a
+read-only preview on this build. Saved-file creation, `@name` expansion, and
+skill activation through an expanded request have not been verified here.
+Use the native controls exposed by your runtime and inspect the content before
+submission. The [first-task guide](first-task.md) retains direct skill invocation;
+local saved-prompt behavior in Kiro IDE is also unverified.
+
 ## The short version
 
 ![Return from native Kiro planning to PKStack, run the stored verifier, and repair while attempts remain.](artifacts/pkstack-task-workflow.png)
