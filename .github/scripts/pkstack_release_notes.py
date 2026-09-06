@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import re
+from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 
 
@@ -16,9 +16,9 @@ def release_notes(changelog: str, tag: str) -> str:
     headings = list(re.finditer(rf"(?m)^## \[{version}\](?:[^\n]*)$", changelog))
     if len(headings) != 1:
         raise ValueError("changelog must contain exactly one entry for the release version")
-    remainder = changelog[headings[0].end():]
+    remainder = changelog[headings[0].end() :]
     next_entry = re.search(r"(?m)^## ", remainder)
-    body = remainder[:next_entry.start()] if next_entry else remainder
+    body = remainder[: next_entry.start()] if next_entry else remainder
     body = body.strip()
     if not body:
         raise ValueError("release changelog entry is empty")

@@ -21,7 +21,11 @@
     "Kiro CLI",
     "Kiro IDE",
     "Kiro Crew",
-    "Kiro Web"
+    "Kiro Web",
+    "Python",
+    "uv",
+    "Ruff",
+    "ty"
   ],
   "repository": "https://github.com/njs14/pkstack",
   "license": "Apache-2.0"

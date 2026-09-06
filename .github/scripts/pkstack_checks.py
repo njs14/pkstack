@@ -7,13 +7,15 @@ import argparse
 import hashlib
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import sys
-import time
 import tempfile
+import time
+from pathlib import Path
 from urllib.parse import unquote, urlsplit
+
+import pkstack_python_static as static
 
 SCHEMA = 1
 CORE_SHARDS = 6
@@ -30,7 +32,10 @@ FAST_FILES = {
     "test_distribution.py",
     "test_archify_provenance.py",
 }
-KIRO_SENTINEL = "tests/test_kiro_assets.py::test_installed_kiro_discovers_every_workspace_agent_with_221_sentinel"
+KIRO_SENTINEL = (
+    "tests/test_kiro_assets.py"
+    "::test_installed_kiro_discovers_every_workspace_agent_with_221_sentinel"
+)
 KIRO_SKIP_REASON = "kiro-cli is not installed"
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -50,12 +55,14 @@ def config_digest(root):
         and p.suffix in {".py", ".js", ".sh", ".yml", ".yaml", ".json"}
         and "__pycache__" not in p.parts
     )
-    paths += [root / "powers/pkstack/pyproject.toml", root / "powers/pkstack/uv.lock"]
+    paths += [
+        root / "powers/pkstack/pyproject.toml",
+        root / "powers/pkstack/uv.lock",
+        root / "ruff.toml",
+        root / "ty.toml",
+    ]
     return digest(
-        [
-            (str(p.relative_to(root)), hashlib.sha256(p.read_bytes()).hexdigest())
-            for p in paths
-        ]
+        [(str(p.relative_to(root)), hashlib.sha256(p.read_bytes()).hexdigest()) for p in paths]
     )
 
 
@@ -121,11 +128,7 @@ def execution_profile(event, changes):
     reports = event == "pull_request" and certain and all(report_path(p) for p in paths)
     if reports:
         return "reports", "none"
-    expanded = (
-        event != "pull_request"
-        or not certain
-        or any(browser_sensitive(p) for p in paths)
-    )
+    expanded = event != "pull_request" or not certain or any(browser_sensitive(p) for p in paths)
     return "normal", "full" if expanded else "smoke"
 
 
@@ -208,9 +211,7 @@ def validate_plan(plan, root):
         base = payload["pull_request"]["base"]["sha"]
     actual = make_plan(root, event, base, os.environ.get("GITHUB_SHA"))
     if any(plan.get(key) != actual.get(key) for key in ("event", "base", "changes")):
-        raise ValueError(
-            "plan change set does not match the workflow event and Git history"
-        )
+        raise ValueError("plan change set does not match the workflow event and Git history")
     profile, browser = execution_profile(plan["event"], plan["changes"])
     scheduled = ["fast"] if profile == "reports" else list(LANES)
     if (
@@ -271,7 +272,8 @@ def check_reports(root, changes, base):
         if not path.is_file() or path.is_symlink():
             raise ValueError(f"report is missing or a symlink: {path}")
         text = path.read_text()
-        # Check inline links/images and reference definitions; external links and anchors need no local file.
+        # Check inline links/images and reference definitions; external links and
+        # anchors need no local file.
         targets = re.findall(r"!?\[[^\]]*\]\(([^)]+)\)", text) + re.findall(
             r"^\s*\[[^\]]+\]:\s*(\S+)", text, re.M
         )
@@ -284,10 +286,7 @@ def check_reports(root, changes, base):
             if Path(relative).is_absolute():
                 continue  # Historical machine-local evidence is not a repository reference.
             resolved = (path.parent / relative).resolve()
-            if (
-                not resolved.is_relative_to(Path(root).resolve())
-                or not resolved.exists()
-            ):
+            if not resolved.is_relative_to(Path(root).resolve()) or not resolved.exists():
                 raise ValueError(
                     f"broken or outside-repository report reference in {path}: {target}"
                 )
@@ -302,7 +301,6 @@ def run_commands(commands, root):
 
 
 def run_policy(root):
-    power = root / "powers/pkstack"
     run_commands(
         [
             [
@@ -319,6 +317,8 @@ def run_policy(root):
                     for p in sorted((root / ".github/scripts").glob("*.sh"))
                 ],
             ],
+            # Workflow steps launch these scripts with the runner's interpreter, so
+            # their tests run on the active one rather than the Power environment.
             [
                 sys.executable,
                 "-B",
@@ -334,34 +334,9 @@ def run_policy(root):
         ],
         root,
     )
-    run_commands(
-        [
-            ["uv", "lock", "--check"],
-            [
-                "uv",
-                "run",
-                "--frozen",
-                "ruff",
-                "check",
-                "src",
-                "tests",
-                "skills/pkstack-setup/scripts/setup_pkstack.py",
-            ],
-            [
-                "uv",
-                "run",
-                "--frozen",
-                "ruff",
-                "format",
-                "--check",
-                "src",
-                "tests",
-                "skills/pkstack-setup/scripts/setup_pkstack.py",
-            ],
-            ["uv", "run", "--frozen", "ty", "check"],
-        ],
-        power,
-    )
+    # One entrypoint owns every maintained Python surface, so the policy lane and
+    # both upstream-candidate static sections cannot drift apart.
+    static.run_static_checks(root)
     knowledge = [
         "./.pkstack/bin/projectctl",
         "knowledge",
@@ -529,9 +504,7 @@ def main():
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     commands = parser.add_subparsers(dest="command", required=True)
     classify = commands.add_parser("classify")
-    classify.add_argument(
-        "--event", choices=["pull_request", "push", "local"], required=True
-    )
+    classify.add_argument("--event", choices=["pull_request", "push", "local"], required=True)
     classify.add_argument("--base")
     classify.add_argument("--head")
     classify.add_argument("--output", type=Path, required=True)
@@ -574,25 +547,17 @@ def main():
         os.environ["PKSTACK_DIAGNOSTICS"] = str(args.output.resolve() / "diagnostics")
         lanes = ["fast"] if args.profile == "fast" else list(LANES)
         receipt_dir = args.output / "receipts"
-        code = max(
-            run_lane(root, plan, lane, receipt_dir / f"{lane}.json") for lane in lanes
-        )
+        code = max(run_lane(root, plan, lane, receipt_dir / f"{lane}.json") for lane in lanes)
         if code == 0 and args.profile == "full":
-            receipts = [
-                json.loads((receipt_dir / f"{lane}.json").read_text()) for lane in lanes
-            ]
+            receipts = [json.loads((receipt_dir / f"{lane}.json").read_text()) for lane in lanes]
             write_json(args.output / "summary.json", verify_receipts(plan, receipts))
         return code
     plan = json.loads(args.plan.read_text())
     validate_plan(plan, root)
     if args.command == "run":
         return run_lane(root, plan, args.lane, args.receipt)
-    receipts = [
-        json.loads(p.read_text()) for p in sorted(args.receipts.rglob("*.json"))
-    ]
-    summary = verify_receipts(
-        plan, receipts, json.loads(args.needs) if args.needs else None
-    )
+    receipts = [json.loads(p.read_text()) for p in sorted(args.receipts.rglob("*.json"))]
+    summary = verify_receipts(plan, receipts, json.loads(args.needs) if args.needs else None)
     if args.output:
         write_json(args.output, summary)
     print(json.dumps(summary, indent=2))

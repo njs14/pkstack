@@ -21,8 +21,8 @@ Forty-four upstream workflows have runnable routes. The entry workflow is
 
 PKStack also ships `/pkstack-principles`, `/pkstack-maintain`,
 `/pkstack-model-council`, `/pkstack-verified-goal`, and `/okf`, for 49 routes
-in this catalog. The six [curated additions](curated-skills.md) bring the
-Power total to 55. Setup stays Power-local; the other 54 install into the
+in this catalog. The thirteen [curated additions](curated-skills.md) bring the
+Power total to 62. Setup stays Power-local; the other 61 install into the
 workspace. `/okf` is the explicit knowledge-integration naming exception,
 with independently adapted methodology recorded in its separate provenance.
 

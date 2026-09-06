@@ -216,7 +216,9 @@ jobs:
           needs_maintenance=$(python3 - "$detector_path" "$detector_rc" <<'PY'
           import json
           import sys
-          payload = json.load(open(sys.argv[1], encoding="utf-8"))
+
+          with open(sys.argv[1], encoding="utf-8") as handle:
+              payload = json.load(handle)
           rc = int(sys.argv[2])
           if payload.get("ok") is True:
               if rc != 0:

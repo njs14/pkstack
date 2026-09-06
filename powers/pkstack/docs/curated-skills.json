@@ -75,6 +75,15 @@
       "target": "skills/narrow-react-prop-types/SKILL.md"
     },
     {
+      "bundle_manifest": "docs/astral-ruff-bundle-manifest.json",
+      "bundle_root": "skills/ruff",
+      "name": "ruff",
+      "provenance": "docs/astral-python-provenance.md",
+      "source_id": "astral-python",
+      "source_parity": "docs/astral-python-source-parity.json",
+      "target": "skills/ruff/SKILL.md"
+    },
+    {
       "bundle_manifest": "docs/humanlayer-show-me-bundle-manifest.json",
       "bundle_root": "skills/show-me",
       "name": "show-me",
@@ -82,6 +91,24 @@
       "source_id": "humanlayer-skills",
       "source_parity": "docs/humanlayer-skills-source-parity.json",
       "target": "skills/show-me/SKILL.md"
+    },
+    {
+      "bundle_manifest": "docs/astral-ty-bundle-manifest.json",
+      "bundle_root": "skills/ty",
+      "name": "ty",
+      "provenance": "docs/astral-python-provenance.md",
+      "source_id": "astral-python",
+      "source_parity": "docs/astral-python-source-parity.json",
+      "target": "skills/ty/SKILL.md"
+    },
+    {
+      "bundle_manifest": "docs/astral-uv-bundle-manifest.json",
+      "bundle_root": "skills/uv",
+      "name": "uv",
+      "provenance": "docs/astral-python-provenance.md",
+      "source_id": "astral-python",
+      "source_parity": "docs/astral-python-source-parity.json",
+      "target": "skills/uv/SKILL.md"
     },
     {
       "bundle_manifest": "docs/mattpocock-writing-for-agents-bundle-manifest.json",
@@ -94,8 +121,8 @@
     }
   ],
   "summary": {
-    "bundle_file_count": 87,
-    "curated_skill_count": 10,
-    "shipped_skill_directories": 10
+    "bundle_file_count": 90,
+    "curated_skill_count": 13,
+    "shipped_skill_directories": 13
   }
 }

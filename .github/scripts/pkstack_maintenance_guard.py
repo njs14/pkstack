@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import contextlib
 import hashlib
 import json
 import os
@@ -125,16 +126,18 @@ class GuardError(RuntimeError):
     """A candidate or workflow input crossed an immutable boundary."""
 
 
-PROPOSAL_FAILURE_REASONS = frozenset({
-    "proposal-missing",
-    "proposal-invalid",
-    "proposal-detector-invalid",
-    "proposal-binding-mismatch",
-    "proposal-dispositions-invalid",
-    "proposal-marker-missing",
-    "proposal-marker-invalid",
-    "proposal-control-mismatch",
-})
+PROPOSAL_FAILURE_REASONS = frozenset(
+    {
+        "proposal-missing",
+        "proposal-invalid",
+        "proposal-detector-invalid",
+        "proposal-binding-mismatch",
+        "proposal-dispositions-invalid",
+        "proposal-marker-missing",
+        "proposal-marker-invalid",
+        "proposal-control-mismatch",
+    }
+)
 
 
 class ProposalError(GuardError):
@@ -1291,10 +1294,8 @@ def _remove_untracked_generated(root: Path, base_sha: str) -> None:
                 if relative not in tracked:
                     path.unlink()
             elif path.is_dir():
-                try:
+                with contextlib.suppress(OSError):
                     path.rmdir()
-                except OSError:
-                    pass
     for relative in GENERATED_EXACT:
         path = root / relative
         if relative not in tracked and (path.exists() or path.is_symlink()):
@@ -1306,7 +1307,7 @@ def _remove_untracked_generated(root: Path, base_sha: str) -> None:
 
 def restore_generated(root: Path, base_sha: str) -> None:
     _remove_untracked_generated(root, base_sha)
-    pathspecs = [prefix.rstrip("/") for prefix in GENERATED_PREFIXES]
+    pathspecs: list[str] = [prefix.rstrip("/") for prefix in GENERATED_PREFIXES]
     pathspecs.extend(sorted(GENERATED_EXACT))
     existing_at_base = [
         path
@@ -2228,8 +2229,13 @@ def validate_detector(path: Path) -> dict[str, Any]:
                 }
             )
         elif current["commit"] != pinned["commit"]:
-            if (comparison["status"] != "ahead" or behind != 0
-                    or not (ahead == commits >= 1) or paths or files):
+            if (
+                comparison["status"] != "ahead"
+                or behind != 0
+                or not (ahead == commits >= 1)
+                or paths
+                or files
+            ):
                 raise GuardError("ref-only upstream movement must preserve the imported subtree")
         elif (
             comparison["status"] != "identical"
@@ -2773,8 +2779,11 @@ def validate_serialized_acceptance(
     after_sources = {source["id"]: source for source in after["sources"]}
     if set(after_sources) != set(before_sources):
         raise GuardError("serialized acceptance changed the upstream source inventory")
-    changed = [source_id for source_id, source in after_sources.items()
-               if source["pinned"] != before_sources[source_id]["pinned"]]
+    changed = [
+        source_id
+        for source_id, source in after_sources.items()
+        if source["pinned"] != before_sources[source_id]["pinned"]
+    ]
     if len(changed) != 1 or (selected_source_id is not None and changed != [selected_source_id]):
         raise GuardError("serialized acceptance does not match the controller-selected source")
     selected_id = changed[0]
@@ -2836,8 +2845,9 @@ def validate_serialized_acceptance(
         if len(base_raw) > REVIEW_LEDGER_MAX_BYTES:
             raise GuardError("base review ledger exceeds its byte budget")
         base_ledger = json.loads(base_raw, object_pairs_hook=_strict_object)
-        _, candidate_ledger = _load_json(root / ledger_path, maximum=REVIEW_LEDGER_MAX_BYTES,
-                                         label="candidate review ledger")
+        _, candidate_ledger = _load_json(
+            root / ledger_path, maximum=REVIEW_LEDGER_MAX_BYTES, label="candidate review ledger"
+        )
         base_records = {item["id"]: item for item in base_ledger["sources"]}
         candidate_records = {item["id"]: item for item in candidate_ledger["sources"]}
     except (subprocess.CalledProcessError, KeyError, TypeError, json.JSONDecodeError) as exc:
@@ -2849,9 +2859,9 @@ def validate_serialized_acceptance(
         if source_id != selected_id:
             if candidate_record != prior_record:
                 raise GuardError("serialized acceptance modified a deferred review ledger")
-        elif ({key: value for key, value in candidate_record.items() if key != "transitions"}
-              != {key: value for key, value in prior_record.items() if key != "transitions"}
-              or candidate_record["transitions"][:-1] != prior_record["transitions"]):
+        elif {key: value for key, value in candidate_record.items() if key != "transitions"} != {
+            key: value for key, value in prior_record.items() if key != "transitions"
+        } or candidate_record["transitions"][:-1] != prior_record["transitions"]:
             raise GuardError("serialized acceptance rewrote selected review history")
     _require_provenance_markers(root, after, selected_source_id=None)
     for source_id, source in before_sources.items():
@@ -3221,14 +3231,12 @@ def _review_skill_name(path: str) -> str | None:
 
 def _review_blob_sha(content: str) -> str:
     raw = content.encode("utf-8")
-    return hashlib.sha1(
-        b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw
-    ).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(raw)).encode("ascii") + b"\0" + raw).hexdigest()
 
 
 def _review_text(content: Any) -> bool:
     return isinstance(content, str) and not any(
-        ord(character) < 32 and character not in "\n\r\t" or ord(character) == 127
+        (ord(character) < 32 and character not in "\n\r\t") or ord(character) == 127
         for character in content
     )
 
@@ -3272,10 +3280,7 @@ def _review_scenarios(cases: Any, affected: list[str]) -> tuple[list[str], set[s
         }:
             raise GuardError("skill review base scenario contract changed")
         for key in ("id", "primary"):
-            if (
-                not isinstance(case[key], str)
-                or SKILL_REVIEW_NAME.fullmatch(case[key]) is None
-            ):
+            if not isinstance(case[key], str) or SKILL_REVIEW_NAME.fullmatch(case[key]) is None:
                 raise GuardError("skill review base scenario identity is malformed")
         helpers = case["helpers"]
         forbidden = case["forbidden_effects"]
@@ -3283,8 +3288,7 @@ def _review_scenarios(cases: Any, affected: list[str]) -> tuple[list[str], set[s
             case["id"] in seen
             or not isinstance(helpers, list)
             or not all(
-                isinstance(name, str) and SKILL_REVIEW_NAME.fullmatch(name)
-                for name in helpers
+                isinstance(name, str) and SKILL_REVIEW_NAME.fullmatch(name) for name in helpers
             )
             or len(helpers) != len(set(helpers))
             or case["primary"] in helpers
@@ -3302,14 +3306,11 @@ def _review_scenarios(cases: Any, affected: list[str]) -> tuple[list[str], set[s
             selected.append(case["id"])
             neighbors.update(roles)
             covered.update(roles)
-    if (
-        not selected
-        or (affected_names - {None, "pkstack", "pkstack-principles"}) - covered
-    ):
+    if not selected or (affected_names - {None, "pkstack", "pkstack-principles"}) - covered:
         raise GuardError(
             "skill review lacks base scenario coverage; promote a reviewed fixture first"
         )
-    return sorted(selected), neighbors | (affected_names - {None})
+    return sorted(selected), neighbors | {name for name in affected_names if name is not None}
 
 
 def _review_reference_paths(
@@ -3321,9 +3322,9 @@ def _review_reference_paths(
         else path
         for path in affected
     }
-    workflow_contract = any(
-        _review_skill_name(path) == "pkstack" for path in affected
-    ) or any("references/workflows.md" in case["expected_output"] for case in cases)
+    workflow_contract = any(_review_skill_name(path) == "pkstack" for path in affected) or any(
+        "references/workflows.md" in case["expected_output"] for case in cases
+    )
     return {
         SKILL_REVIEW_PREFIX + entry["name"] + "/" + reference
         for entry in catalog
@@ -3346,9 +3347,7 @@ def validate_skill_review_context(
     affected = _review_affected_paths(paths)
     if not affected:
         if context != {}:
-            raise GuardError(
-                "unaffected candidate must have empty skill review context"
-            )
+            raise GuardError("unaffected candidate must have empty skill review context")
         return
     if not isinstance(context, dict) or set(context) != {
         "base_sha",
@@ -3360,9 +3359,7 @@ def validate_skill_review_context(
         "fixture",
         "scenario_ids",
     }:
-        raise GuardError(
-            "affected candidate is missing the skill review context contract"
-        )
+        raise GuardError("affected candidate is missing the skill review context contract")
     if len(_review_json_bytes(context)) > SKILL_REVIEW_CONTEXT_MAX_BYTES:
         raise GuardError(
             "skill review context exceeds 64 KiB; narrow the candidate or use manual review"
@@ -3401,13 +3398,9 @@ def validate_skill_review_context(
         or not isinstance(fixture["blob_sha"], str)
         or re.fullmatch(r"[0-9a-f]{40}", fixture["blob_sha"]) is None
     ):
-        raise GuardError(
-            "skill review context fixture is not the protected base fixture"
-        )
+        raise GuardError("skill review context fixture is not the protected base fixture")
     scenario_ids, neighbors = _review_scenarios(fixture["cases"], affected)
-    if context["scenario_ids"] != scenario_ids or len(scenario_ids) != len(
-        fixture["cases"]
-    ):
+    if context["scenario_ids"] != scenario_ids or len(scenario_ids) != len(fixture["cases"]):
         raise GuardError("skill review context omitted applicable base scenarios")
     catalog = context["catalog"]
     if not isinstance(catalog, list) or not 1 <= len(catalog) <= 256:
@@ -3440,9 +3433,7 @@ def validate_skill_review_context(
         for reference in references:
             _review_safe_path(reference)
             if not reference.endswith(".md") or reference == "SKILL.md":
-                raise GuardError(
-                    "skill review context reference is not an instruction file"
-                )
+                raise GuardError("skill review context reference is not an instruction file")
         if name in neighbors:
             expected.add(SKILL_REVIEW_PREFIX + name + "/SKILL.md")
     if names != sorted(set(names)) or neighbors - set(names):
@@ -3471,13 +3462,9 @@ def validate_skill_review_context(
             name = _review_skill_name(record["path"])
             entry = next((item for item in catalog if item["name"] == name), None)
             if entry is None or entry["blob_sha"] != record["blob_sha"]:
-                raise GuardError(
-                    "skill review instruction does not match the candidate catalog"
-                )
+                raise GuardError("skill review instruction does not match the candidate catalog")
     if actual != sorted(expected):
-        raise GuardError(
-            "skill review context omitted or added neighboring instructions"
-        )
+        raise GuardError("skill review context omitted or added neighboring instructions")
 
 
 def _build_skill_review_context(
@@ -3513,21 +3500,17 @@ def _build_skill_review_context(
         metadata, encoded_path = record.split(b"\t", 1)
         mode, kind, object_sha = metadata.split(b" ")
         if mode != b"100644" or kind != b"blob" or encoded_path.decode("utf-8") != path:
-            raise GuardError(
-                "skill review context source must be a regular non-executable blob"
-            )
+            raise GuardError("skill review context source must be a regular non-executable blob")
         if (
             int(_git_text(root, "cat-file", "-s", object_sha.decode("ascii")))
             > SKILL_REVIEW_CONTEXT_MAX_BYTES
         ):
             raise GuardError("skill review context source exceeds 64 KiB")
-        content = _git_bytes(
-            root, "cat-file", "blob", object_sha.decode("ascii")
-        ).decode("utf-8", errors="strict")
+        content = _git_bytes(root, "cat-file", "blob", object_sha.decode("ascii")).decode(
+            "utf-8", errors="strict"
+        )
         if not _review_text(content):
-            raise GuardError(
-                "skill review context source contains unsafe control characters"
-            )
+            raise GuardError("skill review context source contains unsafe control characters")
         return {
             "path": path,
             "commit_sha": commit,
@@ -3535,7 +3518,7 @@ def _build_skill_review_context(
             "content": content,
         }
 
-    fixture = read(SKILL_REVIEW_FIXTURE, base_sha)
+    fixture: dict[str, Any] = read(SKILL_REVIEW_FIXTURE, base_sha)
     cases = _parse_review_fixture(fixture.pop("content"))
     scenario_ids, neighbors = _review_scenarios(cases, affected)
     # Selection runs only over the immutable base. The expected whole-bundle digest
@@ -3577,9 +3560,7 @@ def _build_skill_review_context(
     catalog.sort(key=lambda entry: entry["name"])
     selected.update(_review_reference_paths(catalog, affected, fixture["cases"]))
     shared = sorted(
-        path
-        for path in trees
-        if path.startswith(SKILL_REVIEW_STEERING) and path.endswith(".md")
+        path for path in trees if path.startswith(SKILL_REVIEW_STEERING) and path.endswith(".md")
     )
     selected.update(shared)
     context = {
@@ -3656,13 +3637,20 @@ def _build_source_inventory_context(
                 continue
             raw = _git_bytes(root, "show", f"{commit}:{path}")
             try:
-                document = json.loads(raw, object_pairs_hook=_strict_object, parse_constant=_reject_json_constant)
+                document = json.loads(
+                    raw, object_pairs_hook=_strict_object, parse_constant=_reject_json_constant
+                )
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                 raise GuardError("source inventory review input is invalid JSON") from exc
-            if not isinstance(document, dict) or document.get("artifact_type") != "source-inventory":
+            if (
+                not isinstance(document, dict)
+                or document.get("artifact_type") != "source-inventory"
+            ):
                 inventories.append(None)
                 continue
-            if not isinstance(document.get("source"), dict) or not isinstance(document.get("files"), list):
+            if not isinstance(document.get("source"), dict) or not isinstance(
+                document.get("files"), list
+            ):
                 raise GuardError("source inventory review input lacks source or files")
             records = {}
             for record in document["files"]:
@@ -3676,13 +3664,19 @@ def _build_source_inventory_context(
             continue
         before = inventories[0][1] if inventories[0] else {}
         after = inventories[1][1] if inventories[1] else {}
-        changed = sorted(path for path in before.keys() | after.keys() if before.get(path) != after.get(path))
+        changed = sorted(
+            path for path in before.keys() | after.keys() if before.get(path) != after.get(path)
+        )
         item = {"path": path}
-        for side, value in zip(("base", "head"), inventories):
-            item[side] = None if value is None else {
-                "source": value[0],
-                "files": [value[1][name] for name in changed if name in value[1]],
-            }
+        for side, value in zip(("base", "head"), inventories, strict=False):
+            item[side] = (
+                None
+                if value is None
+                else {
+                    "source": value[0],
+                    "files": [value[1][name] for name in changed if name in value[1]],
+                }
+            )
         context.append(item)
     validate_source_inventory_context(context, paths)
     return context

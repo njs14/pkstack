@@ -124,6 +124,7 @@ check for a larger change.
 | Investigate and teach | Trace behavior with `how`, recover design rationale with `why`, or work through both with `teach`. Ground the explanation in code and available evidence. |
 | Review in parallel | Split investigations with `swarm` and reconcile independent reviews with `pkstack-model-council`. The shipped delegated profiles inspect and report; the primary agent makes edits. |
 | Retain project knowledge | Maintain topic documents, decisions, and references with `/okf`. Retrieve relevant context for later work with `recall`. |
+| Improve Python code and scripts | `/uv`, `/ruff`, and `/ty` apply project-aware dependency, formatting, lint, and type-check guidance. |
 | Work through decisions | `/grilling` supplies the shared interview method; `/grill-me` starts a focused interview; `/grill-with-docs` also requests knowledge capture during the interview when writes are permitted. |
 | Explain visually | Ask `show-me` for call trees, pseudocode, and visual explanations. `archify` produces interactive architecture, sequence, workflow, and lifecycle diagrams; it needs Node.js 18+. |
 | Write documentation | Draft and edit human-facing prose with `technical-writing` and `unslop`. Use `writing-for-agents` for instructions an agent will consume. |
@@ -196,6 +197,7 @@ PKStack started with Poteto's pstack. The additional skills have specific jobs:
 | [Poteto's pstack](https://github.com/cursor/plugins/tree/main/pstack) | Engineering workflows, architecture, investigation, review, verification, and development principles. |
 | [HumanLayer](https://github.com/humanlayer/skills) | Visual explanations, control-loop design and implementation, and React prop narrowing. |
 | [Matt Pocock](https://github.com/mattpocock/skills) | Agent-facing writing, decision interviews, domain modeling, and knowledge capture. |
+| [Astral](https://github.com/astral-sh/claude-code-plugins) | Python environments and scripting with uv, lint/format with Ruff, and type checking with ty. |
 | [Archify](https://github.com/tt-a1i/archify) | The diagram skill and its bundled renderer. |
 | [OKF skills](https://github.com/scaccogatto/okf-skills) | Methods for creating, maintaining, and using project knowledge. |
 | [Google's OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) | The knowledge format that informs the Wiki structure. |

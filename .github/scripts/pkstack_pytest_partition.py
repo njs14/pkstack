@@ -3,6 +3,7 @@
 import json
 import os
 import time
+from typing import Any
 
 from pkstack_checks import (
     KIRO_SENTINEL,
@@ -12,6 +13,9 @@ from pkstack_checks import (
     receipt_base,
     write_json,
 )
+
+# One-process session state shared with report hooks that do not carry config.
+SESSION: Any = None
 
 
 def pytest_configure(config):
@@ -33,9 +37,7 @@ def pytest_collection_modifyitems(session, config, items):
     if len(ids) != len(set(ids)):
         config._pkstack_issues.append("duplicate collected test IDs")
     selected = [item for item in items if lane_for(item.nodeid) == config._pkstack_lane]
-    deselected = [
-        item for item in items if lane_for(item.nodeid) != config._pkstack_lane
-    ]
+    deselected = [item for item in items if lane_for(item.nodeid) != config._pkstack_lane]
     config._pkstack_selected = [item.nodeid for item in selected]
     config.hook.pytest_deselected(items=deselected)
     items[:] = selected
@@ -46,17 +48,11 @@ def pytest_runtest_logreport(report):
         report.nodeid, {"nodeid": report.nodeid, "phases": {}}
     )
     if report.when in result["phases"]:
-        SESSION._pkstack_issues.append(
-            f"duplicate phase: {report.nodeid}:{report.when}"
-        )
+        SESSION._pkstack_issues.append(f"duplicate phase: {report.nodeid}:{report.when}")
     result["phases"][report.when] = report.outcome
     result["duration_seconds"] = result.get("duration_seconds", 0) + report.duration
     if report.skipped:
-        reason = (
-            report.longrepr[2]
-            if isinstance(report.longrepr, tuple)
-            else str(report.longrepr)
-        )
+        reason = report.longrepr[2] if isinstance(report.longrepr, tuple) else str(report.longrepr)
         result["skip_reason"] = reason.removeprefix("Skipped: ")
     if hasattr(report, "wasxfail"):
         SESSION._pkstack_issues.append(f"unexpected xfail: {report.nodeid}")

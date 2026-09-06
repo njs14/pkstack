@@ -61,6 +61,11 @@ packages = ["src/pkstack"]
 "docs/mattpocock-grill-with-docs-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-grill-with-docs-bundle-manifest.json"
 "docs/mattpocock-grill-with-docs-source-parity.json" = "pkstack/_assets/docs/mattpocock-grill-with-docs-source-parity.json"
 "docs/mattpocock-grill-with-docs-provenance.md" = "pkstack/_assets/docs/mattpocock-grill-with-docs-provenance.md"
+"docs/astral-python-provenance.md" = "pkstack/_assets/docs/astral-python-provenance.md"
+"docs/astral-python-source-parity.json" = "pkstack/_assets/docs/astral-python-source-parity.json"
+"docs/astral-uv-bundle-manifest.json" = "pkstack/_assets/docs/astral-uv-bundle-manifest.json"
+"docs/astral-ruff-bundle-manifest.json" = "pkstack/_assets/docs/astral-ruff-bundle-manifest.json"
+"docs/astral-ty-bundle-manifest.json" = "pkstack/_assets/docs/astral-ty-bundle-manifest.json"
 "dev.kiro/steering" = "pkstack/_assets/dev.kiro/steering"
 "templates/project" = "pkstack/_assets/templates/project"
 "templates/projectctl" = "pkstack/_assets/templates/projectctl"
@@ -81,12 +86,15 @@ fail_under = 85
 [tool.ruff]
 target-version = "py311"
 line-length = 100
+# Generated snapshots are compared byte for byte by the packaging tests.
 extend-exclude = ["tests/fixtures/generated"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
+# The setup entrypoint runs on the interpreter that is already present, before
+# uv provides one, so it must keep its own pre-3.11 version guard.
 "skills/pkstack-setup/scripts/setup_pkstack.py" = ["UP036"]
 
 [tool.ruff.format]
@@ -94,6 +102,9 @@ quote-style = "double"
 
 [tool.ty.environment]
 python-version = "3.11"
+# `benchmarks/` and the demo example are standalone entrypoints rather than
+# importable packages, so they need explicit first-party search paths.
+root = ["src", "tests", "benchmarks", "examples/verified-goal-demo"]
 
 [tool.ty.src]
-include = ["src", "tests"]
+include = ["src", "tests", "benchmarks", "examples", "skills/pkstack-setup/scripts"]

@@ -34,8 +34,9 @@ class AttestationError(ValueError):
 
 
 def _json(raw: bytes) -> Any:
-    return json.loads(raw.decode("utf-8"), object_pairs_hook=_strict_object,
-                      parse_constant=_reject_constant)
+    return json.loads(
+        raw.decode("utf-8"), object_pairs_hook=_strict_object, parse_constant=_reject_constant
+    )
 
 
 def _read_regular(path: Path, maximum: int) -> bytes:
@@ -68,8 +69,7 @@ def validate_stream_bytes(
             or profile.get("name") != REQUIRED_AGENT
             or not isinstance(profile.get("description"), str)
             or not profile["description"]
-            or ("welcomeMessage" in profile
-                and not isinstance(profile["welcomeMessage"], str))
+            or ("welcomeMessage" in profile and not isinstance(profile["welcomeMessage"], str))
         ):
             raise AttestationError("maintenance-agent-profile-invalid")
         events = []
@@ -109,8 +109,10 @@ def validate_stream_bytes(
                 mode = modes[0]
                 if (
                     set(mode) != {"category", "currentValue", "id", "name", "options", "type"}
-                    or mode.get("category") != "mode" or mode.get("name") != "Mode"
-                    or mode.get("type") != "select" or not isinstance(mode.get("options"), list)
+                    or mode.get("category") != "mode"
+                    or mode.get("name") != "Mode"
+                    or mode.get("type") != "select"
+                    or not isinstance(mode.get("options"), list)
                 ):
                     raise AttestationError("maintenance-agent-selection-invalid")
                 current = mode.get("currentValue")
@@ -118,8 +120,11 @@ def validate_stream_bytes(
                     continue
                 if current != REQUIRED_AGENT:
                     raise AttestationError("maintenance-agent-fallback")
-                matches = [o for o in mode["options"]
-                           if isinstance(o, dict) and o.get("value") == REQUIRED_AGENT]
+                matches = [
+                    o
+                    for o in mode["options"]
+                    if isinstance(o, dict) and o.get("value") == REQUIRED_AGENT
+                ]
                 kiro: dict[str, Any] = {
                     "source": "global",
                     "resource": {"resourceType": "agent", "source": {"origin": "user"}},
@@ -127,8 +132,10 @@ def validate_stream_bytes(
                 if "welcomeMessage" in profile:
                     kiro["welcomeMessage"] = profile["welcomeMessage"]
                 expected = {
-                    "name": REQUIRED_AGENT, "value": REQUIRED_AGENT,
-                    "description": profile["description"], "_meta": {"kiro": kiro},
+                    "name": REQUIRED_AGENT,
+                    "value": REQUIRED_AGENT,
+                    "description": profile["description"],
+                    "_meta": {"kiro": kiro},
                 }
                 if matches != [expected]:
                     raise AttestationError("maintenance-agent-selection-invalid")
@@ -146,8 +153,11 @@ def validate_stream_bytes(
                     raise AttestationError("maintenance-agent-stream-invalid")
                 bootstrap_id = call_id
                 continue
-            if (kind == "tool_call_update" and bootstrap_id is not None
-                    and update.get("toolCallId") == bootstrap_id):
+            if (
+                kind == "tool_call_update"
+                and bootstrap_id is not None
+                and update.get("toolCallId") == bootstrap_id
+            ):
                 phase, _, _ = _bootstrap_tool_event(event)
                 if bootstrap_closed or phase != "terminal":
                     raise AttestationError("maintenance-agent-stream-invalid")
@@ -181,8 +191,17 @@ def main() -> int:
             return_code=args.return_code,
             api_key=os.environ.get("KIRO_API_KEY", ""),
         )
-    except (AttestationError, OSError, StreamError, ValueError, RecursionError, OverflowError) as exc:
-        code = str(exc) if isinstance(exc, AttestationError) else "maintenance-agent-evidence-invalid"
+    except (
+        AttestationError,
+        OSError,
+        StreamError,
+        ValueError,
+        RecursionError,
+        OverflowError,
+    ) as exc:
+        code = (
+            str(exc) if isinstance(exc, AttestationError) else "maintenance-agent-evidence-invalid"
+        )
         print(code, file=sys.stderr)
         return 1
     print(json.dumps(result, sort_keys=True))

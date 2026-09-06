@@ -214,14 +214,16 @@ def _focus_update_title(event: dict[str, Any]) -> str | None:
     focus = kiro_metadata.get("focus")
     if not isinstance(focus, dict) or set(focus) != {"title"}:
         raise StreamError("Kiro emitted malformed focus-update focus metadata")
-    titles = (update.get("title"), kiro_metadata.get("title"), focus.get("title"))
+    title = update.get("title")
+    titles = (title, kiro_metadata.get("title"), focus.get("title"))
     if (
-        any(not isinstance(title, str) or not title for title in titles)
-        or len(set(titles)) != 1
-        or len(titles[0].encode("utf-8")) > MAX_FOCUS_TITLE_BYTES
+        not isinstance(title, str)
+        or not title
+        or any(not isinstance(other, str) or other != title for other in titles[1:])
+        or len(title.encode("utf-8")) > MAX_FOCUS_TITLE_BYTES
     ):
         raise StreamError("Kiro emitted invalid or mismatched focus-update titles")
-    return titles[0]
+    return title
 
 
 def _session_envelope(event: dict[str, Any], *, label: str) -> tuple[str, dict[str, Any]]:
@@ -266,11 +268,10 @@ def _bootstrap_tool_event(event: dict[str, Any]) -> tuple[str, str, str]:
             base_keys = {"sessionUpdate", "status", "toolCallId"}
             if set(update) == base_keys:
                 return "terminal", session_id, call_id
-            if (
-                set(update) != base_keys | {"rawOutput"}
-                or update.get("rawOutput")
-                != {"kind": "notEnabled", "retracted": False}
-            ):
+            if set(update) != base_keys | {"rawOutput"} or update.get("rawOutput") != {
+                "kind": "notEnabled",
+                "retracted": False,
+            }:
                 raise StreamError(
                     "Kiro emitted a malformed completed cloud-config bootstrap terminal"
                 )
@@ -279,9 +280,7 @@ def _bootstrap_tool_event(event: dict[str, Any]) -> tuple[str, str, str]:
     raise StreamError("Kiro attempted a non-bootstrap tool call during the no-tool smoke")
 
 
-def _agent_text_event(
-    event: dict[str, Any], *, expected_kind: str
-) -> tuple[str, str, str]:
+def _agent_text_event(event: dict[str, Any], *, expected_kind: str) -> tuple[str, str, str]:
     label = "agent-thought" if expected_kind == "agent_thought_chunk" else "agent-message"
     session_id, update = _session_envelope(event, label=f"{label} chunk")
     if set(update) != {"_meta", "content", "sessionUpdate"}:
@@ -448,9 +447,7 @@ def _validated_assistant_text(
         if update.get("sessionUpdate") == "agent_thought_chunk":
             if bootstrap_pending is not None or agent_seen:
                 raise StreamError("Kiro emitted agent thoughts outside the pre-answer phase")
-            _, current_replay_id, _ = _agent_text_event(
-                event, expected_kind="agent_thought_chunk"
-            )
+            _, current_replay_id, _ = _agent_text_event(event, expected_kind="agent_thought_chunk")
             if thought_replay_id is not None and thought_replay_id != current_replay_id:
                 raise StreamError("Kiro agent-thought identity changed between chunks")
             thought_replay_id = current_replay_id
@@ -492,7 +489,8 @@ def _validated_assistant_text(
             }
             raise StreamError(
                 "Kiro marker appeared outside an exact agent-message event; "
-                f"structural_diagnostic={json.dumps(diagnostic, separators=(',', ':'), sort_keys=True)}"
+                "structural_diagnostic="
+                + json.dumps(diagnostic, separators=(",", ":"), sort_keys=True)
             )
 
     if bootstrap_pending is not None:
@@ -583,9 +581,7 @@ def _validate_review_model_advertised(events: list[dict[str, Any]]) -> None:
         or any(model not in {"auto", _REQUIRED_SMOKE_MODEL} for model in current_models)
         or not review_advertised
     ):
-        raise StreamError(
-            "Kiro credential stream did not advertise the required peer-review model"
-        )
+        raise StreamError("Kiro credential stream did not advertise the required peer-review model")
 
 
 def validate_stream_bytes(

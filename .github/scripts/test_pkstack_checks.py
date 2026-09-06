@@ -2,11 +2,11 @@
 
 import copy
 import json
-from types import SimpleNamespace
-from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pkstack_checks as checks
@@ -134,9 +134,7 @@ class ProfileTests(unittest.TestCase):
                     ("normal", "full"),
                 )
         self.assertEqual(
-            checks.execution_profile(
-                "pull_request", [change("powers/pkstack/src/pkstack/cli.py")]
-            ),
+            checks.execution_profile("pull_request", [change("powers/pkstack/src/pkstack/cli.py")]),
             ("normal", "smoke"),
         )
 
@@ -151,18 +149,15 @@ class ProfileTests(unittest.TestCase):
                 checks.parse_changes(raw)
 
     def test_partition_is_stable_and_module_overrides_preserve_categories(self):
-        self.assertEqual(
-            checks.lane_for("tests/test_packaging.py::test_install"), "package"
-        )
+        self.assertEqual(checks.lane_for("tests/test_packaging.py::test_install"), "package")
         self.assertEqual(checks.lane_for("tests/test_branding.py::new_test"), "fast")
         self.assertEqual(
             checks.lane_for("tests/test_archify_reader_layout.py::test_startup"),
             "browser",
         )
-        # A known hash gives a stable allocation across Python hash randomization and test additions.
-        self.assertEqual(
-            checks.lane_for("tests/test_core.py::test_behavior_0"), "core-4"
-        )
+        # A known hash gives a stable allocation across Python hash randomization
+        # and test additions.
+        self.assertEqual(checks.lane_for("tests/test_core.py::test_behavior_0"), "core-4")
 
 
 class ReceiptTests(unittest.TestCase):
@@ -207,12 +202,8 @@ class ReceiptTests(unittest.TestCase):
                 elif mode == "overlap":
                     receipts[1]["results"].append(receipts[0]["results"][0])
                 elif mode == "collection":
-                    receipts[0]["collection"] = list(
-                        reversed(receipts[0]["collection"])
-                    )
-                    receipts[0]["collection_digest"] = checks.digest(
-                        receipts[0]["collection"]
-                    )
+                    receipts[0]["collection"] = list(reversed(receipts[0]["collection"]))
+                    receipts[0]["collection_digest"] = checks.digest(receipts[0]["collection"])
                 elif mode == "phases":
                     receipts[0]["results"][0]["phases"].pop("teardown")
                 elif mode == "exit":
@@ -292,11 +283,11 @@ class PluginTests(unittest.TestCase):
                     deselected = []
                     config = SimpleNamespace(
                         hook=SimpleNamespace(
-                            pytest_deselected=lambda items: deselected.extend(items)
+                            pytest_deselected=lambda items, sink=deselected: sink.extend(items)
                         )
                     )
                     # Match pytest's keyword name while retaining the observed callback items.
-                    config.hook.pytest_deselected = lambda **kwargs: deselected.extend(
+                    config.hook.pytest_deselected = lambda sink=deselected, **kwargs: sink.extend(
                         kwargs["items"]
                     )
                     plugin.pytest_configure(config)
@@ -319,9 +310,7 @@ class PluginTests(unittest.TestCase):
                         phases = ["setup", "teardown"]
                     for phase in phases:
                         outcome = (
-                            "failed"
-                            if mode == "failed-setup" and phase == "setup"
-                            else "passed"
+                            "failed" if mode == "failed-setup" and phase == "setup" else "passed"
                         )
                         report = SimpleNamespace(
                             nodeid=ids[0],
@@ -331,17 +320,13 @@ class PluginTests(unittest.TestCase):
                             duration=0.25,
                         )
                         plugin.pytest_runtest_logreport(report)
-                    plugin.pytest_sessionfinish(
-                        session, 0 if mode != "failed-setup" else 1
-                    )
+                    plugin.pytest_sessionfinish(session, 0 if mode != "failed-setup" else 1)
                     receipt = json.loads(receipt_path.read_text())
                     result = receipt["results"][0]
                     self.assertEqual(result["duration_seconds"], 0.25 * len(phases))
                     self.assertEqual(
                         result["outcome"],
-                        "failed"
-                        if mode in {"missing-teardown", "failed-setup"}
-                        else "passed",
+                        "failed" if mode in {"missing-teardown", "failed-setup"} else "passed",
                     )
                     self.assertEqual(bool(receipt["issues"]), mode == "duplicate-call")
 
@@ -355,6 +340,8 @@ class GitPlanTests(unittest.TestCase):
             ".github/scripts/check.py",
             "powers/pkstack/pyproject.toml",
             "powers/pkstack/uv.lock",
+            "ruff.toml",
+            "ty.toml",
             "reviews/release-status.md",
         ):
             target = self.root / path
@@ -373,9 +360,7 @@ class GitPlanTests(unittest.TestCase):
         self.addCleanup(self.environment.stop)
 
     def git(self, *args):
-        return subprocess.check_output(
-            ["git", "-C", str(self.root), *args], text=True
-        ).strip()
+        return subprocess.check_output(["git", "-C", str(self.root), *args], text=True).strip()
 
     def commit(self, message):
         self.git("add", ".")
@@ -407,7 +392,8 @@ class GitPlanTests(unittest.TestCase):
     def test_reports_validate_relative_links_and_allow_machine_evidence(self):
         path = self.root / "reviews/release-status.md"
         path.write_text(
-            "[config](../powers/pkstack/pyproject.toml) [web](https://example.com) [machine](/private/tmp/old-log)\n"
+            "[config](../powers/pkstack/pyproject.toml) [web](https://example.com) "
+            "[machine](/private/tmp/old-log)\n"
         )
         self.commit("valid links")
         changes = [change("reviews/release-status.md")]

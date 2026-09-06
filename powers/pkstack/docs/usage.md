@@ -516,7 +516,9 @@ client pinned to `agent-client-protocol==0.12.1`. The current adapter supports
 POSIX and is gated to Kiro CLI 2.21.1 with embedded KAS 0.58.7; an unsupported
 or unavailable runtime fails explicitly while local validation remains usable.
 There is no alternate backend or silent model fallback. Optional `--model`
-defaults to `auto`; the model resolved by Kiro for `auto` is unknown.
+defaults to `auto`, a first-class selection using Kiro-managed routing. Receipts preserve
+`model: "auto"`; `resolved_model: null` means the underlying model was not disclosed.
+See [Auto model guidance](kiro-v3-compatibility.md#auto-as-its-own-model-selection).
 
 `--budget` caps returned context using UTF-8 JSON bytes divided by four; it does
 not cap or measure the worker's internal token use, which is unreported. A

@@ -101,6 +101,16 @@
       "ref": "main",
       "repository": "mattpocock/skills",
       "subtree_sha": "eedaf2562c83155115e9c649fa3ecaac2e10e81d"
+    },
+    {
+      "commit": "f3ce88a7ba830f53afd6d944c1d0278ed318e142",
+      "id": "astral-python",
+      "parity_path": "powers/pkstack/docs/astral-python-source-parity.json",
+      "path": "plugins/astral",
+      "provenance_path": "powers/pkstack/docs/astral-python-provenance.md",
+      "ref": "main",
+      "repository": "astral-sh/claude-code-plugins",
+      "subtree_sha": "8cc1cb9f539f90fd98efa4be3857c6d74fd8d839"
     }
   ]
 }

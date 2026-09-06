@@ -4,6 +4,7 @@ import copy
 import json
 import unittest
 from pathlib import Path
+from typing import Any
 
 import validate_kiro_maintenance_stream as validator
 
@@ -12,70 +13,122 @@ SESSION = "sess_00000000-0000-4000-8000-000000000001"
 PROFILE = json.loads((ROOT / ".kiro/agents/pkstack-maintainer.json").read_text())
 
 
-def envelope(update: dict[str, object]) -> dict[str, object]:
+def envelope(update: dict[str, Any]) -> dict[str, Any]:
     return {"type": "sessionUpdate", "data": {"sessionId": SESSION, "update": update}}
 
 
-def attested_events() -> list[dict[str, object]]:
+def attested_events() -> list[dict[str, Any]]:
     """Synthetic maintainer contract, using observed 2.21.1 global option metadata."""
     option = {
-        "name": "pkstack-maintainer", "value": "pkstack-maintainer",
+        "name": "pkstack-maintainer",
+        "value": "pkstack-maintainer",
         "description": PROFILE["description"],
-        "_meta": {"kiro": {
-            "source": "global", "welcomeMessage": PROFILE["welcomeMessage"],
-            "resource": {"resourceType": "agent", "source": {"origin": "user"}},
-        }},
+        "_meta": {
+            "kiro": {
+                "source": "global",
+                "welcomeMessage": PROFILE["welcomeMessage"],
+                "resource": {"resourceType": "agent", "source": {"origin": "user"}},
+            }
+        },
     }
-    selection = envelope({
-        "sessionUpdate": "config_option_update",
-        "configOptions": [{"id": "mode", "name": "Mode", "category": "mode",
-                           "type": "select", "currentValue": "pkstack-maintainer",
-                           "options": [option]}],
-    })
+    selection = envelope(
+        {
+            "sessionUpdate": "config_option_update",
+            "configOptions": [
+                {
+                    "id": "mode",
+                    "name": "Mode",
+                    "category": "mode",
+                    "type": "select",
+                    "currentValue": "pkstack-maintainer",
+                    "options": [option],
+                }
+            ],
+        }
+    )
     initial = copy.deepcopy(selection)
     initial["data"]["update"]["configOptions"][0]["currentValue"] = "vibe"
     return [
-        {"type": "runStarted", "data": {
-            "payloadSchema": "acp", "acpProtocolVersion": 1, "engine": "v3",
-        }},
+        {
+            "type": "runStarted",
+            "data": {
+                "payloadSchema": "acp",
+                "acpProtocolVersion": 1,
+                "engine": "v3",
+            },
+        },
         initial,
         selection,
-        envelope({"sessionUpdate": "agent_message_chunk",
-                  "content": {"type": "text", "text": "Done."},
-                  "_meta": {"kiro": {"replayId": "a" * 40}}}),
-        {"type": "runFinished", "data": {
-            "sessionId": SESSION, "status": "success", "stopReason": "end_turn",
-            "finalText": "Done.", "finalTextTruncated": False,
-        }},
+        envelope(
+            {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {"type": "text", "text": "Done."},
+                "_meta": {"kiro": {"replayId": "a" * 40}},
+            }
+        ),
+        {
+            "type": "runFinished",
+            "data": {
+                "sessionId": SESSION,
+                "status": "success",
+                "stopReason": "end_turn",
+                "finalText": "Done.",
+                "finalTextTruncated": False,
+            },
+        },
     ]
 
 
-def stream_bytes(events: list[dict[str, object]]) -> bytes:
+def stream_bytes(events: list[dict[str, Any]]) -> bytes:
     return b"".join((json.dumps(event) + "\n").encode() for event in events)
 
 
 class MaintenanceAgentAttestationTests(unittest.TestCase):
-    def validate(self, events: list[dict[str, object]], **kwargs: object) -> dict[str, object]:
+    def validate(self, events: list[dict[str, Any]], **kwargs: Any) -> dict[str, Any]:
         return validator.validate_stream_bytes(
-            stream_bytes(events), kwargs.pop("stderr", b""), profile=PROFILE,
-            return_code=0, api_key="test-only-noncredential", **kwargs,
+            stream_bytes(events),
+            kwargs.pop("stderr", b""),
+            profile=PROFILE,
+            return_code=0,
+            api_key="test-only-noncredential",
+            **kwargs,
         )
 
     def test_accepts_direct_global_selection_and_internal_bootstrap(self) -> None:
         events = attested_events()
         call_id = "00000000-0000-4000-8000-000000000002"
-        events.insert(1, envelope({
-            "sessionUpdate": "tool_call", "toolCallId": call_id,
-            "status": "in_progress", "title": "Fetching your cloud config",
-            "_meta": {"kiro": {"toolId": "fetch_cloud_config"}},
-        }))
-        events.insert(4, envelope({"sessionUpdate": "tool_call_update",
-                                   "toolCallId": call_id, "status": "completed"}))
-        events.insert(5, envelope({"sessionUpdate": "tool_call",
-                                   "toolCallId": "user-call", "title": "Read source"}))
-        self.assertEqual(self.validate(events), {
-            "ok": True, "selected_agent": "pkstack-maintainer", "agent_source": "global",
-        })
+        events.insert(
+            1,
+            envelope(
+                {
+                    "sessionUpdate": "tool_call",
+                    "toolCallId": call_id,
+                    "status": "in_progress",
+                    "title": "Fetching your cloud config",
+                    "_meta": {"kiro": {"toolId": "fetch_cloud_config"}},
+                }
+            ),
+        )
+        events.insert(
+            4,
+            envelope(
+                {"sessionUpdate": "tool_call_update", "toolCallId": call_id, "status": "completed"}
+            ),
+        )
+        events.insert(
+            5,
+            envelope(
+                {"sessionUpdate": "tool_call", "toolCallId": "user-call", "title": "Read source"}
+            ),
+        )
+        self.assertEqual(
+            self.validate(events),
+            {
+                "ok": True,
+                "selected_agent": "pkstack-maintainer",
+                "agent_source": "global",
+            },
+        )
 
     def test_rejects_empty_object_missing_and_advertised_only(self) -> None:
         advertised = attested_events()
@@ -142,8 +195,10 @@ class MaintenanceAgentAttestationTests(unittest.TestCase):
 
     def test_requires_successful_exact_run_boundaries(self) -> None:
         for field, replacement in (
-            ("status", "failed"), ("stopReason", "max_tokens"),
-            ("finalTextTruncated", True), ("sessionId", "wrong"),
+            ("status", "failed"),
+            ("stopReason", "max_tokens"),
+            ("finalTextTruncated", True),
+            ("sessionId", "wrong"),
         ):
             events = attested_events()
             events[-1]["data"][field] = replacement
@@ -159,27 +214,35 @@ class MaintenanceAgentAttestationTests(unittest.TestCase):
         cases = [
             b'{"bad":',
             ('{"' + sensitive + '":0,"' + sensitive + '":1}').encode(),
-            b'{"x":NaN}', b'{"x":' + b'1' * 5000 + b'}',
-            b'{"x":' + b'[' * 2000 + b'0' + b']' * 2000 + b'}',
-            b'\xff', b' ' * (validator.MAX_OUTPUT_BYTES + 1),
+            b'{"x":NaN}',
+            b'{"x":' + b"1" * 5000 + b"}",
+            b'{"x":' + b"[" * 2000 + b"0" + b"]" * 2000 + b"}",
+            b"\xff",
+            b" " * (validator.MAX_OUTPUT_BYTES + 1),
         ]
         for raw in cases:
-            with self.subTest(size=len(raw)), self.assertRaises(validator.AttestationError) as caught:
-                validator.validate_stream_bytes(raw, b"", profile=PROFILE,
-                                                return_code=0, api_key="test-key")
+            with (
+                self.subTest(size=len(raw)),
+                self.assertRaises(validator.AttestationError) as caught,
+            ):
+                validator.validate_stream_bytes(
+                    raw, b"", profile=PROFILE, return_code=0, api_key="test-key"
+                )
             self.assertRegex(str(caught.exception), r"^maintenance-agent-[a-z-]+$")
             self.assertNotIn(sensitive, str(caught.exception))
 
     def test_return_code_and_raw_or_encoded_secrets_fail(self) -> None:
         raw = stream_bytes(attested_events())
         for stream, stderr, rc in (
-            (raw, b"", 1), (raw, b"test-key", 0),
+            (raw, b"", 1),
+            (raw, b"test-key", 0),
             (raw.replace(b"Done.", b"test-key"), b"", 0),
             (raw.replace(b"Done.", b"test-\\u006bey"), b"", 0),
         ):
             with self.subTest(rc=rc), self.assertRaises(validator.AttestationError):
-                validator.validate_stream_bytes(stream, stderr, profile=PROFILE,
-                                                return_code=rc, api_key="test-key")
+                validator.validate_stream_bytes(
+                    stream, stderr, profile=PROFILE, return_code=rc, api_key="test-key"
+                )
 
 
 if __name__ == "__main__":

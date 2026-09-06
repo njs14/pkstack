@@ -10,10 +10,14 @@ from pkstack_release_notes import bind_repository_links, release_notes
 class ReleaseNotesTests(unittest.TestCase):
     def test_relative_links_bind_to_exact_release_commit(self):
         commit = "a" * 40
-        notes = "[Upgrade](powers/pkstack/docs/upgrade-0.3.md#install) [Web](https://kiro.dev/) [Here](#here)\n"
+        notes = (
+            "[Upgrade](powers/pkstack/docs/upgrade-0.3.md#install) "
+            "[Web](https://kiro.dev/) [Here](#here)\n"
+        )
         self.assertEqual(
             bind_repository_links(notes, "njs14/pkstack", commit),
-            f"[Upgrade](https://github.com/njs14/pkstack/blob/{commit}/powers/pkstack/docs/upgrade-0.3.md#install) "
+            f"[Upgrade](https://github.com/njs14/pkstack/blob/{commit}"
+            "/powers/pkstack/docs/upgrade-0.3.md#install) "
             "[Web](https://kiro.dev/) [Here](#here)\n",
         )
         for repo, ref in (("https://elsewhere/", commit), ("njs14/pkstack", "main")):

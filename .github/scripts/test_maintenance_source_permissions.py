@@ -9,19 +9,14 @@ from pathlib import Path
 
 import pkstack_maintenance_guard as guard
 
-
 ROOT = Path(__file__).resolve().parents[2]
 
 
 class SourcePermissionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _, cls.policy = guard.load_policy(
-            ROOT / ".github/pkstack-maintenance-policy.json"
-        )
-        cls.manifest = json.loads(
-            (ROOT / "maintenance/upstreams.json").read_text(encoding="utf-8")
-        )
+        _, cls.policy = guard.load_policy(ROOT / ".github/pkstack-maintenance-policy.json")
+        cls.manifest = json.loads((ROOT / "maintenance/upstreams.json").read_text(encoding="utf-8"))
         cls.profiles = {
             path: json.loads((ROOT / path).read_text(encoding="utf-8"))
             for path in (

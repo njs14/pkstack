@@ -115,9 +115,7 @@ def load_ledger(path: Path) -> dict[str, Any]:
     return ledger
 
 
-def source_feedback(
-    ledger: dict[str, Any], source_id: str, subtree_sha: str
-) -> tuple[int, Any]:
+def source_feedback(ledger: dict[str, Any], source_id: str, subtree_sha: str) -> tuple[int, Any]:
     entry = ledger["sources"].get(source_id)
     if entry is None or entry["report"]["source_subtree_sha"] != subtree_sha:
         return 0, None
@@ -130,9 +128,7 @@ def record_rejection(
     validate_report(report)
     if report["verdict"] != "rejected":
         raise ValueError("only substantive validated rejections consume the budget")
-    count, previous = source_feedback(
-        ledger, report["source_id"], report["source_subtree_sha"]
-    )
+    count, previous = source_feedback(ledger, report["source_id"], report["source_subtree_sha"])
     # Ordering belongs to the source, not just its current subtree: a delayed
     # publisher must not overwrite newer content with an old fresh budget.
     latest = ledger["sources"].get(report["source_id"])
@@ -145,9 +141,7 @@ def record_rejection(
         raise ValueError("older candidate cannot replace newer feedback")
     if retry_override:
         if count != MAX_REJECTIONS:
-            raise ValueError(
-                "retry override requires an exhausted exact source content"
-            )
+            raise ValueError("retry override requires an exhausted exact source content")
         count = 0
     if count >= MAX_REJECTIONS:
         raise ValueError("review budget is exhausted")
@@ -182,9 +176,7 @@ def main() -> int:
     ):
         if report[key] != value:
             raise ValueError(f"review report is not bound to authenticated {key}")
-    result = record_rejection(
-        ledger, report, retry_override=args.retry_override == "true"
-    )
+    result = record_rejection(ledger, report, retry_override=args.retry_override == "true")
     encoded = json.dumps(result, sort_keys=True, indent=2) + "\n"
     if len(encoded.encode()) > MAX_BYTES:
         raise ValueError("feedback ledger byte budget exceeded")

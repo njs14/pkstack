@@ -36,3 +36,7 @@ current evidence exposes a consequential contradiction.
 Retrieval ends with that reconstruction. Use [`reflect`](../reflect/SKILL.md) to propose lessons
 from completed work and [`okf`](../okf/SKILL.md) when the user requests durable project knowledge.
 Pass the inspected sources forward; recall alone does not write either lessons or knowledge.
+
+When reporting retrieval model evidence, distinguish selected `auto` (Auto, Kiro-managed
+routing) from an undisclosed underlying model. Do not replace Auto with a guessed provider
+or infer an effort setting from another model.

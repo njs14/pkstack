@@ -1,0 +1,17 @@
+{
+  "draft": false,
+  "initial_verification": {
+    "duration_ms": 1611,
+    "error": null,
+    "exit_code": 0,
+    "passed": true,
+    "started_at": "2026-09-06T23:08:51.554288+00:00",
+    "stderr": "warning: `VIRTUAL_ENV=/private/tmp/pkstack-astral-python-auto/powers/pkstack/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead\n",
+    "stdout": "All checks passed!\n2 files already formatted\nAll checks passed!\n.                                                                        [100%]\n1 passed in 0.01s\n",
+    "timed_out": false,
+    "truncated": false
+  },
+  "ok": true,
+  "path": "/private/tmp/pkstack-astral-evidence/native-python/Wiki/features/python-tools.md",
+  "schema_version": 2
+}

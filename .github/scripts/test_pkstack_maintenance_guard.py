@@ -18,12 +18,21 @@ import tempfile
 import textwrap
 import unittest
 from pathlib import Path
-from typing import NamedTuple
+from typing import Any, NamedTuple
 from unittest import mock
 
 sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def require_match(match: re.Match[str] | None) -> re.Match[str]:
+    """Fail the assertion when an expected workflow pattern is absent, and narrow it."""
+    if match is None:
+        raise AssertionError("expected regular expression match")
+    return match
+
+
 GUARD_PATH = ROOT / ".github" / "scripts" / "pkstack_maintenance_guard.py"
 SPEC = importlib.util.spec_from_file_location("pkstack_maintenance_guard", GUARD_PATH)
 assert SPEC is not None and SPEC.loader is not None
@@ -46,11 +55,11 @@ PERMISSION_STREAM_SPEC.loader.exec_module(permission_stream_guard)
 
 VALID_PATCH = "@@ -0,0 +1 @@\n+new"
 KIRO_ISOLATED_SETTINGS = (
-    b'{\n'
+    b"{\n"
     b'  "app.disableAutoupdates": true,\n'
     b'  "chat.disableInheritingDefaultResources": true,\n'
     b'  "telemetry.enabled": false\n'
-    b'}\n'
+    b"}\n"
 )
 KIRO_ISOLATED_SETTINGS_SHA256 = hashlib.sha256(KIRO_ISOLATED_SETTINGS).hexdigest()
 
@@ -84,12 +93,8 @@ MAINTENANCE_JOB_CONTROL_FLOW = {
         "if": "needs.maintain.outputs.has_changes == 'true'",
     },
 }
-EXPECTED_SECRET_CONTEXT_EXPRESSIONS = (
-    *("${{ secrets.KIRO_API_KEY }}",) * 4,
-)
-CANDIDATE_SECRET_CONTEXT_EXPRESSIONS = (
-    *("${{ secrets.KIRO_API_KEY }}",) * 2,
-)
+EXPECTED_SECRET_CONTEXT_EXPRESSIONS = (*("${{ secrets.KIRO_API_KEY }}",) * 4,)
+CANDIDATE_SECRET_CONTEXT_EXPRESSIONS = (*("${{ secrets.KIRO_API_KEY }}",) * 2,)
 CANDIDATE_REVIEW_ENV_BLOCKS = {
     "Independent Kiro-hosted Claude Opus 5 review": (
         "        env:\n"
@@ -107,7 +112,8 @@ CANDIDATE_REVIEW_ENV_BLOCKS = {
         "          CONTENT_SHA256: ${{ needs.candidate_prepare.outputs.review_content_sha256 }}\n"
         "          PATCH_SHA256: ${{ needs.candidate_prepare.outputs.review_patch_sha256 }}\n"
         "          REVIEW_RETURN_CODE: ${{ steps.invoke.outputs.return_code }}\n"
-        "          REVIEW_BUNDLE: ${{ runner.temp }}/pkstack-peer-review-workspace/.pkstack-ci/review-input.json\n"
+        "          REVIEW_BUNDLE: ${{ runner.temp }}/pkstack-peer-review-workspace"
+        "/.pkstack-ci/review-input.json\n"
         "          SELECTED_SOURCE_ID: ${{ needs.candidate_prepare.outputs.selected_source_id }}\n"
         "          SOURCE_SUBTREE_SHA: ${{ needs.candidate_prepare.outputs.source_subtree_sha }}\n"
         "          SOURCE_COMMIT: ${{ needs.candidate_prepare.outputs.source_commit }}\n"
@@ -176,11 +182,7 @@ def _mask_yaml_comments_and_quotes(line: str) -> str:
         if character == "#" and (index == 0 or line[index - 1].isspace()):
             masked[index:] = " " * (len(line) - index)
             break
-        quote_can_start = (
-            index == 0
-            or line[index - 1].isspace()
-            or line[index - 1] in "[{,:?-"
-        )
+        quote_can_start = index == 0 or line[index - 1].isspace() or line[index - 1] in "[{,:?-"
         if character not in {"'", '"'} or not quote_can_start:
             index += 1
             continue
@@ -213,9 +215,7 @@ def _yaml_structural_lines(source: str) -> list[_YamlLine]:
 
     result: list[_YamlLine] = []
     block_header_indent: int | None = None
-    block_indicator = re.compile(
-        r"(?:^|:\s+|-\s+)[|>](?:[1-9][+-]?|[+-][1-9]?|[+-])?\s*$"
-    )
+    block_indicator = re.compile(r"(?:^|:\s+|-\s+)[|>](?:[1-9][+-]?|[+-][1-9]?|[+-])?\s*$")
     for number, raw in enumerate(source.splitlines(), start=1):
         leading = raw[: len(raw) - len(raw.lstrip(" \t"))]
         if "\t" in leading:
@@ -263,9 +263,7 @@ def _reject_yaml_indirection(lines: list[_YamlLine]) -> None:
         if merge_key.search(line.code):
             raise WorkflowContractError(f"line {line.number}: YAML merge keys are forbidden")
         for index, character in enumerate(line.code):
-            inside_expression = line.code.rfind("${{", 0, index) > line.code.rfind(
-                "}}", 0, index
-            )
+            inside_expression = line.code.rfind("${{", 0, index) > line.code.rfind("}}", 0, index)
             if (
                 character not in {"&", "*", "!"}
                 or inside_expression
@@ -278,9 +276,7 @@ def _reject_yaml_indirection(lines: list[_YamlLine]) -> None:
             ):
                 continue
             construct = {"&": "anchor", "*": "alias", "!": "tag"}[character]
-            raise WorkflowContractError(
-                f"line {line.number}: YAML {construct} syntax is forbidden"
-            )
+            raise WorkflowContractError(f"line {line.number}: YAML {construct} syntax is forbidden")
 
 
 def _reject_yaml_scalar_decoding_escapes(lines: list[_YamlLine]) -> None:
@@ -317,10 +313,7 @@ def _reject_yaml_scalar_decoding_escapes(lines: list[_YamlLine]) -> None:
             if github_expression:
                 if github_quote:
                     if character == "'":
-                        if (
-                            index + 1 < len(line.raw)
-                            and line.raw[index + 1] == "'"
-                        ):
+                        if index + 1 < len(line.raw) and line.raw[index + 1] == "'":
                             index += 2
                             continue
                         github_quote = False
@@ -337,17 +330,13 @@ def _reject_yaml_scalar_decoding_escapes(lines: list[_YamlLine]) -> None:
                 index += 1
                 continue
 
-            if character == "#" and (
-                index == 0 or line.raw[index - 1].isspace()
-            ):
+            if character == "#" and (index == 0 or line.raw[index - 1].isspace()):
                 break
             if line.raw.startswith("${{", index):
                 github_expression = True
                 index += 3
                 continue
-            if character in {"'", '"'} and _yaml_node_can_start_at(
-                line.raw, index
-            ):
+            if character in {"'", '"'} and _yaml_node_can_start_at(line.raw, index):
                 yaml_quote = character
             index += 1
 
@@ -376,11 +365,7 @@ def _mask_yaml_comment_only(line: str) -> str:
                 quote = None
             index += 1
             continue
-        quote_can_start = (
-            index == 0
-            or line[index - 1].isspace()
-            or line[index - 1] in "[{,:?-"
-        )
+        quote_can_start = index == 0 or line[index - 1].isspace() or line[index - 1] in "[{,:?-"
         if character in {"'", '"'} and quote_can_start:
             quote = character
             index += 1
@@ -479,8 +464,7 @@ def _secret_context_expressions(lines: list[_YamlLine]) -> tuple[str, ...]:
     """Return active GitHub expressions that access the secrets context."""
 
     executable_text = "\n".join(
-        line.raw if line.block_scalar else _mask_yaml_comment_only(line.raw)
-        for line in lines
+        line.raw if line.block_scalar else _mask_yaml_comment_only(line.raw) for line in lines
     )
     return tuple(
         expression
@@ -498,9 +482,7 @@ def _secret_context_line_numbers(lines: list[_YamlLine]) -> set[int]:
 
     result: set[int] = set()
     for line in lines:
-        executable_text = (
-            line.raw if line.block_scalar else _mask_yaml_comment_only(line.raw)
-        )
+        executable_text = line.raw if line.block_scalar else _mask_yaml_comment_only(line.raw)
         if any(
             re.search(
                 r"\bsecrets\b",
@@ -560,9 +542,7 @@ def _reject_implicit_if_secret_context(lines: list[_YamlLine]) -> None:
             _mask_expression_string_literals(body),
             flags=re.IGNORECASE,
         ):
-            raise WorkflowContractError(
-                "secrets context is forbidden in implicit if expressions"
-            )
+            raise WorkflowContractError("secrets context is forbidden in implicit if expressions")
 
 
 def _bare_mapping_keys(
@@ -597,19 +577,12 @@ def _require_job_control_flow(
     """Pin a job's dependency edge and gate as exact scalar values."""
 
     for property_name, expected in MAINTENANCE_JOB_CONTROL_FLOW[job].items():
-        pattern = re.compile(
-            rf"^    {re.escape(property_name)}:(?: (?P<value>.*))?$"
-        )
+        pattern = re.compile(rf"^    {re.escape(property_name)}:(?: (?P<value>.*))?$")
         matches = [
             match
             for line in lines[start:end]
             if not line.block_scalar and line.indent == 4
-            if (
-                match := pattern.fullmatch(
-                    _mask_yaml_comment_only(line.raw).rstrip()
-                )
-            )
-            is not None
+            if (match := pattern.fullmatch(_mask_yaml_comment_only(line.raw).rstrip())) is not None
         ]
         if expected is None:
             if matches:
@@ -669,9 +642,7 @@ def _maintenance_job_ranges(lines: list[_YamlLine]) -> dict[str, tuple[int, int]
     ranges = _workflow_job_ranges(lines)
     expected = tuple(MAINTENANCE_JOB_PROPERTIES)
     if tuple(ranges) != expected:
-        raise WorkflowContractError(
-            f"workflow jobs must be exactly {expected!r} in order"
-        )
+        raise WorkflowContractError(f"workflow jobs must be exactly {expected!r} in order")
     return ranges
 
 
@@ -774,9 +745,7 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
         )
         expected_properties = MAINTENANCE_JOB_PROPERTIES[job]
         if properties != expected_properties:
-            raise WorkflowContractError(
-                f"{job} properties must be exactly {expected_properties!r}"
-            )
+            raise WorkflowContractError(f"{job} properties must be exactly {expected_properties!r}")
         _require_job_control_flow(
             lines,
             job=job,
@@ -842,9 +811,7 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
         )
 
     all_secret_lines = {
-        line.number
-        for line in lines
-        if re.search(r"KIRO_API_KEY", line.raw, flags=re.IGNORECASE)
+        line.number for line in lines if re.search(r"KIRO_API_KEY", line.raw, flags=re.IGNORECASE)
     }
     if all_secret_lines != secret_line_numbers or len(all_secret_lines) != 4:
         raise WorkflowContractError(
@@ -880,13 +847,9 @@ def validate_candidate_workflow_secret_contract(source: str) -> None:
             raise WorkflowContractError(f"candidate workflow must contain {job!r} job")
 
     candidate_start, candidate_end = job_ranges["candidate_tests"]
-    candidate_secret_lines = _secret_context_line_numbers(
-        lines[candidate_start:candidate_end]
-    )
+    candidate_secret_lines = _secret_context_line_numbers(lines[candidate_start:candidate_end])
     if candidate_secret_lines:
-        raise WorkflowContractError(
-            "candidate_tests must not expose the secrets context"
-        )
+        raise WorkflowContractError("candidate_tests must not expose the secrets context")
 
     review_start, review_end = job_ranges["kiro_peer_review"]
     review_steps = _named_step_ranges(
@@ -896,11 +859,7 @@ def validate_candidate_workflow_secret_contract(source: str) -> None:
         end=review_end,
     )
     for step_name in CANDIDATE_REVIEW_ENV_BLOCKS:
-        matches = [
-            (start, end)
-            for name, start, end in review_steps
-            if name == step_name
-        ]
+        matches = [(start, end) for name, start, end in review_steps if name == step_name]
         if len(matches) != 1:
             raise WorkflowContractError(
                 f"candidate review must contain exactly one {step_name!r} step"
@@ -914,9 +873,7 @@ def validate_candidate_workflow_secret_contract(source: str) -> None:
             end=end,
         )
         if actual_env != CANDIDATE_REVIEW_ENV_BLOCKS[step_name]:
-            raise WorkflowContractError(
-                f"{step_name} Kiro environment mapping changed"
-            )
+            raise WorkflowContractError(f"{step_name} Kiro environment mapping changed")
 
     allowed_secret_lines = {
         lines[index].number
@@ -937,7 +894,7 @@ def inventory_sha256(
     *,
     base_commit: str,
     head_commit: str,
-    files: list[dict[str, object]],
+    files: list[dict[str, Any]],
     repository: str = "cursor/plugins",
     source_path: str = "pstack",
 ) -> str:
@@ -958,14 +915,14 @@ def inventory_sha256(
     ).hexdigest()
 
 
-def tree_identity(sha: str, *, mode: str = "100644", size: int | None = 4) -> dict[str, object]:
+def tree_identity(sha: str, *, mode: str = "100644", size: int | None = 4) -> dict[str, Any]:
     return {"type": "blob", "mode": mode, "sha": sha, "size": size}
 
 
-def detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
+def detector_fixture(*, transition_count: int = 0) -> dict[str, Any]:
     genesis = {"commit": "1" * 40, "subtree_sha": "2" * 40}
     pinned = genesis if transition_count == 0 else {"commit": "a" * 40, "subtree_sha": "b" * 40}
-    transitions: list[dict[str, object]] = []
+    transitions: list[dict[str, Any]] = []
     indices: list[int] = []
     if transition_count:
         prior = genesis if transition_count == 1 else {"commit": "8" * 40, "subtree_sha": "9" * 40}
@@ -1054,8 +1011,9 @@ def detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
                     "transition_count": transition_count,
                     "remote_transition_indices": indices,
                     "history_validation": (
-                        "all entries form a strict local contiguous chain; repository history is the "
-                        "tamper-evident authority for older reviewed transitions"
+                        "all entries form a strict local contiguous chain; repository "
+                        "history is the tamper-evident authority for older reviewed "
+                        "transitions"
                     ),
                     "transitions": transitions,
                 },
@@ -1082,14 +1040,14 @@ def detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
     }
 
 
-def drift_detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
+def drift_detector_fixture(*, transition_count: int = 0) -> dict[str, Any]:
     payload = detector_fixture(transition_count=transition_count)
-    source = payload["sources"][0]  # type: ignore[index]
-    comparison = source["comparison"]  # type: ignore[index]
-    source["ok"] = False  # type: ignore[index]
-    source["drift"] = True  # type: ignore[index]
-    source["current"] = {"commit": "c" * 40, "subtree_sha": "d" * 40}  # type: ignore[index]
-    comparison.update(  # type: ignore[union-attr]
+    source = payload["sources"][0]
+    comparison = source["comparison"]
+    source["ok"] = False
+    source["drift"] = True
+    source["current"] = {"commit": "c" * 40, "subtree_sha": "d" * 40}
+    comparison.update(
         {
             "status": "ahead",
             "head_commit": "c" * 40,
@@ -1120,26 +1078,26 @@ def drift_detector_fixture(*, transition_count: int = 0) -> dict[str, object]:
             ],
         }
     )
-    comparison["inventory_sha256"] = inventory_sha256(  # type: ignore[index]
-        base_commit=comparison["base_commit"],  # type: ignore[index]
-        head_commit=comparison["head_commit"],  # type: ignore[index]
-        files=comparison["files"],  # type: ignore[index]
+    comparison["inventory_sha256"] = inventory_sha256(
+        base_commit=comparison["base_commit"],
+        head_commit=comparison["head_commit"],
+        files=comparison["files"],
     )
     payload["ok"] = False
     return payload
 
 
 def add_detector_source(
-    payload: dict[str, object],
+    payload: dict[str, Any],
     *,
     source_id: str,
     drift: bool,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     repository = "example/okf"
     source_path = "okf"
     genesis = {"commit": "3" * 40, "subtree_sha": "4" * 40}
     current = {"commit": "5" * 40, "subtree_sha": "6" * 40} if drift else dict(genesis)
-    files: list[dict[str, object]] = []
+    files: list[dict[str, Any]] = []
     paths: list[str] = []
     if drift:
         paths = ["SPEC.md"]
@@ -1234,16 +1192,16 @@ def add_detector_source(
             "classified_resource_count": 1,
         },
     }
-    payload["sources"].append(source)  # type: ignore[union-attr]
-    payload["ok"] = all(item["ok"] for item in payload["sources"])  # type: ignore[index]
+    payload["sources"].append(source)
+    payload["ok"] = all(item["ok"] for item in payload["sources"])
     return source
 
 
 def accepted_detector_fixture(
-    payload: dict[str, object],
+    payload: dict[str, Any],
     *,
     selected_source_id: str,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     accepted = json.loads(json.dumps(payload))
     source = next(item for item in accepted["sources"] if item["id"] == selected_source_id)
     prior = source["pinned"]
@@ -1324,7 +1282,7 @@ def comparison_file_fixture(
     previous_path: str | None,
     status: str,
     tree_sha_verified: bool,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     old_identity = (
         tree_identity("d" * 40)
         if status in {"removed", "modified", "changed"} or (status == "renamed" and previous_path)
@@ -1354,8 +1312,8 @@ def comparison_file_fixture(
     }
 
 
-def set_comparison_files(payload: dict[str, object], files: list[dict[str, object]]) -> None:
-    comparison = payload["sources"][0]["comparison"]  # type: ignore[index]
+def set_comparison_files(payload: dict[str, Any], files: list[dict[str, Any]]) -> None:
+    comparison = payload["sources"][0]["comparison"]
     paths = sorted(
         {
             identity
@@ -1367,7 +1325,7 @@ def set_comparison_files(payload: dict[str, object], files: list[dict[str, objec
             if isinstance(identity, str)
         }
     )
-    comparison.update(  # type: ignore[union-attr]
+    comparison.update(
         {
             "path_count": len(paths),
             "file_count": len(files),
@@ -1392,47 +1350,47 @@ def set_comparison_files(payload: dict[str, object], files: list[dict[str, objec
             "files": files,
         }
     )
-    comparison["inventory_sha256"] = inventory_sha256(  # type: ignore[index]
-        base_commit=comparison["base_commit"],  # type: ignore[index]
-        head_commit=comparison["head_commit"],  # type: ignore[index]
-        files=comparison["files"],  # type: ignore[index]
+    comparison["inventory_sha256"] = inventory_sha256(
+        base_commit=comparison["base_commit"],
+        head_commit=comparison["head_commit"],
+        files=comparison["files"],
     )
 
 
 def proposal_fixture(
-    payload: dict[str, object],
+    payload: dict[str, Any],
     *,
     source_id: str | None = None,
-) -> dict[str, object]:
+) -> dict[str, Any]:
     drift_sources = sorted(
-        (source for source in payload["sources"] if source["drift"]),  # type: ignore[index]
+        (source for source in payload["sources"] if source["drift"]),
         key=lambda item: item["id"],
     )
     if source_id is None:
         source = drift_sources[0]
     else:
-        source = next(item for item in payload["sources"] if item["id"] == source_id)  # type: ignore[index]
-    comparison = source["comparison"]  # type: ignore[index]
-    unavailable = comparison["review_constraints"]["unavailable_binary_paths"]  # type: ignore[index]
+        source = next(item for item in payload["sources"] if item["id"] == source_id)
+    comparison = source["comparison"]
+    unavailable = comparison["review_constraints"]["unavailable_binary_paths"]
     return {
-        "source_id": source["id"],  # type: ignore[index]
-        "prior": source["pinned"],  # type: ignore[index]
-        "new": source["current"],  # type: ignore[index]
-        "inventory_sha256": comparison["inventory_sha256"],  # type: ignore[index]
+        "source_id": source["id"],
+        "prior": source["pinned"],
+        "new": source["current"],
+        "inventory_sha256": comparison["inventory_sha256"],
         "dispositions": [
             {
                 "path": path,
                 "disposition": "B" if path in unavailable else "A",
                 "rationale": "Reviewed against the exact detector inventory.",
             }
-            for path in comparison["paths"]  # type: ignore[index]
+            for path in comparison["paths"]
         ],
     }
 
 
-def review_ledger_fixture(payload: dict[str, object]) -> dict[str, object]:
+def review_ledger_fixture(payload: dict[str, Any]) -> dict[str, Any]:
     sources = []
-    for source in payload["sources"]:  # type: ignore[union-attr]
+    for source in payload["sources"]:
         reproof = source["review_reproof"]
         transition_count = reproof["transition_count"]
         if transition_count not in {0, 1}:
@@ -1477,40 +1435,38 @@ def review_ledger_fixture(payload: dict[str, object]) -> dict[str, object]:
     }
 
 
-def review_marker_line(marker: dict[str, object]) -> str:
+def review_marker_line(marker: dict[str, Any]) -> str:
     canonical = json.dumps(marker, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     return f"<!-- pk-stack-upstream-review: {canonical} -->"
 
 
-def pending_marker_line(payload: dict[str, object], *, source_id: str | None = None) -> str:
+def pending_marker_line(payload: dict[str, Any], *, source_id: str | None = None) -> str:
     if source_id is None:
         source = min(
-            (item for item in payload["sources"] if item["drift"]),  # type: ignore[index]
+            (item for item in payload["sources"] if item["drift"]),
             key=lambda item: item["id"],
         )
     else:
-        source = next(item for item in payload["sources"] if item["id"] == source_id)  # type: ignore[index]
+        source = next(item for item in payload["sources"] if item["id"] == source_id)
     return review_marker_line(
         {
-            "source_id": source["id"],  # type: ignore[index]
-            "repository": source["repository"],  # type: ignore[index]
-            "path": source["path"],  # type: ignore[index]
-            "prior": source["pinned"],  # type: ignore[index]
-            "new": source["current"],  # type: ignore[index]
-            "inventory_sha256": source["comparison"]["inventory_sha256"],  # type: ignore[index]
+            "source_id": source["id"],
+            "repository": source["repository"],
+            "path": source["path"],
+            "prior": source["pinned"],
+            "new": source["current"],
+            "inventory_sha256": source["comparison"]["inventory_sha256"],
         }
     )
 
 
 def accepted_marker_lines(
-    payload: dict[str, object],
+    payload: dict[str, Any],
     *,
     source_id: str = "cursor-pstack",
 ) -> list[str]:
     ledger_source = next(
-        source
-        for source in review_ledger_fixture(payload)["sources"]  # type: ignore[index]
-        if source["id"] == source_id
+        source for source in review_ledger_fixture(payload)["sources"] if source["id"] == source_id
     )
     return [
         review_marker_line(
@@ -1556,13 +1512,13 @@ class StrictJsonTests(unittest.TestCase):
             execution_path = Path(temporary) / "execution.json"
 
             def execution(
-                structured: dict[str, object],
+                structured: dict[str, Any],
                 *,
                 init_model: str = "claude-fable-5-1",
                 usage_models: tuple[str, ...] = ("claude-fable-5-1",),
                 duplicate_init: bool = False,
-            ) -> list[dict[str, object]]:
-                messages: list[dict[str, object]] = [
+            ) -> list[dict[str, Any]]:
+                messages: list[dict[str, Any]] = [
                     {"type": "system", "subtype": "init", "model": init_model}
                 ]
                 if duplicate_init:
@@ -1624,9 +1580,7 @@ class StrictJsonTests(unittest.TestCase):
                     patch_sha256=patch_sha256,
                 )["approved"]
             )
-            companion_execution[-1]["modelUsage"]["claude-haiku-4-5-20251001"][  # type: ignore[index]
-                "outputTokens"
-            ] = 65
+            companion_execution[-1]["modelUsage"]["claude-haiku-4-5-20251001"]["outputTokens"] = 65
             execution_path.write_text(json.dumps(companion_execution), encoding="utf-8")
             with self.assertRaises(guard.GuardError):
                 guard.validate_fable_verdict(
@@ -1698,13 +1652,13 @@ class KiroCredentialStreamTests(unittest.TestCase):
     FOCUS_TITLE = stream_guard.MARKER
 
     @staticmethod
-    def stream(*events: dict[str, object]) -> bytes:
+    def stream(*events: dict[str, Any]) -> bytes:
         return b"".join(
             json.dumps(event, separators=(",", ":")).encode() + b"\n" for event in events
         )
 
     @staticmethod
-    def run_started() -> dict[str, object]:
+    def run_started() -> dict[str, Any]:
         return {
             "type": "runStarted",
             "data": {
@@ -1723,16 +1677,14 @@ class KiroCredentialStreamTests(unittest.TestCase):
         status: str = "success",
         stop_reason: str = "end_turn",
         truncated: bool = False,
-    ) -> dict[str, object]:
+    ) -> dict[str, Any]:
         return {
             "type": "runFinished",
             "data": {
                 "sessionId": session_id or cls.SESSION_ID,
                 "status": status,
                 "stopReason": stop_reason,
-                "finalText": (
-                    final_text if final_text is not None else stream_guard.MARKER
-                ),
+                "finalText": (final_text if final_text is not None else stream_guard.MARKER),
                 "finalTextTruncated": truncated,
             },
         }
@@ -1744,7 +1696,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
         *,
         session_id: str | None = None,
         replay_id: str | None = None,
-    ) -> dict[str, object]:
+    ) -> dict[str, Any]:
         return {
             "type": "sessionUpdate",
             "data": {
@@ -1758,7 +1710,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
         }
 
     @classmethod
-    def cloud_config_start(cls, *, session_id: str | None = None) -> dict[str, object]:
+    def cloud_config_start(cls, *, session_id: str | None = None) -> dict[str, Any]:
         return {
             "type": "sessionUpdate",
             "data": {
@@ -1780,8 +1732,8 @@ class KiroCredentialStreamTests(unittest.TestCase):
         status: str = "failed",
         session_id: str | None = None,
         observed_completed_output: bool = False,
-    ) -> dict[str, object]:
-        update: dict[str, object] = {
+    ) -> dict[str, Any]:
+        update: dict[str, Any] = {
             "sessionUpdate": "tool_call_update",
             "status": status,
             "toolCallId": cls.CALL_ID,
@@ -1799,7 +1751,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
         }
 
     @classmethod
-    def unrelated_update(cls) -> dict[str, object]:
+    def unrelated_update(cls) -> dict[str, Any]:
         return {
             "type": "sessionUpdate",
             "data": {
@@ -1816,7 +1768,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                                     "percent": 0.0,
                                     "tokens": 6,
                                 }
-                            }
+                            },
                         }
                     },
                 },
@@ -1824,7 +1776,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
         }
 
     @classmethod
-    def focus_update(cls, *, title: str | None = None) -> dict[str, object]:
+    def focus_update(cls, *, title: str | None = None) -> dict[str, Any]:
         current_title = title or cls.FOCUS_TITLE
         return {
             "type": "sessionUpdate",
@@ -1844,7 +1796,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
             },
         }
 
-    def complete(self, *events: dict[str, object]) -> bytes:
+    def complete(self, *events: dict[str, Any]) -> bytes:
         return self.stream(self.run_started(), *events, self.run_finished())
 
     def validate(self, raw: bytes) -> dict[str, int | bool]:
@@ -1917,15 +1869,13 @@ class KiroCredentialStreamTests(unittest.TestCase):
             "no challenge present",
             f"{stream_guard.MARKER} {stream_guard.MARKER}",
             stream_guard.MARKER
-            + "x" * (
-                stream_guard.MAX_ASSISTANT_RESPONSE_BYTES
-                - len(stream_guard.MARKER.encode())
-                + 1
-            ),
+            + "x"
+            * (stream_guard.MAX_ASSISTANT_RESPONSE_BYTES - len(stream_guard.MARKER.encode()) + 1),
         )
         for response in responses:
-            with self.subTest(response_bytes=len(response.encode())), self.assertRaises(
-                stream_guard.StreamError
+            with (
+                self.subTest(response_bytes=len(response.encode())),
+                self.assertRaises(stream_guard.StreamError),
             ):
                 self.validate(
                     self.stream(
@@ -1939,9 +1889,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
         for terminal in (
             self.cloud_config_terminal(status="failed"),
             self.cloud_config_terminal(status="completed"),
-            self.cloud_config_terminal(
-                status="completed", observed_completed_output=True
-            ),
+            self.cloud_config_terminal(status="completed", observed_completed_output=True),
         ):
             with self.subTest(status=terminal["data"]["update"]["status"]):
                 raw = self.complete(
@@ -2007,9 +1955,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
         message = str(caught.exception)
         self.assertIn('"event_index_0_based":1', message)
         self.assertIn('"marker_path_count":1', message)
-        self.assertIn(
-            '"marker_paths":["$.data.update._meta.kiro.prompt"]', message
-        )
+        self.assertIn('"marker_paths":["$.data.update._meta.kiro.prompt"]', message)
         self.assertIn('"session_update_kind":"session_info_update"', message)
         self.assertNotIn(self.SESSION_ID, message)
         self.assertNotIn(stream_guard.MARKER, message)
@@ -2022,17 +1968,13 @@ class KiroCredentialStreamTests(unittest.TestCase):
                 "sessionId": self.SESSION_ID,
                 "update": {
                     "sessionUpdate": "config_option_update",
-                    "configOptions": [
-                        {"description": stream_guard.MARKER} for _ in range(12)
-                    ],
+                    "configOptions": [{"description": stream_guard.MARKER} for _ in range(12)],
                 },
             },
         }
         with self.assertRaises(stream_guard.StreamError) as many_caught:
             self.validate(self.complete(many_echoes))
-        diagnostic = json.loads(
-            str(many_caught.exception).split("structural_diagnostic=", 1)[1]
-        )
+        diagnostic = json.loads(str(many_caught.exception).split("structural_diagnostic=", 1)[1])
         self.assertEqual(diagnostic["marker_path_count"], 12)
         self.assertEqual(len(diagnostic["marker_paths"]), 8)
         self.assertTrue(
@@ -2049,9 +1991,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                 "sessionId": self.SESSION_ID,
                 "update": {
                     "sessionUpdate": "session_info_update",
-                    "_meta": {
-                        "kiro": {"kind": "prompt_echo", long_key: stream_guard.MARKER}
-                    },
+                    "_meta": {"kiro": {"kind": "prompt_echo", long_key: stream_guard.MARKER}},
                 },
             },
         }
@@ -2062,16 +2002,14 @@ class KiroCredentialStreamTests(unittest.TestCase):
         self.assertNotIn(long_key, redacted_message)
 
     def test_accepts_only_exact_focus_update_title_echo_as_non_evidence(self) -> None:
-        raw = self.complete(
-            self.focus_update(), self.agent_chunk(stream_guard.MARKER)
-        )
+        raw = self.complete(self.focus_update(), self.agent_chunk(stream_guard.MARKER))
         self.assertEqual(self.validate(raw), {"ok": True, "events": 4})
 
         with self.assertRaises(stream_guard.StreamError):
             self.validate(self.complete(self.focus_update()))
 
     def test_rejects_focus_update_title_echo_shape_drift(self) -> None:
-        def clone(event: dict[str, object]) -> dict[str, object]:
+        def clone(event: dict[str, Any]) -> dict[str, Any]:
             return json.loads(json.dumps(event))
 
         extra_update = clone(self.focus_update())
@@ -2090,9 +2028,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
         wrong_path["data"]["update"]["_meta"]["kiro"]["other"] = stream_guard.MARKER
         empty_title = self.focus_update(title="placeholder")
         empty_title["data"]["update"]["title"] = ""
-        overlong_title = self.focus_update(
-            title="x" * (stream_guard.MAX_FOCUS_TITLE_BYTES + 1)
-        )
+        overlong_title = self.focus_update(title="x" * (stream_guard.MAX_FOCUS_TITLE_BYTES + 1))
 
         for event in (
             extra_update,
@@ -2105,12 +2041,8 @@ class KiroCredentialStreamTests(unittest.TestCase):
             empty_title,
             overlong_title,
         ):
-            with self.subTest(event=event), self.assertRaises(
-                stream_guard.StreamError
-            ):
-                self.validate(
-                    self.complete(event, self.agent_chunk(stream_guard.MARKER))
-                )
+            with self.subTest(event=event), self.assertRaises(stream_guard.StreamError):
+                self.validate(self.complete(event, self.agent_chunk(stream_guard.MARKER)))
 
     def test_rejects_bootstrap_order_and_identity_failures(self) -> None:
         cases = (
@@ -2149,7 +2081,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                 self.validate(self.complete(*events))
 
     def test_rejects_bootstrap_extra_missing_and_status_shape_confusion(self) -> None:
-        def clone(event: dict[str, object]) -> dict[str, object]:
+        def clone(event: dict[str, Any]) -> dict[str, Any]:
             return json.loads(json.dumps(event))
 
         extra_start = clone(self.cloud_config_start())
@@ -2190,7 +2122,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                     self.validate(raw)
 
     def test_rejects_unknown_tool_prefix_discriminators_and_keys(self) -> None:
-        def tool_update(kind: str) -> dict[str, object]:
+        def tool_update(kind: str) -> dict[str, Any]:
             return {
                 "type": "sessionUpdate",
                 "data": {
@@ -2226,7 +2158,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                 self.validate(self.complete(event, self.agent_chunk(stream_guard.MARKER)))
 
     def test_rejects_unknown_top_level_and_session_update_kinds(self) -> None:
-        def unknown_session_update(kind: str) -> dict[str, object]:
+        def unknown_session_update(kind: str) -> dict[str, Any]:
             return {
                 "type": "sessionUpdate",
                 "data": {
@@ -2241,37 +2173,31 @@ class KiroCredentialStreamTests(unittest.TestCase):
             unknown_session_update("commandExecution"),
             unknown_session_update("function_call"),
         ):
-            with self.subTest(event=event), self.assertRaises(
-                stream_guard.StreamError
-            ):
-                self.validate(
-                    self.complete(event, self.agent_chunk(stream_guard.MARKER))
-                )
+            with self.subTest(event=event), self.assertRaises(stream_guard.StreamError):
+                self.validate(self.complete(event, self.agent_chunk(stream_guard.MARKER)))
 
     def test_rejects_malformed_metrics_and_ignored_session_updates(self) -> None:
-        def clone(event: dict[str, object]) -> dict[str, object]:
+        def clone(event: dict[str, Any]) -> dict[str, Any]:
             return json.loads(json.dumps(event))
 
         wrong_metric_keys = clone(self.unrelated_update())
         wrong_metric_keys["data"]["update"]["_meta"]["kiro"]["breakdown"]["tools"]["calls"] = 0
         wrong_metric_type = clone(self.unrelated_update())
-        wrong_metric_type["data"]["update"]["_meta"]["kiro"]["breakdown"]["tools"][
-            "percent"
-        ] = True
+        wrong_metric_type["data"]["update"]["_meta"]["kiro"]["breakdown"]["tools"]["percent"] = True
         wrong_metric_kind = clone(self.unrelated_update())
         wrong_metric_kind["data"]["update"]["_meta"]["kiro"]["kind"] = "other"
         arbitrary_nested_metric = clone(self.unrelated_update())
-        arbitrary_nested_metric["data"]["update"]["_meta"]["kiro"]["breakdown"][
-            "tools"
-        ]["builtin"]["calls"] = 0
+        arbitrary_nested_metric["data"]["update"]["_meta"]["kiro"]["breakdown"]["tools"]["builtin"][
+            "calls"
+        ] = 0
         invalid_nested_percent = clone(self.unrelated_update())
-        invalid_nested_percent["data"]["update"]["_meta"]["kiro"]["breakdown"][
-            "tools"
-        ]["mcp"]["percent"] = 101
+        invalid_nested_percent["data"]["update"]["_meta"]["kiro"]["breakdown"]["tools"]["mcp"][
+            "percent"
+        ] = 101
         invalid_nested_tokens = clone(self.unrelated_update())
-        invalid_nested_tokens["data"]["update"]["_meta"]["kiro"]["breakdown"][
-            "tools"
-        ]["builtin"]["tokens"] = -1
+        invalid_nested_tokens["data"]["update"]["_meta"]["kiro"]["breakdown"]["tools"]["builtin"][
+            "tokens"
+        ] = -1
         wrong_session = clone(self.unrelated_update())
         wrong_session["data"]["sessionId"] = self.OTHER_SESSION_ID
         malformed_envelope = clone(self.unrelated_update())
@@ -2291,7 +2217,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                 self.validate(self.complete(event, self.agent_chunk(stream_guard.MARKER)))
 
     def test_rejects_agent_and_run_boundary_shape_or_identity_drift(self) -> None:
-        def clone(event: dict[str, object]) -> dict[str, object]:
+        def clone(event: dict[str, Any]) -> dict[str, Any]:
             return json.loads(json.dumps(event))
 
         extra_agent = clone(self.agent_chunk(stream_guard.MARKER))
@@ -2344,8 +2270,9 @@ class KiroCredentialStreamTests(unittest.TestCase):
             (wrong_protocol_type, self.run_finished()),
             (self.run_started(), malformed_finish),
         ):
-            with self.subTest(start=start, finish=finish), self.assertRaises(
-                stream_guard.StreamError
+            with (
+                self.subTest(start=start, finish=finish),
+                self.assertRaises(stream_guard.StreamError),
             ):
                 self.validate(
                     self.stream(
@@ -2366,9 +2293,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                 )
             )
         mismatch_message = str(mismatch_caught.exception)
-        mismatch_diagnostic = json.loads(
-            mismatch_message.split("run_finished_diagnostic=", 1)[1]
-        )
+        mismatch_diagnostic = json.loads(mismatch_message.split("run_finished_diagnostic=", 1)[1])
         self.assertEqual(
             mismatch_diagnostic,
             {
@@ -2395,9 +2320,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                 )
             )
         equal_message = str(equal_caught.exception)
-        equal_diagnostic = json.loads(
-            equal_message.split("run_finished_diagnostic=", 1)[1]
-        )
+        equal_diagnostic = json.loads(equal_message.split("run_finished_diagnostic=", 1)[1])
         self.assertTrue(equal_diagnostic["assistant_final_equal"])
         self.assertEqual(equal_diagnostic["marker_occurrence_count"], 0)
         self.assertNotIn(equal_non_marker, equal_message)
@@ -2426,9 +2349,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
                 )
             )
         unsafe_message = str(unsafe_caught.exception)
-        unsafe_diagnostic = json.loads(
-            unsafe_message.split("run_finished_diagnostic=", 1)[1]
-        )
+        unsafe_diagnostic = json.loads(unsafe_message.split("run_finished_diagnostic=", 1)[1])
         self.assertIsNone(unsafe_diagnostic["status"])
         self.assertNotIn(unsafe_status, unsafe_message)
 
@@ -2444,7 +2365,7 @@ class KiroCredentialStreamTests(unittest.TestCase):
 
 class KiroPermissionStreamTests(unittest.TestCase):
     @staticmethod
-    def selection_event(workspace: str) -> dict[str, object]:
+    def selection_event(workspace: str) -> dict[str, Any]:
         return {
             "type": "sessionUpdate",
             "data": {
@@ -2497,21 +2418,19 @@ class KiroPermissionStreamTests(unittest.TestCase):
             [initial_vibe, event], expected_workspace=workspace
         )
 
-        def clone() -> dict[str, object]:
+        def clone() -> dict[str, Any]:
             return json.loads(json.dumps(event))
 
         wrong_root = clone()
-        wrong_root["data"]["update"]["configOptions"][0]["options"][0]["_meta"][
-            "kiro"
-        ]["resource"]["source"]["root"] = "/tmp/other-workspace"
+        wrong_root["data"]["update"]["configOptions"][0]["options"][0]["_meta"]["kiro"]["resource"][
+            "source"
+        ]["root"] = "/tmp/other-workspace"
         global_source = clone()
-        global_source["data"]["update"]["configOptions"][0]["options"][0]["_meta"][
-            "kiro"
-        ]["source"] = "global"
+        global_source["data"]["update"]["configOptions"][0]["options"][0]["_meta"]["kiro"][
+            "source"
+        ] = "global"
         extra_option_key = clone()
-        extra_option_key["data"]["update"]["configOptions"][0]["options"][0][
-            "unexpected"
-        ] = True
+        extra_option_key["data"]["update"]["configOptions"][0]["options"][0]["unexpected"] = True
         duplicate_option = clone()
         duplicate_option["data"]["update"]["configOptions"][0]["options"].append(
             duplicate_option["data"]["update"]["configOptions"][0]["options"][0]
@@ -2519,9 +2438,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
         fallback = clone()
         fallback["data"]["update"]["configOptions"][0]["currentValue"] = "vibe"
         conflicting_mode = clone()
-        second_mode = json.loads(
-            json.dumps(conflicting_mode["data"]["update"]["configOptions"][0])
-        )
+        second_mode = json.loads(json.dumps(conflicting_mode["data"]["update"]["configOptions"][0]))
         second_mode["currentValue"] = "vibe"
         conflicting_mode["data"]["update"]["configOptions"].append(second_mode)
 
@@ -2532,8 +2449,9 @@ class KiroPermissionStreamTests(unittest.TestCase):
             duplicate_option,
             fallback,
         ):
-            with self.subTest(malformed=malformed), self.assertRaises(
-                permission_stream_guard.StreamError
+            with (
+                self.subTest(malformed=malformed),
+                self.assertRaises(permission_stream_guard.StreamError),
             ):
                 permission_stream_guard.validate_workspace_agent_selection(
                     [malformed], expected_workspace=workspace
@@ -2543,8 +2461,9 @@ class KiroPermissionStreamTests(unittest.TestCase):
             [event, fallback],
             [conflicting_mode],
         ):
-            with self.subTest(events=events), self.assertRaises(
-                permission_stream_guard.StreamError
+            with (
+                self.subTest(events=events),
+                self.assertRaises(permission_stream_guard.StreamError),
             ):
                 permission_stream_guard.validate_workspace_agent_selection(
                     events, expected_workspace=workspace
@@ -2557,14 +2476,14 @@ class KiroPermissionStreamTests(unittest.TestCase):
         return f"call_00000000-0000-0000-0000-{index:012x}"
 
     @classmethod
-    def envelope(cls, update: dict[str, object]) -> dict[str, object]:
+    def envelope(cls, update: dict[str, Any]) -> dict[str, Any]:
         return {
             "type": "sessionUpdate",
             "data": {"sessionId": cls.SESSION_ID, "update": update},
         }
 
     @staticmethod
-    def reflected_content(raw_output: dict[str, str]) -> list[dict[str, object]]:
+    def reflected_content(raw_output: dict[str, str]) -> list[dict[str, Any]]:
         return [
             {
                 "type": "content",
@@ -2573,21 +2492,18 @@ class KiroPermissionStreamTests(unittest.TestCase):
         ]
 
     @classmethod
-    def read_group(cls, workspace: Path, index: int) -> list[dict[str, object]]:
+    def read_group(cls, workspace: Path, index: int) -> list[dict[str, Any]]:
         tool_call_id = cls.tool_call_id(index)
         raw_input = {
             "limit": 2000,
             "offset": 0,
             "path": permission_stream_guard.FIXTURE_INPUT_PATH,
         }
-        locations = [
-            {"path": str(workspace / permission_stream_guard.FIXTURE_INPUT_PATH)}
-        ]
+        locations = [{"path": str(workspace / permission_stream_guard.FIXTURE_INPUT_PATH)}]
         origin = {"kiro": {"toolOrigin": "default"}}
         raw_output = {
             "message": (
-                "fixture-input.txt: "
-                + permission_stream_guard.FIXTURE_INPUT_TEXT.rstrip("\n")
+                "fixture-input.txt: " + permission_stream_guard.FIXTURE_INPUT_TEXT.rstrip("\n")
             )
         }
         return [
@@ -2628,7 +2544,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
         ]
 
     @classmethod
-    def grep_group(cls, index: int) -> list[dict[str, object]]:
+    def grep_group(cls, index: int) -> list[dict[str, Any]]:
         tool_call_id = cls.tool_call_id(index)
         raw_input = {
             "caseSensitive": True,
@@ -2639,8 +2555,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
         origin = {"kiro": {"toolOrigin": "default"}}
         raw_output = {
             "message": (
-                "fixture-input.txt: "
-                + permission_stream_guard.FIXTURE_INPUT_TEXT.rstrip("\n")
+                "fixture-input.txt: " + permission_stream_guard.FIXTURE_INPUT_TEXT.rstrip("\n")
             )
         }
         return [
@@ -2687,15 +2602,13 @@ class KiroPermissionStreamTests(unittest.TestCase):
         *,
         denied: bool,
         deny_patterns: list[str] | None = None,
-    ) -> list[dict[str, object]]:
+    ) -> list[dict[str, Any]]:
         tool_call_id = cls.tool_call_id(index)
         raw_input = {"path": relative_path, "text": text}
         locations = [{"path": str(workspace / relative_path)}]
         start_preview = {"file": relative_path, "modifiedContent": text}
         if denied:
-            start_preview["originalContent"] = (
-                f"PROTECTED_BASELINE {relative_path}\n"
-            )
+            start_preview["originalContent"] = f"PROTECTED_BASELINE {relative_path}\n"
         start = cls.envelope(
             {
                 "sessionUpdate": "tool_call",
@@ -2705,9 +2618,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 "kind": "edit",
                 "rawInput": raw_input,
                 "locations": locations,
-                "_meta": {
-                    "kiro": {"toolOrigin": "default", "preview": start_preview}
-                },
+                "_meta": {"kiro": {"toolOrigin": "default", "preview": start_preview}},
             }
         )
         pending = cls.envelope(
@@ -2746,9 +2657,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
                     "status": "failed",
                     "title": "Write File",
                     "rawInput": raw_input,
-                    "rawOutput": {
-                        "message": "Tool call denied. Source: agent-profile."
-                    },
+                    "rawOutput": {"message": "Tool call denied. Source: agent-profile."},
                     "content": [
                         {
                             "type": "diff",
@@ -2813,8 +2722,8 @@ class KiroPermissionStreamTests(unittest.TestCase):
     @classmethod
     def complete_events(
         cls, workspace: Path, *, denied_resource: str | None = None
-    ) -> list[dict[str, object]]:
-        events: list[dict[str, object]] = [
+    ) -> list[dict[str, Any]]:
+        events: list[dict[str, Any]] = [
             {
                 "type": "runStarted",
                 "data": {
@@ -2825,13 +2734,11 @@ class KiroPermissionStreamTests(unittest.TestCase):
             }
         ]
         selection = cls.selection_event(str(workspace))
-        selection["data"]["sessionId"] = cls.SESSION_ID  # type: ignore[index]
+        selection["data"]["sessionId"] = cls.SESSION_ID
         events.append(selection)
         if denied_resource is not None:
             fixture = json.loads(
-                (ROOT / ".github/fixtures/kiro-permission-agent.json").read_text(
-                    encoding="utf-8"
-                )
+                (ROOT / ".github/fixtures/kiro-permission-agent.json").read_text(encoding="utf-8")
             )
             deny_patterns = fixture["permissions"]["rules"][3]["match"]
             events.extend(
@@ -2866,8 +2773,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 *("fs_write" for _ in permission_stream_guard.ALLOWED_WRITES),
             ]
         request_ids = [
-            f"00000000-0000-0000-0001-{index:012x}"
-            for index in range(len(used_tools) + 1)
+            f"00000000-0000-0000-0001-{index:012x}" for index in range(len(used_tools) + 1)
         ]
         events.append(
             cls.envelope(
@@ -2907,7 +2813,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
         return events
 
     @staticmethod
-    def write_stream(path: Path, events: list[dict[str, object]]) -> None:
+    def write_stream(path: Path, events: list[dict[str, Any]]) -> None:
         path.write_text(
             "".join(f"{json.dumps(event, separators=(',', ':'))}\n" for event in events),
             encoding="utf-8",
@@ -2944,9 +2850,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
 
             without_explanation = self.complete_events(workspace)
             for event in without_explanation[5:8]:
-                event["data"]["update"]["rawInput"].pop(  # type: ignore[index]
-                    "explanation", None
-                )
+                event["data"]["update"]["rawInput"].pop("explanation", None)
             self.write_stream(stream, without_explanation)
             optional_explanation = permission_stream_guard.validate_allowed_invocation(
                 stream,
@@ -2971,9 +2875,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
             )
             self.assertEqual(denied["user_tool_calls"], 1)
             self.assertEqual(denied["resource"], resource)
-            self.assertEqual(
-                denied["preview_original_content"], {"start": True, "terminal": True}
-            )
+            self.assertEqual(denied["preview_original_content"], {"start": True, "terminal": True})
             self.assertEqual(denied["diff_original_content"], "empty")
 
     def test_denied_previews_accept_optional_original_content_at_each_stage(self) -> None:
@@ -2981,24 +2883,39 @@ class KiroPermissionStreamTests(unittest.TestCase):
             workspace, agent, stream, stderr = self.fixture_workspace(temporary)
             cases = itertools.product(
                 permission_stream_guard.DENIED_RESOURCES,
-                (False, True), (False, True), (None, ""),
+                (False, True),
+                (False, True),
+                (None, ""),
             )
             for resource, start_present, terminal_present, old_text in cases:
-                with self.subTest(resource=resource, start=start_present, terminal=terminal_present, old_text=old_text):
+                with self.subTest(
+                    resource=resource,
+                    start=start_present,
+                    terminal=terminal_present,
+                    old_text=old_text,
+                ):
                     events = self.complete_events(workspace, denied_resource=resource)
                     for event_index, present in ((2, start_present), (-3, terminal_present)):
                         preview = events[event_index]["data"]["update"]["_meta"]["kiro"]["preview"]
                         if not present:
                             preview.pop("originalContent")
-                            self.assertEqual(preview, {
-                                "file": resource,
-                                "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
-                            })
+                            self.assertEqual(
+                                preview,
+                                {
+                                    "file": resource,
+                                    "modifiedContent": permission_stream_guard.DENIED_WRITE_TEXT,
+                                },
+                            )
                     events[-3]["data"]["update"]["content"][0]["oldText"] = old_text
                     self.write_stream(stream, events)
                     denied = permission_stream_guard.validate_denied_invocation(
-                        stream, stderr, return_code=0, api_key="test-secret",
-                        workspace=workspace, agent_path=agent, resource=resource,
+                        stream,
+                        stderr,
+                        return_code=0,
+                        api_key="test-secret",
+                        workspace=workspace,
+                        agent_path=agent,
+                        resource=resource,
                     )
                     self.assertEqual(denied["user_tool_calls"], 1)
                     self.assertEqual(denied["resource"], resource)
@@ -3015,7 +2932,9 @@ class KiroPermissionStreamTests(unittest.TestCase):
             workspace, agent, stream, stderr = self.fixture_workspace(temporary)
             resource = permission_stream_guard.DENIED_RESOURCES[0]
             valid = {
-                "type": "diff", "path": resource, "oldText": None,
+                "type": "diff",
+                "path": resource,
+                "oldText": None,
                 "newText": permission_stream_guard.DENIED_WRITE_TEXT,
             }
             cases = [
@@ -3023,7 +2942,10 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 ("baseline_original", {**valid, "oldText": f"PROTECTED_BASELINE {resource}\n"}),
                 ("boolean_original", {**valid, "oldText": False}),
                 ("numeric_original", {**valid, "oldText": 0}),
-                ("missing_original", {key: value for key, value in valid.items() if key != "oldText"}),
+                (
+                    "missing_original",
+                    {key: value for key, value in valid.items() if key != "oldText"},
+                ),
                 ("extra_key", {**valid, "UNTRUSTED_DIFF": "UNTRUSTED_DIFF"}),
                 ("wrong_path", {**valid, "path": "UNTRUSTED_DIFF"}),
                 ("wrong_content", {**valid, "newText": "UNTRUSTED_DIFF"}),
@@ -3036,8 +2958,13 @@ class KiroPermissionStreamTests(unittest.TestCase):
                     self.write_stream(stream, events)
                     with self.assertRaises(permission_stream_guard.StreamError) as caught:
                         permission_stream_guard.validate_denied_invocation(
-                            stream, stderr, return_code=0, api_key="test-secret",
-                            workspace=workspace, agent_path=agent, resource=resource,
+                            stream,
+                            stderr,
+                            return_code=0,
+                            api_key="test-secret",
+                            workspace=workspace,
+                            agent_path=agent,
+                            resource=resource,
                         )
                     self.assertEqual(str(caught.exception), "Kiro write diff content is invalid")
 
@@ -3051,11 +2978,17 @@ class KiroPermissionStreamTests(unittest.TestCase):
             }
             cases = [
                 ("wrong_original", {**valid, "originalContent": "UNTRUSTED_PREVIEW"}),
-                ("baseline_original", {**valid, "originalContent": f"PROTECTED_BASELINE {resource}\n"}),
+                (
+                    "baseline_original",
+                    {**valid, "originalContent": f"PROTECTED_BASELINE {resource}\n"},
+                ),
                 ("null_original", {**valid, "originalContent": None}),
                 ("boolean_original", {**valid, "originalContent": False}),
                 ("extra_without_original", {**valid, "UNTRUSTED_PREVIEW": "UNTRUSTED_PREVIEW"}),
-                ("extra_with_original", {**valid, "originalContent": "", "UNTRUSTED_PREVIEW": None}),
+                (
+                    "extra_with_original",
+                    {**valid, "originalContent": "", "UNTRUSTED_PREVIEW": None},
+                ),
                 ("wrong_file", {**valid, "file": "UNTRUSTED_PREVIEW"}),
                 ("wrong_modified", {**valid, "modifiedContent": "UNTRUSTED_PREVIEW"}),
             ]
@@ -3066,15 +2999,20 @@ class KiroPermissionStreamTests(unittest.TestCase):
                     self.write_stream(stream, events)
                     with self.assertRaises(permission_stream_guard.StreamError) as caught:
                         permission_stream_guard.validate_denied_invocation(
-                            stream, stderr, return_code=0, api_key="test-secret",
-                            workspace=workspace, agent_path=agent, resource=resource,
+                            stream,
+                            stderr,
+                            return_code=0,
+                            api_key="test-secret",
+                            workspace=workspace,
+                            agent_path=agent,
+                            resource=resource,
                         )
                     self.assertEqual(str(caught.exception), "Kiro denied-write preview is invalid")
 
     @staticmethod
     def read_start_diagnostic_from_error(
         error: permission_stream_guard.StreamError,
-    ) -> dict[str, object]:
+    ) -> dict[str, Any]:
         marker = "read_start_diagnostic="
         message = str(error)
         if marker not in message:
@@ -3088,13 +3026,13 @@ class KiroPermissionStreamTests(unittest.TestCase):
             workspace, _, stream, stderr = self.fixture_workspace(temporary)
             events = self.complete_events(workspace)
             for event in events[2:5]:
-                event["data"]["update"]["toolCallId"] = opaque_tool_id  # type: ignore[index]
-            read_start = events[2]["data"]["update"]  # type: ignore[index]
+                event["data"]["update"]["toolCallId"] = opaque_tool_id
+            read_start = events[2]["data"]["update"]
             read_start["title"] = sensitive
             read_start["kind"] = sensitive
-            read_start["rawInput"]["path"] = sensitive  # type: ignore[index]
-            read_start["rawInput"]["offset"] = 424242  # type: ignore[index]
-            read_start["rawInput"][sensitive] = sensitive  # type: ignore[index]
+            read_start["rawInput"]["path"] = sensitive
+            read_start["rawInput"]["offset"] = 424242
+            read_start["rawInput"][sensitive] = sensitive
             read_start["locations"] = [{"path": sensitive, sensitive: sensitive}]
             self.write_stream(stream, events)
 
@@ -3124,21 +3062,21 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 diagnostic["schema"],
                 "pkstack-permission-read-start-diagnostic-v1",
             )
-            start = diagnostic["start"]  # type: ignore[assignment]
-            self.assertFalse(start["kind"]["matches_expected"])  # type: ignore[index]
-            self.assertFalse(start["title"]["matches_expected"])  # type: ignore[index]
+            start = diagnostic["start"]
+            self.assertFalse(start["kind"]["matches_expected"])
+            self.assertFalse(start["title"]["matches_expected"])
             self.assertEqual(
-                start["raw_input"]["path"]["classification"],  # type: ignore[index]
+                start["raw_input"]["path"]["classification"],
                 "other_string",
             )
-            self.assertEqual(start["raw_input"]["unexpected_key_count"], 1)  # type: ignore[index]
+            self.assertEqual(start["raw_input"]["unexpected_key_count"], 1)
             self.assertEqual(
-                start["raw_input"]["offset"]["classification"],  # type: ignore[index]
+                start["raw_input"]["offset"]["classification"],
                 "other_positive_integer",
             )
-            self.assertFalse(start["locations"]["matches_expected"])  # type: ignore[index]
+            self.assertFalse(start["locations"]["matches_expected"])
             self.assertEqual(
-                start["locations"]["first_path"]["classification"],  # type: ignore[index]
+                start["locations"]["first_path"]["classification"],
                 "other_string",
             )
             expected_classes = {
@@ -3153,9 +3091,9 @@ class KiroPermissionStreamTests(unittest.TestCase):
             }
             for value, expected in expected_classes.items():
                 self.assertEqual(
-                    permission_stream_guard._diagnostic_path(
-                        value, workspace=workspace
-                    )["classification"],
+                    permission_stream_guard._diagnostic_path(value, workspace=workspace)[
+                        "classification"
+                    ],
                     expected,
                 )
 
@@ -3166,8 +3104,8 @@ class KiroPermissionStreamTests(unittest.TestCase):
             workspace, _, stream, stderr = self.fixture_workspace(temporary)
             events = self.complete_events(workspace)
             for event in events[5:8]:
-                event["data"]["update"]["toolCallId"] = opaque_tool_id  # type: ignore[index]
-            raw_input = events[5]["data"]["update"]["rawInput"]  # type: ignore[index]
+                event["data"]["update"]["toolCallId"] = opaque_tool_id
+            raw_input = events[5]["data"]["update"]["rawInput"]
             raw_input.pop("explanation")
             raw_input["caseSensitive"] = sensitive
             raw_input["includePattern"] = sensitive
@@ -3209,9 +3147,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
             self.assertEqual(facts["case_sensitive"]["type"], "string")
             self.assertTrue(facts["explanation"]["matches_validator_contract"])
             self.assertEqual(facts["explanation"]["type"], "null")
-            self.assertEqual(
-                facts["include_pattern"]["classification"], "other_string"
-            )
+            self.assertEqual(facts["include_pattern"]["classification"], "other_string")
             self.assertFalse(facts["query"]["matches_expected"])
             self.assertEqual(facts["query"]["type"], "string")
 
@@ -3237,16 +3173,30 @@ class KiroPermissionStreamTests(unittest.TestCase):
                     with self.assertRaises(permission_stream_guard.StreamError) as caught:
                         if denied:
                             permission_stream_guard.validate_denied_invocation(
-                                stream, stderr, return_code=0, api_key="test-secret",
-                                workspace=workspace, agent_path=agent, resource=resource,
+                                stream,
+                                stderr,
+                                return_code=0,
+                                api_key="test-secret",
+                                workspace=workspace,
+                                agent_path=agent,
+                                resource=resource,
                             )
                         else:
                             permission_stream_guard.validate_allowed_invocation(
-                                stream, stderr, return_code=0, api_key="test-secret",
+                                stream,
+                                stderr,
+                                return_code=0,
+                                api_key="test-secret",
                                 workspace=workspace,
                             )
                     message = str(caught.exception)
-                    for forbidden in (sensitive, "f" * 64, str(workspace), self.SESSION_ID, "test-secret"):
+                    for forbidden in (
+                        sensitive,
+                        "f" * 64,
+                        str(workspace),
+                        self.SESSION_ID,
+                        "test-secret",
+                    ):
                         self.assertNotIn(forbidden, message)
                     raw = message.split("write_start_preview_diagnostic=", 1)[1]
                     self.assertLessEqual(
@@ -3270,7 +3220,12 @@ class KiroPermissionStreamTests(unittest.TestCase):
                     )
                     self.assertEqual(
                         facts["original_content"],
-                        {"present": True, "type": "array", "matches_expected": False, "is_empty": False},
+                        {
+                            "present": True,
+                            "type": "array",
+                            "matches_expected": False,
+                            "is_empty": False,
+                        },
                     )
 
     def test_write_start_preview_variants_remain_rejected_with_structural_facts(self) -> None:
@@ -3300,8 +3255,13 @@ class KiroPermissionStreamTests(unittest.TestCase):
                     self.write_stream(stream, events)
                     with self.assertRaises(permission_stream_guard.StreamError) as caught:
                         permission_stream_guard.validate_denied_invocation(
-                            stream, stderr, return_code=0, api_key="test-secret",
-                            workspace=workspace, agent_path=agent, resource=resource,
+                            stream,
+                            stderr,
+                            return_code=0,
+                            api_key="test-secret",
+                            workspace=workspace,
+                            agent_path=agent,
+                            resource=resource,
                         )
                     message = str(caught.exception)
                     self.assertNotIn("UNTRUSTED_PREVIEW", message)
@@ -3325,14 +3285,14 @@ class KiroPermissionStreamTests(unittest.TestCase):
             resource = permission_stream_guard.DENIED_RESOURCES[0]
             baseline = self.complete_events(workspace, denied_resource=resource)
 
-            def clone() -> list[dict[str, object]]:
+            def clone() -> list[dict[str, Any]]:
                 return json.loads(json.dumps(baseline))
 
-            malformed_streams: list[list[dict[str, object]]] = []
+            malformed_streams: list[list[dict[str, Any]]] = []
             for mutation in ("missing", "extra", "resource", "rule"):
                 events = clone()
-                terminal = events[-3]["data"]["update"]  # type: ignore[index]
-                denial = terminal["_meta"]["kiro"]["policyDenial"]  # type: ignore[index]
+                terminal = events[-3]["data"]["update"]
+                denial = terminal["_meta"]["kiro"]["policyDenial"]
                 if mutation == "missing":
                     denial.pop("matchedRule")
                 elif mutation == "extra":
@@ -3344,7 +3304,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 malformed_streams.append(events)
 
             mismatched_id = clone()
-            mismatched_id[-3]["data"]["update"]["toolCallId"] = self.tool_call_id(9)  # type: ignore[index]
+            mismatched_id[-3]["data"]["update"]["toolCallId"] = self.tool_call_id(9)
             malformed_streams.append(mismatched_id)
             late_selection = clone()
             late_selection.insert(-2, late_selection[1])
@@ -3362,14 +3322,16 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 resource,
                 permission_stream_guard.DENIED_WRITE_TEXT,
                 denied=True,
-                deny_patterns=json.loads(agent.read_text(encoding="utf-8"))["permissions"]
-                ["rules"][3]["match"],
+                deny_patterns=json.loads(agent.read_text(encoding="utf-8"))["permissions"]["rules"][
+                    3
+                ]["match"],
             )
             malformed_streams.append(extra_tool)
 
             for events in malformed_streams:
-                with self.subTest(events=events), self.assertRaises(
-                    permission_stream_guard.StreamError
+                with (
+                    self.subTest(events=events),
+                    self.assertRaises(permission_stream_guard.StreamError),
                 ):
                     self.write_stream(stream, events)
                     permission_stream_guard.validate_denied_invocation(
@@ -3387,7 +3349,7 @@ class KiroPermissionStreamTests(unittest.TestCase):
             workspace, _, stream, stderr = self.fixture_workspace(temporary)
             baseline = self.complete_events(workspace)
 
-            def clone() -> list[dict[str, object]]:
+            def clone() -> list[dict[str, Any]]:
                 return json.loads(json.dumps(baseline))
 
             missing_write = clone()
@@ -3395,20 +3357,19 @@ class KiroPermissionStreamTests(unittest.TestCase):
             missing_write[:] = [
                 event
                 for event in missing_write
-                if event.get("data", {}).get("update", {}).get("toolCallId") != missing_id  # type: ignore[union-attr]
+                if event.get("data", {}).get("update", {}).get("toolCallId") != missing_id
             ]
             wrong_order = clone()
             first_write = next(
                 event
                 for event in wrong_order
-                if event.get("data", {}).get("update", {}).get("toolCallId")  # type: ignore[union-attr]
-                == self.tool_call_id(3)
+                if event.get("data", {}).get("update", {}).get("toolCallId") == self.tool_call_id(3)
             )
-            first_write["data"]["update"]["rawInput"]["path"] = "wrong.txt"  # type: ignore[index]
+            first_write["data"]["update"]["rawInput"]["path"] = "wrong.txt"
             wrong_used_tools = clone()
-            wrong_used_tools[-2]["data"]["update"]["_meta"]["kiro"][  # type: ignore[index]
-                "promptTurnSummaries"
-            ][0]["usedTools"].append("execute_bash")
+            wrong_used_tools[-2]["data"]["update"]["_meta"]["kiro"]["promptTurnSummaries"][0][
+                "usedTools"
+            ].append("execute_bash")
             hidden_denial = clone()
             hidden_denial.insert(
                 -1,
@@ -3420,9 +3381,9 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 ),
             )
             nonempty_final = clone()
-            nonempty_final[-1]["data"]["finalText"] = "done"  # type: ignore[index]
+            nonempty_final[-1]["data"]["finalText"] = "done"
             unknown_original = clone()
-            unknown_original[-3]["data"]["update"]["content"][0]["oldText"] = None  # type: ignore[index]
+            unknown_original[-3]["data"]["update"]["content"][0]["oldText"] = None
 
             for events in (
                 missing_write,
@@ -3432,8 +3393,9 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 nonempty_final,
                 unknown_original,
             ):
-                with self.subTest(events=events), self.assertRaises(
-                    permission_stream_guard.StreamError
+                with (
+                    self.subTest(events=events),
+                    self.assertRaises(permission_stream_guard.StreamError),
                 ):
                     self.write_stream(stream, events)
                     permission_stream_guard.validate_allowed_invocation(
@@ -3459,25 +3421,17 @@ class KiroPermissionStreamTests(unittest.TestCase):
                 "resource": resource,
             }
             with self.assertRaises(permission_stream_guard.StreamError):
-                permission_stream_guard.validate_denied_invocation(
-                    return_code=1, **common
-                )
+                permission_stream_guard.validate_denied_invocation(return_code=1, **common)
             stream.chmod(0o644)
             with self.assertRaises(permission_stream_guard.StreamError):
-                permission_stream_guard.validate_denied_invocation(
-                    return_code=0, **common
-                )
+                permission_stream_guard.validate_denied_invocation(return_code=0, **common)
             stream.chmod(0o600)
             stderr.write_text('not found, using "default"', encoding="utf-8")
             with self.assertRaises(permission_stream_guard.StreamError):
-                permission_stream_guard.validate_denied_invocation(
-                    return_code=0, **common
-                )
+                permission_stream_guard.validate_denied_invocation(return_code=0, **common)
             stderr.write_text("test-secret", encoding="utf-8")
             with self.assertRaises(permission_stream_guard.StreamError):
-                permission_stream_guard.validate_denied_invocation(
-                    return_code=0, **common
-                )
+                permission_stream_guard.validate_denied_invocation(return_code=0, **common)
             stderr.write_text("", encoding="utf-8")
             with self.assertRaises(permission_stream_guard.StreamError):
                 permission_stream_guard.validate_denied_invocation(
@@ -3817,7 +3771,7 @@ class GitControlBoundaryTests(unittest.TestCase):
 
 
 class DetectorTests(unittest.TestCase):
-    def validate(self, payload: dict[str, object]) -> dict[str, object]:
+    def validate(self, payload: dict[str, Any]) -> dict[str, Any]:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "detector.json"
             path.write_text(json.dumps(payload), encoding="utf-8")
@@ -3825,12 +3779,12 @@ class DetectorTests(unittest.TestCase):
 
     def validate_proposal(
         self,
-        detector: dict[str, object],
-        proposal: dict[str, object],
+        detector: dict[str, Any],
+        proposal: dict[str, Any],
         *,
         extra_pending_source_id: str | None = None,
         controller_source_id: str | None = None,
-    ) -> dict[str, object]:
+    ) -> dict[str, Any]:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             detector_path = root / "detector.json"
@@ -3844,7 +3798,7 @@ class DetectorTests(unittest.TestCase):
                 encoding="utf-8",
             )
             selected_source_id = proposal["source_id"]
-            for source in detector["sources"]:  # type: ignore[union-attr]
+            for source in detector["sources"]:
                 provenance_path = root / source["provenance_path"]
                 provenance_path.parent.mkdir(parents=True, exist_ok=True)
                 markers = accepted_marker_lines(detector, source_id=source["id"])
@@ -3860,13 +3814,13 @@ class DetectorTests(unittest.TestCase):
 
     def validate_serialized(
         self,
-        before: dict[str, object],
-        after: dict[str, object],
+        before: dict[str, Any],
+        after: dict[str, Any],
         *,
         mutate_deferred_provenance: bool = False,
         mutate_deferred_ledger: bool = False,
         controller_source_id: str | None = None,
-    ) -> dict[str, object]:
+    ) -> dict[str, Any]:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             before_path = root / "before.json"
@@ -3876,7 +3830,7 @@ class DetectorTests(unittest.TestCase):
             ledger_path = root / "maintenance/upstream-reviews.json"
             ledger_path.parent.mkdir(parents=True)
             ledger_path.write_text(json.dumps(review_ledger_fixture(before)), encoding="utf-8")
-            for source in before["sources"]:  # type: ignore[union-attr]
+            for source in before["sources"]:
                 provenance_path = root / source["provenance_path"]
                 provenance_path.parent.mkdir(parents=True, exist_ok=True)
                 provenance_path.write_text(
@@ -3914,7 +3868,7 @@ class DetectorTests(unittest.TestCase):
                 ledger = json.loads(ledger_path.read_text())
                 ledger["sources"][0]["genesis"]["commit"] = "9" * 40
                 ledger_path.write_text(json.dumps(ledger))
-            for source in after["sources"]:  # type: ignore[union-attr]
+            for source in after["sources"]:
                 provenance_path = root / source["provenance_path"]
                 provenance_path.parent.mkdir(parents=True, exist_ok=True)
                 provenance_path.write_text(
@@ -3925,14 +3879,10 @@ class DetectorTests(unittest.TestCase):
                 )
             if mutate_deferred_provenance:
                 selected_source_id = min(
-                    source["id"]
-                    for source in before["sources"]  # type: ignore[union-attr]
-                    if source["drift"]
+                    source["id"] for source in before["sources"] if source["drift"]
                 )
                 deferred = next(
-                    source
-                    for source in after["sources"]  # type: ignore[union-attr]
-                    if source["id"] != selected_source_id
+                    source for source in after["sources"] if source["id"] != selected_source_id
                 )
                 with (root / deferred["provenance_path"]).open("a", encoding="utf-8") as stream:
                     stream.write("Deferred prose changed.\n")
@@ -3963,20 +3913,20 @@ class DetectorTests(unittest.TestCase):
         for source_id in ("-alpha", "alpha-", "alpha--okf", "Alpha", "a" * 65):
             with self.subTest(source_id=source_id):
                 payload = detector_fixture()
-                payload["sources"][0]["id"] = source_id  # type: ignore[index]
+                payload["sources"][0]["id"] = source_id
                 with self.assertRaisesRegex(guard.GuardError, "source id is invalid"):
                     self.validate(payload)
 
     def test_invalid_source_parity_is_typed_and_can_trigger_parity_only_repair(self) -> None:
         payload = detector_fixture()
-        source = payload["sources"][0]  # type: ignore[index]
-        source["ok"] = False  # type: ignore[index]
-        source["source_parity"] = {  # type: ignore[index]
+        source = payload["sources"][0]
+        source["ok"] = False
+        source["source_parity"] = {
             "ok": False,
             "candidate_ready": False,
             "artifact_type": "unknown",
             "status": "invalid",
-            "path": source["parity_path"],  # type: ignore[index]
+            "path": source["parity_path"],
             "errors": ["Parity artifact is unavailable."],
             "pinned_resource_count": 0,
             "current_resource_count": 0,
@@ -3986,14 +3936,14 @@ class DetectorTests(unittest.TestCase):
 
         self.assertEqual(self.validate(payload)["validated_drift_sources"], [])
 
-        source["source_parity"]["errors"] = []  # type: ignore[index]
+        source["source_parity"]["errors"] = []
         with self.assertRaisesRegex(guard.GuardError, "errors are not bounded"):
             self.validate(payload)
 
         payload = detector_fixture()
-        source = payload["sources"][0]  # type: ignore[index]
-        source["source_parity"]["candidate_ready"] = True  # type: ignore[index]
-        source["source_parity"]["status"] = "candidate-ready"  # type: ignore[index]
+        source = payload["sources"][0]
+        source["source_parity"]["candidate_ready"] = True
+        source["source_parity"]["status"] = "candidate-ready"
         with self.assertRaisesRegex(guard.GuardError, "non-drifting upstream"):
             self.validate(payload)
 
@@ -4008,7 +3958,12 @@ class DetectorTests(unittest.TestCase):
         wrong = proposal_fixture(payload, source_id="cursor-pstack")
         with self.assertRaisesRegex(guard.GuardError, "controller-selected"):
             self.validate_proposal(payload, wrong, controller_source_id="alpha-okf")
-        self.assertEqual(self.validate_proposal(payload, wrong, controller_source_id="cursor-pstack")["source_id"], "cursor-pstack")
+        self.assertEqual(
+            self.validate_proposal(payload, wrong, controller_source_id="cursor-pstack")[
+                "source_id"
+            ],
+            "cursor-pstack",
+        )
 
         with self.assertRaisesRegex(guard.GuardError, "marker count"):
             self.validate_proposal(
@@ -4030,7 +3985,7 @@ class DetectorTests(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardError, "deferred review ledger"):
             self.validate_serialized(before, after, mutate_deferred_ledger=True)
 
-        after["sources"][0]["source_parity"]["pinned_resource_count"] = 2  # type: ignore[index]
+        after["sources"][0]["source_parity"]["pinned_resource_count"] = 2
         with self.assertRaisesRegex(guard.GuardError, "deferred upstream source"):
             self.validate_serialized(before, after)
 
@@ -4046,11 +4001,7 @@ class DetectorTests(unittest.TestCase):
         before = drift_detector_fixture()
         add_detector_source(before, source_id="alpha-okf", drift=True)
         after = accepted_detector_fixture(before, selected_source_id="alpha-okf")
-        selected = next(
-            source
-            for source in after["sources"]
-            if source["id"] == "alpha-okf"  # type: ignore[index]
-        )
+        selected = next(source for source in after["sources"] if source["id"] == "alpha-okf")
         selected["review_reproof"]["transitions"][0]["inventory_sha256"] = "f" * 64
 
         with self.assertRaisesRegex(guard.GuardError, "not detector-bound"):
@@ -4081,13 +4032,13 @@ class DetectorTests(unittest.TestCase):
             self.validate(payload)
 
         payload = detector_fixture()
-        payload["sources"][0]["drift"] = 1  # type: ignore[index]
+        payload["sources"][0]["drift"] = 1
         with self.assertRaises(guard.GuardError):
             self.validate(payload)
 
     def test_inventory_counts_must_be_exact(self) -> None:
         payload = detector_fixture()
-        payload["sources"][0]["comparison"]["path_count"] = 1  # type: ignore[index]
+        payload["sources"][0]["comparison"]["path_count"] = 1
         with self.assertRaises(guard.GuardError):
             self.validate(payload)
 
@@ -4131,36 +4082,36 @@ class DetectorTests(unittest.TestCase):
     def test_comparison_may_omit_changes_wholly_outside_source_subtree(self) -> None:
         payload = drift_detector_fixture()
         set_comparison_files(payload, [])
-        source = payload["sources"][0]  # type: ignore[index]
-        source["current"]["subtree_sha"] = source["pinned"]["subtree_sha"]  # type: ignore[index]
-        source["drift"] = False  # type: ignore[index]
-        source["ok"] = True  # type: ignore[index]
+        source = payload["sources"][0]
+        source["current"]["subtree_sha"] = source["pinned"]["subtree_sha"]
+        source["drift"] = False
+        source["ok"] = True
         payload["ok"] = True
-        source["source_parity"]["candidate_ready"] = False  # type: ignore[index]
-        source["source_parity"]["status"] = "accepted-baseline"  # type: ignore[index]
+        source["source_parity"]["candidate_ready"] = False
+        source["source_parity"]["status"] = "accepted-baseline"
         self.assertEqual(self.validate(payload)["validated_drift_heads"], [])
 
     def test_patch_body_and_review_constraints_are_recomputed(self) -> None:
         payload = drift_detector_fixture()
         self.validate(payload)
 
-        file = payload["sources"][0]["comparison"]["files"][0]  # type: ignore[index]
-        file["patch"] = "@@ -0,0 +1 @@\n+new\n+hidden"  # type: ignore[index]
-        file["patch_bytes"] = len(file["patch"].encode("utf-8"))  # type: ignore[index,union-attr]
+        file = payload["sources"][0]["comparison"]["files"][0]
+        file["patch"] = "@@ -0,0 +1 @@\n+new\n+hidden"
+        file["patch_bytes"] = len(file["patch"].encode("utf-8"))
         with self.assertRaises(guard.GuardError):
             self.validate(payload)
 
     def test_exact_blob_identities_modes_and_inventory_are_independently_bound(self) -> None:
         payload = drift_detector_fixture()
-        file = payload["sources"][0]["comparison"]["files"][0]  # type: ignore[index]
-        file["new_identity"]["mode"] = "100755"  # type: ignore[index]
+        file = payload["sources"][0]["comparison"]["files"][0]
+        file["new_identity"]["mode"] = "100755"
         with self.assertRaises(guard.GuardError):
             self.validate(payload)
 
         for entry_type, mode in (("commit", "160000"), ("blob", "120000")):
             payload = drift_detector_fixture()
-            file = payload["sources"][0]["comparison"]["files"][0]  # type: ignore[index]
-            file["new_identity"].update(type=entry_type, mode=mode)  # type: ignore[index]
+            file = payload["sources"][0]["comparison"]["files"][0]
+            file["new_identity"].update(type=entry_type, mode=mode)
             set_comparison_files(payload, [file])
             with self.assertRaises(guard.GuardError):
                 self.validate(payload)
@@ -4210,15 +4161,15 @@ class DetectorTests(unittest.TestCase):
         set_comparison_files(payload, [mode_change])
         self.validate(payload)
 
-        mode_change["new_identity"]["mode"] = "100644"  # type: ignore[index]
+        mode_change["new_identity"]["mode"] = "100644"
         set_comparison_files(payload, [mode_change])
         with self.assertRaises(guard.GuardError):
             self.validate(payload)
 
         payload = drift_detector_fixture()
-        payload["sources"][0]["comparison"]["review_constraints"][  # type: ignore[index]
-            "unavailable_binary_paths"
-        ] = ["README.md"]
+        payload["sources"][0]["comparison"]["review_constraints"]["unavailable_binary_paths"] = [
+            "README.md"
+        ]
         with self.assertRaises(guard.GuardError):
             self.validate(payload)
 
@@ -4246,7 +4197,7 @@ class DetectorTests(unittest.TestCase):
         proposal = proposal_fixture(payload)
         self.assertEqual(self.validate_proposal(payload, proposal)["disposition_count"], 1)
 
-        proposal["dispositions"][0]["disposition"] = "A"  # type: ignore[index]
+        proposal["dispositions"][0]["disposition"] = "A"
         with self.assertRaises(guard.GuardError):
             self.validate_proposal(payload, proposal)
 
@@ -4323,10 +4274,8 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
-        self.policy = json.loads(
-            (ROOT / ".github/pkstack-maintenance-policy.json").read_text()
-        )
-        self.cases = {
+        self.policy = json.loads((ROOT / ".github/pkstack-maintenance-policy.json").read_text())
+        self.cases: dict[str, Any] = {
             "schema_version": 1,
             "cases": [
                 {
@@ -4334,7 +4283,9 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
                     "prompt": "Explain how the cache works and show evidence.",
                     "primary": "how",
                     "helpers": ["show-me-your-work"],
-                    "expected_output": "One explanation owned by how with an evidence trail from its helper.",
+                    "expected_output": (
+                        "One explanation owned by how with an evidence trail from its helper."
+                    ),
                     "forbidden_effects": [
                         "Editing implementation files.",
                         "Duplicating the explanation.",
@@ -4394,9 +4345,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
             ["git", "rev-parse", "HEAD"], cwd=self.root, text=True
         ).strip()
 
-    def build(
-        self, path: str = "powers/pkstack/skills/how/SKILL.md"
-    ) -> tuple[dict, dict]:
+    def build(self, path: str = "powers/pkstack/skills/how/SKILL.md") -> tuple[dict, dict]:
         if path.endswith("/SKILL.md"):
             self.put(
                 path,
@@ -4447,33 +4396,63 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
                 "powers/pkstack/skills/show-me-your-work/SKILL.md",
             ],
         )
-        helper = next(
-            item for item in context["catalog"] if item["name"] == "show-me-your-work"
-        )
+        helper = next(item for item in context["catalog"] if item["name"] == "show-me-your-work")
         self.assertEqual(helper["references"], ["references/evidence.md"])
         self.assertLessEqual(len(guard._review_json_bytes(context)), 65536)
         self.validate_bundle(bundle, digest=result["content_sha256"])
 
     def inventory_bundle(self) -> tuple[dict, dict]:
         path = "powers/pkstack/docs/okf-skills-parity.json"
-        source = {"pinned": {"commit": "a" * 40}, "current": {"commit": "b" * 40}, "retrieved_on": "2026-09-05"}
-        records = []
+        source = {
+            "pinned": {"commit": "a" * 40},
+            "current": {"commit": "b" * 40},
+            "retrieved_on": "2026-09-05",
+        }
+        records: list[dict[str, Any]] = []
         for name in ("backfill/SKILL.md", "backfill/scripts/okf_backfill_events.py"):
-            records.append({"path": name, "pinned": {"type": "blob", "mode": "100644", "object_sha": "1" * 40, "size": 10577},
-                            "current": {"type": "blob", "mode": "100644", "object_sha": "2" * 40, "size": 21302},
-                            "disposition": "B", "rationale": "Keep excluded."})
+            records.append(
+                {
+                    "path": name,
+                    "pinned": {
+                        "type": "blob",
+                        "mode": "100644",
+                        "object_sha": "1" * 40,
+                        "size": 10577,
+                    },
+                    "current": {
+                        "type": "blob",
+                        "mode": "100644",
+                        "object_sha": "2" * 40,
+                        "size": 21302,
+                    },
+                    "disposition": "B",
+                    "rationale": "Keep excluded.",
+                }
+            )
         document = {"artifact_type": "source-inventory", "source": source, "files": records}
         self.put(path, json.dumps(document, indent=2) + "\n")
         self.base = self.commit("inventory base")
         records[0]["pinned"] = dict(records[0]["current"])
-        records[0]["current"] = {"type": "blob", "mode": "100644", "object_sha": "3" * 40, "size": 14817}
-        records[1]["current"] = {"type": "blob", "mode": "100644", "object_sha": "4" * 40, "size": 35417}
+        records[0]["current"] = {
+            "type": "blob",
+            "mode": "100644",
+            "object_sha": "3" * 40,
+            "size": 14817,
+        }
+        records[1]["current"] = {
+            "type": "blob",
+            "mode": "100644",
+            "object_sha": "4" * 40,
+            "size": 35417,
+        }
         source["pinned"] = source["current"]
         source["current"] = {"commit": "c" * 40}
         self.put(path, json.dumps(document, indent=2) + "\n")
         self.head = self.commit("inventory candidate")
         output = self.root / ".git/inventory-review.json"
-        result = guard.build_candidate_review_bundle(self.root, self.base, self.head, self.policy, output)
+        result = guard.build_candidate_review_bundle(
+            self.root, self.base, self.head, self.policy, output
+        )
         return json.loads(output.read_text()), result
 
     def test_inventory_context_keeps_record_identity_and_same_day_date(self) -> None:
@@ -4483,10 +4462,16 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
         context = bundle["source_inventory"][0]
         before = {item["path"]: item for item in context["base"]["files"]}
         after = {item["path"]: item for item in context["head"]["files"]}
-        self.assertEqual(after["backfill/SKILL.md"]["pinned"], before["backfill/SKILL.md"]["current"])
-        self.assertEqual(after["backfill/scripts/okf_backfill_events.py"]["pinned"],
-                         before["backfill/scripts/okf_backfill_events.py"]["pinned"])
-        self.assertEqual(context["base"]["source"]["retrieved_on"], context["head"]["source"]["retrieved_on"])
+        self.assertEqual(
+            after["backfill/SKILL.md"]["pinned"], before["backfill/SKILL.md"]["current"]
+        )
+        self.assertEqual(
+            after["backfill/scripts/okf_backfill_events.py"]["pinned"],
+            before["backfill/scripts/okf_backfill_events.py"]["pinned"],
+        )
+        self.assertEqual(
+            context["base"]["source"]["retrieved_on"], context["head"]["source"]["retrieved_on"]
+        )
         self.validate_bundle(bundle, digest=result["content_sha256"])
         bundle["source_inventory"][0]["head"]["files"][0]["path"] = "invented/path"
         with self.assertRaisesRegex(Exception, "digest changed"):
@@ -4498,14 +4483,23 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
         for changed in (
             [dict(context[0], path="unrelated.json")],
             context + context,
-            [{**context[0], "head": {"source": context[0]["head"]["source"],
-                                    "files": [{"path": "a", "rationale": "x" * 65536}]}}],
+            [
+                {
+                    **context[0],
+                    "head": {
+                        "source": context[0]["head"]["source"],
+                        "files": [{"path": "a", "rationale": "x" * 65536}],
+                    },
+                }
+            ],
         ):
             with self.subTest(context_kind=list(changed[0])), self.assertRaises(guard.GuardError):
                 guard.validate_source_inventory_context(changed, bundle["paths"])
-        with mock.patch.object(guard, "SOURCE_INVENTORY_CONTEXT_MAX_BYTES", 1):
-            with self.assertRaisesRegex(guard.GuardError, "exceeds 64 KiB"):
-                guard._build_source_inventory_context(self.root, self.base, self.head, bundle["paths"])
+        with (
+            mock.patch.object(guard, "SOURCE_INVENTORY_CONTEXT_MAX_BYTES", 1),
+            self.assertRaisesRegex(guard.GuardError, "exceeds 64 KiB"),
+        ):
+            guard._build_source_inventory_context(self.root, self.base, self.head, bundle["paths"])
 
     def test_inventory_and_skill_context_share_existing_budget(self) -> None:
         import pkstack_maintenance_guard as consumer_guard
@@ -4517,10 +4511,14 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardError, "combined review context exceeds 64 KiB"):
             guard.validate_combined_review_context(skills, inventory)
         bundle, _ = self.inventory_bundle()
-        combined_size = len(guard._review_json_bytes({
-            "skill_compatibility": bundle["skill_compatibility"],
-            "source_inventory": bundle["source_inventory"],
-        }))
+        combined_size = len(
+            guard._review_json_bytes(
+                {
+                    "skill_compatibility": bundle["skill_compatibility"],
+                    "source_inventory": bundle["source_inventory"],
+                }
+            )
+        )
         with (
             mock.patch.object(guard, "SKILL_REVIEW_CONTEXT_MAX_BYTES", combined_size - 1),
             mock.patch.object(consumer_guard, "SKILL_REVIEW_CONTEXT_MAX_BYTES", combined_size - 1),
@@ -4528,7 +4526,13 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
             with self.assertRaisesRegex(Exception, "combined review context exceeds 64 KiB"):
                 self.validate_bundle(bundle)
             with self.assertRaisesRegex(guard.GuardError, "combined review context exceeds 64 KiB"):
-                guard.build_candidate_review_bundle(self.root, self.base, self.head, self.policy, self.root / ".git/budget-bundle.json")
+                guard.build_candidate_review_bundle(
+                    self.root,
+                    self.base,
+                    self.head,
+                    self.policy,
+                    self.root / ".git/budget-bundle.json",
+                )
 
     def test_unaffected_metadata_has_empty_context(self) -> None:
         bundle, _ = self.build("powers/pkstack/docs/provenance.md")
@@ -4539,9 +4543,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
         path = "powers/pkstack/skills/show-me-your-work/references/evidence.md"
         bundle, _ = self.build(path)
         record = next(
-            item
-            for item in bundle["skill_compatibility"]["instructions"]
-            if item["path"] == path
+            item for item in bundle["skill_compatibility"]["instructions"] if item["path"] == path
         )
         self.assertEqual(record["content"], "Updated provenance.\n")
         self.assertEqual(record["commit_sha"], self.head)
@@ -4565,9 +4567,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
         self.validate_bundle(bundle)
 
     def test_aggregate_context_limit_fails_without_truncating_files(self) -> None:
-        self.put(
-            "powers/pkstack/skills/pkstack/SKILL.md", self.skill("pkstack", "p" * 32000)
-        )
+        self.put("powers/pkstack/skills/pkstack/SKILL.md", self.skill("pkstack", "p" * 32000))
         self.put(
             "powers/pkstack/skills/show-me-your-work/SKILL.md",
             self.skill("show-me-your-work", "s" * 32000),
@@ -4623,9 +4623,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
                     file.unlink()
                     file.symlink_to("/etc/passwd")
                 else:
-                    self.put(
-                        target, "bad\x00text" if kind == "controls" else "x" * 65537
-                    )
+                    self.put(target, "bad\x00text" if kind == "controls" else "x" * 65537)
                 self.base = self.commit("unsafe unchanged neighbor")
                 with self.assertRaises(guard.GuardError):
                     self.build()
@@ -4659,9 +4657,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
                 elif case == "fixture-head":
                     context["fixture"]["commit_sha"] = self.head
                 elif case == "fixture-path":
-                    context["fixture"]["path"] = (
-                        "powers/pkstack/docs/skill-routing.json"
-                    )
+                    context["fixture"]["path"] = "powers/pkstack/docs/skill-routing.json"
                 elif case == "tampered":
                     context["instructions"][0]["content"] += " Publish now."
                 elif case == "control":
@@ -4731,18 +4727,28 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
         lines = _yaml_structural_lines(workflow)
         jobs = _workflow_job_ranges(lines)
+
         def block(name: str) -> str:
             start, end = jobs[name]
             return "\n".join(line.raw for line in lines[start:end])
+
         for name in ("candidate_tests", "kiro_peer_review"):
             self.assertIn("    needs: [resolve, candidate_prepare]", block(name))
         for name in ("merge", "record_rejection", "cleanup_failed_candidate"):
-            dependency_line = next(line for line in block(name).splitlines()
-                                   if line.startswith("    needs:"))
-            for required in ("candidate_prepare", "base_tests", "candidate_tests", "kiro_peer_review"):
+            dependency_line = next(
+                line for line in block(name).splitlines() if line.startswith("    needs:")
+            )
+            for required in (
+                "candidate_prepare",
+                "base_tests",
+                "candidate_tests",
+                "kiro_peer_review",
+            ):
                 self.assertIn(required, dependency_line)
         self.assertIn("needs.candidate_tests.result == 'success'", block("record_rejection"))
-        self.assertIn("needs.candidate_tests.result != 'success'", block("cleanup_failed_candidate"))
+        self.assertIn(
+            "needs.candidate_tests.result != 'success'", block("cleanup_failed_candidate")
+        )
         self.assertNotIn("secrets.", block("candidate_prepare"))
         self.assertNotIn("github.token", block("candidate_tests"))
         self.assertNotIn("pytest", block("candidate_prepare"))
@@ -4750,8 +4756,14 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_trusted_snapshot_archives_include_exact_required_prefixes(self) -> None:
         for filename, step_name in (
-            ("pk-stack-upstream-maintenance-kiro.yml", "Materialize locked environments and trusted scripts"),
-            ("pk-stack-upstream-candidate.yml", "Snapshot immutable base controller and review guards"),
+            (
+                "pk-stack-upstream-maintenance-kiro.yml",
+                "Materialize locked environments and trusted scripts",
+            ),
+            (
+                "pk-stack-upstream-candidate.yml",
+                "Snapshot immutable base controller and review guards",
+            ),
         ):
             with self.subTest(workflow=filename):
                 workflow = (ROOT / ".github/workflows" / filename).read_text()
@@ -4770,11 +4782,16 @@ class PolicyAndWorkflowTests(unittest.TestCase):
     def test_trusted_inventory_preflight_leaves_snapshot_unchanged(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         commands = [
-            line.strip() for line in workflow.splitlines()
+            line.strip()
+            for line in workflow.splitlines()
             if line.strip().startswith("python3 ")
-            and any(name in line for name in (
-                "/test_validate_kiro_model_inventory.py", "/test_validate_kiro_maintenance_stream.py"
-            ))
+            and any(
+                name in line
+                for name in (
+                    "/test_validate_kiro_model_inventory.py",
+                    "/test_validate_kiro_maintenance_stream.py",
+                )
+            )
         ]
         self.assertEqual(len(commands), 2)
         for command in commands:
@@ -4782,34 +4799,55 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             following = workflow.split(command, 1)[1].split('chmod -R a-w "$TRUSTED_ROOT"', 1)[0]
             self.assertIn("validate-trusted-snapshot", following)
         candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
-        self.assertIn("python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'", candidate)
+        self.assertIn(
+            "python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'", candidate
+        )
 
         with tempfile.TemporaryDirectory() as directory:
             snapshot = Path(directory) / "trusted"
-            shutil.copytree(ROOT / ".github", snapshot / ".github",
-                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+            shutil.copytree(
+                ROOT / ".github",
+                snapshot / ".github",
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+            )
             profile = Path(".kiro/agents/pkstack-maintainer.json")
             (snapshot / profile).parent.mkdir(parents=True)
             shutil.copyfile(ROOT / profile, snapshot / profile)
 
             def inventory() -> dict[str, str]:
-                return {str(path.relative_to(snapshot)): hashlib.sha256(path.read_bytes()).hexdigest()
-                        for path in snapshot.rglob("*") if path.is_file()}
+                return {
+                    str(path.relative_to(snapshot)): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in snapshot.rglob("*")
+                    if path.is_file()
+                }
 
             before = inventory()
-            environment = {key: value for key, value in os.environ.items()
-                           if key not in {"PYTHONDONTWRITEBYTECODE", "PYTHONPYCACHEPREFIX"}}
+            environment = {
+                key: value
+                for key, value in os.environ.items()
+                if key not in {"PYTHONDONTWRITEBYTECODE", "PYTHONPYCACHEPREFIX"}
+            }
             # Apple Python relocates bytecode caches by default. Force Linux's
             # in-tree cache behavior so this regression cannot be masked locally.
-            runner = ("import runpy,sys; from pathlib import Path; sys.pycache_prefix=None; "
-                      "sys.argv=[sys.argv[1]]; sys.path.insert(0,str(Path(sys.argv[0]).parent)); "
-                      "runpy.run_path(sys.argv[0], run_name='__main__')")
+            runner = (
+                "import runpy,sys; from pathlib import Path; sys.pycache_prefix=None; "
+                "sys.argv=[sys.argv[1]]; sys.path.insert(0,str(Path(sys.argv[0]).parent)); "
+                "runpy.run_path(sys.argv[0], run_name='__main__')"
+            )
             for command in commands:
                 arguments = shlex.split(command)
                 result = subprocess.run(
-                    [sys.executable, *arguments[1:-1], "-c", runner,
-                     arguments[-1].replace("$TRUSTED_ROOT", str(snapshot))],
-                    env=environment, capture_output=True, text=True, timeout=30,
+                    [
+                        sys.executable,
+                        *arguments[1:-1],
+                        "-c",
+                        runner,
+                        arguments[-1].replace("$TRUSTED_ROOT", str(snapshot)),
+                    ],
+                    env=environment,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
                 )
                 self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(inventory(), before)
@@ -4846,7 +4884,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
         prompt = fixture["prompt"]
         self.assertIn(
-            "exactly and only the ordered filesystem operations enumerated in the current user prompt",
+            "exactly and only the ordered filesystem operations enumerated in the current "
+            "user prompt",
             prompt,
         )
         self.assertIn("Do not infer, retry, or add operations", prompt)
@@ -4907,7 +4946,9 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         detector = drift_detector_fixture()
         self.assertNotIn("drift_count", detector)
         self.assertNotIn("drift_count", document["prompt"])
-        required = "The immutable control plan action reconcile-source requires exactly one proposal"
+        required = (
+            "The immutable control plan action reconcile-source requires exactly one proposal"
+        )
         self.assertIn(required, document["prompt"])
         document["prompt"] = document["prompt"].replace(required, "Create no proposal")
         with tempfile.TemporaryDirectory() as temporary:
@@ -4936,7 +4977,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
     def test_workflow_supplies_date_from_same_day_trusted_inventory_retrieval(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
-        capture = '          retrieved_on=$(date -u +%F)\n'
+        capture = "          retrieved_on=$(date -u +%F)\n"
         boundary = '          if [[ "$(date -u +%F)" != "$retrieved_on" ]]; then\n'
         self.assertLess(workflow.index(capture), workflow.index("-m pkstack upstream check"))
         self.assertLess(workflow.index("validate-detector --detector"), workflow.index(boundary))
@@ -4947,16 +4988,22 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             workflow,
         )
         script = textwrap.dedent(
-            boundary + workflow.split(boundary, 1)[1].split("          fi\n", 1)[0]
+            boundary
+            + workflow.split(boundary, 1)[1].split("          fi\n", 1)[0]
             + "          fi\n"
         )
         for current_date, expected_rc in (("2026-09-05", 0), ("2026-09-06", 1)):
             with self.subTest(current_date=current_date):
                 result = subprocess.run(
-                    ["bash", "-c",
-                     f'retrieved_on=2026-09-05; date() {{ printf "%s\\n" {current_date}; }};\n'
-                     + script],
-                    capture_output=True, text=True, timeout=5,
+                    [
+                        "bash",
+                        "-c",
+                        f'retrieved_on=2026-09-05; date() {{ printf "%s\\n" {current_date}; }};\n'
+                        + script,
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
                 )
                 self.assertEqual(result.returncode, expected_rc, result.stderr)
 
@@ -5008,9 +5055,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             base_sha = subprocess.check_output(
                 ["git", "rev-parse", "HEAD"], cwd=root, text=True
             ).strip()
-            skill.write_text(
-                header + "changed operational instruction\n", encoding="utf-8"
-            )
+            skill.write_text(header + "changed operational instruction\n", encoding="utf-8")
             subprocess.run(["git", "add", "."], cwd=root, check=True)
             subprocess.run([*commit, "candidate"], cwd=root, check=True)
             head_sha = subprocess.check_output(
@@ -5025,9 +5070,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 bundle_path,
             )
             bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
-            self.assertEqual(
-                bundle["paths"], ["powers/pkstack/skills/example/SKILL.md"]
-            )
+            self.assertEqual(bundle["paths"], ["powers/pkstack/skills/example/SKILL.md"])
             self.assertTrue(bundle["requires_review"])
             self.assertEqual(bundle["base_sha"], base_sha)
             self.assertEqual(bundle["head_sha"], head_sha)
@@ -5143,10 +5186,10 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         for label, source in sources.items():
             with self.subTest(label=label):
                 payload_match = payload_pattern.search(source)
-                self.assertIsNotNone(payload_match)
+                payload_match = require_match(payload_match)
                 values = re.findall(
                     r'(?m)^\s*\'([^\']*)\'(?: \\| >"\$settings_path")$',
-                    payload_match.group("lines"),  # type: ignore[union-attr]
+                    payload_match.group("lines"),
                 )
                 payload = ("\n".join(values) + "\n").encode()
                 self.assertEqual(payload, KIRO_ISOLATED_SETTINGS)
@@ -5185,15 +5228,22 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             ("pk-stack-upstream-candidate.yml", "kiro-review-user-home"),
         ):
             workflow = (ROOT / ".github/workflows" / filename).read_text()
-            self.assertIn(f'printf \'KIRO_HOME=%s\\n\' "$RUNNER_TEMP/{home_name}/.kiro"', workflow)
-            self.assertIn(f'printf \'KIRO_USER_HOME=%s\\n\' "$RUNNER_TEMP/{home_name}"', workflow)
+            self.assertIn(f"printf 'KIRO_HOME=%s\\n' \"$RUNNER_TEMP/{home_name}/.kiro\"", workflow)
+            self.assertIn(f"printf 'KIRO_USER_HOME=%s\\n' \"$RUNNER_TEMP/{home_name}\"", workflow)
         self.assertEqual(setup.count('install -m 0600 "$trusted_agent"'), 1)
         self.assertEqual(setup.count('"$KIRO_HOME/agents/${agent_name}.json"'), 1)
         self.assertEqual(setup.count('settings_path="$KIRO_HOME/settings/cli.json"'), 1)
         marker = '[[ -f "$KIRO_ARCHIVE" && ! -L "$KIRO_ARCHIVE" ]]'
         self.assertEqual(setup.count(marker), 1)
         guards = setup.split(marker, maxsplit=1)[0]
-        for case in ("valid", "sibling_home", "existing_user", "symlink_user", "nested_user", "shared_bin_user"):
+        for case in (
+            "valid",
+            "sibling_home",
+            "existing_user",
+            "symlink_user",
+            "nested_user",
+            "shared_bin_user",
+        ):
             with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
                 runner = Path(temporary) / "runner"
                 runner.mkdir()
@@ -5209,14 +5259,21 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                     binary = user
                 kiro_home = runner / "kiro-home" if case == "sibling_home" else user / ".kiro"
                 environment = {
-                    "PATH": os.environ["PATH"], "RUNNER_TEMP": str(runner),
-                    "KIRO_BIN_DIR": str(binary), "KIRO_USER_HOME": str(user),
-                    "KIRO_HOME": str(kiro_home), "KIRO_ARCHIVE": str(runner / "archive"),
+                    "PATH": os.environ["PATH"],
+                    "RUNNER_TEMP": str(runner),
+                    "KIRO_BIN_DIR": str(binary),
+                    "KIRO_USER_HOME": str(user),
+                    "KIRO_HOME": str(kiro_home),
+                    "KIRO_ARCHIVE": str(runner / "archive"),
                     "TRUSTED_ROOT": str(runner / "trusted"),
                 }
                 result = subprocess.run(
-                    ["bash", "-c", guards], env=environment,
-                    capture_output=True, text=True, timeout=10, check=False,
+                    ["bash", "-c", guards],
+                    env=environment,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                    check=False,
                 )
                 self.assertEqual(result.returncode == 0, case == "valid", result.stderr)
                 self.assertFalse(binary.exists())
@@ -5229,12 +5286,22 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         preparation = workflow.split(marker, 1)[1].split("\n      - name: ", 1)[0]
         commands = [line.strip() for line in preparation.splitlines() if " agent validate " in line]
         self.assertEqual(len(commands), 1)
-        self.assertEqual(shlex.split(commands[0]), [
-            "env", "-i", "HOME=$KIRO_USER_HOME", "KIRO_HOME=$KIRO_HOME",
-            "PATH=$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin", "LANG=C.UTF-8",
-            "$KIRO_BIN_DIR/kiro-cli-chat", "agent", "validate", "--path",
-            "$TRUSTED_REVIEW_ROOT/.kiro/agents/pkstack-ci-reviewer.json",
-        ])
+        self.assertEqual(
+            shlex.split(commands[0]),
+            [
+                "env",
+                "-i",
+                "HOME=$KIRO_USER_HOME",
+                "KIRO_HOME=$KIRO_HOME",
+                "PATH=$KIRO_BIN_DIR:/usr/local/bin:/usr/bin:/bin",
+                "LANG=C.UTF-8",
+                "$KIRO_BIN_DIR/kiro-cli-chat",
+                "agent",
+                "validate",
+                "--path",
+                "$TRUSTED_REVIEW_ROOT/.kiro/agents/pkstack-ci-reviewer.json",
+            ],
+        )
         self.assertNotIn("KIRO_API_KEY", preparation)
         self.assertEqual(workflow.count('"$KIRO_BIN_DIR/kiro-cli" chat'), 2)
         validate_candidate_workflow_secret_contract(workflow)
@@ -5247,7 +5314,14 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         cleanup = textwrap.dedent(step.split("        run: |\n", maxsplit=1)[1])
         for targets in re.findall(r"(?m)^for target in (.*); do$", cleanup):
             self.assertNotIn('"$KIRO_HOME"', targets)
-        for case in ("valid", "sibling_home", "symlink_home", "symlink_user", "wrong_private", "file_bin"):
+        for case in (
+            "valid",
+            "sibling_home",
+            "symlink_home",
+            "symlink_user",
+            "wrong_private",
+            "file_bin",
+        ):
             with self.subTest(case=case), tempfile.TemporaryDirectory() as temporary:
                 runner = Path(temporary) / "runner"
                 runner.mkdir()
@@ -5279,13 +5353,18 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                     shutil.rmtree(roots["KIRO_BIN_DIR"])
                     roots["KIRO_BIN_DIR"].write_text("keep invalid file")
                 environment = {
-                    "PATH": os.environ["PATH"], "RUNNER_TEMP": str(runner),
+                    "PATH": os.environ["PATH"],
+                    "RUNNER_TEMP": str(runner),
                     "KIRO_HOME": str(kiro_home),
                     **{key: str(path) for key, path in roots.items()},
                 }
                 result = subprocess.run(
-                    ["bash", "-c", cleanup], env=environment,
-                    capture_output=True, text=True, timeout=10, check=False,
+                    ["bash", "-c", cleanup],
+                    env=environment,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                    check=False,
                 )
                 self.assertEqual(result.returncode == 0, case == "valid", result.stderr)
                 self.assertEqual(sentinel.read_text(), "keep")
@@ -5326,8 +5405,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         extra_direct_leak = workflow.replace(
             "      REVIEW_MODEL: claude-opus-5\n",
-            "      REVIEW_MODEL: claude-opus-5\n"
-            "      LEAK: ${{ secrets.KIRO_API_KEY }}\n",
+            "      REVIEW_MODEL: claude-opus-5\n      LEAK: ${{ secrets.KIRO_API_KEY }}\n",
             1,
         )
         anchor = workflow.replace(
@@ -5438,8 +5516,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         whole_step_bypass = anchored_step.replace(
             "      - name: Prepare repair 2 without workspace hooks\n",
-            "      - *kiro_repair_step\n"
-            "      - name: Prepare repair 2 without workspace hooks\n",
+            "      - *kiro_repair_step\n      - name: Prepare repair 2 without workspace hooks\n",
             1,
         )
         for bypass in (exact_bypass, whole_step_bypass):
@@ -5573,8 +5650,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
     def test_actionlint_valid_yaml_scalar_decoding_bypasses_are_rejected(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         plan_step = (
-            "      - name: Harden runner networking\n"
-            "        uses: step-security/harden-runner@"
+            "      - name: Harden runner networking\n        uses: step-security/harden-runner@"
         )
         self.assertEqual(workflow.count(plan_step), 4)
         self.assertLess(workflow.index(plan_step), workflow.index("\n  detect:\n"))
@@ -5605,27 +5681,24 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "exact-doubled-quote-counterexample": doubled_single_quote,
             "hex-escape": r'"\x24{{ toJSON(secrets) }}"',
             "long-unicode-escape": r'"\U00000024{{ toJSON(secrets) }}"',
-            "multiline-backslash-continuation": (
-                '"${{ toJSON(se\\\n'
-                "            crets) }}\""
-            ),
+            "multiline-backslash-continuation": ('"${{ toJSON(se\\\n            crets) }}"'),
             "multiline-double-quoted-escape": (
                 '"prefix\n'
                 r'            \u0024{{ toJSON(secrets) }}"'
             ),
             "multiline-single-quoted-escape": (
-                "'prefix\n"
-                "            ${{ ''}}'' && toJSON(secrets) }}'"
+                "'prefix\n            ${{ ''}}'' && toJSON(secrets) }}'"
             ),
         }
         for label, value in decoding_escapes.items():
-            with self.subTest(yaml_escape=label), self.assertRaisesRegex(
-                WorkflowContractError,
-                r"YAML .* escapes are forbidden",
+            with (
+                self.subTest(yaml_escape=label),
+                self.assertRaisesRegex(
+                    WorkflowContractError,
+                    r"YAML .* escapes are forbidden",
+                ),
             ):
-                validate_maintenance_workflow_security_contract(
-                    add_plan_step_env(value)
-                )
+                validate_maintenance_workflow_security_contract(add_plan_step_env(value))
 
         inert_comment = (
             "# inert YAML comment: "
@@ -5643,8 +5716,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         inert_block_scalar = workflow.replace(
             "            api.github.com:443\n",
             "            api.github.com:443\n"
-            r"            literal \u0024 and '' stay bytes in a block scalar"
-            + "\n",
+            r"            literal \u0024 and '' stay bytes in a block scalar" + "\n",
             1,
         )
         for label, mutated in {
@@ -5676,8 +5748,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                     "      - name: Unapproved credential context\n"
                     "        env:\n"
                     f"          UNAPPROVED: {payload}\n"
-                    "        run: echo guarded\n"
-                    + insertion_point,
+                    "        run: echo guarded\n" + insertion_point,
                     1,
                 )
                 self.assertNotEqual(mutated, workflow)
@@ -5689,9 +5760,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
 
         quoted_expression = workflow.replace(
             insertion_point,
-            '      - name: "${{ toJSON(secrets) }}"\n'
-            "        run: echo guarded\n"
-            + insertion_point,
+            '      - name: "${{ toJSON(secrets) }}"\n        run: echo guarded\n' + insertion_point,
             1,
         )
         block_scalar_expression = workflow.replace(
@@ -5705,9 +5774,12 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "quoted-yaml-scalar": quoted_expression,
             "block-scalar-shell-comment": block_scalar_expression,
         }.items():
-            with self.subTest(secret_access=label), self.assertRaisesRegex(
-                WorkflowContractError,
-                "secret context expressions must be exactly",
+            with (
+                self.subTest(secret_access=label),
+                self.assertRaisesRegex(
+                    WorkflowContractError,
+                    "secret context expressions must be exactly",
+                ),
             ):
                 validate_maintenance_workflow_security_contract(mutated)
 
@@ -5715,7 +5787,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "plain": "secrets.KIRO_API_KEY != ''",
             "bracket": "secrets['KIRO_API_KEY'] != ''",
             "serialized": "fromJSON(toJSON(secrets)).KIRO_API_KEY != ''",
-            "yaml-quoted": '"secrets[\'KIRO_API_KEY\'] != \'\'"',
+            "yaml-quoted": "\"secrets['KIRO_API_KEY'] != ''\"",
         }
         for label, condition in implicit_if_mutations.items():
             with self.subTest(implicit_if=label):
@@ -5723,8 +5795,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                     insertion_point,
                     "      - name: Unapproved implicit secret condition\n"
                     f"        if: {condition}\n"
-                    "        run: echo guarded\n"
-                    + insertion_point,
+                    "        run: echo guarded\n" + insertion_point,
                     1,
                 )
                 with self.assertRaisesRegex(
@@ -5738,8 +5809,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "      - name: Unapproved multiline secret condition\n"
             "        if: |\n"
             "          fromJSON(toJSON(secrets)).KIRO_API_KEY != ''\n"
-            "        run: echo guarded\n"
-            + insertion_point,
+            "        run: echo guarded\n" + insertion_point,
             1,
         )
         with self.assertRaisesRegex(
@@ -5759,8 +5829,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 insertion_point,
                 "      - name: ${{ 'literal toJSON(secrets)' }}\n"
                 "        run: |\n"
-                "          printf '%s\\n' 'literal toJSON(secrets)'\n"
-                + insertion_point,
+                "          printf '%s\\n' 'literal toJSON(secrets)'\n" + insertion_point,
                 1,
             ),
         )
@@ -5811,9 +5880,12 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "verbatim-tag": "tag",
         }
         for label, source in active_constructs.items():
-            with self.subTest(indirection=label), self.assertRaisesRegex(
-                WorkflowContractError,
-                rf"YAML {expected_construct[label]} syntax is forbidden",
+            with (
+                self.subTest(indirection=label),
+                self.assertRaisesRegex(
+                    WorkflowContractError,
+                    rf"YAML {expected_construct[label]} syntax is forbidden",
+                ),
             ):
                 _reject_yaml_indirection(_yaml_structural_lines(source))
 
@@ -5966,8 +6038,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 r".*?(?=^      - name: |\Z)",
                 kiro,
             )
-            self.assertIsNotNone(preparation)
-            preparation_step = preparation.group(0)  # type: ignore[union-attr]
+            preparation = require_match(preparation)
+            preparation_step = preparation.group(0)
             self.assertLess(
                 preparation_step.index("prepare-attempt"),
                 preparation_step.index('bash "$KIRO_SETUP_PATH"'),
@@ -5977,18 +6049,18 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 r".*?(?=^      - name: |\Z)",
                 kiro,
             )
-            self.assertIsNotNone(verification)
+            verification = require_match(verification)
             self.assertIn(
                 "READONLY_GITHUB_TOKEN: ${{ github.token }}",
-                verification.group(0),  # type: ignore[union-attr]
+                verification.group(0),
             )
             repair = re.search(
                 rf"(?ms)^      - name: Kiro repair {attempt} of 4\n"
                 r".*?(?=^      - name: |\Z)",
                 kiro,
             )
-            self.assertIsNotNone(repair)
-            repair_step = repair.group(0)  # type: ignore[union-attr]
+            repair = require_match(repair)
+            repair_step = repair.group(0)
             self.assertIn("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}", repair_step)
             self.assertNotIn("READONLY_GITHUB_TOKEN", repair_step)
         self.assertIn("needs.base_tests.result == 'success'", candidate)
@@ -6063,27 +6135,27 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             r".*?(?=^      - name: Remove every credential-smoke runtime and log)",
             smoke,
         )
-        self.assertIsNotNone(credential_prepare)
-        self.assertIsNotNone(credential_invoke)
+        credential_prepare = require_match(credential_prepare)
+        credential_invoke = require_match(credential_invoke)
         self.assertNotIn(
             "agent validate",
-            credential_prepare.group(0),  # type: ignore[union-attr]
+            credential_prepare.group(0),
         )
         self.assertIn(
             "agent validate",
-            credential_invoke.group(0),  # type: ignore[union-attr]
+            credential_invoke.group(0),
         )
         self.assertIn(
             'KIRO_API_KEY="$KIRO_API_KEY"',
-            credential_invoke.group(0),  # type: ignore[union-attr]
+            credential_invoke.group(0),
         )
         self.assertIn(
             "prompt='PK-STACK-KIRO-AUTH-OK'",
-            credential_invoke.group(0),  # type: ignore[union-attr]
+            credential_invoke.group(0),
         )
         self.assertNotIn(
             "Authentication smoke only. Invoke no tools",
-            credential_invoke.group(0),  # type: ignore[union-attr]
+            credential_invoke.group(0),
         )
         embedded_agent = re.search(
             r"(?ms)^          CI_AGENT_BASE64: \|-\n"
@@ -6091,11 +6163,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             r"^        run:",
             smoke,
         )
-        self.assertIsNotNone(embedded_agent)
-        encoded = "".join(
-            line.strip()
-            for line in embedded_agent.group("body").splitlines()  # type: ignore[union-attr]
-        )
+        embedded_agent = require_match(embedded_agent)
+        encoded = "".join(line.strip() for line in embedded_agent.group("body").splitlines())
         credential_agent_raw = base64.b64decode(encoded, validate=True)
         credential_agent = json.loads(credential_agent_raw)
         self.assertEqual(
@@ -6121,9 +6190,9 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             (ROOT / ".kiro/agents/pkstack-maintainer.json").read_bytes(),
         )
         embedded_agent_sha = re.search(r"(?m)^          CI_AGENT_SHA256: ([0-9a-f]{64})$", smoke)
-        self.assertIsNotNone(embedded_agent_sha)
+        embedded_agent_sha = require_match(embedded_agent_sha)
         self.assertEqual(
-            embedded_agent_sha.group(1),  # type: ignore[union-attr]
+            embedded_agent_sha.group(1),
             hashlib.sha256(credential_agent_raw).hexdigest(),
         )
         self.assertIn(
@@ -6131,9 +6200,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             smoke,
         )
         self.assertEqual(
-            smoke.count(
-                "$SMOKE_ROOT/workspace/.kiro/agents/pkstack-credential-smoke.json"
-            ),
+            smoke.count("$SMOKE_ROOT/workspace/.kiro/agents/pkstack-credential-smoke.json"),
             3,
         )
         self.assertNotIn(
@@ -6145,32 +6212,22 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             smoke,
         )
         self.assertLess(
-            credential_prepare.group(0).index(  # type: ignore[union-attr]
+            credential_prepare.group(0).index(
                 "$SMOKE_ROOT/workspace/.kiro/agents/pkstack-credential-smoke.json"
             ),
-            credential_prepare.group(0).index(  # type: ignore[union-attr]
-                'find "$SMOKE_ROOT/workspace" -type f -print0'
-            ),
+            credential_prepare.group(0).index('find "$SMOKE_ROOT/workspace" -type f -print0'),
         )
         self.assertLess(
-            credential_prepare.group(0).index(  # type: ignore[union-attr]
-                'find "$SMOKE_ROOT/workspace" -type f -print0'
-            ),
-            credential_prepare.group(0).index(  # type: ignore[union-attr]
-                'chmod -R a-w "$SMOKE_ROOT/workspace"'
-            ),
+            credential_prepare.group(0).index('find "$SMOKE_ROOT/workspace" -type f -print0'),
+            credential_prepare.group(0).index('chmod -R a-w "$SMOKE_ROOT/workspace"'),
         )
         self.assertIn(
-            "grep -Fq 'not found, using \"default\"' \"$stderr\"",
-            credential_invoke.group(0),  # type: ignore[union-attr]
+            'grep -Fq \'not found, using "default"\' "$stderr"',
+            credential_invoke.group(0),
         )
         self.assertLess(
-            credential_invoke.group(0).index(  # type: ignore[union-attr]
-                "grep -Fq 'not found, using \"default\"'"
-            ),
-            credential_invoke.group(0).index(  # type: ignore[union-attr]
-                "actual_workspace_sha256="
-            ),
+            credential_invoke.group(0).index("grep -Fq 'not found, using \"default\"'"),
+            credential_invoke.group(0).index("actual_workspace_sha256="),
         )
         embedded_validator = re.search(
             r"(?ms)^          STREAM_VALIDATOR_BASE64: \|-\n"
@@ -6178,19 +6235,18 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             r"^          CI_AGENT_BASE64:",
             smoke,
         )
-        self.assertIsNotNone(embedded_validator)
+        embedded_validator = require_match(embedded_validator)
         encoded_validator = "".join(
-            line.strip()
-            for line in embedded_validator.group("body").splitlines()  # type: ignore[union-attr]
+            line.strip() for line in embedded_validator.group("body").splitlines()
         )
         embedded_validator_raw = base64.b64decode(encoded_validator, validate=True)
         self.assertEqual(embedded_validator_raw, STREAM_GUARD_PATH.read_bytes())
         embedded_validator_sha = re.search(
             r"(?m)^          STREAM_VALIDATOR_SHA256: ([0-9a-f]{64})$", smoke
         )
-        self.assertIsNotNone(embedded_validator_sha)
+        embedded_validator_sha = require_match(embedded_validator_sha)
         self.assertEqual(
-            embedded_validator_sha.group(1),  # type: ignore[union-attr]
+            embedded_validator_sha.group(1),
             hashlib.sha256(embedded_validator_raw).hexdigest(),
         )
         self.assertIn("workflow_dispatch:", permission_smoke)
@@ -6205,7 +6261,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             permission_smoke,
         )
         self.assertIn(
-            '$workspace/.kiro/agents/pkstack-permission-fixture.json',
+            "$workspace/.kiro/agents/pkstack-permission-fixture.json",
             permission_smoke,
         )
         self.assertNotIn(
@@ -6265,11 +6321,9 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn('"$case_root/runtime"', permission_smoke)
         self.assertIn('"$case_root/logs"', permission_smoke)
         self.assertIn('test ! -e "$case_root/user-home/.kiro"', permission_smoke)
-        self.assertIn(
-            'find "$case_root" ! -type d ! -type f -print -quit', permission_smoke
-        )
+        self.assertIn('find "$case_root" ! -type d ! -type f -print -quit', permission_smoke)
         self.assertGreaterEqual(
-            permission_smoke.count('find . ! -type d ! -type f -print -quit'), 3
+            permission_smoke.count("find . ! -type d ! -type f -print -quit"), 3
         )
         for path, _ in permission_stream_guard.ALLOWED_WRITES:
             self.assertIn(path, permission_smoke)
@@ -6277,11 +6331,9 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             r"(?ms)^          denied_resources=\(\n(?P<body>.*?)^          \)\n",
             permission_smoke,
         )
-        self.assertIsNotNone(denied_block)
+        denied_block = require_match(denied_block)
         denied_resources = tuple(
-            line.strip()
-            for line in denied_block.group("body").splitlines()  # type: ignore[union-attr]
-            if line.strip()
+            line.strip() for line in denied_block.group("body").splitlines() if line.strip()
         )
         self.assertEqual(denied_resources, permission_stream_guard.DENIED_RESOURCES)
         for path in permission_stream_guard.DENIED_RESOURCES:
@@ -6293,10 +6345,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertIn('cmp "$SMOKE_ROOT/template-files.txt"', permission_smoke)
         self.assertIn('cmp "$SMOKE_ROOT/allowed-files.txt"', permission_smoke)
-        self.assertGreaterEqual(
-            permission_smoke.count('"$SMOKE_ROOT/template-directories.txt"'), 3
-        )
-        self.assertIn('actual-directories.txt', permission_smoke)
+        self.assertGreaterEqual(permission_smoke.count('"$SMOKE_ROOT/template-directories.txt"'), 3)
+        self.assertIn("actual-directories.txt", permission_smoke)
         self.assertIn('chmod -R a-w "$GITHUB_WORKSPACE"', permission_smoke)
         self.assertNotIn("git status --porcelain=v1 --untracked-files=all", permission_smoke)
         self.assertNotIn('test -z "$(git status', permission_smoke)
@@ -6398,7 +6448,10 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self,
     ) -> None:
         for trailing_space in (False, True):
-            with self.subTest(trailing_space=trailing_space), tempfile.TemporaryDirectory() as temporary:
+            with (
+                self.subTest(trailing_space=trailing_space),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
                 sandbox = Path(temporary)
                 root = sandbox / "repo"
                 manifest = root / "maintenance/upstreams.json"
@@ -6582,9 +6635,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             guard._remove_git_state(root, git_state)
 
 
-@unittest.skipUnless(
-    shutil.which("bash") and shutil.which("jq"), "requires bash and jq"
-)
+@unittest.skipUnless(shutil.which("bash") and shutil.which("jq"), "requires bash and jq")
 class ProposalCliContractTests(unittest.TestCase):
     SENTINEL = "UNTRUSTED_PROPOSAL_SECRET_LIKE_VALUE_123"
 
@@ -6603,9 +6654,7 @@ class ProposalCliContractTests(unittest.TestCase):
         proposal_path.parent.mkdir()
         ledger_path = root / "maintenance/upstream-reviews.json"
         ledger_path.parent.mkdir()
-        ledger_path.write_text(
-            json.dumps(review_ledger_fixture(detector)), encoding="utf-8"
-        )
+        ledger_path.write_text(json.dumps(review_ledger_fixture(detector)), encoding="utf-8")
 
         for source in detector["sources"]:
             provenance = root / source["provenance_path"]
@@ -6614,10 +6663,10 @@ class ProposalCliContractTests(unittest.TestCase):
             if source["id"] == selected_source_id and case != "missing_marker":
                 pending = pending_marker_line(detector, source_id=source["id"])
                 if case == "noncanonical_marker":
-                    pending = pending.replace('\":', '\": ', 1)
+                    pending = pending.replace('":', '": ', 1)
                 elif case == "nested_marker_json":
                     pending = (
-                        "<!-- pk-stack-upstream-review: {\"source_id\":"
+                        '<!-- pk-stack-upstream-review: {"source_id":'
                         + "[" * 1500
                         + json.dumps(self.SENTINEL)
                         + "]" * 1500
@@ -6630,9 +6679,7 @@ class ProposalCliContractTests(unittest.TestCase):
                     marker["source_id"] = self.SENTINEL
                     pending = review_marker_line(marker)
                 markers.append(pending)
-            provenance.write_text(
-                "# Provenance\n\n" + "\n".join(markers) + "\n", encoding="utf-8"
-            )
+            provenance.write_text("# Provenance\n\n" + "\n".join(markers) + "\n", encoding="utf-8")
 
         if case == "wrong_source":
             proposal["source_id"] = self.SENTINEL
@@ -6655,11 +6702,7 @@ class ProposalCliContractTests(unittest.TestCase):
             raw_proposal = '{"source_id":'
         elif case == "nested_proposal_json":
             raw_proposal = (
-                '{"source_id":'
-                + "[" * 1500
-                + json.dumps(self.SENTINEL)
-                + "]" * 1500
-                + "}"
+                '{"source_id":' + "[" * 1500 + json.dumps(self.SENTINEL) + "]" * 1500 + "}"
             )
         elif case == "oversized_integer_json":
             raw_proposal = "{" + json.dumps(self.SENTINEL) + ":" + "9" * 5000 + "}"
@@ -6683,12 +6726,12 @@ class ProposalCliContractTests(unittest.TestCase):
                 "pipefail",
                 "-c",
                 textwrap.dedent("""\
-                    set -euo pipefail
-                    "$1" -B "$2" --root "$3" --policy "$4" validate-proposal \\
-                      --detector "$5" --proposal "$6" --selected-source-id "$7" \\
-                      | tee "$9" \\
-                      | jq -e --arg source_id "$7" --arg expected_head "$8" \\
-                        '.ok == true and .source_id == $source_id and .expected_head == $expected_head'
+                set -euo pipefail
+                "$1" -B "$2" --root "$3" --policy "$4" validate-proposal \\
+                  --detector "$5" --proposal "$6" --selected-source-id "$7" \\
+                  | tee "$9" \\
+                  | jq -e --arg source_id "$7" --arg expected_head "$8" \\
+                    '.ok == true and .source_id == $source_id and .expected_head == $expected_head'
                 """),
                 "proposal-cli-contract",
                 sys.executable,

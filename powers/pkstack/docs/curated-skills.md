@@ -2,7 +2,7 @@
 
 PKStack began with Poteto’s pstack workflows. The friends add specific jobs:
 HumanLayer’s visual explanations and control-loop methods, Matt Pocock’s
-agent-facing writing and decision interviews, and Archify’s diagram renderer. This is a selection of
+agent-facing writing and decision interviews, Archify’s diagram renderer, and Astral’s Python tooling. This is a selection of
 reviewed skills, not a promise to install every upstream plugin.
 
 ## What came from where
@@ -12,6 +12,7 @@ reviewed skills, not a promise to install every upstream plugin.
 | [Poteto’s pstack in Cursor plugins](https://github.com/cursor/plugins/tree/main/pstack) | Engineering workflows, verification, reviews, and principles | Preserve the working method; use Kiro’s native planning and subagents in place of Cursor-specific orchestration. [Full mapping](upstream-skill-parity.md). |
 | [HumanLayer skills](https://github.com/humanlayer/skills) | `show-me`, `design-control-loop`, `build-iterated-agentic-loop`, `narrow-react-prop-types` | Visual explanations, bounded automation, and live-call-site type narrowing. Replace provider-specific execution and broad permissions with the Kiro boundary. |
 | [Matt Pocock skills](https://github.com/mattpocock/skills) | `writing-for-agents`, `grilling`, `grill-me`, `domain-modeling`, `grill-with-docs` | Clear agent instructions, focused decision interviews, and reusable project definitions and decisions. Native skills remain outside Wiki; only their project knowledge output belongs there. |
+| [Astral](https://github.com/astral-sh/claude-code-plugins) | `uv`, `ruff`, `ty` | Project-aware Python environments, scripting, lint/format, and typing; [reviewed Kiro adaptations](astral-python-provenance.md). |
 | [Archify](https://github.com/tt-a1i/archify) | `archify` and its reviewed renderer | Produce validated diagrams without installing a renderer on each run. Keep the Kiro wrapper and documented PKStack runtime patches distinct from the pinned upstream source. |
 | [OKF skills](https://github.com/scaccogatto/okf-skills) | Durable knowledge-working methods in `/okf` | Produce, maintain, and consume the project Wiki. Exclude transcript backfill, upstream executables, hooks, and MCP activation. |
 | [Google’s OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) | Knowledge format semantics | Keep the format source independent from knowledge-working methods. Local validation checks minimal metadata and Markdown links; Kiro ACP supplies bounded retrieval. |
@@ -43,6 +44,8 @@ Use `/pkstack` for the overall task. A helper should contribute a distinct outpu
 | Understand an existing system | `how` for mechanics, `why` for rationale; `teach` composes those findings |
 | Design an automation | `design-control-loop`, then `build-iterated-agentic-loop` when implementation is requested |
 | Finish the current task | `pkstack-verified-goal`; it does not build a scheduler |
+| Manage Python environments and scripts | `uv`; preserve project locks and standalone dependency boundaries |
+| Lint, format, and type-check Python | `ruff` and `ty`; keep behavioral verification in the existing task |
 | Tighten React props | `narrow-react-prop-types`, grounded in live call sites |
 
 Approved implementation plans capture reusable definitions and decisions at the first permitted
@@ -94,3 +97,9 @@ recommended workflow merges follow acceptance of the knowledge lifecycle; they a
 represented as installed by this registry.
 
 The Archify bundle is offline-capable on Node.js 18 or newer. The Node capability is optional to the broader Power and is reported as a doctor warning when unavailable. Network access is denied by default; brand capture requires explicit user authorization and an official URL.
+
+## Astral Python tools
+
+The `uv`, `ruff`, and `ty` skills are ported from [Astral](https://github.com/astral-sh/claude-code-plugins/tree/f3ce88a7ba830f53afd6d944c1d0278ed318e142).
+Their [provenance and adaptations](astral-python-provenance.md) retain upstream identities and
+separate Kiro skill behavior from Claude plugin installation and language-server configuration.

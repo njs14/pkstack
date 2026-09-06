@@ -101,9 +101,7 @@ def _validate_model_event(events: list[dict[str, Any]], expected_model: str) -> 
         or any(model not in {"auto", expected_model} for model in current_models)
         or not advertised
     ):
-        raise ReviewError(
-            "Kiro stream did not bind the peer review to the required model"
-        )
+        raise ReviewError("Kiro stream did not bind the peer review to the required model")
 
 
 def _validate_agent_event(events: list[dict[str, Any]]) -> None:
@@ -124,9 +122,7 @@ def _validate_agent_event(events: list[dict[str, Any]]) -> None:
         or REQUIRED_AGENT not in current_modes
         or any(mode not in {"vibe", REQUIRED_AGENT} for mode in current_modes)
     ):
-        raise ReviewError(
-            "Kiro stream did not bind the peer review to the required agent"
-        )
+        raise ReviewError("Kiro stream did not bind the peer review to the required agent")
 
 
 def _validate_bundle(
@@ -386,10 +382,7 @@ def validate(args: argparse.Namespace) -> dict[str, str]:
         }
         validate_report(report)
         encoded = (
-            json.dumps(
-                report, sort_keys=True, separators=(",", ":"), ensure_ascii=False
-            )
-            + "\n"
+            json.dumps(report, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n"
         ).encode()
         if encoded_key in encoded:
             raise ReviewError("Kiro sanitized review report contained the API key")

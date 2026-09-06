@@ -585,6 +585,32 @@ retaining a Cursor-era fixed-model role:
 | Routine multi-step implementation | GPT-5.6 Terra | Prefer the balanced 1.0x tier when peak Sol capability is unnecessary. |
 | High-frequency bounded work | GPT-5.6 Luna | Prefer the 0.1x tier when speed and credit efficiency matter most. |
 
+### Auto as its own model selection
+
+Auto is a first-class Kiro model choice with Kiro-managed routing and fallback. It is not an
+alias for an unspecified user choice or a fixed underlying model. Kiro recommends it for general
+development and lists a 1.0x credit multiplier. The model overview does not specify a fixed Auto
+context window. Kiro describes Sonnet-class-or-better quality for free tiers and Opus-class-or-better
+for paid tiers; those are provider positioning claims, not PKStack benchmark results.
+
+Auto has its own allow/block governance setting. Its internal router can use generally available
+models in-region regardless of an administrator's individual-model allowlist; experimental models
+are excluded. Where an exact approved provider/model is required, select that approved model.
+
+PKStack preserves the selected `auto` identity in retrieval receipts. The existing
+`resolved_model: null` means **underlying model not disclosed**, not **selection unknown**.
+Report the selection as **Auto (Kiro-managed routing)** and keep underlying identity and internal
+token use unknown unless runtime evidence actually supplies them. Auto's effort capabilities must
+come from the active Kiro picker; do not borrow Sol or Opus effort settings. Ordinary PKStack
+work leaves the user's selection unchanged.
+
+Verified 2026-09-06 against [Kiro's model overview](https://kiro.dev/docs/models/),
+[Auto's description](https://kiro.dev/docs/models/available-models/#auto-recommended), and
+[reasoning effort](https://kiro.dev/docs/models/effort/). This documentation establishes product
+semantics, not which underlying model processed a particular native-session test.
+
+### Explicit model effort
+
 The GPT-5.6 effort schema documents `none`, `low`, `medium`, `high`, `xhigh`,
 and `max`, with `high` as the default. This installed CLI's help exposed
 `low` through `max`; it did not establish `none` locally. Kiro exposes effort

@@ -80,6 +80,7 @@ REQUIRED_POWER_ASSETS = (
     "dev.kiro/steering/pkstack-core.md",
     "dev.kiro/steering/pkstack-safety.md",
     "dev.kiro/steering/pkstack-typescript.md",
+    "dev.kiro/steering/pkstack-python.md",
     "dev.kiro/steering/pkstack-unslop.md",
     "templates/project/.kiro/agents/pkstack.json",
     "templates/project/.kiro/agents/pkstack-architect.json",

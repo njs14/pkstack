@@ -56,7 +56,11 @@
       "powers/pkstack/dev.kiro/**/*.md",
       "powers/pkstack/docs/**/*.md",
       "powers/pkstack/skills/**/*.md",
-      "powers/pkstack/templates/project/**/*.json"
+      "powers/pkstack/templates/project/**/*.json",
+      "powers/pkstack/docs/astral-python-source-parity.json",
+      "powers/pkstack/docs/astral-uv-bundle-manifest.json",
+      "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
+      "powers/pkstack/docs/astral-ty-bundle-manifest.json"
     ],
     "deny_patterns": [
       ".github/**",
@@ -144,7 +148,11 @@
     "powers/pkstack/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
     "powers/pkstack/docs/tt-a1i-archify-bundle-manifest.json",
     "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
-    "powers/pkstack/docs/upstream-skill-parity.json"
+    "powers/pkstack/docs/upstream-skill-parity.json",
+    "powers/pkstack/docs/astral-python-source-parity.json",
+    "powers/pkstack/docs/astral-uv-bundle-manifest.json",
+    "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
+    "powers/pkstack/docs/astral-ty-bundle-manifest.json"
   ],
   "agent_allowed_prefixes": {
     "powers/pkstack/dev.kiro/": [
@@ -190,7 +198,11 @@
     "powers/pkstack/docs/tt-a1i-archify-bundle-manifest.json",
     "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
     "powers/pkstack/docs/upstream-skill-parity.json",
-    "projectctl"
+    "projectctl",
+    "powers/pkstack/docs/astral-python-source-parity.json",
+    "powers/pkstack/docs/astral-uv-bundle-manifest.json",
+    "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
+    "powers/pkstack/docs/astral-ty-bundle-manifest.json"
   ],
   "final_allowed_prefixes": {
     ".kiro/agents/": [

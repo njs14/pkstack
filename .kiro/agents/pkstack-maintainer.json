@@ -61,7 +61,11 @@
           "powers/pkstack/dev.kiro/**/*.md",
           "powers/pkstack/docs/**/*.md",
           "powers/pkstack/skills/**/*.md",
-          "powers/pkstack/templates/project/**/*.json"
+          "powers/pkstack/templates/project/**/*.json",
+          "powers/pkstack/docs/astral-python-source-parity.json",
+          "powers/pkstack/docs/astral-uv-bundle-manifest.json",
+          "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
+          "powers/pkstack/docs/astral-ty-bundle-manifest.json"
         ],
         "effect": "allow"
       },

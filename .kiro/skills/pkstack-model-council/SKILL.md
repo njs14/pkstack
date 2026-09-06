@@ -13,6 +13,12 @@ Give every reviewer the same intent, relevant diff or artifact, constraints, ver
 
 Native Kiro sub-agents can provide independent review passes, but that is a Kiro review panel, not proof of model diversity. Do not label reviews as different models unless the returned execution metadata identifies different models.
 
+Record **Auto (Kiro-managed routing)** as its own selected model option when Kiro reports
+`auto`. Keep that known selection distinct from an undisclosed underlying model. An Auto
+review is a separate review pass; without underlying execution identity it does not prove a
+different provider participated. Do not rename Auto as an unknown selection or copy another
+model's effort capabilities onto it.
+
 ## Optional external reviewers
 
 Fable, Grok, or another external reviewer is optional and advisory. It is not a Kiro-native model runtime. Invoke it only when the user requested it and the required local command or integration is already available.

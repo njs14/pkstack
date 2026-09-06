@@ -1,0 +1,100 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "78c767215c8152b55d5d832d2b8e841b021516ef",
+        "size": 669,
+        "type": "blob"
+      },
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "78c767215c8152b55d5d832d2b8e841b021516ef",
+        "size": 669,
+        "type": "blob"
+      },
+      "path": ".claude-plugin/plugin.json",
+      "disposition": "C",
+      "rationale": "Claude plugin metadata and automatic ty LSP configuration are excluded from the Kiro Power."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "9cc1061821c59a96e04acdef2e2e1342b79ca406",
+        "size": 3989,
+        "type": "blob"
+      },
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "9cc1061821c59a96e04acdef2e2e1342b79ca406",
+        "size": 3989,
+        "type": "blob"
+      },
+      "path": "skills/ruff/SKILL.md",
+      "disposition": "A",
+      "rationale": "Adapted to native Kiro skills with locked project tools, scoped composition, bootstrap compatibility, and corrected interpreter selection; no global installation or automatic LSP."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "8841bc4a8f89aba3b9b32639c2d4b16fdddcf075",
+        "size": 3180,
+        "type": "blob"
+      },
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "8841bc4a8f89aba3b9b32639c2d4b16fdddcf075",
+        "size": 3180,
+        "type": "blob"
+      },
+      "path": "skills/ty/SKILL.md",
+      "disposition": "A",
+      "rationale": "Adapted to native Kiro skills with locked project tools, scoped composition, bootstrap compatibility, and corrected interpreter selection; no global installation or automatic LSP."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "077bf2c2f7deb9ec23da34873e1c7548d462ef59",
+        "size": 3952,
+        "type": "blob"
+      },
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "077bf2c2f7deb9ec23da34873e1c7548d462ef59",
+        "size": 3952,
+        "type": "blob"
+      },
+      "path": "skills/uv/SKILL.md",
+      "disposition": "A",
+      "rationale": "Adapted to native Kiro skills with locked project tools, scoped composition, bootstrap compatibility, and corrected interpreter selection; no global installation or automatic LSP."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "f3ce88a7ba830f53afd6d944c1d0278ed318e142",
+      "subtree_sha": "8cc1cb9f539f90fd98efa4be3857c6d74fd8d839"
+    },
+    "id": "astral-python",
+    "path": "plugins/astral",
+    "pinned": {
+      "commit": "f3ce88a7ba830f53afd6d944c1d0278ed318e142",
+      "subtree_sha": "8cc1cb9f539f90fd98efa4be3857c6d74fd8d839"
+    },
+    "repository": "astral-sh/claude-code-plugins",
+    "retrieved_on": "2026-09-06"
+  },
+  "summary": {
+    "A": 3,
+    "B": 0,
+    "C": 1,
+    "current_files": 4,
+    "pinned_files": 4
+  }
+}

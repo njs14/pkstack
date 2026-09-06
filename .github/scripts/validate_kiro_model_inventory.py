@@ -109,14 +109,10 @@ def validate_inventory_bytes(raw: bytes, *, require_review_model: bool = False) 
     if len(sol_entries) != 1:
         raise InventoryError("model inventory must contain exactly one gpt-5.6-sol entry")
     if not _within_model_budget(sol_entries[0], EXPECTED_MODEL):
-        raise InventoryError(
-            "gpt-5.6-sol no longer meets the approved context and cost contract"
-        )
+        raise InventoryError("gpt-5.6-sol no longer meets the approved context and cost contract")
     if require_review_model:
         if len(review_entries) != 1:
-            raise InventoryError(
-                "model inventory must contain exactly one claude-opus-5 entry"
-            )
+            raise InventoryError("model inventory must contain exactly one claude-opus-5 entry")
         if not _within_model_budget(review_entries[0], EXPECTED_REVIEW_MODEL):
             raise InventoryError("claude-opus-5 no longer matches the approved review contract")
 

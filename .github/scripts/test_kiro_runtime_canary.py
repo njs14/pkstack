@@ -14,6 +14,7 @@ import tarfile
 import tempfile
 import unittest
 from pathlib import Path
+from types import TracebackType
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,7 +48,12 @@ class FakeResponse(io.BytesIO):
     def __enter__(self):
         return self
 
-    def __exit__(self, *args: object) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         self.close()
 
 

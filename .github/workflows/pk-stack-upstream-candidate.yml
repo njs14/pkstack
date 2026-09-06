@@ -199,12 +199,11 @@ jobs:
           .pkstack/bin/projectctl knowledge validate --output json
           python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
           node --test .github/scripts/test_pkstack_pr_policy.js
+          # One shared entrypoint covers every maintained Power, root and embedded
+          # Python surface, including `uv lock --check`.
+          python3 -B .github/scripts/pkstack_python_static.py --repo-root .
           (
             cd powers/pkstack
-            uv lock --check
-            uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-            uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-            uv run --frozen ty check
             uv run --frozen pytest -q
           )
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
@@ -452,12 +451,11 @@ jobs:
           # maintenance guard and stream regressions, once each.
           python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
           node --test .github/scripts/test_pkstack_pr_policy.js
+          # One shared entrypoint covers every maintained Power, root and embedded
+          # Python surface, including `uv lock --check`.
+          python3 -B .github/scripts/pkstack_python_static.py --repo-root .
           (
             cd powers/pkstack
-            uv lock --check
-            uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-            uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-            uv run --frozen ty check
             uv run --frozen pytest -q
           )
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
