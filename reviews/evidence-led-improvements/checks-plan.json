@@ -1,0 +1,25 @@
+{
+  "base": null,
+  "browser_profile": "full",
+  "changes": [],
+  "commit": "8889057c351e823bc952946b28fe441caafa8f2d",
+  "config_digest": "25ef258c5470a850e566335f36025b5080cdc9763e28be5866d74534948c71f2",
+  "event": "local",
+  "profile": "normal",
+  "run_attempt": "1",
+  "run_id": "local",
+  "scheduled": [
+    "fast",
+    "browser",
+    "package",
+    "core-0",
+    "core-1",
+    "core-2",
+    "core-3",
+    "core-4",
+    "core-5",
+    "policy"
+  ],
+  "schema": 1,
+  "unscheduled": []
+}
