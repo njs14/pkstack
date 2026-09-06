@@ -169,7 +169,7 @@
     ".pkstack/projectctl/src/pkstack/goal.py": "653b2a5b8990ff13974b3d40b11c0ff674ff5f7b6249ca0db1eab582fe4f9674",
     ".pkstack/projectctl/src/pkstack/knowledge.py": "d6cffd89da1db3baab864187dce604fa8e1667913ae13215fcf6a79e5993d493",
     ".pkstack/projectctl/src/pkstack/knowledge_acp.py": "cac36059ce245a11d523b5bfd28addbdee42937d82bfe6a81270edfe3614575f",
-    ".pkstack/projectctl/src/pkstack/knowledge_links.py": "86b6ba20d71eb6872f509389033d719cf16af425ae69546c035621521056bf99",
+    ".pkstack/projectctl/src/pkstack/knowledge_links.py": "a6be89c6f0a2b4485d609e571fc7e73f4f47a066d9221d6b00e750a7f4c7a3ee",
     ".pkstack/projectctl/src/pkstack/knowledge_payload.py": "f9982833870e13d7d313831b14c6a3e23832e386d5285c8a7afe13b2d0e4fed2",
     ".pkstack/projectctl/src/pkstack/knowledge_runtime_bridge.py": "24d05fa2a21c5c0b8c400b0d091eeabd362fe5365c3d2d2c244979dd4c47818c",
     ".pkstack/projectctl/src/pkstack/models.py": "610a3f587346c5e06e1e8bad289a21b6b62b0b5ba5f76a13b6a086991c9c71b2",

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlsplit
@@ -151,6 +152,13 @@ def validate_local_links(root: Path, knowledge_root: Path) -> dict[str, Any]:
     work = wiki / "work"
     paths = _documents(root, knowledge_root)
     parser = MarkdownIt("commonmark")
+
+    # Reuse parsing only: every link still gets a fresh bounded read and path
+    # validation. Key by content so edits within a run cannot reuse stale anchors.
+    @lru_cache(maxsize=8)
+    def heading_anchors(text: str) -> set[str]:
+        return _heading_anchors(text, parser)
+
     issues: list[dict[str, str]] = []
     documents = 0
     links = 0
@@ -180,7 +188,7 @@ def validate_local_links(root: Path, knowledge_root: Path) -> dict[str, Any]:
                     target_text = _read_bounded_bytes(
                         target, limit=MAX_KNOWLEDGE_DOCUMENT_BYTES, label="linked Markdown"
                     ).decode("utf-8", errors="strict")
-                    if fragment not in _heading_anchors(target_text, parser):
+                    if fragment not in heading_anchors(target_text):
                         raise WorkspacePathError(f"Markdown heading anchor does not exist: {href}")
             except (WorkspacePathError, FeatureMapError, ValueError, OSError) as exc:
                 issues.append({"path": relative, "target": href, "message": str(exc)})

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from pkstack import knowledge_links
 from pkstack.knowledge_links import validate_local_links, validate_metadata
 
 
@@ -99,6 +100,65 @@ def test_same_document_and_native_heading_anchors_are_checked(tmp_path: Path) ->
     result = validate_local_links(tmp_path, tmp_path / "Wiki/knowledge")
     assert not result["ok"]
     assert "heading anchor does not exist" in result["issues"][0]["message"]
+
+
+def test_repeated_targets_reuse_heading_parsing_but_still_read_each_link(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    target = _document(tmp_path, "design.md", "# Design\n## API\n## API\n")
+    _document(
+        tmp_path,
+        "Wiki/knowledge/page.md",
+        "[one](../../design.md#design)\n[two](../../design.md#api-1)\n",
+    )
+    parse_calls = []
+    reads = []
+    original_parse = knowledge_links._heading_anchors
+    original_read = knowledge_links._read_bounded_bytes
+
+    def parse(text, parser):
+        parse_calls.append(text)
+        return original_parse(text, parser)
+
+    def read(path, **kwargs):
+        reads.append(path)
+        return original_read(path, **kwargs)
+
+    monkeypatch.setattr(knowledge_links, "_heading_anchors", parse)
+    monkeypatch.setattr(knowledge_links, "_read_bounded_bytes", read)
+    result = validate_local_links(tmp_path, tmp_path / "Wiki/knowledge")
+
+    assert result == {"ok": True, "documents": 1, "local_links": 2, "issues": []}
+    assert reads.count(target) == 2
+    assert len(parse_calls) == 1
+
+
+def test_changed_target_is_rechecked_within_and_between_validations(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    target = _document(tmp_path, "design.md", "# Before\n")
+    _document(
+        tmp_path,
+        "Wiki/knowledge/page.md",
+        "[first](../../design.md#before)\n[second](../../design.md#after)\n",
+    )
+    original_read = knowledge_links._read_bounded_bytes
+    target_reads = 0
+
+    def read(path, **kwargs):
+        nonlocal target_reads
+        if path == target:
+            target_reads += 1
+            if target_reads == 2:
+                target.write_text("# After\n")
+        return original_read(path, **kwargs)
+
+    monkeypatch.setattr(knowledge_links, "_read_bounded_bytes", read)
+    assert validate_local_links(tmp_path, tmp_path / "Wiki/knowledge")["ok"]
+    result = validate_local_links(tmp_path, tmp_path / "Wiki/knowledge")
+    assert not result["ok"]
+    assert len(result["issues"]) == 1
+    assert result["issues"][0]["target"] == "../../design.md#before"
 
 
 @pytest.mark.parametrize(
