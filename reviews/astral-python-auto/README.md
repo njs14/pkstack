@@ -41,5 +41,20 @@ assertion; its expected list was corrected and the full gate rerun successfully.
 [Python coverage](python-coverage.md) describes maintained surfaces and exclusions.
 [Full gate summary](full-gate-summary.json) binds the commit, command, counts, and receipt hashes.
 The native exercise used the same final skill bytes; later bootstrap inventory, test, and root
-static-checker changes were outside the code exercised by that native fixture. Independent review
-is pending; no review verdict is implied by the green local gate.
+static-checker changes were outside the code exercised by that native fixture.
+
+## Independent review
+
+Grok 4.6 with xhigh requested returned **APPROVE**, with no actionable findings, for the tested
+source commit. The first review attempt stopped at a cancelled tool call without a verdict;
+the same reviewer resumed with file inspection only and completed its review. The reviewer
+used the coordinator's full-gate results, and states its independent checks and limitations.
+[Raw final review](independent-review.md) and [review summary](independent-review-summary.json)
+bind the reviewed source and report hashes. The coordinator verified that subsequent commits
+change only `reviews/` files.
+
+One sentence in the raw review incorrectly says double-quoted heredoc delimiters permit shell
+expansion. Both single- and double-quoted delimiters disable body expansion; current maintained
+bodies use single quotes. This correction does not change the source or review verdict.
+Hosted CI must be checked on the final PR head; local and independent evidence alone is not a
+merge or release verdict.
