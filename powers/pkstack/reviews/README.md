@@ -1,7 +1,7 @@
 # Review harness
 
-This directory contains read-only review contracts for the PK-Stack Power. The
-current release record is the root [v0.2.0 release status](../../../reviews/release-status.md).
+This directory contains read-only review contracts for the PKStack Power. The
+current release record is the root [release status](../../../reviews/release-status.md).
 The reusable prompt files are:
 
 - [Fable peer and acceptance contract](fable-review-prompt.md); and
@@ -35,8 +35,8 @@ credentials. Keep any reviewer session metadata outside the repository.
 4. Run the Grok sweep against the same or a newly frozen candidate. Treat
    supported high/medium findings as fix tasks, not automatic edits.
 5. Repeat affected checks and obtain final acceptance for the exact candidate.
-6. Create `v0.2.0` only when the release-status gates and private PR agree on
-   the same commit.
+6. Create `v<version>` using the version in [`plugin.json`](../plugin.json)
+   only when the release-status gates and private PR agree on the same commit.
 
 The root `reviews/` directory holds the current status and historical evidence;
 this package directory holds the review contracts and their package-specific
