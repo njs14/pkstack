@@ -1,18 +1,80 @@
 ---
-release: "0.4.2"
+release: "0.4.3"
 status: published
 version_authority: powers/pkstack/plugin.json
 ---
 
 # PKStack release status
 
-The **0.4.3 planning candidate is not released**. Independent Grok review approved
-source and bounded native acceptance for `e4941073adf89a130e8ee268fb122c113cf8a409`,
-and all 12 hosted CI jobs passed for that commit. The [v5 routing report](planning-043-v5/README.md)
-records the passing native command handoff and its composition with the
-[v4 workflow evidence](planning-043-v4/README.md), including plan-review interventions
-and validation limits. Merge and exact-main package verification still precede
-publication. The [original campaign](planning-043/README.md) remains historical evidence.
+**[PKStack v0.4.3](https://github.com/njs14/pkstack/releases/tag/v0.4.3) was
+published on September 6, 2026 at 22:32:43 UTC.** Planning uses one shared grilling
+method with Kiro's native Plan and Specs. The release corrects the seven CLI audit
+findings, places approved-plan knowledge capture before implementation, and makes
+the runnable native Plan handoff explicit on the routing surfaces. See the
+[changelog](../CHANGELOG.md#043--2026-09-06).
+
+[PR #51](https://github.com/njs14/pkstack/pull/51) merged at
+`e76b88c696da85b627170ece28d168012cddc4cf`; tag `v0.4.3` resolves to that commit.
+External Claude Code **Opus 5 / xhigh** authored the repairs. External Grok CLI
+**Grok 4.6 / xhigh** independently approved source and bounded native acceptance
+at `e4941073adf89a130e8ee268fb122c113cf8a409`, then approved the report and changelog
+deltas through final PR head `383c94c5fdc9822a4a761d53442656538cb47e67`.
+The final PR and merged Git trees were identical:
+`637755a7557cd8cf8a2e4b2d7506ea158fa2746c`.
+
+Both [final PR CI](https://github.com/njs14/pkstack/actions/runs/34063925769) and
+[exact main CI](https://github.com/njs14/pkstack/actions/runs/34064077156) passed all
+12 jobs. The full v4 local gate passed 965 product tests and policy checks under
+supported Python. The final routing-only change passed 22 fast checks and two
+coordinator boundary checks; the author reported 131 focused asset/Pocock tests.
+Managed setup ended with an idempotent preview.
+
+The [v5 routing report](planning-043-v5/README.md) records the passing first native
+CLI response with the exact `/plan Read .kiro/skills/grilling/SKILL.md;` prefix,
+settled context, an open question for Plan, and no file changes. It supersedes two
+retained v4 command-emission failures. The [v4 workflow report](planning-043-v4/README.md)
+records native Plan loading the method, neutral approval, knowledge capture before
+code, preserved tests and passing regression probes, repeated approval without
+duplicate knowledge, and IDE Quick Spec acknowledgement of explicit no-write
+approval with zero subsequent fixture changes. The
+[original campaign](planning-043/README.md) remains the historical record of earlier
+failures. Independent review approved composing these bounded observations because
+v5 changed routing guidance without changing the interview or capture method.
+
+**Acceptance limits remain explicit.** CLI `Auto` did not identify its resolved
+model. Ordinary plan review corrected a Unicode validation-order mistake; the v5
+router still proposed that wrong ordering, and autonomous Unicode correctness is
+not claimed. The v5 command was emitted but not executed in that router-only test.
+The IDE v4 check reused native-created v3 Spec artifacts; it was not a fresh v4
+creation or implementation run. Native capture-validation output was truncated:
+its timing evidence is tool order, the agent's success statement and file events;
+a separate later host check verifies final knowledge state. These are bounded
+workflow checks, not a guarantee across models and runs.
+
+The [release workflow](https://github.com/njs14/pkstack/actions/runs/34064285201)
+passed verification and publication. It promoted artifact `9998393035` from main
+run `34064077156`, attempt 1. The verified artifact ZIP SHA-256 was
+`136195a30851f7972bc053d2730d168c723df2a9cf83e7ac82f77a198c2f5ea0`.
+The published **4,539,732-byte** archive was downloaded and compared byte-for-byte
+with that verified CI package. Its checksum file and GitHub asset digest matched.
+Archive SHA-256:
+
+```text
+88de74ba5ffb609947dd024713f99b9870561e5a24b2407f870aef4847993baa
+```
+
+The extracted-package consumer passed setup, idempotence, feature and local
+knowledge validation, and a scripted fixed-verifier failure/repair/pass smoke.
+Its doctor reported 78 passes, zero failures and one warning. This mechanical
+package smoke is separate from the native model observations above. Local pre-tag
+verification ran with uv-managed Python 3.12.14; an initial wrapper rejected the
+older system Python before package verification began.
+
+The previous v0.4.2 archive remains available for reverting an installation through
+the reviewed setup path. No rollback ran. The repository remains private; no global
+model defaults, permission settings or hooks were changed for this work.
+
+## Previous publication: 0.4.2
 
 **[PKStack v0.4.2](https://github.com/njs14/pkstack/releases/tag/v0.4.2) was
 published on September 6, 2026 at 15:47:20 UTC.** It adds benefit-led
