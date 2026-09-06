@@ -1,0 +1,36 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/domain-modeling",
+  "files": [
+    {
+      "handling": "adapted-kiro-reference",
+      "mode": "100644",
+      "path": "ADR-FORMAT.md",
+      "sha256": "d4c9fb4891ea05390844ceb1a473f810b9c0e1f814c0db457385550839a02031",
+      "size": 1925,
+      "source_path": "skills/engineering/domain-modeling/ADR-FORMAT.md"
+    },
+    {
+      "handling": "adapted-kiro-reference",
+      "mode": "100644",
+      "path": "CONTEXT-FORMAT.md",
+      "sha256": "0212506d75560cc32bf0dc0e7c482c70957395003d8035c67d4770ddefbf6468",
+      "size": 1742,
+      "source_path": "skills/engineering/domain-modeling/CONTEXT-FORMAT.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "0f162d176d53c06c50a2aa8078874885df447c733eed0ee6732520f06749676e",
+      "size": 3399,
+      "source_path": "skills/engineering/domain-modeling/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "domain-modeling",
+  "summary": {
+    "byte_count": 7066,
+    "file_count": 3
+  }
+}

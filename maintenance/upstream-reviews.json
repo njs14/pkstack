@@ -277,18 +277,6 @@
     },
     {
       "genesis": {
-        "commit": "6e8bbe026448fd890ace9293bcfe89b53363cd1f",
-        "subtree_sha": "965396e6c2f67b05dee739f2e1c7f989aea301cf"
-      },
-      "id": "openknowledge-cli-contract",
-      "parity_path": "powers/pkstack/docs/openknowledge-cli-contract-parity.json",
-      "path": "packages/cli/schemas/v1",
-      "provenance_path": "powers/pkstack/docs/openknowledge-cli-contract-provenance.md",
-      "repository": "openknowledge-sh/openknowledge",
-      "transitions": []
-    },
-    {
-      "genesis": {
         "commit": "06dd052602dd9a369e4d034e24faef0917b5a60c",
         "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
       },
@@ -347,6 +335,54 @@
           }
         }
       ]
+    },
+    {
+      "genesis": {
+        "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+        "subtree_sha": "f0732035b8b1b60ae39454e4191caef32fa91903"
+      },
+      "id": "mattpocock-grilling",
+      "parity_path": "powers/pkstack/docs/mattpocock-grilling-source-parity.json",
+      "path": "skills/productivity/grilling",
+      "provenance_path": "powers/pkstack/docs/mattpocock-grilling-provenance.md",
+      "repository": "mattpocock/skills",
+      "transitions": []
+    },
+    {
+      "genesis": {
+        "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+        "subtree_sha": "3df14e2d3a89459bf300614be9247e3ce74798f8"
+      },
+      "id": "mattpocock-grill-me",
+      "parity_path": "powers/pkstack/docs/mattpocock-grill-me-source-parity.json",
+      "path": "skills/productivity/grill-me",
+      "provenance_path": "powers/pkstack/docs/mattpocock-grill-me-provenance.md",
+      "repository": "mattpocock/skills",
+      "transitions": []
+    },
+    {
+      "genesis": {
+        "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+        "subtree_sha": "388c9822641805ca2dcd5038e68a1d5282437ee5"
+      },
+      "id": "mattpocock-domain-modeling",
+      "parity_path": "powers/pkstack/docs/mattpocock-domain-modeling-source-parity.json",
+      "path": "skills/engineering/domain-modeling",
+      "provenance_path": "powers/pkstack/docs/mattpocock-domain-modeling-provenance.md",
+      "repository": "mattpocock/skills",
+      "transitions": []
+    },
+    {
+      "genesis": {
+        "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+        "subtree_sha": "eedaf2562c83155115e9c649fa3ecaac2e10e81d"
+      },
+      "id": "mattpocock-grill-with-docs",
+      "parity_path": "powers/pkstack/docs/mattpocock-grill-with-docs-source-parity.json",
+      "path": "skills/engineering/grill-with-docs",
+      "provenance_path": "powers/pkstack/docs/mattpocock-grill-with-docs-provenance.md",
+      "repository": "mattpocock/skills",
+      "transitions": []
     }
   ]
 }

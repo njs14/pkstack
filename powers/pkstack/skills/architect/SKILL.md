@@ -29,8 +29,9 @@ only for a distinct contested artifact, reusing the constraints and candidate ev
    native spec workflow; do not create a competing architecture plan inside this skill.
 2. Record the context depth and why it is needed. For an architecture decision, issue at most one
    targeted `<runner> knowledge search "<specific decision>" --budget 1200 --output json` when
-   canonical `okn` is available, then reconcile that KNOW result with `<runner> feature list` and
-   `<runner> feature show <slug>`. Follow explicit related links; never inject the whole Wiki.
+   `<runner> knowledge status` reports Kiro retrieval available. Reconcile that KNOW result with
+   `<runner> feature list` and `<runner> feature show <slug>`. Follow explicit related links;
+   never inject the whole Wiki.
 3. Use `how` to trace the affected runtime. Use `why` when the proposal changes
    an existing ownership or layering decision. Mark inferred rationale.
 4. At each external-data boundary, find the repository's existing runtime

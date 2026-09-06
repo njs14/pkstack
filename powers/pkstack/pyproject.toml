@@ -14,6 +14,8 @@ authors = [{ name = "PKStack contributors" }]
 dependencies = [
   "cyclopts==4.23.2",
   "PyYAML>=6.0.2,<7",
+  "markdown-it-py>=4,<5",
+  "agent-client-protocol==0.12.1",
 ]
 
 [project.scripts]
@@ -47,6 +49,18 @@ packages = ["src/pkstack"]
 "docs/tt-a1i-archify-bundle-manifest.json" = "pkstack/_assets/docs/tt-a1i-archify-bundle-manifest.json"
 "docs/tt-a1i-archify-provenance.md" = "pkstack/_assets/docs/tt-a1i-archify-provenance.md"
 "docs/tt-a1i-archify-source-parity.json" = "pkstack/_assets/docs/tt-a1i-archify-source-parity.json"
+"docs/mattpocock-grilling-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-grilling-bundle-manifest.json"
+"docs/mattpocock-grilling-source-parity.json" = "pkstack/_assets/docs/mattpocock-grilling-source-parity.json"
+"docs/mattpocock-grilling-provenance.md" = "pkstack/_assets/docs/mattpocock-grilling-provenance.md"
+"docs/mattpocock-grill-me-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-grill-me-bundle-manifest.json"
+"docs/mattpocock-grill-me-source-parity.json" = "pkstack/_assets/docs/mattpocock-grill-me-source-parity.json"
+"docs/mattpocock-grill-me-provenance.md" = "pkstack/_assets/docs/mattpocock-grill-me-provenance.md"
+"docs/mattpocock-domain-modeling-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-domain-modeling-bundle-manifest.json"
+"docs/mattpocock-domain-modeling-source-parity.json" = "pkstack/_assets/docs/mattpocock-domain-modeling-source-parity.json"
+"docs/mattpocock-domain-modeling-provenance.md" = "pkstack/_assets/docs/mattpocock-domain-modeling-provenance.md"
+"docs/mattpocock-grill-with-docs-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-grill-with-docs-bundle-manifest.json"
+"docs/mattpocock-grill-with-docs-source-parity.json" = "pkstack/_assets/docs/mattpocock-grill-with-docs-source-parity.json"
+"docs/mattpocock-grill-with-docs-provenance.md" = "pkstack/_assets/docs/mattpocock-grill-with-docs-provenance.md"
 "dev.kiro/steering" = "pkstack/_assets/dev.kiro/steering"
 "templates/project" = "pkstack/_assets/templates/project"
 "templates/projectctl" = "pkstack/_assets/templates/projectctl"

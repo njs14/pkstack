@@ -31,7 +31,7 @@ ARTIFACT = 789
 
 def fixture_smoke() -> dict:
     return {**dict.fromkeys(package.SMOKE_FLAGS, True),
-            "knowledge_mode": "feature-map-only", "doctor_summary": {"pass": 81, "warn": 2, "fail": 0}}
+            "knowledge_mode": "local", "doctor_summary": {"pass": 81, "warn": 2, "fail": 0}}
 
 
 def zipped(contents: dict[str, bytes]) -> bytes:

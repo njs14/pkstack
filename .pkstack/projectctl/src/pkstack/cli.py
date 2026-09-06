@@ -61,7 +61,7 @@ Output = Literal["text", "json"]
 app = App(name="projectctl", help="Operate and prove this project through stable semantics.")
 feature_app = App(help="Manage narrow executable feature-map contracts.")
 goal_app = App(help="Persist and verify a bounded current-session goal.")
-knowledge_app = App(help="Use canonical OKF tooling when broader project knowledge is needed.")
+knowledge_app = App(help="Validate local knowledge or retrieve cited context with Kiro.")
 evidence_app = App(help="Append and audit bounded public decision/evidence trails.")
 upstream_app = App(help="Reprove and accept reviewed hash-pinned upstream transitions safely.")
 app.command(feature_app, name="feature")
@@ -734,14 +734,13 @@ def knowledge_status_command(*, root: Path = Path("."), output: Output = "text")
 @knowledge_app.command(name="validate")
 def knowledge_validate_command(
     *,
-    require_okn: bool = False,
     root: Path = Path("."),
     output: Output = "text",
 ) -> None:
-    """Delegate broad validation to okn, or validate only the feature map."""
+    """Validate local knowledge metadata, links, and executable feature contracts."""
 
     try:
-        payload = validate_knowledge(root, require_okn=require_okn)
+        payload = validate_knowledge(root)
     except (KnowledgeError, CommandRejected, OSError, ValueError) as exc:
         _fail(exc, output)
     _emit(payload, output)
@@ -754,16 +753,32 @@ def knowledge_search_command(
     query: str,
     *,
     budget: int = 1_200,
+    model: str = "auto",
     root: Path = Path("."),
     output: Output = "text",
 ) -> None:
-    """Delegate broad project-knowledge search to okn."""
+    """Retrieve cited project knowledge with an isolated Kiro ACP worker."""
 
     try:
-        payload = search_knowledge(root, query, budget=budget)
+        payload = search_knowledge(root, query, budget=budget, model=model)
     except (KnowledgeError, CommandRejected, OSError, ValueError) as exc:
         _fail(exc, output)
-    _emit(payload, output)
+    if output == "json":
+        _emit(payload, output)
+    else:
+        context = payload["context"]
+        print(context["answer"] or "The retained sources do not answer this question.")
+        for source in context["sources"]:
+            print(f"\n{source['path']}:{source['lineStart']}-{source['lineEnd']}")
+            print(source["quote"])
+        if context["uncertainties"]:
+            print("\nUnresolved:")
+            for item in context["uncertainties"]:
+                print(f"- {item}")
+        print(
+            f"\nReturned context: {payload['estimatedTokens']}/{payload['budget']} "
+            "estimated tokens; internal model consumption is separate."
+        )
     if not payload["ok"]:
         raise SystemExit(1)
 

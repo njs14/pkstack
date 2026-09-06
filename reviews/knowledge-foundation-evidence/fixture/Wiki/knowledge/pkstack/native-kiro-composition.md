@@ -7,8 +7,8 @@ tags: [pkstack, kiro, architecture, okf]
 
 # Native Kiro and PKStack composition
 
-This page explains the boundary behind the [project knowledge index](../index.md).
-For installation and recovery, use the [Power usage guide](../../powers/pkstack/docs/usage.md).
+This page explains the boundary behind the [project knowledge index](../../index.md).
+For installation and recovery, use the [Power usage guide](../../../powers/pkstack/docs/usage.md).
 
 ## Ownership
 
@@ -18,9 +18,15 @@ PKStack consumes those artifacts and layers the upstream Poteto workflow semanti
 does not create a competing planner or runtime.
 
 The repository-local `projectctl` is the executable API. Its stable project levers are **DO** and
-its published feature contracts are the narrow **PROVE** surface. Source-controlled OKF material is
-the broader **KNOW** surface, queried through canonical `okn`. Kiro's native `/knowledge` may index
-the same material but is not the source of truth.
+its published feature contracts are the narrow **PROVE** surface. Source-controlled OKF material in
+`Wiki/knowledge/` is the broader **KNOW** surface, queried through canonical `okn`. Working material
+lives separately in `Wiki/work/`. Kiro's native `/knowledge` may index the durable material but is
+not the source of truth.
+
+Skills and their bundled resources remain native packages. Agent instructions and steering remain
+native operational assets. Native specs stay authoritative in `.kiro/specs/`; Wiki documents link
+to them rather than maintain synchronized copies. The [knowledge lifecycle decision](knowledge-lifecycle.md)
+defines how workflows retrieve and improve the project understanding around those artifacts.
 
 ## Native workflow handoff
 
@@ -37,9 +43,11 @@ its Task Runner and does not imply the local IDE/CLI same-session transition.
 
 ## Related knowledge
 
-- The [native-spec composition decision](../decisions/native-spec-and-okn.md) records why the seam is
+- The [native-spec composition decision](native-spec-and-okn.md) records why the seam is
   visible and why canonical `okn` remains the KNOW runtime.
-- The [context-depth runbook](../operations/context-depth.md) defines when an agent may expand from
+- The [context-depth runbook](context-depth.md) defines when an agent may expand from
   a feature record into broader knowledge.
+- The [corpus inventory](corpus-migration.md) records the selective documentation migration and
+  the native, packaged, and historical materials retained in their existing locations.
 - The separate private `njs14/pk-stack-floci-lab` repository exercises this boundary against a
   deployed application without placing demo code in the Power repository.

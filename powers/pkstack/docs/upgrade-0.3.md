@@ -38,12 +38,17 @@ python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
 .pkstack/bin/projectctl version --output json
 .pkstack/bin/projectctl doctor --output json
 .pkstack/bin/projectctl feature validate --output json
-.pkstack/bin/projectctl knowledge validate --require-okn --output json
+.pkstack/bin/projectctl knowledge validate --output json
+.pkstack/bin/projectctl knowledge status --output json
 ```
 
 Read the preview before applying it. Resolve conflicts rather than overwriting
-user work. The last command requires the canonical `okn` tool. Review reported
-knowledge problems before carrying them into the new installation.
+user work. Knowledge validation checks minimal metadata and local Markdown
+links without a model. Status reports the separate Kiro ACP retrieval capability;
+an unsupported runtime prevents search but does not prevent local validation.
+Review reported knowledge problems before carrying them into the new installation.
+The optional `okn` backend and its `--require-okn` flag have been removed; see
+[knowledge usage](usage.md#use-project-knowledge) for the current runtime and limits.
 
 Select the new workspace `pkstack` agent in Kiro IDE, or use
 `/agent swap pkstack` in the current CLI conversation. Verify a representative

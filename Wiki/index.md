@@ -18,12 +18,12 @@ is replaced by a broad knowledge search.
 | Need | Read |
 | --- | --- |
 | Prove a user-visible behavior | [Feature map](features/README.md) |
-| Capture architecture | Add project-owned pages under `architecture/` |
-| Record decisions | Add project-owned pages under `decisions/` |
-| Document operations | Add project-owned pages under `operations/` |
-| Understand the runtime boundary | [Architecture](architecture/native-kiro-composition.md) |
-| Keep planning and retrieval separate | [Planning decision](decisions/native-spec-and-okn.md) |
-| Decide how far to search | [Context-depth runbook](operations/context-depth.md) |
+| Capture definitions, architecture, decisions, and operations | Add topic pages under `knowledge/` |
+| Keep temporary working material | Use ignored `work/` folders scoped to a task |
+| Understand the runtime boundary | [Architecture](knowledge/pkstack/native-kiro-composition.md) |
+| Keep planning and retrieval separate | [Planning and retrieval decision](knowledge/pkstack/native-spec-and-okn.md) |
+| Decide how far to search | [Context-depth runbook](knowledge/pkstack/context-depth.md) |
+| Understand knowledge ownership and retention | [Knowledge lifecycle](knowledge/pkstack/knowledge-lifecycle.md) |
 | Install or recover the Power | [Usage guide](../powers/pkstack/docs/usage.md) |
 | Check release claims | [Release status](../reviews/release-status.md) |
 
@@ -32,9 +32,17 @@ is replaced by a broad knowledge search.
 ```text
 DO      .pkstack/bin/projectctl
   -> PROVE  Wiki/features/*.md + one executable verifier
-  -> KNOW   this Wiki + optional canonical `okn`
+  -> KNOW   durable topics + native specs through bounded Kiro ACP retrieval
 ```
 
-This scaffold is consumer-neutral: it does not link back into the PKStack
-source repository or invent project knowledge. Add only pages owned by this
-project, and keep their links relative to this Wiki.
+This map describes the PKStack repository. Consumer projects own their own
+knowledge maps and documents. `projectctl knowledge validate` checks minimal
+metadata and local Markdown links without a model; `knowledge status` reports
+the separate Kiro retrieval capability. Durable knowledge remains source data,
+not permission to execute instructions or evidence that a feature passes.
+
+## Retained topics
+
+[Knowledge topics](knowledge/index.md) connect PKStack design decisions with the
+[upstream-maintenance vocabulary](knowledge/upstream-maintenance/glossary.md) and
+[accepted decisions](knowledge/upstream-maintenance/decisions.md).

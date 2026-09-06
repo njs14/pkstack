@@ -1,0 +1,1690 @@
+{
+  "pid": 95437,
+  "command": [
+    "${USER_HOME}/.local/bin/kiro-cli",
+    "chat",
+    "--v3",
+    "--agent",
+    "pkstack-grill-demo",
+    "--model",
+    "claude-opus-5",
+    "--trust-tools=",
+    "--output-format",
+    "stream-json",
+    "<prompt.txt>"
+  ],
+  "events": [
+    {
+      "type": "tool_call",
+      "title": "Load skill: grill-with-docs",
+      "status": null,
+      "locations": null
+    },
+    {
+      "type": "tool_call",
+      "title": "List Directory",
+      "status": null,
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Disclose Context",
+      "status": "failed",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "List Directory",
+      "status": "failed",
+      "locations": null
+    },
+    {
+      "type": "tool_call",
+      "title": "File Search",
+      "status": null,
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "File Search",
+      "status": "failed",
+      "locations": null
+    },
+    {
+      "type": "tool_call",
+      "title": "List Directory",
+      "status": null,
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "List Directory",
+      "status": "failed",
+      "locations": null
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/features/pkstack-upstream-maintenance.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/features/pkstack-upstream-maintenance.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/features/pkstack-upstream-maintenance.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/knowledge-lifecycle.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/knowledge-lifecycle.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/knowledge-lifecycle.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/grill-with-docs/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/grill-with-docs/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/skills/grill-with-docs/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/grill-with-docs/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/skills/grill-with-docs/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/grilling/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/grilling/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/grilling/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/okf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/okf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/okf/SKILL.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/CONTEXT-FORMAT.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/CONTEXT-FORMAT.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/CONTEXT-FORMAT.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/ADR-FORMAT.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/ADR-FORMAT.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/domain-modeling/ADR-FORMAT.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/okf/references/document-lifecycle.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/okf/references/document-lifecycle.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/skills/okf/references/document-lifecycle.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/native-kiro-composition.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/native-kiro-composition.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/native-kiro-composition.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/native-spec-and-okn.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/native-spec-and-okn.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/native-spec-and-okn.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/context-depth.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/context-depth.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/context-depth.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/corpus-migration.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/corpus-migration.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/pkstack/corpus-migration.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/specs/knowledge-foundation/requirements.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/specs/knowledge-foundation/requirements.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/scripts/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.kiro/specs/knowledge-foundation/requirements.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/scripts/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.pkstack/lib/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.pkstack/lib/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/lib/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/lib/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/scripts/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/scripts/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.pkstack/lib/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/.pkstack/lib/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/src/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/src/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/powers/pkstack/src/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/src/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/src/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/pkstack/knowledge.py"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "failed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/index.md"
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "text": "F"
+    },
+    {
+      "type": "message",
+      "text": "ixture read"
+    },
+    {
+      "type": "message",
+      "text": " complete. Cre"
+    },
+    {
+      "type": "message",
+      "text": "ating the top"
+    },
+    {
+      "type": "message",
+      "text": "ic under"
+    },
+    {
+      "type": "message",
+      "text": " `Wiki/know"
+    },
+    {
+      "type": "message",
+      "text": "ledge/upstream-ma"
+    },
+    {
+      "type": "message",
+      "text": "intenance/`."
+    },
+    {
+      "type": "tool_call",
+      "title": "Write File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Write File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Write File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Write File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Write File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Write File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Replace in File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Replace in File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/index.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/index.md"
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "text": "M"
+    },
+    {
+      "type": "message",
+      "text": "ode: ma"
+    },
+    {
+      "type": "message",
+      "text": "intain (dur"
+    },
+    {
+      "type": "message",
+      "text": "able knowledge cap"
+    },
+    {
+      "type": "message",
+      "text": "ture), no"
+    },
+    {
+      "type": "message",
+      "text": " new"
+    },
+    {
+      "type": "message",
+      "text": " cons"
+    },
+    {
+      "type": "message",
+      "text": "equential cho"
+    },
+    {
+      "type": "message",
+      "text": "ice op"
+    },
+    {
+      "type": "message",
+      "text": "ened, so the"
+    },
+    {
+      "type": "message",
+      "text": " interview clos"
+    },
+    {
+      "type": "message",
+      "text": "ed after facts and"
+    },
+    {
+      "type": "message",
+      "text": " unknowns were"
+    },
+    {
+      "type": "message",
+      "text": " cl"
+    },
+    {
+      "type": "message",
+      "text": "ear."
+    },
+    {
+      "type": "message",
+      "text": "\n\nChanged documents\n\n-"
+    },
+    {
+      "type": "message",
+      "text": " `Wiki/kn"
+    },
+    {
+      "type": "message",
+      "text": "owledge/upstream-"
+    },
+    {
+      "type": "message",
+      "text": "maintenance/glossary"
+    },
+    {
+      "type": "message",
+      "text": ".md` \u2014 new"
+    },
+    {
+      "type": "message",
+      "text": " top"
+    },
+    {
+      "type": "message",
+      "text": "ic glossary: configured source"
+    },
+    {
+      "type": "message",
+      "text": ", accepted pin, dr"
+    },
+    {
+      "type": "message",
+      "text": "ift, genesis/trans"
+    },
+    {
+      "type": "message",
+      "text": "ition mar"
+    },
+    {
+      "type": "message",
+      "text": "ker, trans"
+    },
+    {
+      "type": "message",
+      "text": "action, A/B/"
+    },
+    {
+      "type": "message",
+      "text": "C disposition, sem"
+    },
+    {
+      "type": "message",
+      "text": "antic patch, product canary"
+    },
+    {
+      "type": "message",
+      "text": ", gate vs observ"
+    },
+    {
+      "type": "message",
+      "text": "ation, f"
+    },
+    {
+      "type": "message",
+      "text": "ail-closed, trust root"
+    },
+    {
+      "type": "message",
+      "text": ". Open questions ke"
+    },
+    {
+      "type": "message",
+      "text": "ep the unresolved cont"
+    },
+    {
+      "type": "message",
+      "text": "ract"
+    },
+    {
+      "type": "message",
+      "text": "-widening question and"
+    },
+    {
+      "type": "message",
+      "text": " point"
+    },
+    {
+      "type": "message",
+      "text": " at the valid"
+    },
+    {
+      "type": "message",
+      "text": "ation observation.\n- `"
+    },
+    {
+      "type": "message",
+      "text": "Wiki/knowledge"
+    },
+    {
+      "type": "message",
+      "text": "/upstream-mainten"
+    },
+    {
+      "type": "message",
+      "text": "ance/decisions.md`"
+    },
+    {
+      "type": "message",
+      "text": " \u2014 the three settled cho"
+    },
+    {
+      "type": "message",
+      "text": "ices reused without"
+    },
+    {
+      "type": "message",
+      "text": " re-appro"
+    },
+    {
+      "type": "message",
+      "text": "val: the"
+    },
+    {
+      "type": "message",
+      "text": " canary observes only, source"
+    },
+    {
+      "type": "message",
+      "text": " acceptance is separ"
+    },
+    {
+      "type": "message",
+      "text": "ately authorized with"
+    },
+    {
+      "type": "message",
+      "text": " one source"
+    },
+    {
+      "type": "message",
+      "text": " per transaction, and auton"
+    },
+    {
+      "type": "message",
+      "text": "om"
+    },
+    {
+      "type": "message",
+      "text": "ous advance is scoped to"
+    },
+    {
+      "type": "message",
+      "text": " the config"
+    },
+    {
+      "type": "message",
+      "text": "ured GitHub ent"
+    },
+    {
+      "type": "message",
+      "text": "ries in `ma"
+    },
+    {
+      "type": "message",
+      "text": "intenance/"
+    },
+    {
+      "type": "message",
+      "text": "up"
+    },
+    {
+      "type": "message",
+      "text": "streams.json`."
+    },
+    {
+      "type": "message",
+      "text": " Each carries rationale and"
+    },
+    {
+      "type": "message",
+      "text": " the rejected alternative where"
+    },
+    {
+      "type": "message",
+      "text": " one"
+    },
+    {
+      "type": "message",
+      "text": " exists.\n- `W"
+    },
+    {
+      "type": "message",
+      "text": "iki/knowledge/"
+    },
+    {
+      "type": "message",
+      "text": "upstream-maintenance"
+    },
+    {
+      "type": "message",
+      "text": "/observations.md` \u2014 d"
+    },
+    {
+      "type": "message",
+      "text": "ated 2026-09-03"
+    },
+    {
+      "type": "message",
+      "text": " com"
+    },
+    {
+      "type": "message",
+      "text": "parison of `pow"
+    },
+    {
+      "type": "message",
+      "text": "ers/pkstack/src"
+    },
+    {
+      "type": "message",
+      "text": "/pkstack/know"
+    },
+    {
+      "type": "message",
+      "text": "ledge.py` against `."
+    },
+    {
+      "type": "message",
+      "text": "kiro/specs/kn"
+    },
+    {
+      "type": "message",
+      "text": "owledge-foundation/"
+    },
+    {
+      "type": "message",
+      "text": "requirements.md`:"
+    },
+    {
+      "type": "message",
+      "text": " `validate()` still pr"
+    },
+    {
+      "type": "message",
+      "text": "efers an"
+    },
+    {
+      "type": "message",
+      "text": " `okn` subprocess"
+    },
+    {
+      "type": "message",
+      "text": " (`okn version"
+    },
+    {
+      "type": "message",
+      "text": "` prob"
+    },
+    {
+      "type": "message",
+      "text": "e, then `okn validate"
+    },
+    {
+      "type": "message",
+      "text": " --spec 0.2 "
+    },
+    {
+      "type": "message",
+      "text": "--profile okf`) and"
+    },
+    {
+      "type": "message",
+      "text": " lab"
+    },
+    {
+      "type": "message",
+      "text": "els the local `"
+    },
+    {
+      "type": "message",
+      "text": "validate_feature_map`"
+    },
+    {
+      "type": "message",
+      "text": " + `validate_local_links"
+    },
+    {
+      "type": "message",
+      "text": "` path degraded, so"
+    },
+    {
+      "type": "message",
+      "text": " local"
+    },
+    {
+      "type": "message",
+      "text": "-only validation is not met"
+    },
+    {
+      "type": "message",
+      "text": " y"
+    },
+    {
+      "type": "message",
+      "text": "et; `search()` already rout"
+    },
+    {
+      "type": "message",
+      "text": "es to `pkstack."
+    },
+    {
+      "type": "message",
+      "text": "knowledge_acp`"
+    },
+    {
+      "type": "message",
+      "text": " while"
+    },
+    {
+      "type": "message",
+      "text": " `_legacy_search`"
+    },
+    {
+      "type": "message",
+      "text": " keeps the un"
+    },
+    {
+      "type": "message",
+      "text": "used ok"
+    },
+    {
+      "type": "message",
+      "text": "n path."
+    },
+    {
+      "type": "message",
+      "text": "\n- `Wiki/"
+    },
+    {
+      "type": "message",
+      "text": "index.md` \u2014 added links"
+    },
+    {
+      "type": "message",
+      "text": " to the three new docum"
+    },
+    {
+      "type": "message",
+      "text": "ents, exist"
+    },
+    {
+      "type": "message",
+      "text": "ing entries unt"
+    },
+    {
+      "type": "message",
+      "text": "ouched.\n\nPreserved"
+    },
+    {
+      "type": "message",
+      "text": " unknowns\n\nNo acc"
+    },
+    {
+      "type": "message",
+      "text": "epted date"
+    },
+    {
+      "type": "message",
+      "text": " or owner for widening the"
+    },
+    {
+      "type": "message",
+      "text": " aut"
+    },
+    {
+      "type": "message",
+      "text": "onomous acceptance cont"
+    },
+    {
+      "type": "message",
+      "text": "ract;"
+    },
+    {
+      "type": "message",
+      "text": " rec"
+    },
+    {
+      "type": "message",
+      "text": "orded as an open question, not"
+    },
+    {
+      "type": "message",
+      "text": " a decision. Wh"
+    },
+    {
+      "type": "message",
+      "text": "ether `validate()` will dr"
+    },
+    {
+      "type": "message",
+      "text": "op the ok"
+    },
+    {
+      "type": "message",
+      "text": "n subprocess or"
+    },
+    {
+      "type": "message",
+      "text": " keep it as an optional con"
+    },
+    {
+      "type": "message",
+      "text": "formance check is also"
+    },
+    {
+      "type": "message",
+      "text": " left"
+    },
+    {
+      "type": "message",
+      "text": " open with"
+    },
+    {
+      "type": "message",
+      "text": " no owner.\n\nLimits"
+    },
+    {
+      "type": "message",
+      "text": "\n\nNo"
+    },
+    {
+      "type": "message",
+      "text": " validation "
+    },
+    {
+      "type": "message",
+      "text": "ran:"
+    },
+    {
+      "type": "message",
+      "text": " this"
+    },
+    {
+      "type": "message",
+      "text": " fixture gr"
+    },
+    {
+      "type": "message",
+      "text": "ants no shell,"
+    },
+    {
+      "type": "message",
+      "text": " so `"
+    },
+    {
+      "type": "message",
+      "text": "proj"
+    },
+    {
+      "type": "message",
+      "text": "ectctl feature validate`"
+    },
+    {
+      "type": "message",
+      "text": " and `projectctl know"
+    },
+    {
+      "type": "message",
+      "text": "ledge validate` were not execut"
+    },
+    {
+      "type": "message",
+      "text": "ed and I"
+    },
+    {
+      "type": "message",
+      "text": " make"
+    },
+    {
+      "type": "message",
+      "text": " no claim about their"
+    },
+    {
+      "type": "message",
+      "text": " verdicts. The host run"
+    },
+    {
+      "type": "message",
+      "text": "s de"
+    },
+    {
+      "type": "message",
+      "text": "terministic validation after"
+    },
+    {
+      "type": "message",
+      "text": " inspection. Directory list"
+    },
+    {
+      "type": "message",
+      "text": "ing and file search were un"
+    },
+    {
+      "type": "message",
+      "text": "available, so files"
+    },
+    {
+      "type": "message",
+      "text": " were located by following"
+    },
+    {
+      "type": "message",
+      "text": " links"
+    },
+    {
+      "type": "message",
+      "text": " from `"
+    },
+    {
+      "type": "message",
+      "text": "Wiki/index.md"
+    },
+    {
+      "type": "message",
+      "text": "` and the sk"
+    },
+    {
+      "type": "message",
+      "text": "ill ent"
+    },
+    {
+      "type": "message",
+      "text": "rypoints; `pk"
+    },
+    {
+      "type": "message",
+      "text": "stack.knowledge_"
+    },
+    {
+      "type": "message",
+      "text": "acp`, `kn"
+    },
+    {
+      "type": "message",
+      "text": "owledge_payload`,"
+    },
+    {
+      "type": "message",
+      "text": " `features`, and `know"
+    },
+    {
+      "type": "message",
+      "text": "ledge_links` were not read"
+    },
+    {
+      "type": "message",
+      "text": ", so n"
+    },
+    {
+      "type": "message",
+      "text": "othing is"
+    },
+    {
+      "type": "message",
+      "text": " cla"
+    },
+    {
+      "type": "message",
+      "text": "imed about model-turn av"
+    },
+    {
+      "type": "message",
+      "text": "oidance or host"
+    },
+    {
+      "type": "message",
+      "text": " bud"
+    },
+    {
+      "type": "message",
+      "text": "get enforcement in"
+    },
+    {
+      "type": "message",
+      "text": " the ACP path. The exc"
+    },
+    {
+      "type": "message",
+      "text": "luded `"
+    },
+    {
+      "type": "message",
+      "text": "Wiki/work/`"
+    },
+    {
+      "type": "message",
+      "text": " draft was not read. No config"
+    },
+    {
+      "type": "message",
+      "text": "uration, code, or native"
+    },
+    {
+      "type": "message",
+      "text": " spec was ed"
+    },
+    {
+      "type": "message",
+      "text": "ited,"
+    },
+    {
+      "type": "message",
+      "text": " and no implementation proof was"
+    },
+    {
+      "type": "message",
+      "text": " asserted.\n\nThe"
+    },
+    {
+      "type": "message",
+      "text": " observ"
+    },
+    {
+      "type": "message",
+      "text": "ation date"
+    },
+    {
+      "type": "message",
+      "text": " is as"
+    },
+    {
+      "type": "message",
+      "text": "serted for"
+    },
+    {
+      "type": "message",
+      "text": " this session rather than read"
+    },
+    {
+      "type": "message",
+      "text": " from a clock; corre"
+    },
+    {
+      "type": "message",
+      "text": "ct it if the host dis"
+    },
+    {
+      "type": "message",
+      "text": "agrees."
+    }
+  ],
+  "frames": 1259,
+  "exit_code": 0,
+  "stderr_sha256": "d3b4d7aa415682f9da093036de79bccf7353f5a52d4a0dec0c86c76b4473d7d4",
+  "stderr_error_lines": []
+}

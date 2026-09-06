@@ -30,6 +30,42 @@
       "target": "skills/design-control-loop/SKILL.md"
     },
     {
+      "bundle_manifest": "docs/mattpocock-domain-modeling-bundle-manifest.json",
+      "bundle_root": "skills/domain-modeling",
+      "name": "domain-modeling",
+      "provenance": "docs/mattpocock-domain-modeling-provenance.md",
+      "source_id": "mattpocock-domain-modeling",
+      "source_parity": "docs/mattpocock-domain-modeling-source-parity.json",
+      "target": "skills/domain-modeling/SKILL.md"
+    },
+    {
+      "bundle_manifest": "docs/mattpocock-grill-me-bundle-manifest.json",
+      "bundle_root": "skills/grill-me",
+      "name": "grill-me",
+      "provenance": "docs/mattpocock-grill-me-provenance.md",
+      "source_id": "mattpocock-grill-me",
+      "source_parity": "docs/mattpocock-grill-me-source-parity.json",
+      "target": "skills/grill-me/SKILL.md"
+    },
+    {
+      "bundle_manifest": "docs/mattpocock-grill-with-docs-bundle-manifest.json",
+      "bundle_root": "skills/grill-with-docs",
+      "name": "grill-with-docs",
+      "provenance": "docs/mattpocock-grill-with-docs-provenance.md",
+      "source_id": "mattpocock-grill-with-docs",
+      "source_parity": "docs/mattpocock-grill-with-docs-source-parity.json",
+      "target": "skills/grill-with-docs/SKILL.md"
+    },
+    {
+      "bundle_manifest": "docs/mattpocock-grilling-bundle-manifest.json",
+      "bundle_root": "skills/grilling",
+      "name": "grilling",
+      "provenance": "docs/mattpocock-grilling-provenance.md",
+      "source_id": "mattpocock-grilling",
+      "source_parity": "docs/mattpocock-grilling-source-parity.json",
+      "target": "skills/grilling/SKILL.md"
+    },
+    {
       "bundle_manifest": "docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
       "bundle_root": "skills/narrow-react-prop-types",
       "name": "narrow-react-prop-types",
@@ -58,8 +94,8 @@
     }
   ],
   "summary": {
-    "bundle_file_count": 81,
-    "curated_skill_count": 6,
-    "shipped_skill_directories": 6
+    "bundle_file_count": 87,
+    "curated_skill_count": 10,
+    "shipped_skill_directories": 10
   }
 }

@@ -1,0 +1,104 @@
+{
+  "budget": 1500,
+  "budgetScope": "returned context only; UTF-8 JSON bytes divided by four",
+  "context": {
+    "answer": "No. The decision in native-spec-and-okn.md records an accepted runtime boundary (\"Use `openknowledge-sh/openknowledge`'s `okn` as the canonical broader KNOW implementation\"), but an accepted decision is not proof of current behavior, and decisions.md says so explicitly. The dated 2026-09-05 observation supersedes it for the inspected code: `search()` already delegates to `pkstack.knowledge_acp.search`, and the former `okn search` implementation survives only as `_legacy_search`, which `search()` does not call. So the public knowledge search, as inspected, does not invoke `okn`.\n\nSearch and validation diverge. Validation still prefers the `okn` subprocess and reports `mode: \"canonical-okn\"` when the executable is present, with the local-only path labeled degraded; the observation calls that unfinished migration work rather than a retained optional backend (the spec rejects an optional `okn` backend). So the canonical-okn boundary still describes validation behavior while search has moved to ACP.\n\nRuntime proof is absent either way. The observation is source inspection with no command executed, and `pkstack.knowledge_acp` was not read, so nothing establishes how the ACP search actually behaves at runtime. The budget bounds, `okf+sha256://` locator checks, and `work/` exclusion belong to the dead `okn` adapter and are explicitly not attributed to the active ACP search.",
+    "incomplete": false,
+    "sources": [
+      {
+        "contentSha256": "998664be6e83b2f92473b51192508c4d8882d1e1d92bf16297754b18d4aedf92",
+        "lineEnd": 18,
+        "lineStart": 18,
+        "path": "Wiki/knowledge/pkstack/native-spec-and-okn.md",
+        "quote": "`okn` as the canonical broader KNOW implementation"
+      },
+      {
+        "contentSha256": "e01e4266404179cf9fb745cf44c652a12455375d5510c412325e94ac0d6d88e3",
+        "lineEnd": 11,
+        "lineStart": 11,
+        "path": "Wiki/knowledge/upstream-maintenance/decisions.md",
+        "quote": "Acceptance of a decision is not proof that the current implementation satisfies it"
+      },
+      {
+        "contentSha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
+        "lineEnd": 39,
+        "lineStart": 39,
+        "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+        "quote": "`search()` already delegates to `pkstack.knowledge_acp.search`"
+      },
+      {
+        "contentSha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
+        "lineEnd": 41,
+        "lineStart": 41,
+        "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+        "quote": "`_legacy_search`, which `search()` does not call"
+      },
+      {
+        "contentSha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
+        "lineEnd": 32,
+        "lineStart": 32,
+        "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+        "quote": "reports `mode: \"canonical-okn\"`"
+      },
+      {
+        "contentSha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
+        "lineEnd": 38,
+        "lineStart": 38,
+        "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+        "quote": "This is unfinished migration work, not evidence of an optional backend being retained."
+      },
+      {
+        "contentSha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
+        "lineEnd": 52,
+        "lineStart": 52,
+        "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+        "quote": "This is source inspection, not implementation proof."
+      },
+      {
+        "contentSha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
+        "lineEnd": 48,
+        "lineStart": 48,
+        "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+        "quote": "the ACP module was not inspected, so nothing here describes its retrieval safety"
+      },
+      {
+        "contentSha256": "0d202964c59d114dbf4d16c56b91924da3bd494995394ffaa24ec341c59a1638",
+        "lineEnd": 4,
+        "lineStart": 4,
+        "path": ".kiro/specs/knowledge-foundation/requirements.md",
+        "quote": "The replacement search must use Kiro ACP"
+      }
+    ],
+    "uncertainties": [
+      "No executed command or test output appears in the sources; the ACP search path has no runtime proof, only source inspection dated 2026-09-05.",
+      "Whether the ACP search avoids a model turn, how the host enforces the returned-context budget, and whether quotations verify end to end are all unverified (knowledge_acp, knowledge_payload, features, knowledge_links not read).",
+      "The code may have changed after 2026-09-05; the observation fixes only that inspection date.",
+      "Who completes removal of the `okn` subprocess path from `validate()`, and when, is recorded as unresolved.",
+      "Whether native-spec-and-okn.md's canonical-okn wording was ever formally amended to reflect the ACP search replacement is not stated in the inspected sources."
+    ]
+  },
+  "estimatedTokens": 1095,
+  "execution": {
+    "attempts": 1,
+    "denied_permission_requests": 0,
+    "internal_model_tokens": null,
+    "model": "claude-opus-5",
+    "resolved_model": "claude-opus-5",
+    "seconds": 24.582,
+    "tool_calls": 4
+  },
+  "mode": "kiro-acp",
+  "ok": true,
+  "query": "The older native runtime decision says canonical okn is the KNOW implementation. Does this establish that the currently inspected public knowledge search still invokes okn? Compare the dated prototype observation, distinguish search from validation, and preserve uncertainty about runtime proof.",
+  "runtime": {
+    "isolation": "version-specific embedded-server home override",
+    "version": "2.21.1"
+  },
+  "schemaVersion": "2",
+  "sourceDocuments": 11,
+  "sourceRoots": [
+    "Wiki/knowledge",
+    "Wiki/features",
+    ".kiro/specs"
+  ]
+}

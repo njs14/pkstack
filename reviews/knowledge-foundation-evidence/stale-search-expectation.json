@@ -1,0 +1,5 @@
+{
+  "written_before_lookup": true,
+  "question": "The older native runtime decision says canonical okn is the KNOW implementation. Does this establish that the currently inspected public knowledge search still invokes okn? Compare the dated prototype observation, distinguish search from validation, and preserve uncertainty about runtime proof.",
+  "expected": "The September 5 source observation explicitly finds search delegates to knowledge_acp, while _legacy_search is unused. The old decision is stale guidance for current search. Validation still uses okn in that prototype; source inspection is not executed proof."
+}

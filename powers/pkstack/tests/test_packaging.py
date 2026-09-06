@@ -77,6 +77,7 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
         key: value
         for key, value in os.environ.items()
         if not key.startswith(("COV_CORE_", "COVERAGE_"))
+        and key not in {"PYTHONPATH", "VIRTUAL_ENV"}
     }
     clean_env["UV_OFFLINE"] = "1"
     install_venv = tmp_path / "install-venv"
@@ -129,6 +130,20 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
     )
     assert "hatchling" not in installed
     assert DISTRIBUTION_NAME not in installed
+    assert "agent-client-protocol" in installed
+    knowledge = _run_clean_json(
+        [str(controller), "knowledge", "validate", "--output", "json"],
+        cwd=target,
+        env=clean_env,
+    )
+    assert knowledge["ok"] and knowledge["mode"] == "local"
+    status = _run_clean_json(
+        [str(controller), "knowledge", "status", "--output", "json"],
+        cwd=target,
+        env=clean_env,
+    )
+    assert status["schemaVersion"] == "2" and status["mode"] == "kiro-acp"
+    assert status["validation_mode"] == "local"
 
 
 def test_bootstrapped_wrapper_preserves_host_verifier_environment(tmp_path: Path) -> None:

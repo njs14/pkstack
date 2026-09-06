@@ -1,0 +1,20 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/grill-with-docs",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "b607027ac88d754880fe8828ff2d480d37675eee5c86b6ea7e12138524ff5975",
+      "size": 3246,
+      "source_path": "skills/engineering/grill-with-docs/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "grill-with-docs",
+  "summary": {
+    "byte_count": 3246,
+    "file_count": 1
+  }
+}

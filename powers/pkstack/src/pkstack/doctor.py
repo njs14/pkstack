@@ -66,7 +66,6 @@ def run_doctor(root: Path) -> dict[str, Any]:
     )
     checks.append(_command_check("uv", required=True))
     checks.append(_command_check("kiro-cli", required=False))
-    checks.append(_command_check("okn", required=False))
 
     # Discovery is a local, no-model loader probe. Keep it ahead of every
     # per-profile Kiro invocation so doctor never mistakes schema validity for

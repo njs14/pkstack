@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-09-06T02:53:33.312773+00:00",
+  "files": [
+    {
+      "normalizedSha256": "860679b4a4e2dcd4e93c240288a7878c4300d91de170f1dd96650c2570ebd04a",
+      "originalSha256": "5b26aff23140e73a920a30dff2c63edcaae8d05aafd456af56952badfb76e765",
+      "path": "reviews/knowledge-foundation-evidence/acp-smoke.json"
+    },
+    {
+      "normalizedSha256": "0cc3404af62c92f6513dcb1462b238f0005da3b04217ff4e5b3f8cacc86bb2b9",
+      "originalSha256": "fbec627c1969d268db59526f13676bcc4ef04def7babd3dfeb063dcc60cf622e",
+      "path": "reviews/knowledge-foundation-evidence/final-verification.json"
+    },
+    {
+      "normalizedSha256": "575dc50fd0653d1fa05b3feff52be1aacd96b0b11611ebc0c8a30a54c3b526cf",
+      "originalSha256": "2cb8244b337c8e46f3557302b4603af7a78d1f9ee854ec1dab55cf1343c2040c",
+      "path": "reviews/knowledge-foundation-evidence/native-authoring-followup.json"
+    },
+    {
+      "normalizedSha256": "728b6d5df73f201d3d82434e3cbecd39a3177d9a3c37ad3f6a34331d32d02ea7",
+      "originalSha256": "a311dec61254991e8c2d0e3a0ba6747ac54a0e89fe03c95cd6075abad5dac666",
+      "path": "reviews/knowledge-foundation-evidence/native-authoring-result.json"
+    },
+    {
+      "normalizedSha256": "5213aeedb3cbea16178bb3117180bb6f96c8edd06cd98bf3ffe0b19838245615",
+      "originalSha256": "f86929ed2491d272dd72b5d853d81f3b3b63c4a9c99ac78f45a79f72ca7827d9",
+      "path": "reviews/knowledge-foundation-evidence/native-recall-caller.json"
+    },
+    {
+      "normalizedSha256": "d8dbee84103068a214103e6d89e31c0e412f30394d0d2928068f3b29767e5409",
+      "originalSha256": "9236da610ba6558d10eacb9bf125b578ea01b63319735e3432aef93d58d97de9",
+      "path": "reviews/knowledge-foundation-evidence/repository-local-validation-final.json"
+    },
+    {
+      "normalizedSha256": "d8dbee84103068a214103e6d89e31c0e412f30394d0d2928068f3b29767e5409",
+      "originalSha256": "9236da610ba6558d10eacb9bf125b578ea01b63319735e3432aef93d58d97de9",
+      "path": "reviews/knowledge-foundation-evidence/repository-local-validation.json"
+    },
+    {
+      "normalizedSha256": "512f932cd85e96cb67d8bc4b0af25568506980e286e7fd236b451ca52b64962d",
+      "originalSha256": "448c8ee35e29ed8bba40ed514d2f14593d9c64379b55c906fde96a920c9eea36",
+      "path": "reviews/knowledge-foundation-evidence/transport-review.json"
+    },
+    {
+      "normalizedSha256": "411c10a2deea90b0db509bb8ddd6dd681488d1c14d8f1775739f85ad0bc6e04d",
+      "originalSha256": "7173a6bcb2f9b774b58aa75f42e48d5dc5d9015405e4aff3127a1e81d9f7db54",
+      "path": "reviews/knowledge-foundation-evidence/ci-python-tests.txt",
+      "transformation": "Trailing spaces or tabs are represented as [SPACE] or [TAB] in the expected whitespace-rejection fixture diagnostic."
+    }
+  ],
+  "placeholders": {
+    "${SMOKE_WORKSPACE}": "the disposable ACP smoke workspace",
+    "${USER_HOME}": "the original caller home directory",
+    "${WORKTREE}": "the verified knowledge-foundation checkout"
+  },
+  "purpose": "Normalize machine-specific paths and visibly encode trailing whitespace in an expected test-rejection diagnostic before committing previously validated evidence. Metrics, verdicts, and digest values are unchanged. Original local records are preserved outside the repository.",
+  "schemaVersion": "1"
+}

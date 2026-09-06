@@ -1,0 +1,100 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "d7e61f30a9fd8ca70d9ee68f019c2a9ebf2d13f7",
+        "size": 2733,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "ADR-FORMAT.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "d7e61f30a9fd8ca70d9ee68f019c2a9ebf2d13f7",
+        "size": 2733,
+        "type": "blob"
+      },
+      "rationale": "The document format reference is adapted to topic-organized OKF Wiki knowledge, explicit decision state, and native spec links."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "7f1522d2f11506ee205275ab7c282aa52366ecf6",
+        "size": 101,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "7f1522d2f11506ee205275ab7c282aa52366ecf6",
+        "size": 101,
+        "type": "blob"
+      },
+      "rationale": "OpenAI UI metadata is inventoried for provenance and excluded from the Kiro-native bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "79bbb32f6fda55758b377c980f72a6cb2b8c670e",
+        "size": 2290,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "CONTEXT-FORMAT.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "79bbb32f6fda55758b377c980f72a6cb2b8c670e",
+        "size": 2290,
+        "type": "blob"
+      },
+      "rationale": "The document format reference is adapted to topic-organized OKF Wiki knowledge, explicit decision state, and native spec links."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "9b97707e19ef1f590aada356f2b3f6bb881f91be",
+        "size": 3331,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "9b97707e19ef1f590aada356f2b3f6bb881f91be",
+        "size": 3331,
+        "type": "blob"
+      },
+      "rationale": "Preserves glossary challenges, precise language, concrete scenarios, code cross-checks, immediate capture of settled terms, and selective ADRs. Moves new project knowledge to Wiki/knowledge/<topic>/ with OKF, reuses existing legacy topic documents pending migration, and distinguishes desired decisions from verified behavior. Native skills, operational instructions, and Kiro specs keep their existing ownership."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "388c9822641805ca2dcd5038e68a1d5282437ee5"
+    },
+    "id": "mattpocock-domain-modeling",
+    "path": "skills/engineering/domain-modeling",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "388c9822641805ca2dcd5038e68a1d5282437ee5"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-05"
+  },
+  "summary": {
+    "A": 3,
+    "B": 0,
+    "C": 1,
+    "current_files": 4,
+    "pinned_files": 4
+  }
+}

@@ -2,7 +2,7 @@
 
 PKStack began with Poteto’s pstack workflows. The friends add specific jobs:
 HumanLayer’s visual explanations and control-loop methods, Matt Pocock’s
-agent-facing writing, and Archify’s diagram renderer. This is a selection of
+agent-facing writing and decision interviews, and Archify’s diagram renderer. This is a selection of
 reviewed skills, not a promise to install every upstream plugin.
 
 ## What came from where
@@ -11,16 +11,21 @@ reviewed skills, not a promise to install every upstream plugin.
 | --- | --- | --- |
 | [Poteto’s pstack in Cursor plugins](https://github.com/cursor/plugins/tree/main/pstack) | Engineering workflows, verification, reviews, and principles | Preserve the working method; use Kiro’s native planning and subagents in place of Cursor-specific orchestration. [Full mapping](upstream-skill-parity.md). |
 | [HumanLayer skills](https://github.com/humanlayer/skills) | `show-me`, `design-control-loop`, `build-iterated-agentic-loop`, `narrow-react-prop-types` | Visual explanations, bounded automation, and live-call-site type narrowing. Replace provider-specific execution and broad permissions with the Kiro boundary. |
-| [Matt Pocock skills](https://github.com/mattpocock/skills) | `writing-for-agents` | Make skill descriptions, steering, `AGENTS.md`, and references easier for an agent to find and follow. It does not replace human-facing technical writing. |
+| [Matt Pocock skills](https://github.com/mattpocock/skills) | `writing-for-agents`, `grilling`, `grill-me`, `domain-modeling`, `grill-with-docs` | Clear agent instructions, focused decision interviews, and reusable project definitions and decisions. Native skills remain outside Wiki; only their project knowledge output belongs there. |
 | [Archify](https://github.com/tt-a1i/archify) | `archify` and its reviewed renderer | Produce validated diagrams without installing a renderer on each run. Keep the Kiro wrapper and documented PKStack runtime patches distinct from the pinned upstream source. |
 | [OKF skills](https://github.com/scaccogatto/okf-skills) | Durable knowledge-working methods in `/okf` | Produce, maintain, and consume the project Wiki. Exclude transcript backfill, upstream executables, hooks, and MCP activation. |
-| [Google’s OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) and [OpenKnowledge](https://github.com/openknowledge-sh/openknowledge) | Knowledge format and the external `okn` interface | Keep source-controlled knowledge and bounded retrieval without building another knowledge engine. |
+| [Google’s OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) | Knowledge format semantics | Keep the format source independent from knowledge-working methods. Local validation checks minimal metadata and Markdown links; Kiro ACP supplies bounded retrieval. |
 
 HumanLayer’s `improve-claude-md` and plugin registration are provenance-only.
 `writing-for-agents` covers the cross-runtime instruction-writing job instead.
 Poteto’s `make-bot-ui` is excluded because its privileged setup and service
 assumptions need a separately reviewed design. The inventories retain these
 decisions; absence is not an unnoticed missing port.
+
+The former [OpenKnowledge CLI contract](openknowledge-cli-contract-provenance.md)
+is retired from active maintenance and runtime use. Its pinned provenance and
+paired manifest/ledger history remain archived. Google OKF and OKF skills
+remain independent active sources; PKStack ships no optional `okn` backend.
 
 ## Choose by the job
 
@@ -32,6 +37,9 @@ Use `/pkstack` for the overall task. A helper should contribute a distinct outpu
 | Record or audit decisions and proof | `show-me-your-work`; keep its log separate from visual explanations |
 | Write for a person | `technical-writing`, followed by `unslop` |
 | Write instructions for an agent | `writing-for-agents`; preserve executable and permission contracts |
+| Sharpen a decision | `grill-me` uses `grilling`; inspect facts and settle consequential choices |
+| Build understanding while interviewing | `grill-with-docs` composes `grilling`, `domain-modeling`, and `okf`; update existing Wiki topics and link native specs |
+| Clarify domain language | `domain-modeling`; test meanings against scenarios and code, then retain definitions and consequential decisions |
 | Understand an existing system | `how` for mechanics, `why` for rationale; `teach` composes those findings |
 | Design an automation | `design-control-loop`, then `build-iterated-agentic-loop` when implementation is requested |
 | Finish the current task | `pkstack-verified-goal`; it does not build a scheduler |
@@ -68,8 +76,17 @@ exception. The [pstack mapping](upstream-skill-parity.md) covers Poteto's ports.
 | [`archify`](../skills/archify/SKILL.md) | [`tt-a1i/archify`](https://github.com/tt-a1i/archify/commit/d8e4daf2610d512821365f41b139d874b29efe81) | [`tt-a1i-archify-bundle-manifest.json`](tt-a1i-archify-bundle-manifest.json); digest-pinned runtime with [documented local runtime patches](tt-a1i-archify-provenance.md) under `skills/archify/upstream/` |
 | [`build-iterated-agentic-loop`](../skills/build-iterated-agentic-loop/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | Kiro-safe loop builder with bounded references |
 | [`design-control-loop`](../skills/design-control-loop/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | Kiro-native control-system design method |
+| [`domain-modeling`](../skills/domain-modeling/SKILL.md) | [`mattpocock/skills`](https://github.com/mattpocock/skills/commit/3cca18b368ae95cdbdebbff572ccafa662551015) | Domain language, concrete scenarios, and topic-based OKF glossary and decision references; [provenance](mattpocock-domain-modeling-provenance.md) |
+| [`grill-me`](../skills/grill-me/SKILL.md) | [`mattpocock/skills`](https://github.com/mattpocock/skills/commit/3cca18b368ae95cdbdebbff572ccafa662551015) | Focused interview entrypoint using the bundled grilling method; [provenance](mattpocock-grill-me-provenance.md) |
+| [`grill-with-docs`](../skills/grill-with-docs/SKILL.md) | [`mattpocock/skills`](https://github.com/mattpocock/skills/commit/3cca18b368ae95cdbdebbff572ccafa662551015) | Interview and capture reusable project understanding while native Kiro specs retain plan ownership; [provenance](mattpocock-grill-with-docs-provenance.md) |
+| [`grilling`](../skills/grilling/SKILL.md) | [`mattpocock/skills`](https://github.com/mattpocock/skills/commit/3cca18b368ae95cdbdebbff572ccafa662551015) | Dependency-ordered decision rounds with bounded scope and existing authorization; [provenance](mattpocock-grilling-provenance.md) |
 | [`narrow-react-prop-types`](../skills/narrow-react-prop-types/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | React prop narrowing from live call sites |
 | [`show-me`](../skills/show-me/SKILL.md) | [`humanlayer/skills`](https://github.com/humanlayer/skills/commit/3c2629142c5d437428269b1b722b08c0b87f574d) | [`humanlayer-show-me-bundle-manifest.json`](humanlayer-show-me-bundle-manifest.json); adapted Kiro wrapper |
 | [`writing-for-agents`](../skills/writing-for-agents/SKILL.md) | [`mattpocock/skills`](https://github.com/mattpocock/skills/commit/6654f6b60cd9d5be8b54c6fafe44346dabeb3b76) | Agent-facing writing method adapted to Kiro Skills, steering, and `AGENTS.md` |
+
+The knowledge-interview additions are the first Pocock knowledge delivery. Debugging,
+architecture survey, handoff, conflict resolution, questionnaire creation, and the remaining
+recommended workflow merges follow acceptance of the knowledge lifecycle; they are not
+represented as installed by this registry.
 
 The Archify bundle is offline-capable on Node.js 18 or newer. The Node capability is optional to the broader Power and is reported as a doctor warning when unavailable. Network access is denied by default; brand capture requires explicit user authorization and an official URL.

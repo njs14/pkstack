@@ -30,9 +30,10 @@ their roles and handoffs. For a runnable example, [try one failing task](first-t
 Kiro CLI v3 and the Kiro IDE agent panel are the primary surfaces. Kiro Crew is
 optional. Kiro Web can consume committed workspace assets, but its end-to-end
 path has not been tested. The selected IDE and CLI profiles have recorded
-command-approval checks; that does not prove every permission rule. PKStack does not launch
-an external ACP host, invoke `kiro-cli acp`, or claim that CLI v3 provides
-Kiro's native `/goal` command.
+command-approval checks; that does not prove every permission rule. Normal work stays
+in the current session. Only `projectctl knowledge search` starts an isolated,
+read-only Kiro ACP worker for bounded retrieval. PKStack does not claim that
+CLI v3 provides Kiro's native `/goal` command.
 
 ## Prerequisites
 
@@ -360,15 +361,46 @@ when the feature and its explicit links do not answer the question:
 ```sh
 .pkstack/bin/projectctl knowledge status --output json
 .pkstack/bin/projectctl knowledge validate --output json
-.pkstack/bin/projectctl knowledge search "account suspension" --output json
+.pkstack/bin/projectctl knowledge search "account suspension" --budget 1200 --model auto --output json
 ```
 
-When installed, canonical `okn` handles bounded Wiki validation and search.
-Without it, status reports `feature-map-only`; `knowledge validate
---require-okn` and search fail rather than silently substituting another
-runtime. Native Kiro `/knowledge` may index the same files but is not the
-canonical checker. Use `/okf` to produce, maintain, or consume bounded
-source-controlled knowledge.
+`knowledge status` reports the corpus layout and Kiro retrieval availability.
+`knowledge validate` runs locally without Kiro, a model, or `okn`. It composes
+feature validation with minimal knowledge metadata and local Markdown links:
+a nonempty `type`; nonempty `title` and `description` when present; `tags` as a
+list of nonempty strings when present; and optional `okf_version: "0.2"`.
+Unknown metadata is preserved. CommonMark inline/reference links and images,
+local paths, and Markdown heading anchors are checked. External links are not
+fetched; raw HTML IDs, footnotes, plugin-specific fragments, full OKF
+conformance, and graph semantics are outside this check.
+
+Search reads `Wiki/knowledge/`, `Wiki/features/`, and `.kiro/specs/`. It excludes
+`Wiki/work/` and does not copy native skills or instructions into the corpus.
+The worker uses native Kiro CLI authentication and the official Python ACP
+client pinned to `agent-client-protocol==0.12.1`. The current adapter supports
+POSIX and is gated to Kiro CLI 2.21.1 with embedded KAS 0.58.7; an unsupported
+or unavailable runtime fails explicitly while local validation remains usable.
+There is no alternate backend or silent model fallback. Optional `--model`
+defaults to `auto`; the model resolved by Kiro for `auto` is unknown.
+
+`--budget` caps returned context using UTF-8 JSON bytes divided by four; it does
+not cap or measure the worker's internal token use, which is unreported. A
+successful search returns `schemaVersion: "2"` and `mode: "kiro-acp"`. The
+`context` object contains `answer`, `sources` (each with `path`, `quote`,
+`lineStart`, `lineEnd`, and `contentSha256`), `uncertainties`, and `incomplete`.
+The host verifies unique exact quotes and an unchanged corpus. Invalid, excluded, over-budget, or incomplete results
+are rejected after at most one bounded correction.
+
+The host also limits protocol input before SDK parsing to 1 MiB per frame and
+16 MiB per task, including messages that are not returned as context. A prompt
+has a 120-second deadline; cancellation sends have a 0.5-second deadline and
+brief retries before bounded process-group cleanup. These are execution limits,
+separate from the returned-context budget.
+
+Use `/okf` to produce, maintain, or consume durable knowledge. Native Kiro
+`/knowledge` may index the same files; project files remain authoritative.
+The earlier optional `okn` backend and `--require-okn` flag have been removed.
+See the [knowledge runtime decision](../../../Wiki/knowledge/pkstack/native-spec-and-okn.md).
 
 ## Upstream maintenance
 

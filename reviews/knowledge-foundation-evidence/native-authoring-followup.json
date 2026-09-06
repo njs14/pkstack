@@ -1,0 +1,836 @@
+{
+  "pid": 97265,
+  "command": [
+    "${USER_HOME}/.local/bin/kiro-cli",
+    "chat",
+    "--v3",
+    "--resume-id",
+    "sess_990d80bf-4b7e-4146-a4b3-c4d0c2019fce",
+    "--agent",
+    "pkstack-grill-demo",
+    "--model",
+    "claude-opus-5",
+    "--trust-tools=",
+    "--output-format",
+    "stream-json",
+    "<prompt.txt>"
+  ],
+  "events": [
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "text": "Appl"
+    },
+    {
+      "type": "message",
+      "text": "ying the five"
+    },
+    {
+      "type": "message",
+      "text": " corrections."
+    },
+    {
+      "type": "tool_call",
+      "title": "Replace in File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Replace in File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Replace in File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Replace in File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Replace in File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Replace in File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Replace in File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Replace in File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/decisions.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Replace in File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Replace in File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Replace in File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Replace in File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Replace in File",
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "pending",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Replace in File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call",
+      "title": "Read File",
+      "status": null,
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/observations.md"
+        }
+      ]
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Read File",
+      "status": "completed",
+      "locations": [
+        {
+          "path": "<fixture>/workspace/Wiki/knowledge/upstream-maintenance/glossary.md"
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "text": "All"
+    },
+    {
+      "type": "message",
+      "text": " five"
+    },
+    {
+      "type": "message",
+      "text": " corrections appl"
+    },
+    {
+      "type": "message",
+      "text": "ied to"
+    },
+    {
+      "type": "message",
+      "text": " the three docum"
+    },
+    {
+      "type": "message",
+      "text": "ents;"
+    },
+    {
+      "type": "message",
+      "text": " no"
+    },
+    {
+      "type": "message",
+      "text": " other file tou"
+    },
+    {
+      "type": "message",
+      "text": "ched.\n\n-"
+    },
+    {
+      "type": "message",
+      "text": " Date:"
+    },
+    {
+      "type": "message",
+      "text": " `observations.md` now records"
+    },
+    {
+      "type": "message",
+      "text": " "
+    },
+    {
+      "type": "message",
+      "text": "2026-09"
+    },
+    {
+      "type": "message",
+      "text": "-05"
+    },
+    {
+      "type": "message",
+      "text": " (America/New_York)"
+    },
+    {
+      "type": "message",
+      "text": " and the cl"
+    },
+    {
+      "type": "message",
+      "text": "ock disclaimer is g"
+    },
+    {
+      "type": "message",
+      "text": "one.\n- Local"
+    },
+    {
+      "type": "message",
+      "text": "-only valid"
+    },
+    {
+      "type": "message",
+      "text": "ation: both"
+    },
+    {
+      "type": "message",
+      "text": " `glossary.md` and"
+    },
+    {
+      "type": "message",
+      "text": " `observations.md` now"
+    },
+    {
+      "type": "message",
+      "text": " tre"
+    },
+    {
+      "type": "message",
+      "text": "at de"
+    },
+    {
+      "type": "message",
+      "text": "terministic local-only validation"
+    },
+    {
+      "type": "message",
+      "text": " as already required"
+    },
+    {
+      "type": "message",
+      "text": " and an"
+    },
+    {
+      "type": "message",
+      "text": " optional `"
+    },
+    {
+      "type": "message",
+      "text": "okn` backend as already"
+    },
+    {
+      "type": "message",
+      "text": " rejected."
+    },
+    {
+      "type": "message",
+      "text": " The un"
+    },
+    {
+      "type": "message",
+      "text": "resolved item is complet"
+    },
+    {
+      "type": "message",
+      "text": "ion of the migration and"
+    },
+    {
+      "type": "message",
+      "text": " who"
+    },
+    {
+      "type": "message",
+      "text": " finishes removing the sub"
+    },
+    {
+      "type": "message",
+      "text": "process path from `validate"
+    },
+    {
+      "type": "message",
+      "text": "()`, not whether to ke"
+    },
+    {
+      "type": "message",
+      "text": "ep `okn` as a con"
+    },
+    {
+      "type": "message",
+      "text": "formance check."
+    },
+    {
+      "type": "message",
+      "text": "\n- Legacy att"
+    },
+    {
+      "type": "message",
+      "text": "ribution: the loc"
+    },
+    {
+      "type": "message",
+      "text": "ator,"
+    },
+    {
+      "type": "message",
+      "text": " `"
+    },
+    {
+      "type": "message",
+      "text": "work/` ex"
+    },
+    {
+      "type": "message",
+      "text": "clusion, per"
+    },
+    {
+      "type": "message",
+      "text": "-source token sum"
+    },
+    {
+      "type": "message",
+      "text": ", and stdout/stder"
+    },
+    {
+      "type": "message",
+      "text": "r blanking chec"
+    },
+    {
+      "type": "message",
+      "text": "ks are labeled as bel"
+    },
+    {
+      "type": "message",
+      "text": "onging to the unused `_"
+    },
+    {
+      "type": "message",
+      "text": "legacy_search` adap"
+    },
+    {
+      "type": "message",
+      "text": "ter and its `okn` prot"
+    },
+    {
+      "type": "message",
+      "text": "ocol validators, with an expl"
+    },
+    {
+      "type": "message",
+      "text": "icit statement that they"
+    },
+    {
+      "type": "message",
+      "text": " are not attributed to the active"
+    },
+    {
+      "type": "message",
+      "text": " ACP search since"
+    },
+    {
+      "type": "message",
+      "text": " that"
+    },
+    {
+      "type": "message",
+      "text": " module was not inspected."
+    },
+    {
+      "type": "message",
+      "text": "\n- Trust root: narr"
+    },
+    {
+      "type": "message",
+      "text": "owed to the work"
+    },
+    {
+      "type": "message",
+      "text": "flow and protected controller files"
+    },
+    {
+      "type": "message",
+      "text": " that constrain the canary,"
+    },
+    {
+      "type": "message",
+      "text": " with an"
+    },
+    {
+      "type": "message",
+      "text": " explicit note that it"
+    },
+    {
+      "type": "message",
+      "text": " does not restrict what"
+    },
+    {
+      "type": "message",
+      "text": " an ordinary authorized"
+    },
+    {
+      "type": "message",
+      "text": " upstream acceptance may"
+    },
+    {
+      "type": "message",
+      "text": " change, including regenerated or"
+    },
+    {
+      "type": "message",
+      "text": " bootstrap-managed"
+    },
+    {
+      "type": "message",
+      "text": " assets. I"
+    },
+    {
+      "type": "message",
+      "text": " also tightened the mat"
+    },
+    {
+      "type": "message",
+      "text": "ching sentence in `decis"
+    },
+    {
+      "type": "message",
+      "text": "ions.md` from"
+    },
+    {
+      "type": "message",
+      "text": " \"every tr"
+    },
+    {
+      "type": "message",
+      "text": "ust-root pin copy\""
+    },
+    {
+      "type": "message",
+      "text": " to the stable pin in those"
+    },
+    {
+      "type": "message",
+      "text": " files"
+    },
+    {
+      "type": "message",
+      "text": ", since it"
+    },
+    {
+      "type": "message",
+      "text": " car"
+    },
+    {
+      "type": "message",
+      "text": "ried the same over"
+    },
+    {
+      "type": "message",
+      "text": "reach.\n- R"
+    },
+    {
+      "type": "message",
+      "text": "ation"
+    },
+    {
+      "type": "message",
+      "text": "ale: the destructive-r"
+    },
+    {
+      "type": "message",
+      "text": "ollback claim is removed from"
+    },
+    {
+      "type": "message",
+      "text": " `decisions.md`;"
+    },
+    {
+      "type": "message",
+      "text": " the one-source prov"
+    },
+    {
+      "type": "message",
+      "text": "enance r"
+    },
+    {
+      "type": "message",
+      "text": "ationale rem"
+    },
+    {
+      "type": "message",
+      "text": "ains.\n\nRet"
+    },
+    {
+      "type": "message",
+      "text": "ained unknowns:"
+    },
+    {
+      "type": "message",
+      "text": " widening aut"
+    },
+    {
+      "type": "message",
+      "text": "onomous upstream source"
+    },
+    {
+      "type": "message",
+      "text": " acceptance still has no acc"
+    },
+    {
+      "type": "message",
+      "text": "epted date and"
+    },
+    {
+      "type": "message",
+      "text": " no accepted owner, rec"
+    },
+    {
+      "type": "message",
+      "text": "orded in the"
+    },
+    {
+      "type": "message",
+      "text": " glossary open"
+    },
+    {
+      "type": "message",
+      "text": " questions and c"
+    },
+    {
+      "type": "message",
+      "text": "ross-referenced from `observ"
+    },
+    {
+      "type": "message",
+      "text": "ations.md`.\n\nLim"
+    },
+    {
+      "type": "message",
+      "text": "its: no sh"
+    },
+    {
+      "type": "message",
+      "text": "ell,"
+    },
+    {
+      "type": "message",
+      "text": " so"
+    },
+    {
+      "type": "message",
+      "text": " no validation command "
+    },
+    {
+      "type": "message",
+      "text": "ran and"
+    },
+    {
+      "type": "message",
+      "text": " I"
+    },
+    {
+      "type": "message",
+      "text": " make"
+    },
+    {
+      "type": "message",
+      "text": " no claim about `"
+    },
+    {
+      "type": "message",
+      "text": "projectctl fe"
+    },
+    {
+      "type": "message",
+      "text": "ature validate` or `kn"
+    },
+    {
+      "type": "message",
+      "text": "owledge validate` verd"
+    },
+    {
+      "type": "message",
+      "text": "icts; the ACP mod"
+    },
+    {
+      "type": "message",
+      "text": "ules and"
+    },
+    {
+      "type": "message",
+      "text": " the excluded `"
+    },
+    {
+      "type": "message",
+      "text": "Wiki/work/`"
+    },
+    {
+      "type": "message",
+      "text": " draft were not"
+    },
+    {
+      "type": "message",
+      "text": " read."
+    }
+  ],
+  "frames": 283,
+  "exit_code": 0,
+  "stderr_sha256": "d8b0b55abb37b1e0c3820d9236e9b55873520ce242f63b95324d0ca7d89df124",
+  "stderr_error_lines": []
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1",
+  "verdict": "APPROVE",
+  "scope": "Independent re-review of the two transport findings from the completed whole-candidate review and their neighboring ACP SDK interactions",
+  "sdkVersion": "0.12.1",
+  "editsByReviewer": false,
+  "nativeKiroOrModelCallsByReviewer": false,
+  "sourceSha256": {
+    "powers/pkstack/src/pkstack/knowledge_acp.py": "cac36059ce245a11d523b5bfd28addbdee42937d82bfe6a81270edfe3614575f",
+    "powers/pkstack/tests/test_knowledge_acp.py": "88e737bab7c3d77217f27bcd6d342f33cff3c1abd540d30c4cd0a2037f560748"
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "P2",
+      "before": "A cancellation send could wait indefinitely behind a blocked peer before process cleanup.",
+      "after": "Each cancellation send has a 0.5-second deadline; a blocked send proceeds to owned-process cleanup.",
+      "status": "resolved"
+    },
+    {
+      "id": "F2",
+      "severity": "P2",
+      "before": "The SDK concatenated stream-reader overrun chunks, permitting an oversized protocol frame, including ignored thoughts.",
+      "after": "The host rejects frames above 1 MiB and aggregate protocol input above 16 MiB before SDK parsing.",
+      "status": "resolved"
+    }
+  ],
+  "independentSubprocessChecks": [
+    {"case": "normal response with ignored thought", "result": "validated answer", "seconds": 0.216},
+    {"case": "blocked 500000-byte prompt write", "result": "timeout and cleanup", "seconds": 8.858},
+    {"case": "oversized thought with newline", "result": "frame limit rejection", "seconds": 6.266},
+    {"case": "oversized EOF tail", "result": "frame limit rejection", "seconds": 0.278},
+    {"case": "oversized streaming frame without newline", "result": "frame limit rejection", "seconds": 6.263},
+    {"case": "repeated 900000-byte ignored thoughts", "result": "aggregate limit rejection", "seconds": 6.469}
+  ],
+  "processCleanup": "Every independent case reaped its owned process, and os.killpg(pid, 0) raised ProcessLookupError afterward.",
+  "diagnostics": "Error cases emitted redacted SDK diagnostics.",
+  "exactBoundaryChecks": {
+    "acceptedFrameBytes": [1048575, 1048576],
+    "rejectedFrameBytes": 1048577,
+    "acceptedAggregateBytes": 16777216,
+    "nextAggregateFrameRejected": true
+  },
+  "targetedTests": {
+    "cwd": "powers/pkstack",
+    "command": "env PATH=/opt/homebrew/bin:${USER_HOME}/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin /opt/homebrew/bin/uv run --frozen pytest -q tests/test_knowledge_acp.py",
+    "passed": 29,
+    "seconds": 18.76,
+    "initialFailure": "The new fake-peer fixture used an incorrect extension method name and notification timing. The corrected fixture passed."
+  },
+  "limitations": "Local fake-peer and real SDK tests only. The separate parent evidence covers the full suite, generated installation, and actual Kiro retrieval."
+}

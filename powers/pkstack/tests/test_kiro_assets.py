@@ -10,9 +10,12 @@ import sys
 from collections import Counter
 from fnmatch import fnmatchcase
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 import pytest
 import yaml
+from markdown_it import MarkdownIt
+from markdown_it.token import Token
 
 from pkstack.bootstrap import SKILL_ROUTE_ALIASES
 from pkstack.branding import DISPLAY_NAME, EXPANDED_NAME, POWER_ID
@@ -227,14 +230,46 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
     } <= ids
 
 
+def _markdown_document_links(text: str) -> list[str]:
+    targets: list[str] = []
+
+    def collect(tokens: list[Token]) -> None:
+        for token in tokens:
+            if token.type in {"link_open", "image"}:
+                href = token.attrGet("href" if token.type == "link_open" else "src")
+                if isinstance(href, str) and href:
+                    parsed = urlsplit(href)
+                    path = unquote(parsed.path)
+                    if not parsed.scheme and not parsed.netloc and path.endswith(".md"):
+                        targets.append(path)
+            if token.children:
+                collect(token.children)
+
+    collect(MarkdownIt("commonmark").parse(text))
+    return targets
+
+
+def test_markdown_document_links_ignore_code_and_resolve_reference_links() -> None:
+    text = """[Inline](guide.md#usage) and [Reference][leaf].
+![Image](diagram.md)
+
+[leaf]: references/leaf.md
+
+`[Inline example](missing-inline.md)`
+
+```markdown
+[Template example](../missing-template.md)
+```
+"""
+    assert _markdown_document_links(text) == ["guide.md", "references/leaf.md", "diagram.md"]
+
+
 def test_skill_routing_markdown_pointers_resolve_within_the_power() -> None:
     for source in SKILLS.rglob("*.md"):
         if "upstream" in source.relative_to(SKILLS).parts:
             continue
         text = source.read_text(encoding="utf-8")
-        for target in re.findall(r"\[[^\]]+\]\(([^)\s]+\.md)(?:#[^)]*)?\)", text):
-            if "://" in target:
-                continue
+        for target in _markdown_document_links(text):
             resolved = (source.parent / target).resolve()
             assert resolved.is_relative_to(ROOT.resolve()), f"{source}: {target} escapes Power"
             assert resolved.is_file(), f"{source}: missing {target}"
@@ -242,12 +277,13 @@ def test_skill_routing_markdown_pointers_resolve_within_the_power() -> None:
                 assert resolved.parent.name in EXPECTED_SKILLS
 
 
-def test_contextual_entrypoints_link_all_six_curated_leaf_methods() -> None:
+def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
     for relative in ("pkstack/SKILL.md", "pkstack/references/workflows.md"):
         source = SKILLS / relative
         targets = {
             (source.parent / target).resolve()
-            for target in re.findall(r"\[[^\]]+\]\(([^)\s]+/SKILL\.md)\)", source.read_text())
+            for target in _markdown_document_links(source.read_text())
+            if Path(target).name == "SKILL.md"
         }
         assert {(SKILLS / name / "SKILL.md").resolve() for name in CURATED_SKILLS} <= targets
 
@@ -491,14 +527,14 @@ def test_primary_router_documents_native_spec_entrypoints() -> None:
         assert document in text
 
 
-def test_okf_skill_uses_canonical_commands_without_foreign_runtime_paths() -> None:
+def test_okf_skill_uses_knowledge_commands_without_foreign_runtime_paths() -> None:
     text = (SKILLS / "okf/SKILL.md").read_text(encoding="utf-8")
     normalized = " ".join(text.split())
     for contract in (
         "projectctl knowledge search",
         "--budget",
         "projectctl knowledge validate",
-        "mode: canonical-okn",
+        "mode: local",
         "Do not crawl editor or agent transcripts",
     ):
         assert contract in normalized

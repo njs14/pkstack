@@ -1,0 +1,66 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "4d6fb0c746c5d21364dce5d0cf8c51eab9712e7b",
+        "size": 137,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "4d6fb0c746c5d21364dce5d0cf8c51eab9712e7b",
+        "size": 137,
+        "type": "blob"
+      },
+      "rationale": "OpenAI UI metadata is inventoried for provenance and excluded from the Kiro-native bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "3947ff9c4ad980d14fc07fccbf659d47c114e81d",
+        "size": 157,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "3947ff9c4ad980d14fc07fccbf659d47c114e81d",
+        "size": 157,
+        "type": "blob"
+      },
+      "rationale": "Preserves the interview entrypoint by linking to the bundled grilling method. Replaces the upstream Skill tool call with portable Kiro skill loading; normal Kiro name/description discovery remains available."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "3df14e2d3a89459bf300614be9247e3ce74798f8"
+    },
+    "id": "mattpocock-grill-me",
+    "path": "skills/productivity/grill-me",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "3df14e2d3a89459bf300614be9247e3ce74798f8"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-05"
+  },
+  "summary": {
+    "A": 1,
+    "B": 0,
+    "C": 1,
+    "current_files": 2,
+    "pinned_files": 2
+  }
+}

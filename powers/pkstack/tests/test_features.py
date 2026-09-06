@@ -31,6 +31,65 @@ POWER_ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY_ROOT = POWER_ROOT.parents[1]
 
 
+def test_shared_okf_metadata_preserves_the_executable_feature_contract(tmp_path: Path) -> None:
+    path = generate_fixture_feature(
+        tmp_path,
+        "metadata",
+        title="Metadata",
+        behavior="A maintainer reads sourced knowledge alongside executable proof.",
+        expected_path="Knowledge to feature verification",
+        command=[sys.executable, "verify.py"],
+    )
+    before = load_feature(path, root=tmp_path)
+    metadata = (
+        "description: Source-grounded feature context\n"
+        "resource: https://example.com/spec\n"
+        "tags: [accounts]\n"
+        "sources: [{resource: 'https://example.com/spec', title: Specification}]\n"
+        "usage_window: {from: '2026-09-01T00:00:00Z', to: '2026-09-02T00:00:00Z'}\n"
+        "generated: {by: 'process:interview', at: '2026-09-02T00:00:00Z'}\n"
+        "verified: {by: 'human:owner', at: '2026-09-02T00:00:00Z'}\n"
+        "status: stable\n"
+        "stale_after: '2026-10-01T00:00:00Z'\n"
+    )
+    path.write_text(path.read_text().replace("type: feature\n", "type: feature\n" + metadata))
+
+    assert load_feature(path, root=tmp_path) == before
+    # Knowledge verification metadata must not authorize an unrecognized
+    # executable setting or replace the feature schema's command validation.
+    path.write_text(
+        path.read_text().replace("verification:\n", "verification:\n  approved: true\n")
+    )
+    with pytest.raises(FeatureMapError, match="verification contains unknown fields"):
+        load_feature(path, root=tmp_path)
+
+
+def test_okf_trust_metadata_does_not_publish_an_unverified_feature(tmp_path: Path) -> None:
+    path = generate_fixture_feature(
+        tmp_path,
+        "unverified",
+        title="Unverified",
+        behavior="The maintainer distinguishes decisions from executed proof.",
+        expected_path="Decision to draft feature",
+        command=None,
+    )
+    path.write_text(
+        path.read_text().replace(
+            "type: feature\n",
+            "type: feature\nverified: {by: 'human:owner', at: '2026-09-02T00:00:00Z'}\n",
+        )
+    )
+    feature = load_feature(path, root=tmp_path)
+    assert feature.draft is True
+    assert feature.command is None
+    path.write_text(path.read_text().replace("draft: true", "draft: false"))
+    result = validate_feature_map(tmp_path)
+    assert result["ok"] is False
+    assert any(
+        "ready contract has no executable verification command" in x for x in result["errors"]
+    )
+
+
 @pytest.mark.parametrize("schema", [None, 1, 3, "2", True])
 def test_only_current_feature_schema_is_readable(tmp_path: Path, schema: object) -> None:
     path = generate_fixture_feature(

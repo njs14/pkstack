@@ -160,7 +160,7 @@ def test_committed_source_inventories_use_canonical_casefold_path_order() -> Non
     assert "mattpocock-writing-for-agents" in checked_sources
 
 
-def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_scoped() -> None:
+def test_retired_openknowledge_contract_keeps_historical_evidence_outside_active_sources() -> None:
     manifest = json.loads(
         (REPOSITORY_ROOT / "maintenance" / "upstreams.json").read_text(encoding="utf-8")
     )
@@ -176,9 +176,17 @@ def test_committed_openknowledge_cli_contract_source_is_exhaustive_and_safely_sc
         REPOSITORY_ROOT / "powers/pkstack/docs/openknowledge-cli-contract-provenance.md"
     ).read_text(encoding="utf-8")
     source_id = "openknowledge-cli-contract"
-    manifest_source = next(source for source in manifest["sources"] if source["id"] == source_id)
-    ledger_source = next(source for source in ledger["sources"] if source["id"] == source_id)
-    _assert_openknowledge_contract_scope(manifest_source, ledger_source, parity, provenance)
+    assert all(source["id"] != source_id for source in manifest["sources"])
+    assert all(source["id"] != source_id for source in ledger["sources"])
+    archive = json.loads(
+        (
+            REPOSITORY_ROOT / "maintenance/retired-upstreams/openknowledge-cli-contract.json"
+        ).read_text()
+    )
+    _assert_openknowledge_contract_scope(
+        archive["manifest_source"], archive["review_ledger_source"], parity, provenance
+    )
+    assert {"google-okf-spec", "okf-skills"} <= {source["id"] for source in manifest["sources"]}
 
 
 def _assert_openknowledge_contract_scope(

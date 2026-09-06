@@ -41,6 +41,21 @@ MAX_FEATURE_PLAN_BYTES = 256 * 1024
 MAX_FEATURE_DOCUMENT_BYTES = 512 * 1024
 MAX_FEATURE_ROLLBACK_BYTES = 4 * 1024 * 1024
 FEATURE_MAP_LOCK = Path(".pkstack/state/feature-map.lock")
+# Shared OKF v0.2 descriptive, provenance, trust, and lifecycle metadata.
+# These fields never replace PKStack's executable ``verification`` contract.
+OKF_METADATA_FIELDS = frozenset(
+    {
+        "description",
+        "resource",
+        "tags",
+        "sources",
+        "usage_window",
+        "generated",
+        "verified",
+        "status",
+        "stale_after",
+    }
+)
 _FEATURE_MAP_THREAD_LOCK = threading.Lock()
 _SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 _H2 = re.compile(r"^##\s+([^\n]+?)\s*$", re.MULTILINE)
@@ -358,7 +373,7 @@ def _parse_feature_text(text: str, *, path: Path, project_root: Path) -> Feature
         "verification",
         "related",
     }
-    unknown_metadata = set(metadata) - allowed_metadata
+    unknown_metadata = set(metadata) - allowed_metadata - OKF_METADATA_FIELDS
     if unknown_metadata:
         raise FeatureMapError(
             f"{path}: unknown frontmatter fields: "

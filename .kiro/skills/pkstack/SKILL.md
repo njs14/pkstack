@@ -54,6 +54,10 @@ distinct parts of the outcome. Pass existing evidence forward instead of repeati
   `teach`
 - repeatable practice and context: `automate-me`, `recall`, or approval-gated `reflect`
 - durable project knowledge: `okf`
+- decision-focused interviews: [`grill-me`](../grill-me/SKILL.md), using the
+  [`grilling`](../grilling/SKILL.md) method; interviews that capture project knowledge:
+  [`grill-with-docs`](../grill-with-docs/SKILL.md); sharpening domain terminology:
+  [`domain-modeling`](../domain-modeling/SKILL.md)
 - verification design and upkeep: `create-verification-skill` or `maintain-verification-skill`
 - implementation discipline: `tdd`, `typescript-best-practices`, `technical-writing`, `unslop`, or
   a named `principle-*` skill
@@ -72,14 +76,23 @@ Use the curated skills where their output fits the task:
   its implementation: [`build-iterated-agentic-loop`](../build-iterated-agentic-loop/SKILL.md)
 
 Use DO for project commands, PROVE for executable feature contracts, and KNOW for broader project
-knowledge through canonical `okn`. Start with the spec-linked feature record; use `okn` only when
-architecture, decisions, concepts, or operations require deeper context. A long autonomous task
-uses `pkstack-verified-goal`, an explicit checkable predicate, and the product's supported wait or
+knowledge through `projectctl knowledge search`. Start with the spec-linked feature record; use
+its bounded read-only Kiro ACP worker only when architecture, decisions, concepts, or operations
+require deeper context. `knowledge validate` checks metadata and links locally without a model.
+A long autonomous task uses `pkstack-verified-goal`, an explicit checkable predicate, and the product's supported wait or
 monitoring mechanism. It never assumes native goal or loop slash commands.
 Use native Kiro sub-agents for independent investigation, implementation, or review, without fixed
 model slugs.
 
-Do not introduce a second runtime, editor-task metadata, automatic branch machinery, or an
+Before substantial investigation or planning, reuse relevant definitions and decisions through
+the feature map and its links. At native planning handoff and task completion, reconcile the
+understanding changed by the authorized work using
+[`okf`'s document lifecycle](../okf/references/document-lifecycle.md). Update the existing topic,
+preserve uncertainties, link evidence, and identify superseded guidance. Read-only requests remain
+read-only. Skills and operational instructions remain native; no document synchronization occurs.
+
+Keep the bounded knowledge worker separate from normal Kiro planning and execution. Do not
+introduce another planner, editor-task metadata, automatic branch machinery, or an
 alternate completion predicate. A workflow that would publish, merge, push, install software,
 change networking, delete a worktree, or discard changes requires exact authorization for that
 action. Return the selected workflow and skill route, skipped checkpoints, and direct evidence.

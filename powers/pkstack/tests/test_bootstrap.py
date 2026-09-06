@@ -152,6 +152,74 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     assert ".pkstack/projectctl/src/pkstack/goal.py" in receipt["files"]
 
 
+def test_project_indexes_remain_editable_after_setup(tmp_path: Path) -> None:
+    assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok
+    indexes = (Path("Wiki/index.md"), Path("Wiki/knowledge/index.md"))
+    for relative in indexes:
+        (tmp_path / relative).write_text("---\ntype: Guide\n---\n\nUser navigation.\n")
+    result = bootstrap_project(tmp_path, power_root=POWER_ROOT, update_managed=True)
+    assert result.ok
+    assert set(result.preserved) == {str(path) for path in indexes}
+    receipt = json.loads((tmp_path / ".pkstack/bootstrap.json").read_text())
+    for relative in indexes:
+        assert str(relative) not in receipt["files"]
+        assert "User navigation." in (tmp_path / relative).read_text()
+
+
+def test_legacy_index_ownership_release_preserves_user_edits(tmp_path: Path) -> None:
+    assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok
+    index = tmp_path / "Wiki/index.md"
+    receipt_path = tmp_path / ".pkstack/bootstrap.json"
+    receipt = json.loads(receipt_path.read_text())
+    receipt["files"]["Wiki/index.md"] = hashlib.sha256(index.read_bytes()).hexdigest()
+    receipt_path.write_text(json.dumps(receipt))
+    index.write_text("---\ntype: Guide\n---\n\nImportant user links.\n")
+    before = _tree_hashes(tmp_path)
+
+    preview = bootstrap_project(tmp_path, power_root=POWER_ROOT, dry_run=True)
+    assert not preview.ok
+    assert "Wiki/index.md" in preview.pending_updates
+    assert _tree_hashes(tmp_path) == before
+    approved_preview = bootstrap_project(
+        tmp_path, power_root=POWER_ROOT, dry_run=True, update_managed=True
+    )
+    assert approved_preview.ok
+    assert "Wiki/index.md" in approved_preview.preserved
+    assert _tree_hashes(tmp_path) == before
+
+    result = bootstrap_project(tmp_path, power_root=POWER_ROOT, update_managed=True)
+    assert result.ok
+    assert "Important user links." in index.read_text()
+    assert "Wiki/index.md" not in json.loads(receipt_path.read_text())["files"]
+    assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok
+
+
+def test_existing_flat_knowledge_does_not_get_hidden_by_new_root(tmp_path: Path) -> None:
+    legacy = tmp_path / "Wiki/domain/glossary.md"
+    legacy.parent.mkdir(parents=True)
+    legacy.write_text("---\ntype: Glossary\n---\n\nExisting project terms.\n")
+    original = legacy.read_bytes()
+    result = bootstrap_project(tmp_path, power_root=POWER_ROOT)
+    assert result.ok
+    assert not (tmp_path / "Wiki/knowledge").exists()
+    assert legacy.read_bytes() == original
+    assert "knowledge/index.md" not in (tmp_path / "Wiki/index.md").read_text()
+    assert any("flat Wiki" in note for note in result.notes)
+
+
+def test_working_directory_is_ignored_without_ignoring_durable_knowledge(tmp_path: Path) -> None:
+    subprocess.run(["git", "init", "--quiet", str(tmp_path)], check=True)
+    assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok
+    result = subprocess.run(
+        ["git", "check-ignore", "Wiki/work/interview/context.md", "Wiki/knowledge/topic.md"],
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert result.stdout.splitlines() == ["Wiki/work/interview/context.md"]
+
+
 def test_cached_setup_entrypoints_cannot_authorize_their_own_snapshot(tmp_path: Path) -> None:
     target = tmp_path / "target"
     target.mkdir()

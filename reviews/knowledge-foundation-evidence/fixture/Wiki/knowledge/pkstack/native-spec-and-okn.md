@@ -20,6 +20,11 @@ ranked, bounded, provenance-bearing retrieval is the interface PKStack needs. `o
 run as an explicitly named independent conformance or SARIF check, but it does not replace `okn`
 search, query, MCP, lifecycle, or safety behavior.
 
+Use `Wiki/knowledge/` as the durable retrieval root and keep task-local drafts under `Wiki/work/`.
+Native specs, skills, and operational instructions retain their own authoritative locations;
+relative links connect them to knowledge documents. There is no document synchronization layer.
+See the [knowledge lifecycle decision](knowledge-lifecycle.md) for document ownership and updates.
+
 ## Consequences
 
 - PKStack stays a Power and thin compatibility seam rather than becoming an agent runtime.
@@ -30,5 +35,5 @@ search, query, MCP, lifecycle, or safety behavior.
 - Future OKF skill packages may add workflow guidance above this boundary, but cannot silently
   change the runtime or verification authority.
 
-See the [composition architecture](../architecture/native-kiro-composition.md) and the
-[context-depth runbook](../operations/context-depth.md).
+See the [composition architecture](native-kiro-composition.md) and the
+[context-depth runbook](context-depth.md).

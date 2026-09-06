@@ -1,23 +1,27 @@
 ---
 name: okf
-description: Produce, maintain, or consume source-controlled Open Knowledge Format project knowledge through PKStack's bounded Wiki and canonical okn interfaces. Use when capturing durable architecture, decisions, concepts, operations, provenance, lifecycle, trust, or attested-computation guidance.
+description: Produce, maintain, or consume source-controlled Open Knowledge Format project knowledge through PKStack's bounded Kiro retrieval and local validation interfaces. Use when capturing durable architecture, decisions, concepts, operations, provenance, lifecycle, trust, or attested-computation guidance.
 ---
 
 # Work with project knowledge
 
 Treat the request text that activated this skill as a request to **produce**, **maintain**, or **consume**
 the repository's OKF knowledge. Infer the narrowest mode from the request and state it. Store project
-knowledge in `Wiki/`; do not create a competing `.okf/` tree when PKStack already owns `Wiki/`.
+knowledge in `Wiki/knowledge/<topic>/`, with temporary material in ignored `Wiki/work/<task>/`.
+Read [the document lifecycle](references/document-lifecycle.md) when creating, retaining, correcting,
+or handing off knowledge. Do not create a competing `.okf/` tree.
 
 For retrieving prior context, use [`recall`](../recall/SKILL.md). For proposing lessons from
 completed work, use [`reflect`](../reflect/SKILL.md). This skill owns durable knowledge when
 capture or maintenance is requested; retrieval and reflection do not imply a write grant.
 Reuse their inspected sources and preserve the difference between history, inference, and proof.
 
-This skill owns workflow semantics only. `.pkstack/bin/projectctl` composes the feature map with the
-canonical `okn` process for validation and bounded retrieval. Do not copy or invoke an upstream
-validator, activate an upstream MCP server or hook, install dependencies, substitute `okfcli/okf`
-for `okn`, or edit global Kiro `/knowledge` settings.
+This skill owns workflow semantics only. `.pkstack/bin/projectctl knowledge validate` composes
+feature validation with local metadata and Markdown link checks; it invokes no Kiro process,
+model, or `okn`. Bounded retrieval uses an isolated read-only Kiro ACP worker through
+`projectctl knowledge search`. Do not copy or invoke an upstream validator, activate an upstream
+MCP server or hook, install dependencies, substitute another retrieval backend, or edit global
+Kiro `/knowledge` settings.
 
 ## Trust boundary
 
@@ -43,8 +47,16 @@ the user's task and keep external, paid, public, or destructive effects separate
    .pkstack/bin/projectctl knowledge search "<specific question>" --budget 1200 --output json
    ```
 
-4. Retain the returned revision, content-addressed locators, and exact line ranges with conclusions.
-   Never inject the whole Wiki.
+4. Retain the returned source paths, exact quotes, content SHA-256 values, line ranges, and
+   uncertainties with conclusions. Search covers `Wiki/knowledge/`, `Wiki/features/`, and
+   `.kiro/specs/`; it excludes `Wiki/work/` and native instructions and skills. Never inject the
+   whole Wiki.
+
+Leave model selection to Kiro unless the user explicitly selects a supported retrieval model.
+The command's automatic selection does not report its resolved model.
+`--budget` bounds returned context by UTF-8 JSON bytes divided by four, not internal token use.
+`knowledge status` reports the supported Kiro runtime's availability. A missing or unsupported
+runtime or model fails explicitly; do not silently change the backend or model.
 
 For native Kiro planning, retrieve only the KNOW context needed to shape requirements or design,
 then return the accepted result to Kiro's native spec artifacts. PKStack does not create a second
@@ -55,13 +67,15 @@ requirements, design, tasks, or dependency graph.
 1. Inspect the existing bundle and naming conventions; do not initialize over existing Markdown.
 2. Choose the durable source material in scope: reviewed code and configuration, current docs,
    explicit decisions, runbooks, or user-supplied evidence.
-3. Write one concept per Markdown file in a domain directory such as `architecture/`, `decisions/`,
-   `concepts/`, or `operations/`. Every concept has YAML frontmatter with a non-empty descriptive
+3. Update the existing topic before creating a new document. Keep domain vocabulary, decisions,
+   research, and operations connected under `Wiki/knowledge/<topic>/`. Every concept has YAML frontmatter with a non-empty descriptive
    `type`; add `title`, a one-sentence `description`, and useful `tags` when known.
 4. Add `resource` only when a concept describes a concrete addressable asset. Record only sources
-   actually inspected and attribute source-specific claims with stable footnote identifiers.
-5. Add ordinary Markdown links to related concepts and update the relevant index without replacing
-   unrelated entries. The root index declares `okf_version: "0.2"`.
+   actually inspected and attribute source-specific claims with ordinary Markdown links.
+   Footnotes, if retained, need separate review because local validation does not recognize them.
+5. Add ordinary Markdown links to related concepts and authoritative native artifacts. Update the
+   project-owned knowledge index without replacing unrelated entries. The knowledge root index
+   declares `okf_version: "0.2"`; the executable feature index remains controller-managed.
 6. When the project keeps a `log.md`, append a concise current-date entry under an ISO `YYYY-MM-DD`
    heading; do not fabricate history.
 
@@ -76,6 +90,12 @@ requirements, design, tasks, or dependency graph.
    is valuable; deletion remains an explicit repository change, not an automatic cleanup.
 4. Preserve unknown metadata. Never apply an unreviewed bulk migration or write through a symlink.
 5. Update indexes and the optional log in the same change, then validate.
+
+Before native planning handoff and task completion, reconcile the understanding changed by the
+authorized work: definitions, decisions, uncertainties, and evidence links. State when none changed.
+This maintenance is part of an authorized implementation or document-producing workflow; a request
+only to recall, review, or explain does not imply a write. It is not a synchronization operation,
+another acceptance gate, or authority to edit skills, steering, or native goal bindings.
 
 ## Consume
 
@@ -93,17 +113,23 @@ that person actually performed it.
 
 ## Deterministic completion
 
-Run both layers after any knowledge change:
+Run the combined local check after any knowledge change:
 
 ```text
-.pkstack/bin/projectctl feature validate --output json
 .pkstack/bin/projectctl knowledge validate --output json
 ```
 
-Full KNOW completion requires `mode: canonical-okn`, a supported `okn` version, clean OKF validation,
-and an unchanged feature-map pass. If `okn` is absent, report the explicit feature-map-only degraded
-mode; do not call that full knowledge validation. For a retrieval change, also run one representative
-bounded search and confirm it returns the intended non-feature concept with provenance.
+Knowledge validation reports `mode: local` and must pass together with the feature result. It
+checks nonempty `type`, optional nonempty `title`/`description`, optional `tags` as a list of
+nonempty strings, and optional `okf_version: "0.2"`; unknown fields are preserved. It also checks
+CommonMark inline/reference links and images, local paths, and Markdown heading anchors.
+It does not fetch external links or validate raw HTML IDs, footnotes, plugin-specific fragments,
+full OKF conformance, or graph semantics. Do not describe that bounded check as full OKF validation.
+
+For a retrieval change, also run one representative bounded search and inspect its
+`schemaVersion: "2"` result, exact provenance, and uncertainties. The host rejects malformed,
+over-budget, excluded, changed-corpus, or incomplete results after at most one bounded correction.
+Local validation remains usable when Kiro retrieval is unavailable; report the separate outcomes.
 
 Return the selected mode, sources inspected, concepts created or changed, context depth and any
 escalation reason, exact validation commands and verdicts, unresolved stale or unverified claims,
