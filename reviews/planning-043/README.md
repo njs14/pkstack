@@ -3,22 +3,29 @@
 **Release blocked.** The candidate implements the shared grilling method and the
 [seven CLI audit corrections](../cli-native-command-audit/README.md), but native
 CLI acceptance exposed planning and knowledge-capture failures. The automated
-checks below do not override those results. Version `0.4.3` is a local, unreleased
-candidate; this report establishes no merge, tag, or publication.
+checks below do not override those results. Version `0.4.3` is an unreleased
+candidate in [draft PR #51](https://github.com/njs14/pkstack/pull/51); this report
+establishes no merge, tag, or publication.
 
-This is a preliminary September 6, 2026 campaign record. IDE Plan completed the
-bounded scenario after a native implementation repair; an IDE Quick Spec no-write
-scenario remains in progress.
+This September 6, 2026 campaign report is complete, and native UI work has stopped.
+IDE Plan completed the bounded scenario after a native implementation repair.
+IDE Quick Spec reached draft artifacts, but final review and the post-approval
+no-write gate remain incomplete.
 The [machine report](campaign.json) records exact hashes, receipt locations,
 session identifiers where available, and remaining acceptance gaps.
 
 ## Candidate identities
 
-All runs started from repository base
-`63e4e2c8a8029c40a2a522931e1feafa0c2e7b53` with uncommitted candidate changes.
+The native scenarios used candidate snapshots assembled from repository base
+`63e4e2c8a8029c40a2a522931e1feafa0c2e7b53` with uncommitted changes.
 Each manifest contains 293 Power-relative file hashes, checked against its
 disposable source copy. A gate receipt's base-commit field alone does not identify
 those uncommitted bytes.
+
+The v3 candidate and preliminary report were subsequently committed as
+`5b3b5f94ba04997a0128e5900bb874b17f9b1178`. Hosted CI below is bound to that
+commit; the report preserves that run's exact identity independently of later
+evidence-only commits.
 
 | Snapshot | Source manifest | Sorted-JSON content SHA-256 |
 | --- | --- | --- |
@@ -46,6 +53,11 @@ the different SHA-256 of each retained manifest file's exact bytes.
   creates, updates, conflicts, pending updates, and stale files. All 293 current
   canonical Power files matched v3. The IDE fixture's final doctor and local
   knowledge validation passed. See [final-checks.json](final-checks.json).
+- **Hosted candidate CI:** all 12 jobs completed successfully for `5b3b5f94` in
+  [run 34058001809](https://github.com/njs14/pkstack/actions/runs/34058001809).
+  The [compact receipt](hosted-ci-5b3b5f9.json) retains exact job identities and
+  results. This draft-PR run does not establish native acceptance or publication;
+  release-package steps were skipped.
 
 The machine report retains the collection digest, lane outcomes, counts, and
 hashes for the original log, policy rerun, aggregate summary, and receipts.
@@ -91,8 +103,9 @@ as evidence.
 
 On IDE 1.0.437 with inherited GPT-5.6 Luna/Low, the supervising runner observed
 the v3 PKStack route load `grilling`, produce the native Plan handoff, and ask
-only the unresolved wording question. In the same conversation, native Plan read
-the shared method and produced a decision-complete plan after the wording choice
+only the unresolved wording question. In the same conversation, native Plan
+continued with the previously loaded method and context and produced a
+decision-complete plan after the wording choice
 without reopening settled questions. The
 [before-approval receipt](ide-plan-before-approval.json) reports no changed,
 deleted, or added files.
@@ -117,11 +130,35 @@ and the knowledge index, added one decision document, and preserved the tests.
 This passes the bounded IDE Plan/capture/idempotence scenario after repair; it
 does not clear the CLI failures or establish every planning route.
 
+## IDE Quick Spec result
+
+**Partial and blocked.** The v3 native workflow loaded `grilling` and drafted
+`requirements.md`, `design.md`, `tasks.md`, and `.config.kiro`. The
+[pre-approval receipt](ide-spec-before-no-write-approval.json) records those four
+additions with no changed baseline product or Wiki files. The
+[native files](ide-spec-artifact-hashes.json) and
+[bounded UI excerpts](ide-spec-ax-excerpts.json) are retained for review.
+
+The model called its uniform-message recommendation settled before a separate
+explicit user choice. The operator reviewed and accepted the draft file batches;
+that was not explicit implementation-plan approval. The draft dependency graph
+also places tasks 1.1 and 1.2, both editing `reference.py`, in the same wave. That
+graph was not executed or validated.
+
+The operator then attempted to approve the plan while explicitly prohibiting
+implementation, commands, and file or Wiki writes. The send control cleared the
+input, but no submitted message or response was visible. The screenshot remained
+on an earlier approval while accessibility reported idle chat; recovery did not
+establish acknowledgement. The [final comparison](ide-spec-final-files.json)
+shows no changes from the four-artifact checkpoint. This proves the files stayed
+unchanged, but it does **not** prove the post-approval no-write behavior. Final
+native review and that acceptance gate remain incomplete; UI work was stopped.
+
 ## Remaining gates and evidence limits
 
-CLI Plan behavior still needs a passing final-snapshot rerun. A fresh IDE Quick
-Spec scenario is testing an explicit no-product/no-Wiki-write instruction while
-allowing native planning documents, including after planning approval. An independent
+CLI Plan behavior still needs a passing final-snapshot rerun. IDE Quick Spec needs
+completed native review and an acknowledged approval that exercises the explicit
+no-write boundary. An independent
 final review and release checks remain required after a candidate passes native
 acceptance.
 
@@ -134,8 +171,8 @@ isolate model selection from client or harness behavior.
 Raw terminals, complete gate receipts, and disposable source/project copies remain
 under `/tmp/pkstack-planning-043-n6nwikes`. They are **local ephemeral evidence**,
 not committed artifacts. The report retains source manifests, compact file-change
-receipts, and terminal excerpts instead of large raw recordings. Excerpts render
-only each final 160×48 terminal screen; they are not complete transcripts. Raw
-hashes identify bytes observed at the recorded time, and active recordings may
-grow. Missing final session identifiers or IDE results remain explicit in the
-machine report.
+receipts, and terminal excerpts instead of large raw recordings. Terminal excerpts
+are 160×48 views at captured points, not complete transcripts. All CLI recordings
+ended; final raw-file hashes and native CLI session identifiers are recorded in
+the machine report. IDE session identifiers were not captured. The incomplete IDE
+result remains an acceptance gap, not an active background run.

@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "title": "PKStack 0.4.3 shared-planning acceptance campaign",
-  "recorded_at": "2026-09-06T20:14:42.534825+00:00",
+  "recorded_at": "2026-09-06T20:35:09.610757+00:00",
   "status": "blocked",
   "candidate_version": "0.4.3",
   "release_status": "unreleased",
   "git_base": "63e4e2c8a8029c40a2a522931e1feafa0c2e7b53",
-  "candidate_identity_note": "Source snapshots are dirty candidate manifests, not commit or release identities. Gate receipts record the unchanged base commit; that field alone does not bind the uncommitted source.",
+  "candidate_identity_note": "Native scenarios used the v1/v2/v3 source manifests from the originally dirty candidate. The v3 candidate and preliminary report were then committed as 5b3b5f94ba04997a0128e5900bb874b17f9b1178. Local gate receipts record the earlier base commit; the retained hosted CI run is bound to the new candidate commit. Later evidence-only commits are outside that stored run identity.",
   "source_snapshots": [
     {
       "id": "v1",
@@ -51,7 +51,9 @@
       "model": "GPT-5.6 Luna",
       "effort": "Low",
       "selection": "inherited by the native IDE session",
-      "observation_attribution": "supervising runner"
+      "observation_attribution": "supervising runner",
+      "session_id": null,
+      "session_id_limit": "Native IDE session identifiers were not captured."
     },
     "comparison_limit": "CLI Auto was unresolved while IDE used Luna/Low; the campaign does not isolate model selection from client or harness behavior."
   },
@@ -251,7 +253,18 @@
           "bytes": 183
         }
       }
-    ]
+    ],
+    "hosted_ci": {
+      "head_commit": "5b3b5f94ba04997a0128e5900bb874b17f9b1178",
+      "run_id": 34058001809,
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_jobs": 12,
+      "total_jobs": 12,
+      "evidence": "hosted-ci-5b3b5f9.json",
+      "limitation": "This successful draft-PR run is bound to candidate commit 5b3b5f94. It does not establish a release or native acceptance; later CI runs have their own commit identities."
+    }
   },
   "native_cases": [
     {
@@ -397,14 +410,37 @@
         "Operator feedback was required to repair the native implementation Unicode defect.",
         "Earlier inline regression commands had NameError or quoting/SyntaxError failures before the final successful heredoc.",
         "This is one bounded IDE Plan scenario, not universal method obedience or a passing CLI Plan route."
-      ]
+      ],
+      "method_read_observation": "PKStack visibly loaded grilling before the native Plan switch. Native Plan continued in the same conversation with that loaded method/context; no separate native Plan tool read was visible."
     },
     {
       "id": "ide-spec-v3",
       "snapshot": "v3",
-      "outcome": "in-progress",
-      "reason": "A fresh v3 native IDE Quick Spec no-write scenario is running; native Spec documents are permitted, but product and Wiki writes remain prohibited even after planning approval.",
-      "evidence": []
+      "outcome": "partial-blocked",
+      "passed_boundaries": [
+        "Native Quick Spec loaded the shared grilling method and produced exactly requirements.md, design.md, tasks.md, and .config.kiro.",
+        "No baseline product or Wiki files changed while the native planning artifacts were drafted.",
+        "The final file comparison found no changes after the four-artifact checkpoint."
+      ],
+      "findings": [
+        "The model called the uniform-message recommendation settled before a separate explicit user choice.",
+        "The operator accepted native file-edit batches; this was not explicit implementation-plan approval.",
+        "The attempted no-write approval cleared the UI input, but no submitted message or response was visible and acknowledgement could not be established."
+      ],
+      "approval_acknowledged": false,
+      "post_approval_no_write_verified": false,
+      "final_native_review_complete": false,
+      "ui_failure": "Screenshot retained an earlier skill-approval state while accessibility reported idle chat. Refresh and accessibility/menu/keyboard recovery did not establish acknowledgement; native UI work was stopped.",
+      "limitations": [
+        "The task draft puts validation and uppercasing tasks 1.1 and 1.2, both editing reference.py, in the same dependency wave. That graph was not executed or validated.",
+        "Unchanged files after an unacknowledged submission do not prove post-approval no-write behavior."
+      ],
+      "evidence": [
+        "ide-spec-before-no-write-approval.json",
+        "ide-spec-final-files.json",
+        "ide-spec-ax-excerpts.json",
+        "ide-spec-artifact-hashes.json"
+      ]
     },
     {
       "id": "cli-interview-v3",
@@ -428,7 +464,8 @@
   "not_established": [
     "CLI Plan reliability on the final snapshot",
     "Strict dependency sequencing throughout standalone interviews",
-    "IDE Quick Spec no-write acceptance on the final snapshot",
+    "Final native IDE Quick Spec review and acknowledged explicit plan approval",
+    "IDE Quick Spec post-approval no-write behavior on the final snapshot",
     "Independent final release approval of an acceptance-passing candidate",
     "Merged revision, tag, or published release"
   ],
@@ -441,7 +478,7 @@
       "observed_at": "2026-09-06T20:02:09.150723+00:00",
       "terminal_session_id": "sess_75a83b4f-82ee-4632-be7e-6e2261133345",
       "session_end_marker_observed": true,
-      "hash_scope": "complete file bytes at observed_at; file may grow if session is still active"
+      "hash_scope": "complete final recording after clean session exit"
     },
     {
       "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-plan-v2.raw",
@@ -450,7 +487,7 @@
       "observed_at": "2026-09-06T20:02:09.150723+00:00",
       "terminal_session_id": "sess_b34da5bd-4414-4c8e-9184-09829df53983",
       "session_end_marker_observed": true,
-      "hash_scope": "complete file bytes at observed_at; file may grow if session is still active"
+      "hash_scope": "complete final recording after clean session exit"
     },
     {
       "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-plan-v3.raw",
@@ -459,7 +496,7 @@
       "observed_at": "2026-09-06T20:02:09.150723+00:00",
       "terminal_session_id": "sess_2c53fa65-100e-46a5-9a14-4bd0885d7e5b",
       "session_end_marker_observed": true,
-      "hash_scope": "complete file bytes at observed_at; file may grow if session is still active"
+      "hash_scope": "complete final recording after clean session exit"
     },
     {
       "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-spec.raw",
@@ -468,7 +505,7 @@
       "observed_at": "2026-09-06T20:04:44.747288+00:00",
       "terminal_session_id": "sess_d3a35543-aae2-4091-a86e-712431159068",
       "session_end_marker_observed": true,
-      "hash_scope": "complete file bytes at observed_at; file may grow if session is still active"
+      "hash_scope": "complete final recording after clean session exit"
     },
     {
       "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-plan-v3-handoff.raw",
@@ -477,7 +514,7 @@
       "observed_at": "2026-09-06T20:06:26.146507+00:00",
       "terminal_session_id": "sess_23678c46-1131-4d63-bdd0-6cf48b95078d",
       "session_end_marker_observed": true,
-      "hash_scope": "complete file bytes after clean session exit"
+      "hash_scope": "complete final recording after clean session exit"
     },
     {
       "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-interview-v3.raw",
@@ -486,11 +523,11 @@
       "observed_at": "2026-09-06T20:10:43.408912+00:00",
       "terminal_session_id": "sess_8ebae902-c170-4914-b5b1-9c57a7702f3c",
       "session_end_marker_observed": true,
-      "hash_scope": "complete recording after clean session exit"
+      "hash_scope": "complete final recording after clean session exit"
     }
   ],
-  "raw_evidence_retention": "Raw terminal recordings, complete gate receipts and disposable workspaces remain under /tmp/pkstack-planning-043-n6nwikes and are local ephemeral evidence. Raw files are not committed. Retained excerpts are partial evidence; hashes identify only the observed bytes.",
-  "release_gate": "Blocked by observed CLI behavior failures and missing final-snapshot acceptance; green structural/product tests do not override these results.",
+  "raw_evidence_retention": "Raw terminal recordings, complete gate receipts, and disposable workspaces remain under /tmp/pkstack-planning-043-n6nwikes and are local ephemeral evidence. Raw recordings are not committed. Retained excerpts are partial evidence; hashes identify the captured bytes. This campaign has stopped and no native session is awaiting completion in this report.",
+  "release_gate": "Blocked by observed CLI planning failures and incomplete IDE Quick Spec final-review/post-approval no-write acceptance. Automated test and hosted CI success do not override these results. Native UI work is stopped; this report is complete.",
   "independent_diagnostic_review": {
     "status": "no-source-repair-justified-by-review",
     "attribution": "Supervising runner reported independent review found no stale-copy, schema, or naming defect that justified a source repair; native failures remain release blockers.",
@@ -532,8 +569,40 @@
       "path": "ide-plan-v3-final-knowledge.json",
       "sha256": "6043aaea6132f2871ef9d620cb12c3a53cee66c8f88e06f106f1486e60d9461b",
       "bytes": 732
+    },
+    {
+      "path": "ide-spec-artifact-hashes.json",
+      "sha256": "71871b74f07edcabf91ccb44b892296adbdc081f47c61a2c89851fc0e4e85f4b",
+      "bytes": 1325
+    },
+    {
+      "path": "ide-spec-ax-excerpts.json",
+      "sha256": "eee7325c18102af71b2c831f947b7b90b0c303922e3f0061dbb016b6b61ffa89",
+      "bytes": 2317
+    },
+    {
+      "path": "ide-spec-before-no-write-approval.json",
+      "sha256": "928f7f8ea208da8d170a331239280594b19789c8e449fec0fbdfc086165654ef",
+      "bytes": 1808
+    },
+    {
+      "path": "ide-spec-final-files.json",
+      "sha256": "0bcbab53d7a531ad7c83d37c2e3bfe955f2c8faa26118581fafec6905f5d906e",
+      "bytes": 1369
     }
   ],
   "fixture_context": "fixture-context.json",
-  "final_checks": "final-checks.json"
+  "final_checks": "final-checks.json",
+  "report_status": "complete",
+  "campaign_execution_status": "stopped",
+  "native_acceptance_status": "incomplete-blocked",
+  "candidate_commit": "5b3b5f94ba04997a0128e5900bb874b17f9b1178",
+  "pull_request": {
+    "number": 51,
+    "url": "https://github.com/njs14/pkstack/pull/51",
+    "observed_via": "supervising runner and retained hosted CI receipt",
+    "observed_head_commit": "5b3b5f94ba04997a0128e5900bb874b17f9b1178",
+    "state_at_recording": "draft"
+  },
+  "candidate_commit_role": "Implementation/source snapshot commit; later evidence-only commits may advance the draft PR head without changing the v3 Power bytes."
 }

@@ -1,0 +1,135 @@
+{
+  "conclusion": "success",
+  "databaseId": 34058001809,
+  "headSha": "5b3b5f94ba04997a0128e5900bb874b17f9b1178",
+  "status": "completed",
+  "url": "https://github.com/njs14/pkstack/actions/runs/34058001809",
+  "source_receipt": {
+    "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/hosted-ci-5b3b5f9.json",
+    "sha256": "b395fce916ac70d41a1c9d2f5ae4d5c552508086619d1e2f4a42e822ab0ba46e",
+    "bytes": 29331
+  },
+  "retention": "Top-level result and job results retained; individual step records remain in the local source receipt.",
+  "jobs": [
+    {
+      "completedAt": "2026-09-06T20:26:57Z",
+      "conclusion": "success",
+      "databaseId": 101553317528,
+      "name": "classify",
+      "startedAt": "2026-09-06T20:26:39Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553317528"
+    },
+    {
+      "completedAt": "2026-09-06T20:28:29Z",
+      "conclusion": "success",
+      "databaseId": 101553364277,
+      "name": "browser",
+      "startedAt": "2026-09-06T20:26:59Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364277"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:45Z",
+      "conclusion": "success",
+      "databaseId": 101553364312,
+      "name": "package",
+      "startedAt": "2026-09-06T20:26:58Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364312"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:44Z",
+      "conclusion": "success",
+      "databaseId": 101553364329,
+      "name": "policy",
+      "startedAt": "2026-09-06T20:26:59Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364329"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:34Z",
+      "conclusion": "success",
+      "databaseId": 101553364337,
+      "name": "core (2)",
+      "startedAt": "2026-09-06T20:26:59Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364337"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:23Z",
+      "conclusion": "success",
+      "databaseId": 101553364360,
+      "name": "fast",
+      "startedAt": "2026-09-06T20:26:59Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364360"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:30Z",
+      "conclusion": "success",
+      "databaseId": 101553364373,
+      "name": "core (0)",
+      "startedAt": "2026-09-06T20:26:59Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364373"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:52Z",
+      "conclusion": "success",
+      "databaseId": 101553364378,
+      "name": "core (1)",
+      "startedAt": "2026-09-06T20:27:00Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364378"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:48Z",
+      "conclusion": "success",
+      "databaseId": 101553364381,
+      "name": "core (4)",
+      "startedAt": "2026-09-06T20:26:59Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364381"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:44Z",
+      "conclusion": "success",
+      "databaseId": 101553364383,
+      "name": "core (5)",
+      "startedAt": "2026-09-06T20:26:59Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364383"
+    },
+    {
+      "completedAt": "2026-09-06T20:27:40Z",
+      "conclusion": "success",
+      "databaseId": 101553364442,
+      "name": "core (3)",
+      "startedAt": "2026-09-06T20:26:59Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553364442"
+    },
+    {
+      "completedAt": "2026-09-06T20:28:51Z",
+      "conclusion": "success",
+      "databaseId": 101553590912,
+      "name": "deterministic",
+      "startedAt": "2026-09-06T20:28:31Z",
+      "status": "completed",
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809/job/101553590912"
+    }
+  ],
+  "release_steps_not_executed": [
+    {
+      "job": "package",
+      "step": "Build and validate reproducible main artifact",
+      "conclusion": "skipped"
+    },
+    {
+      "job": "package",
+      "step": "Retain immutable release package",
+      "conclusion": "skipped"
+    }
+  ]
+}
