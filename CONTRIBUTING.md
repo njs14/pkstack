@@ -19,6 +19,39 @@ current-session verification loop.
 
 ## Local checks
 
+### Fresh checkout or worktree
+
+Start from current `main` in this repository (`njs14/pkstack`). Keep earlier
+`pstack-kiro` checkouts separate. For isolated work, create a new worktree from
+the refreshed remote branch; do not copy another worktree's virtual environment
+or generated runtime:
+
+```sh
+git fetch origin
+git worktree add -b my-change ../pkstack-my-change origin/main
+cd ../pkstack-my-change
+uv sync --locked --all-groups --project powers/pkstack
+```
+
+Read the Power-local setup script before running it. Preview setup from the
+repository root, then apply only a conflict-free preview:
+
+```sh
+uv run --frozen --project powers/pkstack python powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py --root . --dry-run
+uv run --frozen --project powers/pkstack python powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py --root .
+./projectctl doctor --output json
+./projectctl feature validate --output json
+./projectctl knowledge validate --output json
+```
+
+After canonical Power changes, repeat the preview. If it lists only expected
+`pending_updates`, apply with `--update-managed` and inspect the generated diff.
+Conflicts and stale managed paths require investigation; do not overwrite them.
+Repeat setup to confirm zero created/updated files. The generated controller
+must match the candidate source before using its results as proof.
+
+### Focused and complete verification
+
 Run focused regressions for the behavior you changed, then the fast contract lane
 before pushing a reviewed checkpoint. From the repository root:
 
@@ -58,6 +91,18 @@ or after a successful CI run unless new evidence warrants it.
 Report failed checks and their exact commands. Capture diagnostics once per
 failure and retain the commit/run identity; do not retry until green or treat a
 previous successful commit as validation of a changed candidate.
+
+### Measuring local link validation
+
+```sh
+uv run --frozen --project powers/pkstack python powers/pkstack/benchmarks/knowledge_links.py
+```
+
+This secretless benchmark measures the repository Wiki and a temporary fixture
+with 1,600 links to a shared Markdown target. It reports seven samples after a
+warm-up and requires identical validation results between samples. Compare the
+same fixture, interpreter, and machine before and after a change. Timing is
+diagnostic evidence, not a CI pass/fail threshold; retain the individual samples.
 
 ## Pull requests
 
