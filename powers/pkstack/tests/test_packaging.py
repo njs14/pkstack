@@ -19,6 +19,7 @@ from pkstack.bootstrap import (
 from pkstack.branding import DISTRIBUTION_NAME, identity_payload
 
 POWER_ROOT = Path(__file__).parents[1]
+POWER_VERSION = json.loads((POWER_ROOT / "plugin.json").read_text(encoding="utf-8"))["version"]
 
 
 def _run(command: list[str], *, cwd: Path, env: dict[str, str] | None = None) -> str:
@@ -104,7 +105,7 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
     version_output = _run_clean_json(
         [str(controller), "version", "--output", "json"], cwd=target, env=clean_env
     )
-    assert version_output == {**identity_payload(), "version": "0.3.0"}
+    assert version_output == {**identity_payload(), "version": POWER_VERSION}
     doctor_output = _run(
         [str(controller), "doctor", "--output", "json"],
         cwd=target,
@@ -227,7 +228,7 @@ def test_bootstrapped_wrapper_ignores_unchecked_controller_bytecode(tmp_path: Pa
     target.mkdir()
     assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
     controller = target / ".pkstack" / "bin" / "projectctl"
-    expected = {**identity_payload(), "version": "0.3.0"}
+    expected = {**identity_payload(), "version": POWER_VERSION}
     command = [str(controller), "version", "--output", "json"]
     assert _run_clean_json(command, cwd=target) == expected
 
