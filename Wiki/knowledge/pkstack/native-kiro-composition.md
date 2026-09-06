@@ -13,7 +13,8 @@ For installation and recovery, use the [Power usage guide](../../../powers/pksta
 ## Ownership
 
 Kiro owns execution and orchestration. Its native Spec, Quick Spec, Bug Fix, and Plan workflows own
-requirements or bug analysis, design, tasks, dependency analysis, and native task execution.
+requirements or bug analysis, design, tasks, dependency analysis, and native task execution
+when using Specs. Plan owns a conversational plan and has no Spec task-file requirement.
 PKStack consumes those artifacts and layers the upstream Poteto workflow semantics around them; it
 does not create a competing planner or runtime.
 
@@ -44,11 +45,33 @@ supported Agent Skill or custom-agent tool for changing the active workflow. PKS
 does not invoke or emulate Spec, Quick Spec, or Bug Fix, and it does not use ACP or a nested Kiro
 process to hide the transition.
 
-In CLI v3, the operator enters or resumes the native workflow with `/spec`; in the IDE, the operator
+In CLI v3, the operator enters or resumes Specs with `/spec`, or conversational Plan with
+`/plan <request>`; in the IDE, the operator
 uses **Build with spec** or the workflow picker. After Kiro produces its native artifacts, the same
 conversation returns to the `pkstack` agent and binds the spec to an executable verifier. Web support
 uses committed workspace assets but remains untested. Crew compatibility is artifact-level through
 its Task Runner and does not imply the local IDE/CLI same-session transition.
+
+## Shared planning interview decision
+
+The approved 0.4.3 design makes `grilling` the shared interview method for planning entered
+through PKStack. It supplies fact-first questions, dependent decision ordering, recommendations,
+and settled-answer reuse. Kiro supplies the native workflow, permissions, approval, and execution.
+`grill-me` starts a focused interview; `grill-with-docs` additionally requests capture while
+interviewing when writes are permitted. `interrogate` remains a separate proposal review.
+
+The handoff explicitly asks native Plan or Specs to read the shared method and carries forward
+settled answers and open questions. This avoids assuming that built-in workflows inherit every
+custom-agent resource. Native Plan uses permitted reading and search, with no shell, MCP,
+prototype execution, or knowledge writes. It keeps pending knowledge in the conversation.
+After explicit implementation-plan approval, the first permitted execution step captures reusable
+definitions and decisions through the existing knowledge lifecycle. Explicit no-write scope wins;
+repeated approval updates existing knowledge instead of creating copies. Denied writes or failed
+validation remain incomplete. Approval is a design decision, not implementation proof.
+
+This replaces separate mandatory planning interviews and opt-in-only post-plan knowledge capture.
+A standalone decision conversation does not automatically authorize file updates. The accepted
+plan is the source of this decision; native acceptance must separately establish candidate behavior.
 
 ## Related knowledge
 

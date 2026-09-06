@@ -10,6 +10,8 @@ license notice is retained in [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.
 
 Preserves composition of interviewing and domain modeling as a first-class entrypoint. Replaces the upstream Skill API with local bundled references, adds bounded OKF retrieval and validation, records decisions as they settle, and hands linked context to native Kiro specs without a duplicate task graph.
 
+Interview questions have one owner in grilling. Explicit interview-time capture uses domain-modeling and OKF only within active write permissions; native Plan retains pending knowledge in conversation. Repeated approval reconciles already captured entries without duplication.
+
 The upstream `agents/openai.yaml` is recorded but not shipped. No upstream installer,
 agent configuration, hooks, or runtime is activated. Local skills remain native assets;
 only their project-specific knowledge output belongs in Wiki. The exact shipped bytes

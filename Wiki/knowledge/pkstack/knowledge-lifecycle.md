@@ -10,7 +10,12 @@ tags: [pkstack, knowledge, okf, workflow]
 ## Decision and rationale
 
 Wiki is the home for project understanding. Workflows consult relevant knowledge before substantial
-investigation or planning, then update that understanding at planning handoff and task completion.
+investigation or planning, then update that understanding after implementation-plan approval and at
+task completion when writes are permitted. During read-only Plan, keep pending definitions and
+decisions in the conversation; do not invoke shell retrieval, MCP, or validation. Use available
+reading and search instead. An explicit no-write request takes precedence over default capture.
+The [shared planning decision](native-kiro-composition.md#shared-planning-interview-decision)
+replaces opt-in-only post-plan capture while preserving standalone decision-only scope.
 The intended payoff is fewer repeated questions and wrong assumptions in later sessions. Valid
 frontmatter and a completed migration alone do not demonstrate that payoff.
 

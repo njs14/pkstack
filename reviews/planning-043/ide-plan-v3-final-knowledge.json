@@ -1,0 +1,30 @@
+{
+  "feature_map": {
+    "errors": [],
+    "feature_count": 0,
+    "features": [],
+    "ok": true,
+    "warnings": []
+  },
+  "knowledge_root": "/private/tmp/pkstack-planning-043-n6nwikes/ide-plan/Wiki/knowledge",
+  "layout": "durable-directory",
+  "local_links": {
+    "documents": 4,
+    "issues": [],
+    "local_links": 7,
+    "ok": true
+  },
+  "metadata": {
+    "documents": 4,
+    "issues": [],
+    "ok": true
+  },
+  "mode": "local",
+  "ok": true,
+  "schemaVersion": "2",
+  "unsupportedChecks": [
+    "Full OKF conformance, graph, lifecycle, trust, and attestation semantics",
+    "External URL reachability and non-Markdown target fragments",
+    "Raw HTML IDs, footnotes, and renderer-plugin anchors are not recognized"
+  ]
+}

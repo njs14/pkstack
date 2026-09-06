@@ -86,18 +86,25 @@ user's context: [`show-me`](../show-me/SKILL.md) for a visual tour,
 Do not start onboarding, a diagram, a documentation rewrite, or a verification workflow merely
 because setup succeeded. An explicitly requested follow-up may proceed within its own scope.
 
-Kiro discovers newly copied workspace skills at session startup. After setup,
-the generated Poteto Kiro (`pkstack`) permission profile does not attach
-retroactively. In Kiro IDE 1.x, use the agent selector in the chat panel or
-Agent Focus and choose the workspace `pkstack` agent before the next workflow
-message. In Kiro CLI v3, stay in the same chat and run:
+After setup, select the generated Poteto Kiro (`pkstack`) permission profile;
+copying its files does not select it. In Kiro IDE 1.x, use the agent selector in
+the chat panel or Agent Focus and choose the workspace `pkstack` agent before the next workflow
+message. In Kiro CLI v3, inspect the agent picker and stay in the same chat:
 
 ```text
+/agent
 /agent swap pkstack
+/config skills
 ```
 
-The selected prompt, tools, and permissions take effect on the next message.
-For a later managed refresh, the `pkstack` profile intentionally has no Powers.
+The bare `/agent` opens the picker; do not substitute `/agent list`, which the
+audited CLI 2.21.1 interpreted as an agent named `list`. `/config skills` shows
+the effective skill inventory under the selected agent. The selected prompt,
+tools, and permissions take effect on the next message. Native agent hot reload
+was observed for a newly added fixture agent; that does not prove skill hot reload.
+For a later managed refresh, `pkstack` disables automatic Power inclusion with
+`includePowers: false` and explicitly loads reviewed workspace skills. This does
+not establish isolation from skills inherited through other configuration scopes.
 Stay in the same chat, temporarily select the agent that can discover the reviewed
 Power, invoke this Power-local `/pkstack-setup`, and select `pkstack` again.
 CLI v3 2.21.1 names its bundled default agent `default`; use `/agent swap default`
@@ -106,10 +113,12 @@ The swap alone does not register or discover a Power. If this skill is unavailab
 use the reviewed Power-local script from a terminal as documented in usage.md;
 do not copy setup into managed workspace skills or change global Power settings.
 
-If the newly scaffolded agent or `/pkstack-verified-goal` is not discoverable in this
-session, open one fresh session from the same repository before starting a
-verified goal. In IDE 1.x, open a fresh chat/Agent Focus session and choose the
-workspace `pkstack` agent. In CLI v3, exit normally and run:
+If the newly scaffolded agent is absent, inspect the setup result and project
+root, then retry the picker and same-conversation swap. If newly installed skills
+such as `/pkstack-verified-goal` remain absent from `/config skills` after selection,
+use one fresh session from the same repository before starting a verified goal.
+In IDE 1.x, open a fresh chat/Agent Focus session and choose the workspace `pkstack`
+agent. In CLI v3, exit normally and run:
 
 ```text
 kiro-cli chat --v3 --agent pkstack

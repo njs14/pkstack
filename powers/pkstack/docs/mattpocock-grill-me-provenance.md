@@ -10,6 +10,8 @@ license notice is retained in [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.
 
 Preserves the interview entrypoint by linking to the bundled grilling method. Replaces the upstream Skill tool call with portable Kiro skill loading; normal Kiro name/description discovery remains available.
 
+The focused entrypoint reuses the shared method. Standalone decision interviews remain conversational; requested implementation plans follow native planning and capture reusable understanding only after approval and permitted writes.
+
 The upstream `agents/openai.yaml` is recorded but not shipped. No upstream installer,
 agent configuration, hooks, or runtime is activated. Local skills remain native assets;
 only their project-specific knowledge output belongs in Wiki. The exact shipped bytes

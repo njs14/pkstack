@@ -1,0 +1,9 @@
+{
+  "changed_baseline_files": [],
+  "new_project_files": [],
+  "native_mode": "Plan",
+  "shared_method_read": ".kiro/skills/grilling/SKILL.md",
+  "unresolved_question_count": 1,
+  "settled_constraint_reopened": false,
+  "tests_executed_during_plan": false
+}

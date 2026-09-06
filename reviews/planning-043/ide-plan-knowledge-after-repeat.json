@@ -1,0 +1,12 @@
+{
+  "fixture": "ide-plan",
+  "changed_or_deleted": [],
+  "added": [],
+  "decision_documents": 1,
+  "hashes": {
+    "Wiki/index.md": "b783c86edfa0815c838fae7be4034a03cb6e28e77db270a6c64c3408c5f9a6c0",
+    "Wiki/features/README.md": "da3d6e7a825ad02b2beb9caa3231a96780458cc12e1a203bbe6d8101058870ab",
+    "Wiki/knowledge/index.md": "d5a7667077399e06d333deab500e82701e9c9b92fb1df815bc1e2c559d49ea75",
+    "Wiki/knowledge/reference-normalization/decision.md": "418d6ab2f70b502b9158fb2835ac52a01c381df8c7a561d0c52bc2400ae0fa4b"
+  }
+}

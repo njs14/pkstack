@@ -37,6 +37,14 @@ evidence packet, reconciliation, and final answer.
 
 ## Explorer role
 
+For CLI orientation, `/code status` reports workspace and language-server status;
+`/code overview` is optional when available. Use native symbol and reference
+navigation when the current profile exposes it, otherwise read and search source.
+Keep `/code init` a separate, explicit setup action: it can write
+`.kiro/settings/lsp.json` and start language servers. Do not initialize merely to
+answer an explanation request. The audited CLI 2.21.1 menu exposed `status`, `init`,
+and `overview`; do not promise `/code summary` or `/code logs` on that basis.
+
 Each explorer follows one slice deeply:
 
 1. Find the real entrypoint instead of guessing from names.

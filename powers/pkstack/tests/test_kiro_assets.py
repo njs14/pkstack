@@ -161,7 +161,7 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
     assert set(fixture) == {"schema_version", "cases"}
     assert type(fixture["schema_version"]) is int and fixture["schema_version"] == 1
     cases = fixture["cases"]
-    assert isinstance(cases, list) and 1 <= len(cases) <= 36
+    assert isinstance(cases, list) and 1 <= len(cases) <= 48
     ids: set[str] = set()
     primary_routes: set[str] = set()
     for case in cases:
@@ -227,6 +227,19 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
         "react-live-null-state",
         "explicit-loop-no-effects",
         "lesson-with-polished-visual",
+        "explicit-grilling-method",
+        "interview-decision-only",
+        "domain-meaning-update",
+        "interview-and-retain-knowledge",
+        "native-plan-shared-method",
+        "native-plan-capture-pending",
+        "approved-plan-first-write",
+        "approved-plan-repeat",
+        "approved-plan-no-write",
+        "approved-plan-capture-denied",
+        "approved-plan-validation-failed",
+        "native-spec-shared-ownership",
+        "docs-interview-read-only",
     } <= ids
 
 
@@ -299,15 +312,23 @@ def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
         ("how", {"teach", "show-me"}),
         ("why", {"teach", "show-me"}),
         ("teach", {"how", "why", "show-me", "archify"}),
-        ("architect", {"arena", "design-control-loop"}),
-        ("arena", {"architect", "design-control-loop"}),
-        ("design-control-loop", {"architect", "arena", "build-iterated-agentic-loop"}),
-        ("build-iterated-agentic-loop", {"design-control-loop", "pkstack-verified-goal"}),
+        ("architect", {"arena", "design-control-loop", "grilling"}),
+        ("arena", {"architect", "design-control-loop", "grilling"}),
+        ("design-control-loop", {"architect", "arena", "build-iterated-agentic-loop", "grilling"}),
+        (
+            "build-iterated-agentic-loop",
+            {"design-control-loop", "pkstack-verified-goal", "grilling"},
+        ),
         ("pkstack-verified-goal", {"build-iterated-agentic-loop", "maintain-verification-skill"}),
         ("maintain-verification-skill", {"pkstack-verified-goal"}),
         ("recall", {"reflect", "okf"}),
         ("reflect", {"recall", "okf"}),
-        ("okf", {"recall", "reflect"}),
+        ("okf", {"recall", "reflect", "grilling"}),
+        ("grilling", {"pkstack", "okf", "domain-modeling", "grill-with-docs", "interrogate"}),
+        ("grill-me", {"grilling", "grill-with-docs"}),
+        ("grill-with-docs", {"grilling", "domain-modeling", "okf"}),
+        ("domain-modeling", {"grilling", "okf"}),
+        ("create-verification-skill", {"grilling"}),
         ("narrow-react-prop-types", {"typescript-best-practices"}),
         ("typescript-best-practices", {"narrow-react-prop-types"}),
     ],

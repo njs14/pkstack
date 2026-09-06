@@ -72,9 +72,13 @@ Then send the same request in that session:
 ```
 
 Review Kiro's command and write approval requests. Kiro should edit `account.py`
-and rerun the stored command in this conversation. If the agent or skill is
-not discovered, start one fresh session in the same directory and select
-`pkstack` again.
+and rerun the stored command in this conversation. If discovery fails, use the
+CLI's bare `/agent` picker and try `/agent swap pkstack` in the same conversation;
+then inspect `/config skills`. In the IDE, use its workspace agent picker.
+Agent discovery and skill discovery are separate: if newly installed skills
+remain absent, open one fresh chat in the same project and select `pkstack` again.
+See [the discovery guide](usage.md#attach-the-generated-agent) if the agent itself
+is missing.
 
 Check the result yourself in a terminal at the disposable target root:
 
@@ -91,6 +95,9 @@ The runner screens common hazards but is not an OS sandbox. Review verifiers
 before approving execution. `/pkstack-verified-goal` is a PKStack skill, not
 Kiro’s native `/goal`.
 
-For larger work, [start with a native Spec or Quick Spec](usage.md#plan-and-bind-work).
-Bind its artifacts to a verifier, then publish a reusable feature contract once
-the implementation passes.
+For larger work, [start with native planning](usage.md#plan-and-bind-work).
+PKStack uses the shared grilling interview in conversational Plan, Spec, and Quick
+Spec workflows. Plan stays read-only until native approval; approved implementation
+plans save reusable knowledge at the first permitted write step. For Spec-backed
+work, bind its artifacts to a verifier, then publish a reusable feature contract
+once the implementation passes.

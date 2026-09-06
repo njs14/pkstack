@@ -13,7 +13,14 @@ For 0.2 or older namespaces, first follow the separate-checkout
 ## Preview the managed refresh
 
 Set `PKSTACK_POWER` to the reviewed 0.4 Power directory. Leave the restricted
-workspace agent before running setup from a terminal:
+workspace agent in the same CLI conversation:
+
+```text
+/agent swap default
+```
+
+In Kiro IDE, use the agent picker. Then preview setup from a terminal at the
+target project root:
 
 ```sh
 python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
@@ -45,7 +52,9 @@ metadata; do not treat requirements or old reports as current passing evidence.
 Setup does not convert arbitrary old Wiki content or goals into new evidence.
 
 Return to the same CLI conversation with `/agent swap pkstack`, or select
-`pkstack` in Kiro IDE. When context is needed, run a bounded query:
+`pkstack` in Kiro IDE. In CLI, inspect `/config skills` under that agent; follow
+the [discovery guide](usage.md#attach-the-generated-agent) if refreshed skills
+remain absent. When context is needed, run a bounded query:
 
 ```sh
 .pkstack/bin/projectctl knowledge search "project acceptance criteria" \

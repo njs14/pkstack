@@ -1,0 +1,8 @@
+{
+  "fixture": "cli-plan-v3",
+  "baseline_file": "cli-plan-v3-v3-baseline.json",
+  "changed_or_deleted": [],
+  "added": [],
+  "product_unchanged": true,
+  "wiki_unchanged": true
+}

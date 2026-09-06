@@ -41,6 +41,11 @@ path below.
 
 ### Kiro CLI
 
+CLI v3 also picks up Powers installed through the IDE. In a default CLI session,
+`/powers` lists installed Powers. Registering the Power and setting up a target
+project are separate steps; the terminal workflow below handles project setup
+without an IDE import. See [CLI Power discovery](powers/pkstack/docs/usage.md#cli-powers-and-project-setup).
+
 Replace the example path with your application's root directory, then preview
 what setup will add:
 
@@ -83,8 +88,8 @@ skill from the [capability table](#what-pkstack-does).
    Agent Focus session.
 3. Review the preview, approve the intended changes, and resolve any failed
    installation checks.
-4. Select the workspace `pkstack` agent and send `/pkstack <task>`. If the new
-   agent is absent, open a fresh chat in the same project.
+4. Select the workspace `pkstack` agent and send `/pkstack <task>`. If assets are
+   absent, follow [agent and skill discovery](powers/pkstack/docs/usage.md#attach-the-generated-agent).
 
 For a first run, [try the included failing task](powers/pkstack/docs/first-task.md) in a
 disposable project. Kiro repairs an account-ID function while its four tests
@@ -112,14 +117,14 @@ check for a larger change.
 
 | Capability | What you can do |
 | --- | --- |
-| Plan and implement | `/pkstack` routes the task through investigation, native planning, implementation, verification, and review. Link a Spec or Quick Spec to the command that checks the result. |
+| Plan and implement | `/pkstack` applies the shared grilling interview within native Plan, Spec, or Quick Spec, then routes approved work through implementation, verification, and review. Link a Spec to the command that checks the result. |
 | Verify a repair | Work against one stored command with `/pkstack-verified-goal`. Set an attempt limit and inspect the failed and passing output. |
 | Build reusable checks | Give a feature an executable check and a recipe for driving its real CLI, UI, or service with `create-verification-skill`. Audit it later with `maintain-verification-skill`. |
 | Compare designs | Sketch API and module alternatives with `architect`, compare candidates with `arena`, and trace the effects of a change with `blast-radius`. |
 | Investigate and teach | Trace behavior with `how`, recover design rationale with `why`, or work through both with `teach`. Ground the explanation in code and available evidence. |
 | Review in parallel | Split investigations with `swarm` and reconcile independent reviews with `pkstack-model-council`. The shipped delegated profiles inspect and report; the primary agent makes edits. |
 | Retain project knowledge | Maintain topic documents, decisions, and references with `/okf`. Retrieve relevant context for later work with `recall`. |
-| Work through decisions | `grill-with-docs` combines a design interview, domain modeling, and knowledge capture. Settle terms and decisions while keeping open questions visible. |
+| Work through decisions | `/grilling` supplies the shared interview method; `/grill-me` starts a focused interview; `/grill-with-docs` also requests knowledge capture during the interview when writes are permitted. |
 | Explain visually | Ask `show-me` for call trees, pseudocode, and visual explanations. `archify` produces interactive architecture, sequence, workflow, and lifecycle diagrams; it needs Node.js 18+. |
 | Write documentation | Draft and edit human-facing prose with `technical-writing` and `unslop`. Use `writing-for-agents` for instructions an agent will consume. |
 | Build an automation | Define the measurements, actions, attempt limits, and failure handling with `design-control-loop`, then implement the agreed design with `build-iterated-agentic-loop`. |
@@ -128,6 +133,12 @@ For example, ask `/how Trace this request from the API handler to storage`, or
 `/grill-with-docs Help define what suspended and closed mean in this account model`.
 The [skill catalog](powers/pkstack/docs/curated-skills.md)
 explains which helpers to combine and what each one contributes.
+
+Planning reuses settled answers and leaves Kiro in charge of native artifacts,
+approval, and execution. After you approve an implementation plan, PKStack saves
+reusable definitions and decisions at the first permitted write step. Read-only
+Plan defers capture, and an explicit no-write request takes precedence. See
+[planning and knowledge capture](powers/pkstack/docs/usage.md#plan-and-bind-work).
 
 ## How it works
 

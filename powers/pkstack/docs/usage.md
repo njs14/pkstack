@@ -36,6 +36,32 @@ kiro-cli chat --v3 --help
 PKStack inherits the model and effort selected in Kiro. It does not store a
 model choice in `projectctl` or require a particular provider for interactive
 work. Historical acceptance model choices describe those runs, not a default.
+Use the native `/model` and `/effort` pickers if you want to change that selection;
+available choices depend on your runtime, account, and selected model.
+
+## CLI Powers and project setup
+
+CLI v3 supports Powers. Kiro documents [automatic pickup of IDE-installed
+Powers](https://kiro.dev/docs/cli/v3/new-features/#powers-auto-pickup), and
+[`/powers`](https://kiro.dev/docs/reference/slash-commands/#powers) lists them
+inside a local v3 session. Start `kiro-cli chat --v3` with the default agent to
+inspect that list.
+
+The [CLI installation guide](https://kiro.dev/docs/powers/installation/#cli)
+directs Power installation through the IDE or manual Power configuration. It
+does not document an install subcommand for `/powers`. For PKStack's private
+repository, use the [IDE folder import](#install-with-kiro-ide) to register the
+reviewed Power, or use the terminal setup below to prepare a project directly.
+
+Power registration makes the package available to Kiro. Project setup creates
+the workspace agent, skills, controller, and Wiki. A Power appearing in
+`/powers` does not prove that its setup skill is available in the current
+session. Invoke `/pkstack-setup` where Kiro exposes that Power-local skill;
+otherwise use its setup script below. After setup, select the workspace
+`pkstack` agent. Its `includePowers: false` setting disables automatic Power
+inclusion; PKStack explicitly loads its reviewed workspace skills. Other skill
+scopes may still contribute. Inspect the effective inventory with `/config skills`
+under the selected agent; this setting does not establish skill isolation.
 
 ## Choose the Power source
 
@@ -142,8 +168,8 @@ kiro-cli chat --v3 --agent pkstack
 4. Select the workspace `pkstack` agent before the next workflow message.
 
 If the imported Power is not discoverable, use the terminal setup above. If the
-new agent or skills are absent, open a fresh chat in the same project and select
-`pkstack`; copying files does not attach the new profile retroactively.
+new agent or skills are absent, follow [agent and skill discovery](#attach-the-generated-agent)
+before opening a replacement chat.
 
 ## First success
 
@@ -158,20 +184,31 @@ trusted entrypoint. The canonical wrapper uses the shipped locked runtime under
 
 ### Attach the generated agent
 
-The bootstrap conversation may not inherit the new profile. In the IDE choose
-the workspace `pkstack` agent. In CLI v3 use either:
+The bootstrap conversation does not automatically select the new profile. In the
+IDE use the agent picker to select the workspace `pkstack` agent. In CLI v3,
+inspect the available agents and select it in the current conversation:
 
 ```text
+/agent
 /agent swap pkstack
+/config skills
 ```
 
-or, when Kiro has not discovered the new assets yet:
+The bare `/agent` opens the picker; `/config skills` shows the selected session's
+read-only skill inventory. On CLI 2.21.1, `/agent list` was interpreted as an
+agent named `list`, so use the bare picker. Agent files added during the audit
+were selectable without restarting; that does not prove skill hot reload.
+
+If a new agent is still absent, check the setup report and project root. If
+newly installed skills remain absent after selecting `pkstack`, open one fresh
+chat in the same project and select it again. The CLI fallback is:
 
 ```sh
 kiro-cli chat --v3 --agent pkstack
 ```
 
-Keep the handoff in the same conversation when possible. The primary profile
+Prefer the same-conversation handoff. A managed refresh uses `/agent swap default`
+before setup and `/agent swap pkstack` afterward. The primary profile
 asks before ordinary writes and canonical controller commands. Delegated
 architect, reviewer, and verifier profiles omit `write` and `shell`; they
 inspect and report to the primary session. These Kiro permissions complement
@@ -237,16 +274,59 @@ CLI v3 provides Kiro's native `/goal` command.
 
 ## Plan and bind work
 
-For nontrivial work, use Kiro's native planner before the PKStack loop:
+All planning entered through PKStack uses the shared `grilling` interview method:
+inspect available facts first, ask the unresolved questions in dependency order,
+explain consequential trade-offs, recommend an option, and reuse settled answers.
+Planning helpers consume that context instead of starting another mandatory
+interview. `/grilling` exposes the method, `/grill-me` starts a focused interview,
+and `/grill-with-docs` also requests knowledge capture during the interview when
+writes are permitted. A standalone decision interview stays conversational unless
+you ask for an implementation plan.
 
-- CLI v3: `/spec new <name>`, then `/spec <name>` to resume;
-- IDE: **Build with spec** or the workflow picker; and
-- choose standard Spec for unfamiliar or high-risk work, or Quick Spec for a
-  bounded change whose shape is already clear.
+For nontrivial work, use Kiro's native planner before the PKStack loop. PKStack's
+handoff carries the settled context and directs the native workflow to read
+`.kiro/skills/grilling/SKILL.md`; an already active planning mode is reused.
+
+- **Conversational Plan:** CLI v3 `/plan <request>`, or Plan in the IDE workflow
+  picker. The plan stays in the conversation and has no required `tasks.md`.
+- **Spec:** CLI v3 `/spec new <name>`, then `/spec <name>` to resume; IDE
+  **Build with spec** or the workflow picker. Choose standard Spec for unfamiliar
+  or high-risk work, or Quick Spec for a bounded change whose shape is clear.
+
+Native [Plan is read-only](https://kiro.dev/docs/specs/plan/): use its available
+reading, search, and code-intelligence tools. Defer file writes, shell commands,
+MCP calls, prototypes, and knowledge validation. For a plan-only request, return
+the conversational plan and stop. Kiro owns approval and the execution handoff;
+presenting a plan does not authorize implementation.
+
+For a Spec with an existing `requirements.md`, optionally inspect unclear or
+complex requirements before moving on:
+
+```text
+/spec analyze_requirements <feature-name>
+/spec view <feature-name> requirements
+/spec view <feature-name> design
+/spec view <feature-name> tasks
+```
+
+[Requirements analysis](https://kiro.dev/docs/specs/analyze-requirements/) may
+update `requirements.md` as questions are resolved. Reuse those findings in the
+shared interview; skip analysis for a Bug Fix package containing only `bugfix.md`.
+View only documents that exist. Viewing a document does not approve it or bind
+an executable verifier.
+
+After explicit approval of an implementation plan, PKStack automatically uses
+`domain-modeling` and `okf` to save reusable definitions and decisions at the first
+permitted write step under normal Kiro permissions. Pending capture stays in the
+conversation while Plan is read-only. An explicit no-write instruction takes
+precedence. Capture references the planning context and updates existing entries
+instead of copying the entire plan or duplicating records on repeated approval.
+Denied writes or failed validation leave capture visibly incomplete.
 
 Kiro owns requirements or bug analysis, design, tasks, dependency waves, and
-native task execution. When those artifacts are ready, return to `pkstack` and
-bind the native plan to an executable verifier. For a new, still-failing feature:
+native task execution. Only Spec-backed work refines the native task file. Once
+the Spec is approved for implementation, return to `pkstack` and bind its artifacts
+to an executable verifier. For a new, still-failing feature:
 
 ```sh
 .pkstack/bin/projectctl goal bind-spec account-lookup \
@@ -554,7 +634,8 @@ for the scope and [provenance](provenance.md) for source identities.
 | Legacy managed installation | Preserve project files, review the old receipt, and follow the clean-reinstall procedure above. |
 | Missing Power assets | Restore or reinstall the Power source; never use the target cache as authority. |
 | Doctor drift | Inspect the receipt and rerun the Power-local dry run before applying a fix. |
-| Missing `/pkstack-verified-goal` | Select `pkstack`; if needed, start a fresh `kiro-cli chat --v3 --agent pkstack`. |
+| Missing agent | Inspect the bare `/agent` picker, setup report, and project root, then try `/agent swap pkstack` in the current conversation. |
+| Missing `/pkstack-verified-goal` | Select `pkstack` and inspect `/config skills`; use the [fresh-chat fallback](#attach-the-generated-agent) only if newly installed skills remain absent. |
 | Corrupt goal state | Preserve `.pkstack/state/goal.json`, inspect it, and make an explicit clear/recovery decision. |
 | Managed symlink | Replace it with an intended in-repository file or directory; setup rejects symlink components. |
 

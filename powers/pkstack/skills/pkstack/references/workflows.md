@@ -7,7 +7,10 @@ the selected model, and use `pkstack-verified-goal` plus projectctl when a durab
 
 ## Native workflow spine
 
-Kiro owns planning. Before a Feature, Bug fix, Refactoring, Multi-phase plan, Autonomous run, or
+Kiro owns planning modes, native artifacts, approvals, and execution. For planning entered through
+PKStack, read [`grilling`](../../grilling/SKILL.md) as the single interview method and carry its
+settled choices, rationale, evidence, and open questions through each helper. Before a Feature,
+Bug fix, Refactoring, Multi-phase plan, Autonomous run, or
 Program orchestration workflow, inspect `.kiro/specs/` and choose the narrowest native workflow:
 
 - resume an existing matching spec rather than creating a parallel plan;
@@ -20,19 +23,25 @@ Program orchestration workflow, inspect `.kiro/specs/` and choose the narrowest 
 Skip native planning only for an obvious one- or two-file change and retain the specific reason.
 Kiro does not document a supported Agent Skill or custom-agent tool for changing the active
 workflow. PKStack therefore does not invoke or emulate the native workflow or hide the transition
-with ACP or a nested Kiro process. In CLI v3, return a same-conversation handoff to `/spec new
-<name>`, `/spec <name>`, or `/spec run <name>`, then have the
-user run `/agent swap pkstack` after the native phase. In the IDE, use **Build with spec** or the
+with ACP or a nested Kiro process. Reuse an already active appropriate mode. Otherwise give one
+same-conversation handoff with settled context and the explicit instruction to read
+`.kiro/skills/grilling/SKILL.md`; native agents must not be assumed to inherit the profile's skills.
+In CLI v3, use `/plan <request>` for Plan, or `/spec new <name>`, `/spec <name>`, or `/spec run
+<name>` for Specs, then return with `/agent swap pkstack` after native approval when execution is
+permitted. In the IDE, use **Build with spec** or the
 workflow/agent picker and then reselect `pkstack`. Web uses its native Spec picker and built-in
 primary agent; the Web path remains untested. Crew may run a committed spec through its Task Runner,
 but this workflow does not claim that Crew exposes Kiro's built-in Spec agent or one local session.
 
-The native package owns `requirements.md` or `bugfix.md`, `design.md`, `tasks.md`, dependency waves,
+Native Plan's analysis is read-only: use available reading and search tools, keep plans and pending
+knowledge in conversation, and defer shell commands, MCP calls, file writes, prototypes, and
+validation. Do not require `tasks.md` for Plan. The native Spec package owns `requirements.md` or
+`bugfix.md`, `design.md`, `tasks.md`, dependency waves,
 task status, and native parallel execution. PKStack does not recreate that task graph. After the
 native package is ready, its skills supply the upstream Poteto semantics and bind the result to
 DO/PROVE/KNOW: project commands, one executable feature contract, and task-driven OKF context.
-Use the feature record first; invoke `.pkstack/bin/projectctl knowledge search` only when the narrow
-record cannot answer an architecture, decision, concept, or operations question. Native
+Use the feature record first; invoke `.pkstack/bin/projectctl knowledge search` only when the active
+mode permits commands and the narrow record cannot answer a concrete knowledge question. Native
 `/knowledge` may index the source-controlled files, which remain authoritative. The search command
 uses a bounded read-only Kiro ACP worker; `knowledge validate` composes feature checks with local
 metadata and links without Kiro or a model.
@@ -45,18 +54,23 @@ merge, host installation, network change, destructive cleanup, or publication.
 
 Before substantial investigation or planning, consult the relevant feature record and explicit
 links for definitions, decisions and open questions. Reuse settled understanding unless new
-evidence contradicts it. A requested interview uses [`grill-me`](../../grill-me/SKILL.md), with
-[`grilling`](../../grilling/SKILL.md) supplying the interview method. Use
+evidence contradicts it. All PKStack planning uses the shared `grilling` method. A focused
+standalone interview may enter through [`grill-me`](../../grill-me/SKILL.md) and stays conversational
+unless the user requests a plan. Use
 [`grill-with-docs`](../../grill-with-docs/SKILL.md) when the interview should also update project
 understanding, and [`domain-modeling`](../../domain-modeling/SKILL.md) to resolve domain terms
 against concrete scenarios and code.
 
-At planning handoff and completion, maintain the knowledge materially changed by the authorized
-task using [`the OKF document lifecycle`](../../okf/references/document-lifecycle.md). Durable
-documents belong under `Wiki/knowledge/<topic>/`; temporary context and draft artifacts belong
-under ignored `Wiki/work/<task>/`. Link to native specs and evidence at their authoritative homes.
-Skills, steering, runtime state, and goal bindings remain native assets. This checkpoint preserves
-understanding; it does not replace the workflow's executable completion condition.
+After each explicitly approved implementation plan, use
+[`the OKF document lifecycle`](../../okf/references/document-lifecycle.md) to capture reusable
+definitions and decisions at the first permitted execution step. Update existing entries
+idempotently, including knowledge already retained by `grill-with-docs`. Keep pending capture in
+conversation when read-only; an explicit no-write instruction prevails. Denied writes or failed
+validation leave capture incomplete. At task completion reconcile changed knowledge again.
+Durable topics belong under `Wiki/knowledge/<topic>/`; optional drafts use ignored
+`Wiki/work/<task>/` only when writes are permitted. Reference planning context instead of copying
+the plan. A handoff before approval carries conversational context unless knowledge authoring was
+requested. Skills, steering, runtime state, and goal bindings retain their native owners.
 
 ## Pervasive routing contract
 
@@ -66,8 +80,9 @@ in a visible task list, and retain an inapplicable checkpoint with a specific sk
 name each applied principle and the concrete choice it changed; a principle name without a decision
 is not evidence that its contract was followed.
 
-Before asking the user to choose an implementation path, decide whether a reversible observation,
-probe, or prototype can answer the question. Run that safe experiment when it can; reserve questions
+Before asking the user to choose an implementation path, decide whether a permitted observation,
+probe, or prototype can answer the question. Run it only when the active workflow allows it;
+in native Plan, inspect available sources and defer experiments requiring execution. Reserve questions
 for real product, preference, permission, or irreversible choices. For any code, name the domain data
 shape first. A nontrivial change starts with `how`; code crossing a function or module boundary uses
 `architect`; parallel coverage uses `swarm`; a contested design uses `interrogate`.
@@ -276,16 +291,23 @@ This workflow runs only after an explicit request to land, ship, or arm merge-wh
 1. Use Kiro's native Plan workflow when the requested outcome is only a plan, or a standard
    Spec/Quick Spec when the plan is intended to drive implementation. Skip native planning for an
    obvious one- or two-file change and say why.
-2. Keep the native artifact as the planning authority. Settle observable design questions with a
-   prototype; ask only for a preference or product choice
-   no safe experiment can answer.
-3. Explore repository entrypoints, conventions, and verification in bounded read-only sub-agents.
-4. Refine the native `tasks.md` into independently verifiable units with dependencies, owner
-   boundaries, verification, and evidence; do not create a second task ledger.
-5. Review the plan with `technical-writing` and `unslop`.
-6. Validate required headings and per-unit proof structurally. PKStack preserves the upstream
-   check-plan helper's semantics but does not vendor or execute that script.
-7. Return the plan and stop. Implementation starts only on an explicit go.
+2. Apply `grilling` to the remaining choices using already settled context. Native Plan keeps its
+   authority in the conversation; native Specs keep theirs in `.kiro/specs/`. Do not restart the
+   interview or switch out of an already active appropriate mode.
+3. Explore repository entrypoints, conventions, and verification with available reading and search
+   tools. Use bounded read-only sub-agents only when the mode supports them. In Plan, defer shell,
+   MCP, prototypes, writes, and validation commands until execution is permitted.
+4. For Spec-backed work, refine native `tasks.md` into independently verifiable units with
+   dependencies, owner boundaries, verification, and evidence inside the native workflow.
+   For conversational Plan, describe the units in the response without requiring or creating a
+   task file or second ledger.
+5. Review clarity with `technical-writing` and `unslop`, reusing the plan's settled decisions.
+6. Inspect the plan for complete acceptance evidence and verifiable units. Run structural checks
+   only when the mode permits commands; otherwise report them as deferred. The upstream check-plan
+   helper is neither vendored nor executed.
+7. Return the plan and stop at native approval. After explicit approval of an implementation plan,
+   apply the shared deferred-knowledge checkpoint at the first permitted execution step;
+   implementation begins only within the user's authorization.
 
 ## Program orchestration
 

@@ -22,15 +22,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "0f162d176d53c06c50a2aa8078874885df447c733eed0ee6732520f06749676e",
-      "size": 3399,
+      "sha256": "049727a36e6245413982a5508f99146a415c35e5cbee90f053507fc6d2f209d6",
+      "size": 4236,
       "source_path": "skills/engineering/domain-modeling/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "domain-modeling",
   "summary": {
-    "byte_count": 7066,
+    "byte_count": 7903,
     "file_count": 3
   }
 }

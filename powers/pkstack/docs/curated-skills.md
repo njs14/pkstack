@@ -37,13 +37,17 @@ Use `/pkstack` for the overall task. A helper should contribute a distinct outpu
 | Record or audit decisions and proof | `show-me-your-work`; keep its log separate from visual explanations |
 | Write for a person | `technical-writing`, followed by `unslop` |
 | Write instructions for an agent | `writing-for-agents`; preserve executable and permission contracts |
-| Sharpen a decision | `grill-me` uses `grilling`; inspect facts and settle consequential choices |
-| Build understanding while interviewing | `grill-with-docs` composes `grilling`, `domain-modeling`, and `okf`; update existing Wiki topics and link native specs |
+| Plan or sharpen a decision | PKStack planning shares `grilling`; `grill-me` starts a focused standalone interview |
+| Build understanding while interviewing | `grill-with-docs` composes `grilling`, `domain-modeling`, and `okf`; update existing topics when writes are permitted |
 | Clarify domain language | `domain-modeling`; test meanings against scenarios and code, then retain definitions and consequential decisions |
 | Understand an existing system | `how` for mechanics, `why` for rationale; `teach` composes those findings |
 | Design an automation | `design-control-loop`, then `build-iterated-agentic-loop` when implementation is requested |
 | Finish the current task | `pkstack-verified-goal`; it does not build a scheduler |
 | Tighten React props | `narrow-react-prop-types`, grounded in live call sites |
+
+Approved implementation plans capture reusable definitions and decisions at the first permitted
+write step, using the existing knowledge lifecycle. Native Plan keeps capture pending in the
+conversation; explicit no-write scope takes precedence. See [planning and capture](usage.md#plan-and-bind-work).
 
 Explicit skill invocations remain available. An ambiguous “show me what you
 did” request should summarize existing evidence, not start an audit log.

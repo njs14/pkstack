@@ -38,7 +38,7 @@
         "size": 247,
         "type": "blob"
       },
-      "rationale": "Preserves composition of interviewing and domain modeling as a first-class entrypoint. Replaces the upstream Skill API with local bundled references, adds bounded OKF retrieval and validation, records decisions as they settle, and hands linked context to native Kiro specs without a duplicate task graph."
+      "rationale": "Preserves composition of interviewing and domain modeling as a first-class entrypoint. Replaces the upstream Skill API with local bundled references, adds bounded OKF retrieval and validation, records decisions as they settle, and hands linked context to native Kiro specs without a duplicate task graph. Interview questions have one owner in grilling. Explicit interview-time capture uses domain-modeling and OKF only within active write permissions; native Plan retains pending knowledge in conversation. Repeated approval reconciles already captured entries without duplication."
     }
   ],
   "schema_version": 1,

@@ -6,6 +6,11 @@ version_authority: powers/pkstack/plugin.json
 
 # PKStack release status
 
+The **0.4.3 planning candidate is not released**. Its shared-method and CLI
+guidance changes are under review, and native CLI acceptance still blocks merge
+and publication. The [planning campaign](planning-043/README.md) records the
+tested source snapshots, passing IDE boundaries, and remaining failures.
+
 **[PKStack v0.4.2](https://github.com/njs14/pkstack/releases/tag/v0.4.2) was
 published on September 6, 2026 at 15:47:20 UTC.** It adds benefit-led
 introductions, complete CLI and IDE installation paths, executable onboarding

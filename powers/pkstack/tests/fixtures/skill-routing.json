@@ -125,7 +125,7 @@
       "id": "architecture-boundary",
       "prompt": "Design the API and storage boundary for this component within the existing Kiro Spec. Compare viable shapes.",
       "primary": "architect",
-      "helpers": ["how", "why"],
+      "helpers": ["how", "why", "grilling"],
       "expected_output": "Usage-first scaffolds, one architecture alternatives pass, and an advisory delta to the native design.",
       "forbidden_effects": ["second task graph", "duplicate arena for the same decision", "implementation when only design was requested"]
     },
@@ -141,7 +141,7 @@
       "id": "loop-design-only",
       "prompt": "Design a reusable dependency-update loop with local commands, bounded attempts, and a review gate. Do not build it yet.",
       "primary": "design-control-loop",
-      "helpers": ["architect"],
+      "helpers": ["architect", "grilling"],
       "expected_output": "A control contract naming measurement, authority, transitions, bounds, and local proof; architecture helps only unresolved boundaries.",
       "forbidden_effects": ["workflow implementation", "enabled schedule", "duplicate alternatives contest", "second native planning graph", "hypothetical transitions labeled as observed runs"]
     },
@@ -229,7 +229,7 @@
       "id": "explicit-loop-no-effects",
       "prompt": "/design-control-loop sketch an updater from the current repository. Do not edit files, install anything, or enable it.",
       "primary": "design-control-loop",
-      "helpers": [],
+      "helpers": ["grilling"],
       "expected_output": "A read-only control-loop design using existing commands and constraints under the explicit invocation.",
       "forbidden_effects": ["file writes", "software installation", "enabled automation", "skill invocation treated as broader authority"]
     },
@@ -270,8 +270,80 @@
       "prompt": "Interview me about this feature design while updating our Wiki definitions, consequential decisions, and open questions for the existing Kiro Spec.",
       "primary": "grill-with-docs",
       "helpers": ["grilling", "domain-modeling", "okf"],
-      "expected_output": "A bounded interview with timely updates to existing topic documents, preserved uncertainty and supersession, local validation, and links to the authoritative native Spec.",
+      "expected_output": "A bounded shared interview with permitted updates to existing topic knowledge, local validation, and authoritative native Spec links; pending capture stays conversational if read-only.",
       "forbidden_effects": ["duplicate investigations by composed helpers", "a second native task graph", "raw transcript retention", "publication or permission changes"]
+    },
+    {
+      "id": "native-plan-shared-method",
+      "prompt": "Plan the retry redesign through PKStack. Read the existing code first; we already agreed on a three-attempt limit. Keep planning until I approve it.",
+      "primary": "pkstack",
+      "helpers": ["grilling"],
+      "expected_output": "A native Plan handoff carrying the three-attempt decision and directing the workflow to read grilling; the decision-complete plan stays conversational.",
+      "forbidden_effects": ["repeating the attempt-limit interview", "creating tasks.md", "shell or MCP calls during Plan", "implementation before native approval"]
+    },
+    {
+      "id": "native-plan-capture-pending",
+      "prompt": "We are in native Plan. I approve the implementation plan, but this phase still has read-only tools. Retain the agreed account definition for the later execution handoff.",
+      "primary": "pkstack",
+      "helpers": ["grilling", "domain-modeling", "okf"],
+      "expected_output": "Accepted understanding and pending topic/source/validation context remain in the conversation until permitted execution; approval does not change current capabilities.",
+      "forbidden_effects": ["file writes including Wiki/work", "shell retrieval or validation", "claiming capture succeeded", "changing mode permissions"]
+    },
+    {
+      "id": "approved-plan-first-write",
+      "prompt": "The retry implementation plan is approved and native execution now permits ordinary writes. Continue from the settled decisions.",
+      "primary": "pkstack",
+      "helpers": ["grilling", "domain-modeling", "okf"],
+      "expected_output": "At the first permitted execution step reconcile reusable definitions and decisions into existing topic knowledge, reference plan context, validate, then continue authorized work.",
+      "forbidden_effects": ["second interview", "copying the plan into Wiki", "new persistent planning-state format", "calling accepted design verified implementation"]
+    },
+    {
+      "id": "approved-plan-repeat",
+      "prompt": "The same retry plan is approved again. Its definitions and decisions were already captured and validated; continue from that state.",
+      "primary": "pkstack",
+      "helpers": ["grilling", "okf"],
+      "expected_output": "Inspect existing entries and approval context, confirm no knowledge delta, and continue without duplicate records or validation claims from an unexecuted check.",
+      "forbidden_effects": ["duplicate glossary or ADR", "duplicate index or log entry", "new plan identifier registry", "reopening settled choices without evidence"]
+    },
+    {
+      "id": "approved-plan-no-write",
+      "prompt": "I approve this implementation plan for reference only. Do not write files or implement it.",
+      "primary": "pkstack",
+      "helpers": ["grilling", "okf"],
+      "expected_output": "Acknowledge the accepted plan and retain understanding in conversation while the explicit no-write and no-implementation constraints apply.",
+      "forbidden_effects": ["Wiki edits", "scratch files", "implementation", "treating approval as broader write authority"]
+    },
+    {
+      "id": "approved-plan-capture-denied",
+      "prompt": "The plan is approved, but Kiro denied the Wiki update. Preserve the pending decision and report the actual capture status.",
+      "primary": "okf",
+      "helpers": ["domain-modeling", "grilling"],
+      "expected_output": "Capture remains incomplete with intended topic and sources in conversation, ready only for a later permitted step.",
+      "forbidden_effects": ["retry through a different tool", "claiming successful capture", "permission edits"]
+    },
+    {
+      "id": "approved-plan-validation-failed",
+      "prompt": "The approved plan decision was written to Wiki, but local knowledge validation failed on its link. Report and repair within the permitted document scope.",
+      "primary": "okf",
+      "helpers": ["domain-modeling"],
+      "expected_output": "Repair the scoped knowledge link if permitted, rerun local validation, and report capture incomplete until an actual passing result.",
+      "forbidden_effects": ["invented validation pass", "broad Wiki rewrite", "treating document existence as completion"]
+    },
+    {
+      "id": "native-spec-shared-ownership",
+      "prompt": "Continue our active Kiro Spec using PKStack. Requirements are approved; ask only about unresolved storage choices and preserve native phase approvals.",
+      "primary": "pkstack",
+      "helpers": ["grilling", "architect"],
+      "expected_output": "Read the shared method in the active Spec, reuse approved requirements, and refine native design and tasks within native phase control.",
+      "forbidden_effects": ["new Spec handoff for an already active mode", "duplicate task ledger", "repeating approved requirement questions", "interview completion treated as phase approval"]
+    },
+    {
+      "id": "docs-interview-read-only",
+      "prompt": "/grill-with-docs clarify membership as we plan, but native Plan is currently read-only. We already settled account ownership.",
+      "primary": "grill-with-docs",
+      "helpers": ["grilling", "domain-modeling", "okf"],
+      "expected_output": "Interview only unresolved terminology with permitted source reading; keep draft definitions and pending capture in conversation until permitted writes.",
+      "forbidden_effects": ["asking account ownership again", "Wiki or scratch writes", "shell or MCP retrieval", "validation commands"]
     }
   ]
 }

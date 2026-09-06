@@ -5,7 +5,11 @@ description: Compare multiple structurally distinct solutions to one artifact un
 
 # Run an arena
 
-Treat the request text that activated this skill as the artifact or question.
+Treat the request text that activated this skill as the artifact or question. For planning,
+read [`grilling`](../grilling/SKILL.md) and reuse its settled answers and remaining questions.
+The contest compares candidates; it does not start a second interview. Follow the shared native
+Plan boundaries: conversational candidates only, permitted reading/search, and no shell, MCP,
+file writes, prototypes, or validation commands during read-only analysis.
 
 Use [`architect`](../architect/SKILL.md) when the work needs architecture grounding and a
 usage-first scaffold; its built-in arena already compares those candidates. Use
@@ -37,7 +41,10 @@ Select one candidate as the base. Hand-graft only the strongest compatible ideas
 
 ## Prove the result
 
-After PKStack setup, use only the managed `.pkstack/bin/projectctl` entrypoint.
+For a design-only contest, report candidate evidence, proposed checks, and remaining uncertainty;
+do not execute or materialize a candidate merely to satisfy this section. Approved implementation
+plans use the shared capture checkpoint when writes become permitted. If implementation and
+execution are authorized, after setup use only the managed `.pkstack/bin/projectctl` entrypoint.
 Run the repository's executable verifier, preferably
 `.pkstack/bin/projectctl feature verify <slug> --output json` or
 `.pkstack/bin/projectctl verify <slug> --output json`. Do not select an ambient

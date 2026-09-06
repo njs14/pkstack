@@ -10,6 +10,12 @@ license notice is retained in [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.
 
 Preserves dependency-ordered decision rounds, recommendations, inspection before questions, and concrete shared understanding. Replaces relentless exhaustive interviewing and a universal confirmation gate with scope-based stopping and existing authorization. Exploration may use native subagents when useful rather than requiring delegation.
 
+The shared method now supplies all planning entered through PKStack and standalone interviews. Native Plan remains read-only and conversational; explicit native handoffs carry settled context and ask the built-in workflow to read the local method. Approved implementation plans use the shared, permission-aware and idempotent OKF capture checkpoint without creating a planning runtime.
+
+Implementation mechanics implied by settled constraints are resolved through inspected facts; interview options must preserve those constraints unless a requested change or contradictory evidence requires renegotiation.
+
+Native execution handoffs carry approved-knowledge capture before implementation edits and identify the installed workspace OKF, lifecycle, and domain-modeling paths. Native approval exit and agent selection retain their own authority.
+
 The upstream `agents/openai.yaml` is recorded but not shipped. No upstream installer,
 agent configuration, hooks, or runtime is activated. Local skills remain native assets;
 only their project-specific knowledge output belongs in Wiki. The exact shipped bytes
