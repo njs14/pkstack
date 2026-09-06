@@ -99,11 +99,11 @@ def test_repository_logo_is_a_png_asset() -> None:
     _png_dimensions((ROOT / "assets/logo.png").read_bytes())
 
 
-def test_readmes_reference_the_bundled_banner() -> None:
-    _png_dimensions((ROOT / "assets/banner.png").read_bytes())
+def test_readmes_reference_the_bundled_logo() -> None:
+    _png_dimensions((ROOT / "assets/logo.png").read_bytes())
     for readme, source in (
-        (REPOSITORY_ROOT / "README.md", "powers/pkstack/assets/banner.png"),
-        (ROOT / "README.md", "assets/banner.png"),
+        (REPOSITORY_ROOT / "README.md", "powers/pkstack/assets/logo.png"),
+        (ROOT / "README.md", "assets/logo.png"),
     ):
         image = re.search(rf'<img\b[^>]*src="{re.escape(source)}"[^>]*>', readme.read_text())
         assert image is not None, readme
