@@ -32,5 +32,14 @@ No internal receipt persistence is claimed. The underlying Auto model remains un
 [Astral pin](astral-pin.json) records the verified commit; the Power's provenance inventory
 binds the original plugin subtree, and per-skill manifests bind the adapted bytes. The three
 wrappers passed skill validation. Source-inventory, installation/idempotency, model-output,
-Kiro assets, packaging, and README targeted checks passed (150 tests). Full-gate and independent
-review results will be recorded against the final candidate before PR completion.
+Kiro assets, packaging, and README targeted checks passed (150 tests). The corrected candidate
+`d36bb88b2f10e3103060ecbad0c1053ccba5564e` passed all ten full local lanes: **974 Power tests and
+234 repository unit tests**, plus Ruff lint/format, ty, workflow/shell checks, maintenance guards,
+and local knowledge validation. The first full run found one stale bootstrap steering inventory
+assertion; its expected list was corrected and the full gate rerun successfully.
+
+[Python coverage](python-coverage.md) describes maintained surfaces and exclusions.
+[Full gate summary](full-gate-summary.json) binds the commit, command, counts, and receipt hashes.
+The native exercise used the same final skill bytes; later bootstrap inventory, test, and root
+static-checker changes were outside the code exercised by that native fixture. Independent review
+is pending; no review verdict is implied by the green local gate.
