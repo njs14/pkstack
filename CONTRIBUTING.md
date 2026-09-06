@@ -22,7 +22,7 @@ current-session verification loop.
 ### Fresh checkout or worktree
 
 Start from current `main` in this repository (`njs14/pkstack`). Keep earlier
-`pstack-kiro` checkouts separate. For isolated work, create a new worktree from
+legacy checkouts separate. For isolated work, create a new worktree from
 the refreshed remote branch; do not copy another worktree's virtual environment
 or generated runtime:
 
