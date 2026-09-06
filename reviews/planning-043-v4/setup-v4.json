@@ -1,0 +1,131 @@
+{
+ "schema_version": 1,
+ "note": "Managed-setup receipts. The root sequence shows the four managed mirrors refreshed through reviewed setup and then a clean re-preview: 4 updated, then 0 creates/updates/conflicts/pending/stale.",
+ "compaction": "Counters, notes, small path lists and the receipt hash are retained; full per-file inventories and the discovery block stay in the local source files.",
+ "receipts": {
+  "root": {
+   "root": "/Users/noahsutter/git-projects/pkstack",
+   "ok": true,
+   "sequence": [
+    {
+     "stage": "preview (dry run)",
+     "counts": {
+      "created": 0,
+      "updated": 4,
+      "conflicts": 0,
+      "pending_updates": 0,
+      "stale_managed": 0,
+      "preserved": 2
+     }
+    },
+    {
+     "stage": "applied",
+     "counts": {
+      "created": 0,
+      "updated": 4,
+      "conflicts": 0,
+      "pending_updates": 0,
+      "stale_managed": 0,
+      "preserved": 2
+     }
+    },
+    {
+     "stage": "re-preview after apply",
+     "counts": {
+      "created": 0,
+      "updated": 0,
+      "conflicts": 0,
+      "pending_updates": 0,
+      "stale_managed": 0,
+      "preserved": 2
+     }
+    }
+   ],
+   "updated_paths": [
+    ".kiro/skills/grilling/SKILL.md",
+    ".kiro/skills/pkstack/SKILL.md",
+    ".kiro/steering/pkstack-core.md",
+    ".kiro/agents/pkstack.json"
+   ],
+   "preserved_paths": [
+    "Wiki/index.md",
+    "Wiki/knowledge/index.md"
+   ],
+   "sources": {
+    "root_preview": "f55259cf1459868ff9c833a54284e69c12bde1bcbf7e6e8e6bfc997fb82624d7",
+    "root_applied": "3431dc31f4630414dfb2e085da04d7c9c9140bfe3a832aea8a50508a9fb1f1af",
+    "root_final_preview": "99a5fb04fb0a352038884f6d8a1f64812e51b9155621ab896acc1d96c45d6f6c"
+   }
+  },
+  "cli_fixture_install": {
+   "root": "<task-root>/native-cli-v4",
+   "dry_run": false,
+   "ok": true,
+   "update_managed": false,
+   "counts": {
+    "created": 182,
+    "updated": 0,
+    "conflicts": 0,
+    "pending_updates": 0,
+    "stale_managed": 0,
+    "preserved": 0
+   },
+   "source_sha256": "3c36d32c3e62c2bbee030cd09257b07902fa28d6d6aab28659dfad5cfc8ee4eb"
+  },
+  "ide_fixture_preview": {
+   "root": "<task-root>/native-ide-v4",
+   "dry_run": true,
+   "ok": true,
+   "update_managed": true,
+   "counts": {
+    "created": 0,
+    "updated": 5,
+    "conflicts": 0,
+    "pending_updates": 0,
+    "stale_managed": 0,
+    "preserved": 2
+   },
+   "updated_paths": [
+    ".kiro/skills/grilling/SKILL.md",
+    ".kiro/skills/pkstack/SKILL.md",
+    ".kiro/steering/pkstack-core.md",
+    ".kiro/agents/pkstack.json",
+    ".pkstack/discovery.json"
+   ],
+   "preserved_paths": [
+    "Wiki/index.md",
+    "Wiki/knowledge/index.md"
+   ],
+   "source_sha256": "da7bfe082112177315384e0865759e31c0b34dfe2a39eb246dd2bb36762f5b92"
+  },
+  "ide_fixture_applied": {
+   "root": "<task-root>/native-ide-v4",
+   "dry_run": false,
+   "ok": true,
+   "update_managed": true,
+   "counts": {
+    "created": 0,
+    "updated": 5,
+    "conflicts": 0,
+    "pending_updates": 0,
+    "stale_managed": 0,
+    "preserved": 2
+   },
+   "updated_paths": [
+    ".kiro/skills/grilling/SKILL.md",
+    ".kiro/skills/pkstack/SKILL.md",
+    ".kiro/steering/pkstack-core.md",
+    ".kiro/agents/pkstack.json",
+    ".pkstack/discovery.json"
+   ],
+   "preserved_paths": [
+    "Wiki/index.md",
+    "Wiki/knowledge/index.md"
+   ],
+   "source_sha256": "54edbb3d56fdaba3eace28731ed81f5d79760f25e21e633f93d651634c42d908"
+  }
+ },
+ "mirror_parity": "Refreshing the mirrors is what clears the author worker's declared consequence that test_canonical_power_and_generated_controller_are_byte_identical would fail on a canonical-only patch. The four refreshed mirrors and the rewritten setup receipt .pkstack/bootstrap.json were committed together with the nine canonical sources in 88bbe15.",
+ "fixture_installs": "native-cli-v4 was a fresh install (182 files created). native-ide-v4 was an existing v3 fixture whose managed files were updated in place (5 updated), which is why its Spec documents are the v3 native output.",
+ "root_receipt_note": "An existing root projectctl was preserved; use .pkstack/bin/projectctl or integrate the PKStack commands into the existing project CLI."
+}

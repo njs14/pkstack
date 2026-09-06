@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "scenario": "native Quick Spec reuses existing native Spec with v4 shared method, review correction, then explicit no-write approval",
+  "status": "bounded-pass-with-limits",
+  "evidence_attribution": "Coordinator observed native Kiro accessibility controls and compared fixture bytes; quotations below are manually retained exact UI excerpts, not a complete transcript.",
+  "runtime": {
+    "client": "Kiro IDE",
+    "version": "1.0.437",
+    "model_display": "GPT 5.6 Luna",
+    "effort_display": "Low",
+    "mode": "Quick Spec",
+    "autopilot": "off",
+    "settings_changed": false,
+    "session_title": "Fix Task Dependency Order In Normalize-Reference Spec",
+    "surface": "Agent Focus",
+    "native_session_id": "not captured"
+  },
+  "provenance": "Fresh v4 fixture/session reused the four Spec artifacts created natively in the historical v3 fixture. This is v4 method loading, settled-decision reuse, native artifact review and no-write evidence, not fresh all-v4 Spec creation or IDE implementation evidence.",
+  "review_prompt": "Review and finish the existing native Spec for normalize-reference in this fixture. Read the current .kiro/skills/grilling/SKILL.md and use it as the shared interview method, then read README.md, reference.py, tests/test_reference.py and .kiro/specs/normalize-reference/requirements.md, design.md, tasks.md. The six-character ASCII-only input, trim behavior, uppercase output, preserved authoritative tests, and uniform ValueError(\"invalid reference\") are already settled in those artifacts; reuse those decisions and do not re-interview settled facts. During review I noticed tasks 1.1 and 1.2 both change reference.py but appear in one parallel wave: correct their dependency ordering in the native Spec. Native Spec artifacts may be updated for this review. Do not implement, run commands, or change product, tests, README, Wiki, or configuration files. Stop for my review before implementation.",
+  "method_loading_observed": [
+    "Native fast-task-workflow requested Load context: grilling; coordinator selected one-time Allow",
+    "Native tool list then showed Read File SKILL.md plus all requested README/product/test/Spec files; later native design reviewer also read SKILL.md and pkstack-core.md"
+  ],
+  "review_acknowledgement": "Review complete. The existing Spec preserves all settled decisions and corrects the dependency issue: task 1.1 now completes before task 1.2, since both modify reference.py. No implementation, commands, product files, tests, README, Wiki, or configuration files were changed.",
+  "review_changes": "Coordinator read actual native changes and accepted each Spec-only diff; final changed design.md and tasks.md, requirements/.config unchanged. No settled-fact questions were asked.",
+  "approval_prompt": "I approve this implementation plan, but do not execute it. Do not run commands or change any files, including Wiki files. Acknowledge this approval and keep any pending follow-up in the conversation.",
+  "approval_acknowledgement": "The Spec is complete and your approval is recorded. I will not execute tasks, run commands, or change any files. The implementation remains pending in this conversation; when you are ready, you can begin by reviewing the tasks in tasks.md.",
+  "native_ui_follow_on": "Native workflow appended Run required tasks / Run required and optional tasks / Analyze the requirements first links. None were selected.",
+  "outcomes": {
+    "settled_decisions_reused": true,
+    "shared_method_loaded": true,
+    "native_spec_owned_changes": true,
+    "same_file_task_dependency_corrected_after_operator_review": true,
+    "explicit_no_write_approval_acknowledged": true,
+    "post_approval_file_delta": {
+      "changed": [],
+      "added": [],
+      "deleted": []
+    }
+  },
+  "limits": [
+    "No implementation or tests were executed in this IDE scenario. Native v4 CLI supplies capture-before-code and implementation evidence separately.",
+    "The acknowledgement retained implementation pending; it did not separately name pending knowledge capture.",
+    "UI command/no-write observations and file receipts cover the fixture and visible agent actions, not a machine-wide audit of existing global hooks.",
+    "Old v3 source/evidence remains historical; recovered acknowledgement in separate receipt supersedes only missing-ack observation.",
+    "The original source-conformance CLI /plan output omission remains a separate limitation."
+  ],
+  "file_receipt": "native-ide-v4-final-files.json",
+  "baseline": "native-ide-v4-baseline.json",
+  "before_approval": "native-ide-v4-before-approval.json"
+}

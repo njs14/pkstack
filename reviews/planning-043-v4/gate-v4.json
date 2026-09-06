@@ -1,0 +1,142 @@
+{
+ "schema_version": 1,
+ "note": "Local gate runs executed by the coordinator on the canonical repository with the v4 patch applied. They are product checks; they do not establish native planning acceptance.",
+ "full_gate": {
+  "profile": "normal",
+  "pytest_tests": 965,
+  "collection_digest": "035acc619b577f05d8fd1cf6f50002651d28d5d22dabda8b2dd03b172586eb28",
+  "plan_commit": "cbabee7d3813ef9eb166afedd7b09ffca22fb4ce",
+  "plan_commit_note": "The gate ran on working-tree bytes at cbabee7; the same bytes were committed as 88bbe15 after it finished.",
+  "config_digest": "469e141875818edff819da5705e54bc7ff798055c3fb6b746ca94b4a6a0b341a",
+  "outcome": "all 10 scheduled lanes passed",
+  "aggregate_result_outcomes": {
+   "passed": 965
+  },
+  "lanes": [
+   {
+    "lane": "browser",
+    "outcome": "passed",
+    "result_count": 5,
+    "issues": 0,
+    "receipt_sha256": "dd6cf3d43a0158294c57b0f4760d4ddef4de127ed29cf6751dc51ed5e4e5a57e"
+   },
+   {
+    "lane": "core-0",
+    "outcome": "passed",
+    "result_count": 155,
+    "issues": 0,
+    "receipt_sha256": "9791487ce95e468853b460b6fb29341381bfceee6418d0f52e006c96cb385403"
+   },
+   {
+    "lane": "core-1",
+    "outcome": "passed",
+    "result_count": 155,
+    "issues": 0,
+    "receipt_sha256": "996218f978521fe25f28776002966cd0bf07a787afa56d6799c556ec789fc570"
+   },
+   {
+    "lane": "core-2",
+    "outcome": "passed",
+    "result_count": 151,
+    "issues": 0,
+    "receipt_sha256": "c10b6e987ccfde6e602447ab6ee595594148005a77fe4bbc7cf4c385cad3dfde"
+   },
+   {
+    "lane": "core-3",
+    "outcome": "passed",
+    "result_count": 151,
+    "issues": 0,
+    "receipt_sha256": "34e1f2f272a7f438b13dae1826a5ef84d7764f9440969b172dce2ff42ba68907"
+   },
+   {
+    "lane": "core-4",
+    "outcome": "passed",
+    "result_count": 149,
+    "issues": 0,
+    "receipt_sha256": "7b06918f765f54b4575cd83fc404a627126a2784f91f6a8d436bed6893884524"
+   },
+   {
+    "lane": "core-5",
+    "outcome": "passed",
+    "result_count": 172,
+    "issues": 0,
+    "receipt_sha256": "02a16c547f5a76658a68d1841ad22e37cf861a8105c5db87d4f6616fef07c7fb"
+   },
+   {
+    "lane": "fast",
+    "outcome": "passed",
+    "result_count": 22,
+    "issues": 0,
+    "receipt_sha256": "2d26690b72b292d2ee2794a250bcd8f77752fecce88b69c1c962826cbc26e734"
+   },
+   {
+    "lane": "package",
+    "outcome": "passed",
+    "result_count": 5,
+    "issues": 0,
+    "receipt_sha256": "1e70f644c99713601ab9dc7e5bead05e5227144cebb8b2d02dce25ea062efc4b"
+   },
+   {
+    "lane": "policy",
+    "outcome": "passed",
+    "result_count": 0,
+    "issues": 0,
+    "receipt_sha256": "c80e077ce3c867a6e5e2ddf9af787cd9306b4e7fdb95a308210d9a92907b7f75"
+   }
+  ],
+  "lane_seconds": {
+   "browser": 17.597,
+   "core-0": 18.766,
+   "core-1": 54.954,
+   "core-2": 16.972,
+   "core-3": 19.385,
+   "core-4": 30.073,
+   "core-5": 34.762,
+   "fast": 0.956,
+   "package": 28.575,
+   "policy": 46.824
+  },
+  "policy_lane_detail": {
+   "receipt_has_no_per_test_results": true,
+   "commands_from_log": [
+    "actionlint (7 workflows); shellcheck (3 scripts)",
+    "powers/pkstack/.venv/bin/python3 -B -m unittest discover -s .github/scripts -> Ran 222 tests, OK",
+    "node --test .github/scripts/test_pkstack_pr_policy.js -> pass 17, fail 0",
+    "uv lock --check; ruff check; ruff format --check (47 files); ty check -> all clean",
+    "projectctl version (pkstack 0.4.3), feature validate, knowledge validate"
+   ],
+   "python": "powers/pkstack/.venv/bin/python3, the supported uv-managed interpreter; the planning-043 policy failure under system Python 3.9 did not recur",
+   "limit": "The 222 policy tests and 17 Node policy tests are separate from the 965 product pytest tests and are not added to that count."
+  },
+  "summary_file": {
+   "local_path": "<task-root>/full-v4/summary.json",
+   "sha256": "5e3557f87dc77a3fb01f1829d8c1a79dcc92db453db042e1da6b01ac7e214349"
+  },
+  "log_file": {
+   "local_path": "<task-root>/full-v4.log",
+   "sha256": "4661516d7c9359fd04dac53560210366f8063e30d0bc97abe9cc38ffe9c8c0a6",
+   "bytes": 31357
+  },
+  "limitation": "A passing product gate cannot prove native planning behaviour. The new tests in test_kiro_assets.py are substring assertions over instruction text.",
+  "receipt_location": "<task-root>/full-v4/receipts/<lane>.json"
+ },
+ "fast_gate": {
+  "lane": "fast",
+  "outcome": "passed",
+  "executed_tests": 22,
+  "collected_tests": 965,
+  "deselected_tests": 943,
+  "log": "22 passed, 943 deselected in 1.43s",
+  "collection_digest": "035acc619b577f05d8fd1cf6f50002651d28d5d22dabda8b2dd03b172586eb28",
+  "receipt": {
+   "local_path": "<task-root>/fast-v4/receipts/fast.json",
+   "sha256": "d57abe31b22e7a846fd9edcb5432b0f38e53b634eaddd87968f3657332cc6073",
+   "bytes": 114104
+  },
+  "log_file": {
+   "local_path": "<task-root>/fast-v4.log",
+   "sha256": "dccb3c13929300372de2ffe176ab3d58c767ef6aa3095a1114816f012c684d30"
+  },
+  "note": "Targeted rerun after the instruction change, not a second full gate."
+ }
+}

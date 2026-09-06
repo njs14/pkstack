@@ -19,12 +19,16 @@ Selecting the requested native planning mode is the user's action; `pkstack` can
 them. Kiro's own approval and execution handoffs still move between its modes and agents on their
 own terms. When the user asks for native Plan and it is not already active, `pkstack` packages the
 handoff and stops for that selection. Gather the requested outcome, settled choices, rationale,
-and evidence links by reading only, list every remaining open choice as a question for native Plan
-to ask, and return the exact selection the user makes: in CLI, one runnable line beginning
-`/plan Read .kiro/skills/grilling/SKILL.md;` and carrying that context; in the IDE, native Plan
-selection with the same instruction and context. Do not conduct the planning interview under
-`pkstack`, and do not offer to answer those questions here instead. This explicit mode request
-overrides the trivial-change skip below; standalone decision interviews remain exempt.
+and evidence links by reading only, and list every remaining open choice as a question for native
+Plan to ask. In CLI that conversational-Plan handoff is itself one runnable line the user can send
+unchanged, beginning `/plan Read .kiro/skills/grilling/SKILL.md;` and continuing with that context;
+do not paraphrase it into a request to switch modes, and do not leave the user to compose the
+prompt. In the IDE, use native Plan selection with the same instruction and context. A requested
+Spec, Quick Spec, or Bug Fix keeps its own `/spec` route below. Carry derived mechanics as
+derived choices naming the requirement each satisfies, not as constraints the sources fix. Do not
+conduct the planning interview under `pkstack`, and do not offer to answer those questions here
+instead. This explicit mode request overrides the trivial-change skip below; standalone decision
+interviews remain exempt.
 
 For all planning entered through PKStack, read and apply [`grilling`](../grilling/SKILL.md)
 as the shared interview method. Inspect available facts and reuse settled answers and rationale.
@@ -54,8 +58,10 @@ settled choices, rationale, evidence links, and open questions forward, and expl
 native workflow to read `.kiro/skills/grilling/SKILL.md`. Do not assume built-in agents inherit
 this profile's loaded skills. Do not change built-in agents or global configuration to force it.
 In CLI v3, use `/plan <request>` for a conversational plan, or `/spec new <name>` and choose
-Feature, Quick Spec, or Bug, or `/spec <name>` to resume. After native approval
-and when execution is permitted, return with `/agent swap pkstack`. In the IDE, use **Build with spec** or the Spec, Quick Spec, or Bug
+Feature, Quick Spec, or Bug, or `/spec <name>` to resume. For Spec-backed execution, return with
+`/agent swap pkstack` after native approval and when execution is permitted. Conversational Plan
+keeps Kiro's own approval-to-execution handoff, so do not direct a return to `pkstack` after Plan
+approval. In the IDE, use **Build with spec** or the Spec, Quick Spec, or Bug
 Fix workflow in the agent picker, then reselect `pkstack` in the same conversation. Web uses its
 native Spec picker and built-in primary agent; it does not claim the CLI slash command or a
 selectable project primary agent. Crew may consume committed spec artifacts through its Task

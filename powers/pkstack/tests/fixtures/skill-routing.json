@@ -343,7 +343,7 @@
       "primary": "pkstack",
       "helpers": ["grilling"],
       "expected_output": "A read-only fact pass and one runnable /plan handoff carrying the settled limit and the open choices for native Plan to ask, then a stop for the user's selection.",
-      "forbidden_effects": ["asking the open choices under pkstack", "claiming the agent selected native Plan", "implementation before native approval"]
+      "forbidden_effects": ["asking the open choices under pkstack", "a paraphrased mode-switch request instead of the runnable line", "claiming the agent selected native Plan", "implementation before native approval"]
     },
     {
       "id": "settled-constraint-mechanics",

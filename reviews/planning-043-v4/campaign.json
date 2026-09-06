@@ -1,0 +1,439 @@
+{
+ "schema_version": 1,
+ "title": "PKStack 0.4.3 native planning follow-up — v4 candidate",
+ "recorded_at": "2026-09-06T22:07:26.949903Z",
+ "status": "source-approved; merge, tag and publication blocked on the CLI exact-line handoff contract",
+ "release_status": "unreleased",
+ "candidate_version": "0.4.3",
+ "narrative": "README.md carries the prose report. This file is the machine record.",
+ "integration": {
+  "intended_path": "reviews/planning-043-v4 in the canonical repository",
+  "note": "Once integrated there, references to the historical report resolve as ../planning-043/README.md.",
+  "current_location": "local, outside the repository"
+ },
+ "supersession": {
+  "historical_report": "reviews/planning-043",
+  "intact": true,
+  "superseded": [
+   {
+    "observation": "CLI route stayed in pkstack and re-asked the settled ASCII rule",
+    "by": "cli-plan-v4 and cli-router-v4-repeat"
+   },
+   {
+    "observation": "Approved-plan execution wrote code and ran the verifier before capture",
+    "by": "cli-plan-v4"
+   },
+   {
+    "observation": "IDE Quick Spec post-approval no-write acknowledgement never captured",
+    "by": "ide-spec-v3-recovered-ack.json for v3 and ide-spec-v4 for v4"
+   }
+  ],
+  "not_superseded": [
+   "v3 IDE acceptance of AB12SS for ab12ß.",
+   "v3 CLI offer of a Unicode-permissive option violating a settled constraint.",
+   "v3 Quick Spec recording its own recommendation as settled before an explicit choice.",
+   "All other planning-043 findings."
+  ],
+  "scope": "The recovered acknowledgement supersedes a missing observation only; no v3 source evidence is altered and no v3 failure becomes a pass."
+ },
+ "git": {
+  "base_commit": "cbabee7d3813ef9eb166afedd7b09ffca22fb4ce",
+  "candidate_commit": "88bbe15b3858b6347f35dd975a6ecd35ffcadd93",
+  "candidate_commit_time": "2026-09-06T21:43:28Z",
+  "branch": "codex/cli-power-discovery-docs",
+  "canonical_repository": "/Users/noahsutter/git-projects/pkstack",
+  "pull_request": "https://github.com/njs14/pkstack/pull/51",
+  "commit_contents": "9 canonical files under powers/pkstack/ plus 5 generated files refreshed through reviewed setup (four managed mirrors and the .pkstack/bootstrap.json setup receipt, which the setup inventory does not count as a managed update)."
+ },
+ "source_identity": {
+  "manifest": "source-files-v4.json",
+  "file_count": 293,
+  "manifest_file_sha256": "7fd53ba542b8de7842fbd302e83395b75f1041dc755382ed5190c3e184790803",
+  "manifest_json_sort_keys_sha256": "4da4bb85d8cff460ac537ce4c1bfcf1743d02300c8af3a4b84c4c56edbe002b1",
+  "canonicalization": "json.dumps(manifest, sort_keys=True), UTF-8, default separators, no trailing newline",
+  "frozen_source_directory": "<task-root>/power-v4",
+  "binding": "v4 is bound to the frozen copy at power-v4/ and to commit 88bbe15. The authoring worker's worktree was later reopened for separate routing work and 5 of the 9 reviewed paths already differ there; it is not authoritative for this report, and no work from that later effort is included.",
+  "verification": [
+   {
+    "comparison": "manifest vs frozen power-v4 copy",
+    "mismatches": 0,
+    "missing": 0,
+    "extra_files": 0
+   },
+   {
+    "comparison": "manifest vs powers/pkstack at commit 88bbe15",
+    "mismatches": 0,
+    "missing": 0,
+    "extra_files": 0
+   },
+   {
+    "comparison": "9 reviewed hashes vs power-v4 and git show 88bbe15:<path>",
+    "mismatches": 0
+   }
+  ]
+ },
+ "reviewed_patch": {
+  "manifest": "opus-source-review-manifest.json",
+  "file_count": 9,
+  "manifest_file_sha256": "f6bb0f58dcb96740beec2b8f75d78efa48d4e3417b6a0f23ba37fe71eb4d246b",
+  "patch_local_path": "<task-root>/opus-source-review.patch",
+  "patch_sha256": "4393ce8b0b6ef514bed6c2d6ec28447fb8e46eceee78b6658a07de69dade2936",
+  "verification": "All 9 hashes match power-v4/ and git show 88bbe15:<path>.",
+  "verdicts": "review-verdicts.json",
+  "outcomes": {
+   "author": "FIX_CANDIDATE",
+   "source_review": "APPROVE_SOURCE_CANDIDATE",
+   "final_review": "APPROVE_SOURCE_CANDIDATE for source; release/merge BLOCKED"
+  }
+ },
+ "runtime": {
+  "cli": {
+   "client": "Kiro CLI",
+   "welcome_banner": "Kiro CLI V3",
+   "semver": "not captured in v4 evidence",
+   "native_model_display": "Auto",
+   "resolved_model": "not established",
+   "agent_banner_transitions": [
+    "pkstack · Auto",
+    "Plan · Auto",
+    "Default · Auto"
+   ],
+   "session_id": "sess_78489960-4589-4118-817f-09f1e7af9a5a"
+  },
+  "ide": {
+   "client": "Kiro IDE",
+   "version": "1.0.437",
+   "model_display": "GPT 5.6 Luna",
+   "effort_display": "Low",
+   "selection": "inherited by the native session in Agent Focus; no model or global configuration change",
+   "mode": "Quick Spec",
+   "autopilot": "off",
+   "native_session_id": "not captured",
+   "observation_attribution": "coordinator"
+  },
+  "comparison_limit": "CLI ran unresolved Auto while IDE ran Luna/Low. No run separates model behaviour from client behaviour, and the CLI client semver was not captured."
+ },
+ "automated_checks": {
+  "full_gate": {
+   "outcome": "passed",
+   "pytest_tests": 965,
+   "lanes_passed": 10,
+   "lanes_failed": 0,
+   "collection_digest": "035acc619b577f05d8fd1cf6f50002651d28d5d22dabda8b2dd03b172586eb28",
+   "policy_lane": "222 Python policy tests OK and 17 Node policy tests passing under the supported uv interpreter, plus lock, lint, format, type, version, feature and knowledge checks",
+   "policy_note": "Policy tests are separate from the 965 product tests and are not added to that count.",
+   "evidence": "gate-v4.json",
+   "limitation": "A passing product gate does not prove native planning behaviour."
+  },
+  "fast_gate": {
+   "outcome": "passed",
+   "executed_tests": 22,
+   "deselected_tests": 943,
+   "evidence": "gate-v4.json",
+   "limitation": "Targeted rerun after the instruction change, not a second full gate."
+  },
+  "managed_setup": {
+   "root_mirrors_updated": 4,
+   "final_preview": "0 creates, 0 updates, 0 conflicts, 0 pending, 0 stale",
+   "evidence": "setup-v4.json"
+  },
+  "static_asset_tests": {
+   "limitation": "The new tests in tests/test_kiro_assets.py are substring assertions over instruction text and prove only that the text is present."
+  },
+  "hosted_ci": {
+   "head_commit": "88bbe15b3858b6347f35dd975a6ecd35ffcadd93",
+   "run_id": 34061930185,
+   "status": "completed",
+   "conclusion": "success",
+   "jobs_successful": 12,
+   "jobs_total": 12,
+   "evidence": "hosted-ci-88bbe15.json",
+   "limitation": "A draft-PR product run bound to 88bbe15. It establishes no native acceptance, merge, release or publication; release-package steps are not part of it."
+  }
+ },
+ "fixtures": {
+  "inputs_identical_to_planning_043": true,
+  "input_hashes": {
+   "README.md": "dabfb31d165d2895dfd0fe9ab94427f6f45bb0a1e79504d2deba89613592826e",
+   "reference.py (stub)": "f7ad4cadbcfb055210a865735779390606d24f944c2ee53e4bd41c6b97582556",
+   "tests/test_reference.py": "bae0c9a53c62d202e63ade7fffc017c7af5e9c8bed4f140f4bf9c35d2d03077f"
+  },
+  "cli_fixture": {
+   "path": "<task-root>/native-cli-v4",
+   "baseline_file_count": 186,
+   "install": "fresh managed install, 182 files created",
+   "only_changed_input": "reference.py"
+  },
+  "ide_fixture": {
+   "path": "<task-root>/native-ide-v4",
+   "baseline_file_count": 190,
+   "install": "existing v3 fixture with 5 managed files updated in place",
+   "provenance": "Reuses the four Spec documents created natively in the v3 run; only the installed PKStack method was refreshed to v4. Not fresh all-v4 Spec creation.",
+   "inputs_unchanged": true
+  },
+  "evidence": "fixture-context-v4.json"
+ },
+ "native_cases": [
+  {
+   "id": "cli-plan-v4",
+   "surface": "Kiro CLI",
+   "route": "pkstack router -> native Plan -> bundled execution",
+   "outcome": "bounded pass with two named operator interventions",
+   "session_id": "sess_78489960-4589-4118-817f-09f1e7af9a5a",
+   "findings": [
+    "Router packaged a native Plan handoff and stopped; no settled question, no non-ASCII option.",
+    "Router emitted no literal /plan; the string appears zero times in the recording. See operator_interventions.assisted-mode-entry.",
+    "Native Plan read the installed shared method, stated derived mechanics, and asked only the error-wording question.",
+    "Plan's first ordering (strip, upper, validate) was wrong and would have accepted \"ab12ß\" as \"AB12SS\". See operator_interventions.reviewed-plan-correction.",
+    "Approval was neutral. Kiro's own approval handoff moved Plan to bundled Default.",
+    "Execution captured and validated the knowledge topic before editing reference.py, resolving methods from installed workspace paths with no global Power lookup.",
+    "A second neutral approval changed no files and duplicated no topic."
+   ],
+   "capture_order": {
+    "source": "cli-plan-v4-file-events.jsonl",
+    "method": "polling file watcher",
+    "events": [
+     {
+      "observed_at": "2026-09-06T21:25:04.829906Z",
+      "change": "Wiki/knowledge/reference-normalization/index.md created",
+      "product_matches_baseline": true,
+      "tests_match_baseline": true
+     },
+     {
+      "observed_at": "2026-09-06T21:25:07.986254Z",
+      "change": "Wiki/knowledge/index.md updated",
+      "product_matches_baseline": true,
+      "tests_match_baseline": true
+     },
+     {
+      "observed_at": "2026-09-06T21:25:14.288319Z",
+      "change": "reference.py changed",
+      "product_matches_baseline": false,
+      "tests_match_baseline": true
+     }
+    ],
+    "capture_to_product_edit_seconds": 6.302,
+    "limit": "Watcher times are observation times, not exact write times. Ordering rests on those observations plus the transcript order.",
+    "corroboration": "Transcript order: capture, validate, then implement."
+   },
+   "file_observation": {
+    "before_approval": "no changed, added or deleted files",
+    "final": "changed Wiki/knowledge/index.md and reference.py; added the topic document; tests_unchanged true",
+    "repeat_approval": "no changes, 1 topic document"
+   },
+   "verification": {
+    "agent_run": "3 authoritative tests pass; ad-hoc sharp-s probe raises ValueError",
+    "independent_host_rerun": "3 tests OK; 3 non-ASCII cases rejected with the uniform error; summary line only, exact inputs not retained",
+    "limit": "A fixture check, not a product gate."
+   },
+   "evidence": "cli-plan-v4-*.json, cli-plan-v4-file-events.jsonl, fixture-context-v4.json",
+   "knowledge_validation_records": {
+    "correction": "An earlier draft conflated the pre-flight receipt with the native capture validation. Corrected.",
+    "preflight": "coordinator, 21:17:43 UTC, before the CLI session launched; 3 documents, ok true; baseline health only",
+    "native_capture_validation": "evidenced only by the recording: command, truncated output pane and the agent's success statement, all before the product edit; no machine receipt retained",
+    "host_final_state": "coordinator, 21:56:53 UTC, after the session; exit 0, 4 documents, 7 local links, ok true; final state, not capture timing",
+    "evidence": "cli-plan-v4-knowledge-validation.json"
+   }
+  },
+  {
+   "id": "ide-spec-v4",
+   "surface": "Kiro IDE",
+   "route": "native Quick Spec review of existing native Spec, then explicit no-write approval",
+   "outcome": "bounded pass with limits",
+   "session_id": "not captured",
+   "findings": [
+    "The native workflow loaded the v4 grilling method after a one-time Allow and reused the settled decisions without re-interviewing them.",
+    "The same-file task dependency was corrected: tasks 1.1 and 1.2 both edit reference.py and now sit in separate waves. See operator_interventions.operator-raised-dependency-defect.",
+    "An approval that explicitly forbade execution, commands and any file or Wiki write was acknowledged, and the post-approval file delta was empty in all three categories.",
+    "Two Spec files changed against the v3 baseline; nothing was added or deleted; product, tests, README and Wiki were untouched."
+   ],
+   "limits": [
+    "Reused v3 native Spec documents; this is not fresh all-v4 Spec creation.",
+    "No implementation or tests ran in this scenario.",
+    "The acknowledgement named implementation as pending but did not separately name pending knowledge capture.",
+    "UI and no-write observations cover the fixture and visible agent actions, not a machine-wide hook audit.",
+    "The corrected task graph was reviewed, not executed.",
+    "Pre-correction v3 bytes of design.md and tasks.md are not retained here; only their baseline hashes are."
+   ],
+   "evidence": "ide-spec-v4-final-evidence.json, ide-spec-v4-receipts.json, fixture-context-v4.json"
+  },
+  {
+   "id": "cli-router-v4-repeat",
+   "surface": "Kiro CLI",
+   "route": "router-only repeat on the same request",
+   "outcome": "FAIL on the exact native CLI handoff syntax",
+   "session_id": "sess_508b858a-2bbd-40e5-ab96-599b03b02c8d",
+   "scope": "first router response only; no Plan, implementation, capture, IDE or gate rerun",
+   "findings": [
+    "Handed off without interviewing, but emitted no runnable /plan; it said to switch to native Plan mode.",
+    "Stated strip/upper/validate as settled by the contract, the same wrong mechanic corrected in the main run.",
+    "Told the user to return to pkstack after approval without distinguishing Kiro's own execution handoff."
+   ],
+   "file_delta": {
+    "changed": [],
+    "added": [],
+    "deleted": []
+   },
+   "evidence": "cli-router-v4-repeat.json",
+   "significance": "The missing runnable line reproduced: a repeatable router defect, not a one-off."
+  }
+ ],
+ "operator_interventions": [
+  {
+   "id": "assisted-mode-entry",
+   "case": "cli-plan-v4",
+   "description": "The router returned a handoff body without runnable slash syntax; the coordinator prepended the documented /plan prefix before submitting it.",
+   "consequence": "The reproduction criterion 'one runnable /plan line' is not met. This route is not zero-intervention."
+  },
+  {
+   "id": "reviewed-plan-correction",
+   "case": "cli-plan-v4",
+   "description": "Ordinary plan review selected the uniform error message and supplied the sharp-s counterexample after Plan proposed uppercasing before validation.",
+   "consequence": "The correct plan is a reviewed plan. Autonomous Unicode correctness is not demonstrated."
+  },
+  {
+   "id": "operator-raised-dependency-defect",
+   "case": "ide-spec-v4",
+   "description": "The same-file parallel-wave defect was named in the review prompt.",
+   "consequence": "The Spec correcting it is not unprompted defect detection."
+  }
+ ],
+ "not_established": [
+  "Unqualified 0.4.3 native-planning acceptance, merge, tag or publication.",
+  "A zero-intervention CLI planning route; the exact-line criterion failed twice.",
+  "Autonomous Unicode correctness during planning.",
+  "Separation of model behaviour from client behaviour; CLI Auto was unresolved, IDE ran Luna/Low, CLI semver not captured.",
+  "Fresh v4 Spec creation, v4 IDE Plan, IDE implementation, or execution of the corrected task graph.",
+  "A v4 standalone /grill-me boundary rerun; v3 passed that and it was not repeated.",
+  "Generalisation beyond one fixture contract and three native observations.",
+  "That the substring asset tests constrain native behaviour rather than instruction text."
+ ],
+ "release_gate": "Blocked. The router did not emit the required runnable '/plan Read .kiro/skills/grilling/SKILL.md;' line in either of two runs, so unqualified 0.4.3 native-planning acceptance is not available. The final independent review reached the same split verdict: source approved, release blocked.",
+ "native_acceptance_status": "partial; interview, capture-order and Quick Spec acknowledgement gates cleared, exact CLI handoff syntax not met",
+ "raw_evidence": "raw-evidence.json",
+ "raw_evidence_retention": "Raw recordings, full gate receipts and both disposable fixtures stay local under the temporary task root as ephemeral working evidence.",
+ "worker_log_retention": "Worker stream logs were read only for their final type=result text.",
+ "secrets": "No secrets or user configuration are reproduced in this report.",
+ "preparation": {
+  "written_by": "external evidence writer, local files only; no UI, Kiro CLI, network, commits or subagents",
+  "ide_run_state_at_start": "in flight",
+  "ide_final_receipt_recorded_at": "2026-09-06T21:47:07Z",
+  "pending_sections": "none; the IDE final evidence arrived during preparation and is incorporated",
+  "recomputation": "All file comparisons in this report were recomputed from the retained manifests and agree with the coordinator's recorded fields.",
+  "scope_boundary": "No source changes were made. Later routing work in the authoring worktree is out of scope and is not reported here."
+ },
+ "report_status": "complete and frozen",
+ "retained_files_note": "campaign.json is excluded because it carries this list.",
+ "retained_files": [
+  {
+   "path": "README.md",
+   "sha256": "b35f50023313950d9f1ab73cde1c1381c80e5343af1caa7972aecb2fec3415bd",
+   "bytes": 17406
+  },
+  {
+   "path": "cli-plan-v4-after-repeat.json",
+   "sha256": "11c2b64e09b5f317856992ad1de4858bc4fa399f20bb7be33718de321e50884a",
+   "bytes": 151
+  },
+  {
+   "path": "cli-plan-v4-before-approval.json",
+   "sha256": "6f945a913f5e3b99a9f73e696176387f23e935e30891face8221f3efb53c8cdc",
+   "bytes": 52
+  },
+  {
+   "path": "cli-plan-v4-before-repeat.json",
+   "sha256": "3da1ac22ad29fc23d919fb223743a73d63a815482684882a99cc6f1b5fecc384",
+   "bytes": 405
+  },
+  {
+   "path": "cli-plan-v4-doctor.json",
+   "sha256": "9d9d78433379437ac1e97d55757ce045bf44876c415934c361861d7db9fd780d",
+   "bytes": 817
+  },
+  {
+   "path": "cli-plan-v4-excerpts.json",
+   "sha256": "580f5f006ab87f1a154d6afa96eef6548fdc9dee5cb64e0826b8c49ac0537ef3",
+   "bytes": 18073
+  },
+  {
+   "path": "cli-plan-v4-file-events.jsonl",
+   "sha256": "ff0b6627448934db64611c581bc73209ad9ae286bdcc0d2bc907da918a473420",
+   "bytes": 660
+  },
+  {
+   "path": "cli-plan-v4-final-files.json",
+   "sha256": "e8e0a9cbfb49dba4248029b558ea499b0468a0230e9de007dd52b8aa0283ec84",
+   "bytes": 250
+  },
+  {
+   "path": "cli-plan-v4-host-checks.json",
+   "sha256": "4e92b2867590c05fc17d2bdfe08821358a7f6eaab71c7dee4936441d4a2e5aec",
+   "bytes": 1468
+  },
+  {
+   "path": "cli-plan-v4-knowledge-validation.json",
+   "sha256": "bde3b56a4c85766afe7c7b5c833ecb03e89b8ebea99a9db44d966bd1b05e7d94",
+   "bytes": 3758
+  },
+  {
+   "path": "cli-router-v4-repeat.json",
+   "sha256": "ee09c5b76ac42d3257632b4e52022b8bcba8eb5d83fa31556feecf3d322002f7",
+   "bytes": 1882
+  },
+  {
+   "path": "fixture-context-v4.json",
+   "sha256": "6969bfd204a1ccef9125a12296bb809321125032362fc4c829a69030062d1084",
+   "bytes": 2396
+  },
+  {
+   "path": "gate-v4.json",
+   "sha256": "ff4111a31826ec0e52e4e9f30746de2ae0497105c2bd45cf1e8357f3ca6d1e2f",
+   "bytes": 4931
+  },
+  {
+   "path": "hosted-ci-88bbe15.json",
+   "sha256": "cedd1dcdb446a9900759326b8071b9ba6ffbd32d0e874bd77f5e1c1cf514b73d",
+   "bytes": 1006
+  },
+  {
+   "path": "ide-spec-v3-recovered-ack.json",
+   "sha256": "3f7c67f92a2b31281dce83332e77456ff759e08891932180ab87c839a95ee202",
+   "bytes": 1476
+  },
+  {
+   "path": "ide-spec-v4-final-evidence.json",
+   "sha256": "a2de16c42559754c0c9f42f6c5e3c10b7d39703345fc3f89c06558f0f0a6051e",
+   "bytes": 4643
+  },
+  {
+   "path": "ide-spec-v4-receipts.json",
+   "sha256": "6274626b6efd932865023ccbcfc4c5a181dc6eb2feca5289022c00e5d99894d4",
+   "bytes": 3633
+  },
+  {
+   "path": "opus-source-review-manifest.json",
+   "sha256": "f6bb0f58dcb96740beec2b8f75d78efa48d4e3417b6a0f23ba37fe71eb4d246b",
+   "bytes": 1111
+  },
+  {
+   "path": "raw-evidence.json",
+   "sha256": "7f92eded2b4f4bea3e2512b03f0b435ee3c37daf4d5897abf4f7a100feba4186",
+   "bytes": 4910
+  },
+  {
+   "path": "review-verdicts.json",
+   "sha256": "9ced3cc7ac2367c89b2bd9bc5b15024b217f13fd30fab985989661b24f7644cb",
+   "bytes": 6697
+  },
+  {
+   "path": "setup-v4.json",
+   "sha256": "0d8eb83a41d6e88526058b458ac19825970fb2ed59b1dcf50ba3546e8fabd62c",
+   "bytes": 4120
+  },
+  {
+   "path": "source-files-v4.json",
+   "sha256": "7fd53ba542b8de7842fbd302e83395b75f1041dc755382ed5190c3e184790803",
+   "bytes": 33122
+  }
+ ]
+}

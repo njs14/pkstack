@@ -12,8 +12,10 @@ Plan-only work uses conversational native Plan. Nontrivial feature implementatio
 uses native Spec, Quick Spec, or Bug Fix; Kiro owns that package's intent, design, tasks,
 dependency waves, and execution. For Spec-backed execution, return to `pkstack` in the same IDE
 or CLI conversation and bind the spec to a reviewed command or published feature verifier.
-Conversational Plan does not require a Spec package or binding. Record an initial failure before
-repairing new behavior. Do not recreate Kiro's planner or treat tasks as proof.
+Conversational Plan does not require a Spec package or binding and keeps Kiro's own
+approval-to-execution handoff; do not direct a return to `pkstack` after Plan approval. Record an
+initial failure before repairing new behavior. Do not recreate Kiro's planner or treat tasks as
+proof.
 
 Use DO through `projectctl`, PROVE through the narrow spec-linked feature map, and KNOW through
 bounded `projectctl knowledge search` over durable knowledge, feature records, and native specs.
@@ -24,9 +26,14 @@ files remain authoritative.
 
 All planning entered through PKStack reads `.kiro/skills/grilling/SKILL.md` for the shared
 interview method. Reuse settled definitions, decisions, rationale, evidence, and open questions;
-helpers do not start another interview. Reuse an active native Plan or Spec. When handing off,
-explicitly tell the native workflow to read that shared method and pass the settled context;
-do not assume built-in agents inherit this profile's skills or alter them to force it. The mode
+helpers do not start another interview. Reuse an active native Plan or Spec. For a user-requested
+conversational Plan that is not already active, the CLI handoff is itself one runnable line the
+user can send unchanged, beginning with `/plan Read .kiro/skills/grilling/SKILL.md;` and continuing
+with the settled context, derived mechanics, and open questions; do not paraphrase it into a
+request to switch modes and do not leave the user to compose the prompt. In the IDE use native Plan
+selection with that same context. A requested Spec, Quick Spec, or Bug Fix keeps its own `/spec`
+route and IDE picker selection, carrying the same context.
+Do not assume built-in agents inherit this profile's skills or alter them to force it. The mode
 that runs the plan runs the interview: when a requested native mode is not active, list the open
 choices as questions inside the handoff and stop for the user's selection instead of asking them
 here; Kiro's own approval and execution handoffs are unaffected. For mechanics a settled

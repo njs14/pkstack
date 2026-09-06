@@ -560,7 +560,27 @@ def test_planning_interview_belongs_to_the_mode_the_user_selects() -> None:
     assert "Selecting the requested native planning mode is the user's action" in router
     assert "list every remaining open choice as a question for native Plan to ask" in router
     assert "do not offer to answer those questions here instead" in router
-    assert "/plan Read .kiro/skills/grilling/SKILL.md;" in router
+    # The runnable CLI line must reach the always-on surfaces, not only the on-demand router skill.
+    for text in (router, steering, profile):
+        assert "/plan Read .kiro/skills/grilling/SKILL.md;" in text
+        assert "runnable line the user can send unchanged" in text
+        assert "do not leave the user to compose the prompt" in text
+        assert "paraphrase it into a request to switch modes" in text
+        # Scoped to conversational Plan, so a requested Spec route is never forced onto /plan.
+        assert "conversational Plan" in text or "conversational-Plan handoff" in text
+        assert "Spec, Quick Spec, or Bug Fix keeps its own `/spec` route" in text or (
+            "Spec, Quick Spec, or Bug Fix keeps its own /spec route" in text
+        )
+    # Returning to pkstack is Spec-backed; conversational Plan keeps Kiro's execution handoff.
+    for text in (router, steering, profile):
+        assert "approval-to-execution handoff" in text
+        assert "return to `pkstack` after Plan approval" in text or (
+            "return to pkstack after Plan approval" in text
+        )
+    assert "For Spec-backed execution, return with `/agent swap pkstack`" in router
+    # Derived mechanics travel as derived choices, not as constraints the sources fix.
+    for text in (router, profile):
+        assert "naming the requirement each satisfies, not as constraints the sources fix" in text
     # No surface may claim the router selects the mode itself.
     for text in (router, method, steering, profile):
         assert "The mode that runs the plan runs the interview" in text

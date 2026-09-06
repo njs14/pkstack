@@ -27,8 +27,10 @@ with ACP or a nested Kiro process. Reuse an already active appropriate mode. Oth
 same-conversation handoff with settled context and the explicit instruction to read
 `.kiro/skills/grilling/SKILL.md`; native agents must not be assumed to inherit the profile's skills.
 In CLI v3, use `/plan <request>` for Plan, or `/spec new <name>`, `/spec <name>`, or `/spec run
-<name>` for Specs, then return with `/agent swap pkstack` after native approval when execution is
-permitted. In the IDE, use **Build with spec** or the
+<name>` for Specs. For Spec-backed execution, return with `/agent swap pkstack` after native
+approval when execution is permitted; conversational Plan keeps Kiro's own approval-to-execution
+handoff, so do not direct a return to `pkstack` after Plan approval.
+In the IDE, use **Build with spec** or the
 workflow/agent picker and then reselect `pkstack`. Web uses its native Spec picker and built-in
 primary agent; the Web path remains untested. Crew may run a committed spec through its Task Runner,
 but this workflow does not claim that Crew exposes Kiro's built-in Spec agent or one local session.

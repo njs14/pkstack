@@ -1,0 +1,26 @@
+{
+  "worker-patch-manifest.json": {
+    "sha256": "9866e6f47ef426046786e75e22e99b368f4ceac3df44268f7473852a43667389",
+    "bytes": 3241
+  },
+  "router-result.json": {
+    "sha256": "315546a417ee64198641974ed4fef9ba4888c0d210ceb9625503a9b168000805",
+    "bytes": 3334
+  },
+  "checks.json": {
+    "sha256": "1fe1f576bacce8d98c4f21c9817fbaeae87ab0bef627d40597eb3154913ce838",
+    "bytes": 2581
+  },
+  "README.md": {
+    "sha256": "0144d927c5e8891ffbad5f67fb12bd333e41aae86b462644f724e0e8cb7ae176",
+    "bytes": 3667
+  },
+  "router-transcript.txt": {
+    "sha256": "5213a2b61ddcd34a4e35b03d1f7874eb05c241d31f2987a2c06659178f198d30",
+    "bytes": 4173
+  },
+  "source-files-v5.json": {
+    "sha256": "5e54a38ca66d12387cc5af9d4547800d25b24a0864113029fec897969569eff5",
+    "bytes": 33122
+  }
+}
