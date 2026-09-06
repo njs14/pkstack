@@ -5,27 +5,249 @@
     "title": "PKStack & friends",
     "locale": "en",
     "quality_profile": "showcase",
-    "viewBox": [1180, 550],
-    "repository": {"url": "https://github.com/njs14/pkstack", "revision": "f53f0931ef3a6748242d2dd569fe0cef0ddb2106"}
+    "viewBox": [
+      1180,
+      570
+    ],
+    "repository": {
+      "url": "https://github.com/njs14/pkstack",
+      "revision": "8439078f279f5980c1c5123c21223253d16393f0"
+    }
   },
   "components": [
-    {"id": "kiro_session", "type": "frontend", "label": "Kiro", "sublabel": "Plan, edit, use tools", "pos": [50, 230], "size": [190, 76], "sources": [{"path": "powers/pkstack/docs/architecture.md", "line": 9}]},
-    {"id": "pk_workflows", "type": "backend", "label": "PKStack skills", "sublabel": "Choose the workflow", "pos": [350, 230], "size": [200, 76], "sources": [{"path": "powers/pkstack/skills/pkstack/SKILL.md"}]},
-    {"id": "proof_controller", "type": "backend", "label": "projectctl", "sublabel": "Run and record proof", "pos": [670, 230], "size": [200, 76], "sources": [{"path": "powers/pkstack/src/pkstack/cli.py", "line": 61}]},
-    {"id": "project_check", "type": "external", "label": "Your verifier", "sublabel": "Real behavior, pass or fail", "pos": [980, 230], "size": [190, 76], "sources": [{"path": "powers/pkstack/src/pkstack/runner.py", "line": 1148}]},
-    {"id": "feature_contract", "type": "database", "label": "Feature contract", "sublabel": "What must work", "pos": [670, 55], "size": [200, 76], "sources": [{"path": "powers/pkstack/docs/usage.md"}]},
-    {"id": "project_knowledge", "type": "database", "label": "Wiki · OKF / okn", "sublabel": "Why the system works this way", "pos": [670, 425], "size": [200, 76], "sources": [{"path": "powers/pkstack/src/pkstack/knowledge.py", "line": 303}]}
+    {
+      "id": "kiro_session",
+      "type": "frontend",
+      "label": "Kiro",
+      "sublabel": "Plan, edit, use tools",
+      "pos": [
+        50,
+        230
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "powers/pkstack/docs/architecture.md"
+        }
+      ]
+    },
+    {
+      "id": "pk_workflows",
+      "type": "backend",
+      "label": "PKStack skills",
+      "sublabel": "Choose the workflow",
+      "pos": [
+        350,
+        230
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "powers/pkstack/skills/pkstack/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": "proof_controller",
+      "type": "backend",
+      "label": "projectctl",
+      "sublabel": "Run and record proof",
+      "pos": [
+        670,
+        230
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "powers/pkstack/src/pkstack/cli.py"
+        }
+      ]
+    },
+    {
+      "id": "project_check",
+      "type": "external",
+      "label": "Your verifier",
+      "sublabel": "Real behavior, pass or fail",
+      "pos": [
+        980,
+        230
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "powers/pkstack/src/pkstack/runner.py"
+        }
+      ]
+    },
+    {
+      "id": "feature_contract",
+      "type": "database",
+      "label": "Feature contract",
+      "sublabel": "What must work",
+      "pos": [
+        670,
+        55
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "powers/pkstack/docs/usage.md"
+        }
+      ]
+    },
+    {
+      "id": "project_knowledge",
+      "type": "database",
+      "label": "Retained knowledge",
+      "sublabel": "Wiki/knowledge",
+      "pos": [
+        350,
+        435
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "powers/pkstack/src/pkstack/knowledge_payload.py"
+        }
+      ]
+    },
+    {
+      "id": "knowledge_worker",
+      "type": "backend",
+      "label": "Read-only ACP",
+      "sublabel": "Isolated Kiro worker",
+      "pos": [
+        670,
+        435
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "powers/pkstack/src/pkstack/knowledge_acp.py"
+        }
+      ]
+    },
+    {
+      "id": "native_specs",
+      "type": "database",
+      "label": "Native Specs",
+      "sublabel": ".kiro/specs stays native",
+      "pos": [
+        980,
+        435
+      ],
+      "size": [
+        190,
+        76
+      ],
+      "sources": [
+        {
+          "path": "powers/pkstack/src/pkstack/knowledge_payload.py"
+        }
+      ]
+    }
   ],
   "connections": [
-    {"id": "select_workflow", "from": "kiro_session", "to": "pk_workflows", "label": "uses", "variant": "emphasis"},
-    {"id": "invoke_check", "from": "pk_workflows", "to": "proof_controller", "label": "invokes", "variant": "emphasis"},
-    {"id": "execute_check", "from": "proof_controller", "to": "project_check", "label": "runs", "variant": "emphasis"},
-    {"id": "read_contract", "from": "feature_contract", "to": "proof_controller", "label": "check to run", "labelDy": 40},
-    {"id": "retrieve_context", "from": "proof_controller", "to": "project_knowledge", "label": "bounded lookup", "variant": "dashed", "labelDy": 40}
+    {
+      "id": "select_workflow",
+      "from": "kiro_session",
+      "to": "pk_workflows",
+      "label": "uses",
+      "variant": "emphasis"
+    },
+    {
+      "id": "invoke_check",
+      "from": "pk_workflows",
+      "to": "proof_controller",
+      "label": "invokes",
+      "variant": "emphasis"
+    },
+    {
+      "id": "execute_check",
+      "from": "proof_controller",
+      "to": "project_check",
+      "label": "runs",
+      "variant": "emphasis"
+    },
+    {
+      "id": "read_contract",
+      "from": "feature_contract",
+      "to": "proof_controller",
+      "label": "check to run",
+      "labelDy": 40
+    },
+    {
+      "id": "retain_context",
+      "from": "pk_workflows",
+      "to": "project_knowledge",
+      "label": "retain context",
+      "labelDy": 24
+    },
+    {
+      "id": "bounded_task",
+      "from": "proof_controller",
+      "to": "knowledge_worker",
+      "label": "bounded ACP",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "read_knowledge",
+      "from": "knowledge_worker",
+      "to": "project_knowledge",
+      "label": "snapshot read",
+      "variant": "dashed"
+    },
+    {
+      "id": "read_native_specs",
+      "from": "knowledge_worker",
+      "to": "native_specs",
+      "label": "snapshot read",
+      "variant": "dashed"
+    }
   ],
   "cards": [
-    {"dot": "cyan", "title": "Native planning", "items": ["Kiro owns Specs, Quick Specs and task execution."]},
-    {"dot": "violet", "title": "Methods from friends", "items": ["Poteto, HumanLayer and Matt Pocock shape the skills."]},
-    {"dot": "emerald", "title": "Concrete evidence", "items": ["A stored check passes; an agent opinion is not the result."]}
+    {
+      "dot": "cyan",
+      "title": "Native ownership",
+      "items": [
+        "Kiro owns Specs, skills and the current conversation."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Local validation",
+      "items": [
+        "Metadata, links and feature maps are checked without a model."
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Verified retrieval",
+      "items": [
+        "The host checks quotes and limits; Wiki/work is excluded."
+      ]
+    }
   ]
 }

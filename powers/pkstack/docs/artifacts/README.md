@@ -7,8 +7,10 @@
 | Upstream update and review | [JSON](pkstack-updater-workflow.json) | [HTML](pkstack-updater-workflow.html) | [PNG](pkstack-updater-workflow.png) |
 
 These are explanations, not runtime or release evidence. The component source
-cites six repository files at `f53f0931ef3a6748242d2dd569fe0cef0ddb2106`.
-The updater view also describes this change's bounded skill-review context.
+anchors eight components to repository sources at
+`8439078f279f5980c1c5123c21223253d16393f0`.
+The diagrams now show retained knowledge, native Specs, optional ACP retrieval,
+and knowledge checks within the bounded updater policy.
 
 Generated with the locally installed Archify 2.17, using its showcase profile.
 The Power's bundled Archify runtime was not upgraded. Each JSON source passed
@@ -22,6 +24,8 @@ extracted statically from each HTML's SVG and rasterized with librsvg 2.62.3 at
 1600 pixels wide, using the light theme and Menlo. This does not execute the
 HTML's JavaScript or change the authored geometry. All three PNGs were inspected
 separately after export. The HTML retains zoom, theme selection, and export.
+The [delivery receipt](../../../../reviews/release-040-diagrams.json) binds the
+three source/artifact hashes and records the browser and visual review scope.
 
 To regenerate from the repository root, set `ARCHIFY` to a reviewed Archify
 2.17 `bin/archify.mjs`, then run:

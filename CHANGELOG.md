@@ -4,6 +4,32 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.4.0] — 2026-09-06
+
+PKStack 0.4.0 adds native knowledge authoring and bounded Kiro retrieval.
+Normal work stays in the current Kiro conversation.
+
+- Adds four curated authoring workflows for interviews, detailed specifications,
+  documentation-guided requirements, and Markdown knowledge management.
+- Separates retained `Wiki/knowledge/` from working `Wiki/work/` drafts and keeps
+  native `.kiro/specs/` owned by Kiro.
+- Replaces the optional `okn` backend with local metadata, link, and feature-map
+  validation, plus optional read-only Kiro ACP search over source snapshots.
+- Verifies returned quotations and derives line locations on the host; bounds
+  time, tools, protocol frames, response size, and process cleanup. Unsupported
+  Kiro versions fail closed. Verified quotations do not certify generated prose.
+- Extends upstream curation and secretless validation to the knowledge skills,
+  and refreshes the component, task, and updater diagrams.
+
+Live knowledge retrieval is verified on macOS with Kiro CLI 2.21.1/KAS 0.58.7.
+Linux CI verifies controller behavior; its native runtime canary verifies agent
+discovery and model inventory, not end-to-end knowledge retrieval. Other Kiro
+versions and Windows knowledge retrieval remain outside the verified contract.
+
+Read the [0.4 upgrade guide](powers/pkstack/docs/upgrade-0.4.md) and the
+[knowledge acceptance report](reviews/knowledge-foundation.md) for migration,
+evidence, and limits.
+
 ## [0.3.0] — 2026-09-05
 
 PKStack 0.3.0 consolidates the product identity and its Kiro-native workflows.
