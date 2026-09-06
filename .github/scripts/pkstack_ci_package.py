@@ -491,7 +491,7 @@ def verify_package(root: Path, output: Path, api: GitHub, repository: str, repos
             "package manifest is not bound to the exact source and check configuration")
     smoke = manifest.get("smoke", {})
     require(isinstance(smoke, dict) and all(smoke.get(key) is True for key in SMOKE_FLAGS)
-            and smoke.get("knowledge_mode") in {"feature-map-only", "canonical-okn"}
+            and smoke.get("knowledge_mode") == "local"
             and isinstance(smoke.get("doctor_summary"), dict)
             and smoke["doctor_summary"].get("fail") == 0, "package consumer smoke is incomplete")
     files = manifest.get("files")

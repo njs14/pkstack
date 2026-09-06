@@ -109,4 +109,9 @@ Do not automatically run `goal resume`, add attempts, or run `goal clear --force
 
 ## Completion standard
 
+At handoff, maintain project understanding materially changed by the authorized work using
+[`the OKF document lifecycle`](../okf/references/document-lifecycle.md). Link retained findings to
+the exact verifier evidence, preserve uncertainties, and mark superseded guidance. This does not
+change the goal contract or turn a documentation update into executable proof.
+
 A plausible explanation, a clean diff, a sub-agent opinion, or an external review is not a pass. Completion requires `goal verify` to return `passed` for the stored executable verifier. Report any checks that were not run or any environment limitation separately.

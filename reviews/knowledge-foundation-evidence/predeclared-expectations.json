@@ -1,0 +1,37 @@
+{
+  "written_before_authoring": true,
+  "source_commit": "ca9f3e9b7984049b8b52b8d9e4aa95587ee12afa plus current uncommitted prototype",
+  "code_sha256": "4b1a229d2a67b812ff700625bd0a0b5096541b373c4efe2b6b95ff02ac553058",
+  "questions": [
+    {
+      "id": "accepted",
+      "question": "May the canary accept or promote source pins?",
+      "expected": "No; observation-only and acceptance is separate, source-scoped."
+    },
+    {
+      "id": "unknown",
+      "question": "What approved date or owner exists for widening acceptance to parallel sources?",
+      "expected": "No approved widening decision/date/owner is recorded; current contract serializes sources."
+    },
+    {
+      "id": "planned_observed",
+      "question": "Does current knowledge validation already satisfy the planned local-only requirement?",
+      "expected": "The supplied native requirement requires local validation; supplied candidate code still uses okn. A requirement is not implementation proof."
+    },
+    {
+      "id": "native",
+      "question": "Where is the authoritative local-validation requirement?",
+      "expected": ".kiro/specs/knowledge-foundation/requirements.md with a verified passage."
+    },
+    {
+      "id": "draft",
+      "question": "Does the unaccepted draft grant canary promotion authority?",
+      "expected": "No; excluded draft must not enter ordinary search."
+    },
+    {
+      "id": "stale",
+      "question": "Does a historical prototype observation prove the final migrated validator still uses okn?",
+      "expected": "No; historical observation must stay dated and be compared with current evidence after migration. Final stale test pending implementation."
+    }
+  ]
+}

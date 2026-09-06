@@ -82,7 +82,7 @@ def test_doctor_reports_complete_bootstrap_and_optional_tools(
     assert result["summary"]["fail"] == 0
     checks = {check["name"]: check for check in result["checks"]}
     receipt = json.loads((tmp_path / ".pkstack" / "bootstrap.json").read_text())
-    assert checks["okn"]["status"] == "warn"
+    assert "okn" not in checks
     assert checks["kiro-workspace-agent-discovery"]["status"] == "pass"
     for steering in (
         "pkstack-core-steering",

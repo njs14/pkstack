@@ -16,5 +16,6 @@ redistributed by these records.
 
 Tracking the whole `okf/` tree prevents a file-only pin from overlooking related source movement,
 but it does not make the entire tree normative. PKStack does not vendor the specification, execute
-upstream implementations, or activate upstream packages. Canonical `okn` remains the runtime used
-behind projectctl; this source only establishes the current format contract and drift boundary.
+upstream implementations, or activate upstream packages. This source establishes the format
+contract and drift boundary. `projectctl` checks minimal metadata and local Markdown links;
+bounded retrieval uses Kiro ACP. Those local checks do not claim full OKF conformance.

@@ -1,0 +1,88 @@
+{
+  "ok": true,
+  "schemaVersion": "2",
+  "mode": "kiro-acp",
+  "query": "What does the upstream canary do, which decisions remain unresolved, and how is accepted source provenance checked?",
+  "context": {
+    "answer": "Upstream canary: a separate read-only Kiro product/runtime canary, run weekly or by manual dispatch, outside the autonomous acceptance path (which covers only the GitHub source entries in maintenance/upstreams.json). It resolves the official stable Kiro CLI manifest, selects the x86_64 Linux headless archive, verifies and probes the advertised binary, validates and discovers the six workspace agents, and queries the live model inventory without sending a model turn. Checksum/version, six-agent validation, and model-inventory checks gate; IDE metadata, Kiro Crew Nightly feeds, changelog, llms.txt, and recorded doc hashes are bounded observations. It never edits a pin, candidate branch, workflow, or protected controller code; a newer stable CLI deliberately fails it until a human promotes each trust-root pin.\n\nAccepted source provenance: the review-and-provenance sub-feature binds the ledger genesis and every accepted transition to canonical provenance markers, exhaustive A/B/C review evidence, semantic patch completeness, and an independent no-tool Kiro-hosted Claude Opus 5 review of the exact candidate. Parity accounts for every tracked source path (Cursor skill packages direct/alias/native-replacement/excluded; generic OKF sources exact A/B/C dispositions), and acceptance freshly revalidates proposal, parity, tests, and ownership before one atomic ledger append and pin advance. Packaged provenance documents stay in existing package locations.\n\nUnresolved decisions: no source records an explicit open-question list; only scope limits (e.g. Web support untested) and statements that decisions do not prove implementation.",
+    "sources": [
+      {
+        "path": "Wiki/features/pkstack-upstream-maintenance.md",
+        "quote": "separate weekly or manually dispatched Kiro canary observes product/runtime/documentation drift",
+        "lineStart": 45,
+        "lineEnd": 45,
+        "contentSha256": "87630a940742662eeb0a3237dc6d5759aef2dcc47853a2888be17163de2c53df"
+      },
+      {
+        "path": "Wiki/features/pkstack-upstream-maintenance.md",
+        "quote": "Resolve the official stable Kiro CLI manifest, select exactly the x86_64 Linux headless archive,",
+        "lineStart": 100,
+        "lineEnd": 100,
+        "contentSha256": "87630a940742662eeb0a3237dc6d5759aef2dcc47853a2888be17163de2c53df"
+      },
+      {
+        "path": "Wiki/features/pkstack-upstream-maintenance.md",
+        "quote": "- A newer stable Kiro CLI deliberately fails the canary until a human reviews and promotes every trust-root pin copy; the canary itself must not edit workflows or protected controller code.",
+        "lineStart": 227,
+        "lineEnd": 227,
+        "contentSha256": "87630a940742662eeb0a3237dc6d5759aef2dcc47853a2888be17163de2c53df"
+      },
+      {
+        "path": "Wiki/features/pkstack-upstream-maintenance.md",
+        "quote": "Bind the ledger genesis and every accepted transition to canonical provenance markers, exhaustive",
+        "lineStart": 83,
+        "lineEnd": 83,
+        "contentSha256": "87630a940742662eeb0a3237dc6d5759aef2dcc47853a2888be17163de2c53df"
+      },
+      {
+        "path": "Wiki/features/pkstack-upstream-maintenance.md",
+        "quote": "Account for every tracked source path. Cursor skill packages retain direct, alias,",
+        "lineStart": 77,
+        "lineEnd": 77,
+        "contentSha256": "87630a940742662eeb0a3237dc6d5759aef2dcc47853a2888be17163de2c53df"
+      },
+      {
+        "path": "Wiki/features/pkstack-upstream-maintenance.md",
+        "quote": "Freshly revalidate the exact proposal, canonical/generated parity, tests, and ownership before one",
+        "lineStart": 90,
+        "lineEnd": 90,
+        "contentSha256": "87630a940742662eeb0a3237dc6d5759aef2dcc47853a2888be17163de2c53df"
+      },
+      {
+        "path": "Wiki/knowledge/pkstack/corpus-migration.md",
+        "quote": "| Package provenance | 11 | Preserve attribution, upstream pins, and parity/source-accounting documents |",
+        "lineStart": 49,
+        "lineEnd": 49,
+        "contentSha256": "759f2c9ecc8757b1ba830bf83547e23a0fa4f300ff6988629cad85347f7fe486"
+      }
+    ],
+    "uncertainties": [
+      "No available source lists unresolved decisions or open questions explicitly; the lifecycle decision only defines \"Open question\" as a claim type to preserve.",
+      "These are recorded contract requirements, not evidence that any canary or provenance gate run passed.",
+      ".kiro/specs was not in the supplied inventory, so open questions recorded there were not inspected."
+    ],
+    "incomplete": false
+  },
+  "budget": 1200,
+  "estimatedTokens": 1024,
+  "budgetScope": "returned context only; UTF-8 JSON bytes divided by four",
+  "sourceRoots": [
+    "Wiki/knowledge",
+    "Wiki/features",
+    ".kiro/specs"
+  ],
+  "sourceDocuments": 7,
+  "runtime": {
+    "version": "2.21.1",
+    "isolation": "version-specific embedded-server home override"
+  },
+  "execution": {
+    "model": "claude-opus-5",
+    "resolved_model": "claude-opus-5",
+    "seconds": 58.948,
+    "attempts": 2,
+    "tool_calls": 8,
+    "denied_permission_requests": 1,
+    "internal_model_tokens": null
+  }
+}

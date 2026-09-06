@@ -1,5 +1,9 @@
 # OpenKnowledge CLI contract provenance
 
+Historical reference: the active CLI adapter and maintenance source were retired by the
+[knowledge foundation migration](../../../reviews/knowledge-foundation.md). The accepted identities
+and provenance markers below are preserved; this document is not a current runtime dependency.
+
 PKStack tracks the versioned public CLI schema tree from
 [`openknowledge-sh/openknowledge`](https://github.com/openknowledge-sh/openknowledge) so changes to
 the machine contract at its optional `okn` process boundary are visible to autonomous maintenance.

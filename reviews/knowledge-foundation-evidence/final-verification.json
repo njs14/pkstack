@@ -1,0 +1,151 @@
+{
+  "baselineCommit": "ca9f3e9b7984049b8b52b8d9e4aa95587ee12afa",
+  "candidateInventorySha256": "b767db5879179c4a2e6aef3edf97f1ea5dec30ccebe109834332955f75142fad",
+  "checks": [
+    {
+      "command": "/opt/homebrew/bin/uv run --frozen pytest -q",
+      "cwd": "powers/pkstack",
+      "exitCode": 0,
+      "name": "Power tests",
+      "passed": 953,
+      "seconds": 560.12
+    },
+    {
+      "command": "powers/pkstack/.venv/bin/python -B -m unittest discover -s .github/scripts -p 'test_*.py'",
+      "cwd": ".",
+      "exitCode": 0,
+      "name": "CI Python tests",
+      "passed": 222,
+      "seconds": 45.071
+    },
+    {
+      "command": "node --test .github/scripts/test_pkstack_pr_policy.js",
+      "cwd": ".",
+      "exitCode": 0,
+      "name": "CI JavaScript tests",
+      "passed": 17
+    },
+    {
+      "command": "/opt/homebrew/bin/uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py",
+      "cwd": "powers/pkstack",
+      "exitCode": 0,
+      "name": "Ruff"
+    },
+    {
+      "command": "/opt/homebrew/bin/uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py",
+      "cwd": "powers/pkstack",
+      "exitCode": 0,
+      "files": 47,
+      "name": "Formatting"
+    },
+    {
+      "command": "/opt/homebrew/bin/uv run --frozen ty check",
+      "cwd": "powers/pkstack",
+      "exitCode": 0,
+      "name": "Types"
+    },
+    {
+      "command": "/opt/homebrew/bin/uv lock --check",
+      "cwd": "powers/pkstack",
+      "exitCode": 0,
+      "name": "Lock",
+      "packages": 26
+    },
+    {
+      "command": "/opt/homebrew/bin/actionlint .github/workflows/*.yml",
+      "cwd": ".",
+      "exitCode": 0,
+      "name": "Actionlint"
+    },
+    {
+      "command": "/opt/homebrew/bin/shellcheck .github/scripts/*.sh",
+      "cwd": ".",
+      "exitCode": 0,
+      "name": "ShellCheck"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": ".",
+      "exitCode": 0,
+      "name": "Patch whitespace"
+    }
+  ],
+  "doctor": {
+    "command": "./.pkstack/bin/projectctl doctor --output json",
+    "exitCode": 0,
+    "summary": {
+      "fail": 0,
+      "pass": 84,
+      "warn": 0
+    }
+  },
+  "environment": {
+    "PATH": "/opt/homebrew/bin:${USER_HOME}/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "host": "macOS",
+    "worktree": "${WORKTREE}"
+  },
+  "finishedAt": "2026-09-06T02:40:09.215586+00:00",
+  "independentReview": {
+    "evidence": "transport-review.json",
+    "repairReview": "APPROVE; both findings resolved",
+    "wholeCandidate": "REQUEST CHANGES for F1 and F2 only; all other inspected areas had no findings"
+  },
+  "localKnowledgeValidation": {
+    "command": "./.pkstack/bin/projectctl knowledge validate --output json",
+    "exitCode": 0,
+    "featureCount": 1,
+    "localLinks": {
+      "documents": 12,
+      "issues": [],
+      "local_links": 72,
+      "ok": true
+    },
+    "metadata": {
+      "documents": 12,
+      "issues": [],
+      "ok": true
+    },
+    "mode": "local",
+    "schemaVersion": "2"
+  },
+  "nativeRetrieval": {
+    "attempts": 1,
+    "budget": 2000,
+    "estimatedContextTokens": 1100,
+    "evidence": "transport-final-native-recall.json",
+    "exitCode": 0,
+    "mainQuestionExpectedResult": "passed",
+    "seconds": 30.044,
+    "semanticLimit": "One uncertainty clause imprecisely conflated model-backed ACP retrieval with model-free validation; quotation verification does not validate every generated inference.",
+    "verifiedQuotes": 7
+  },
+  "outcome": "local-candidate-verified",
+  "publication": {
+    "committed": false,
+    "deployed": false,
+    "merged": false,
+    "pushed": false,
+    "tagged": false
+  },
+  "schemaVersion": "1",
+  "setup": {
+    "command": "/opt/homebrew/bin/uv run --frozen pkstack-setup --root ${WORKTREE} --power-root ${WORKTREE}/powers/pkstack --update-managed --dry-run --output json",
+    "conflicts": 0,
+    "created": 0,
+    "ok": true,
+    "pendingUpdates": 0,
+    "preservedSha256": {
+      ".kiro/agents/pkstack-maintainer.json": "080924b1d8cd1d938c99379820e3460d2130f498575e25bc5676a42d874fad01",
+      "Wiki/index.md": "dc0cc846856536f346276cb55438cf0e2298d6b8565afea8b73ec0f3119abac0",
+      "Wiki/knowledge/index.md": "6cd9e93c8b826d0b93634615a49d1e9af9bc88b803489fea7eced82eb2d2ea80"
+    },
+    "updated": 0
+  },
+  "wheelAndGeneratedInstallation": {
+    "callerPYTHONPATHAndVirtualEnvironmentRemoved": true,
+    "generatedKnowledgeStatus": "schemaVersion2/kiro-acp/validationModeLocal",
+    "generatedKnowledgeValidation": "local/pass",
+    "includedInFullPowerSuite": "test_wheel_assets_and_offline_bootstrap_runtime",
+    "lockedAcpSdkInstalled": true
+  }
+}

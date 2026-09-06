@@ -1,0 +1,5 @@
+{
+  "written_before_lookup": true,
+  "question": "Does the historical prototype observation prove the current migrated validator still uses okn? Compare the later migration observation, identify what actually ran and passed, and state what that result does not prove.",
+  "expected": "No. Later observed generated-controller validation returned exit0/oktrue/mode local after retirement. The old source inspection was accurate only for its prototype; no optional okn backend remains. Full conformance/deployment/all correctness and still-pending package/review gates are not established by that run."
+}

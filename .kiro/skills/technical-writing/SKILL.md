@@ -17,6 +17,12 @@ Inspect the implementation and existing documentation before writing. Use the
 real symbol, file, flag, command, and product name; do not invent a synonym for
 something the code already names.
 
+For project knowledge, use the existing topic and
+[`OKF document lifecycle`](../okf/references/document-lifecycle.md). Drafts belong in
+`Wiki/work/`; durable explanations belong in `Wiki/knowledge/`. Preserve explicit
+native destinations for package documentation, skills, steering, and Kiro specs.
+Do not move an existing document merely because this skill is being used.
+
 Apply all four layers below. They answer different questions: what document is
 this, how does each sentence address the reader, how much does it ask the reader
 to load, and can it be read more than one way.

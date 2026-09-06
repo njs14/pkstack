@@ -198,8 +198,8 @@
       "prompt": "Record the approved retry-limit decision in our Wiki with its sources and validate the knowledge bundle.",
       "primary": "okf",
       "helpers": ["recall", "unslop"],
-      "expected_output": "Scoped durable OKF knowledge with provenance, links, feature-map validation, and an explicit canonical or degraded knowledge verdict.",
-      "forbidden_effects": ["unrelated lesson changes", "competing knowledge tree", "dependency installation", "degraded validation called full completion"]
+      "expected_output": "Scoped durable OKF knowledge with provenance, links, and local metadata/link validation composed with feature validation.",
+      "forbidden_effects": ["unrelated lesson changes", "competing knowledge tree", "dependency installation", "local checks called full OKF conformance"]
     },
     {
       "id": "react-props-too-broad",
@@ -240,6 +240,38 @@
       "helpers": ["how", "why", "show-me", "archify"],
       "expected_output": "A composed lesson and validated interactive diagram sharing one evidence packet, with each helper serving a distinct phase.",
       "forbidden_effects": ["duplicate mechanics or rationale investigations", "changed confidence labels", "new evidence log", "enabled automation"]
+    },
+    {
+      "id": "explicit-grilling-method",
+      "prompt": "/grilling pressure-test this plan with a short interview. Stop when the consequential choices are clear; do not write files.",
+      "primary": "grilling",
+      "helpers": [],
+      "expected_output": "Dependency-ordered questions grounded in existing project evidence, then settled choices, rationale, and explicit unresolved decisions.",
+      "forbidden_effects": ["file writes", "implementation after the interview", "repeating settled definitions without contradictory evidence"]
+    },
+    {
+      "id": "interview-decision-only",
+      "prompt": "Grill me on this proposed queue redesign before I choose it. Use the existing code to resolve facts and keep the result conversational.",
+      "primary": "grill-me",
+      "helpers": ["grilling"],
+      "expected_output": "A focused decision interview applying the shared grilling method, with code-grounded facts and a clear stopping condition.",
+      "forbidden_effects": ["automatic Wiki capture", "product implementation", "asking the user questions code inspection can answer"]
+    },
+    {
+      "id": "domain-meaning-update",
+      "prompt": "Clarify what account and membership mean in this project, test the definitions against the code, and update the existing topic glossary.",
+      "primary": "domain-modeling",
+      "helpers": ["okf"],
+      "expected_output": "Scenario-tested domain definitions in the existing glossary, distinctions between decisions and observed behavior, and bounded local validation.",
+      "forbidden_effects": ["a competing glossary", "copied native task plans", "accepted terminology presented as verified behavior", "changes to skills or goal bindings"]
+    },
+    {
+      "id": "interview-and-retain-knowledge",
+      "prompt": "Interview me about this feature design while updating our Wiki definitions, consequential decisions, and open questions for the existing Kiro Spec.",
+      "primary": "grill-with-docs",
+      "helpers": ["grilling", "domain-modeling", "okf"],
+      "expected_output": "A bounded interview with timely updates to existing topic documents, preserved uncertainty and supersession, local validation, and links to the authoritative native Spec.",
+      "forbidden_effects": ["duplicate investigations by composed helpers", "a second native task graph", "raw transcript retention", "publication or permission changes"]
     }
   ]
 }

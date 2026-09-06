@@ -1,0 +1,60 @@
+{
+  "files": [
+    {
+      "path": ".kiro/specs/knowledge-foundation/requirements.md",
+      "sha256": "0d202964c59d114dbf4d16c56b91924da3bd494995394ffaa24ec341c59a1638"
+    },
+    {
+      "path": "Wiki/features/README.md",
+      "sha256": "aac76bcc9465afe43375eb0b1d986f9508cac6ada7b1f012aee3e3a00c448bed"
+    },
+    {
+      "path": "Wiki/features/pkstack-upstream-maintenance.md",
+      "sha256": "87630a940742662eeb0a3237dc6d5759aef2dcc47853a2888be17163de2c53df"
+    },
+    {
+      "path": "Wiki/index.md",
+      "sha256": "3e25515c364f3e2ff50b8b9a67368feb05f60704095e7765193ee26710335fb2"
+    },
+    {
+      "path": "Wiki/knowledge/pkstack/context-depth.md",
+      "sha256": "1bc04608d684f3aab4ddcdd0407acbd9fb8b2da27aa1a7b1d3b8167334b7c33b"
+    },
+    {
+      "path": "Wiki/knowledge/pkstack/corpus-migration.md",
+      "sha256": "759f2c9ecc8757b1ba830bf83547e23a0fa4f300ff6988629cad85347f7fe486"
+    },
+    {
+      "path": "Wiki/knowledge/pkstack/knowledge-lifecycle.md",
+      "sha256": "9398043c8bb1778dfaec5bd47ca824e7725014b21145eeb7f8f34823ead9aafb"
+    },
+    {
+      "path": "Wiki/knowledge/pkstack/native-kiro-composition.md",
+      "sha256": "75c85ffdcc604d840fd9f3f705e17e0b806f4e7563f58ce7e979e0f105b86959"
+    },
+    {
+      "path": "Wiki/knowledge/pkstack/native-spec-and-okn.md",
+      "sha256": "998664be6e83b2f92473b51192508c4d8882d1e1d92bf16297754b18d4aedf92"
+    },
+    {
+      "path": "Wiki/knowledge/upstream-maintenance/decisions.md",
+      "sha256": "e01e4266404179cf9fb745cf44c652a12455375d5510c412325e94ac0d6d88e3"
+    },
+    {
+      "path": "Wiki/knowledge/upstream-maintenance/glossary.md",
+      "sha256": "b8fb53b790ac4dd5b9c4e26f6e20f932b11445d35ab67395d91451a97f5f9e12"
+    },
+    {
+      "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+      "sha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85"
+    },
+    {
+      "path": "Wiki/work/contradictory-draft.md",
+      "sha256": "1f5bde1fa7f2d1402b54c2ca7223e65cdd688f57274627416e326fb122f7b17d"
+    },
+    {
+      "path": "powers/pkstack/src/pkstack/knowledge.py",
+      "sha256": "4b1a229d2a67b812ff700625bd0a0b5096541b373c4efe2b6b95ff02ac553058"
+    }
+  ]
+}

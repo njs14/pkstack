@@ -110,10 +110,10 @@ without that exact explanation, or a changed base/head/path set, is a blocker.
    progressive-disclosure semantics; exclude Claude transcript mining, hooks, bundled validation,
    MCP, and CDN visualization. For `google-okf-spec`, treat the current specification as normative
    but do not vendor its sample agent/runtime. In semantic conflicts, Google OKF wins over the
-   older specification bundled by `okf-skills`. For `openknowledge-cli-contract`, adapt only the
-   bounded validation, search-context, common, and CLI-error schemas used at the optional `okn`
-   process boundary. Exclude deployment, job-control, runtime, release-action, and release-management
-   interfaces; leave all other unadopted schemas provenance-only.
+   older specification bundled by `okf-skills`. The `openknowledge-cli-contract` source is retired
+   from active maintenance together with its optional `okn` runtime. Preserve its archived paired
+   manifest/ledger and source provenance; do not restore it as an optional backend. Knowledge now
+   uses local metadata/link validation and bounded Kiro ACP retrieval.
    For HumanLayer skills, preserve the skill's user-facing judgement and completion criteria while
    translating Claude-specific locations and assumptions to Kiro Agent Skills. Exclude external
    model secrets, floating installs/actions, broad write permissions, unbounded `/iterate` comment

@@ -157,44 +157,24 @@ def test_runner_rejects_more_destructive_forms_and_reports_exec_errors(tmp_path:
         run_command(["test", "-d", "."], root=tmp_path, output_limit=100)
 
 
-def test_knowledge_delegates_to_available_okn(
+def test_knowledge_validation_does_not_launch_an_ambient_legacy_executable(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    marker = tmp_path / "unexpected-execution"
+    for name in ("okn", "openknowledge"):
+        executable = tools / name
+        executable.write_text("#!/bin/sh\ntouch " + str(marker) + "\nexit 91\n")
+        executable.chmod(0o755)
+    monkeypatch.setenv("PATH", str(tools))
     workspace = tmp_path / "workspace"
-    (workspace / "Wiki/features").mkdir(parents=True)
-    okn = tmp_path / "tools" / "okn"
-    okn.parent.mkdir()
-    okn.write_text(
-        "#!/usr/bin/env python3\n"
-        "import json, sys\n"
-        "args = sys.argv[1:]\n"
-        "if args == ['version']:\n"
-        "    print('0.13.0')\n"
-        "elif 'validate' in args:\n"
-        f"    print(json.dumps({{'schemaVersion': '1', 'root': {str(workspace / 'Wiki')!r}, "
-        "'specVersion': '0.2', 'profile': 'okf', 'files': 1, 'concepts': 0, "
-        "'indexes': 1, 'logs': 0, 'summary': {'status': 'pass', 'errorCount': 0, "
-        "'warningCount': 0, 'issueCount': 0}, 'issues': []}))\n"
-        "elif 'search' in args:\n"
-        f"    print(json.dumps({{'schemaVersion': '1', 'root': {str(workspace / 'Wiki')!r}, "
-        "'revision': "
-        "{'specVersion': '0.2', 'indexSha256': '0' * 64}, 'query': args[-1], "
-        "'budget': int(args[args.index('--budget') + 1]), 'estimatedTokens': 0, "
-        "'limit': 12, 'route': ['bm25'], 'sources': [], 'issues': []}))\n"
-        "else:\n"
-        "    raise SystemExit(83)\n",
-        encoding="utf-8",
-    )
-    okn.chmod(0o755)
-    monkeypatch.setattr("pkstack.knowledge.shutil.which", lambda _name: str(okn))
-
-    assert validate_knowledge(workspace)["mode"] == "canonical-okn"
-    assert search_knowledge(workspace, "account")["ok"] is True
-    with pytest.raises(KnowledgeError, match="non-empty"):
+    workspace.mkdir()
+    assert validate_knowledge(workspace)["mode"] == "local"
+    assert not marker.exists()
+    with pytest.raises(KnowledgeError, match="1 to 8000"):
         search_knowledge(workspace, " ")
-    with pytest.raises(KnowledgeError, match="must not begin"):
-        search_knowledge(workspace, "--help")
 
 
 def test_bootstrap_main_and_missing_asset_paths(

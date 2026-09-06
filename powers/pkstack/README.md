@@ -16,7 +16,8 @@ project knowledge in the Wiki so later sessions can reuse them.
 
 Poteto supplies the core workflows. HumanLayer adds visual explanations and
 automation methods; Matt Pocock adds agent-facing writing. Archify handles
-diagrams, and OKF with optional `okn` handles broader knowledge.
+diagrams. OKF organizes durable knowledge; `projectctl` retrieves bounded context
+through Kiro ACP and validates metadata and local links without a model.
 See [what we ported and why](docs/curated-skills.md).
 
 ## Install

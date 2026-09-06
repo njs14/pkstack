@@ -1,0 +1,458 @@
+{
+  "pid": 6923,
+  "command": [
+    "${USER_HOME}/.local/bin/kiro-cli",
+    "chat",
+    "--v3",
+    "--agent",
+    "pkstack-recall-caller",
+    "--model",
+    "claude-opus-5",
+    "--trust-tools=",
+    "--output-format",
+    "stream-json",
+    "<prompt.txt>"
+  ],
+  "events": [
+    {
+      "type": "tool_call",
+      "title": "Run Command",
+      "status": null,
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": null,
+      "status": "in_progress",
+      "locations": null
+    },
+    {
+      "type": "tool_call_update",
+      "title": "Run Command",
+      "status": "completed",
+      "locations": null
+    },
+    {
+      "type": "message",
+      "text": "The command"
+    },
+    {
+      "type": "message",
+      "text": " succ"
+    },
+    {
+      "type": "message",
+      "text": "eeded ("
+    },
+    {
+      "type": "message",
+      "text": "exit 0, `ok"
+    },
+    {
+      "type": "message",
+      "text": ": true`, 738 est"
+    },
+    {
+      "type": "message",
+      "text": "imated tokens against"
+    },
+    {
+      "type": "message",
+      "text": " a 1200 budget,"
+    },
+    {
+      "type": "message",
+      "text": " no"
+    },
+    {
+      "type": "message",
+      "text": " tru"
+    },
+    {
+      "type": "message",
+      "text": "ncation)."
+    },
+    {
+      "type": "message",
+      "text": "\n\nAnswer retur"
+    },
+    {
+      "type": "message",
+      "text": "ned"
+    },
+    {
+      "type": "message",
+      "text": "\n\nNo,"
+    },
+    {
+      "type": "message",
+      "text": " the product canary may"
+    },
+    {
+      "type": "message",
+      "text": " not promote source"
+    },
+    {
+      "type": "message",
+      "text": " pins. Per"
+    },
+    {
+      "type": "message",
+      "text": " acc"
+    },
+    {
+      "type": "message",
+      "text": "epted decision it observes only"
+    },
+    {
+      "type": "message",
+      "text": ": it reports product, runt"
+    },
+    {
+      "type": "message",
+      "text": "ime, and documentation drift"
+    },
+    {
+      "type": "message",
+      "text": " and never edits the repository,"
+    },
+    {
+      "type": "message",
+      "text": " a candidate branch, or"
+    },
+    {
+      "type": "message",
+      "text": " a CLI pin. A"
+    },
+    {
+      "type": "message",
+      "text": " newer stable Kiro"
+    },
+    {
+      "type": "message",
+      "text": " CLI int"
+    },
+    {
+      "type": "message",
+      "text": "entionally fails the canary"
+    },
+    {
+      "type": "message",
+      "text": " red until a human reviews and"
+    },
+    {
+      "type": "message",
+      "text": " promotes the stable pin"
+    },
+    {
+      "type": "message",
+      "text": " in the workflow and protected"
+    },
+    {
+      "type": "message",
+      "text": " controller files, which are trust"
+    },
+    {
+      "type": "message",
+      "text": " roots. Auto-prom"
+    },
+    {
+      "type": "message",
+      "text": "otion by"
+    },
+    {
+      "type": "message",
+      "text": " the canary was considered and r"
+    },
+    {
+      "type": "message",
+      "text": "ejected because it collapses the"
+    },
+    {
+      "type": "message",
+      "text": " observation boundary into an ac"
+    },
+    {
+      "type": "message",
+      "text": "ceptance path.\n\nOn wid"
+    },
+    {
+      "type": "message",
+      "text": "ening acceptance to"
+    },
+    {
+      "type": "message",
+      "text": " parallel ("
+    },
+    {
+      "type": "message",
+      "text": "non-configured) sources:"
+    },
+    {
+      "type": "message",
+      "text": " no approved date and no approved"
+    },
+    {
+      "type": "message",
+      "text": " owner exist. Auton"
+    },
+    {
+      "type": "message",
+      "text": "omous advance stays sco"
+    },
+    {
+      "type": "message",
+      "text": "ped to the GitHub source"
+    },
+    {
+      "type": "message",
+      "text": " entries in `maintenance"
+    },
+    {
+      "type": "message",
+      "text": "/upstreams.json`"
+    },
+    {
+      "type": "message",
+      "text": ", and the decision record, gl"
+    },
+    {
+      "type": "message",
+      "text": "ossary, and observation all ke"
+    },
+    {
+      "type": "message",
+      "text": "ep the widening question as unres"
+    },
+    {
+      "type": "message",
+      "text": "olved rather than decided."
+    },
+    {
+      "type": "message",
+      "text": "\n\nCitations\n\n-"
+    },
+    {
+      "type": "message",
+      "text": " `Wiki/know"
+    },
+    {
+      "type": "message",
+      "text": "ledge/upstream-ma"
+    },
+    {
+      "type": "message",
+      "text": "intenance/decisions."
+    },
+    {
+      "type": "message",
+      "text": "md` l"
+    },
+    {
+      "type": "message",
+      "text": "ines 17, 18, "
+    },
+    {
+      "type": "message",
+      "text": "26, 45 ("
+    },
+    {
+      "type": "message",
+      "text": "observe"
+    },
+    {
+      "type": "message",
+      "text": "-only sc"
+    },
+    {
+      "type": "message",
+      "text": "ope, human"
+    },
+    {
+      "type": "message",
+      "text": " prom"
+    },
+    {
+      "type": "message",
+      "text": "otion,"
+    },
+    {
+      "type": "message",
+      "text": " r"
+    },
+    {
+      "type": "message",
+      "text": "ejected auto-promote,"
+    },
+    {
+      "type": "message",
+      "text": " no acc"
+    },
+    {
+      "type": "message",
+      "text": "epted date or"
+    },
+    {
+      "type": "message",
+      "text": " owner)\n- `W"
+    },
+    {
+      "type": "message",
+      "text": "iki/knowledge/"
+    },
+    {
+      "type": "message",
+      "text": "upstream-maintenance"
+    },
+    {
+      "type": "message",
+      "text": "/glossary.md` line"
+    },
+    {
+      "type": "message",
+      "text": " 57 (unresolved"
+    },
+    {
+      "type": "message",
+      "text": ", not a decision)\n-"
+    },
+    {
+      "type": "message",
+      "text": " `Wiki/know"
+    },
+    {
+      "type": "message",
+      "text": "ledge/upstream-ma"
+    },
+    {
+      "type": "message",
+      "text": "intenance/observations.md"
+    },
+    {
+      "type": "message",
+      "text": "` line 65 (no acc"
+    },
+    {
+      "type": "message",
+      "text": "epted date or owner)"
+    },
+    {
+      "type": "message",
+      "text": "\n- `Wiki/features"
+    },
+    {
+      "type": "message",
+      "text": "/pkstack-upst"
+    },
+    {
+      "type": "message",
+      "text": "ream-maintenance.md"
+    },
+    {
+      "type": "message",
+      "text": "` line 197 (maint"
+    },
+    {
+      "type": "message",
+      "text": "ainer must separately promote a"
+    },
+    {
+      "type": "message",
+      "text": " stable pin)\n\nS"
+    },
+    {
+      "type": "message",
+      "text": "ources were"
+    },
+    {
+      "type": "message",
+      "text": " drawn from 11 docum"
+    },
+    {
+      "type": "message",
+      "text": "ents across `Wiki/"
+    },
+    {
+      "type": "message",
+      "text": "knowledge`, `"
+    },
+    {
+      "type": "message",
+      "text": "Wiki/features`, and"
+    },
+    {
+      "type": "message",
+      "text": " `.kiro/specs"
+    },
+    {
+      "type": "message",
+      "text": "`.\n\nUnknowns"
+    },
+    {
+      "type": "message",
+      "text": " pre"
+    },
+    {
+      "type": "message",
+      "text": "served\n\n- No accepted"
+    },
+    {
+      "type": "message",
+      "text": " target date for widening aut"
+    },
+    {
+      "type": "message",
+      "text": "onomous acceptance be"
+    },
+    {
+      "type": "message",
+      "text": "yond configured GitHub"
+    },
+    {
+      "type": "message",
+      "text": " source entries.\n- No acc"
+    },
+    {
+      "type": "message",
+      "text": "epted owner named for that wid"
+    },
+    {
+      "type": "message",
+      "text": "ening work.\n- Accep"
+    },
+    {
+      "type": "message",
+      "text": "ted decisions are not impl"
+    },
+    {
+      "type": "message",
+      "text": "ementation proof; the observation"
+    },
+    {
+      "type": "message",
+      "text": " record notes inspected code has"
+    },
+    {
+      "type": "message",
+      "text": " not been confirmed to sat"
+    },
+    {
+      "type": "message",
+      "text": "isfy the accepted cont"
+    },
+    {
+      "type": "message",
+      "text": "racts."
+    }
+  ],
+  "frames": 142,
+  "exit_code": 0,
+  "stderr_sha256": "cc6d83102a14889d42e4613573aeb4425a2ecfdc181d7e90026a328afba0e467",
+  "stderr_error_lines": []
+}

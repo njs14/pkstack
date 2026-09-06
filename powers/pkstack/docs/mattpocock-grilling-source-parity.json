@@ -1,0 +1,66 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "ddbdb96139c0c1dfe6bca698f39d0465674b8a39",
+        "size": 113,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "ddbdb96139c0c1dfe6bca698f39d0465674b8a39",
+        "size": 113,
+        "type": "blob"
+      },
+      "rationale": "OpenAI UI metadata is inventoried for provenance and excluded from the Kiro-native bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "8ca78c6d8f901aab0c5a1f896034b70e666ff2a3",
+        "size": 1987,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "8ca78c6d8f901aab0c5a1f896034b70e666ff2a3",
+        "size": 1987,
+        "type": "blob"
+      },
+      "rationale": "Preserves dependency-ordered decision rounds, recommendations, inspection before questions, and concrete shared understanding. Replaces relentless exhaustive interviewing and a universal confirmation gate with scope-based stopping and existing authorization. Exploration may use native subagents when useful rather than requiring delegation."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "f0732035b8b1b60ae39454e4191caef32fa91903"
+    },
+    "id": "mattpocock-grilling",
+    "path": "skills/productivity/grilling",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "f0732035b8b1b60ae39454e4191caef32fa91903"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-05"
+  },
+  "summary": {
+    "A": 1,
+    "B": 0,
+    "C": 1,
+    "current_files": 2,
+    "pinned_files": 2
+  }
+}

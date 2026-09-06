@@ -33,12 +33,30 @@ native package is ready, its skills supply the upstream Poteto semantics and bin
 DO/PROVE/KNOW: project commands, one executable feature contract, and task-driven OKF context.
 Use the feature record first; invoke `.pkstack/bin/projectctl knowledge search` only when the narrow
 record cannot answer an architecture, decision, concept, or operations question. Native
-`/knowledge` may index the source-controlled Wiki, but it does not replace canonical `okn` checks
-or become the source of truth.
+`/knowledge` may index the source-controlled files, which remain authoritative. The search command
+uses a bounded read-only Kiro ACP worker; `knowledge validate` composes feature checks with local
+metadata and links without Kiro or a model.
 
 The workflow owns its exit condition. Permission still comes from the user and the active Kiro
 agent. A request to investigate, plan, or get merge-ready does not authorize a push, pull request,
 merge, host installation, network change, destructive cleanup, or publication.
+
+## Project knowledge lifecycle
+
+Before substantial investigation or planning, consult the relevant feature record and explicit
+links for definitions, decisions and open questions. Reuse settled understanding unless new
+evidence contradicts it. A requested interview uses [`grill-me`](../../grill-me/SKILL.md), with
+[`grilling`](../../grilling/SKILL.md) supplying the interview method. Use
+[`grill-with-docs`](../../grill-with-docs/SKILL.md) when the interview should also update project
+understanding, and [`domain-modeling`](../../domain-modeling/SKILL.md) to resolve domain terms
+against concrete scenarios and code.
+
+At planning handoff and completion, maintain the knowledge materially changed by the authorized
+task using [`the OKF document lifecycle`](../../okf/references/document-lifecycle.md). Durable
+documents belong under `Wiki/knowledge/<topic>/`; temporary context and draft artifacts belong
+under ignored `Wiki/work/<task>/`. Link to native specs and evidence at their authoritative homes.
+Skills, steering, runtime state, and goal bindings remain native assets. This checkpoint preserves
+understanding; it does not replace the workflow's executable completion condition.
 
 ## Pervasive routing contract
 

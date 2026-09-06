@@ -21,7 +21,8 @@ be reviewed and pinned separately first.
 
 The upstream tree includes an older vendored copy of Google's OKF specification. It is historical
 input only. The separately tracked `google-okf-spec` source is authoritative for format semantics,
-and canonical `okn` remains PKStack's deterministic validation and retrieval runtime.
+while PKStack uses local metadata/link validation and bounded Kiro ACP retrieval. These local
+checks do not claim full OKF conformance. The former optional `okn` runtime is retired.
 
 The transition to commit `85db7fd0a8a66d07d984ac6c5f4fbb5063d00357` changes only two backfill-agent version labels in `backfill/SKILL.md`, from `okf-backfill/0.9.2` to `okf-backfill/0.9.3`. Historical transcript backfill remains excluded from PKStack; adopting this delta still requires the separately authorized, redacted, bounded migration design described above.
 

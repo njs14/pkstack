@@ -1,0 +1,88 @@
+{
+  "budget": 2000,
+  "budgetScope": "returned context only; UTF-8 JSON bytes divided by four",
+  "context": {
+    "answer": "No. The earlier prototype observation is dated 2026-09-05 source inspection of the prototype as supplied at that time, and the later observation states the prototype code has changed since, so it does not establish the migrated candidate's behavior. In the earlier record, validate() resolved okn/openknowledge on PATH and preferred the subprocess path (mode \"canonical-okn\"), with the local path labeled degraded (\"feature-map-only\"); that was described as unfinished migration work, not a retained optional backend. The later migration observation reports the current candidate validate() performs feature validation, metadata checks, and local Markdown link checks without discovering or invoking Kiro, a model, okn, or openknowledge, with no optional okn backend, and search() delegating to the bounded Kiro ACP worker.\n\nWhat actually ran and passed: the host executed the generated repository command `.pkstack/bin/projectctl knowledge validate --output json` after a reviewed setup update; it returned exit 0, ok: true, mode: local, schemaVersion \"2\", with all 12 documents, 72 local links, and the feature contract passing, and the JSON result is retained.\n\nWhat that result does not prove: it proves only that particular local run. It does not prove full OKF conformance, deployed behavior, or all possible knowledge correctness, and the full package and independent review gates were still pending when the observation was recorded.",
+    "incomplete": false,
+    "sources": [
+      {
+        "contentSha256": "19481b68fe4c7370416cd385ff61b88d2ffa40d0aba7ef4446b5aa160f624559",
+        "lineEnd": 12,
+        "lineStart": 11,
+        "path": "Wiki/knowledge/upstream-maintenance/validation-migration.md",
+        "quote": "That earlier observation accurately described its supplied\nprototype; it does not establish the behavior of the migrated candidate."
+      },
+      {
+        "contentSha256": "19481b68fe4c7370416cd385ff61b88d2ffa40d0aba7ef4446b5aa160f624559",
+        "lineEnd": 15,
+        "lineStart": 14,
+        "path": "Wiki/knowledge/upstream-maintenance/validation-migration.md",
+        "quote": "The current candidate `validate()` performs feature validation, metadata checks, and local Markdown\nlink checks without discovering or invoking Kiro, a model, okn, or openknowledge."
+      },
+      {
+        "contentSha256": "19481b68fe4c7370416cd385ff61b88d2ffa40d0aba7ef4446b5aa160f624559",
+        "lineEnd": 20,
+        "lineStart": 19,
+        "path": "Wiki/knowledge/upstream-maintenance/validation-migration.md",
+        "quote": "It returned exit 0, `ok: true`, `mode: local`, and\n`schemaVersion: \"2\"`, with all 12 documents, 72 local links, and the feature contract passing."
+      },
+      {
+        "contentSha256": "19481b68fe4c7370416cd385ff61b88d2ffa40d0aba7ef4446b5aa160f624559",
+        "lineEnd": 23,
+        "lineStart": 22,
+        "path": "Wiki/knowledge/upstream-maintenance/validation-migration.md",
+        "quote": "This proves that particular local run; it does not prove full OKF conformance, deployed behavior,\nor all possible knowledge correctness."
+      },
+      {
+        "contentSha256": "19481b68fe4c7370416cd385ff61b88d2ffa40d0aba7ef4446b5aa160f624559",
+        "lineEnd": 26,
+        "lineStart": 26,
+        "path": "Wiki/knowledge/upstream-maintenance/validation-migration.md",
+        "quote": "The prototype code has changed since the earlier observation."
+      },
+      {
+        "contentSha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
+        "lineEnd": 32,
+        "lineStart": 30,
+        "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+        "quote": "When that\n  executable is present, `validate()` runs `okn --error-format json validate --spec 0.2 --profile okf\n  --format json <knowledge root>` and reports `mode: \"canonical-okn\"`."
+      },
+      {
+        "contentSha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
+        "lineEnd": 38,
+        "lineStart": 38,
+        "path": "Wiki/knowledge/upstream-maintenance/observations.md",
+        "quote": "This is unfinished migration work, not evidence of an optional backend being retained."
+      }
+    ],
+    "uncertainties": [
+      "Both records are source inspection plus one command run, not end-to-end implementation proof; the earlier record explicitly did not read pkstack.knowledge_acp, so neither shows how the ACP path avoids a model turn or how the host enforces the returned-context budget.",
+      "The earlier record left unresolved when the local-only migration completes and who removes the okn subprocess path; the later observation does not name an owner or date for that completion.",
+      "The sources do not include a current knowledge.py excerpt here, so the claim that no okn discovery remains rests on the later observation's own inspection."
+    ]
+  },
+  "estimatedTokens": 1100,
+  "execution": {
+    "attempts": 1,
+    "denied_permission_requests": 0,
+    "internal_model_tokens": null,
+    "model": "claude-opus-5",
+    "resolved_model": "claude-opus-5",
+    "seconds": 30.044,
+    "tool_calls": 2
+  },
+  "mode": "kiro-acp",
+  "ok": true,
+  "query": "Does the historical prototype observation prove the current migrated validator still uses okn? Compare the later migration observation, identify what actually ran and passed, and state what that result does not prove.",
+  "runtime": {
+    "isolation": "version-specific embedded-server home override",
+    "version": "2.21.1"
+  },
+  "schemaVersion": "2",
+  "sourceDocuments": 12,
+  "sourceRoots": [
+    "Wiki/knowledge",
+    "Wiki/features",
+    ".kiro/specs"
+  ]
+}

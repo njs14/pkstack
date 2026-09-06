@@ -12,7 +12,8 @@ The design has one simple rule:
 
 > Kiro owns planning and execution. PKStack owns workflow semantics.
 > `projectctl` owns deterministic project operations and executable evidence.
-> The Wiki and optional canonical `okn` own broader project knowledge.
+> The Wiki owns durable project knowledge; Kiro retrieves bounded context and
+> `projectctl` validates local metadata, links, and returned evidence.
 
 | Surface | Owns | Does not own |
 | --- | --- | --- |
@@ -20,12 +21,13 @@ The design has one simple rule:
 | PKStack skills | Prompts, workflow sequencing, and current-session handoff | A replacement agent runtime or native planner |
 | `.pkstack/bin/projectctl` | Setup receipt, discovery, feature records, evidence, goals, and bounded command execution | Kiro orchestration or semantic correctness of arbitrary scripts |
 | `Wiki/features/*.md` | User-visible contracts and one executable verifier per contract | Broad architecture context or permanent correctness |
-| `Wiki/` and canonical `okn` | Source-controlled knowledge and optional bounded retrieval | A second feature-verification authority |
+| `Wiki/knowledge/`, `Wiki/features/`, and native specs | Authoritative source files for bounded Kiro ACP retrieval | A second feature-verification authority |
 
 The normal path is Kiro CLI v3 or the Kiro IDE agent panel. Crew may orchestrate
 Kiro; Web may consume committed assets. Neither changes the local primary
-boundary. PKStack does not launch an external ACP host, invoke `kiro-cli acp`,
-or claim that CLI v3 supplies native `/goal`.
+boundary. Only `projectctl knowledge search` starts an isolated read-only ACP
+worker; it does not replace interactive planning or execution. PKStack does
+not claim that CLI v3 supplies native `/goal`.
 
 ## Component map
 
@@ -34,10 +36,13 @@ or claim that CLI v3 supplies native `/goal`.
 For a browsable version with theme switching, zoom, and export,
 open the [interactive PKStack architecture artifact](artifacts/pkstack-architecture.html).
 Its [Archify source specification](artifacts/pkstack-architecture.json) is
-committed beside it so the diagram can be reviewed and regenerated.
+committed beside it so the diagram can be reviewed and regenerated. These
+artifacts have not been regenerated for the knowledge migration; the runtime
+boundary below describes the current implementation.
 
 The Python package parses explicit inputs, validates data, runs the stored
-verifier, and persists small, inspectable records. It does not call a model.
+verifier, and persists small, inspectable records. Knowledge search delegates
+retrieval to Kiro through ACP; local validation does not call a model.
 
 ## Native planning handoff
 
@@ -84,7 +89,10 @@ A successful target setup contains:
 │   ├── discovery.json                  # root-relative repository inventory
 │   ├── projectctl/                     # Python source, lock, and integrity manifests
 │   └── state/                          # ignored goal and evidence state
-└── Wiki/features/                      # project-owned contracts
+└── Wiki/
+    ├── features/                      # project-owned contracts
+    ├── knowledge/                     # durable topic documents
+    └── work/                          # ignored task-local material
 ```
 
 `.kiro/` and `.pkstack/` are generated workspace material, not alternate Power
@@ -136,7 +144,9 @@ environment.
 | `goal.py` | One-goal state machine, locking, snapshots, and attempt history |
 | `runner.py` | `shell=False` process launch, hazard screen, timeout, and bounded output |
 | `upstreams.py` | Pinned source reproof, parity, and transactional acceptance |
-| `knowledge.py` | Optional bounded subprocess boundary to canonical `okn` |
+| `knowledge.py` and `knowledge_links.py` | Local metadata/link validation, feature composition, and knowledge command routing |
+| `knowledge_acp.py` and `knowledge_runtime_bridge.py` | Bounded Kiro ACP retrieval with an isolated runtime boundary |
+| `knowledge_payload.py` | Corpus bounds and host verification of exact source evidence |
 | `paths.py` | Workspace containment and symlink-component checks |
 
 The Cyclopts `cli.py` adapter maps these services to text or JSON and stable
@@ -196,16 +206,41 @@ while status is `active`. It reports completion only when stored status is
 ## Knowledge: KNOW
 
 The source-controlled Wiki is the broad project-knowledge layer. The feature
-map is always checked first; explicit `related` links guide targeted expansion.
-When installed, canonical `okn` receives bounded `validate Wiki` and `search
-Wiki <query>` requests. Without it, status reports `feature-map-only`, broad
-search fails, and `knowledge validate --require-okn` fails. Native Kiro
-`/knowledge` may index the same files but is not the canonical checker.
+map is checked first; explicit `related` links guide targeted expansion.
+`knowledge search` starts an isolated read-only Kiro ACP worker over
+`Wiki/knowledge/`, `Wiki/features/`, and `.kiro/specs/`. `Wiki/work/`, native
+instructions, and skill packages are excluded. Native specs are read in place
+and remain authoritative.
 
-PKStack does not vendor a second OKF graph, validator, or broad-search
-runtime. The provenance docs record the versioned external inputs and their
-dispositions. Imported source, parity files, patches, and review output are
-untrusted data at every boundary.
+The adapter uses the official Python `agent-client-protocol==0.12.1` package
+and native Kiro CLI authentication. Its version-specific isolation bridge
+currently supports POSIX, Kiro CLI 2.21.1, and embedded KAS 0.58.7. Unsupported
+runtimes fail explicitly. Model selection defaults to `auto`; its resolved
+model is unknown, and an unavailable selection never silently falls back.
+
+The worker returns a strict JSON answer and exact source quotes. The host
+verifies unique source substrings, adds line ranges and SHA-256 provenance,
+and rejects changed corpus bytes, excluded sources, invalid shapes, excessive
+context, or an incomplete result. At most one bounded correction is allowed.
+The public result uses `schemaVersion: "2"` and `mode: "kiro-acp"`. Its context
+budget estimates UTF-8 JSON bytes divided by four; internal model token use is
+unreported. This is a retrieval boundary, not an index, ranker, graph engine,
+query language, or MCP backend.
+
+`knowledge validate` is deterministic and local. It composes existing feature
+validation with minimal authoring metadata and CommonMark local link/image
+checks, including reference links and Markdown heading anchors. It preserves
+unknown metadata and does not fetch external links or claim full OKF
+conformance, raw HTML ID/footnote/plugin fragment support, or graph semantics.
+`knowledge status` reports layout and retrieval availability; validation works
+when retrieval is unavailable. The old optional `okn` backend is retired.
+
+The independent Google OKF specification and OKF skills methodology remain
+tracked inputs. The retired OpenKnowledge CLI contract retains archived
+provenance and its paired maintenance manifest/ledger history. Imported
+source, parity files, patches, retrieved documents, and review output remain
+untrusted data. See the [runtime decision](../../../Wiki/knowledge/pkstack/native-spec-and-okn.md)
+for the superseded choice and its rationale.
 
 ## Upstream maintenance
 

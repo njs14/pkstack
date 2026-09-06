@@ -200,15 +200,12 @@ def test_setup_doctor_and_knowledge_cli_boundaries(
     cli.knowledge_status_command(root=tmp_path, output="json")
     assert "mode" in _json(capsys)
 
-    monkeypatch.setattr("pkstack.knowledge.shutil.which", lambda _name: None)
+    monkeypatch.setattr("pkstack.knowledge_acp.shutil.which", lambda _name: None)
     cli.knowledge_validate_command(root=tmp_path, output="json")
     payload = _json(capsys)
     assert payload["ok"] is True
-    assert payload["mode"] == "feature-map-only"
+    assert payload["mode"] == "local"
 
-    with pytest.raises(SystemExit, match="2"):
-        cli.knowledge_validate_command(require_okn=True, root=tmp_path, output="json")
-    assert _json(capsys)["error_type"] == "KnowledgeError"
     with pytest.raises(SystemExit, match="2"):
         cli.knowledge_search_command("health", root=tmp_path, output="json")
     assert _json(capsys)["error_type"] == "KnowledgeError"

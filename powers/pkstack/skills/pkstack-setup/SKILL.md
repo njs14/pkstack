@@ -41,14 +41,17 @@ is missing, report that exact prerequisite and stop.
 3. Treat the JSON result as the authoritative inventory of created, updated, preserved, skipped, or conflicting paths.
 4. Run `<runner> doctor --output json`.
 5. Resolve only setup defects that are within the requested workspace. Re-run `doctor` after each material repair.
-6. Report DO (`projectctl` and project levers), PROVE (feature records), and KNOW (`Wiki/`, canonical
-   `okn` availability, and degraded mode) separately. Also report discovered `.kiro/specs/`.
+6. Report DO (`projectctl` and project levers), PROVE (feature records), and KNOW (durable Wiki
+   layout, local validation, and Kiro ACP retrieval availability) separately. Use
+   `<runner> knowledge status --output json` and also report discovered `.kiro/specs/`.
    Existing native specs remain Kiro-owned planning artifacts; setup never rewrites them.
-7. Run `<runner> feature validate --output json`. Whenever `Wiki/` exists, independently run
-   `<runner> knowledge validate --output json`, even when no feature records exist. The knowledge
-   result must compose the feature-map verdict with broader OKF conformance through canonical `okn`
-   when available. Missing `okn` is an explicit degraded-mode warning; setup never installs it or
-   edits global Kiro `/knowledge` settings.
+7. Whenever `Wiki/` exists, run `<runner> knowledge validate --output json`, even when no feature
+   records exist. Its result composes the feature-map verdict with minimal metadata and local
+   Markdown links, so a second feature-only validation is unnecessary. Without `Wiki/`, use
+   `<runner> feature validate --output json`. Knowledge validation
+   runs without Kiro, a model, or `okn` and does not claim full OKF conformance. Retrieval runtime
+   unavailability is separate from local validation; setup never installs a replacement backend
+   or edits global Kiro `/knowledge` settings.
 8. If no project-local verification workflow covers the product's real user surface, offer
    `create-verification-skill` as the next explicit step. Do not silently generate one during setup;
    its repository interview and live proof need their own bounded run.

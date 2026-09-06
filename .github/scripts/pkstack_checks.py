@@ -9,7 +9,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -370,8 +369,6 @@ def run_policy(root):
         "--output",
         "json",
     ]
-    if shutil.which("okn") or shutil.which("openknowledge"):
-        knowledge.append("--require-okn")
     run_commands(
         [
             ["./.pkstack/bin/projectctl", "version", "--output", "json"],

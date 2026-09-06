@@ -86,9 +86,9 @@ SOFTWARE.
 
 ## OpenKnowledge CLI contract reference
 
-PKStack tracks Git object identities for OpenKnowledge's public versioned CLI schema subtree to
-detect changes at its optional `okn` process boundary. It does not vendor or execute those schemas
-or the OpenKnowledge runtime.
+PKStack retains historical Git object identities for OpenKnowledge's public versioned CLI schema
+subtree. The `okn` process boundary and its active maintenance source have been retired. These
+records preserve prior attribution; PKStack does not vendor or execute the schemas or runtime.
 
 - Project: `openknowledge-sh/openknowledge`, `packages/cli/schemas/v1/` subtree
 - Source: <https://github.com/openknowledge-sh/openknowledge/tree/6e8bbe026448fd890ace9293bcfe89b53363cd1f/packages/cli/schemas/v1>
@@ -116,6 +116,30 @@ security boundaries.
 
 The upstream MIT notice follows verbatim.
 
+```text
+MIT License
+
+Copyright (c) 2026 HumanLayer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ## Matt Pocock `writing-for-agents` semantic reference
 
 The Kiro-native `writing-for-agents` skill adapts the agent-facing writing method
@@ -124,15 +148,33 @@ from `mattpocock/skills` while excluding OpenAI-only UI metadata.
 - Project: `mattpocock/skills`
 - Source: <https://github.com/mattpocock/skills>
 - Pinned commit: `6654f6b60cd9d5be8b54c6fafe44346dabeb3b76`
+- Copyright: Copyright (c) 2026 Matt Pocock
 - License: MIT
 - Detailed provenance: [`docs/mattpocock-writing-for-agents-provenance.md`](docs/mattpocock-writing-for-agents-provenance.md)
 
-The MIT license text below applies to this source as well.
+The Matt Pocock MIT notice in the following section also applies to this source.
+The `LICENSE` bytes at both recorded source revisions are identical.
+
+## Matt Pocock knowledge skills semantic references
+
+The Kiro-native `grilling`, `grill-me`, `domain-modeling`, and `grill-with-docs`
+skills adapt decision-focused interviewing, domain language, and decision capture from
+Matt Pocock's skills. Native Kiro references replace the upstream Skill API; project
+knowledge follows PKStack's Wiki lifecycle. OpenAI UI metadata is provenance-only.
+
+- Project: `mattpocock/skills`
+- Source: <https://github.com/mattpocock/skills/tree/3cca18b368ae95cdbdebbff572ccafa662551015>
+- Pinned commit: `3cca18b368ae95cdbdebbff572ccafa662551015`
+- Copyright: Copyright (c) 2026 Matt Pocock
+- License: MIT
+- Detailed provenance: the four `docs/mattpocock-{grilling,grill-me,domain-modeling,grill-with-docs}-provenance.md` records
+
+The upstream MIT notice follows verbatim.
 
 ```text
 MIT License
 
-Copyright (c) 2026 HumanLayer
+Copyright (c) 2026 Matt Pocock
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

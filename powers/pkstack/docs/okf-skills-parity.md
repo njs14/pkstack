@@ -19,8 +19,8 @@ redistributed by these records.
 
 | Package | Decision | PKStack treatment |
 |---|---|---|
-| `okf` | Native Kiro replacement | Adapt produce, maintain, consume, progressive-disclosure, index, and bounded-log ideas into the PKStack `okf` skill and `Wiki/` lifecycle. Google remains normative and `okn` remains the runtime. |
-| `validate` | Native deterministic replacement | Preserve validate-before-completion behavior through `projectctl knowledge validate` and canonical `okn`; do not invoke or copy the upstream validator. |
+| `okf` | Native Kiro replacement | Adapt produce, maintain, consume, progressive-disclosure, index, and bounded-log ideas into the PKStack `okf` skill and `Wiki/` lifecycle. Google remains normative; local checks validate minimal metadata and links, while Kiro ACP handles bounded retrieval. |
+| `validate` | Native deterministic replacement | Preserve validate-before-completion behavior through local `projectctl knowledge validate` metadata/link checks, composed with feature validation. Do not claim full OKF conformance or invoke or copy the upstream validator. |
 | `visualize` | Deferred/excluded | Reconsider only after an offline, dependency-pinned, symlink-safe, hostile-Markdown-tested implementation exists. Never auto-open or publish its output. |
 | `backfill` | Excluded by default | A future import must be separately authorized, bounded, redacted, resumable, and outside-repository by default. Do not crawl Claude, Kiro, Codex, home-directory, or transcript history implicitly. |
 
