@@ -338,6 +338,22 @@
       "forbidden_effects": ["new Spec handoff for an already active mode", "duplicate task ledger", "repeating approved requirement questions", "interview completion treated as phase approval"]
     },
     {
+      "id": "plan-handoff-without-interview",
+      "prompt": "Use native conversational Plan for the retry redesign through PKStack. Read the code for the settled three-attempt limit first. Do not implement before I approve.",
+      "primary": "pkstack",
+      "helpers": ["grilling"],
+      "expected_output": "A read-only fact pass and one runnable /plan handoff carrying the settled limit and the open choices for native Plan to ask, then a stop for the user's selection.",
+      "forbidden_effects": ["asking the open choices under pkstack", "claiming the agent selected native Plan", "implementation before native approval"]
+    },
+    {
+      "id": "settled-constraint-mechanics",
+      "prompt": "Plan the identifier normalizer. The stated contract is settled; it does not say which of several compliant implementations to use.",
+      "primary": "grilling",
+      "helpers": ["how"],
+      "expected_output": "A simple compliant implementation is selected from the equivalent approaches and stated with the requirement it satisfies.",
+      "forbidden_effects": ["asking the user to confirm the settled contract", "offering an option that breaks it", "treating equivalent compliant routes as a product choice"]
+    },
+    {
       "id": "docs-interview-read-only",
       "prompt": "/grill-with-docs clarify membership as we plan, but native Plan is currently read-only. We already settled account ownership.",
       "primary": "grill-with-docs",

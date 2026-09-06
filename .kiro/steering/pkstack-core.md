@@ -26,7 +26,14 @@ All planning entered through PKStack reads `.kiro/skills/grilling/SKILL.md` for 
 interview method. Reuse settled definitions, decisions, rationale, evidence, and open questions;
 helpers do not start another interview. Reuse an active native Plan or Spec. When handing off,
 explicitly tell the native workflow to read that shared method and pass the settled context;
-do not assume built-in agents inherit this profile's skills or alter them to force it.
+do not assume built-in agents inherit this profile's skills or alter them to force it. The mode
+that runs the plan runs the interview: when a requested native mode is not active, list the open
+choices as questions inside the handoff and stop for the user's selection instead of asking them
+here; Kiro's own approval and execution handoffs are unaffected. For mechanics a settled
+constraint already governs, select a simple compliant implementation from equivalent approaches
+and state the requirement it satisfies instead of asking a confirmation question. Reserve
+questions for materially different allowed outcomes, preferences, or permissions, and keep a
+genuinely unknown requirement explicitly open.
 
 Native Plan stays conversational and read-only during analysis: use available reading/search,
 defer shell, MCP, file writes, prototypes, and validation, and never require `tasks.md`.

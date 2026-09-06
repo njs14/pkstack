@@ -15,18 +15,23 @@ ordered checkpoints. If a checkpoint truly does not apply, keep it visible as
 
 ## Use Kiro's native planning spine
 
-For a user-requested native Plan, select that mode before asking planning questions. If native
-Plan is not already active, return a concrete same-conversation handoff and stop for native
-selection: in CLI, `/plan Read .kiro/skills/grilling/SKILL.md; <requested outcome and settled
-context>`; in the IDE, select native Plan with the same instruction and context. Include settled
-choices, rationale, evidence links, and open questions. Do not conduct the planning interview
-under `pkstack` first. This explicit mode request overrides the trivial-change skip below;
-standalone decision interviews remain exempt.
+Selecting the requested native planning mode is the user's action; `pkstack` cannot enter it for
+them. Kiro's own approval and execution handoffs still move between its modes and agents on their
+own terms. When the user asks for native Plan and it is not already active, `pkstack` packages the
+handoff and stops for that selection. Gather the requested outcome, settled choices, rationale,
+and evidence links by reading only, list every remaining open choice as a question for native Plan
+to ask, and return the exact selection the user makes: in CLI, one runnable line beginning
+`/plan Read .kiro/skills/grilling/SKILL.md;` and carrying that context; in the IDE, native Plan
+selection with the same instruction and context. Do not conduct the planning interview under
+`pkstack`, and do not offer to answer those questions here instead. This explicit mode request
+overrides the trivial-change skip below; standalone decision interviews remain exempt.
 
 For all planning entered through PKStack, read and apply [`grilling`](../grilling/SKILL.md)
-as the shared interview method. Inspect available facts, reuse settled answers and rationale,
-then settle only consequential open choices. Planning helpers consume that context rather than
-starting another mandatory interview. Kiro still owns modes, phase approvals, and execution.
+as the shared interview method. Inspect available facts and reuse settled answers and rationale.
+The mode that runs the plan runs the interview: native Plan or the matching Spec once selected,
+or `pkstack` itself for the trivial-change route and standalone interviews. Planning helpers
+consume that context rather than starting another mandatory interview. Kiro still owns modes,
+phase approvals, and execution.
 
 Before reproducing planning inside a PKStack skill, select Kiro's native workflow:
 

@@ -239,6 +239,8 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
         "approved-plan-capture-denied",
         "approved-plan-validation-failed",
         "native-spec-shared-ownership",
+        "plan-handoff-without-interview",
+        "settled-constraint-mechanics",
         "docs-interview-read-only",
     } <= ids
 
@@ -546,6 +548,53 @@ def test_primary_router_documents_native_spec_entrypoints() -> None:
         assert command in text
     for document in ("requirements.md", "bugfix.md", "design.md", "tasks.md"):
         assert document in text
+
+
+def test_planning_interview_belongs_to_the_mode_the_user_selects() -> None:
+    router = " ".join((SKILLS / "pkstack/SKILL.md").read_text(encoding="utf-8").split())
+    method = " ".join((SKILLS / "grilling/SKILL.md").read_text(encoding="utf-8").split())
+    steering = " ".join((STEERING / "pkstack-core.md").read_text(encoding="utf-8").split())
+    profile = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))["prompt"]
+
+    # The router packages an inactive requested mode instead of interviewing in its place.
+    assert "Selecting the requested native planning mode is the user's action" in router
+    assert "list every remaining open choice as a question for native Plan to ask" in router
+    assert "do not offer to answer those questions here instead" in router
+    assert "/plan Read .kiro/skills/grilling/SKILL.md;" in router
+    # No surface may claim the router selects the mode itself.
+    for text in (router, method, steering, profile):
+        assert "The mode that runs the plan runs the interview" in text
+        assert "select that mode before asking planning questions" not in text
+    assert "Return that handoff and stop" in method
+    assert "Entering the requested planning mode is the user's action here" in method
+    assert "stop for that selection instead of interviewing under pkstack" in profile
+    # Scoped to the router's own selection; Kiro keeps its approval and execution handoffs.
+    assert "Kiro's own approval and execution handoffs still move between its modes" in router
+    assert "Kiro's own approval and execution handoffs remain Kiro's to make" in method
+    assert "Kiro's own approval and execution handoffs are unaffected" in steering
+    assert "Kiro's own approval and execution handoffs are unaffected" in profile
+
+
+def test_shared_method_derives_settled_mechanics_instead_of_confirming_them() -> None:
+    method = (SKILLS / "grilling/SKILL.md").read_text(encoding="utf-8")
+    collapsed = " ".join(method.split())
+
+    assert "## Derive mechanics instead of asking" in method
+    assert "These are derived, not open." in collapsed
+    # Equivalent compliant implementations are chosen, never narrowed to one required algorithm.
+    assert "select a simple implementation that satisfies it and name the requirement" in collapsed
+    assert "Several implementations are usually equally compliant" in collapsed
+    assert "Guessing silently and asking for confirmation both fail here" in collapsed
+    # A settled answer is reopened by contradicting evidence, never by a determined detail.
+    assert "a detail the settled constraint already determines is not such a reason" in collapsed
+    # A real unknown stays open rather than being closed by an invented constraint.
+    assert "keep it an explicit open question instead of inventing a constraint" in collapsed
+    assert "Ask only where the allowed outcomes differ materially" in collapsed
+    assert "Equivalent ways of reaching the same allowed outcome are not that." in collapsed
+    # Capture keeps its place ahead of implementation in the plan's own ordered steps.
+    assert "this checkpoint is step one, ahead of the implementation and verification steps" in (
+        collapsed
+    )
 
 
 def test_okf_skill_uses_knowledge_commands_without_foreign_runtime_paths() -> None:
