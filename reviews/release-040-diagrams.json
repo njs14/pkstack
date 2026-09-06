@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "generator": "Archify 2.17",
+  "implementation_revision": "8439078f279f5980c1c5123c21223253d16393f0",
+  "diagrams": [
+    {
+      "diagram_type": "architecture",
+      "output": "powers/pkstack/docs/artifacts/pkstack-architecture.html",
+      "specification_sha256": "27cbe9445fd93f9ca35bfaa8990522ae424633964f99dac5ca2bd6d2e729e5fd",
+      "artifact_sha256": "01ae16ba238aba17802043e8a483210904da6b4fa169bf542f6016738c8aa3da",
+      "validation": "9/9 showcase, 0 errors, 0 warnings",
+      "browser_evidence": "passed",
+      "viewports": [
+        "1440x900",
+        "1600x1000",
+        "1920x1080",
+        "2048x1320"
+      ],
+      "visual_review": "passed",
+      "visual_review_scope": [
+        "2048x1320 light",
+        "1440x900 dark",
+        "1600px diagram-only PNG"
+      ],
+      "observations": "Readable labels, unclipped nodes, visible failure paths; no viewer controls in PNG.",
+      "correction_rounds": 1
+    },
+    {
+      "diagram_type": "workflow",
+      "output": "powers/pkstack/docs/artifacts/pkstack-task-workflow.html",
+      "specification_sha256": "b3e8c701f254321556b577ad94580796a055804a0fe50ba059a055c4942290bd",
+      "artifact_sha256": "674ecf13c7f93be4ff4539818d40806da0f650952254de7811741ed9381da4cb",
+      "validation": "9/9 showcase, 0 errors, 0 warnings",
+      "browser_evidence": "passed",
+      "viewports": [
+        "1440x900",
+        "1600x1000",
+        "1920x1080",
+        "2048x1320"
+      ],
+      "visual_review": "passed",
+      "visual_review_scope": [
+        "2048x1320 light",
+        "1440x900 dark",
+        "1600px diagram-only PNG"
+      ],
+      "observations": "Readable labels, unclipped nodes, visible failure paths; no viewer controls in PNG.",
+      "correction_rounds": 0
+    },
+    {
+      "diagram_type": "workflow",
+      "output": "powers/pkstack/docs/artifacts/pkstack-updater-workflow.html",
+      "specification_sha256": "4e15c9d684e97ff7b2a05471b58d9a77114b7c1fdad4b8c13267cc155309e46c",
+      "artifact_sha256": "81ea1a2ade1f39511100b3c7928c1ef5e280c3b6c08dfdf4a8389be0f2794dc3",
+      "validation": "9/9 showcase, 0 errors, 0 warnings",
+      "browser_evidence": "passed",
+      "viewports": [
+        "1440x900",
+        "1600x1000",
+        "1920x1080",
+        "2048x1320"
+      ],
+      "visual_review": "passed",
+      "visual_review_scope": [
+        "2048x1320 light",
+        "1440x900 dark",
+        "1600px diagram-only PNG"
+      ],
+      "observations": "Readable labels, unclipped nodes, visible failure paths; no viewer controls in PNG.",
+      "correction_rounds": 0
+    }
+  ]
+}
