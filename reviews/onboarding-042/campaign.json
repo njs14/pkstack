@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-06T15:37:57.765985+00:00",
+  "outcome": "passed",
+  "scope": {
+    "source_commit": "83b0e944c9c359054955579481c6b31bc084687d",
+    "power_tree": "7f0beda47b5059b884feb9158af1a2f76d00254e",
+    "client": "Kiro CLI",
+    "client_version": "2.21.1",
+    "engine": "v3",
+    "platform": "macOS",
+    "agent": "pkstack",
+    "displayed_model": "Auto",
+    "effort": "not observed; unchanged",
+    "session_id": "sess_16ce43c9-2777-4dd0-ba15-0f70fada5f4a",
+    "launch": "kiro-cli chat --v3 --agent pkstack",
+    "source_acquisition": "actual GitHub clone of candidate branch into a new path with spaces",
+    "target": "new disposable copy in a separate path with spaces",
+    "existing_account": true,
+    "empty_cache": false,
+    "system_python": "Python 3.9.6",
+    "controller_version": "0.4.2"
+  },
+  "setup": {
+    "power_variable_initially_unset": true,
+    "source_path_captured_before_target_cd": true,
+    "preview_exit_code": 0,
+    "apply_exit_code": 0,
+    "doctor_summary": {
+      "fail": 0,
+      "pass": 84,
+      "warn": 0
+    },
+    "local_knowledge_validation": "passed",
+    "second_setup": "zero changes",
+    "generated_receipt_sha256": "883465d7943369aa9103e23eece18554c42c4ca3f445f3d9cf4b8366b0374580"
+  },
+  "repair": {
+    "goal_id": "0ad4518d-93d6-44fa-8120-0466f6545b0d",
+    "contract_digest": "76f93d5ac99e3988d1981d5e4be262ed1515941b64663d9212aa6ecd3451cd70",
+    "contract_unchanged": true,
+    "tests_sha256_before": "65932341be2d1b133366ec58e583f224751f1f89b9d8d26ebfeb897cab664974",
+    "tests_sha256_after": "65932341be2d1b133366ec58e583f224751f1f89b9d8d26ebfeb897cab664974",
+    "implementation_sha256_before": "c5be60a396b05f9bbd990ffef75c62a4dc463bdbe401e2b5c621234dd52b9a7b",
+    "implementation_sha256_after": "4eee11e048f5f90c300c5843c374bdcb39d8d51c3db48d7c659a728e21775b69",
+    "status_before": "active",
+    "status_after": "passed",
+    "attempts": [
+      {
+        "attempt": 1,
+        "started_at": "2026-09-06T15:26:36.498184+00:00",
+        "exit_code": 1,
+        "passed": false,
+        "timed_out": false,
+        "truncated": false
+      },
+      {
+        "attempt": 2,
+        "started_at": "2026-09-06T15:32:58.392916+00:00",
+        "exit_code": 0,
+        "passed": true,
+        "timed_out": false,
+        "truncated": false
+      }
+    ],
+    "native_sequence": [
+      "Submitted the complete documented request as one terminal paste, inspected it, then pressed Enter.",
+      "Kiro loaded pkstack-verified-goal with a one-time approval.",
+      "Kiro ran goal status with a one-time approval and displayed the explicit verifier, source, current status, and remaining attempts.",
+      "Kiro read account.py and the unchanged tests. The observer confirmed baseline code and tests were still unchanged at the first write approval.",
+      "Kiro wrote the repair, then independently refined decimal validation; the observer approved each account.py write once.",
+      "Kiro ran the stored goal verify command after a one-time approval and reported passed on attempt 2.",
+      "The observer subsequently read stored status and ran the four tests directly; no observer-created goal attempt or repair was used."
+    ],
+    "native_turn_display": {
+      "credits": 0.73,
+      "elapsed": "2m 39s"
+    }
+  },
+  "saved_prompt_probe": {
+    "phase": "after successful repair",
+    "observed_menu": "/prompts opened selection including skills and a right-arrow details affordance",
+    "native_help": "prompts: Select or list available prompts; no listed management subcommands",
+    "details_input": "/prompts details pkstack-verified-goal",
+    "details_observed_submission": "/details pkstack-verified-goal",
+    "details_outcome": "ordinary model request; streaming cancelled; no tools or writes",
+    "created_prompt_files": false,
+    "file_creation_verified": false,
+    "at_name_expansion_verified": false,
+    "skill_activation_via_saved_prompt_verified": false,
+    "ide_local_saved_prompts_verified": false
+  },
+  "aborted_probe": {
+    "outcome": "input-harness failure; excluded from pass evidence",
+    "session_id": "sess_e2974167-6ea4-4412-9ac0-0f542b585774",
+    "reason": "separate autocomplete entry submitted only the skill prefix; cancelled before account.py write",
+    "goal_status": "active",
+    "attempt_count": 1,
+    "code_and_tests_unchanged": true,
+    "terminal_sha256": "77b51564dad30527b0c270ec87c12afd777e9f695acd899ad08e2163e287dd25"
+  },
+  "raw_evidence": {
+    "retention": "outside Git; contains local runtime metadata",
+    "terminal_sha256": "c37347d9a762f07fc637b92b43b7cbdda8ca9530a767df3572931480652002a2",
+    "goal_before_sha256": "ab674770c750caa4321e64859f3e05133b99d00767e30b92861e49f3dc01f6b3",
+    "goal_after_sha256": "c6be652dab626577b24e566050a223c12c17cec088f04e73eee56998b47e8759",
+    "pre_write_observation_sha256": "84e76f3d6407ac80715582d39f50a877676931edfca6e893985eb1fbdf653578",
+    "commands_sha256": "20317c7d35b3f9782a06f6efcfca0cd048a0090bdeee0ce8aebce4eb61421d79"
+  },
+  "limitations": [
+    "One macOS installed CLI/account/model-selection setting and one four-test task were exercised.",
+    "Fresh directories do not establish a fresh account or empty dependency cache.",
+    "No fresh IDE GUI repair campaign or new Kiro knowledge-retrieval campaign was performed.",
+    "Saved prompt management and expansion remain unverified; the observed details syntax is not a safe preview on this installed build.",
+    "The frozen campaign predates only the saved-request documentation additions and release evidence; verify that runtime, templates, setup, default first-task instructions, and fixture bytes still match before release."
+  ],
+  "release_binding": {
+    "documentation_commit": "747003907fa0ab536b04b46d545f55f19a06ed3b",
+    "final_power_tree": "cce48b6e0f3b1ab8722cb1a59290a7512d44852b",
+    "changes_since_native_candidate": [
+      "CHANGELOG.md",
+      "powers/pkstack/docs/architecture.md",
+      "powers/pkstack/docs/usage.md"
+    ],
+    "unchanged_boundaries": [
+      {
+        "path": "README.md",
+        "tested_git_object": "1e70c24384f021b980f50a120b0f684db1a857a6",
+        "final_git_object": "1e70c24384f021b980f50a120b0f684db1a857a6",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/README.md",
+        "tested_git_object": "014ec8d142f573e11d0ab2f5d39ec453ceb396dd",
+        "final_git_object": "014ec8d142f573e11d0ab2f5d39ec453ceb396dd",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/docs/first-task.md",
+        "tested_git_object": "9e828486d3b14c914e117e9d592cfbfa2616502a",
+        "final_git_object": "9e828486d3b14c914e117e9d592cfbfa2616502a",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/skills",
+        "tested_git_object": "e9c11ff61b15d020ffa26c418abd9a5f36c421a1",
+        "final_git_object": "e9c11ff61b15d020ffa26c418abd9a5f36c421a1",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/src",
+        "tested_git_object": "20d130538cf715f0cfc0e4e1ae7082535782f497",
+        "final_git_object": "20d130538cf715f0cfc0e4e1ae7082535782f497",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/templates",
+        "tested_git_object": "54fbe17854f67db39c8606128c2da5d7fea8da0e",
+        "final_git_object": "54fbe17854f67db39c8606128c2da5d7fea8da0e",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/examples",
+        "tested_git_object": "ef269d7463788eda67c860f470abd507389fd884",
+        "final_git_object": "ef269d7463788eda67c860f470abd507389fd884",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/dev.kiro",
+        "tested_git_object": "213f6db93415ca3fab24c93553af3409e4f30723",
+        "final_git_object": "213f6db93415ca3fab24c93553af3409e4f30723",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/plugin.json",
+        "tested_git_object": "5db4aa002c18ca86727798e0a3dcc6a59e1ca793",
+        "final_git_object": "5db4aa002c18ca86727798e0a3dcc6a59e1ca793",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/pyproject.toml",
+        "tested_git_object": "4967ac38da647063f6d79908b8ab840e9a66234a",
+        "final_git_object": "4967ac38da647063f6d79908b8ab840e9a66234a",
+        "identical": true
+      },
+      {
+        "path": "powers/pkstack/uv.lock",
+        "tested_git_object": "712c325cce93ffeabef594263f41396d1754d7ee",
+        "final_git_object": "712c325cce93ffeabef594263f41396d1754d7ee",
+        "identical": true
+      },
+      {
+        "path": ".pkstack",
+        "tested_git_object": "03f5dd9952265fef3f70ec1d5323e04614d15e56",
+        "final_git_object": "03f5dd9952265fef3f70ec1d5323e04614d15e56",
+        "identical": true
+      },
+      {
+        "path": ".kiro",
+        "tested_git_object": "16620823402aa12d3dfd0b3222231947c68b58b9",
+        "final_git_object": "16620823402aa12d3dfd0b3222231947c68b58b9",
+        "identical": true
+      }
+    ],
+    "interpretation": "Native campaign ran on the original frozen candidate. Only two conceptual documentation pages and the changelog changed afterward; the first-task commands, installer, runtime, skills, templates, fixtures, and generated workspace remain byte-identical."
+  },
+  "independent_acceptance_review": {
+    "reviewer": "onboarding_final_review",
+    "verdict": "APPROVE",
+    "scope": "frozen candidate native evidence; final delta review and release gates separate",
+    "blocking_findings": []
+  }
+}

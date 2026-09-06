@@ -1,0 +1,65 @@
+{
+  "goal": {
+    "attempt_count": 2,
+    "contract": {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "display": "python3 -m unittest discover -s tests -v",
+      "feature": null,
+      "source": "explicit",
+      "spec": null
+    },
+    "contract_digest": "76f93d5ac99e3988d1981d5e4be262ed1515941b64663d9212aa6ecd3451cd70",
+    "created_at": "2026-09-06T15:26:36.126195+00:00",
+    "goal_id": "0ad4518d-93d6-44fa-8120-0466f6545b0d",
+    "history": [
+      {
+        "duration_ms": 137,
+        "error": null,
+        "exit_code": 1,
+        "passed": false,
+        "started_at": "2026-09-06T15:26:36.498184+00:00",
+        "stderr": "test_accepts_plain_twelve_digit_identifier (test_account.NormalizeAccountIdTests) ... ok\ntest_rejects_non_digits (test_account.NormalizeAccountIdTests) ... FAIL\ntest_rejects_wrong_length (test_account.NormalizeAccountIdTests) ... FAIL\ntest_removes_spaces_and_hyphens (test_account.NormalizeAccountIdTests) ... FAIL\n\n======================================================================\nFAIL: test_rejects_non_digits (test_account.NormalizeAccountIdTests)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<consumer>/tests/test_account.py\", line 17, in test_rejects_non_digits\n    normalize_account_id(\"1234-ABCD-9012\")\nAssertionError: ValueError not raised\n\n======================================================================\nFAIL: test_rejects_wrong_length (test_account.NormalizeAccountIdTests)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<consumer>/tests/test_account.py\", line 21, in test_rejects_wrong_length\n    normalize_account_id(\"123-456\")\nAssertionError: ValueError not raised\n\n======================================================================\nFAIL: test_removes_spaces_and_hyphens (test_account.NormalizeAccountIdTests)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<consumer>/tests/test_account.py\", line 13, in test_removes_spaces_and_hyphens\n    self.assertEqual(normalize_account_id(\"1234-5678 9012\"), \"123456789012\")\nAssertionError: '1234-5678 9012' != '123456789012'\n- 1234-5678 9012\n?     -    -\n+ 123456789012\n\n\n----------------------------------------------------------------------\nRan 4 tests in 0.001s\n\nFAILED (failures=3)\n",
+        "stdout": "",
+        "timed_out": false,
+        "truncated": false
+      },
+      {
+        "duration_ms": 136,
+        "error": null,
+        "exit_code": 0,
+        "passed": true,
+        "started_at": "2026-09-06T15:32:58.392916+00:00",
+        "stderr": "test_accepts_plain_twelve_digit_identifier (test_account.NormalizeAccountIdTests) ... ok\ntest_rejects_non_digits (test_account.NormalizeAccountIdTests) ... ok\ntest_rejects_wrong_length (test_account.NormalizeAccountIdTests) ... ok\ntest_removes_spaces_and_hyphens (test_account.NormalizeAccountIdTests) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.000s\n\nOK\n",
+        "stdout": "",
+        "timed_out": false,
+        "truncated": false
+      }
+    ],
+    "last_result": {
+      "duration_ms": 136,
+      "error": null,
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-09-06T15:32:58.392916+00:00",
+      "stderr": "test_accepts_plain_twelve_digit_identifier (test_account.NormalizeAccountIdTests) ... ok\ntest_rejects_non_digits (test_account.NormalizeAccountIdTests) ... ok\ntest_rejects_wrong_length (test_account.NormalizeAccountIdTests) ... ok\ntest_removes_spaces_and_hyphens (test_account.NormalizeAccountIdTests) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.000s\n\nOK\n",
+      "stdout": "",
+      "timed_out": false,
+      "truncated": false
+    },
+    "max_attempts": 4,
+    "objective": "Repair account ID normalization",
+    "remaining_attempts": 2,
+    "schema_version": 2,
+    "status": "passed",
+    "updated_at": "2026-09-06T15:32:58.530655+00:00"
+  },
+  "ok": true
+}

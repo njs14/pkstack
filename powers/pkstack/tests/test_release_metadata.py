@@ -56,7 +56,10 @@ def test_setup_docs_use_declared_power_source() -> None:
     )
     for path in docs:
         text = path.read_text(encoding="utf-8")
-        assert "/absolute/path/to" not in text
+        # The target is user-selected; installer commands must use the captured source.
+        for line in text.splitlines():
+            if "setup_pkstack.py" in line:
+                assert '"$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py"' in line
     assert "PKSTACK_POWER" in (POWER_ROOT / "docs/usage.md").read_text(encoding="utf-8")
 
 

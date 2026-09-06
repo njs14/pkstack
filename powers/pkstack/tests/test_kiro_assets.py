@@ -665,6 +665,22 @@ def test_setup_shim_uses_locked_source_module_fallback_for_older_python(
     assert environment["PYTHONPATH"] == os.pathsep.join((str(ROOT / "src"), "/existing/pythonpath"))
 
 
+def test_setup_shim_older_python_without_uv_fails_before_target_writes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(sys, "version_info", (3, 9, 6))
+    monkeypatch.setattr(shutil, "which", lambda _name: None)
+    monkeypatch.setattr(sys, "argv", ["setup_pkstack.py", "--root", str(tmp_path)])
+
+    with pytest.raises(SystemExit, match=r"requires Python 3\.11\+ or uv"):
+        runpy.run_path(
+            str(SKILLS / "pkstack-setup" / "scripts" / "setup_pkstack.py"),
+            run_name="__main__",
+        )
+
+    assert list(tmp_path.iterdir()) == []
+
+
 def test_setup_shim_legacy_location_finds_the_project_controller(tmp_path: Path) -> None:
     shim = tmp_path / ".kiro" / "skills" / "pkstack-setup" / "scripts" / "setup_pkstack.py"
     shim.parent.mkdir(parents=True)

@@ -5,14 +5,17 @@ standard library. Work in a disposable copy so the Power’s fixture stays uncha
 
 ## Prepare the project
 
-From a PKStack checkout, save its Power path:
+First follow [Choose the Power source](usage.md#choose-the-power-source) to
+capture `PKSTACK_POWER` in this terminal. It points to the reviewed installer,
+not the target application. Reuse that absolute path after changing directories:
 
 ```sh
-export PKSTACK_POWER="$PWD/powers/pkstack"
+: "${PKSTACK_POWER:?Follow the usage guide to capture the Power source first}"
 test -f "$PKSTACK_POWER/plugin.json"
+test -d "$PKSTACK_POWER/examples/verified-goal-demo"
 ```
 
-Copy the example, preview setup, and install into the copy:
+Copy the example into a disposable target and preview setup:
 
 ```sh
 PKSTACK_DEMO=$(mktemp -d "${TMPDIR:-/tmp}/pkstack-demo.XXXXXX")
@@ -21,6 +24,13 @@ cd "$PKSTACK_DEMO"
 git init -q
 python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
   --root "$PWD" --dry-run --output json
+```
+
+Review the target and listed changes. The preview does not write managed target
+files, but runtime preparation can populate caches and download dependencies.
+When the preview is acceptable, apply it and check installation:
+
+```sh
 python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
   --root "$PWD" --output json
 .pkstack/bin/projectctl doctor --output json
@@ -43,20 +53,30 @@ The last command should exit **1**, report failed tests, and leave the goal
 
 ## Repair in Kiro
 
-Start a session in that directory:
+Choose either surface, using the disposable target directory:
 
-```sh
-kiro-cli chat --v3 --agent pkstack
-```
+- **CLI:** Start a session from the terminal still in that directory:
 
-Then ask:
+  ```sh
+  kiro-cli chat --v3 --agent pkstack
+  ```
+
+- **IDE:** Open the directory printed by `pwd` in Kiro, start a fresh chat or
+  Agent Focus session, and select the workspace `pkstack` agent. The terminal
+  setup above has already created its workspace assets.
+
+Then send the same request in that session:
 
 ```text
 /pkstack-verified-goal Repair account ID normalization using the existing goal. Keep the tests unchanged. Remove spaces and hyphens, accept exactly twelve decimal digits, and raise ValueError otherwise. Rerun the stored verifier until it passes or the attempt budget is exhausted.
 ```
 
-Kiro should edit `account.py` and rerun the stored command in this conversation.
-Check the result yourself:
+Review Kiro's command and write approval requests. Kiro should edit `account.py`
+and rerun the stored command in this conversation. If the agent or skill is
+not discovered, start one fresh session in the same directory and select
+`pkstack` again.
+
+Check the result yourself in a terminal at the disposable target root:
 
 ```sh
 .pkstack/bin/projectctl goal status --output json

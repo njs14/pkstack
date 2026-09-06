@@ -4,6 +4,29 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.4.2] — 2026-09-06
+
+PKStack 0.4.2 makes the first installation and verified task explicit for Kiro
+CLI and IDE users. Existing commands, verification contracts, and ownership
+rules are unchanged.
+
+- Explains the practical benefits before the workflow catalog and provenance.
+- Gives CLI and IDE installation paths, distinguishes the Power source from
+  the target project, and assigns the source path before using it.
+- Aligns setup guidance with the supported Python launcher and `uv` runtime
+  behavior, including first-use downloads and offline cache requirements.
+- Connects installation to the included failing task and shows the expected
+  failure, Kiro repair, and stored passing result.
+- Documents user-owned saved requests, their role beside skills and executable
+  goals, and the observed v3 prompt-menu compatibility limit.
+- Exercises the documented source-to-target commands and packaged-Power paths
+  in onboarding regressions. Scripted repair remains controller evidence;
+  native Kiro campaign results are recorded separately in the release status.
+
+Start with the [installation guide](powers/pkstack/docs/usage.md), then
+[try the failing task](powers/pkstack/docs/first-task.md). Existing 0.4
+installations use the [reviewed managed refresh](powers/pkstack/docs/upgrade-0.4.md).
+
 ## [0.4.1] — 2026-09-06
 
 PKStack 0.4.1 improves local knowledge validation and corrects the current

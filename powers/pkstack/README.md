@@ -4,36 +4,59 @@
   <img src="assets/banner.png" alt="PKStack: From plan to proof. A scholarly potato ghost with an OKF knowledge tree in the background." width="600">
 </p>
 
-Poteto’s pstack workflows, adapted for Kiro. This directory is the installable Power.
+PKStack helps Kiro finish development tasks with a repeatable check: record what
+fails, repair the code, and keep the passing result. It also keeps project
+instructions and decisions in the repository for later sessions.
 
-## What and why
+## What you get
 
-Use Kiro’s native planning, follow repeatable engineering workflows, and check
-the result with a repository-local `projectctl`. Keep feature contracts and
-project knowledge in the Wiki so later sessions can reuse them.
-
-## Sources
-
-Poteto supplies the core workflows. HumanLayer adds visual explanations and
-automation methods; Matt Pocock adds agent-facing writing. Archify handles
-diagrams. OKF organizes durable knowledge; `projectctl` retrieves bounded context
-through Kiro ACP and validates metadata and local links without a model.
-See [what we ported and why](docs/curated-skills.md).
+- **Plan with Kiro.** Keep native Specs, Quick Specs, your selected model, and effort.
+- **Check the result.** A local `projectctl` command stores the verification command
+  and its failed and passing attempts, so completion has evidence you can inspect.
+- **Reuse what you learned.** A source-controlled Wiki keeps executable feature
+  records and project knowledge available to future sessions.
 
 ## Install
 
-You need Kiro, Python 3.11+, and `uv`.
+You need Kiro IDE or Kiro CLI v3, `uv`, a `python3` launcher, and access to the
+Power files. The controller requires Python 3.11+; the launcher also works
+with the tested macOS Python 3.9 path through `uv`. Initial runtime setup can download
+Python and dependencies. See the guide below for prerequisites and preview scope.
 
-1. Import this folder through **Powers → Add Custom Power → Import power from a folder**.
-2. Run `/pkstack-setup` in your project and review its preview before writes.
-3. Select the workspace `pkstack` agent. Start with `/pkstack <task>`.
+This folder is the installable Power. In a terminal opened at this folder, save its path:
 
-[CLI setup and commands](docs/usage.md) ·
-[First failing task](docs/first-task.md) ·
-[Architecture](docs/architecture.md)
+```sh
+export PKSTACK_POWER="$PWD"
+```
 
-CLI v3 and IDE are primary; Web is untested.
-[Validation and release status](https://github.com/njs14/pkstack/blob/main/reviews/release-status.md)
-records tested scope. [Maintenance](docs/upstream-control-loop.md) is separate.
+The **source** contains the installer. Your **target project** is the application
+you want Kiro to work on; setup adds workspace assets there.
 
+| Surface | Setup path |
+| --- | --- |
+| Kiro CLI | Use the terminal setup script from the saved Power source, preview and apply it to your target project, then launch `kiro-cli chat --v3 --agent pkstack` there. No IDE import is required. |
+| Kiro IDE | Choose **Powers → Add Custom Power → Import power from a folder**, select the Power folder and choose **Install**, open your target project, and run `/pkstack-setup`. Review its preview, then select the workspace `pkstack` agent. |
+
+Follow the [complete CLI and IDE setup guide](docs/usage.md) for the
+commands and checks. Once installed, use `/pkstack <task>`.
+
+## See it work
+
+[Try one failing task](docs/first-task.md) in a disposable project. Kiro
+repairs an account-ID function while its four tests stay unchanged. You inspect
+a recorded failure followed by a pass. The guide works with CLI or IDE.
+
+For larger work, [see how planning and verification fit together](docs/architecture.md).
+CLI v3 and IDE are primary; Crew is optional and Web is untested.
+[Validation and release status](https://github.com/njs14/pkstack/blob/main/reviews/release-status.md) records the exact tested scope.
+
+## Sources
+
+Poteto's pstack supplies engineering workflows, verification, and principles.
+HumanLayer adds visual explanations and bounded automation design; Matt Pocock
+adds agent-facing writing. Archify supplies diagrams and OKF organizes project
+knowledge. The [sources guide](docs/curated-skills.md) explains the ports,
+changes, and omissions.
+
+[Maintenance](docs/upstream-control-loop.md) is separate from installation.
 Apache-2.0. [Third-party notices](THIRD_PARTY_NOTICES.md).

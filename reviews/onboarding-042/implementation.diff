@@ -1,0 +1,24 @@
+--- before/account.py
++++ after/account.py
+@@ -1,12 +1,15 @@
+-"""Intentionally incomplete behavior used by the real Kiro retry-loop test."""
++"""Account identifier normalization used by the Kiro retry-loop test."""
+ 
+ 
+ def normalize_account_id(value: str) -> str:
+-    """Return an account identifier suitable for lookup.
++    """Return a normalized twelve-digit account identifier.
+ 
+-    This baseline intentionally handles only surrounding whitespace. The Kiro
+-    validation campaign must observe the failing contract, repair it, and then
+-    produce a passing verification attempt.
++    Surrounding whitespace, internal spaces, and hyphens are removed. The
++    result must be exactly twelve decimal digits; otherwise a ``ValueError``
++    is raised.
+     """
+ 
+-    return value.strip()
++    cleaned = value.strip().replace(" ", "").replace("-", "")
++    if len(cleaned) != 12 or not cleaned.isascii() or not cleaned.isdecimal():
++        raise ValueError("account id must be 12 digits")
++    return cleaned
