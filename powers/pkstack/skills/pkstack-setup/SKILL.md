@@ -31,15 +31,26 @@ never overwritten. Otherwise run the same shim without `--dry-run`.
 After a successful bootstrap use `.pkstack/bin/projectctl`. A root
 `./projectctl` may belong to the host project and is never selected by this
 skill. Do not guess a global Power path, silently install a package manager,
-modify user-level Kiro settings, or widen permissions. If Python 3.11+ or `uv`
-is missing, report that exact prerequisite and stop.
+modify user-level Kiro settings, or widen permissions. A Python launcher and
+`uv` must be available. The locked controller requires Python 3.11+; the shim
+can start with the tested macOS Python 3.9 launcher and use `uv` to obtain a
+supported runtime. Do not reject that path solely because `python3 --version`
+reports 3.9. Report a missing launcher, missing `uv`, or a runtime acquisition
+failure with its actual error and stop; do not install tools silently.
+
+The preview makes no target-project changes. The older-Python delegation may
+prepare an isolated environment and download Python or dependencies, and the
+installed controller prepares its locked runtime on first use. Offline use
+requires the needed interpreter and packages in the local cache. Successful
+scaffolding alone does not establish that the controller works; complete the
+version, doctor, and local validation checks below.
 
 ## Bootstrap and validate
 
 1. Inspect the working tree and existing `.pkstack/` and `.kiro/` files. Preserve user-authored files and unrelated dirty work.
 2. Run the Power-local setup shim as described above.
 3. Treat the JSON result as the authoritative inventory of created, updated, preserved, skipped, or conflicting paths.
-4. Run `<runner> doctor --output json`.
+4. Run `<runner> version --output json`, then `<runner> doctor --output json`.
 5. Resolve only setup defects that are within the requested workspace. Re-run `doctor` after each material repair.
 6. Report DO (`projectctl` and project levers), PROVE (feature records), and KNOW (durable Wiki
    layout, local validation, and Kiro ACP retrieval availability) separately. Use

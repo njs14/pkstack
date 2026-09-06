@@ -1,10 +1,18 @@
 ---
-release: "0.4.1"
-status: published
+release: "0.4.2"
+status: candidate
 version_authority: powers/pkstack/plugin.json
 ---
 
 # PKStack release status
+
+PKStack 0.4.2 is the current candidate for first-time installation and task
+guidance. Publication requires the documented command regressions, a fresh
+native CLI repair campaign, independent review, passing PR and exact-main CI,
+and verification of the existing release workflow's package. This candidate
+is not yet published; the current published version remains 0.4.1.
+
+## Previous publication: 0.4.1
 
 **[PKStack v0.4.1](https://github.com/njs14/pkstack/releases/tag/v0.4.1) was
 published on September 6, 2026 at 14:27:18 UTC.** It includes the measured

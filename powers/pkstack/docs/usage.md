@@ -1,11 +1,181 @@
 # Usage
 
-PKStack keeps implementation and repair work in the current Kiro session.
+PKStack adds a repeatable finish to Kiro development: store the command that
+checks a task, record the initial failure, repair in the current Kiro session,
+and retain the passing result. Project knowledge stays in the repository for
+later sessions. This guide works for CLI-only users and IDE users.
 
-This guide covers the current PKStack path: a Power-local bootstrap,
-the generated `pkstack` Kiro agent, a feature contract, and a verifier run in
-the current Kiro session. Start with the [repository README](../../../README.md) if you
-are deciding whether to install it.
+## Prerequisites
+
+- Kiro CLI with v3 support or Kiro IDE, installed and signed in;
+- [`uv`](https://docs.astral.sh/uv/) on `PATH`;
+- a `python3` launcher; and
+- access to the PKStack Power source and a project you are allowed to modify.
+
+The locked controller runtime requires Python 3.11+. The setup launcher can
+also start under the tested macOS Python 3.9 path and delegate to `uv`, which resolves
+a supported runtime. You do not need to replace macOS system Python. Initial
+setup may need network access to download Python and locked dependencies;
+[uv documents automatic Python acquisition](https://docs.astral.sh/uv/guides/install-python/).
+If runtime acquisition fails, resolve that prerequisite before continuing.
+
+Check the terminal tools:
+
+```sh
+uv --version
+python3 --version
+```
+
+For the CLI path, also check:
+
+```sh
+kiro-cli --version
+kiro-cli chat --v3 --help
+```
+
+PKStack inherits the model and effort selected in Kiro. It does not store a
+model choice in `projectctl` or require a particular provider for interactive
+work. Historical acceptance model choices describe those runs, not a default.
+
+## Choose the Power source
+
+The **source** is the reviewed Power containing the installer. The **target** is
+your application, which will receive `.kiro/`, `.pkstack/`, and Wiki assets.
+Keep the source available for later managed updates.
+
+If you have not cloned PKStack, run:
+
+```sh
+git clone https://github.com/njs14/pkstack.git
+cd pkstack
+```
+
+From the root of that checkout, capture the absolute Power path:
+
+```sh
+export PKSTACK_POWER="$PWD/powers/pkstack"
+test -f "$PKSTACK_POWER/plugin.json"
+test -f "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py"
+```
+
+For an unpacked standalone Power instead, open a terminal in the folder that
+contains `plugin.json` and capture that folder:
+
+```sh
+export PKSTACK_POWER="$PWD"
+test -f "$PKSTACK_POWER/plugin.json"
+test -f "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py"
+```
+
+These variables last for this terminal session; restore the source path if you
+open another.
+Never derive the source from the target's `.pkstack/` cache. Review the Power
+before running its setup script or importing it in Kiro.
+
+<a id="import-and-bootstrap"></a>
+
+## Install with Kiro CLI
+
+No IDE import is required. In this same terminal, replace the example path below
+with your application's root directory. Capture and check the target before
+previewing changes:
+
+```sh
+cd "/absolute/path/to/your/project"
+export PKSTACK_PROJECT="$PWD"
+: "${PKSTACK_POWER:?Capture the reviewed Power source path first}"
+printf 'Source: %s\nTarget: %s\n' "$PKSTACK_POWER" "$PKSTACK_PROJECT"
+```
+
+Confirm the target shown is your application, not the PKStack checkout. To try
+PKStack before changing an existing application, use the disposable project in
+[the first-task guide](first-task.md) instead.
+
+Preview setup:
+
+```sh
+python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
+  --root "$PKSTACK_PROJECT" --dry-run --output json
+```
+
+A dry run previews target changes without writing managed target files. It can
+still populate runtime caches and acquire dependencies; it is not an offline
+or cache-free operation. Review the target path and listed files. Non-empty
+`pending_updates`, `stale_managed`, or `conflicts` block setup: inspect them
+before proceeding; use the refresh section for an existing installation.
+
+When the preview is acceptable, apply it:
+
+```sh
+python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
+  --root "$PKSTACK_PROJECT" --output json
+```
+
+From the target root, verify the installation:
+
+```sh
+cd "$PKSTACK_PROJECT"
+.pkstack/bin/projectctl version --output json
+.pkstack/bin/projectctl doctor --output json
+.pkstack/bin/projectctl knowledge validate --output json
+```
+
+Expect `ok: true` from doctor and knowledge validation. Doctor checks the
+installation; knowledge validation checks local metadata and links without a
+model. Neither proves that Kiro has repaired your application.
+
+Launch Kiro from the target root:
+
+```sh
+kiro-cli chat --v3 --agent pkstack
+```
+
+## Install with Kiro IDE
+
+1. Choose **Powers → Add Custom Power → Import power from a folder** and select
+   the reviewed Power folder containing `plugin.json`. Review the package and
+   choose **Install**.
+2. Open your target application in Kiro. In its chat or Agent Focus session,
+   invoke `/pkstack-setup`.
+3. Review the preview and approve the intended changes. Setup reports doctor
+   and local validation results; resolve failures before starting work.
+4. Select the workspace `pkstack` agent before the next workflow message.
+
+If the imported Power is not discoverable, use the terminal setup above. If the
+new agent or skills are absent, open a fresh chat in the same project and select
+`pkstack`; copying files does not attach the new profile retroactively.
+
+## First success
+
+Use `/pkstack <task>` for your own work, or [try one failing task](first-task.md)
+with either surface. That example supplies a repeatable verifier and explains
+how to inspect the failure, Kiro's repair, and the stored passing result.
+
+Use `.pkstack/bin/projectctl` for project operations. Setup may create a root
+`projectctl` convenience wrapper when that name is unowned, but it is not the
+trusted entrypoint. The canonical wrapper uses the shipped locked runtime under
+`.pkstack/projectctl/`; its environment does not become the verifier's environment.
+
+### Attach the generated agent
+
+The bootstrap conversation may not inherit the new profile. In the IDE choose
+the workspace `pkstack` agent. In CLI v3 use either:
+
+```text
+/agent swap pkstack
+```
+
+or, when Kiro has not discovered the new assets yet:
+
+```sh
+kiro-cli chat --v3 --agent pkstack
+```
+
+Keep the handoff in the same conversation when possible. The primary profile
+asks before ordinary writes and canonical controller commands. Delegated
+architect, reviewer, and verifier profiles omit `write` and `shell`; they
+inspect and report to the primary session. These Kiro permissions complement
+the controller's checks but are not an operating-system sandbox.
 
 ## Commands
 
@@ -34,151 +204,6 @@ command-approval checks; that does not prove every permission rule. Normal work 
 in the current session. Only `projectctl knowledge search` starts an isolated,
 read-only Kiro ACP worker for bounded retrieval. PKStack does not claim that
 CLI v3 provides Kiro's native `/goal` command.
-
-## Prerequisites
-
-- Kiro IDE or Kiro CLI with v3 support;
-- Python 3.11 or newer;
-- [`uv`](https://docs.astral.sh/uv/) on `PATH`; and
-- a project directory you are allowed to modify, with a repeatable command
-  that can check the behavior you are changing.
-
-Check tools without changing the project:
-
-```sh
-kiro-cli --version
-kiro-cli chat --v3 --help
-uv --version
-python3 --version
-```
-
-PKStack inherits the model and effort selected in Kiro. It does not store a
-model choice in `projectctl` or require a particular provider for interactive
-work.
-
-The historical acceptance campaign used Sol at maximum effort. That is
-evidence, not the interactive default; select the desired normal effort
-afterwards because Kiro persists the choice. Cheap, fast models are usually a
-better fit for repeatable mechanical smoke tests.
-
-## Choose the Power source
-
-The Power-local setup script is the only source and upgrade authority. When
-using a source checkout, set one environment variable to the checkout's
-`powers/pkstack` directory:
-
-```sh
-: "${PKSTACK_POWER:?Set PKSTACK_POWER to the checked-out PKStack Power directory}"
-test -f "$PKSTACK_POWER/plugin.json"
-test -f "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py"
-```
-
-Do not infer this value from a target project's `.pkstack/` cache. An installed
-Power may be imported through Kiro's Power manager instead; the same
-Power-local rule applies.
-
-## Import and bootstrap
-
-Import [`powers/pkstack/`](../) through Kiro's Power manager and review the
-package. In the target repository, use the current Kiro chat or Agent Focus
-session and invoke:
-
-```text
-/pkstack-setup
-```
-
-The skill first previews managed changes. Review `pending_updates`,
-`stale_managed`, and `conflicts`; a non-empty list blocks writes. The direct
-Power-local script is also the CLI bootstrap path when the imported Power is
-not discoverable. Run it from a terminal using the reviewed source directory:
-
-```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PWD" --dry-run --output json
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PWD" --output json
-```
-
-After a successful setup, use only the generated wrapper for project
-operations:
-
-```sh
-.pkstack/bin/projectctl version --output json
-.pkstack/bin/projectctl doctor --output json
-.pkstack/bin/projectctl feature validate --output json
-```
-
-Setup may create a root `projectctl` convenience wrapper when that name is
-unowned. It is not the trusted entrypoint. The canonical wrapper uses the
-shipped locked runtime under `.pkstack/projectctl/`; its environment does not
-become the verifier's environment.
-
-### Refresh managed files
-
-Leave the restricted `pkstack` profile before refreshing. CLI v3 2.21.1 names
-its bundled default agent `default`:
-
-```text
-/agent swap default
-```
-
-This swap does not make an imported Power available. Invoke `/pkstack-setup`
-only if it is discovered in that context. Otherwise use the Power-local script
-from a terminal. If the dry run reports `pending_updates`, inspect the exact
-paths and preview the explicit upgrade:
-
-```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PWD" --dry-run --update-managed --output json
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PWD" --update-managed --output json
-```
-
-After setup, return to the same conversation with `/agent swap pkstack`.
-Do not add a cached setup skill to `.kiro/skills/` to force discovery.
-
-`--update-managed` replaces only a path that still matches its prior receipt
-hash. It never overwrites a user edit. `stale_managed` paths are not deleted
-automatically; preserve or remove each exact path by a separate project
-decision. The cached controller's setup command fails unless an explicit,
-reviewed `--power-root` is supplied.
-
-The PKStack rename is a clean-install change. Setup blocks legacy managed
-installations before writes; it adds no aliases and performs no automatic
-migration. Follow the [0.3 upgrade guide](upgrade-0.3.md) for a separate-checkout
-transition and rollback. An earlier installation may use a `.pk-stack/bootstrap.json`
-receipt and `pk-stack`-named agent files. Those names identify old files to
-review, not supported entry points.
-
-Before reinstalling, preserve project-owned `Wiki/` content, native
-`.kiro/specs/`, user-authored settings, and any evidence you want to retain.
-Inspect the old receipt and compare its hashes with the files on disk. With
-explicit approval, remove only the unchanged managed paths and the old receipt
-after that comparison. Review retired cache paths individually; never delete
-an entire `.kiro/` or Wiki directory. User-modified managed files need a
-deliberate keep-or-replace decision first. Then run fresh setup from the
-reviewed Power. Old goals and schema-1 feature records are not imported.
-
-### Attach the generated agent
-
-The bootstrap conversation may not inherit the new profile. In the IDE choose
-the workspace `pkstack` agent. In CLI v3 use either:
-
-```text
-/agent swap pkstack
-```
-
-or, when Kiro has not discovered the new assets yet:
-
-```sh
-kiro-cli chat --v3 --agent pkstack
-```
-
-Keep the handoff in the same conversation when possible. The primary profile
-asks before ordinary writes and canonical controller commands. Delegated
-architect, reviewer, and verifier profiles omit `write` and `shell`; they
-inspect and report to the primary session. These Kiro permissions complement
-the controller's checks but are not an operating-system sandbox.
 
 ## Plan and bind work
 
@@ -401,6 +426,58 @@ Use `/okf` to produce, maintain, or consume durable knowledge. Native Kiro
 `/knowledge` may index the same files; project files remain authoritative.
 The earlier optional `okn` backend and `--require-okn` flag have been removed.
 See the [knowledge runtime decision](../../../Wiki/knowledge/pkstack/native-spec-and-okn.md).
+
+## Refresh managed files
+
+Leave the restricted `pkstack` profile before refreshing. CLI v3 2.21.1 names
+its bundled default agent `default`:
+
+```text
+/agent swap default
+```
+
+This swap does not make an imported Power available. Invoke `/pkstack-setup`
+only if it is discovered in that context. Otherwise use the Power-local script
+from a terminal. If the dry run reports `pending_updates`, inspect the exact
+paths and preview the explicit upgrade:
+
+```sh
+python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
+  --root "$PWD" --dry-run --update-managed --output json
+```
+
+Review the explicit update preview before applying it:
+
+```sh
+python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
+  --root "$PWD" --update-managed --output json
+```
+
+After setup, return to the same conversation with `/agent swap pkstack`.
+Do not add a cached setup skill to `.kiro/skills/` to force discovery.
+
+`--update-managed` replaces only a path that still matches its prior receipt
+hash. It never overwrites a user edit. `stale_managed` paths are not deleted
+automatically; preserve or remove each exact path by a separate project
+decision. The cached controller's setup command fails unless an explicit,
+reviewed `--power-root` is supplied.
+
+The PKStack rename is a clean-install change. Setup blocks legacy managed
+installations before writes; it adds no aliases and performs no automatic
+migration. Follow the [0.3 upgrade guide](upgrade-0.3.md) for a separate-checkout
+transition and rollback. An earlier installation may use a `.pk-stack/bootstrap.json`
+receipt and `pk-stack`-named agent files. Those names identify old files to
+review, not supported entry points.
+
+Before reinstalling, preserve project-owned `Wiki/` content, native
+`.kiro/specs/`, user-authored settings, and any evidence you want to retain.
+Inspect the old receipt and compare its hashes with the files on disk. With
+explicit approval, remove only the unchanged managed paths and the old receipt
+after that comparison. Review retired cache paths individually; never delete
+an entire `.kiro/` or Wiki directory. User-modified managed files need a
+deliberate keep-or-replace decision first. Then run fresh setup from the
+reviewed Power. Old goals and schema-1 feature records are not imported.
+
 
 ## Upstream maintenance
 
