@@ -36,9 +36,11 @@ not claim that CLI v3 supplies native `/goal`.
 For a browsable version with theme switching, zoom, and export,
 open the [interactive PKStack architecture artifact](artifacts/pkstack-architecture.html).
 Its [Archify source specification](artifacts/pkstack-architecture.json) is
-committed beside it so the diagram can be reviewed and regenerated. These
-artifacts have not been regenerated for the knowledge migration; the runtime
-boundary below describes the current implementation.
+committed beside it so the diagram can be reviewed and regenerated. The
+artifacts show retained knowledge, native Specs, bounded ACP retrieval, and
+local validation. The [artifact guide](artifacts/README.md) and
+[delivery receipt](../../../reviews/release-040-diagrams.json) record their
+source identities and visual verification scope.
 
 The Python package parses explicit inputs, validates data, runs the stored
 verifier, and persists small, inspectable records. Knowledge search delegates

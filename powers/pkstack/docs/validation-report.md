@@ -39,7 +39,7 @@ uv run --frozen pytest -q
 From the repository root:
 
 ```sh
-python3 -m pytest powers/pkstack/tests/test_release_metadata.py -q
+uv run --frozen --project powers/pkstack pytest powers/pkstack/tests/test_release_metadata.py -q
 .pkstack/bin/projectctl doctor --output json
 .pkstack/bin/projectctl feature validate --output json
 .pkstack/bin/projectctl knowledge validate --output json
@@ -87,7 +87,8 @@ The final candidate must have a fresh result for each row in
 1. metadata equality and lock consistency;
 2. package tests, lint, format, and type checks;
 3. setup/doctor/generated-byte parity;
-4. feature validation and clearly labeled optional `okn` status;
+4. local feature, knowledge metadata, and Markdown-link validation, with Kiro
+   retrieval availability reported separately;
 5. repository guard, policy, Actionlint, ShellCheck, and documentation checks;
 6. exact-candidate Kiro evidence where the release contract requires it;
 7. independent review of the exact candidate, naming the reviewer and any
@@ -103,8 +104,9 @@ does not close a new row.
 
 - The runner is a bounded hazard screen, not an operating-system sandbox or a
   semantic proof checker.
-- Optional canonical `okn`, Kiro Web end-to-end behavior, and external review
-  CLIs may be unavailable in a local environment.
+- Kiro retrieval, Kiro Web end-to-end behavior, and external review CLIs may
+  be unavailable in a local environment. Local knowledge validation remains
+  available without Kiro or a model.
 - The receipt is a SHA-256 drift detector, not a signature against a writer
   who controls both content and receipt.
 - The Power has one goal slot and no automatic uninstaller or stale-file
