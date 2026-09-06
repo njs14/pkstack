@@ -1,6 +1,6 @@
 ---
 release: "0.4.0"
-status: release-preparation
+status: published
 version_authority: powers/pkstack/plugin.json
 ---
 
@@ -13,14 +13,34 @@ at `8439078f279f5980c1c5123c21223253d16393f0`. Its
 published September 5, 2026; the previous pre-publication checkpoint is retained
 in [the historical report](historical/v0.3-release-status.md).
 
-Version 0.4.0 packages that implementation with refreshed diagrams, matching
-version mirrors, and a [0.4 upgrade guide](../powers/pkstack/docs/upgrade-0.4.md).
-Publication is authorized by the owner. The release-preparation commit still
-requires its own passing PR and main CI, followed by tag-bound promotion of
-that exact main artifact. The release workflow rechecks the source run,
-artifact identity, archive checksum, and version-specific notes before publishing.
-The [v0.4.0 release record](https://github.com/njs14/pkstack/releases/tag/v0.4.0)
-and its workflow are the authority for terminal publication status.
+**[PKStack v0.4.0](https://github.com/njs14/pkstack/releases/tag/v0.4.0) was
+published on September 6, 2026 at 12:15:50 UTC.** It packages the knowledge
+foundation with refreshed diagrams, matching version mirrors, and the
+[0.4 upgrade guide](../powers/pkstack/docs/upgrade-0.4.md).
+
+[PR #43](https://github.com/njs14/pkstack/pull/43) merged the release preparation
+at `12ecc1abe6a59c57bb91260d9f4a8cb06651291a`. Both its
+[corrected PR CI](https://github.com/njs14/pkstack/actions/runs/34032262810) and
+[exact main CI](https://github.com/njs14/pkstack/actions/runs/34032394630) passed
+all 12 jobs. Two packaging expectations that hard-coded 0.3.0 were corrected to
+read the Power manifest before those passing runs.
+
+The [release workflow](https://github.com/njs14/pkstack/actions/runs/34032537285)
+passed both verification and publication. It promoted CI artifact `9989055024`
+from main run `34032394630`, attempt 1. The published 4,589,525-byte archive was
+downloaded and compared byte-for-byte with the verified CI package; its checksum
+file also matched. The archive SHA-256 is:
+
+```text
+6d94eebc69b4ab417aa915f350bf6e9994763a38dc3c180c7731fe1a43989716
+```
+
+The [publication receipt](release-040-publication.json) records the immutable
+commit, run, artifact, and digest bindings. The extracted consumer passed setup,
+idempotence, feature and local knowledge validation, and a fixed-verifier
+failure/repair/pass loop. Its doctor summary reported 78 passes, zero failures,
+and one warning; this secretless package job does not install optional Kiro CLI.
+The original full repository doctor result below is a separate environment.
 
 ## Evidence and compatibility
 
