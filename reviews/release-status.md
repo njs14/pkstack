@@ -1,27 +1,73 @@
 ---
 release: "0.4.2"
-status: candidate
+status: published
 version_authority: powers/pkstack/plugin.json
 ---
 
 # PKStack release status
 
-PKStack 0.4.2 is the current candidate for first-time installation and task
-guidance. The [fresh native CLI campaign](onboarding-042/README.md) passed:
-Kiro repaired the four-test fixture and reran the unchanged stored verifier in
-one ordinary v3 conversation, producing failure then pass on attempt 2 of 4.
-The independent reviewer approved that evidence. The campaign receipt retains
-the tested commit and hash-binds unchanged behavior across the subsequent
-saved-request documentation additions. Those additions document user ownership
-and the observed v3 prompt-management syntax limit; no saved-prompt shortcut
-or new IDE GUI campaign is claimed.
+**[PKStack v0.4.2](https://github.com/njs14/pkstack/releases/tag/v0.4.2) was
+published on September 6, 2026 at 15:47:20 UTC.** It adds benefit-led
+introductions, complete CLI and IDE installation paths, executable onboarding
+regressions, and a first-task guide verified through an ordinary Kiro CLI v3
+repair. It also documents user-owned saved requests and the observed native
+prompt-menu syntax limit. See the [changelog](../CHANGELOG.md#042--2026-09-06).
 
-Local checks passed: seven focused onboarding/release-metadata regressions
-(29.28 seconds), plus the earlier 22 fast-contract tests and setup fallback
-checks. The reviewer verified generated parity and all 178 receipt hashes.
-Final review and passing PR/exact-main CI remain required, followed by
-verification of the existing release workflow's package.
-This candidate is not yet published; the current published version remains 0.4.1.
+[PR #48](https://github.com/njs14/pkstack/pull/48) merged at
+`c7c3bb6f06f863502084333a63d6fdd258a20119`; tag `v0.4.2` points to that commit.
+Independent reviewer `onboarding_final_review` approved final candidate
+`b829720ee0f43e543279acecc69cb8a6a1f8989e`, and the merged tree was identical.
+Both the [final PR CI](https://github.com/njs14/pkstack/actions/runs/34043105774)
+and [exact main CI](https://github.com/njs14/pkstack/actions/runs/34043224626)
+passed all 12 jobs. This review used a Codex reviewer; no new external Fable or
+Grok review is claimed.
+
+The [fresh native CLI campaign](onboarding-042/README.md) passed on macOS with
+Kiro CLI 2.21.1, v3, workspace agent `pkstack`, and displayed model **Auto**.
+Effort was not displayed. Kiro loaded the skill, displayed the explicit stored
+verifier, repaired `account.py`, and reran that verifier in one conversation.
+The tests, goal, contract digest, and attempt budget stayed unchanged. Stored
+history records failure then pass on attempt **2 of 4**, and all four tests
+passed independently. The observer supplied no repair or passing goal attempt.
+The campaign receipt preserves the tested commit and Power tree, then binds
+13 unchanged Git objects across the later conceptual documentation edits.
+The whole released Power tree differs from the campaign tree; the tested
+runtime, setup, skills, fixture, and first-task instructions are unchanged.
+
+Local checks passed: seven final focused onboarding/release-metadata tests
+in 29.28 seconds, the earlier 22-test fast contract, and setup fallback checks.
+The live disposable setup reported **84 pass / 0 fail / 0 warn**, passing local
+knowledge validation, and idempotence. The reviewer verified all 178 receipt
+hashes and 59 local links/anchors; the final setup preview reported zero changes.
+The [campaign report](onboarding-042/README.md#local-regressions) discloses the
+corrected obsolete documentation assertion and the aborted input-harness probe.
+The preserved unified implementation-diff artifact contains normal single-space
+context lines; excluding that artifact, the final diff whitespace check is clean.
+
+The [release workflow](https://github.com/njs14/pkstack/actions/runs/34043366532)
+passed verification and publication, promoting artifact `9992323291` from main
+run `34043224626`, attempt 1. Its artifact ZIP SHA-256 was
+`60ed21dc9841cadc53f6cdd06bd54dffe2ec7c795dca9ffc08caa1250bdd9e0e`.
+The published 4,596,302-byte archive was downloaded and compared byte-for-byte
+with the verified CI package. The checksum matched the digest and published
+asset filename. The archive SHA-256 is:
+
+```text
+a5ad22271802055981607a954b3b9533264924319f07b1505a2f2cf55c9a5c32
+```
+
+The extracted-package consumer passed setup, idempotence, feature and local
+knowledge validation, and its separate scripted failure/repair/pass smoke.
+Its doctor reported 78 passes, zero failures, and one warning because the
+secretless package job does not install optional Kiro CLI. That mechanical
+smoke is distinct from the native model-authored repair above.
+
+Saved-file creation, `@name` expansion, and skill activation through saved
+requests remain unverified. The installed v3 `/prompts details` probe became
+an ordinary model request and was cancelled without tools or writes; the
+direct first-task skill invocation remains the verified path. No fresh IDE GUI
+repair or knowledge-retrieval campaign was run. Existing 0.4 compatibility
+limits and retained historical evidence below still apply.
 
 ## Previous publication: 0.4.1
 
