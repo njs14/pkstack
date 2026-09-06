@@ -1,19 +1,56 @@
 ---
 release: "0.4.1"
-status: candidate
+status: published
 version_authority: powers/pkstack/plugin.json
 ---
 
 # PKStack release status
 
-PKStack 0.4.1 is the current release candidate. It includes the measured
+**[PKStack v0.4.1](https://github.com/njs14/pkstack/releases/tag/v0.4.1) was
+published on September 6, 2026 at 14:27:18 UTC.** It includes the measured
 knowledge-link parsing improvement and corrects stale knowledge-runtime,
-IDE-evidence, and diagram guidance. Public interfaces and 0.4 compatibility
-limits are unchanged. See the [changelog](../CHANGELOG.md#041--2026-09-06).
+IDE-evidence, diagram, and release-tag guidance. Public interfaces and 0.4
+compatibility limits are unchanged. See the
+[changelog](../CHANGELOG.md#041--2026-09-06).
 
-Publication requires passing PR and exact-main CI, independent review, and the
-existing release workflow's verification of the unchanged main CI package.
-The candidate is not yet published. The current published release remains 0.4.0.
+[PR #46](https://github.com/njs14/pkstack/pull/46) merged the release preparation
+at `db80f37d5f5d5934076b53da449cf726eac09b39`; tag `v0.4.1` points to that commit.
+Independent reviewer `release_041_review` approved candidate
+`70e92d3675299550b6ea659a53137578cefcdc37` with no unresolved findings, and the
+merged tree was byte-identical. Both the
+[final PR CI](https://github.com/njs14/pkstack/actions/runs/34038811915) and
+[exact main CI](https://github.com/njs14/pkstack/actions/runs/34038973111) passed
+all 12 jobs. This review used a Codex reviewer; no new external Fable or Grok
+review is claimed.
+
+Local checks passed: 22 fast-contract tests, 4 release-metadata tests, and 13
+branding/walkthrough tests. The additional release-guide correction passed all
+12 branding tests. Reviewed setup refreshed only the three expected version
+files and their receipt hashes; the next setup preview reported zero changes.
+Doctor reported 84 passes, zero failures, and zero warnings. Feature and local
+knowledge validation passed. The reviewer checked all eight version mirrors,
+all 178 bootstrap hashes, the diagram delivery hashes, and changed local links.
+
+The [release workflow](https://github.com/njs14/pkstack/actions/runs/34039169146)
+passed verification and publication, promoting artifact `9991083814` from main
+run `34038973111`, attempt 1. Its artifact ZIP SHA-256 was
+`b940c00590dbd25fdb2ce4ad51913cfe35e136f3cdd0f9fd38c4fa7a310f8ee1`.
+The published 4,590,538-byte archive was downloaded and compared byte-for-byte
+with the verified CI package; its checksum file also matched. The archive
+SHA-256 is:
+
+```text
+5f09ffa3006b91acdde54824aafd9700871004efe938b009aa79638f42560fd8
+```
+
+The extracted-package consumer passed setup, idempotence, version checks,
+feature and local knowledge validation, and a fixed-verifier failure/repair/pass
+loop. Its doctor reported 78 passes, zero failures, and one warning because the
+secretless package job does not install optional Kiro CLI. The local pre-tag
+verification passed after correcting its output argument to a new path; the
+first invocation rejected an already-created output directory. The package
+bytes were unchanged. No new live Kiro retrieval campaign was run for this
+patch; the retained 0.4 compatibility evidence and limits below still apply.
 
 ## Previous publication: 0.4.0
 
@@ -53,7 +90,7 @@ failure/repair/pass loop. Its doctor summary reported 78 passes, zero failures,
 and one warning; this secretless package job does not install optional Kiro CLI.
 The original full repository doctor result below is a separate environment.
 
-## Evidence and compatibility
+### Retained 0.4 compatibility evidence
 
 - The [knowledge acceptance report](knowledge-foundation.md) records 953 passing
   Power tests, 222 repository Python tests, 17 Node tests, 84 doctor checks,
