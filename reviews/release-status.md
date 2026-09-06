@@ -7,10 +7,21 @@ version_authority: powers/pkstack/plugin.json
 # PKStack release status
 
 PKStack 0.4.2 is the current candidate for first-time installation and task
-guidance. Publication requires the documented command regressions, a fresh
-native CLI repair campaign, independent review, passing PR and exact-main CI,
-and verification of the existing release workflow's package. This candidate
-is not yet published; the current published version remains 0.4.1.
+guidance. The [fresh native CLI campaign](onboarding-042/README.md) passed:
+Kiro repaired the four-test fixture and reran the unchanged stored verifier in
+one ordinary v3 conversation, producing failure then pass on attempt 2 of 4.
+The independent reviewer approved that evidence. The campaign receipt retains
+the tested commit and hash-binds unchanged behavior across the subsequent
+saved-request documentation additions. Those additions document user ownership
+and the observed v3 prompt-management syntax limit; no saved-prompt shortcut
+or new IDE GUI campaign is claimed.
+
+Local checks passed: seven focused onboarding/release-metadata regressions
+(29.28 seconds), plus the earlier 22 fast-contract tests and setup fallback
+checks. The reviewer verified generated parity and all 178 receipt hashes.
+Final review and passing PR/exact-main CI remain required, followed by
+verification of the existing release workflow's package.
+This candidate is not yet published; the current published version remains 0.4.1.
 
 ## Previous publication: 0.4.1
 
