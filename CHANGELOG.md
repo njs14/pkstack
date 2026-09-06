@@ -4,6 +4,28 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.4.1] — 2026-09-06
+
+PKStack 0.4.1 improves local knowledge validation and corrects the current
+knowledge-runtime documentation. It preserves the 0.4 interfaces and runtime
+compatibility limits.
+
+- Reuses Markdown heading parsing within a validation call while preserving
+  fresh bounded reads and path checks for every link. Seven-sample benchmarks
+  reduced median time from 25.05 ms to 22.18 ms on the repository Wiki and from
+  3.151 s to 0.262 s on a synthetic shared-target fixture, with identical results.
+- Corrects README, compatibility, release, and architecture guidance: `okn` is
+  retired, validation is local, and bounded knowledge search uses Kiro ACP.
+  Historical provenance and the normal interactive Kiro workflow remain intact.
+- Aligns the documented IDE evidence and diagram status with the retained
+  bounded campaigns and refreshed artifacts.
+- Documents fresh-worktree setup, reviewed managed refresh, and verification;
+  removes duplicate ignore rules.
+
+Use the [0.4 upgrade guide](powers/pkstack/docs/upgrade-0.4.md) for a reviewed
+managed refresh. The [measurement evidence](reviews/evidence-led-improvements/README.md)
+distinguishes the synthetic benchmark from the smaller repository workload.
+
 ## [0.4.0] — 2026-09-06
 
 PKStack 0.4.0 adds native knowledge authoring and bounded Kiro retrieval.

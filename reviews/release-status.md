@@ -1,10 +1,21 @@
 ---
-release: "0.4.0"
-status: published
+release: "0.4.1"
+status: candidate
 version_authority: powers/pkstack/plugin.json
 ---
 
 # PKStack release status
+
+PKStack 0.4.1 is the current release candidate. It includes the measured
+knowledge-link parsing improvement and corrects stale knowledge-runtime,
+IDE-evidence, and diagram guidance. Public interfaces and 0.4 compatibility
+limits are unchanged. See the [changelog](../CHANGELOG.md#041--2026-09-06).
+
+Publication requires passing PR and exact-main CI, independent review, and the
+existing release workflow's verification of the unchanged main CI package.
+The candidate is not yet published. The current published release remains 0.4.0.
+
+## Previous publication: 0.4.0
 
 The knowledge foundation is merged through [PR #42](https://github.com/njs14/pkstack/pull/42)
 at `8439078f279f5980c1c5123c21223253d16393f0`. Its

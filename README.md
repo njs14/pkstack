@@ -20,7 +20,7 @@ feature contracts and project knowledge.
 - **Poteto / pstack:** engineering workflows, verification, and principles.
 - **HumanLayer:** visual explanations and bounded automation design.
 - **Matt Pocock:** instructions that agents can find and follow.
-- **Archify and OKF/okn:** diagrams and project knowledge.
+- **Archify and OKF:** diagrams and project knowledge.
 
 The [sources guide](powers/pkstack/docs/curated-skills.md) explains what we
 ported, what we changed for Kiro, and what we left out.

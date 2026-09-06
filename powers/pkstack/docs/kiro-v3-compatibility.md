@@ -24,7 +24,7 @@ workflow actually run. Those are deliberately separate claims.
 | IDE 1.x (`Kiro.app` 1.0.437) | Primary | Import the Power, bootstrap the project, select the workspace `pkstack` agent in the chat picker, and invoke the skills | Import/setup/discovery passed; September 5 Luna/Low campaigns then completed native Standard and Quick Spec planning, same-tab agent handoff, Spec-bound failure, implementation-only repair, and pass; tests and planning artifacts stayed unchanged | **First-class with bounded GUI workflows.** These were two four-test fixtures, not every Spec mode or the Agent Focus view. Agent Focus Mode remains experimental. |
 | Kiro Crew | Optional orchestrator | Open the trusted repository through Crew so its Kiro-backed session reads committed `.kiro`; keep one `/pkstack-verified-goal` loop in the Crew-owned session | Official Crew contract says it runs Kiro CLI over ACP and reads existing `.kiro` agents, skills, and steering; signed feed-current Sep. 3 Nightly passed `--version`, `--help`, and `doctor`; package assets avoid client-only argument substitution | **Compatibility required; orchestration optional.** The bounded smoke did not open a project or run PKStack. Crew's internal ACP transport does not make ACP PKStack's default entrypoint, and no Crew end-to-end goal campaign is claimed here. |
 | Kiro Web (GA) | Supported secondary surface | Start from a repository that already commits the bootstrapped `.kiro` and `.pkstack` assets; invoke `/pkstack-verified-goal` from the Web session's primary agent | Official Web support for project skills, agents, hooks, steering, and MCP plus static repository/path tests | **Supported by design, explicitly untested.** Web cannot select a project custom agent as primary, does not provide the local permission/approval surface, and still needs Python 3.11+ plus `uv` in its sandbox. |
-| External ACP client | Optional integration boundary | Client-owned `kiro-cli acp` integration | Kiro documents the protocol; PKStack does not launch or test it | Not a primary or default PKStack path. Crew's use of ACP is a product implementation detail, not authorization to substitute an external host. |
+| External ACP client | Optional integration boundary | Client-owned `kiro-cli acp` integration | An external host is not tested; PKStack's own bounded knowledge-search worker invokes Kiro ACP separately | Not a primary or default PKStack path. Crew's use of ACP is a product implementation detail, not authorization to substitute an external host. |
 
 The IDE and CLI wording above follows Kiro's current [one-harness,
 many-surfaces model](https://kiro.dev/docs/how-kiro-works/). The Web limitation
@@ -220,7 +220,7 @@ The two settings commands returned `true` and
 | Hooks | Standalone `.kiro/hooks/*.json`, `version: "v1"`, PascalCase triggers, command or agent actions | Static SessionStart orientation plus a disabled advisory Stop probe |
 | Permissions | Capability rules with `allow`, `ask`, and `deny`; the most restrictive result wins | Allow workspace reads, ask for Git/writes/projectctl commands, and deny destructive patterns |
 | Steering | `.kiro/steering/*.md` with `always`, `auto`, `fileMatch`, or `manual` inclusion | Three small always-on architecture/safety/prose invariants plus TypeScript guidance selected by `fileMatch` for `**/*.ts` and `**/*.tsx` |
-| Knowledge | `/knowledge` and the `knowledge` tool are experimental; local knowledge is enabled | Keep the source-controlled OKF Wiki authoritative, use the spec-linked feature map first, and delegate deeper validation/search to canonical `okn`; native knowledge may index the same files but does not replace them |
+| Knowledge | `/knowledge` and the `knowledge` tool are experimental; local knowledge is enabled | Keep the source-controlled OKF Wiki authoritative and use the spec-linked feature map first. `projectctl knowledge validate` checks metadata, Markdown links, and feature contracts locally; `knowledge search` retrieves bounded context through an isolated read-only Kiro ACP worker |
 | Goal | Native `/goal` is documented as a self-verifying loop with five iterations by default and configurable `--max` | Keep `/pkstack-verified-goal` separate and projectctl-backed; do not depend on native availability or claim this Mac exposes it without an interactive probe |
 
 Primary references:
@@ -460,16 +460,18 @@ verifier.
 
 ## ACP boundary
 
-The binary exposes an `acp` subcommand and ACP-oriented stream output, but
-PKStack does not invoke `kiro-cli acp` or require an external ACP host. ACP can
-remain an option for an external host; it is not the normal Power experience
-and is unnecessary for the current-session loop.
+Normal planning, implementation, and verification stay in the current Kiro
+session. Only `projectctl knowledge search` invokes `kiro-cli acp`, using an
+isolated read-only worker for bounded retrieval. That command requires the
+verified Kiro CLI runtime and the shipped Python ACP client. Local knowledge
+validation and the current-session goal loop require no ACP worker or external
+ACP host. See [knowledge usage](usage.md#use-project-knowledge) for runtime and
+evidence limits.
 
-Kiro Crew is the deliberate exception to treating all ACP observations as an
-external user path: Crew itself runs Kiro CLI over ACP and reads the existing
-`.kiro` configuration. PKStack is compatible with that optional Kiro product
-without turning ACP into its own launcher, runtime dependency, or default user
-instruction.
+Kiro Crew also runs Kiro CLI over ACP and reads the existing `.kiro`
+configuration. PKStack is compatible with that optional Kiro product; Crew's
+transport is separate from the bounded knowledge worker and does not change
+the default interactive entry path.
 
 The committed project `.kiro/skills/` tree is the portable skill authority;
 PKStack does not require a second copy under Crew's global data directory.
@@ -602,8 +604,11 @@ the portable completion predicate on every supported path.
   2.21.0 V3 probe for this build/account/session. Re-probe after Kiro updates;
   PKStack does not invoke or depend on it.
 - The IDE 1.0.437 native importer, setup, generated-agent selection, and
-  separate command approvals passed a bounded smoke. This snapshot does not
-  claim an IDE goal-repair or Spec/Quick Spec execution campaign.
+  separate command approvals passed a bounded smoke. The September 5 Standard
+  and Quick Spec campaigns also completed same-tab handoff, recorded failure,
+  implementation-only repair, and pass. These were two four-test fixtures,
+  not every Spec mode or the Agent Focus view; see the
+  [IDE campaign evidence](../../../reviews/friends-ide-validation.md).
 - Crew compatibility is required, but Crew is optional. The current signed Nightly passed a
   bounded command-surface/doctor smoke; no Crew project, Spec, skill, or end-to-end verified-goal
   campaign is claimed. Invoking that package may also rewrite bundled `.pyc` files and invalidate
@@ -622,7 +627,9 @@ the portable completion predicate on every supported path.
 - Kiro permissions reduce accidental authority but do not sandbox approved
   subprocesses.
 - External Fable and Grok review is advisory, not Kiro-native proof.
-- Knowledge is experimental and broad OKF behavior requires canonical `okn`.
+- Native Kiro knowledge remains experimental. PKStack's local metadata,
+  Markdown-link, and feature checks do not establish full OKF conformance;
+  bounded retrieval is separate and requires a supported Kiro runtime.
 
 ## Compatibility validation commands
 
