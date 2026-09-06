@@ -1,0 +1,22 @@
+{
+  "observed_at_epoch": 1788730236.4630358,
+  "source_snapshot": "v3, unchanged four updated managed files checked against original baseline",
+  "baseline_changed": [],
+  "baseline_added": [
+    ".kiro/specs/normalize-reference/design.md",
+    ".kiro/specs/normalize-reference/.config.kiro",
+    ".kiro/specs/normalize-reference/requirements.md",
+    ".kiro/specs/normalize-reference/tasks.md"
+  ],
+  "prior_final_hash_changes": [],
+  "approval_acknowledged": true,
+  "native_review_observed_complete": true,
+  "ui_observation": "Selected ide-spec via native Window menu; AX and screenshot now agree. Previously attempted approval text and response both visible. No re-submission performed.",
+  "approval_text": "I approve this implementation plan and choose the uniform message \"invalid reference\". Do not implement, run commands, or write any files, including Wiki knowledge. Keep any pending capture and next steps in the conversation only.",
+  "response_excerpt": "Your plan is approved and complete. The uniform error message is invalid reference; no implementation, commands, or files\u2014including Wiki knowledge\u2014were changed.",
+  "limits": [
+    "Observation time does not establish when the response first became available.",
+    "Existing lifecycle hooks notify-session-done and memory-distill remained visible; this does not claim no global hook activity.",
+    "Earlier premature settled recommendation and unexecuted task-wave limitations remain."
+  ]
+}

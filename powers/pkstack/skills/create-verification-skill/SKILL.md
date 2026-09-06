@@ -7,6 +7,11 @@ description: Design and prove a project-local verification workflow that exercis
 
 Treat the request text that activated this skill as the feature or system surface to verify.
 
+For any planning portion, read [`grilling`](../grilling/SKILL.md), reuse settled answers and
+open questions, and follow its native handoff and approved-plan capture checkpoint. In native
+Plan, keep the contract in conversation and defer all implementation, shell, MCP, file writes,
+prototypes, and validation until execution is permitted. An explicit no-write instruction prevails.
+
 After PKStack setup, use `.pkstack/bin/projectctl` as the controller. Interview the repository before
 writing anything and write down the complete harness contract:
 
@@ -24,10 +29,13 @@ If `.kiro/specs/<name>/` already contains a native Kiro requirements or bug anal
 tasks package, keep those artifacts as the planning authority. Derive user-observable feature
 coverage from their acceptance criteria without copying the whole task plan into the feature map.
 Search broader project intent with `.pkstack/bin/projectctl knowledge search` only when the spec and
-narrow map are insufficient; link durable architecture, decisions, concepts, and operations in the
+narrow map are insufficient and the active mode permits commands; link durable architecture, decisions, concepts, and operations in the
 Wiki rather than stuffing them into verifier prose.
 
 ## Encode and prove the contract
+
+Perform these writing and execution steps only within authorized implementation after native
+approval; a planning-only request describes the contract and proof plan without executing them.
 
 1. Aim for three to five user-meaningful features covering setup, a core success path, a failure or
    boundary path, and cleanup or persistence when applicable. A smaller surface may need only one;

@@ -161,7 +161,7 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
     assert set(fixture) == {"schema_version", "cases"}
     assert type(fixture["schema_version"]) is int and fixture["schema_version"] == 1
     cases = fixture["cases"]
-    assert isinstance(cases, list) and 1 <= len(cases) <= 36
+    assert isinstance(cases, list) and 1 <= len(cases) <= 48
     ids: set[str] = set()
     primary_routes: set[str] = set()
     for case in cases:
@@ -227,6 +227,21 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
         "react-live-null-state",
         "explicit-loop-no-effects",
         "lesson-with-polished-visual",
+        "explicit-grilling-method",
+        "interview-decision-only",
+        "domain-meaning-update",
+        "interview-and-retain-knowledge",
+        "native-plan-shared-method",
+        "native-plan-capture-pending",
+        "approved-plan-first-write",
+        "approved-plan-repeat",
+        "approved-plan-no-write",
+        "approved-plan-capture-denied",
+        "approved-plan-validation-failed",
+        "native-spec-shared-ownership",
+        "plan-handoff-without-interview",
+        "settled-constraint-mechanics",
+        "docs-interview-read-only",
     } <= ids
 
 
@@ -299,15 +314,23 @@ def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
         ("how", {"teach", "show-me"}),
         ("why", {"teach", "show-me"}),
         ("teach", {"how", "why", "show-me", "archify"}),
-        ("architect", {"arena", "design-control-loop"}),
-        ("arena", {"architect", "design-control-loop"}),
-        ("design-control-loop", {"architect", "arena", "build-iterated-agentic-loop"}),
-        ("build-iterated-agentic-loop", {"design-control-loop", "pkstack-verified-goal"}),
+        ("architect", {"arena", "design-control-loop", "grilling"}),
+        ("arena", {"architect", "design-control-loop", "grilling"}),
+        ("design-control-loop", {"architect", "arena", "build-iterated-agentic-loop", "grilling"}),
+        (
+            "build-iterated-agentic-loop",
+            {"design-control-loop", "pkstack-verified-goal", "grilling"},
+        ),
         ("pkstack-verified-goal", {"build-iterated-agentic-loop", "maintain-verification-skill"}),
         ("maintain-verification-skill", {"pkstack-verified-goal"}),
         ("recall", {"reflect", "okf"}),
         ("reflect", {"recall", "okf"}),
-        ("okf", {"recall", "reflect"}),
+        ("okf", {"recall", "reflect", "grilling"}),
+        ("grilling", {"pkstack", "okf", "domain-modeling", "grill-with-docs", "interrogate"}),
+        ("grill-me", {"grilling", "grill-with-docs"}),
+        ("grill-with-docs", {"grilling", "domain-modeling", "okf"}),
+        ("domain-modeling", {"grilling", "okf"}),
+        ("create-verification-skill", {"grilling"}),
         ("narrow-react-prop-types", {"typescript-best-practices"}),
         ("typescript-best-practices", {"narrow-react-prop-types"}),
     ],
@@ -525,6 +548,73 @@ def test_primary_router_documents_native_spec_entrypoints() -> None:
         assert command in text
     for document in ("requirements.md", "bugfix.md", "design.md", "tasks.md"):
         assert document in text
+
+
+def test_planning_interview_belongs_to_the_mode_the_user_selects() -> None:
+    router = " ".join((SKILLS / "pkstack/SKILL.md").read_text(encoding="utf-8").split())
+    method = " ".join((SKILLS / "grilling/SKILL.md").read_text(encoding="utf-8").split())
+    steering = " ".join((STEERING / "pkstack-core.md").read_text(encoding="utf-8").split())
+    profile = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))["prompt"]
+
+    # The router packages an inactive requested mode instead of interviewing in its place.
+    assert "Selecting the requested native planning mode is the user's action" in router
+    assert "list every remaining open choice as a question for native Plan to ask" in router
+    assert "do not offer to answer those questions here instead" in router
+    # The runnable CLI line must reach the always-on surfaces, not only the on-demand router skill.
+    for text in (router, steering, profile):
+        assert "/plan Read .kiro/skills/grilling/SKILL.md;" in text
+        assert "runnable line the user can send unchanged" in text
+        assert "do not leave the user to compose the prompt" in text
+        assert "paraphrase it into a request to switch modes" in text
+        # Scoped to conversational Plan, so a requested Spec route is never forced onto /plan.
+        assert "conversational Plan" in text or "conversational-Plan handoff" in text
+        assert "Spec, Quick Spec, or Bug Fix keeps its own `/spec` route" in text or (
+            "Spec, Quick Spec, or Bug Fix keeps its own /spec route" in text
+        )
+    # Returning to pkstack is Spec-backed; conversational Plan keeps Kiro's execution handoff.
+    for text in (router, steering, profile):
+        assert "approval-to-execution handoff" in text
+        assert "return to `pkstack` after Plan approval" in text or (
+            "return to pkstack after Plan approval" in text
+        )
+    assert "For Spec-backed execution, return with `/agent swap pkstack`" in router
+    # Derived mechanics travel as derived choices, not as constraints the sources fix.
+    for text in (router, profile):
+        assert "naming the requirement each satisfies, not as constraints the sources fix" in text
+    # No surface may claim the router selects the mode itself.
+    for text in (router, method, steering, profile):
+        assert "The mode that runs the plan runs the interview" in text
+        assert "select that mode before asking planning questions" not in text
+    assert "Return that handoff and stop" in method
+    assert "Entering the requested planning mode is the user's action here" in method
+    assert "stop for that selection instead of interviewing under pkstack" in profile
+    # Scoped to the router's own selection; Kiro keeps its approval and execution handoffs.
+    assert "Kiro's own approval and execution handoffs still move between its modes" in router
+    assert "Kiro's own approval and execution handoffs remain Kiro's to make" in method
+    assert "Kiro's own approval and execution handoffs are unaffected" in steering
+    assert "Kiro's own approval and execution handoffs are unaffected" in profile
+
+
+def test_shared_method_derives_settled_mechanics_instead_of_confirming_them() -> None:
+    method = (SKILLS / "grilling/SKILL.md").read_text(encoding="utf-8")
+    collapsed = " ".join(method.split())
+
+    assert "## Derive mechanics instead of asking" in method
+    assert "These are derived, not open." in collapsed
+    # Equivalent compliant implementations are chosen, never narrowed to one required algorithm.
+    assert "select a simple implementation that satisfies it and name the requirement" in collapsed
+    assert "Several implementations are usually equally compliant" in collapsed
+    assert "Guessing silently and asking for confirmation both fail here" in collapsed
+    # A settled answer is reopened by contradicting evidence, never by a determined detail.
+    assert "a detail the settled constraint already determines is not such a reason" in collapsed
+    # A real unknown stays open rather than being closed by an invented constraint.
+    assert "keep it an explicit open question instead of inventing a constraint" in collapsed
+    assert "Ask only where the allowed outcomes differ materially" in collapsed
+    assert "Equivalent ways of reaching the same allowed outcome are not that." in collapsed
+    # Capture keeps its place ahead of implementation in the plan's own ordered steps.
+    assert "this checkpoint is step one, ahead of the implementation and verification steps" in (
+        collapsed
+    )
 
 
 def test_okf_skill_uses_knowledge_commands_without_foreign_runtime_paths() -> None:

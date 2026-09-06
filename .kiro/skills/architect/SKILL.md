@@ -5,7 +5,11 @@ description: Design or revise a component through grounded architecture analysis
 
 # Architect a change
 
-Treat the request text that activated this skill as the architecture request.
+Treat the request text that activated this skill as the architecture request. Read
+[`grilling`](../grilling/SKILL.md) for the shared questioning method and native planning boundaries.
+Consume settled answers, constraints, rationale, and open questions; do not repeat the interview.
+In native Plan, keep all analysis and scaffolds in conversation, use permitted reading/search,
+and defer commands, MCP calls, prototypes, writes, and executable validation.
 
 After PKStack setup, `<runner>` means exactly `.pkstack/bin/projectctl`. Do not
 select an ambient `projectctl` or repository-owned `./projectctl`.
@@ -27,11 +31,21 @@ only for a distinct contested artifact, reusing the constraints and candidate ev
    If the request is already backed by `.kiro/specs/<name>/`, treat its requirements or bug
    analysis, design, and tasks as Kiro's planning authority. Challenge or refine that design in the
    native spec workflow; do not create a competing architecture plan inside this skill.
-2. Record the context depth and why it is needed. For an architecture decision, issue at most one
+   For unclear requirements, optionally use `/spec analyze_requirements <name>` once
+   `requirements.md` exists; reuse its findings. This is not available merely because a Bug Fix
+   has `bugfix.md`. `/spec view <name> requirements`, `design`, or `tasks` can display existing
+   native documents; viewing does not approve them.
+   For CLI orientation, `/code status` reports code-intelligence readiness and `/code overview`
+   may supply a workspace overview. Prefer native symbol/reference navigation when available.
+   `/code init` is an explicit setup action that can write `.kiro/settings/lsp.json` and start
+   language servers; never run it automatically to satisfy an investigation checkpoint.
+2. Record the context depth and why it is needed. When the active mode permits shell commands,
+   issue at most one
    targeted `<runner> knowledge search "<specific decision>" --budget 1200 --output json` when
    `<runner> knowledge status` reports Kiro retrieval available. Reconcile that KNOW result with
    `<runner> feature list` and `<runner> feature show <slug>`. Follow explicit related links;
-   never inject the whole Wiki.
+   never inject the whole Wiki. In native Plan, read the feature record and linked knowledge
+   directly and mark missing evidence instead of running these commands.
 3. Use `how` to trace the affected runtime. Use `why` when the proposal changes
    an existing ownership or layering decision. Mark inferred rationale.
 4. At each external-data boundary, find the repository's existing runtime
@@ -61,8 +75,11 @@ Every viable candidate must be an inspectable usage-first scaffold:
 
 The usage, types, signatures, module map, and rationale are one contract. If
 they disagree, reconcile the scaffold to the caller's experience before code.
-When a native spec exists, this output is an advisory delta against its `design.md`, not a second
-design package. Apply each accepted delta back to the native design before Kiro's tasks proceed.
+For design-only work, present this scaffold in conversation or the native Spec's permitted design
+surface; the word "write" above does not require a file. When a native Spec exists, this output is
+an advisory delta against its `design.md`, not a second design package. Apply accepted deltas
+inside that native workflow before its tasks proceed. An approved implementation plan follows the
+shared knowledge-capture checkpoint once writes are permitted.
 
 ## Run the architecture arena
 
@@ -106,7 +123,7 @@ action.
 
 ## Implement and verify
 
-When implementation is in scope:
+When implementation is authorized and the active workflow permits execution:
 
 1. Fill in the selected scaffold rather than silently redesigning it while
    coding. Record every signature, type, or module deviation and its reason.

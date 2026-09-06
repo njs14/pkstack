@@ -5,9 +5,12 @@ description: Resolve ambiguous project terminology and domain relationships agai
 
 # Domain modeling
 
-Use this skill when changing or clarifying the domain model. Merely reading an existing
-glossary does not require a modeling session. Read [`okf`](../okf/SKILL.md) for the shared
-knowledge lifecycle, bounded retrieval, and validation before writing project documents.
+Use this skill when changing or clarifying the domain model, including reusable definitions
+and decisions from an approved implementation plan. Merely reading an existing glossary does
+not require a modeling session. Read [`grilling`](../grilling/SKILL.md) for consequential
+questions and native planning boundaries; consume its settled context instead of restarting the
+interview. Read [`okf`](../okf/SKILL.md) for the shared knowledge lifecycle, bounded retrieval,
+and validation before writing project documents.
 
 ## Start with the current understanding
 
@@ -32,11 +35,16 @@ operational instructions remain in their native directories.
 
 ## Capture what changes
 
-When a definition settles, update the existing topic document promptly under the user's
-knowledge-authoring scope. For a new glossary use [`CONTEXT-FORMAT.md`](CONTEXT-FORMAT.md).
+When a definition settles, update the existing topic document under the user's knowledge-authoring
+scope or the approved-plan capture checkpoint, once the active workflow permits writes. In native
+Plan, keep candidate definitions and pending capture in the conversation; do not run shell commands,
+MCP calls, or validation, or write even temporary files. An explicit no-write instruction takes
+precedence. Reconcile existing entries before writing so repeated approval or helper composition
+does not duplicate knowledge. For a new glossary use [`CONTEXT-FORMAT.md`](CONTEXT-FORMAT.md).
 Keep implementation plans out of term definitions; link to their authoritative native specs.
-Draft interpretations, unverified hypotheses, and unfinished interview context belong in
-ignored `Wiki/work/<task>/` until useful findings can be retained with explicit status.
+When writes are permitted, optional draft interpretations and unfinished interview context may
+use ignored `Wiki/work/<task>/`; otherwise retain them in the conversation. Keep unverified
+hypotheses explicit when useful findings enter durable knowledge.
 
 Record accepted decisions and their rationale separately from verified observations,
 hypotheses, and open questions. A user accepting a design does not prove the code implements
@@ -48,7 +56,8 @@ For a changed definition or decision, update current guidance and mark the prior
 superseded with a replacement link. Retain useful rationale; do not leave contradictory
 statements looking equally current. Preserve unrelated edits and unknown metadata.
 
-Finish by checking the updated links and running the shared OKF validation. Report which
+After edits, check the updated links and run shared OKF validation when permitted. Denied writes
+or failed/deferred validation leave capture incomplete; report that state explicitly. Report which
 meanings changed, their supporting sources, and what remains unresolved. Knowledge maintenance
 does not authorize edits to skills, steering, `AGENTS.md`, permissions, or native verifier
 bindings. Hand accepted understanding to native Kiro planning through links and concise

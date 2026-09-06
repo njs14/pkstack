@@ -48,11 +48,19 @@ retrieval to Kiro through ACP; local validation does not call a model.
 
 ## Native planning handoff
 
-Kiro owns requirements or bug analysis, `design.md`, `tasks.md`, dependency
+Native Specs own requirements or bug analysis, `design.md`, `tasks.md`, dependency
 waves, and native task execution. In CLI v3, the user starts or resumes a
 native plan with `/spec new <name>` or `/spec <name>`, then explicitly swaps to
 `pkstack`. In the IDE, the user selects **Build with spec** or the workflow
 picker, then reselects `pkstack` in the same conversation.
+
+Conversational Plan uses `/plan <request>` in CLI or the IDE Plan picker. It
+keeps its plan in the conversation, without a required `tasks.md`. PKStack
+planning shares the `grilling` interview method and carries settled answers into
+the native workflow with an explicit request to read that skill. Plan remains
+read-only; knowledge capture stays pending until approval and permitted writes.
+The [planning guide](usage.md#plan-and-bind-work) describes that checkpoint,
+explicit no-write precedence, and the separate standalone interview scope.
 
 PKStack does not emulate those workflows from an Agent Skill or create a
 second task graph. `goal bind-spec` writes a small bridge to an executable

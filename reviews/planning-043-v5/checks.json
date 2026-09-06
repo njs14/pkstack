@@ -1,0 +1,54 @@
+{
+  "source_snapshot": "source-files-v5.json",
+  "source_base_commit": "88bbe15b3858b6347f35dd975a6ecd35ffcadd93",
+  "native_fixture_inputs": {
+    "README.md": {
+      "baseline": "dabfb31d165d2895dfd0fe9ab94427f6f45bb0a1e79504d2deba89613592826e",
+      "final": "dabfb31d165d2895dfd0fe9ab94427f6f45bb0a1e79504d2deba89613592826e"
+    },
+    "reference.py": {
+      "baseline": "f7ad4cadbcfb055210a865735779390606d24f944c2ee53e4bd41c6b97582556",
+      "final": "f7ad4cadbcfb055210a865735779390606d24f944c2ee53e4bd41c6b97582556"
+    },
+    "tests/test_reference.py": {
+      "baseline": "bae0c9a53c62d202e63ade7fffc017c7af5e9c8bed4f140f4bf9c35d2d03077f",
+      "final": "bae0c9a53c62d202e63ade7fffc017c7af5e9c8bed4f140f4bf9c35d2d03077f"
+    }
+  },
+  "fast_gate": {
+    "command": "uv run --frozen --project powers/pkstack python .github/scripts/pkstack_checks.py local fast --output <evidence>/fast-v5",
+    "exit_code": 0,
+    "result": "22 passed, 943 deselected",
+    "log_sha256": "a42285461b505ee6e87707db8c398363e30356dbb166efbcdb9126e02772d8c3",
+    "receipt_sha256": "da6f9d86142d084488b87175b75ea203deff359103667c0308ad17b8c9aa86b0"
+  },
+  "coordinator_focused_checks": {
+    "command": "uv run --frozen --project powers/pkstack python -m pytest powers/pkstack/tests/test_kiro_assets.py -q -k 'routing_review_fixture or planning_interview_belongs'",
+    "exit_code": 0,
+    "result": "2 passed, 122 deselected"
+  },
+  "author_checks": {
+    "attribution": "External Claude Code final result; no coordinator rerun of whole selection",
+    "result": "131 asset/Pocock tests passed; ruff check and format clean"
+  },
+  "managed_setup": {
+    "initial_preview_without_update_flag": "Expected guard reported four pending updates and wrote nothing.",
+    "reviewed_refresh_updated": [
+      ".kiro/skills/pkstack/SKILL.md",
+      ".kiro/skills/pkstack/references/workflows.md",
+      ".kiro/steering/pkstack-core.md",
+      ".kiro/agents/pkstack.json"
+    ],
+    "final_preview": {
+      "ok": true,
+      "created": [],
+      "updated": [],
+      "conflicts": [],
+      "pending_updates": [],
+      "stale_managed": []
+    }
+  },
+  "coordinator_delta": "Retained the previous forbidden agent-selected-Plan claim in the routing fixture alongside the new paraphrase prohibition. Final fixture size24530B under24576B cap; this differs from worker-patch-manifest after hash only for tests/fixtures/skill-routing.json. Final authoritative hashes are source-files-v5.json.",
+  "review_status": "APPROVED source and bounded native acceptance; independent-review.json",
+  "hosted_ci_status": "All 12 jobs passed on e4941073adf89a130e8ee268fb122c113cf8a409; hosted-ci-e494107.json"
+}

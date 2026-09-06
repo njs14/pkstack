@@ -5,9 +5,12 @@ description: Design a locally runnable, observable agent control loop with an ex
 
 # Design a control loop
 
-Treat the request text that activated this skill as the desired outcome. Inspect the repository
-before asking questions. Propose concrete options from existing commands, patterns, CI,
-and permissions; ask only when a choice would materially change the design.
+Treat the request text that activated this skill as the desired outcome. Read
+[`grilling`](../grilling/SKILL.md) for the shared questioning method and native planning boundaries.
+Use its settled answers and open questions to design this contract; do not restart the interview.
+Ground options in inspected commands, patterns, CI, and permissions. In native Plan, use permitted
+reading/search and keep the contract in conversation; defer shell, MCP, writes, prototypes, and
+validation. Apply the shared approved-plan capture checkpoint when writes become permitted.
 
 ## Required control vocabulary
 
@@ -45,8 +48,10 @@ Spec as the planning authority.
    promised restarts retain it. Invalid input is a failure even when nothing is eligible.
    Bind each increment to its pre-actuation selection and baseline; distinguish a verified
    increment from the global set point, which may require further increments.
-7. Make sensor, controller, and actuator independently runnable locally before adding CI.
-8. Record the agreed contract, then implement only if the user requested implementation.
+7. Specify how sensor, controller, and actuator will run and be proved independently locally
+   before adding CI; a design-only request does not run or build them.
+8. Record the agreed contract in conversation or an authorized native design artifact, then
+   implement only if the user requested implementation and execution is permitted.
 
 Do not manufacture separate components where they are genuinely fused. Do not introduce external
 model API keys, broad write access, floating dependencies, or an unbounded PR/comment loop. When

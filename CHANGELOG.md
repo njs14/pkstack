@@ -4,6 +4,25 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.4.3] — 2026-09-06
+
+The [native planning acceptance report](reviews/planning-043-v5/README.md)
+records the passing routing check, composed workflow evidence, and review limits.
+
+PKStack planning uses one shared grilling method inside native Kiro Plan and
+Specs. Existing interview commands remain available.
+
+- Reuses settled answers and grounds questions in available project facts.
+- Keeps Plan conversational and read-only, with native Specs owning their files.
+- Captures reusable definitions and decisions after an approved implementation
+  plan, once writes are permitted; explicit no-write requests take precedence.
+- Clarifies Power discovery, effective skill inventory, agent switching, native
+  Spec review, code-intelligence orientation, and model/effort selection.
+- Preserves native approvals, upstream skill provenance, and executable proof.
+
+Existing installations use the [reviewed managed refresh](powers/pkstack/docs/upgrade-0.4.md).
+Native acceptance and publication are separate gates recorded in the release status.
+
 ## [0.4.2] — 2026-09-06
 
 PKStack 0.4.2 makes the first installation and verified task explicit for Kiro

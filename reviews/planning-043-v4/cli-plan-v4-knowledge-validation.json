@@ -1,0 +1,81 @@
+{
+ "schema_version": 1,
+ "correction": "An earlier draft of this report attributed the pre-flight controller output to the native capture step. That was wrong and is corrected here: the three validation records below are distinct in time, actor and meaning.",
+ "preflight": {
+  "attribution": "Coordinator pre-flight validation of the fixture, run at 21:17:43 UTC, before the native CLI session launched and therefore before any capture.",
+  "documents": 3,
+  "ok": true,
+  "mode": "local",
+  "meaning": "Baseline health of the knowledge layer. It says nothing about the native run.",
+  "source": {
+   "local_path": "<task-root>/native-cli-v4-knowledge.json",
+   "sha256": "60b88fafc3651ca25a0ca9a3562accd2bc53ea3bbc486414771814f4851e1719"
+  },
+  "summary": {
+   "ok": true,
+   "mode": "local",
+   "layout": "durable-directory",
+   "documents": 3,
+   "local_links": 3,
+   "issues": []
+  },
+  "full_output": "Retained locally at the source path above; identical in shape to host_final_state.output."
+ },
+ "native_capture_validation": {
+  "attribution": "The native execution agent's own validation of the capture it had just written, before editing reference.py.",
+  "evidence": "Terminal recording only. The recording shows the command './projectctl knowledge validate --output json', a truncated JSON pane, and the agent's statement, all before the product edit. See cli-plan-v4-excerpts.json step 10.",
+  "agent_statement": "Knowledge validation passes (ok: true, mode: local, all links and metadata clean). Task 0 complete.",
+  "limits": [
+   "The recording truncates the controller output pane ('...+26 lines'), so the full native output is not retained anywhere.",
+   "The ok: true claim for this specific invocation rests on the agent's statement plus the visible truncated pane, not on a retained machine receipt.",
+   "This is the invocation whose timing matters; the other two records do not establish capture timing."
+  ]
+ },
+ "host_final_state": {
+  "attribution": "Independent coordinator host validation after the native session completed. It verifies the final captured state, not the timing or full output of the native pre-implementation command.",
+  "recorded_at": "2026-09-06T21:56:53.277773Z",
+  "command": ".pkstack/bin/projectctl knowledge validate --output json",
+  "exit_code": 0,
+  "documents": 4,
+  "local_links": 7,
+  "ok": true,
+  "meaning": "Four documents and seven local links validate cleanly, one more document than the pre-flight baseline: the captured topic is present and well-formed.",
+  "source": {
+   "local_path": "<task-root>/native-cli-v4-host-final-knowledge.json",
+   "sha256": "c929ed309b8017d24b5124522c338ee792a2d4d86803795a5b4dd79ad9f73d68"
+  },
+  "output": {
+   "feature_map": {
+    "errors": [],
+    "feature_count": 0,
+    "features": [],
+    "ok": true,
+    "warnings": []
+   },
+   "knowledge_root": "/private/var/folders/ns/6ms4sgcd3jbc071v7_b2j2640000gp/T/pkstack-external-fix-qc7osv8z/native-cli-v4/Wiki/knowledge",
+   "layout": "durable-directory",
+   "local_links": {
+    "documents": 4,
+    "issues": [],
+    "local_links": 7,
+    "ok": true
+   },
+   "metadata": {
+    "documents": 4,
+    "issues": [],
+    "ok": true
+   },
+   "mode": "local",
+   "ok": true,
+   "schemaVersion": "2"
+  }
+ },
+ "task_root": "/private/var/folders/ns/6ms4sgcd3jbc071v7_b2j2640000gp/T/pkstack-external-fix-qc7osv8z",
+ "path_note": "Local paths are written relative to task_root as <task-root>/…",
+ "unsupported_checks": [
+  "Full OKF conformance, graph, lifecycle, trust, and attestation semantics",
+  "External URL reachability and non-Markdown target fragments",
+  "Raw HTML IDs, footnotes, and renderer-plugin anchors are not recognized"
+ ],
+ "unsupported_checks_note": "Identical in both validations; listed once."
+}

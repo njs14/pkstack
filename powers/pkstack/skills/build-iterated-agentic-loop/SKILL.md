@@ -21,6 +21,11 @@ Creating a local workflow does not authorize enabling a schedule or publishing c
 Read `references/control-loop.md` relative to this installed skill directory before designing
 the loop, and `references/github-actions-profile.md` before changing GitHub Actions.
 
+For any planning portion, read [`grilling`](../grilling/SKILL.md), reuse settled answers and
+open questions, and follow its native handoff and approved-plan capture checkpoint. In native
+Plan, keep the contract in conversation and defer all implementation, shell, MCP, file writes,
+prototypes, and validation until execution is permitted. An explicit no-write instruction prevails.
+
 ## 1. Discover before designing
 
 Inspect the repository's instructions, package manager, validation commands, CI, existing skills,

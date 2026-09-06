@@ -1,0 +1,43 @@
+{
+ "schema_version": 1,
+ "source_fixture": "<task-root>/native-cli-v4",
+ "baseline_manifest_local_path": "<task-root>/native-cli-v4-baseline.json",
+ "baseline_manifest_sha256": "6c33da73c04d8acddf0408467d8475d891fd67077de09a767d06dcfc6de0cf4c",
+ "baseline_file_count": 186,
+ "identity_note": "The three input files are byte-identical to the planning-043 fixture inputs (README dabfb31d…, stub f7ad4cad…, tests bae0c9a5…), so v3 and v4 native runs faced the same contract.",
+ "files": [
+  {
+   "path": "README.md",
+   "baseline_sha256": "dabfb31d165d2895dfd0fe9ab94427f6f45bb0a1e79504d2deba89613592826e",
+   "final_sha256": "dabfb31d165d2895dfd0fe9ab94427f6f45bb0a1e79504d2deba89613592826e",
+   "matches_before_session_baseline": true,
+   "authoritative": true,
+   "text_note": "Byte-identical to the copy retained in reviews/planning-043/fixture-context.json; hash above binds it."
+  },
+  {
+   "path": "reference.py",
+   "baseline_sha256": "f7ad4cadbcfb055210a865735779390606d24f944c2ee53e4bd41c6b97582556",
+   "final_sha256": "21cba42eabea944884063a82702a4ef0e1d62511d2c56177a385871735cd159c",
+   "matches_before_session_baseline": false,
+   "authoritative": false,
+   "text": null,
+   "baseline_text": "def normalize_reference(value: str) -> str:\n    return value\n",
+   "final_text": "def normalize_reference(value: str) -> str:\n    s = value.strip()\n    if len(s) != 6 or not (s.isascii() and s.isalnum()):\n        raise ValueError(\"invalid reference\")\n    return s.upper()\n"
+  },
+  {
+   "path": "tests/test_reference.py",
+   "baseline_sha256": "bae0c9a53c62d202e63ade7fffc017c7af5e9c8bed4f140f4bf9c35d2d03077f",
+   "final_sha256": "bae0c9a53c62d202e63ade7fffc017c7af5e9c8bed4f140f4bf9c35d2d03077f",
+   "matches_before_session_baseline": true,
+   "authoritative": true,
+   "text_note": "Byte-identical to the copy retained in reviews/planning-043/fixture-context.json; hash above binds it."
+  }
+ ],
+ "ide_fixture": {
+  "path": "<task-root>/native-ide-v4",
+  "baseline_manifest_sha256": "583653e7052d313f825763d0386b8473ce92d5c844ddeb41711c74f064ba8188",
+  "baseline_file_count": 190,
+  "provenance": "Reuses the four Spec documents created by the v3 native IDE run (.kiro/specs/normalize-reference/{requirements,design,tasks}.md and .config.kiro); only the installed PKStack method was refreshed to v4. It is not a fresh all-v4 Spec creation.",
+  "same_three_inputs": true
+ }
+}

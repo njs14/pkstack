@@ -1,0 +1,26 @@
+{
+ "schema_version": 1,
+ "head_commit": "88bbe15b3858b6347f35dd975a6ecd35ffcadd93",
+ "run_url": "https://github.com/njs14/pkstack/actions/runs/34061930185",
+ "status": "completed",
+ "conclusion": "success",
+ "jobs_total": 12,
+ "jobs_successful": 12,
+ "job_conclusions": {
+  "classify": "success",
+  "policy": "success",
+  "fast": "success",
+  "package": "success",
+  "browser": "success",
+  "core (1)": "success",
+  "core (3)": "success",
+  "core (0)": "success",
+  "core (5)": "success",
+  "core (4)": "success",
+  "core (2)": "success",
+  "deterministic": "success"
+ },
+ "pull_request": "https://github.com/njs14/pkstack/pull/51",
+ "compaction": "Per-job URLs dropped; the full receipt with job URLs is local at <task-root>/hosted-ci-88bbe15.json, sha256 876b43af2123dd37e2da04c011f01d7938ae87055fdc52c265fe54db833ca6e3.",
+ "limitation": "A successful draft-PR run bound to 88bbe15. It does not establish native acceptance, merge, release or publication, and release-package steps are not part of it."
+}

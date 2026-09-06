@@ -1,0 +1,33 @@
+{
+  "fixture": "ide-spec",
+  "snapshot": "v3",
+  "native_directory": "/tmp/pkstack-planning-043-n6nwikes/ide-spec/.kiro/specs/normalize-reference",
+  "artifact_count": 4,
+  "files": [
+    {
+      "native_path": ".kiro/specs/normalize-reference/.config.kiro",
+      "retained_path": "ide-spec-native/.config.kiro",
+      "sha256": "1a370ccb9a6f981fad252ef8fc6d9af28bda3505b9d618407f956e58423fe7ea",
+      "bytes": 99
+    },
+    {
+      "native_path": ".kiro/specs/normalize-reference/design.md",
+      "retained_path": "ide-spec-native/design.md",
+      "sha256": "22de7c259a8e46504fda90eb215a16a8550bdcb82be21415553f739296181379",
+      "bytes": 3086
+    },
+    {
+      "native_path": ".kiro/specs/normalize-reference/requirements.md",
+      "retained_path": "ide-spec-native/requirements.md",
+      "sha256": "937aa0a3ec1194a05844cbcf1ee428d13407bfaf3133572f222a397ba441c7c7",
+      "bytes": 3126
+    },
+    {
+      "native_path": ".kiro/specs/normalize-reference/tasks.md",
+      "retained_path": "ide-spec-native/tasks.md",
+      "sha256": "64d7d316b26832af4dfe77161d79b0e3b983497c55338ce2fed009642a626cae",
+      "bytes": 3199
+    }
+  ],
+  "limitation": "Draft artifacts were accepted as file edits. Final native review and explicit plan approval acknowledgement were not established; the task graph was not executed."
+}

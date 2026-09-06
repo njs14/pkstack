@@ -211,6 +211,7 @@ The two settings commands returned `true` and
 
 | Capability | Current Kiro contract | PKStack use |
 | --- | --- | --- |
+| Plan | `/plan <request>` produces a conversational plan; native Plan cannot write files, execute commands, or use MCP tools | Use the shared grilling method with native reading and search, retain pending knowledge capture in the conversation, and stop after a plan-only request; no `tasks.md` or prototype execution is required |
 | Specs | Feature Spec, Bugfix Spec, Quick Spec, and parallel task execution span IDE, CLI, and Web; CLI exposes `/spec new <name>`, `/spec <name>`, and `/spec run <name>` | Use native requirements or bug analysis, design, tasks, and dependency waves as the planning spine; after a visible same-conversation return to `pkstack`, bind the native package to one published feature verifier rather than recreating a planner |
 | Agent Skills | Workspace `.kiro/skills/<name>/SKILL.md` and global `~/.kiro/skills/`; slash invocation accepts trailing request text across IDE, CLI, and Web | Materialize `/pkstack-verified-goal`, architecture, arena, swarm, maintenance, and advisory council workflows without CLI-only placeholder substitution; keep `/pkstack-setup` Power-local as an IDE/CLI bootstrap exception |
 | Powers | Agent Plugins layout with root `plugin.json`, optional `skills/`, `mcp.json`, and `dev.kiro/` | Package and distribute PKStack guidance and its Power-local setup shim |
@@ -230,6 +231,7 @@ Primary references:
 - [Experimental Agent Focus Mode](https://kiro.dev/docs/ide/experimental/focus-mode/)
 - [How Kiro works across surfaces](https://kiro.dev/docs/how-kiro-works/)
 - [Specs across Kiro surfaces](https://kiro.dev/docs/specs/) and [Quick Spec](https://kiro.dev/docs/specs/quick-spec/)
+- [Plan mode](https://kiro.dev/docs/specs/plan/) and [Analyze Requirements](https://kiro.dev/docs/specs/analyze-requirements/)
 - [Built-in Spec, Quick Spec, Bug Fix, and Plan agents](https://kiro.dev/docs/custom-agents/built-in/)
 - [Agent Skills](https://kiro.dev/docs/skills/)
 - [Powers](https://kiro.dev/docs/powers/) and [Create powers](https://kiro.dev/docs/powers/create/)
@@ -249,6 +251,16 @@ Primary references:
 ## Formats used by PKStack
 
 ### Power and skills
+
+CLI v3 detects IDE-installed Powers and exposes `/powers` to list them; see
+[Kiro's CLI Power guidance](https://kiro.dev/docs/powers/installation/#cli) and
+[slash-command reference](https://kiro.dev/docs/reference/slash-commands/#powers).
+On September 6, a `kiro-cli 2.21.1` local `--v3` session in a fresh directory
+listed PKStack through `/powers`, while `/pkstack-setup` was absent from slash
+completion. This confirms Power discovery, not a CLI installation or setup
+execution. The probe made no Power configuration changes and ran no setup skill.
+The [usage guide](usage.md#cli-powers-and-project-setup) separates Power
+registration from project setup.
 
 The root manifest uses Agent Plugins `plugin.json`. Skills are stored as
 `skills/<lowercase-hyphenated-name>/SKILL.md` with `name`, `description`, and
@@ -288,12 +300,53 @@ writes. Its deterministic repository discovery uses sorted root-relative paths
 and refreshes as an owned observation rather than a managed code upgrade.
 
 In CLI v3, Kiro can switch to the discovered PKStack primary agent in the
-current chat with `/agent swap pkstack`. In IDE 1.x, use the agent selector in
-chat or Agent Focus and choose the workspace `pkstack` profile. Its prompt,
-tools, and permissions apply beginning with the next message. Newly copied
-workspace skills or agents may require one fresh pre-goal chat for discovery.
+current chat with `/agent swap pkstack`. Use the bare `/agent` picker to inspect
+agents and `/config skills` under the selected agent to inspect effective skills.
+On September 6, the CLI 2.21.1 audit selected a newly added fixture agent without
+restarting, while `/agent list` was interpreted as an agent named `list`. Agent
+hot reload does not establish skill hot reload. In IDE 1.x, use the agent selector
+in chat or Agent Focus and choose the workspace `pkstack` profile. Its prompt,
+tools, and permissions apply beginning with the next message. If the agent is
+missing, check setup and the project root before retrying selection. If newly
+installed skills remain absent, use one fresh pre-goal chat in the same project.
 Once `/pkstack-verified-goal` is loaded, the implement/verify loop stays in that current
 Kiro agent session.
+
+### Planning and native command guidance
+
+All PKStack planning entry points use the shared `grilling` interview method.
+They pass settled answers and remaining questions into native Plan or Specs and
+explicitly direct that workflow to read the method. Kiro still owns planning
+phases, Spec artifacts, approvals, and execution. PKStack does not modify built-in
+agents or global settings to force inheritance.
+
+`/grilling`, `/grill-me`, and `/grill-with-docs` retain their names. The last
+requests knowledge capture during an interview when writes are permitted.
+Every explicitly approved implementation plan also captures reusable definitions
+and decisions through `domain-modeling` and `okf` at the first permitted write
+step. Read-only Plan retains pending capture in the conversation and defers
+commands, MCP, prototypes, and validation. Explicit no-write instructions take
+precedence, repeated approval reuses existing knowledge entries, and denied writes
+or failed validation leave capture incomplete. See the [planning guide](usage.md#plan-and-bind-work).
+
+The [September 6 CLI audit](../../../reviews/cli-native-command-audit/README.md)
+separates native execution evidence from menu recognition and documentation:
+
+- `/spec analyze_requirements <feature-name>` is an optional checkpoint when
+  `requirements.md` exists; reuse its findings. `/spec view <feature-name>
+  requirements`, `design`, or `tasks` opens the corresponding existing document.
+  The menu exposed both subcommands; analysis and viewing were not executed in
+  that audit. Analysis may update requirements; viewing establishes neither
+  approval nor verifier binding. A Bug Fix package with only `bugfix.md` does
+  not meet the analysis prerequisite.
+- `/code status` opened workspace/LSP status. `/code overview` was present in the
+  menu and is optional orientation. Keep `/code init` an explicit setup action
+  because it can write `.kiro/settings/lsp.json` and start language servers.
+  Native symbol/reference navigation can supplement source inspection when
+  available. `/code summary` and `/code logs` were not in this audited v3 menu.
+- `/model` and `/effort` were recognized native pickers; the audit changed no
+  selection. Choices depend on runtime, account, and model. PKStack adds no
+  model or effort default.
 
 ### Custom agents
 
@@ -310,6 +363,11 @@ profile explicitly declares:
 - capability-based permission rules;
 - `includeMcpJson: false` and `includePowers: false`; and
 - no hard-coded model, so the user's active model is inherited.
+
+`includePowers: false` disables automatic Power inclusion. It does not establish
+skill isolation: PKStack explicitly loads reviewed workspace skills, while Kiro
+can merge other skill scopes. Inspect `/config skills` under the active agent;
+see [configuration scopes](https://kiro.dev/docs/configuration/#resolving-conflicts).
 
 The primary profile has the write tool and a subagent allow-list limited to
 `pkstack-architect`, `pkstack-reviewer`, and `pkstack-verifier`. All three
@@ -618,11 +676,13 @@ the portable completion predicate on every supported path.
 - Full custom-Power upload through Configuration Sync is unsupported: custom
   cloud Powers are text-only and limited to 50 files, while PKStack exceeds
   that shape.
-- Power installation UX may remain Kiro UI-mediated even though this repository
-  is an Agent Plugins package.
-- Newly materialized skills or agents may need one explicit `--agent pkstack`
-  chat for discovery; the loaded goal loop itself does not start a replacement
-  session.
+- CLI `/powers` lists installed Powers. Current Kiro docs direct installation
+  through the IDE or manual Power configuration; no `/powers` install
+  subcommand or portable Power-skill slash namespace is documented.
+- Diagnose discovery with the bare `/agent` picker, same-conversation selection,
+  and `/config skills` first. Newly materialized skills may still need one
+  explicit `--agent pkstack` chat; agent hot reload alone does not prove otherwise.
+  The loaded goal loop itself does not start a replacement session.
 - Stop is advisory, not a continuation guarantee.
 - Kiro permissions reduce accidental authority but do not sandbox approved
   subprocesses.

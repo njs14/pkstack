@@ -1,0 +1,608 @@
+{
+  "schema_version": 1,
+  "title": "PKStack 0.4.3 shared-planning acceptance campaign",
+  "recorded_at": "2026-09-06T20:35:09.610757+00:00",
+  "status": "blocked",
+  "candidate_version": "0.4.3",
+  "release_status": "unreleased",
+  "git_base": "63e4e2c8a8029c40a2a522931e1feafa0c2e7b53",
+  "candidate_identity_note": "Native scenarios used the v1/v2/v3 source manifests from the originally dirty candidate. The v3 candidate and preliminary report were then committed as 5b3b5f94ba04997a0128e5900bb874b17f9b1178. Local gate receipts record the earlier base commit; the retained hosted CI run is bound to the new candidate commit. Later evidence-only commits are outside that stored run identity.",
+  "source_snapshots": [
+    {
+      "id": "v1",
+      "manifest": "source-files-v1.json",
+      "manifest_file_sha256": "0eb4164a0701a2a7dbc8e43cc0ccc3aee1652d91b91fcfbddfeb1c8c1291dcfa",
+      "manifest_json_sort_keys_sha256": "73c1cb3f7d065b94210b67421472b22668f27a24d06b146d69bb1683697bb262",
+      "canonicalization": "Python json.dumps(object, sort_keys=True), UTF-8, default separators, no trailing newline",
+      "file_count": 293,
+      "local_source_directory": "/tmp/pkstack-planning-043-n6nwikes/power",
+      "recorded_file_bytes_verified": true,
+      "mismatches": []
+    },
+    {
+      "id": "v2",
+      "manifest": "source-files-v2.json",
+      "manifest_file_sha256": "9ac519136c383ffdcc94aacf4043f924a0e0d9765cc4b5e439b06ca671c1b56a",
+      "manifest_json_sort_keys_sha256": "837a42c753492b140cccc12bafbac4525d7ad6309ddbd64cdaab27d263133f4c",
+      "canonicalization": "Python json.dumps(object, sort_keys=True), UTF-8, default separators, no trailing newline",
+      "file_count": 293,
+      "local_source_directory": "/tmp/pkstack-planning-043-n6nwikes/power-v2",
+      "recorded_file_bytes_verified": true,
+      "mismatches": []
+    },
+    {
+      "id": "v3",
+      "manifest": "source-files-v3.json",
+      "manifest_file_sha256": "7dc28b3473e0e934416a429517ead839def4742e12b01d471fb927c364006f5d",
+      "manifest_json_sort_keys_sha256": "afa9dbf64ebda53ffe26b8dbd8b77034b8d3da92e6a5c681ebd1841b5d7329b1",
+      "canonicalization": "Python json.dumps(object, sort_keys=True), UTF-8, default separators, no trailing newline",
+      "file_count": 293,
+      "local_source_directory": "/tmp/pkstack-planning-043-n6nwikes/power-v3",
+      "recorded_file_bytes_verified": true,
+      "mismatches": []
+    }
+  ],
+  "runtime": {
+    "cli": "kiro-cli 2.21.1",
+    "native_model_display": "Auto",
+    "resolved_model": "not established",
+    "ide": {
+      "version": "1.0.437",
+      "model": "GPT-5.6 Luna",
+      "effort": "Low",
+      "selection": "inherited by the native IDE session",
+      "observation_attribution": "supervising runner",
+      "session_id": null,
+      "session_id_limit": "Native IDE session identifiers were not captured."
+    },
+    "comparison_limit": "CLI Auto was unresolved while IDE used Luna/Low; the campaign does not isolate model selection from client or harness behavior."
+  },
+  "automated_checks": {
+    "full_gate": {
+      "snapshot": "v1",
+      "outcome": "passed-after-policy-rerun",
+      "pytest_tests": 963,
+      "collection_digest": "d9b597483e51fee1c9bdbe2fef2724db83d5c6d5036dbbea55a72428f49500ee",
+      "profile": "normal",
+      "lanes": [
+        {
+          "lane": "browser",
+          "outcome": "passed",
+          "tests": 5,
+          "exit_status": 0,
+          "duration_seconds": 17.62376091699116,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/browser.json",
+            "sha256": "0b39438cf91fa0de17d0bcd7749a801f71c96e993ed783bb07bf4ac675841865",
+            "bytes": 108908
+          }
+        },
+        {
+          "lane": "core-0",
+          "outcome": "passed",
+          "tests": 155,
+          "exit_status": 0,
+          "duration_seconds": 15.909601500025019,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/core-0.json",
+            "sha256": "2492e52e477df5f440ade5b286ac66f08d4aaff797fbd5c1faeedd80fab45736",
+            "bytes": 155192
+          }
+        },
+        {
+          "lane": "core-1",
+          "outcome": "passed",
+          "tests": 155,
+          "exit_status": 0,
+          "duration_seconds": 52.012535957968794,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/core-1.json",
+            "sha256": "48da40f4fee7fe04c82d77738290c5d4743fef16fd673294aa461ed51f237f8b",
+            "bytes": 155315
+          }
+        },
+        {
+          "lane": "core-2",
+          "outcome": "passed",
+          "tests": 151,
+          "exit_status": 0,
+          "duration_seconds": 15.474328875017818,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/core-2.json",
+            "sha256": "2ec9a7044f574efbe9781999be6874a5746358a1758460d618994c2b28fa8191",
+            "bytes": 154052
+          }
+        },
+        {
+          "lane": "core-3",
+          "outcome": "passed",
+          "tests": 151,
+          "exit_status": 0,
+          "duration_seconds": 19.589274499972817,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/core-3.json",
+            "sha256": "b9eab42f6eead7071002458714532566018321182e12daa1af7f826d8b09f518",
+            "bytes": 162412
+          }
+        },
+        {
+          "lane": "core-4",
+          "outcome": "passed",
+          "tests": 149,
+          "exit_status": 0,
+          "duration_seconds": 29.87711112498073,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/core-4.json",
+            "sha256": "0bc19dbf4849d38ff0af0ac0e7626831d4b5b900f0d53dc63c0323e7e3ddf0f0",
+            "bytes": 154122
+          }
+        },
+        {
+          "lane": "core-5",
+          "outcome": "passed",
+          "tests": 170,
+          "exit_status": 0,
+          "duration_seconds": 32.89150750002591,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/core-5.json",
+            "sha256": "f88da7854d7660d4706570a4a2347b877f69a0d8cf316cb9d8f6aedabb54d195",
+            "bytes": 160689
+          }
+        },
+        {
+          "lane": "fast",
+          "outcome": "passed",
+          "tests": 22,
+          "exit_status": 0,
+          "duration_seconds": 1.0321884999866597,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/fast.json",
+            "sha256": "538bae6caf90e720eba7d472e601273a82db94dfa7c2454a372a6785d1a24f7f",
+            "bytes": 113904
+          }
+        },
+        {
+          "lane": "package",
+          "outcome": "passed",
+          "tests": 5,
+          "exit_status": 0,
+          "duration_seconds": 27.305792500032112,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/package.json",
+            "sha256": "d0427846504999116215f38e2e9b67fb96be17710331d77caedfc5f78764fd87",
+            "bytes": 108850
+          }
+        },
+        {
+          "lane": "policy",
+          "outcome": "passed",
+          "tests": 0,
+          "exit_status": null,
+          "duration_seconds": 46.000797665969,
+          "receipt": {
+            "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/receipts/policy.json",
+            "sha256": "eeae78c3dd4e0f5347a50d8507fb749a8af9856c25825b94d0b32c36589a9f45",
+            "bytes": 423
+          }
+        }
+      ],
+      "summary": {
+        "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate/summary.json",
+        "sha256": "0a52822898a1fe7481f61e735f63dafa1da008a359c38aec29bfa380196243cb",
+        "bytes": 491
+      },
+      "initial_log": {
+        "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/full-gate.log",
+        "sha256": "55104d721124da1e1d952e737480fe476a70d7122acae631a913e535eb441a17",
+        "bytes": 4172
+      },
+      "policy_rerun_log": {
+        "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/policy-rerun.log",
+        "sha256": "b732c0fedaa1e1de791e207be85c1fb2ffedf03e905d813a5522d6c56a41e41d",
+        "bytes": 29249
+      },
+      "policy_initial_failure": "System Python 3.9 could not import pkstack_ci_package, which requires Python 3.11+.",
+      "policy_rerun": "Passed using powers/pkstack/.venv/bin/python3 selected through uv; 222 Python policy tests, 17 Node policy tests, actionlint, shellcheck, lock, lint, format, type, version, feature validation and knowledge validation checks.",
+      "limitation": "963 is the product pytest collection; policy tests are separate. This gate does not prove native planning acceptance or validate all subsequent v2/v3 changes.",
+      "recorded_policy_commands": [
+        "actionlint .github/workflows/pk-stack-ci.yml .github/workflows/pk-stack-kiro-credential-smoke.yml .github/workflows/pk-stack-kiro-permission-smoke.yml .github/workflows/pk-stack-kiro-runtime-canary.yml .github/workflows/pk-stack-release.yml .github/workflows/pk-stack-upstream-candidate.yml .github/workflows/pk-stack-upstream-maintenance-kiro.yml",
+        "shellcheck .github/scripts/prepare_kiro_maintenance_runtime.sh .github/scripts/run_kiro_maintenance_attempt.sh .github/scripts/verify_pkstack_attempt.sh",
+        "/Users/noahsutter/git-projects/pkstack/powers/pkstack/.venv/bin/python3 -B -m unittest discover -s .github/scripts -p test_*.py",
+        "node --test .github/scripts/test_pkstack_pr_policy.js",
+        "uv lock --check",
+        "uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py",
+        "uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py",
+        "uv run --frozen ty check",
+        "./.pkstack/bin/projectctl version --output json",
+        "./.pkstack/bin/projectctl feature validate --output json",
+        "./.pkstack/bin/projectctl knowledge validate --output json"
+      ]
+    },
+    "targeted_fast_lanes": [
+      {
+        "snapshot": "v2",
+        "outcome": "passed",
+        "executed_tests": 22,
+        "collected_tests": 963,
+        "deselected_tests": 941,
+        "receipt": {
+          "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/fast-v2/receipts/fast.json",
+          "sha256": "27ca6ec981a27a0cd27b4a184043c59f7c1e3a6228d08e8028f45f5544df5f4b",
+          "bytes": 113902
+        },
+        "log": {
+          "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/fast-v2.log",
+          "sha256": "fb2d68984e907f69b8e72f5a856f5f2f70f22ec84dd6103068a12e891ea3da19",
+          "bytes": 183
+        }
+      },
+      {
+        "snapshot": "v3",
+        "outcome": "passed",
+        "executed_tests": 22,
+        "collected_tests": 963,
+        "deselected_tests": 941,
+        "receipt": {
+          "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/fast-v3/receipts/fast.json",
+          "sha256": "9df9190ec3cf1efa81c9f642b41915d7bac3ef2be63a6eb22ac5742919aec321",
+          "bytes": 113905
+        },
+        "log": {
+          "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/fast-v3.log",
+          "sha256": "50f04771ad83c8abc2f9be0506d3035e664869af70033a61e74bfbcfd32d0dc0",
+          "bytes": 183
+        }
+      }
+    ],
+    "hosted_ci": {
+      "head_commit": "5b3b5f94ba04997a0128e5900bb874b17f9b1178",
+      "run_id": 34058001809,
+      "url": "https://github.com/njs14/pkstack/actions/runs/34058001809",
+      "status": "completed",
+      "conclusion": "success",
+      "successful_jobs": 12,
+      "total_jobs": 12,
+      "evidence": "hosted-ci-5b3b5f9.json",
+      "limitation": "This successful draft-PR run is bound to candidate commit 5b3b5f94. It does not establish a release or native acceptance; later CI runs have their own commit identities."
+    }
+  },
+  "native_cases": [
+    {
+      "id": "cli-plan-v1",
+      "snapshot": "v1",
+      "outcome": "failed",
+      "session_id": "sess_75a83b4f-82ee-4632-be7e-6e2261133345",
+      "findings": [
+        "The pkstack entry point interviewed without the requested native Plan handoff.",
+        "After explicit native /plan entry, the shared method was read but the settled ASCII constraint was reopened as an option."
+      ],
+      "file_observation": "cli-initial-findings.json reports no project changes before approval.",
+      "evidence": [
+        "cli-initial-findings.json",
+        "terminal-excerpts.json"
+      ]
+    },
+    {
+      "id": "cli-plan-v2",
+      "snapshot": "v2",
+      "outcome": "failed",
+      "session_id": "sess_b34da5bd-4414-4c8e-9184-09829df53983",
+      "passed_boundaries": [
+        "Native Plan read the shared method, asked only the open wording question, and made no project writes before approval."
+      ],
+      "findings": [
+        "After approval, execution wrote reference.py and ran the verifier before attempting approved-plan knowledge capture.",
+        "The capture attempt stopped at a Power lookup approval; no completed and validated knowledge capture is established."
+      ],
+      "evidence": [
+        "cli-plan-v2-before-approval.json",
+        "terminal-excerpts.json"
+      ]
+    },
+    {
+      "id": "cli-plan-v3-direct",
+      "snapshot": "v3",
+      "outcome": "failed",
+      "session_id": "sess_2c53fa65-100e-46a5-9a14-4bd0885d7e5b",
+      "findings": [
+        "Direct native Plan read the shared method and acknowledged that no consequential product questions remained, then asked to confirm settled normalization order and ASCII acceptance."
+      ],
+      "evidence": [
+        "terminal-excerpts.json",
+        "cli-plan-v3-planning-files.json"
+      ]
+    },
+    {
+      "id": "cli-plan-v3-pkstack",
+      "snapshot": "v3",
+      "outcome": "failed",
+      "session_id": "sess_23678c46-1131-4d63-bdd0-6cf48b95078d",
+      "findings": [
+        "The full pkstack route remained in the pkstack session instead of handing off to native Plan and asked whether to enforce the already settled ASCII rule."
+      ],
+      "file_observation": "The v3 fixture hash receipt reports no changed/deleted baseline files, no new files, unchanged product and unchanged Wiki.",
+      "evidence": [
+        "terminal-excerpts.json",
+        "cli-plan-v3-planning-files.json"
+      ]
+    },
+    {
+      "id": "cli-plan-v3-explicit-read-diagnostic",
+      "snapshot": "v3",
+      "outcome": "partial-diagnostic-failed-acceptance",
+      "session_id": "sess_23678c46-1131-4d63-bdd0-6cf48b95078d",
+      "passed_boundaries": [
+        "An explicit request to read the router and grilling instructions produced native /plan handoff context."
+      ],
+      "findings": [
+        "The final sentence still asked whether to use strict ASCII, although the same response labeled it a settled implementation mechanic."
+      ],
+      "limitations": [
+        "This was a same-conversation explicit-read diagnostic, not a passing automatic PKStack route."
+      ],
+      "evidence": [
+        "terminal-excerpts.json"
+      ]
+    },
+    {
+      "id": "cli-spec-v2",
+      "snapshot": "v2",
+      "outcome": "passed-bounded-planning",
+      "session_id": "sess_d3a35543-aae2-4091-a86e-712431159068",
+      "passed_boundaries": [
+        "Native requirements, requirements analysis, design, and task planning completed.",
+        "Requirements analysis reported no issues requiring changes.",
+        "The user selected Not now at the execution handoff.",
+        "Only native Spec documents and .config.kiro were added; baseline files, product and Wiki were unchanged."
+      ],
+      "limitations": [
+        "This is planning-only evidence, not implementation, verifier binding, approved-plan knowledge capture, or v3 acceptance.",
+        "Native /spec view reference-normalization displayed Tasks according to the supervising runner; document viewing does not establish approval or binding."
+      ],
+      "evidence": [
+        "terminal-excerpts.json",
+        "cli-spec-planning-files.json",
+        "cli-spec-artifact-hashes.json"
+      ]
+    },
+    {
+      "id": "ide-plan-v3",
+      "snapshot": "v3",
+      "outcome": "passed-after-native-fixture-repair",
+      "passed_boundaries": [
+        "The PKStack route loaded grilling and handed off to native Plan in the same conversation.",
+        "After the open wording decision was answered, Plan returned a decision-complete conversational plan without reopening settled questions or modifying files.",
+        "Neutral implementation approval triggered a durable knowledge decision and index update before product-code writes; local knowledge validation passed before implementation.",
+        "The native implementation was repaired after operator feedback about non-ASCII uppercasing, then the original three tests and the explicit Unicode regression probe passed.",
+        "Repeated approval created no new or changed Wiki files and retained exactly one decision document.",
+        "Final file comparison changed only reference.py and the knowledge index, added one decision document, and preserved existing tests.",
+        "Final doctor and local knowledge validation reported ok: true."
+      ],
+      "evidence": [
+        "ide-plan-before-approval.json",
+        "ide-plan-ax-excerpts.json",
+        "ide-plan-capture-before-code.json",
+        "ide-plan-knowledge-before-repeat.json",
+        "ide-plan-knowledge-after-repeat.json",
+        "ide-plan-final-files.json",
+        "ide-plan-v3-final-knowledge.json",
+        "final-checks.json"
+      ],
+      "ui_observation_attribution": "Bounded copied accessibility excerpts are retained; they are not a complete transcript.",
+      "fixture_issue": {
+        "stage": "Proposed implementation review",
+        "root_readonly_probe": "python3 -B; normalize_reference('ab12\u00df')",
+        "observed": "'ab12\u00df' -> 'AB12SS'",
+        "expected": "ValueError(\"invalid reference\") for non-ASCII input; the native Plan explicitly said not to transform non-ASCII letters",
+        "status": "Repaired by native Default after operator feedback; original tests and final Unicode regression probe pass"
+      },
+      "verification_commands": [
+        {
+          "command": "python3 -B -m unittest discover -s tests -v",
+          "output": "Ran 3 tests in 0.000s\nOK"
+        },
+        {
+          "command": "python3 -B - <<'PY'\nfrom reference import normalize_reference\n\ntry:\n    normalize_reference(\"ab12\u00df\")\nexcept ValueError as error:\n    assert str(error) == \"invalid reference\"\nelse:\n    raise AssertionError(\"non-ASCII input was accepted\")\n\nprint(\"regression probe passed\")\nPY",
+          "output": "regression probe passed"
+        }
+      ],
+      "limitations": [
+        "Operator feedback was required to repair the native implementation Unicode defect.",
+        "Earlier inline regression commands had NameError or quoting/SyntaxError failures before the final successful heredoc.",
+        "This is one bounded IDE Plan scenario, not universal method obedience or a passing CLI Plan route."
+      ],
+      "method_read_observation": "PKStack visibly loaded grilling before the native Plan switch. Native Plan continued in the same conversation with that loaded method/context; no separate native Plan tool read was visible."
+    },
+    {
+      "id": "ide-spec-v3",
+      "snapshot": "v3",
+      "outcome": "partial-blocked",
+      "passed_boundaries": [
+        "Native Quick Spec loaded the shared grilling method and produced exactly requirements.md, design.md, tasks.md, and .config.kiro.",
+        "No baseline product or Wiki files changed while the native planning artifacts were drafted.",
+        "The final file comparison found no changes after the four-artifact checkpoint."
+      ],
+      "findings": [
+        "The model called the uniform-message recommendation settled before a separate explicit user choice.",
+        "The operator accepted native file-edit batches; this was not explicit implementation-plan approval.",
+        "The attempted no-write approval cleared the UI input, but no submitted message or response was visible and acknowledgement could not be established."
+      ],
+      "approval_acknowledged": false,
+      "post_approval_no_write_verified": false,
+      "final_native_review_complete": false,
+      "ui_failure": "Screenshot retained an earlier skill-approval state while accessibility reported idle chat. Refresh and accessibility/menu/keyboard recovery did not establish acknowledgement; native UI work was stopped.",
+      "limitations": [
+        "The task draft puts validation and uppercasing tasks 1.1 and 1.2, both editing reference.py, in the same dependency wave. That graph was not executed or validated.",
+        "Unchanged files after an unacknowledged submission do not prove post-approval no-write behavior."
+      ],
+      "evidence": [
+        "ide-spec-before-no-write-approval.json",
+        "ide-spec-final-files.json",
+        "ide-spec-ax-excerpts.json",
+        "ide-spec-artifact-hashes.json"
+      ]
+    },
+    {
+      "id": "cli-interview-v3",
+      "snapshot": "v3",
+      "outcome": "passed-boundaries-only",
+      "session_id": "sess_8ebae902-c170-4914-b5b1-9c57a7702f3c",
+      "passed_boundaries": [
+        "Standalone /grill-me loaded the workspace shared method, settled the wording decision, and closed without starting native Plan, implementation, verification commands, or automatic knowledge capture.",
+        "The before/after inventory of 186 files had zero added, deleted, or modified paths."
+      ],
+      "limitations": [
+        "The first response asked audience and machine-distinction questions together, then stated that the latter depended on the former; this run does not establish strict dependency sequencing.",
+        "The interview described distinct messages as measurably reducing correction time without supplying measurement evidence; that wording is not adopted as a verified finding."
+      ],
+      "evidence": [
+        "cli-interview-v3-files.json",
+        "cli-interview-v3-final.json"
+      ]
+    }
+  ],
+  "not_established": [
+    "CLI Plan reliability on the final snapshot",
+    "Strict dependency sequencing throughout standalone interviews",
+    "Final native IDE Quick Spec review and acknowledged explicit plan approval",
+    "IDE Quick Spec post-approval no-write behavior on the final snapshot",
+    "Independent final release approval of an acceptance-passing candidate",
+    "Merged revision, tag, or published release"
+  ],
+  "audit_reference": "../cli-native-command-audit/README.md",
+  "raw_evidence": [
+    {
+      "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-plan.raw",
+      "sha256": "2e873022767e2fe65f1f89d91c294856119fd3bceb2931d8cffbcd26db2e4751",
+      "bytes": 148741,
+      "observed_at": "2026-09-06T20:02:09.150723+00:00",
+      "terminal_session_id": "sess_75a83b4f-82ee-4632-be7e-6e2261133345",
+      "session_end_marker_observed": true,
+      "hash_scope": "complete final recording after clean session exit"
+    },
+    {
+      "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-plan-v2.raw",
+      "sha256": "e893499736adabf80374d11b5d7c7bd84241c8901c7ed8ba3935df826c05170e",
+      "bytes": 400357,
+      "observed_at": "2026-09-06T20:02:09.150723+00:00",
+      "terminal_session_id": "sess_b34da5bd-4414-4c8e-9184-09829df53983",
+      "session_end_marker_observed": true,
+      "hash_scope": "complete final recording after clean session exit"
+    },
+    {
+      "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-plan-v3.raw",
+      "sha256": "1dfb501ec51c2420ce51cceec22b24e7d1db66aca638ee7f142fda98dd9f1e43",
+      "bytes": 55971,
+      "observed_at": "2026-09-06T20:02:09.150723+00:00",
+      "terminal_session_id": "sess_2c53fa65-100e-46a5-9a14-4bd0885d7e5b",
+      "session_end_marker_observed": true,
+      "hash_scope": "complete final recording after clean session exit"
+    },
+    {
+      "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-spec.raw",
+      "sha256": "8157666cb953886a8e34798123198e6c466d061683ca39cc41a85bf33e092702",
+      "bytes": 953226,
+      "observed_at": "2026-09-06T20:04:44.747288+00:00",
+      "terminal_session_id": "sess_d3a35543-aae2-4091-a86e-712431159068",
+      "session_end_marker_observed": true,
+      "hash_scope": "complete final recording after clean session exit"
+    },
+    {
+      "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-plan-v3-handoff.raw",
+      "sha256": "99a8c6aed72aa0111438cc26309ef64d74b0298bb83fd70455f5476043f0c056",
+      "bytes": 148863,
+      "observed_at": "2026-09-06T20:06:26.146507+00:00",
+      "terminal_session_id": "sess_23678c46-1131-4d63-bdd0-6cf48b95078d",
+      "session_end_marker_observed": true,
+      "hash_scope": "complete final recording after clean session exit"
+    },
+    {
+      "local_path": "/tmp/pkstack-planning-043-n6nwikes/evidence/cli-interview-v3.raw",
+      "sha256": "c8d4d87867d2175c883d8e444086e94b3b41379d398d83ce37d92c1a01b29870",
+      "bytes": 95542,
+      "observed_at": "2026-09-06T20:10:43.408912+00:00",
+      "terminal_session_id": "sess_8ebae902-c170-4914-b5b1-9c57a7702f3c",
+      "session_end_marker_observed": true,
+      "hash_scope": "complete final recording after clean session exit"
+    }
+  ],
+  "raw_evidence_retention": "Raw terminal recordings, complete gate receipts, and disposable workspaces remain under /tmp/pkstack-planning-043-n6nwikes and are local ephemeral evidence. Raw recordings are not committed. Retained excerpts are partial evidence; hashes identify the captured bytes. This campaign has stopped and no native session is awaiting completion in this report.",
+  "release_gate": "Blocked by observed CLI planning failures and incomplete IDE Quick Spec final-review/post-approval no-write acceptance. Automated test and hosted CI success do not override these results. Native UI work is stopped; this report is complete.",
+  "independent_diagnostic_review": {
+    "status": "no-source-repair-justified-by-review",
+    "attribution": "Supervising runner reported independent review found no stale-copy, schema, or naming defect that justified a source repair; native failures remain release blockers.",
+    "retained_review_artifact": null,
+    "limitation": "This is not approval of a passing release candidate."
+  },
+  "ide_retained_evidence": [
+    {
+      "path": "ide-plan-ax-excerpts.json",
+      "sha256": "feb428309d176c9e16a7abcedc87437f91512865e998c2490508825435265de4",
+      "bytes": 5194
+    },
+    {
+      "path": "ide-plan-before-approval.json",
+      "sha256": "602a52cd198c797b8a0bce6a0feebe0329cd6f6c3414067f3ecb33f80f88ce03",
+      "bytes": 114
+    },
+    {
+      "path": "ide-plan-capture-before-code.json",
+      "sha256": "d9a366855ada1e7176341ee0ccc89feb6342f6ea16ae3c8b0578d7389c4fc2e9",
+      "bytes": 285
+    },
+    {
+      "path": "ide-plan-final-files.json",
+      "sha256": "101e262f65149dfae5f9b521dd92984ba64e698fdd5d879c7911585a05839295",
+      "bytes": 914
+    },
+    {
+      "path": "ide-plan-knowledge-after-repeat.json",
+      "sha256": "e86eb36aab5c694752eacc1ece986934c98c56ca9824bc20fb2f7fe53ee777c0",
+      "bytes": 529
+    },
+    {
+      "path": "ide-plan-knowledge-before-repeat.json",
+      "sha256": "08e92cacea623c87f522cdd2309b91345113d148f6eacb85bf7bbcd5838b3d2c",
+      "bytes": 408
+    },
+    {
+      "path": "ide-plan-v3-final-knowledge.json",
+      "sha256": "6043aaea6132f2871ef9d620cb12c3a53cee66c8f88e06f106f1486e60d9461b",
+      "bytes": 732
+    },
+    {
+      "path": "ide-spec-artifact-hashes.json",
+      "sha256": "71871b74f07edcabf91ccb44b892296adbdc081f47c61a2c89851fc0e4e85f4b",
+      "bytes": 1325
+    },
+    {
+      "path": "ide-spec-ax-excerpts.json",
+      "sha256": "eee7325c18102af71b2c831f947b7b90b0c303922e3f0061dbb016b6b61ffa89",
+      "bytes": 2317
+    },
+    {
+      "path": "ide-spec-before-no-write-approval.json",
+      "sha256": "928f7f8ea208da8d170a331239280594b19789c8e449fec0fbdfc086165654ef",
+      "bytes": 1808
+    },
+    {
+      "path": "ide-spec-final-files.json",
+      "sha256": "0bcbab53d7a531ad7c83d37c2e3bfe955f2c8faa26118581fafec6905f5d906e",
+      "bytes": 1369
+    }
+  ],
+  "fixture_context": "fixture-context.json",
+  "final_checks": "final-checks.json",
+  "report_status": "complete",
+  "campaign_execution_status": "stopped",
+  "native_acceptance_status": "incomplete-blocked",
+  "candidate_commit": "5b3b5f94ba04997a0128e5900bb874b17f9b1178",
+  "pull_request": {
+    "number": 51,
+    "url": "https://github.com/njs14/pkstack/pull/51",
+    "observed_via": "supervising runner and retained hosted CI receipt",
+    "observed_head_commit": "5b3b5f94ba04997a0128e5900bb874b17f9b1178",
+    "state_at_recording": "draft"
+  },
+  "candidate_commit_role": "Implementation/source snapshot commit; later evidence-only commits may advance the draft PR head without changing the v3 Power bytes."
+}

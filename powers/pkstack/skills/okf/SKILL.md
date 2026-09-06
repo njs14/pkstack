@@ -13,7 +13,9 @@ or handing off knowledge. Do not create a competing `.okf/` tree.
 
 For retrieving prior context, use [`recall`](../recall/SKILL.md). For proposing lessons from
 completed work, use [`reflect`](../reflect/SKILL.md). This skill owns durable knowledge when
-capture or maintenance is requested; retrieval and reflection do not imply a write grant.
+capture or maintenance is requested, including the automatic capture checkpoint after an explicitly
+approved implementation plan entered through PKStack; retrieval and reflection alone do not imply
+a write grant. The lifecycle reference owns the checkpoint and repeat-approval behavior.
 Reuse their inspected sources and preserve the difference between history, inference, and proof.
 
 This skill owns workflow semantics only. `.pkstack/bin/projectctl knowledge validate` composes
@@ -22,6 +24,15 @@ model, or `okn`. Bounded retrieval uses an isolated read-only Kiro ACP worker th
 `projectctl knowledge search`. Do not copy or invoke an upstream validator, activate an upstream
 MCP server or hook, install dependencies, substitute another retrieval backend, or edit global
 Kiro `/knowledge` settings.
+
+## Active planning capabilities
+
+Read [`grilling`](../grilling/SKILL.md) for the shared questioning and native planning method.
+In native Plan's read-only analysis, use available file reading and search tools; do not invoke
+`projectctl`, shell commands, MCP calls, file writes, or validation. Keep pending knowledge in the
+conversation and name missing evidence. All command and writing steps below apply only when the
+active mode permits them, under normal Kiro permissions. Explicit no-write instructions take
+precedence. A planning handoff or approval does not silently expand those capabilities.
 
 ## Trust boundary
 
@@ -41,7 +52,7 @@ the user's task and keep external, paid, public, or destructive effects separate
 2. For implementation, verification, repair, or explanation, inspect the matching feature record
    and follow its explicit related links first.
 3. Only when that packet cannot answer a concrete architecture, decision, concept, or operations
-   question, record the escalation reason and issue one targeted command:
+   question, record the escalation reason and, when shell use is permitted, issue one targeted command:
 
    ```text
    .pkstack/bin/projectctl knowledge search "<specific question>" --budget 1200 --output json
@@ -58,8 +69,9 @@ The command's automatic selection does not report its resolved model.
 `knowledge status` reports the supported Kiro runtime's availability. A missing or unsupported
 runtime or model fails explicitly; do not silently change the backend or model.
 
-For native Kiro planning, retrieve only the KNOW context needed to shape requirements or design,
-then return the accepted result to Kiro's native spec artifacts. PKStack does not create a second
+For native Kiro planning, read only the KNOW context needed to shape requirements or design.
+Return accepted context to the existing native workflow: Plan keeps it in the conversation, while
+Specs retain their authoritative artifacts. PKStack does not create a second
 requirements, design, tasks, or dependency graph.
 
 ## Produce
@@ -91,11 +103,13 @@ requirements, design, tasks, or dependency graph.
 4. Preserve unknown metadata. Never apply an unreviewed bulk migration or write through a symlink.
 5. Update indexes and the optional log in the same change, then validate.
 
-Before native planning handoff and task completion, reconcile the understanding changed by the
-authorized work: definitions, decisions, uncertainties, and evidence links. State when none changed.
-This maintenance is part of an authorized implementation or document-producing workflow; a request
-only to recall, review, or explain does not imply a write. It is not a synchronization operation,
-another acceptance gate, or authority to edit skills, steering, or native goal bindings.
+After every explicitly approved implementation plan, and at completion of authorized implementation
+or document work, reconcile reusable definitions, decisions, uncertainties, and evidence links
+using [the lifecycle checkpoint](references/document-lifecycle.md). Before approval, a planning
+handoff carries candidate understanding in conversation unless knowledge authoring was explicitly
+requested. State when no reusable understanding changed. A request only to recall, review, explain,
+or conduct a standalone decision interview does not imply a write. Capture is not another native
+approval gate or authority to edit skills, steering, or goal bindings.
 
 ## Consume
 
@@ -113,7 +127,8 @@ that person actually performed it.
 
 ## Deterministic completion
 
-Run the combined local check after any knowledge change:
+After a knowledge change, run the combined local check when shell use is permitted. Until then
+report the written knowledge as unvalidated and capture as incomplete; do not claim success:
 
 ```text
 .pkstack/bin/projectctl knowledge validate --output json

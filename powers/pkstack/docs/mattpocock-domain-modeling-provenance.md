@@ -10,6 +10,8 @@ license notice is retained in [`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.
 
 Preserves glossary challenges, precise language, concrete scenarios, code cross-checks, immediate capture of settled terms, and selective ADRs. Moves new project knowledge to Wiki/knowledge/<topic>/ with OKF, reuses existing legacy topic documents pending migration, and distinguishes desired decisions from verified behavior. Native skills, operational instructions, and Kiro specs keep their existing ownership.
 
+Modeling consumes settled interview context and supports reusable definitions and decisions from approved implementation plans. Native Plan defers writes and validation, while permitted capture updates existing entries idempotently and retains incomplete status after denial or failed validation.
+
 The upstream `agents/openai.yaml` is recorded but not shipped. No upstream installer,
 agent configuration, hooks, or runtime is activated. Local skills remain native assets;
 only their project-specific knowledge output belongs in Wiki. The exact shipped bytes

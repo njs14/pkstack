@@ -1,0 +1,34 @@
+{
+  "worker-patch-manifest.json": {
+    "sha256": "9866e6f47ef426046786e75e22e99b368f4ceac3df44268f7473852a43667389",
+    "bytes": 3241
+  },
+  "independent-review.json": {
+    "sha256": "b7d9bcf87c0e854f1af3c48d9d6a458eb4307357a108f956035a9034b5635745",
+    "bytes": 5485
+  },
+  "router-result.json": {
+    "sha256": "315546a417ee64198641974ed4fef9ba4888c0d210ceb9625503a9b168000805",
+    "bytes": 3334
+  },
+  "checks.json": {
+    "sha256": "e9f8a5dda1b39e24c58d52a97c4f7c6cd84081d49cca76ab6c78e2c0681e2489",
+    "bytes": 2678
+  },
+  "README.md": {
+    "sha256": "b6f1b1ad2335725697c06211c6f37bb836523064ad7b595348c6592de46b23d7",
+    "bytes": 4020
+  },
+  "router-transcript.txt": {
+    "sha256": "5213a2b61ddcd34a4e35b03d1f7874eb05c241d31f2987a2c06659178f198d30",
+    "bytes": 4173
+  },
+  "source-files-v5.json": {
+    "sha256": "5e54a38ca66d12387cc5af9d4547800d25b24a0864113029fec897969569eff5",
+    "bytes": 33122
+  },
+  "hosted-ci-e494107.json": {
+    "sha256": "0157ace6906db3ee48259ed82154080c3ff4ba5f68d798a348c1681828d6d1eb",
+    "bytes": 2463
+  }
+}
