@@ -1,7 +1,7 @@
 {
   "baseline_commit": "9c57301c9d7c1be5a6b32a66001f4325ee379a49",
   "candidate_commit": "8889057c351e823bc952946b28fe441caafa8f2d",
-  "python": "3.9.6",
+  "python": "3.12.14",
   "platform": "Darwin arm64",
   "warmups_per_fixture": 1,
   "before": {
