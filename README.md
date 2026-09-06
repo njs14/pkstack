@@ -1,31 +1,33 @@
 # PKStack & friends
 
 <p align="center">
-  <img src="powers/pkstack/assets/banner.png" alt="PKStack: From plan to proof. A scholarly potato ghost with an OKF knowledge tree in the background." width="600">
+  <img src="powers/pkstack/assets/logo.png" alt="PKStack: Kiro and three ghost friends above an open book, framed by an OKF knowledge tree. Kiro wears a graduation cap." width="360">
 </p>
 
-PKStack helps Kiro finish development tasks with a repeatable check: record what
-fails, repair the code, and keep the passing result. It also keeps project
-instructions and decisions in the repository for later sessions.
+Engineering workflows, repeatable checks, and project knowledge for Kiro.
 
-## What you get
+PKStack brings Poteto's pstack workflows and a curated set of development skills
+to Kiro CLI and IDE. Investigate a codebase, compare designs, implement a change,
+review it, and keep the decisions for the next task. A project-local command
+runner records the checks you ran and their results.
 
-- **Plan with Kiro.** Keep native Specs, Quick Specs, your selected model, and effort.
-- **Check the result.** A local `projectctl` command stores the verification command
-  and its failed and passing attempts, so completion has evidence you can inspect.
-- **Reuse what you learned.** A source-controlled Wiki keeps executable feature
-  records and project knowledge available to future sessions.
+Install PKStack as a Kiro Power and work through the workspace `pkstack` agent.
+Kiro handles the conversation, native Specs, model selection, tools, and approvals.
+PKStack adds the workflows, verification records, and repository Wiki.
 
-![Kiro plans and executes; PKStack guides the work; projectctl checks the result.](powers/pkstack/docs/artifacts/pkstack-architecture.png)
+[Quick start](#quick-start) · [Why PKStack](#why-pkstack) ·
+[Capabilities](#what-pkstack-does) · [How it works](#how-it-works) ·
+[Sources](#sources-and-friends) · [Docs](#docs-and-contributing)
 
-## Install
+## Quick start
 
-You need Kiro IDE or Kiro CLI v3, `uv`, a `python3` launcher, and access to this
-private repository. The controller requires Python 3.11+; the launcher also works
-with the tested macOS Python 3.9 path through `uv`. Initial runtime setup can download
-Python and dependencies. See the guide below for prerequisites and preview scope.
+You need Kiro CLI with v3 support or Kiro IDE, installed and signed in;
+[`uv`](https://docs.astral.sh/uv/) on your `PATH`; and a `python3` launcher.
+The controller runs on Python 3.11+. The installer also supports the tested
+macOS Python 3.9 launcher through `uv`, so you can keep the system Python.
+First use may download Python and dependencies.
 
-Clone the source and save the installer path in this terminal:
+Clone this private repository and save the Power path:
 
 ```sh
 git clone https://github.com/njs14/pkstack.git
@@ -33,34 +35,175 @@ cd pkstack
 export PKSTACK_POWER="$PWD/powers/pkstack"
 ```
 
-The **source** contains the installer. Your **target project** is the application
-you want Kiro to work on; setup adds workspace assets there.
+Keep this terminal open. `PKSTACK_POWER` points to the installer; the target
+project is the application you want Kiro to work on. Choose the CLI or IDE
+path below.
 
-| Surface | Setup path |
+### Kiro CLI
+
+Replace the example path with your application's root directory, then preview
+what setup will add:
+
+```sh
+cd "/absolute/path/to/your/project"
+export PKSTACK_PROJECT="$PWD"
+python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
+  --root "$PKSTACK_PROJECT" --dry-run --output json
+```
+
+Confirm the target path and listed files. The preview leaves managed target
+files unchanged, though preparing the runtime can populate caches or download
+dependencies. If setup reports conflicts, inspect those files before continuing.
+
+Apply the installation and check it:
+
+```sh
+python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
+  --root "$PKSTACK_PROJECT" --output json
+.pkstack/bin/projectctl version --output json
+.pkstack/bin/projectctl doctor --output json
+.pkstack/bin/projectctl knowledge validate --output json
+```
+
+When the checks pass, start Kiro from the target project:
+
+```sh
+kiro-cli chat --v3 --agent pkstack
+```
+
+Send `/pkstack <task>` with the work you want done. You can also invoke a specific
+skill from the [capability table](#what-pkstack-does).
+
+### Kiro IDE
+
+1. Open **Powers → Add Custom Power → Import power from a folder**. Select
+   `powers/pkstack/` inside the checkout, which contains `plugin.json`, and
+   choose **Install**.
+2. Open your target application in Kiro and run `/pkstack-setup` in chat or an
+   Agent Focus session.
+3. Review the preview, approve the intended changes, and resolve any failed
+   installation checks.
+4. Select the workspace `pkstack` agent and send `/pkstack <task>`. If the new
+   agent is absent, open a fresh chat in the same project.
+
+For a first run, [try the included failing task](powers/pkstack/docs/first-task.md) in a
+disposable project. Kiro repairs an account-ID function while its four tests
+stay unchanged. You can inspect the failed attempt, the repair, and the stored
+passing result.
+
+The [installation guide](powers/pkstack/docs/usage.md) covers source selection, agent
+attachment, offline prerequisites, and troubleshooting. Existing installations
+use the [managed refresh guide](powers/pkstack/docs/upgrade-0.4.md).
+
+## Why PKStack
+
+Development work leaves more than a code diff: a test command, an explanation
+of the failure, a design choice, and a few things the next person needs to know.
+PKStack gives those details a place in the project. The task's check and attempt
+history stay together. Reusable behavior checks live in feature records.
+Decisions and domain knowledge live in Markdown that you can review with the
+code.
+
+You keep Kiro's native planning, selected model, effort, and permission controls.
+Use a single helper for a small question or connect a native Spec to a stored
+check for a larger change.
+
+## What PKStack does
+
+| Capability | What you can do |
 | --- | --- |
-| Kiro CLI | Use the terminal setup script from the saved Power source, preview and apply it to your target project, then launch `kiro-cli chat --v3 --agent pkstack` there. No IDE import is required. |
-| Kiro IDE | Choose **Powers → Add Custom Power → Import power from a folder**, select the Power folder and choose **Install**, open your target project, and run `/pkstack-setup`. Review its preview, then select the workspace `pkstack` agent. |
+| Plan and implement | `/pkstack` routes the task through investigation, native planning, implementation, verification, and review. Link a Spec or Quick Spec to the command that checks the result. |
+| Verify a repair | Work against one stored command with `/pkstack-verified-goal`. Set an attempt limit and inspect the failed and passing output. |
+| Build reusable checks | Give a feature an executable check and a recipe for driving its real CLI, UI, or service with `create-verification-skill`. Audit it later with `maintain-verification-skill`. |
+| Compare designs | Sketch API and module alternatives with `architect`, compare candidates with `arena`, and trace the effects of a change with `blast-radius`. |
+| Investigate and teach | Trace behavior with `how`, recover design rationale with `why`, or work through both with `teach`. Ground the explanation in code and available evidence. |
+| Review in parallel | Split investigations with `swarm` and reconcile independent reviews with `pkstack-model-council`. The shipped delegated profiles inspect and report; the primary agent makes edits. |
+| Retain project knowledge | Maintain topic documents, decisions, and references with `/okf`. Retrieve relevant context for later work with `recall`. |
+| Work through decisions | `grill-with-docs` combines a design interview, domain modeling, and knowledge capture. Settle terms and decisions while keeping open questions visible. |
+| Explain visually | Ask `show-me` for call trees, pseudocode, and visual explanations. `archify` produces interactive architecture, sequence, workflow, and lifecycle diagrams; it needs Node.js 18+. |
+| Write documentation | Draft and edit human-facing prose with `technical-writing` and `unslop`. Use `writing-for-agents` for instructions an agent will consume. |
+| Build an automation | Define the measurements, actions, attempt limits, and failure handling with `design-control-loop`, then implement the agreed design with `build-iterated-agentic-loop`. |
 
-Follow the [complete CLI and IDE setup guide](powers/pkstack/docs/usage.md) for the
-commands and checks. Once installed, use `/pkstack <task>`.
+For example, ask `/how Trace this request from the API handler to storage`, or
+`/grill-with-docs Help define what suspended and closed mean in this account model`.
+The [skill catalog](powers/pkstack/docs/curated-skills.md)
+explains which helpers to combine and what each one contributes.
 
-## See it work
+## How it works
 
-[Try one failing task](powers/pkstack/docs/first-task.md) in a disposable project. Kiro
-repairs an account-ID function while its four tests stay unchanged. You inspect
-a recorded failure followed by a pass. The guide works with CLI or IDE.
+![Kiro plans and executes; PKStack guides the work; projectctl checks the result.](powers/pkstack/docs/artifacts/pkstack-architecture.png)
 
-For larger work, [see how planning and verification fit together](powers/pkstack/docs/architecture.md).
-CLI v3 and IDE are primary; Crew is optional and Web is untested.
-[Validation and release status](reviews/release-status.md) records the exact tested scope.
+Kiro runs the agent session. PKStack's skills tell it how to approach a task,
+when to seek independent review, and what evidence to collect. The local
+`.pkstack/bin/projectctl` command handles installation checks, feature records,
+goal state, and verification results.
 
-## Sources
+For a verified goal, you choose a command that checks the behavior you need.
+The controller stores that command and an attempt limit. Kiro inspects a failed
+result, changes the implementation, and reruns the stored command. A passing
+exit code completes that goal; exhausting the attempts leaves the work unfinished.
 
-Poteto's pstack supplies engineering workflows, verification, and principles.
-HumanLayer adds visual explanations and bounded automation design; Matt Pocock
-adds agent-facing writing. Archify supplies diagrams and OKF organizes project
-knowledge. The [sources guide](powers/pkstack/docs/curated-skills.md) explains the ports,
-changes, and omissions.
+The default layout for a project with a new Wiki is:
 
-[Maintenance](powers/pkstack/docs/upstream-control-loop.md) is separate from installation.
-Apache-2.0. [Third-party notices](powers/pkstack/THIRD_PARTY_NOTICES.md).
+```text
+.kiro/             Agent profiles, skills, hooks, and steering
+.pkstack/          Local controller, installation receipt, and task state
+Wiki/features/     Reusable behavior contracts and executable checks
+Wiki/knowledge/    Project topics, definitions, decisions, and references
+```
+
+Native Specs stay in Kiro's own files. Knowledge searches use a bounded,
+read-only Kiro worker to retrieve relevant source material; local knowledge
+validation checks metadata and links without a model. The
+[architecture guide](powers/pkstack/docs/architecture.md) explains the process and ownership
+boundaries.
+
+Saved prompts can hold recurring requests you choose to submit. Keep them
+user-owned and refer to the appropriate skill. See the
+[saved-prompt guidance](powers/pkstack/docs/usage.md#save-a-recurring-request-in-kiro) for the
+observed CLI syntax limits and what remains unverified.
+
+## Control and compatibility
+
+The workspace profile asks before ordinary writes and controller commands.
+Setup records the files it manages and reports conflicts during upgrades.
+The command runner limits execution time and captured output; review the
+verification command before approving it because it runs with your local access.
+
+Kiro CLI v3 and Kiro IDE are the primary surfaces. Kiro Crew is optional;
+Kiro Web is untested. The [validation and release status](reviews/release-status.md)
+records the specific CLI, IDE, platform, and retrieval paths that have been
+exercised. Setup checks establish installation health; the failing-task guide
+shows how to verify a repair.
+
+## Sources and friends
+
+PKStack started with Poteto's pstack. The additional skills have specific jobs:
+
+| Source | What it contributes |
+| --- | --- |
+| [Poteto's pstack](https://github.com/cursor/plugins/tree/main/pstack) | Engineering workflows, architecture, investigation, review, verification, and development principles. |
+| [HumanLayer](https://github.com/humanlayer/skills) | Visual explanations, control-loop design and implementation, and React prop narrowing. |
+| [Matt Pocock](https://github.com/mattpocock/skills) | Agent-facing writing, decision interviews, domain modeling, and knowledge capture. |
+| [Archify](https://github.com/tt-a1i/archify) | The diagram skill and its bundled renderer. |
+| [OKF skills](https://github.com/scaccogatto/okf-skills) | Methods for creating, maintaining, and using project knowledge. |
+| [Google's OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) | The knowledge format that informs the Wiki structure. |
+
+These are reviewed adaptations for Kiro. The
+[port inventory](powers/pkstack/docs/upstream-skill-parity.md) records the original workflows,
+Kiro replacements, and exclusions; the [third-party notices](powers/pkstack/THIRD_PARTY_NOTICES.md) retain
+attribution. [Upstream maintenance](powers/pkstack/docs/upstream-control-loop.md) has its own
+review and acceptance process.
+
+## Docs and contributing
+
+| Read this | For |
+| --- | --- |
+| [First task](powers/pkstack/docs/first-task.md) | A disposable failure, Kiro repair, and passing check. |
+| [Architecture](powers/pkstack/docs/architecture.md) | Runtime components, native planning, and file ownership. |
+| [Knowledge guide](powers/pkstack/docs/usage.md#use-project-knowledge) | Wiki authoring, retrieval, and local validation. |
+| [Changelog](CHANGELOG.md) | Changes in each release. |
+| [Contributing](CONTRIBUTING.md) | Development setup, focused checks, and pull requests. |
+| [Security policy](SECURITY.md) | Reporting a vulnerability. |
+
+PKStack is licensed under [Apache-2.0](LICENSE).
