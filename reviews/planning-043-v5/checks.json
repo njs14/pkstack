@@ -49,6 +49,6 @@
     }
   },
   "coordinator_delta": "Retained the previous forbidden agent-selected-Plan claim in the routing fixture alongside the new paraphrase prohibition. Final fixture size24530B under24576B cap; this differs from worker-patch-manifest after hash only for tests/fixtures/skill-routing.json. Final authoritative hashes are source-files-v5.json.",
-  "review_status": "Pending independent final review",
-  "hosted_ci_status": "Pending exact candidate run"
+  "review_status": "APPROVED source and bounded native acceptance; independent-review.json",
+  "hosted_ci_status": "All 12 jobs passed on e4941073adf89a130e8ee268fb122c113cf8a409; hosted-ci-e494107.json"
 }

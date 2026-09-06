@@ -6,10 +6,13 @@ version_authority: powers/pkstack/plugin.json
 
 # PKStack release status
 
-The **0.4.3 planning candidate is not released**. Its shared-method and CLI
-guidance changes are under review, and native CLI acceptance still blocks merge
-and publication. The [planning campaign](planning-043/README.md) records the
-tested source snapshots, passing IDE boundaries, and remaining failures.
+The **0.4.3 planning candidate is not released**. Independent Grok review approved
+source and bounded native acceptance for `e4941073adf89a130e8ee268fb122c113cf8a409`,
+and all 12 hosted CI jobs passed for that commit. The [v5 routing report](planning-043-v5/README.md)
+records the passing native command handoff and its composition with the
+[v4 workflow evidence](planning-043-v4/README.md), including plan-review interventions
+and validation limits. Merge and exact-main package verification still precede
+publication. The [original campaign](planning-043/README.md) remains historical evidence.
 
 **[PKStack v0.4.2](https://github.com/njs14/pkstack/releases/tag/v0.4.2) was
 published on September 6, 2026 at 15:47:20 UTC.** It adds benefit-led

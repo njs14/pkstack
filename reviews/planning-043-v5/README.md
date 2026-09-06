@@ -1,6 +1,6 @@
 # PKStack 0.4.3 routing follow-up — v5
 
-**The previously failing CLI command-emission check now passes. Final independent review and exact-candidate CI are pending.**
+**The previously failing CLI command-emission check passes. Independent review approved source and bounded native acceptance; all 12 CI jobs passed for source commit `e4941073adf89a130e8ee268fb122c113cf8a409`.**
 
 The [v4 report](../planning-043-v4/README.md) preserves two failures to emit the runnable native Plan command, the reviewed implementation and capture-order results, and the IDE Quick Spec no-write evidence. This follow-up changes only routing guidance and its existing regression assertions; it does not rewrite those historical outcomes.
 
@@ -24,4 +24,4 @@ The [result receipt](router-result.json) retains the exact request, observed com
 - [Worker patch manifest](worker-patch-manifest.json): the six-path incremental repair before that small coordinator test-fixture correction.
 - The full v4 gate passed 965 product tests and policy; v4 hosted CI passed all 12 jobs. Those are identified as v4 results. No full local gate was repeated for this routing-only change.
 
-No grilling interview method, capture lifecycle, product Python, global settings, hooks or permissions changed in v5. The bounded native Plan/capture/implementation and IDE evidence remains the v4 campaign's evidence. Independent review will determine whether it composes with this routing-only result for release acceptance. No merge, tag or publication is claimed by this report.
+No grilling interview method, capture lifecycle, product Python, global settings, hooks or permissions changed in v5. The bounded native Plan/capture/implementation and IDE evidence remains the v4 campaign's evidence. [Independent review](independent-review.json) approved composing that evidence with this routing-only result. The [exact-source CI receipt](hosted-ci-e494107.json) satisfies its CI condition. Later report-only metadata commits may have different Git identities; the Power manifest still binds the reviewed source. Merge and release-package verification remain separate gates. No merge, tag or publication is claimed by this report.
