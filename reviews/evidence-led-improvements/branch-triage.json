@@ -1,0 +1,194 @@
+[
+  {
+    "branch": "pkstack-upstream/kiro-33946810878",
+    "sha": "e3a14b1192a6c1bdd3843f46a637aae79c07e0f5",
+    "status": "diverged",
+    "ahead": 1,
+    "behind": 23,
+    "commits": [
+      "[pkstack upstream] Reconcile pinned upstream semantics"
+    ],
+    "files": [
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstreams.json",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-skills-provenance.md"
+    ],
+    "prs": [
+      {
+        "mergedAt": null,
+        "number": 21,
+        "state": "CLOSED",
+        "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+      }
+    ]
+  },
+  {
+    "branch": "pkstack-upstream/kiro-33947523850",
+    "sha": "01f5028ac59c166b9228f0b4e5c1c02307b22512",
+    "status": "diverged",
+    "ahead": 1,
+    "behind": 22,
+    "commits": [
+      "[pkstack upstream] Reconcile pinned upstream semantics"
+    ],
+    "files": [
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstreams.json",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-skills-provenance.md"
+    ],
+    "prs": [
+      {
+        "mergedAt": null,
+        "number": 23,
+        "state": "CLOSED",
+        "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+      }
+    ]
+  },
+  {
+    "branch": "pkstack-upstream/kiro-33948407146",
+    "sha": "9c08e81e93efcbd1d2c0568a996b28d61eca296a",
+    "status": "diverged",
+    "ahead": 1,
+    "behind": 21,
+    "commits": [
+      "[pkstack upstream] Reconcile pinned upstream semantics"
+    ],
+    "files": [
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstreams.json",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-skills-provenance.md"
+    ],
+    "prs": [
+      {
+        "mergedAt": null,
+        "number": 25,
+        "state": "CLOSED",
+        "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+      }
+    ]
+  },
+  {
+    "branch": "pkstack-upstream/kiro-33949567639",
+    "sha": "520e6ff98eceb70369c30c711b0d77732f723fa4",
+    "status": "diverged",
+    "ahead": 1,
+    "behind": 20,
+    "commits": [
+      "[pkstack upstream] Reconcile pinned upstream semantics"
+    ],
+    "files": [
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstreams.json",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-skills-provenance.md"
+    ],
+    "prs": [
+      {
+        "mergedAt": null,
+        "number": 27,
+        "state": "CLOSED",
+        "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+      }
+    ]
+  },
+  {
+    "branch": "pkstack-upstream/kiro-33951163753",
+    "sha": "31368693e3078bdfe593ce91ba3bb5bf74b6f59a",
+    "status": "diverged",
+    "ahead": 1,
+    "behind": 19,
+    "commits": [
+      "[pkstack upstream] Reconcile pinned upstream semantics"
+    ],
+    "files": [
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstreams.json",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-skills-provenance.md"
+    ],
+    "prs": [
+      {
+        "mergedAt": "2026-09-05T07:08:02Z",
+        "number": 29,
+        "state": "MERGED",
+        "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+      }
+    ]
+  },
+  {
+    "branch": "pkstack-upstream/kiro-33968727837",
+    "sha": "ffe61777302f12812894ee38b5c80aaddeacb3bf",
+    "status": "diverged",
+    "ahead": 1,
+    "behind": 17,
+    "commits": [
+      "[pkstack upstream] Reconcile pinned upstream semantics"
+    ],
+    "files": [
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstreams.json",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-skills-provenance.md"
+    ],
+    "prs": [
+      {
+        "mergedAt": null,
+        "number": 32,
+        "state": "CLOSED",
+        "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+      }
+    ]
+  },
+  {
+    "branch": "pkstack-upstream/kiro-33977108073",
+    "sha": "27fb0dec5ca538e6f3bb03ef1eb11499ca744f5f",
+    "status": "diverged",
+    "ahead": 1,
+    "behind": 11,
+    "commits": [
+      "[pkstack upstream] Reconcile pinned upstream semantics"
+    ],
+    "files": [
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstreams.json",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-skills-provenance.md"
+    ],
+    "prs": [
+      {
+        "mergedAt": null,
+        "number": 34,
+        "state": "CLOSED",
+        "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+      }
+    ]
+  },
+  {
+    "branch": "pkstack-upstream/kiro-33980370382",
+    "sha": "277b2ee5aff153c01632955060dae215d7fa4531",
+    "status": "diverged",
+    "ahead": 1,
+    "behind": 7,
+    "commits": [
+      "[pkstack upstream] Reconcile pinned upstream semantics"
+    ],
+    "files": [
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstreams.json",
+      "powers/pkstack/docs/okf-skills-parity.json",
+      "powers/pkstack/docs/okf-skills-provenance.md"
+    ],
+    "prs": [
+      {
+        "mergedAt": "2026-09-05T17:27:55Z",
+        "number": 37,
+        "state": "MERGED",
+        "title": "[pkstack upstream] Reconcile pinned upstream semantics"
+      }
+    ]
+  }
+]
