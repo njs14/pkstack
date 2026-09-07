@@ -1,30 +1,54 @@
 ---
 release: "0.4.4"
-status: prepared
+status: published
 version_authority: powers/pkstack/plugin.json
 ---
 
 # PKStack release status
 
-## Prepared release: 0.4.4
+## Published release: 0.4.4
 
-PKStack 0.4.4 contains the combined changes from
-[PR #53](https://github.com/njs14/pkstack/pull/53) and
-[PR #54](https://github.com/njs14/pkstack/pull/54), merged into main at
-`5a905eb81d587fe0d8275594c12ba0eb9454f200`. That exact main build passed all
-12 CI jobs. The [changelog](../CHANGELOG.md#044--2026-09-06) describes the release.
+**[PKStack v0.4.4](https://github.com/njs14/pkstack/releases/tag/v0.4.4) was published
+on September 7, 2026 at 01:55:21 UTC.** It contains the Astral tooling and uvx launcher
+changes from [PR #53](https://github.com/njs14/pkstack/pull/53) and
+[PR #54](https://github.com/njs14/pkstack/pull/54). See the
+[changelog](../CHANGELOG.md#044--2026-09-06).
+
+[Release PR #55](https://github.com/njs14/pkstack/pull/55) merged at
+`4dce1479bb426ad586265e15b4b6cc410fa75bd6`; tag `v0.4.4` resolves to that commit.
+The [independent Grok 4.6 / xhigh review](release-044-review.md) approved the
+metadata-only preparation at `6a78b1910563854215e0b78232f9a39c74522749`.
+The final PR and main trees matched. Both
+[PR CI](https://github.com/njs14/pkstack/actions/runs/34074174258) and
+[exact-main CI](https://github.com/njs14/pkstack/actions/runs/34074325906) passed all
+12 jobs. Six metadata/distribution tests, four release-note tests, and the full
+static gate passed locally. Reviewed setup updated only the three generated
+version files and ended with an idempotent preview.
 
 The [Astral report](astral-python-auto/README.md) retains bounded native Kiro
 observations; the [uvx report](uvx-entrypoint/README.md) retains deterministic CLI
-acceptance and independent Grok approvals, including the cold-cache CI correction.
+acceptance and independent approvals, including the cold-cache CI correction.
 The uvx full local gate passed 1,016 Power tests and 235 repository tests. These
-results are bound to their recorded commits and do not assert a fresh native
-campaign for this metadata-only version update.
+results are bound to their recorded commits; this metadata-only version update
+does not claim a fresh native campaign.
 
-Publication requires all checks and a reproducible package from the exact release
-commit on main, followed by the tag-bound verification/publication workflow and a
-byte-for-byte comparison of the downloaded release archive with that CI package.
-The existing v0.4.3 release remains available; no rollback has run.
+The [release workflow](https://github.com/njs14/pkstack/actions/runs/34074509479)
+passed both verification and publication. It promoted artifact `10001545882` from
+main run `34074325906`, attempt 1. The pre-tag verifier checked the live repository,
+absent proposed tag, exact main run, artifact identity, outer ZIP digest, inner file
+checksums, version mirrors, and notes. Artifact ZIP SHA-256:
+`361a5a7a1fd398b64ec92b012e77022427c1c4a4a1b958abf13ba44f88094f91`.
+
+The published **4,564,043-byte** archive was downloaded and compared byte-for-byte
+with the verified CI package. Its checksum file and GitHub asset digest matched.
+Archive SHA-256:
+
+```text
+5c380104ba7700aae65d07aea8e51626251e83c517c4da1913de059c51ce5c93
+```
+
+The repository remains private. The existing v0.4.3 release remains available;
+no rollback ran, and no package registry publication was added.
 
 ## Previous publication: 0.4.3
 
