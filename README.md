@@ -21,92 +21,23 @@ PKStack adds the workflows, verification records, and repository Wiki.
 
 ## Quick start
 
-You need Kiro CLI with v3 support or Kiro IDE, installed and signed in, and
-[`uv`](https://docs.astral.sh/uv/) on your `PATH`. The CLI runs on Python 3.11+;
-uv can acquire a supported interpreter without replacing system Python.
-First use may download Python and dependencies. No global PKStack installation
-or package registry is required.
+Install PKStack through Kiro's **Powers** panel. For this private repository,
+follow Kiro's documented [local-folder installation](https://kiro.dev/docs/powers/installation/#from-local-path):
 
-Clone this private repository and save the Power path:
+1. Clone `https://github.com/njs14/pkstack.git` locally using your GitHub access.
+2. In Kiro, open **Powers → Add Custom Power → Import power from a folder**.
+3. Select `powers/pkstack/` inside the local checkout, which contains `plugin.json`.
+4. Review the Power and choose **Install**.
 
-```sh
-git clone https://github.com/njs14/pkstack.git
-cd pkstack
-export PKSTACK_POWER="$PWD/powers/pkstack"
-test -f "$PKSTACK_POWER/plugin.json"
-export PKSTACK_PACKAGE="$PKSTACK_POWER"
-```
+That completes Power installation. Kiro CLI v3 [automatically detects Powers
+installed through the IDE](https://kiro.dev/docs/cli/v3/new-features/#powers-auto-pickup).
 
-Keep this terminal open. `PKSTACK_PACKAGE` selects the reviewed package for uvx; the target
-project is the application you want Kiro to work on. Choose the CLI or IDE
-path below.
+After installation, `/pkstack-setup` initializes a workspace and `/pkstack <task>`
+starts work. For details, see the
+[usage guide](powers/pkstack/docs/usage.md). Existing projects use the
+[managed refresh guide](powers/pkstack/docs/usage.md#refresh-managed-files).
 
-### Kiro CLI
-
-CLI v3 also picks up Powers installed through the IDE. In a default CLI session,
-`/powers` lists installed Powers. Registering the Power and setting up a target
-project are separate steps; the terminal workflow below handles project setup
-without an IDE import. See [CLI Power discovery](powers/pkstack/docs/usage.md#cli-powers-and-project-setup).
-
-Replace the example path with your application's root directory, then preview
-what setup will add:
-
-```sh
-cd "/absolute/path/to/your/project"
-export PKSTACK_PROJECT="$PWD"
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack --project "$PKSTACK_PROJECT" \
-  setup --dry-run --output json
-```
-
-Confirm the target path and listed files. The preview leaves managed target
-files unchanged, though preparing the runtime can populate caches or download
-dependencies. If setup reports conflicts, inspect those files before continuing.
-
-Apply the installation and check it:
-
-```sh
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack --project "$PKSTACK_PROJECT" \
-  setup --output json
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack version --output json
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack doctor --output json
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge validate --output json
-```
-
-The `pkstack` launcher uses the selected package for setup and upgrades. Other
-commands run the project's pinned `.pkstack/bin/projectctl`; choosing a newer
-package does not silently update it. `pkstack --version` shows the launcher
-version; `pkstack version` shows the installed controller version. The usage
-guide also covers [local wheels](powers/pkstack/docs/usage.md#use-a-local-wheel).
-
-When the checks pass, start Kiro from the target project:
-
-```sh
-kiro-cli chat --v3 --agent pkstack
-```
-
-Send `/pkstack <task>` with the work you want done. You can also invoke a specific
-skill from the [capability table](#what-pkstack-does).
-
-### Kiro IDE
-
-1. Open **Powers → Add Custom Power → Import power from a folder**. Select
-   `powers/pkstack/` inside the checkout, which contains `plugin.json`, and
-   choose **Install**.
-2. Open your target application in Kiro and run `/pkstack-setup` in chat or an
-   Agent Focus session.
-3. Review the preview, approve the intended changes, and resolve any failed
-   installation checks.
-4. Select the workspace `pkstack` agent and send `/pkstack <task>`. If assets are
-   absent, follow [agent and skill discovery](powers/pkstack/docs/usage.md#attach-the-generated-agent).
-
-For a first run, [try the included failing task](powers/pkstack/docs/first-task.md) in a
-disposable project. Kiro repairs an account-ID function while its four tests
-stay unchanged. You can inspect the failed attempt, the repair, and the stored
-passing result.
-
-The [installation guide](powers/pkstack/docs/usage.md) covers source selection, agent
-attachment, offline prerequisites, and troubleshooting. Existing installations
-use the [managed refresh guide](powers/pkstack/docs/upgrade-0.4.md).
+To try it in a disposable project, follow the [first-task guide](powers/pkstack/docs/first-task.md).
 
 ## Why PKStack
 
