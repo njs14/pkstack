@@ -142,8 +142,10 @@ retroactively resolve a mismatch in the approved prose.
 The [verification evidence](evidence/2026-09-07/verification.json) records new normal Kiro CLI
 v3 demonstrations using CLI 2.21.1, the generated `pkstack` agent, and selected
 `claude-opus-5` / high. The Power tree `b6ade2ad26bb1b204c745db9d6cda1eab0978bb2` is
-unchanged from trusted main `3a370aa`; repository diagnostic/evidence edits do not change
-these shipped skills or controller bytes. The final PR binds the frozen containing tree.
+the original unchanged trusted-main `3a370aa` source for those observations. The later 0.5.3
+correction changes PR-supervision guidance and version metadata. Stored-verifier, Impeccable
+and controller-implementation evidence carries forward only through explicit per-file source
+equivalence; PR-supervision guidance needs new native proof. The final PR binds the containing tree.
 
 For stored verification, the operator predeclared a string-normalization contract and tests,
 installed the reviewed Power, and retained a genuine failing `node acceptance.mjs` result.
@@ -164,7 +166,11 @@ no absent upstream runtime, hooks or live variants were installed.
 
 PR supervision uses the real scoped PR in `check` mode, with the independent-review hold and
 zero retries carried in session context. Its snapshot and any correction are retained separately
-from an acceptance verdict. A successful read-only check does not prove failure repair, flaky
+from an acceptance verdict. The initial check miscounted 12 jobs as 13 and corrected that
+through fresh structured reads. A later continuation ran `git fetch --no-write-fetch-head`:
+no worktree changes were observed, but it was not a strictly read-only operation. The 0.5.3
+guidance addresses that metadata boundary explicitly and retains the failure as regression
+context. A successful read-only check does not prove failure repair, flaky
 retry handling, substantive reviewer-response work or merge-ready status.
 
 ## Related knowledge

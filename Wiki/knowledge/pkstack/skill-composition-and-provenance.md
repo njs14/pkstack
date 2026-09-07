@@ -63,7 +63,9 @@ to narrow UI work. Browser inspection and projectctl supply separate kinds of ev
 The OpenAI PR Babysitter port shares one supervision method with Poteto's Babysit route.
 PKStack retains merge-ready completion and one supported fresh-build retry per head SHA;
 explicit continued monitoring can wait until closure or a deadline. Retry state survives
-observer restarts. Checks and published reviews must belong to the observed head; incomplete
+observer restarts. Read-only checks also protect local Git metadata: use forge API reads for
+remote freshness and disable optional locks for local status/diff. Fetch variants still write
+Git state. Count checks from returned arrays. Checks and published reviews must belong to the observed head; incomplete
 coverage is not review-clean. No watcher script, detached scheduler, automatic merge, or
 automatic review reply is installed. Writes require the user's corresponding authorization.
 Codex's built-in skill creator is available in that host, not shipped as a Kiro dependency.

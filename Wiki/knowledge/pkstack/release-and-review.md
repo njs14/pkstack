@@ -46,7 +46,7 @@ comparison. It proves only that recorded publication; this curation does not ref
 
 ## September 7 verification review candidate
 
-[PR #69](https://github.com/njs14/pkstack/pull/69) holds a repository-control and evidence
+[PR #69](https://github.com/njs14/pkstack/pull/69) holds a scoped 0.5.3 guidance, repository-control and evidence
 candidate against `3a370aa92d881ea8bab48c4b55c70cad347c49b7`. Its
 [structured packet](evidence/2026-09-07/verification.json) contains the initial diagnostic
 reproduction, regression dispositions, executable consumer fixtures, native-session identities,
@@ -55,10 +55,12 @@ its exact CI run/attempt after packet preparation; the evidence file does not cl
 its own eventual commit identity.
 
 The reproduced repair distinguishes safe detector execution errors from malformed inventories,
-while preserving rejection and withholding arbitrary error text. It changes repository controls,
-not the installable Power. Power version 0.5.2 and its source tree remain unchanged; no product
-version bump, product RC label or tag is warranted. Native demonstration implementations remain
-consumer evidence, not product changes. The packet distinguishes operator setup and predicates,
+while preserving rejection and withholding arbitrary error text. That repair changes repository controls. A subsequent native continuation exposed a second
+finding: `check` mode ran a metadata-writing Git fetch. The 0.5.3 Power clarifies that remote
+freshness uses forge API reads, local status/diff disables optional locks, and fetch variants
+remain writes. Its regression scenario covers continuation with stale or absent tracking refs.
+The original diagnostic-only checkpoint is superseded; no tag or publication is implied.
+Native demonstration implementations remain consumer evidence, not product changes. The packet distinguishes operator setup and predicates,
 model-authored repairs and independent browser assertions.
 
 Two live requirements remain unresolved: trusted-main unattended maintenance did not produce a

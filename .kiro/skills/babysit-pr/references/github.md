@@ -15,6 +15,13 @@ gh run view RUN_ID --repo OWNER/REPO --json headSha,status,conclusion,jobs
 gh run view RUN_ID --repo OWNER/REPO --job JOB_ID --log
 ```
 
+For remote freshness in read-only mode, use the PR's returned head/base SHAs and API reads.
+Do not fetch Git refs, even with `--no-write-fetch-head`. Local inspection can use
+`git --no-optional-locks status --porcelain=v1`, `git rev-parse`, and
+`git --no-optional-locks diff` against objects already present. If an object is absent, read
+its diff through the forge API or report the gap. Count checks and jobs from the returned
+arrays instead of estimating totals from prose.
+
 Paginate every list, including workflow runs and nested GraphQL connections; CLI list defaults
 are not exhaustive. Use the GitHub GraphQL `reviewThreads` connection for `isResolved`,
 `isOutdated`, and thread comments, following `pageInfo.endCursor` until `hasNextPage` is false.

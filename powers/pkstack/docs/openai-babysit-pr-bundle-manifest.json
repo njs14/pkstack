@@ -6,23 +6,23 @@
       "handling": "adapted-kiro-reference",
       "mode": "100644",
       "path": "references/github.md",
-      "sha256": "89c74908ac157e6e4f086d68d06777f5e17c7db426d3cfdf8181fc8e0b1004e7",
-      "size": 3011,
+      "sha256": "941ec033ded21e990c36226b7e7cae3081f3ca0a29b9da3d43651a08071b98c8",
+      "size": 3488,
       "source_path": ".codex/skills/babysit-pr/references/github-api-notes.md"
     },
     {
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "66cb1c7e69694bf0ace4f2692d30f25607b5efeeca3059c2f4a7c72be16d832e",
-      "size": 5267,
+      "sha256": "d2c0393660076e926a276764e14177faa1f8b935972362834bc0bbaefc881b9f",
+      "size": 5808,
       "source_path": ".codex/skills/babysit-pr/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "babysit-pr",
   "summary": {
-    "byte_count": 8278,
+    "byte_count": 9296,
     "file_count": 2
   }
 }

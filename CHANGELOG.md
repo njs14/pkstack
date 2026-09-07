@@ -4,6 +4,16 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.3] — 2026-09-07
+
+- Keeps PR-supervision checks within their read-only boundary on continuation: remote
+  freshness uses forge API reads, local status/diff disables optional locks, and fetch
+  variants are not treated as read-only. Check totals use structured counts.
+- Preserves bounded detector execution-error diagnostics without echoing arbitrary error
+  text or accepting a failed inventory.
+- Retains native verification evidence and explicit unattended-maintenance and Linux
+  retrieval gaps; these observations do not establish complete live verification.
+
 ## [0.5.2] — 2026-09-07
 
 PKStack 0.5.2 repairs controller recovery, setup, and the scheduled-maintenance

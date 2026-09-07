@@ -22,6 +22,16 @@ upstream defaults of watching all open PRs indefinitely and up to three flaky re
 GitHub CLI supplies observations through existing tooling; no scheduler or detached watcher is
 installed. Readiness is tied to the observed head SHA and time, not a promise about later feedback.
 
+## Local verification correction
+
+A September 7 native continuation ran `git fetch --no-write-fetch-head` during a requested
+read-only check. That flag does not prevent ref/object/reflog writes. The local adaptation now
+requires forge API reads for remote freshness and disables optional Git locks for local
+status/diff inspection. The continued-check regression scenario includes stale or absent
+remote-tracking refs and preserved retry accounting. Check totals come from returned arrays.
+This is a local guidance correction; the accepted upstream source identity and history below
+are unchanged. Native observations and their limits are retained in the repository Wiki.
+
 ## Exact inventories
 
 The [source inventory](openai-babysit-pr-source-parity.json) binds all 6 regular blobs to the exact

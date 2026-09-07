@@ -19,6 +19,13 @@ repair), or `background` (monitoring with an available owned wait mechanism). A 
 to watch or check is read-only; fixes, pushes, reruns, thread changes, and messages require
 the corresponding user authorization. Skill invocation grants no extra permissions.
 
+In `check` mode, read-only includes local Git metadata. Refresh remote PR/head/check evidence
+through forge API reads, not `git fetch`, `pull`, checkout/switch, or another repository-writing
+command. `git fetch --no-write-fetch-head` can still write refs, objects and reflogs. Use
+`git --no-optional-locks` for local status/diff reads; absent or stale remote-tracking refs are
+an evidence gap to resolve through the forge API, not permission to mutate the checkout.
+Preserve this boundary and retry accounting when resuming the same check.
+
 Default completion is **merge-ready**: fresh required checks pass, required approvals are
 satisfied, mergeability is confirmed, and no actionable unresolved review findings remain.
 Draft, unknown mergeability, unavailable review data, or pending checks cannot count as ready.
