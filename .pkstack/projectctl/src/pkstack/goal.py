@@ -32,7 +32,7 @@ except ImportError:  # pragma: no cover - project currently targets macOS/Linux
 
 STATE_DIRECTORY = Path(".pkstack/state")
 STATE_FILE = "goal.json"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 DEFAULT_MAX_ATTEMPTS = 4
 _SPEC_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -346,6 +346,9 @@ class GoalStore:
     def _lock(self, path: Path) -> Iterator[None]:
         if fcntl is None:
             raise GoalError("goal-state locking requires POSIX fcntl")
+        # Reject unsupported state before creating lock files or changing permissions.
+        # The transition still reloads state under its lock to handle concurrent changes.
+        self.load(check_command_policy=False)
         self.directory.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.directory.chmod(0o700)
         with path.open("a+", encoding="utf-8") as lock:
@@ -367,6 +370,16 @@ class GoalStore:
             raise GoalError(f"goal state is corrupt at {self.path}: {exc}") from exc
         try:
             payload = json.loads(serialized)
+            if (
+                isinstance(payload, dict)
+                and type(payload.get("schema_version")) is int
+                and payload["schema_version"] != SCHEMA_VERSION
+            ):
+                raise GoalError(
+                    f"unsupported goal state schema {payload['schema_version']}; "
+                    f"expected {SCHEMA_VERSION}. Use a clean consumer installation; "
+                    "preserve old goal evidence separately. No migration is performed."
+                )
             state = GoalState.from_dict(payload)
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
             raise GoalError(f"goal state is corrupt at {self.path}: {exc}") from exc

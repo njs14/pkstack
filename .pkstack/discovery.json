@@ -3,9 +3,7 @@
     "detected": false,
     "markers": []
   },
-  "developer_interfaces": [
-    "projectctl"
-  ],
+  "developer_interfaces": [],
   "git": true,
   "kiro": {
     "agents": [

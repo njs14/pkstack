@@ -25,9 +25,9 @@ Install PKStack through Kiro's **Powers** panel. For this private repository,
 follow Kiro's documented [local-folder installation](https://kiro.dev/docs/powers/installation/#from-local-path):
 
 1. Clone `https://github.com/njs14/pkstack.git` locally using your GitHub access.
-2. In Kiro, open **Powers → Add Custom Power → Import power from a folder**.
-3. Select this Power folder, which contains `plugin.json`.
-4. Review the Power and choose **Install**.
+2. Review this Power folder, which contains `plugin.json`, before importing it.
+3. In Kiro, open **Powers → Add Custom Power → Import power from a folder**.
+4. Choose the reviewed folder and click **Select Folder**. In the installed Power details, verify that `pkstack` points to that exact source folder. If an older import is still selected, uninstall that Power entry and install the reviewed folder again.
 
 That completes Power installation. Kiro CLI v3 [automatically detects Powers
 installed through the IDE](https://kiro.dev/docs/cli/v3/new-features/#powers-auto-pickup).
@@ -139,7 +139,7 @@ PKStack started with Poteto's pstack. The additional skills have specific jobs:
 | [Astral](https://github.com/astral-sh/claude-code-plugins) | Python environments and scripting with uv, lint/format with Ruff, and type checking with ty. |
 | [Archify](https://github.com/tt-a1i/archify) | The diagram skill and its bundled renderer. |
 | [OKF skills](https://github.com/scaccogatto/okf-skills) | Methods for creating, maintaining, and using project knowledge. |
-| [Google's OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) | The knowledge format that informs the Wiki structure. |
+| [Google's OKF specification](https://github.com/GoogleCloudPlatform/open-knowledge-format) | The knowledge format that informs the Wiki structure. |
 
 These are reviewed adaptations for Kiro. The
 [port inventory](docs/upstream-skill-parity.md) records the original workflows,

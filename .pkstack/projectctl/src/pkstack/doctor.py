@@ -74,7 +74,6 @@ def run_doctor(root: Path) -> dict[str, Any]:
     if kiro_executable:
         checks.append(_kiro_agent_discovery_check(kiro_executable, root))
 
-    wrapper = root / "projectctl"
     try:
         internal = workspace_path(root, Path(".pkstack/bin/projectctl"))
         internal_error = None
@@ -89,7 +88,7 @@ def run_doctor(root: Path) -> dict[str, Any]:
                 "projectctl",
                 "fail",
                 internal_error or "executable .pkstack/bin/projectctl entrypoint is missing",
-                "Run /pkstack-setup or pkstack-setup in this project.",
+                "Run /pkstack-setup in this project.",
             )
         )
     try:
@@ -107,15 +106,6 @@ def run_doctor(root: Path) -> dict[str, Any]:
     else:
         checks.append(_receipt_integrity_check(receipt))
     checks.append(_runtime_integrity_check(root, internal))
-    if wrapper.exists() and not (wrapper.is_file() and os.access(wrapper, os.X_OK)):
-        checks.append(
-            DoctorCheck(
-                "root-projectctl",
-                "warn",
-                "root projectctl is not an executable file; use .pkstack/bin/projectctl",
-            )
-        )
-
     required_assets = {
         "pkstack-agent": root / ".kiro" / "agents" / "pkstack.json",
         "architect-agent": root / ".kiro" / "agents" / "pkstack-architect.json",

@@ -18,6 +18,7 @@ from typing import Any
 from pkstack import __version__
 from pkstack.branding import DISPLAY_NAME, DISTRIBUTION_NAME, RECEIPT_MANAGER
 from pkstack.discovery import discover_repository
+from pkstack.knowledge_layout import out_of_layout_documents
 from pkstack.paths import WorkspacePathError, ensure_tree_no_symlinks, workspace_path
 
 try:
@@ -25,7 +26,7 @@ try:
 except ImportError:  # pragma: no cover - project targets macOS/Linux
     fcntl = None  # type: ignore[assignment]
 
-BOOTSTRAP_SCHEMA = 1
+BOOTSTRAP_SCHEMA = 2
 RECEIPT = Path(".pkstack/bootstrap.json")
 DISCOVERY = Path(".pkstack/discovery.json")
 SKILL_PARITY_ASSET = Path("docs/upstream-skill-parity.json")
@@ -55,14 +56,15 @@ REQUIRED_SOURCE_MODULES = (
     "cli.py",
     "discovery.py",
     "doctor.py",
+    "evidence.py",
     "features.py",
     "goal.py",
     "knowledge.py",
+    "knowledge_layout.py",
     "knowledge_links.py",
     "knowledge_acp.py",
     "knowledge_payload.py",
     "knowledge_runtime_bridge.py",
-    "launcher.py",
     "models.py",
     "paths.py",
     "runner.py",
@@ -137,17 +139,10 @@ PYTHONPATH="$PROJECTCTL_ROOT/src" \
     -m pkstack "$@"
 """
 
-ROOT_WRAPPER = """#!/bin/sh
-set -eu
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-exec "$SCRIPT_DIR/.pkstack/bin/projectctl" "$@"
-"""
-
 TARGET_README = f"""# Repo-local projectctl
 
 This directory is managed by the {DISPLAY_NAME} bootstrap. Use the canonical
-`.pkstack/bin/projectctl` entrypoint. A bootstrap-managed `./projectctl` may also
-exist as a convenience, but workflows never select an ambient root executable.
+`.pkstack/bin/projectctl` entrypoint.
 
 The cached controller is not setup authority. Setup and refresh must use the
 Power-local `/pkstack-setup` skill, or an explicitly reviewed `--power-root`;
@@ -234,12 +229,7 @@ PROJECT_OWNED_SEEDS = frozenset({Path("Wiki/index.md"), Path("Wiki/knowledge/ind
 
 
 def _has_legacy_knowledge(root: Path) -> bool:
-    wiki = root / "Wiki"
-    return any(
-        path.relative_to(wiki).parts[0] not in {"knowledge", "features", "work"}
-        and path.relative_to(wiki) != Path("index.md")
-        for path in wiki.rglob("*.md")
-    )
+    return bool(out_of_layout_documents(root))
 
 
 FEATURE_README = """---
@@ -468,14 +458,8 @@ def _bootstrap_project_locked(
         asset_root = _resolve_power_source(power_root)
         source_package = asset_root / "src" / "pkstack"
     else:
-        checkout_root = Path(__file__).resolve().parents[2]
-        checkout_package = checkout_root / "src" / "pkstack"
-        if checkout_package.is_dir():
-            asset_root = checkout_root
-            source_package = checkout_package
-        else:
-            source_package = Path(__file__).resolve().parent
-            asset_root = source_package / "_assets"
+        asset_root = Path(__file__).resolve().parents[2]
+        source_package = asset_root / "src" / "pkstack"
     if _same_or_descendant(asset_root, cache_root):
         _raise_cached_authority()
     template_root = asset_root / "templates" / "project"
@@ -492,7 +476,8 @@ def _bootstrap_project_locked(
     operations: list[tuple[Path, bytes, bool]] = []
     notes: list[str] = []
 
-    for source in sorted(source_package.glob("*.py")):
+    for name in REQUIRED_SOURCE_MODULES:
+        source = source_package / name
         relative = Path(".pkstack/projectctl/src/pkstack") / source.name
         operations.append((relative, source.read_bytes(), False))
 
@@ -545,15 +530,6 @@ def _bootstrap_project_locked(
             operations.append((relative, source.read_bytes(), executable))
     else:
         notes.append(f"No project templates were found at {template_root}.")
-
-    root_wrapper = root / "projectctl"
-    if not root_wrapper.exists() or "projectctl" in previous_hashes:
-        operations.append((Path("projectctl"), ROOT_WRAPPER.encode(), True))
-    else:
-        notes.append(
-            "An existing root projectctl was preserved; use .pkstack/bin/projectctl or integrate "
-            f"the {DISPLAY_NAME} commands into the existing project CLI."
-        )
 
     initial_discovery = discover_repository(root)
     initial_discovery_content = (
@@ -732,7 +708,11 @@ def _load_receipt(root: Path) -> dict[str, Any] | None:
         or type(data.get("manager")) is not str
         or data["manager"] != RECEIPT_MANAGER
     ):
-        raise ValueError(f"unrecognized {DISPLAY_NAME} ownership receipt at {path}")
+        raise ValueError(
+            f"unrecognized {DISPLAY_NAME} ownership receipt at {path}; "
+            "prepare a clean consumer copy and reinstall from the reviewed Power, "
+            "preserving user-owned content"
+        )
     files = data.get("files")
     if (
         not isinstance(files, dict)
@@ -1185,16 +1165,8 @@ def _apply_file(
     existing_hash = _hash(destination.read_bytes()) if destination.is_file() else None
 
     if seed_only:
-        if previous_hash is not None and not update_managed:
-            result.pending_updates.append(key)
-            result.notes.append(
-                f"{key}: --update-managed releases legacy ownership without editing it."
-            )
-            return
         if existing_hash is not None:
             result.preserved.append(key)
-            if previous_hash is not None:
-                result.notes.append(f"{key}: released legacy receipt ownership; content preserved.")
             return
         result.created.append(key)
         if not result.dry_run:

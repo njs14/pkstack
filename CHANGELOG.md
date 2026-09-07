@@ -4,6 +4,33 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.0] — 2026-09-07
+
+PKStack 0.5.0 uses Kiro Power installation and the repository-local controller.
+This pre-release cleanup removes the standalone public launcher and old state
+compatibility. Existing consumers require a reviewed clean installation that
+preserves user files and historical evidence.
+
+- Removes the public `pkstack`, `projectctl`, and `pkstack-setup` package scripts,
+  asset-bearing Power wheels, root convenience wrapper, and top-level `verify`
+  alias. Power setup and `.pkstack/bin/projectctl` remain the supported path.
+- Keeps trusted maintenance setup, caller-environment isolation, bounded output,
+  cancellation, executable feature checks, and failed/passing goal history.
+- Rejects incomplete Power sources before setup, including a missing evidence
+  module, and uses one safe Wiki-layout inventory for mixed-case Markdown.
+- Uses bootstrap receipt schema 2 and goal schema 3 without migrating old proof
+  or overwriting user-owned files.
+- Moves active Google OKF tracking to its canonical repository with a new
+  reviewed source identity while preserving the frozen source's history.
+- Separates CLI compatibility from verified knowledge isolation and live search.
+- Aligns installation, recovery, validation, support, and architecture guidance
+  with the reduced product surface.
+
+See [installation and recovery](powers/pkstack/docs/usage.md) and the
+[release evidence contract](Wiki/knowledge/pkstack/release-and-review.md).
+Native Kiro and live retrieval evidence retain their explicitly recorded scope;
+this changelog does not establish a new Linux retrieval result.
+
 ## [0.4.4] — 2026-09-06
 
 PKStack 0.4.4 adds a uvx launcher and bundled Python tooling guidance while keeping
@@ -44,7 +71,7 @@ Specs. Existing interview commands remain available.
   Spec review, code-intelligence orientation, and model/effort selection.
 - Preserves native approvals, upstream skill provenance, and executable proof.
 
-Existing installations use the [reviewed managed refresh](powers/pkstack/docs/upgrade-0.4.md).
+Existing installations use the [reviewed managed refresh](https://github.com/njs14/pkstack/blob/e6cd3e0ab3d1d24c3e22df3ef8524e79244d83be/powers/pkstack/docs/upgrade-0.4.md).
 Native acceptance and publication are separate gates recorded in the release status.
 
 ## [0.4.2] — 2026-09-06
@@ -68,7 +95,7 @@ rules are unchanged.
 
 Start with the [installation guide](powers/pkstack/docs/usage.md), then
 [try the failing task](powers/pkstack/docs/first-task.md). Existing 0.4
-installations use the [reviewed managed refresh](powers/pkstack/docs/upgrade-0.4.md).
+installations use the [reviewed managed refresh](https://github.com/njs14/pkstack/blob/e6cd3e0ab3d1d24c3e22df3ef8524e79244d83be/powers/pkstack/docs/upgrade-0.4.md).
 
 ## [0.4.1] — 2026-09-06
 
@@ -88,7 +115,7 @@ compatibility limits.
 - Documents fresh-worktree setup, reviewed managed refresh, and verification;
   removes duplicate ignore rules.
 
-Use the [0.4 upgrade guide](powers/pkstack/docs/upgrade-0.4.md) for a reviewed
+Use the [0.4 upgrade guide](https://github.com/njs14/pkstack/blob/e6cd3e0ab3d1d24c3e22df3ef8524e79244d83be/powers/pkstack/docs/upgrade-0.4.md) for a reviewed
 managed refresh. The [measurement evidence](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/evidence-led-improvements/README.md)
 distinguishes the synthetic benchmark from the smaller repository workload.
 
@@ -114,7 +141,7 @@ Linux CI verifies controller behavior; its native runtime canary verifies agent
 discovery and model inventory, not end-to-end knowledge retrieval. Other Kiro
 versions and Windows knowledge retrieval remain outside the verified contract.
 
-Read the [0.4 upgrade guide](powers/pkstack/docs/upgrade-0.4.md) and the
+Read the [0.4 upgrade guide](https://github.com/njs14/pkstack/blob/e6cd3e0ab3d1d24c3e22df3ef8524e79244d83be/powers/pkstack/docs/upgrade-0.4.md) and the
 [knowledge acceptance report](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md) for migration,
 evidence, and limits.
 
@@ -147,7 +174,7 @@ goal state, and feature schemas are not automatically migrated.
 - Produces reproducible Power archives with commit-derived timestamps and
   SHA-256 checksums, and publishes version-specific release notes.
 
-See the [upgrade guide](powers/pkstack/docs/upgrade-0.3.md) before replacing an
+See the [upgrade guide](https://github.com/njs14/pkstack/blob/e6cd3e0ab3d1d24c3e22df3ef8524e79244d83be/powers/pkstack/docs/upgrade-0.3.md) before replacing an
 older installation and the [release acceptance ledger](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-acceptance.md)
 for checks, evidence, and compatibility limits.
 

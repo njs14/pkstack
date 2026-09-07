@@ -771,16 +771,15 @@ def test_setup_shim_older_python_without_uv_fails_before_target_writes(
     assert list(tmp_path.iterdir()) == []
 
 
-def test_setup_shim_legacy_location_finds_the_project_controller(tmp_path: Path) -> None:
+def test_setup_shim_rejects_workspace_copy_without_using_cached_controller(tmp_path: Path) -> None:
     shim = tmp_path / ".kiro" / "skills" / "pkstack-setup" / "scripts" / "setup_pkstack.py"
     shim.parent.mkdir(parents=True)
     shutil.copy2(SKILLS / "pkstack-setup" / "scripts" / "setup_pkstack.py", shim)
     cached_controller = tmp_path / ".pkstack" / "projectctl"
     cached_controller.mkdir(parents=True)
 
-    namespace = runpy.run_path(str(shim), run_name="pkstack_setup_probe")
-
-    assert namespace["POWER_ROOT"] == cached_controller
+    with pytest.raises(SystemExit, match="loaded Power source"):
+        runpy.run_path(str(shim), run_name="pkstack_setup_probe")
 
 
 def test_verified_goal_is_current_session_and_deterministically_verified() -> None:
@@ -910,7 +909,6 @@ def test_primary_profile_asks_for_every_canonical_controller_route() -> None:
         ".pkstack/bin/projectctl feature validate --output json",
         ".pkstack/bin/projectctl feature generate sample --ready",
         ".pkstack/bin/projectctl feature verify sample --output json",
-        ".pkstack/bin/projectctl verify sample --output json",
         ".pkstack/bin/projectctl goal start objective --command verifier",
         ".pkstack/bin/projectctl goal bind-spec sample --feature sample --output json",
         ".pkstack/bin/projectctl goal status --output json",

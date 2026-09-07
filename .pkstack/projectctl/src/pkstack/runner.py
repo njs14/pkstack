@@ -1075,15 +1075,6 @@ def enforce_verification_policy(argv: Sequence[str], *, root: Path) -> None:
         )
 
 
-def _bounded(text: str, limit: int) -> tuple[str, bool]:
-    if len(text) <= limit:
-        return text, False
-    half = max(1, limit // 2)
-    omitted = len(text) - (half * 2)
-    marker = f"\n... <{omitted} characters omitted> ...\n"
-    return f"{text[:half]}{marker}{text[-half:]}", True
-
-
 @dataclass(slots=True)
 class _BoundedCapture:
     limit: int

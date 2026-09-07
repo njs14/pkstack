@@ -1,6 +1,11 @@
 # Google Open Knowledge Format provenance
 
-PKStack tracks the complete `okf/` tree from
+Google now maintains OKF in
+[`GoogleCloudPlatform/open-knowledge-format`](https://github.com/GoogleCloudPlatform/open-knowledge-format).
+The former `knowledge-catalog/okf` copy is frozen. Use the new repository for
+current specification and reference-agent documentation.
+
+PKStack's retired baseline records the complete historical `okf/` tree from
 [`GoogleCloudPlatform/knowledge-catalog`](https://github.com/GoogleCloudPlatform/knowledge-catalog)
 so changes to the normative specification cannot be hidden by a file-only pin. The accepted
 baseline is commit `fbbc7975388288244dfc62aea0066600b25b7c47`, whose `okf/` tree is
@@ -16,3 +21,5 @@ explicitly excluded from PKStack's runtime. Nothing from the tracked tree is exe
 The source is licensed under Apache License 2.0. PKStack links to it and records Git identities; it
 does not copy the specification or implementation, so this provenance record does not add a
 redistributed third-party work.
+
+Active maintenance now uses the [canonical repository provenance](google-open-knowledge-format-provenance.md). The historical identity and inventory above remain unchanged.

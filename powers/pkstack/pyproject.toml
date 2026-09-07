@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pkstack"
-version = "0.4.4"
+version = "0.5.0"
 description = "PKStack Kiro-native verified development Power and project control CLI"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -18,11 +18,6 @@ dependencies = [
   "agent-client-protocol==0.12.1",
 ]
 
-[project.scripts]
-pkstack = "pkstack.launcher:main"
-projectctl = "pkstack.cli:main"
-pkstack-setup = "pkstack.bootstrap:main"
-
 [dependency-groups]
 dev = [
   "pytest>=8.4,<9",
@@ -33,43 +28,6 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pkstack"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"skills" = "pkstack/_assets/skills"
-"docs/upstream-skill-parity.json" = "pkstack/_assets/docs/upstream-skill-parity.json"
-"docs/curated-skills.json" = "pkstack/_assets/docs/curated-skills.json"
-"docs/humanlayer-show-me-bundle-manifest.json" = "pkstack/_assets/docs/humanlayer-show-me-bundle-manifest.json"
-"docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json" = "pkstack/_assets/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json"
-"docs/humanlayer-design-control-loop-bundle-manifest.json" = "pkstack/_assets/docs/humanlayer-design-control-loop-bundle-manifest.json"
-"docs/humanlayer-narrow-react-prop-types-bundle-manifest.json" = "pkstack/_assets/docs/humanlayer-narrow-react-prop-types-bundle-manifest.json"
-"docs/humanlayer-skills-provenance.md" = "pkstack/_assets/docs/humanlayer-skills-provenance.md"
-"docs/humanlayer-skills-source-parity.json" = "pkstack/_assets/docs/humanlayer-skills-source-parity.json"
-"docs/mattpocock-writing-for-agents-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-writing-for-agents-bundle-manifest.json"
-"docs/mattpocock-writing-for-agents-provenance.md" = "pkstack/_assets/docs/mattpocock-writing-for-agents-provenance.md"
-"docs/mattpocock-writing-for-agents-source-parity.json" = "pkstack/_assets/docs/mattpocock-writing-for-agents-source-parity.json"
-"docs/tt-a1i-archify-bundle-manifest.json" = "pkstack/_assets/docs/tt-a1i-archify-bundle-manifest.json"
-"docs/tt-a1i-archify-provenance.md" = "pkstack/_assets/docs/tt-a1i-archify-provenance.md"
-"docs/tt-a1i-archify-source-parity.json" = "pkstack/_assets/docs/tt-a1i-archify-source-parity.json"
-"docs/mattpocock-grilling-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-grilling-bundle-manifest.json"
-"docs/mattpocock-grilling-source-parity.json" = "pkstack/_assets/docs/mattpocock-grilling-source-parity.json"
-"docs/mattpocock-grilling-provenance.md" = "pkstack/_assets/docs/mattpocock-grilling-provenance.md"
-"docs/mattpocock-grill-me-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-grill-me-bundle-manifest.json"
-"docs/mattpocock-grill-me-source-parity.json" = "pkstack/_assets/docs/mattpocock-grill-me-source-parity.json"
-"docs/mattpocock-grill-me-provenance.md" = "pkstack/_assets/docs/mattpocock-grill-me-provenance.md"
-"docs/mattpocock-domain-modeling-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-domain-modeling-bundle-manifest.json"
-"docs/mattpocock-domain-modeling-source-parity.json" = "pkstack/_assets/docs/mattpocock-domain-modeling-source-parity.json"
-"docs/mattpocock-domain-modeling-provenance.md" = "pkstack/_assets/docs/mattpocock-domain-modeling-provenance.md"
-"docs/mattpocock-grill-with-docs-bundle-manifest.json" = "pkstack/_assets/docs/mattpocock-grill-with-docs-bundle-manifest.json"
-"docs/mattpocock-grill-with-docs-source-parity.json" = "pkstack/_assets/docs/mattpocock-grill-with-docs-source-parity.json"
-"docs/mattpocock-grill-with-docs-provenance.md" = "pkstack/_assets/docs/mattpocock-grill-with-docs-provenance.md"
-"docs/astral-python-provenance.md" = "pkstack/_assets/docs/astral-python-provenance.md"
-"docs/astral-python-source-parity.json" = "pkstack/_assets/docs/astral-python-source-parity.json"
-"docs/astral-uv-bundle-manifest.json" = "pkstack/_assets/docs/astral-uv-bundle-manifest.json"
-"docs/astral-ruff-bundle-manifest.json" = "pkstack/_assets/docs/astral-ruff-bundle-manifest.json"
-"docs/astral-ty-bundle-manifest.json" = "pkstack/_assets/docs/astral-ty-bundle-manifest.json"
-"dev.kiro/steering" = "pkstack/_assets/dev.kiro/steering"
-"templates/project" = "pkstack/_assets/templates/project"
-"templates/projectctl" = "pkstack/_assets/templates/projectctl"
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers --cov-branch"

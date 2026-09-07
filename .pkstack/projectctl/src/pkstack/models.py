@@ -49,18 +49,18 @@ class CommandSpec:
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
         data["argv"] = list(self.argv)
-        if self.spec_artifacts:
-            data["spec_artifacts"] = [item.to_dict() for item in self.spec_artifacts]
-        else:
-            # Preserve schema-2 digests for non-spec goal records created before
-            # native-spec content binding was introduced.
-            data.pop("spec_artifacts")
+        data["spec_artifacts"] = [item.to_dict() for item in self.spec_artifacts]
         return data
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CommandSpec:
         if not isinstance(data, dict):
             raise TypeError("command contract must be an object")
+        if set(data) != {"argv", "display", "source", "feature", "spec", "spec_artifacts"}:
+            raise TypeError(
+                "command contract must contain exactly argv, display, source, "
+                "feature, spec, and spec_artifacts"
+            )
         argv = data["argv"]
         if not isinstance(argv, list) or not argv or not all(type(item) is str for item in argv):
             raise TypeError("command argv must be a non-empty list of strings")
@@ -70,13 +70,13 @@ class CommandSpec:
             raise TypeError("command display must be a string")
         if source not in {"explicit", "feature-map", "spec"}:
             raise ValueError("command source is invalid")
-        feature = data.get("feature")
-        spec = data.get("spec")
+        feature = data["feature"]
+        spec = data["spec"]
         if feature is not None and type(feature) is not str:
             raise TypeError("command feature provenance must be a string or null")
         if spec is not None and type(spec) is not str:
             raise TypeError("command spec provenance must be a string or null")
-        spec_artifacts = data.get("spec_artifacts", [])
+        spec_artifacts = data["spec_artifacts"]
         if not isinstance(spec_artifacts, list):
             raise TypeError("command spec artifacts must be a list")
         return cls(

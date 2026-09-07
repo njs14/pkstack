@@ -8,12 +8,10 @@ not release acceptance. See the [validation report](validation-report.md) and
 
 ## Boundary and ownership
 
-The design has one simple rule:
-
-> Kiro owns planning and execution. PKStack owns workflow semantics.
-> `projectctl` owns deterministic project operations and executable evidence.
-> The Wiki owns durable project knowledge; Kiro retrieves bounded context and
-> `projectctl` validates local metadata, links, and returned evidence.
+Kiro plans and executes tasks. PKStack skills guide the workflow, and
+`projectctl` records contracts and verifier results. Durable project documents
+live in the Wiki. Kiro retrieves bounded context from them; `projectctl`
+validates local metadata, links, and returned evidence.
 
 | Surface | Owns | Does not own |
 | --- | --- | --- |
@@ -102,10 +100,12 @@ powers/pkstack/
 └── docs/                              # usage, architecture, provenance, evidence
 ```
 
-The wheel force-includes skills, steering, templates, and the repo-local lock
-under `pkstack/_assets/`, so setup can use a source checkout or an
-installed Power. The Power-local `skills/pkstack-setup/scripts/setup_pkstack.py`
-is the only setup and upgrade authority.
+Install the Power from a reviewed source folder or extracted release archive.
+The Power-local `skills/pkstack-setup/scripts/setup_pkstack.py` is the setup
+and refresh entrypoint. PKStack ships no standalone package commands or
+asset-bearing wheel. The internal controller retains `setup --power-root` for
+trusted maintenance verification, which must execute reviewed base code against
+an explicit Power source.
 
 A successful target setup contains:
 
@@ -125,8 +125,8 @@ A successful target setup contains:
 ```
 
 `.kiro/` and `.pkstack/` are generated workspace material, not alternate Power
-sources. A root `projectctl` convenience wrapper may exist when its name was
-unowned, but skills never select it.
+sources. Setup creates only `.pkstack/bin/projectctl`; a root `projectctl`
+belongs to the host project and is preserved.
 
 The controller cache contains no second copy of skills, steering, or templates.
 Doctor checks installed `.kiro/` files against the ownership receipt and curated
@@ -134,7 +134,10 @@ bundle manifests. Archify executes its installed `.kiro/skills/archify/` resourc
 
 ### Bootstrap receipt and upgrades
 
-The receipt stores the manager, schema, and SHA-256 for every managed path.
+The schema-2 receipt stores the manager and SHA-256 for every managed path.
+Wiki navigation seeds become user-owned when created. Schema-1 receipts are
+refused before writes; use the [clean reinstall procedure](usage.md#clean-reinstall)
+to preserve project content and historical evidence.
 Setup performs a complete no-write preflight before applying any change:
 
 | Existing state | Result |
@@ -253,16 +256,17 @@ and rejects changed corpus bytes, excluded sources, invalid shapes, excessive
 context, or an incomplete result. At most one bounded correction is allowed.
 The public result uses `schemaVersion: "2"` and `mode: "kiro-acp"`. Its context
 budget estimates UTF-8 JSON bytes divided by four; internal model token use is
-unreported. This is a retrieval boundary, not an index, ranker, graph engine,
-query language, or MCP backend.
+unreported. Retrieval returns bounded source passages and checks their provenance;
+[knowledge usage](usage.md#use-project-knowledge) describes the limits.
 
 `knowledge validate` is deterministic and local. It composes existing feature
 validation with minimal authoring metadata and CommonMark local link/image
 checks, including reference links and Markdown heading anchors. It preserves
 unknown metadata and does not fetch external links or claim full OKF
 conformance, raw HTML ID/footnote/plugin fragment support, or graph semantics.
-`knowledge status` reports layout and retrieval availability; validation works
-when retrieval is unavailable. The old optional `okn` backend is retired.
+`knowledge status` reports layout and `cli_compatible`. Its no-model probe
+leaves `isolation_verified` and `search_verified` false; CLI compatibility alone
+does not prove authenticated retrieval. Validation works without retrieval. The old optional `okn` backend is retired.
 
 The independent Google OKF specification and OKF skills methodology remain
 tracked inputs. The retired OpenKnowledge CLI contract retains archived
@@ -297,9 +301,10 @@ does not establish release acceptance.
   required Power assets fail closed rather than being repaired silently.
 - There is one goal slot, no automatic uninstaller, and no automatic stale-file
   deletion.
-- IDE native import, setup, generated-agent selection, and separately approved
-  controller checks passed a bounded smoke. IDE goal/Spec execution and Web
-  end-to-end use remain untested; Crew is optional and may use ACP internally.
+- The [dated compatibility evidence](kiro-v3-compatibility.md#support-and-evidence-matrix)
+  records bounded IDE import/setup and CLI/IDE Standard and Quick Spec repair
+  campaigns. These observations do not prove a later candidate. Web end-to-end
+  use remains untested; Crew is optional and may use ACP internally.
 
 The Floci document-export application and live campaigns are maintained in the
 separate private [pk-stack-floci-lab](https://github.com/njs14/pk-stack-floci-lab)

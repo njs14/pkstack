@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from pkstack.bootstrap import bootstrap_project
+from pkstack.bootstrap import REQUIRED_SOURCE_MODULES, bootstrap_project
 
 POWER_ROOT = Path(__file__).parents[1]
 
@@ -97,7 +97,7 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     assert second.created == []
     assert second.updated == []
     assert first_hashes == second_hashes
-    assert (tmp_path / "projectctl").stat().st_mode & 0o111
+    assert not (tmp_path / "projectctl").exists()
     wrapper = (tmp_path / ".pkstack" / "bin" / "projectctl").read_text(encoding="utf-8")
     assert 'uv sync --quiet --locked --no-config --project "$PROJECTCTL_ROOT"' in wrapper
     assert 'exec "$PROJECTCTL_ROOT/.venv/bin/python" -B -X pycache_prefix=/dev/null' in wrapper
@@ -167,36 +167,46 @@ def test_project_indexes_remain_editable_after_setup(tmp_path: Path) -> None:
         assert "User navigation." in (tmp_path / relative).read_text()
 
 
-def test_legacy_index_ownership_release_preserves_user_edits(tmp_path: Path) -> None:
+@pytest.mark.parametrize("update_managed", [False, True])
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_old_receipt_is_rejected_without_mutation(
+    tmp_path: Path, update_managed: bool, dry_run: bool
+) -> None:
     assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok
     index = tmp_path / "Wiki/index.md"
     receipt_path = tmp_path / ".pkstack/bootstrap.json"
     receipt = json.loads(receipt_path.read_text())
+    receipt["schema_version"] = 1
     receipt["files"]["Wiki/index.md"] = hashlib.sha256(index.read_bytes()).hexdigest()
     receipt_path.write_text(json.dumps(receipt))
-    index.write_text("---\ntype: Guide\n---\n\nImportant user links.\n")
+    index.write_text("Important user links.\n")
     before = _tree_hashes(tmp_path)
-
-    preview = bootstrap_project(tmp_path, power_root=POWER_ROOT, dry_run=True)
-    assert not preview.ok
-    assert "Wiki/index.md" in preview.pending_updates
-    assert _tree_hashes(tmp_path) == before
-    approved_preview = bootstrap_project(
-        tmp_path, power_root=POWER_ROOT, dry_run=True, update_managed=True
-    )
-    assert approved_preview.ok
-    assert "Wiki/index.md" in approved_preview.preserved
+    with pytest.raises(ValueError, match="clean consumer copy"):
+        bootstrap_project(
+            tmp_path, power_root=POWER_ROOT, dry_run=dry_run, update_managed=update_managed
+        )
     assert _tree_hashes(tmp_path) == before
 
-    result = bootstrap_project(tmp_path, power_root=POWER_ROOT, update_managed=True)
-    assert result.ok
-    assert "Important user links." in index.read_text()
-    assert "Wiki/index.md" not in json.loads(receipt_path.read_text())["files"]
-    assert bootstrap_project(tmp_path, power_root=POWER_ROOT).ok
+
+@pytest.mark.parametrize("module", REQUIRED_SOURCE_MODULES)
+def test_every_runtime_module_is_required_before_target_writes(tmp_path: Path, module: str) -> None:
+    power = tmp_path / "power"
+    _copy_power_fixture(power)
+    (power / "src/pkstack" / module).unlink()
+    target = tmp_path / "target"
+    target.mkdir()
+    before = _tree_hashes(target)
+    with pytest.raises(ValueError, match="missing"):
+        bootstrap_project(target, power_root=power)
+    assert _tree_hashes(target) == before
+    assert not (target / ".pkstack").exists()
 
 
-def test_existing_flat_knowledge_does_not_get_hidden_by_new_root(tmp_path: Path) -> None:
-    legacy = tmp_path / "Wiki/domain/glossary.md"
+@pytest.mark.parametrize("relative", ["Wiki/domain/glossary.md", "Wiki/NOTES.MD"])
+def test_existing_flat_knowledge_does_not_get_hidden_by_new_root(
+    tmp_path: Path, relative: str
+) -> None:
+    legacy = tmp_path / relative
     legacy.parent.mkdir(parents=True)
     legacy.write_text("---\ntype: Glossary\n---\n\nExisting project terms.\n")
     original = legacy.read_bytes()
@@ -337,7 +347,6 @@ def test_bootstrap_preserves_foreign_projectctl(tmp_path: Path) -> None:
     assert result.ok is True
     assert (tmp_path / "projectctl").read_text(encoding="utf-8") == "foreign\n"
     assert (tmp_path / ".pkstack" / "bin" / "projectctl").is_file()
-    assert any("existing root projectctl" in note for note in result.notes)
 
 
 def test_gitignore_comments_and_substrings_do_not_impersonate_runtime_patterns(
@@ -598,3 +607,17 @@ def test_bootstrap_rejects_noncanonical_skill_parity_catalogs(
     target.mkdir()
     with pytest.raises(ValueError, match=re.escape(expected)):
         bootstrap_project(target, power_root=power)
+
+
+def test_runtime_copy_uses_only_the_reviewed_module_inventory(tmp_path: Path) -> None:
+    power = tmp_path / "power"
+    _copy_power_fixture(power)
+    assert {path.name for path in (POWER_ROOT / "src/pkstack").glob("*.py")} == set(
+        REQUIRED_SOURCE_MODULES
+    )
+    (power / "src/pkstack/unreviewed.py").write_text("raise RuntimeError('unreviewed')\n")
+    target = tmp_path / "target"
+    target.mkdir()
+    assert bootstrap_project(target, power_root=power).ok
+    installed = target / ".pkstack/projectctl/src/pkstack"
+    assert {path.name for path in installed.glob("*.py")} == set(REQUIRED_SOURCE_MODULES)

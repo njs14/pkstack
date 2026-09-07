@@ -6,6 +6,7 @@ import hashlib
 import json
 import multiprocessing
 import shutil
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -186,7 +187,9 @@ def test_retired_openknowledge_contract_keeps_historical_evidence_outside_active
     _assert_openknowledge_contract_scope(
         archive["manifest_source"], archive["review_ledger_source"], parity, provenance
     )
-    assert {"google-okf-spec", "okf-skills"} <= {source["id"] for source in manifest["sources"]}
+    assert {"google-open-knowledge-format", "okf-skills"} <= {
+        source["id"] for source in manifest["sources"]
+    }
 
 
 def _assert_openknowledge_contract_scope(
@@ -4021,3 +4024,105 @@ def test_http_boundary_uses_token_only_as_authorization_and_bounds_body(
 def test_json_boundary_rejects_invalid_utf8_json_and_duplicate_keys(raw: bytes) -> None:
     with pytest.raises(UpstreamError):
         upstreams._decode_json(raw, context="test response")
+
+
+def test_canonical_okf_has_fresh_genesis_and_retired_history() -> None:
+    manifest = load_upstream_manifest(REPOSITORY_ROOT)
+    source = next(s for s in manifest.sources if s.source_id == "google-open-knowledge-format")
+    assert source.path == "."
+    assert source.repository == "GoogleCloudPlatform/open-knowledge-format"
+    ledger = upstreams.load_upstream_review_ledger(REPOSITORY_ROOT, manifest)
+    review = next(s for s in ledger.sources if s.source_id == source.source_id)
+    assert review.transitions == ()
+    assert review.genesis_commit == source.commit
+    assert review.genesis_subtree_sha == source.subtree_sha
+    retired = json.loads(
+        (REPOSITORY_ROOT / "maintenance/retired-upstreams/google-okf-spec.json").read_text()
+    )
+    assert retired["manifest_entry"]["id"] == "google-okf-spec"
+    assert retired["review_ledger_entry"]["genesis"] == {
+        "commit": retired["manifest_entry"]["commit"],
+        "subtree_sha": retired["manifest_entry"]["subtree_sha"],
+    }
+    assert all(s.source_id != "google-okf-spec" for s in manifest.sources)
+    parity = json.loads((REPOSITORY_ROOT / source.parity_path).read_text())
+    assert {f["path"] for f in parity["files"] if f["disposition"] == "A"} == {"SPEC.md"}
+    assert parity["summary"]["current_files"] == len(parity["files"])
+
+
+def test_root_scope_uses_commit_root_without_component_fetch() -> None:
+    assert (
+        upstreams._subtree_identity(
+            "owner/repo", PIN_TREE, ".", token=None, timeout_seconds=3, fetch_json=FakeFetch({})
+        )
+        == PIN_TREE
+    )
+
+
+@pytest.mark.parametrize("path", ["", "./", "../", "/", "a/../b", "./SPEC.md"])
+def test_root_scope_does_not_relax_other_paths(path: str) -> None:
+    with pytest.raises(UpstreamError):
+        upstreams._validate_source_scope(path, context="test")
+    with pytest.raises(UpstreamError):
+        upstreams._relative_source_path(path, ".")
+
+
+def test_remote_root_is_not_a_local_artifact_path(tmp_path: Path) -> None:
+    document = _manifest()
+    document["sources"][0]["path"] = "."
+    _write_manifest(tmp_path, document)
+    assert load_upstream_manifest(tmp_path).sources[0].path == "."
+    document["sources"][0]["parity_path"] = "."
+    _write_manifest(tmp_path, document)
+    with pytest.raises(UpstreamError):
+        load_upstream_manifest(tmp_path)
+
+
+@pytest.mark.parametrize("reconstructed", [False, True])
+def test_root_scope_compares_exact_tree_patches(reconstructed: bool) -> None:
+    responses, compare_url = _single_tracked_change_responses()
+    for item in responses[compare_url]["files"]:
+        item["filename"] = item["filename"].removeprefix("pstack/")
+    path = "README.md"
+    new_content = _new_content(path)
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", _git_blob_sha(new_content))] = (
+        _blob_response(new_content)
+    )
+    if reconstructed:
+        responses[compare_url]["files"] = _external_comparison_files(
+            upstreams.GITHUB_COMPARE_FILE_CAP
+        )
+    result = upstreams._compare_inventory(
+        replace(_compare_source(), path="."),
+        base_commit=PIN,
+        base_subtree=PIN_TREE,
+        head_commit=HEAD,
+        head_subtree=HEAD_TREE,
+        token=None,
+        timeout_seconds=3,
+        fetch_json=FakeFetch(responses),
+        blob_cache={},
+    )
+    assert result["complete"] is True
+    assert result["paths"] == [path]
+    assert result["files"][0]["reviewability"] == "exact-blob-unified-patch"
+
+
+def test_root_scope_rename_paths_are_repository_relative() -> None:
+    item = upstreams._comparison_file(
+        {
+            "filename": "docs/new.md",
+            "previous_filename": "old.md",
+            "status": "renamed",
+            "sha": "a" * 40,
+            "additions": 0,
+            "deletions": 0,
+            "changes": 0,
+        },
+        source_path=".",
+        index=0,
+    )
+    assert item is not None
+    assert item["path"] == "docs/new.md"
+    assert item["previous_path"] == "old.md"
+    assert upstreams._source_filename(".", "docs/new.md") == "docs/new.md"

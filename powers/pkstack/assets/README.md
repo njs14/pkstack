@@ -1,10 +1,19 @@
 # PKStack artwork
 
-## README banner
+## Current README logo
 
-`banner.png` is the current README header. It keeps the scholarly potato ghost,
+`logo.png` is the owner-selected Option 2, “Knowledge crest,” recorded on
+September 6, 2026. It depicts four distinct ghosts with a book and linked knowledge
+tree. The TypeScript figure is an archetype, not a portrait. Both READMEs use this
+logo at their respective relative paths. The
+[visual artifact record](../../../Wiki/knowledge/pkstack/visual-artifacts.md#current-naming-and-historical-artwork)
+retains the selection and source attribution.
+
+## Historical README banner
+
+`banner.png` was the earlier README header. It keeps the scholarly potato ghost,
 adds a quiet branching knowledge tree for OKF, and uses the copy **PKStack** /
-**From plan to proof.** Both READMEs display it at 600 pixels wide and scale it
+**From plan to proof.** The earlier READMEs displayed it at 600 pixels wide and scaled it
 proportionally on narrower screens.
 
 The owner requested the compact display size, text, and knowledge-tree background
@@ -20,9 +29,10 @@ The final edit used the preceding text-bearing banner as its reference:
 
 > The prior output was too tall and visually oversized. Recompose this as a genuinely shallow ultra-wide GitHub README header. Critical canvas requirement: about FIVE TIMES AS WIDE AS TALL, target 2560x512; do not return a 2:1 or square image. Everything must fit within this shallow strip with no cut-off text or mascot. Reduce the potato-ghost mascot to a modest fully visible figure at the left, with navy academic hat and cyan tassel, warm golden potato texture and black ghost eyes. Reduce the title and tagline too: elegant small header typography rather than a huge advertisement. Keep exact title 'PKStack' and exact tagline 'From plan to proof.' alongside the mascot. Background deep midnight navy with restrained purple glow, less saturated/glowy overall. Add a subtle OKF knowledge tree in the background: a fine branching tree of connected small nodes, softly glowing muted cyan and lavender, like a quiet diagram of linked concepts, visible but very low contrast. The knowledge-tree branches extend through the wide background behind and around the text without obstructing readability; no node labels, no extra words, no second logo or badge. Preserve the character identity and friendly scholarly theme. This should feel like a compact, understated project masthead, not a full-page hero. No extra props, no watermark.
 
-## Square mascot
+## Historical square mascot
 
-`logo.png` is the PKStack (Poteto Kiro) potato-ghost project mark. It was generated for this
+The earlier `logo.png` was the PKStack (Poteto Kiro) potato-ghost project mark,
+since replaced by the Knowledge crest. It was generated for this
 project on 2026-09-02 with OpenAI's built-in image-generation tool, using the installed Kiro app
 icon at `/Applications/Kiro.app/Contents/Resources/Kiro.icns` as the visual reference requested by
 the project owner. The output is a new square RGBA PNG with transparent outer corners; it is not a

@@ -5,8 +5,7 @@ evidence was refreshed on **2026-09-05**. This records the Kiro contract PKStack
 targets and the observed behavior on the target Mac, not a guarantee for every
 account or later release. Re-run the checks at the end after a Kiro update.
 
-PKStack targets Kiro's shared agent harness rather than one client. Kiro CLI
-v3 and the Kiro IDE 1.x chat panel are the two first-class primary surfaces;
+PKStack supports Kiro CLI v3 and the Kiro IDE 1.x chat panel as primary surfaces;
 the IDE's Agent Focus Mode is a supported agent-first view but remains listed
 by Kiro as experimental. Neither client is an exclusive runtime dependency.
 Kiro Crew compatibility is required but Crew remains an optional orchestrator.
@@ -152,7 +151,8 @@ ACP, classic/V2, a nested Kiro process, and a separate `/spawn` session are not
 the default path. Current docs describe native `/goal`, but the installed CLI
 2.21.0 V3 runtime did not recognize `/goal clear` in a sterile interactive
 probe. PKStack does not require or invoke that feature. `/pkstack-verified-goal` is a
-thin current-session compatibility seam, not a recreated runtime.
+skill that keeps the repair loop in that session and stores its verifier and
+attempt history through the project-local controller.
 
 The initial 2026-09-01 CLI snapshot reported application version `2.20.2`; the
 selected-profile campaign on 2026-09-02 ran on Kiro CLI `2.21.0`. In both,
@@ -475,7 +475,7 @@ The loop uses native Kiro execution without replacing it:
 1. The user invokes `/pkstack-verified-goal <objective>` in the existing Kiro agent
    session.
 2. The skill uses only `.pkstack/bin/projectctl`.
-3. It inspects existing state and starts schema version 2 state with one
+3. It inspects existing state and starts schema version 3 state with one
    executable contract and a bounded budget.
 4. The same Kiro agent implements the smallest evidence-backed change and runs
    one `goal verify` attempt.
@@ -719,37 +719,17 @@ the portable completion predicate on every supported path.
 
 ## Compatibility validation commands
 
-Run the Kiro asset tests without inheriting this project's pytest coverage
-options:
+Run the [shared deterministic gate](validation-report.md#deterministic-local-checks)
+from the repository root. It includes Kiro asset tests and static checks.
 
-```bash
-PYTHONPATH=src uvx --isolated --no-cache --no-config --with 'PyYAML>=6,<7' \
-  pytest -o addopts='' -p no:cacheprovider tests/test_kiro_assets.py -q
-```
+Separately validate custom-agent templates against the actual installed CLI:
 
-Lint the asset checks:
-
-```bash
-uvx --isolated --no-cache --no-config \
-  ruff check tests/test_kiro_assets.py
-```
-
-Validate every installed custom-agent template against the actual CLI:
-
-```bash
-for profile in templates/project/.kiro/agents/*.json; do
+```sh
+for profile in powers/pkstack/templates/project/.kiro/agents/*.json; do
   kiro-cli agent validate --path "$profile"
 done
 ```
 
-Run Python integration tests and type/lint checks from the repository:
-
-```bash
-uv run ruff check src tests
-uv run ty check
-uv run pytest -q
-```
-
-The final exact outcomes, end-to-end commands, and remaining limitations belong
-in the repository's validation report rather than being inferred from this
-format contract.
+Schema validation does not establish discovery, selection, permissions, or native
+workflow execution. Record those observations with their exact candidate, client
+build, commands, and limits using the [release evidence contract](validation-report.md#release-gate-record).

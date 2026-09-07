@@ -69,7 +69,9 @@ not finish the requested lookup. Do not invent facts or missing sources."""
 def runtime_status(root: Path) -> dict[str, Any]:
     discovered = shutil.which("kiro-cli")
     result: dict[str, Any] = {
-        "available": False,
+        "cli_compatible": False,
+        "isolation_verified": False,
+        "search_verified": False,
         "executable": discovered,
         "version": None,
         "tested_version": KIRO_VERSION,
@@ -108,7 +110,7 @@ def runtime_status(root: Path) -> dict[str, Any]:
             f"the verified runtime is {KIRO_VERSION}"
         )
         return result
-    result["available"] = True
+    result["cli_compatible"] = True
     return result
 
 
@@ -587,7 +589,7 @@ def search(
     if not 0 < timeout_seconds <= 120:
         raise KnowledgeRuntimeError("knowledge prompt timeout must be between 0 and 120 seconds")
     runtime = runtime_status(root)
-    if not runtime["available"]:
+    if not runtime["cli_compatible"]:
         raise KnowledgeRuntimeError(str(runtime["error"]))
     documents = snapshot_sources(root)
     with tempfile.TemporaryDirectory(prefix="pkstack-knowledge-") as name:

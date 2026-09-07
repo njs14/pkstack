@@ -114,7 +114,7 @@ def setup_command(
     update_managed: bool = False,
     output: Output = "text",
 ) -> None:
-    """Bootstrap from an explicit Power; managed upgrades require reviewed opt-in."""
+    """Internal maintenance setup from an explicit reviewed Power root."""
 
     try:
         if power_root is None:
@@ -522,19 +522,6 @@ def feature_verify(
     _emit(payload, output)
     if not payload["ok"]:
         raise SystemExit(1)
-
-
-@app.command(name="verify")
-def verify_alias(
-    slug: str,
-    *,
-    root: Path = Path("."),
-    timeout_seconds: float = 300.0,
-    output: Output = "text",
-) -> None:
-    """Alias for ``projectctl feature verify``."""
-
-    feature_verify(slug, root=root, timeout_seconds=timeout_seconds, output=output)
 
 
 @evidence_app.command(name="append")

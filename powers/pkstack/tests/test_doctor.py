@@ -401,7 +401,7 @@ def test_doctor_handles_hostile_paths_and_feature_discovery_without_disclosure(
 
     assert result["ok"] is False
     assert checks["projectctl"]["status"] == "fail"
-    assert checks["root-projectctl"]["status"] == "warn"
+    assert "root-projectctl" not in checks
     assert checks["feature-map"]["status"] == "fail"
     assert checks["goal-state"]["status"] == "fail"
     assert sentinel not in json.dumps(result)

@@ -58,16 +58,14 @@ comparison. It proves only that recorded publication; this curation does not ref
 - Naming cleanup found rewritten historical rationales and broken consolidation links. Preserve
   original transition arrays and source identities when changing current product terminology.
 
-## Open documentation inconsistencies
+## Current policy and historical records
 
-Some retained entrypoints have stale wording. The deleted acceptance-ledger alias named 0.2 and old paths; its historical wording
-does not define the current release. `SECURITY.md` still lists a 0.2 support table and an optional
-external knowledge tool, while current source and upgrade guidance have moved on. This curation
-does not choose a new security support policy. Use the current implementation for runtime
-behavior, preserve the policy source, and obtain an explicit support-policy decision before
-claiming which release lines receive security fixes. Package artwork guidance likewise predates
-the selected four-ghost logo; the newer branding decision is recorded in the visual artifact topic.
-
+[SECURITY.md](../../../SECURITY.md) maintains current `main` / the next 0.5.0
+pre-release, with no commitment to backport fixes to older lines. Knowledge
+validation is local; bounded Kiro ACP retrieval is a separate capability.
+Historical acceptance ledgers retain their original versions and paths.
+The [artwork guide](../../../powers/pkstack/assets/README.md) identifies the current
+four-ghost logo and separates the earlier banner and mascot history.
 
 ## Carry acceptance across changes only with an explicit binding
 
@@ -105,7 +103,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 | Source | Retained guidance or bounded observation |
 | --- | --- |
 | [CHANGELOG.md](../../../CHANGELOG.md) | Versioned notes summarize changes but the Power manifest is metadata authority; source reviews, merged changes and publication receipts are separate gates. |
-| [SECURITY.md](../../../SECURITY.md) | Retain credential/import trust boundaries, while flagging the stale 0.2 support table and optional-tool wording as unresolved policy/documentation drift rather than inventing a new support policy. |
+| [SECURITY.md](../../../SECURITY.md) | Current main / next 0.5.0 is maintained without older-release backport commitments; local validation and Kiro ACP retrieval have separate trust boundaries. |
 | [reviews/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/README.md) | Current release status is the release-record entrypoint; historical reports and the separate Floci lab cannot accept a different PKStack candidate. |
 | [reviews/acceptance-ledger.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/acceptance-ledger.md) | This stable compatibility link still names v0.2 and old paths; follow release-status.md for current records rather than treating the alias wording as current metadata. |
 | [reviews/historical/pre-v0.2/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/historical/pre-v0.2/README.md) | Archived pre-0.2 evidence preserves original identities and limitations and cannot establish acceptance of later candidates. |

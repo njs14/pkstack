@@ -11,10 +11,12 @@ Use Kiro's [official Power installation flow](https://kiro.dev/docs/powers/insta
 For this private repository:
 
 1. Clone `https://github.com/njs14/pkstack.git` locally using your GitHub access.
-2. Open **Powers → Add Custom Power → Import power from a folder** in Kiro.
-3. Select `powers/pkstack/` inside the checkout, review it, and choose **Install**.
+2. Review `powers/pkstack/` inside the checkout before importing it. This folder contains the Power's `plugin.json`.
+3. Open **Powers → Add Custom Power → Import power from a folder** in Kiro.
+4. Choose the reviewed folder and click **Select Folder**. In the installed Power details, verify that `pkstack` points to that exact source folder. If an older import is still selected, uninstall that Power entry and install the reviewed folder again.
 
-The selected folder contains the Power's `plugin.json`. Installation ends here.
+The observed local-folder flow installs when you select the folder. Installation
+ends with that confirmation.
 
 ## CLI Powers and project setup
 
@@ -380,8 +382,11 @@ The worker uses native Kiro CLI authentication and the official Python ACP
 client pinned to `agent-client-protocol==0.12.1`. The current adapter supports
 POSIX and is gated to Kiro CLI 2.21.1 with embedded KAS 0.58.7; an unsupported
 or unavailable runtime fails explicitly while local validation remains usable.
-There is no alternate backend or silent model fallback. Optional `--model`
-defaults to `auto`, a first-class selection using Kiro-managed routing. Receipts preserve
+The no-model `knowledge status` probe reports `cli_compatible` separately from
+`isolation_verified` and `search_verified`, which remain false until those stages
+are verified. A compatible CLI version does not prove isolation, authentication,
+or successful search. There is no alternate backend or silent model fallback. Optional `--model`
+defaults to `auto`, which lets Kiro route the request. Receipts preserve
 `model: "auto"`; `resolved_model: null` means the underlying model was not disclosed.
 See [Auto model guidance](kiro-v3-compatibility.md#auto-as-its-own-model-selection).
 
@@ -422,21 +427,31 @@ Managed updates replace only files that still match their prior receipt hashes.
 User edits remain conflicts, and retired managed paths are never deleted
 automatically. Do not add a cached setup skill to `.kiro/skills/` to force discovery.
 
-The PKStack rename is a clean-install change. Setup blocks legacy managed
-installations before writes; it adds no aliases and performs no automatic
-migration. Follow the [0.3 upgrade guide](upgrade-0.3.md) for a separate-checkout
-transition and rollback. An earlier installation may use a `.pk-stack/bootstrap.json`
-receipt and `pk-stack`-named agent files. Those names identify old files to
-review, not supported entry points.
+### Clean reinstall
 
-Before reinstalling, preserve project-owned `Wiki/` content, native
-`.kiro/specs/`, user-authored settings, and any evidence you want to retain.
-Inspect the old receipt and compare its hashes with the files on disk. With
-explicit approval, remove only the unchanged managed paths and the old receipt
-after that comparison. Review retired cache paths individually; never delete
-an entire `.kiro/` or Wiki directory. User-modified managed files need a
-deliberate keep-or-replace decision first. Then run fresh setup from the
-reviewed Power. Old goals and schema-1 feature records are not imported.
+Current setup uses receipt schema 2 and rejects older receipts and legacy managed
+namespaces. The goal controller uses schema 3 and rejects older goal state. Neither
+converts old content or evidence. Feature schema 2 and spec-bridge schema 1 remain separate contracts.
+`--update-managed` does not bypass an incompatible receipt.
+
+Keep the existing checkout as a rollback copy, including uncommitted work, the old
+receipt, goals, native `.kiro/specs/`, Wiki documents, settings, and evidence.
+Prepare a separate clean consumer copy. Compare every old receipt entry with its
+file's SHA-256 before excluding that exact unchanged managed path from the new
+copy. Preserve changed managed files for deliberate reconciliation. Never remove
+an entire `.kiro/` or Wiki directory based on its name. Keep Wiki navigation seeds
+and other user-owned content even if an old receipt once claimed them.
+
+Run `/pkstack-setup` from the reviewed Power against the clean copy. Review the
+preview, apply the intended changes, then check version, doctor, local knowledge
+validation, and knowledge status. A second preview should report no pending
+updates. Retain old goal records as historical evidence outside the active state
+slot; create and verify a new goal instead of importing old proof. Its command
+record always includes explicit nullable provenance and an artifacts list.
+
+Select the workspace `pkstack` agent and verify a representative task before
+replacing the original checkout in daily use. Power-manager removal does not
+migrate workspace files.
 
 
 ## Upstream maintenance

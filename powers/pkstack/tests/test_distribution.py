@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import tomllib
 from pathlib import Path
 
 from pkstack.discovery import discover_repository
@@ -51,3 +52,11 @@ def test_committed_discovery_matches_fresh_repository_discovery() -> None:
         (REPOSITORY_ROOT / ".pkstack" / "discovery.json").read_text(encoding="utf-8")
     )
     assert committed == discover_repository(REPOSITORY_ROOT)
+
+
+def test_power_distribution_has_no_global_command_entrypoints() -> None:
+    manifest = tomllib.loads((POWER_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    assert not manifest["project"].get("scripts")
+    assert not (POWER_ROOT / "src" / "pkstack" / "launcher.py").exists()
+    assert not (REPOSITORY_ROOT / "projectctl").exists()
+    assert (REPOSITORY_ROOT / ".pkstack" / "bin" / "projectctl").is_file()

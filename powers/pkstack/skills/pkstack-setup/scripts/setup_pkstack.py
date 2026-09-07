@@ -11,12 +11,7 @@ from pathlib import Path
 SCRIPT_PATH = Path(__file__).resolve()
 POWER_ROOT = SCRIPT_PATH.parents[3]
 if not (POWER_ROOT / "src" / "pkstack").is_dir():
-    for ancestor in SCRIPT_PATH.parents:
-        cached_controller = ancestor / ".pkstack" / "projectctl"
-        if cached_controller == POWER_ROOT or cached_controller.is_dir():
-            POWER_ROOT = cached_controller
-            break
-
+    raise SystemExit("Run /pkstack-setup from the loaded Power source")
 sys.path.insert(0, str(POWER_ROOT / "src"))
 
 from pkstack.branding import DISPLAY_NAME  # noqa: E402

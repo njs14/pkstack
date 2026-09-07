@@ -222,7 +222,7 @@ def lane_for(nodeid):
         return "browser"
     if filename in {
         "test_packaging.py",
-        "test_uvx_launcher_acceptance.py",
+        "test_power_acceptance.py",
         "test_readme_walkthrough.py",
     }:
         return "package"

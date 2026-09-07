@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
 import sys
-import zipfile
+import tarfile
 from pathlib import Path
 from typing import Any
 
@@ -51,28 +50,29 @@ def _run_clean_json(
     return json.loads(completed.stdout)
 
 
-def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
-    uv = shutil.which("uv")
-    assert uv is not None
-    dist = tmp_path / "dist"
-    _run(
-        [uv, "build", "--wheel", "--out-dir", str(dist), "--no-build-logs"],
-        cwd=POWER_ROOT,
-    )
-
-    wheels = list(dist.glob("*.whl"))
-    assert len(wheels) == 1
-    with zipfile.ZipFile(wheels[0]) as archive:
-        members = set(archive.namelist())
-    assert any(name.endswith(".dist-info/licenses/THIRD_PARTY_NOTICES.md") for name in members)
+def test_extracted_power_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
+    archive_path = tmp_path / "pkstack-power.tar.gz"
+    with tarfile.open(archive_path, "w:gz") as archive:
+        for source in sorted(POWER_ROOT.rglob("*")):
+            if (
+                source.is_file()
+                and not any(
+                    part in {".venv", "__pycache__", "dist", ".git"}
+                    for part in source.relative_to(POWER_ROOT).parts
+                )
+                and source.suffix not in {".pyc", ".pyo"}
+            ):
+                archive.add(source, arcname=source.relative_to(POWER_ROOT), recursive=False)
+    extracted = tmp_path / "extracted-power"
+    with tarfile.open(archive_path) as archive:
+        archive.extractall(extracted, filter="data")
     for name in REQUIRED_SOURCE_MODULES:
-        assert f"pkstack/{name}" in members
+        assert (extracted / "src" / "pkstack" / name).is_file()
     for relative in REQUIRED_POWER_ASSETS:
-        assert f"pkstack/_assets/{relative}" in members
+        assert (extracted / relative).exists()
     for source in (POWER_ROOT / "skills").rglob("*"):
-        if source.is_file():
-            relative = source.relative_to(POWER_ROOT).as_posix()
-            assert f"pkstack/_assets/{relative}" in members
+        if source.is_file() and "__pycache__" not in source.parts:
+            assert (extracted / source.relative_to(POWER_ROOT)).read_bytes() == source.read_bytes()
 
     clean_env = {
         key: value
@@ -81,18 +81,17 @@ def test_wheel_assets_and_offline_bootstrap_runtime(tmp_path: Path) -> None:
         and key not in {"PYTHONPATH", "VIRTUAL_ENV"}
     }
     clean_env["UV_OFFLINE"] = "1"
-    install_venv = tmp_path / "install-venv"
-    _run([uv, "venv", "--python", sys.executable, str(install_venv)], cwd=tmp_path)
-    install_python = install_venv / "bin" / "python"
-    _run(
-        [uv, "pip", "install", "--python", str(install_python), str(wheels[0])],
-        cwd=tmp_path,
-    )
-
     target = tmp_path / "target"
     target.mkdir()
     setup_output = _run(
-        [str(install_venv / "bin" / "pkstack-setup"), "--root", str(target), "--output", "json"],
+        [
+            sys.executable,
+            str(extracted / "skills/pkstack-setup/scripts/setup_pkstack.py"),
+            "--root",
+            str(target),
+            "--output",
+            "json",
+        ],
         cwd=target,
         env=clean_env,
     )

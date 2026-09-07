@@ -38,7 +38,6 @@
           ".pkstack-maintenance/proposal.json",
           "powers/pkstack/README.md",
           "powers/pkstack/docs/okf-skills-parity.json",
-          "powers/pkstack/docs/okf-spec-source-parity.json",
           "powers/pkstack/docs/humanlayer-show-me-bundle-manifest.json",
           "powers/pkstack/docs/humanlayer-skills-source-parity.json",
           "powers/pkstack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
@@ -67,7 +66,8 @@
           "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
           "powers/pkstack/docs/astral-ty-bundle-manifest.json",
           "Wiki/knowledge/**/*.md",
-          "maintenance/knowledge-coverage.json"
+          "maintenance/knowledge-coverage.json",
+          "powers/pkstack/docs/google-open-knowledge-format-source-parity.json"
         ],
         "effect": "allow"
       },

@@ -33,11 +33,8 @@ def _clean_environment(tmp_path: Path) -> dict[str, str]:
     environment.update(
         TMPDIR=str(tmp_path),
         PATH=os.pathsep.join((str(Path(sys.executable).parent), os.environ.get("PATH", ""))),
-        # uvx resolves package metadata; a locked sync alone does not warm it.
-        # These walkthroughs run in the dependency-enabled packaging lane.
+        # Use an isolated cache for the installed controller environment.
         UV_CACHE_DIR=str(tmp_path / "uv-cache"),
-        UV_TOOL_DIR=str(tmp_path / "uv-tools"),
-        UV_TOOL_BIN_DIR=str(tmp_path / "uv-tool-bin"),
     )
     return environment
 
@@ -178,12 +175,7 @@ def test_linked_first_task_records_failure_before_repair_and_pass(tmp_path: Path
     )
     verified = subprocess.run(
         [
-            "uvx",
-            "--python",
-            ">=3.11",
-            "--from",
-            str(checkout / "powers/pkstack"),
-            "pkstack",
+            str(project / ".pkstack/bin/projectctl"),
             "goal",
             "verify",
             "--output",

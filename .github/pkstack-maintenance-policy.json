@@ -33,7 +33,6 @@
       ".pkstack-maintenance/proposal.json",
       "powers/pkstack/README.md",
       "powers/pkstack/docs/okf-skills-parity.json",
-      "powers/pkstack/docs/okf-spec-source-parity.json",
       "powers/pkstack/docs/humanlayer-show-me-bundle-manifest.json",
       "powers/pkstack/docs/humanlayer-skills-source-parity.json",
       "powers/pkstack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
@@ -62,7 +61,8 @@
       "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
       "powers/pkstack/docs/astral-ty-bundle-manifest.json",
       "Wiki/knowledge/**/*.md",
-      "maintenance/knowledge-coverage.json"
+      "maintenance/knowledge-coverage.json",
+      "powers/pkstack/docs/google-open-knowledge-format-source-parity.json"
     ],
     "deny_patterns": [
       ".github/**",
@@ -137,7 +137,6 @@
     ".pkstack-maintenance/proposal.json",
     "powers/pkstack/README.md",
     "powers/pkstack/docs/okf-skills-parity.json",
-    "powers/pkstack/docs/okf-spec-source-parity.json",
     "powers/pkstack/docs/humanlayer-show-me-bundle-manifest.json",
     "powers/pkstack/docs/humanlayer-skills-source-parity.json",
     "powers/pkstack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
@@ -161,7 +160,9 @@
     "powers/pkstack/docs/astral-uv-bundle-manifest.json",
     "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
     "powers/pkstack/docs/astral-ty-bundle-manifest.json",
-    "maintenance/knowledge-coverage.json"
+    "maintenance/knowledge-coverage.json",
+    "powers/pkstack/docs/google-open-knowledge-format-source-parity.json",
+    "powers/pkstack/docs/google-open-knowledge-format-provenance.md"
   ],
   "agent_allowed_prefixes": {
     "powers/pkstack/dev.kiro/": [
@@ -190,7 +191,6 @@
     "maintenance/upstreams.json",
     "powers/pkstack/README.md",
     "powers/pkstack/docs/okf-skills-parity.json",
-    "powers/pkstack/docs/okf-spec-source-parity.json",
     "powers/pkstack/docs/humanlayer-show-me-bundle-manifest.json",
     "powers/pkstack/docs/humanlayer-skills-source-parity.json",
     "powers/pkstack/docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
@@ -210,12 +210,13 @@
     "powers/pkstack/docs/tt-a1i-archify-bundle-manifest.json",
     "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
     "powers/pkstack/docs/upstream-skill-parity.json",
-    "projectctl",
     "powers/pkstack/docs/astral-python-source-parity.json",
     "powers/pkstack/docs/astral-uv-bundle-manifest.json",
     "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
     "powers/pkstack/docs/astral-ty-bundle-manifest.json",
-    "maintenance/knowledge-coverage.json"
+    "maintenance/knowledge-coverage.json",
+    "powers/pkstack/docs/google-open-knowledge-format-source-parity.json",
+    "powers/pkstack/docs/google-open-knowledge-format-provenance.md"
   ],
   "final_allowed_prefixes": {
     ".kiro/agents/": [
@@ -255,7 +256,10 @@
     "Wiki/features/pkstack-upstream-maintenance.md",
     "powers/pkstack/docs/validation-report.md",
     "Wiki/knowledge/pkstack/corpus-migration.md",
-    "Wiki/knowledge/pkstack/corpus-inventory.json"
+    "Wiki/knowledge/pkstack/corpus-inventory.json",
+    "maintenance/retired-upstreams/google-okf-spec.json",
+    "powers/pkstack/docs/okf-spec-source-parity.json",
+    "powers/pkstack/docs/okf-spec-provenance.md"
   ],
   "protected_basenames": [
     "AGENTS.md",

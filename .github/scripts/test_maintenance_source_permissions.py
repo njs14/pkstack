@@ -55,6 +55,18 @@ class SourcePermissionTests(unittest.TestCase):
                     sibling = str(Path(path).with_name("unlisted-source-parity.json"))
                     self.assertFalse(guard._matches(sibling, exact, prefixes))
 
+    def test_retired_okf_history_cannot_be_rewritten_by_maintenance(self):
+        path = "maintenance/retired-upstreams/google-okf-spec.json"
+        self.assertTrue(guard._is_protected(path, self.policy))
+        for scope in ("agent", "final"):
+            self.assertFalse(
+                guard._matches(
+                    path,
+                    set(self.policy[f"{scope}_allowed_exact"]),
+                    self.policy[f"{scope}_allowed_prefixes"],
+                )
+            )
+
     def test_knowledge_writes_are_data_only_and_cannot_change_controls(self):
         for scope in ("agent", "final"):
             exact = set(self.policy[f"{scope}_allowed_exact"])

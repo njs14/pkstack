@@ -1,4 +1,4 @@
-"""Real uvx acceptance against a disposable application project."""
+"""Power-local setup and controller acceptance in disposable applications."""
 
 from __future__ import annotations
 
@@ -17,33 +17,23 @@ import pytest
 
 POWER_ROOT = Path(__file__).parents[1]
 POWER_VERSION = json.loads((POWER_ROOT / "plugin.json").read_text(encoding="utf-8"))["version"]
-NEXT_VERSION = f"{POWER_VERSION.rsplit('.', 1)[0]}.{int(POWER_VERSION.rsplit('.', 1)[1]) + 1}"
-BUILD_IGNORE = shutil.ignore_patterns(
-    ".git", ".venv", "dist", "tests", "benchmarks", "__pycache__", "*.pyc"
-)
 
 
 @dataclass(frozen=True, slots=True)
-class UvxTool:
-    """A uv installation confined to this module's cache and tool directories."""
+class PowerTool:
+    """Invoke setup from the Power and execution from its generated wrapper."""
 
     uv: str
-    wheel: Path
-    next_wheel: Path
     env: dict[str, str]
 
-    def command(self, *arguments: str, wheel: Path | None = None) -> list[str]:
-        return [
-            self.uv,
-            "tool",
-            "run",
-            "--python",
-            sys.executable,
-            "--from",
-            str(wheel or self.wheel),
-            "pkstack",
-            *arguments,
-        ]
+    def command(self, *arguments: str) -> list[str]:
+        if arguments[0] == "setup":
+            return [
+                sys.executable,
+                str(POWER_ROOT / "skills/pkstack-setup/scripts/setup_pkstack.py"),
+                *arguments[1:],
+            ]
+        return [".pkstack/bin/projectctl", *arguments]
 
 
 def _run(command: list[str], *, cwd: Path, env: dict[str, str]) -> subprocess.CompletedProcess[str]:
@@ -65,65 +55,17 @@ def _json(completed: subprocess.CompletedProcess[str], *, code: int = 0) -> dict
     return payload
 
 
-def _build_wheel(source: Path, uv: str, out_dir: Path, env: dict[str, str]) -> Path:
-    _ok(
-        _run(
-            [uv, "build", "--wheel", "--no-sources", "--out-dir", str(out_dir), "--no-build-logs"],
-            cwd=source,
-            env=env,
-        )
-    )
-    wheels = sorted(out_dir.glob("*.whl"))
-    assert len(wheels) == 1, wheels
-    return wheels[0]
-
-
 @pytest.fixture(scope="module")
-def uvx_tool(tmp_path_factory: pytest.TempPathFactory) -> UvxTool:
-    """Build the shipped wheel and one bumped-version wheel exactly once."""
-
+def power_tool() -> PowerTool:
     uv = shutil.which("uv")
     assert uv is not None
-    base = tmp_path_factory.mktemp("uvx-tool")
     env = {
         key: value
         for key, value in os.environ.items()
-        if not key.startswith(("COV_CORE_", "COVERAGE_", "UV_"))
+        if not key.startswith(("COV_CORE_", "COVERAGE_"))
         and key not in {"PYTHONPATH", "VIRTUAL_ENV"}
     }
-    # Never touch the developer's global uv tool or cache state.
-    env["UV_CACHE_DIR"] = str(base / "cache")
-    env["UV_TOOL_DIR"] = str(base / "tools")
-    env["UV_TOOL_BIN_DIR"] = str(base / "tool-bin")
-
-    wheel = _build_wheel(POWER_ROOT, uv, base / "dist", env)
-
-    upgrade_source = base / "power-next"
-    shutil.copytree(POWER_ROOT, upgrade_source, ignore=BUILD_IGNORE)
-    for relative, old, new in (
-        ("pyproject.toml", f'version = "{POWER_VERSION}"', f'version = "{NEXT_VERSION}"'),
-        (
-            "src/pkstack/__init__.py",
-            f'__version__ = "{POWER_VERSION}"',
-            f'__version__ = "{NEXT_VERSION}"',
-        ),
-        (
-            "templates/projectctl/uv.lock",
-            f'name = "pkstack"\nversion = "{POWER_VERSION}"',
-            f'name = "pkstack"\nversion = "{NEXT_VERSION}"',
-        ),
-    ):
-        path = upgrade_source / relative
-        text = path.read_text(encoding="utf-8")
-        assert text.count(old) == 1, relative
-        path.write_text(text.replace(old, new), encoding="utf-8")
-    next_wheel = _build_wheel(upgrade_source, uv, base / "dist-next", env)
-    tool = UvxTool(uv=uv, wheel=wheel, next_wheel=next_wheel, env=env)
-    # Warm each isolated tool environment before JSON-output assertions. uv's
-    # package preparation messages are stderr, separate from our CLI contract.
-    for selected in (wheel, next_wheel):
-        _ok(_run(tool.command("--version", wheel=selected), cwd=base, env=env))
-    return tool
+    return PowerTool(uv=uv, env=env)
 
 
 def _application(root: Path) -> Path:
@@ -164,22 +106,19 @@ def _snapshot(root: Path) -> dict[str, bytes]:
     }
 
 
-def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_path: Path) -> None:
+def test_power_controller_operates_a_disposable_application(
+    power_tool: PowerTool, tmp_path: Path
+) -> None:
     application = _application(tmp_path / "app")
     caller_venv = tmp_path / "app-venv"
-    caller_env = dict(uvx_tool.env)
+    caller_env = dict(power_tool.env)
     caller_env["VIRTUAL_ENV"] = str(caller_venv)
     caller_env["PKSTACK_ACCEPTANCE_SENTINEL"] = "preserved"
-
-    launcher_version = _ok(
-        _run(uvx_tool.command("--version"), cwd=application, env=caller_env)
-    ).stdout
-    assert launcher_version.splitlines()[0] == f"pkstack {POWER_VERSION}"
 
     before_setup = _snapshot(application)
     dry_run = _json(
         _run(
-            uvx_tool.command("setup", "--dry-run", "--output", "json"),
+            power_tool.command("setup", "--dry-run", "--output", "json"),
             cwd=application,
             env=caller_env,
         )
@@ -190,7 +129,7 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
     assert _snapshot(application) == before_setup
 
     first = _json(
-        _run(uvx_tool.command("setup", "--output", "json"), cwd=application, env=caller_env)
+        _run(power_tool.command("setup", "--output", "json"), cwd=application, env=caller_env)
     )
     assert first["ok"] is True
     assert first["root"] == str(application)
@@ -198,25 +137,25 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
     assert controller.is_file() and os.access(controller, os.X_OK)
 
     repeated = _json(
-        _run(uvx_tool.command("setup", "--output", "json"), cwd=application, env=caller_env)
+        _run(power_tool.command("setup", "--output", "json"), cwd=application, env=caller_env)
     )
     assert repeated["ok"] is True
     assert repeated["created"] == [] and repeated["updated"] == []
     assert repeated["unchanged"]
 
     version = _json(
-        _run(uvx_tool.command("version", "--output", "json"), cwd=application, env=caller_env)
+        _run(power_tool.command("version", "--output", "json"), cwd=application, env=caller_env)
     )
     assert version["version"] == POWER_VERSION
     assert version["name"] == "pkstack"
 
     doctor = _json(
-        _run(uvx_tool.command("doctor", "--output", "json"), cwd=application, env=caller_env)
+        _run(power_tool.command("doctor", "--output", "json"), cwd=application, env=caller_env)
     )
     assert doctor["ok"] is True
     features = _json(
         _run(
-            uvx_tool.command("feature", "validate", "--output", "json"),
+            power_tool.command("feature", "validate", "--output", "json"),
             cwd=application,
             env=caller_env,
         )
@@ -224,30 +163,20 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
     assert features["ok"] is True
 
     unknown = _run(
-        uvx_tool.command("not-a-command", "--output", "json"), cwd=application, env=caller_env
+        power_tool.command("not-a-command", "--output", "json"), cwd=application, env=caller_env
     )
     assert unknown.returncode == 2
     assert unknown.stderr == ""
     unknown_payload = json.loads(unknown.stdout)
     assert unknown_payload["ok"] is False and unknown_payload["error_type"]
 
-    root_conflict = _run(
-        uvx_tool.command("doctor", "--root", str(application), "--output", "json"),
-        cwd=application,
-        env=caller_env,
-    )
-    assert root_conflict.returncode == 2
-    assert root_conflict.stderr == ""
-    assert "--project" in json.loads(root_conflict.stdout)["error"]
-
-    # The verifier must observe the caller environment, not the uvx tool
-    # environment or the controller's own interpreter.
+    # The verifier must observe the caller environment.
     baseline = json.loads(
         _ok(_run([sys.executable, "envprobe.py"], cwd=application, env=caller_env)).stdout
     )
     probe_goal = _json(
         _run(
-            uvx_tool.command(
+            power_tool.command(
                 "goal",
                 "start",
                 "Observe the verifier environment",
@@ -264,7 +193,7 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
     probe = json.loads(
         _json(
             _run(
-                uvx_tool.command("goal", "verify", "--output", "json"),
+                power_tool.command("goal", "verify", "--output", "json"),
                 cwd=application,
                 env=caller_env,
             )
@@ -272,27 +201,24 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
     )
     assert probe == baseline
     assert probe["virtual_env"] == str(caller_venv)
-    # No controller runtime, uvx tool environment, or launcher import path leaks
-    # into the verifier that the generated controller actually executes.
+    # The generated controller must not leak its runtime into the verifier.
     assert ".pkstack" not in (probe["pkstack_origin"] or "")
     assert not any(".pkstack" in entry for entry in probe["sys_path"])
-    assert not any(uvx_tool.env["UV_TOOL_DIR"] in entry for entry in probe["sys_path"])
     assert ".pkstack/projectctl" not in json.dumps(probe)
-    assert uvx_tool.env["UV_TOOL_DIR"] not in (probe["path"] or "")
     assert str(application / ".pkstack") not in (probe["path"] or "")
 
     # A failing verifier is repaired in the application, never in the controller.
     verifier_before = (application / "check.py").read_bytes()
     _json(
         _run(
-            uvx_tool.command("goal", "clear", "--output", "json"),
+            power_tool.command("goal", "clear", "--output", "json"),
             cwd=application,
             env=caller_env,
         )
     )
     _ok(
         _run(
-            uvx_tool.command(
+            power_tool.command(
                 "goal",
                 "start",
                 "Normalize the account value",
@@ -306,7 +232,7 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
         )
     )
     failed = _run(
-        uvx_tool.command("goal", "verify", "--output", "json"), cwd=application, env=caller_env
+        power_tool.command("goal", "verify", "--output", "json"), cwd=application, env=caller_env
     )
     assert failed.returncode == 1
     failed_payload = json.loads(failed.stdout)
@@ -315,7 +241,9 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
     (application / "value.txt").write_text("normalized\n", encoding="utf-8")
     passed = _json(
         _run(
-            uvx_tool.command("goal", "verify", "--output", "json"), cwd=application, env=caller_env
+            power_tool.command("goal", "verify", "--output", "json"),
+            cwd=application,
+            env=caller_env,
         )
     )
     assert passed["ok"] is True
@@ -330,7 +258,7 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
     assert edited_profile != reviewed_profile
     profile.write_bytes(edited_profile)
     conflicted = _run(
-        uvx_tool.command("setup", "--output", "json"), cwd=application, env=caller_env
+        power_tool.command("setup", "--output", "json"), cwd=application, env=caller_env
     )
     assert conflicted.returncode == 2
     conflict_payload = json.loads(conflicted.stdout)
@@ -339,55 +267,8 @@ def test_uvx_launcher_operates_a_disposable_application(uvx_tool: UvxTool, tmp_p
     assert profile.read_bytes() == edited_profile
     profile.write_bytes(reviewed_profile)
 
-    # The launcher version and the installed controller version differ until upgrade.
-    next_launcher = _ok(
-        _run(
-            uvx_tool.command("--version", wheel=uvx_tool.next_wheel),
-            cwd=application,
-            env=caller_env,
-        )
-    ).stdout
-    assert next_launcher.splitlines()[0] == f"pkstack {NEXT_VERSION}"
-    still_installed = _json(
-        _run(
-            uvx_tool.command("version", "--output", "json", wheel=uvx_tool.next_wheel),
-            cwd=application,
-            env=caller_env,
-        )
-    )
-    assert still_installed["version"] == POWER_VERSION
 
-    controller_pyproject = application / ".pkstack" / "projectctl" / "pyproject.toml"
-    before_upgrade = _snapshot(application)
-    preview = _json(
-        _run(
-            uvx_tool.command("upgrade", "--dry-run", "--output", "json", wheel=uvx_tool.next_wheel),
-            cwd=application,
-            env=caller_env,
-        )
-    )
-    assert preview["update_managed"] is True
-    assert preview["dry_run"] is True
-    assert any("projectctl/pyproject.toml" in entry for entry in preview["updated"])
-    assert _snapshot(application) == before_upgrade
-
-    applied = _json(
-        _run(
-            uvx_tool.command("upgrade", "--output", "json", wheel=uvx_tool.next_wheel),
-            cwd=application,
-            env=caller_env,
-        )
-    )
-    assert applied["ok"] is True
-    assert any("projectctl/pyproject.toml" in entry for entry in applied["updated"])
-    assert f'version = "{NEXT_VERSION}"' in controller_pyproject.read_text(encoding="utf-8")
-    upgraded = _json(
-        _run(uvx_tool.command("version", "--output", "json"), cwd=application, env=caller_env)
-    )
-    assert upgraded["version"] == NEXT_VERSION
-
-
-def test_uvx_forwarded_command_is_cancelled_by_a_signal(uvx_tool: UvxTool, tmp_path: Path) -> None:
+def test_controller_command_is_cancelled_by_a_signal(power_tool: PowerTool, tmp_path: Path) -> None:
     application = _application(tmp_path / "signal-app")
     (application / "sleeper.py").write_text(
         "import os, pathlib, sys, time\n"
@@ -396,10 +277,12 @@ def test_uvx_forwarded_command_is_cancelled_by_a_signal(uvx_tool: UvxTool, tmp_p
         "time.sleep(120)\n",
         encoding="utf-8",
     )
-    _json(_run(uvx_tool.command("setup", "--output", "json"), cwd=application, env=uvx_tool.env))
+    _json(
+        _run(power_tool.command("setup", "--output", "json"), cwd=application, env=power_tool.env)
+    )
     _ok(
         _run(
-            uvx_tool.command(
+            power_tool.command(
                 "goal",
                 "start",
                 "Cancel a long verifier",
@@ -409,15 +292,15 @@ def test_uvx_forwarded_command_is_cancelled_by_a_signal(uvx_tool: UvxTool, tmp_p
                 "json",
             ),
             cwd=application,
-            env=uvx_tool.env,
+            env=power_tool.env,
         )
     )
 
     started = application / "started.txt"
     process = subprocess.Popen(
-        uvx_tool.command("goal", "verify", "--output", "json"),
+        power_tool.command("goal", "verify", "--output", "json"),
         cwd=application,
-        env=uvx_tool.env,
+        env=power_tool.env,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -453,30 +336,30 @@ def test_uvx_forwarded_command_is_cancelled_by_a_signal(uvx_tool: UvxTool, tmp_p
     # The cancelled run records no attempt and leaves the application intact.
     status = _json(
         _run(
-            uvx_tool.command("goal", "status", "--output", "json"),
+            power_tool.command("goal", "status", "--output", "json"),
             cwd=application,
-            env=uvx_tool.env,
+            env=power_tool.env,
         )
     )
     assert status["goal"]["attempt_count"] == 0
     assert status["goal"]["last_result"] is None
     assert (application / "sleeper.py").is_file()
     survivor = _json(
-        _run(uvx_tool.command("version", "--output", "json"), cwd=application, env=uvx_tool.env)
+        _run(power_tool.command("version", "--output", "json"), cwd=application, env=power_tool.env)
     )
     assert survivor["version"] == POWER_VERSION
 
 
-def test_uvx_verifier_uses_real_application_python_and_imports(
-    uvx_tool: UvxTool, tmp_path: Path
+def test_controller_verifier_uses_real_application_python_and_imports(
+    power_tool: PowerTool, tmp_path: Path
 ) -> None:
     application = _application(tmp_path / "application with spaces")
     venv = application / ".venv"
     _ok(
         _run(
-            [uvx_tool.uv, "venv", "--python", sys.executable, str(venv)],
+            [power_tool.uv, "venv", "--python", sys.executable, str(venv)],
             cwd=application,
-            env=uvx_tool.env,
+            env=power_tool.env,
         )
     )
     python = venv / "bin" / "python"
@@ -485,7 +368,7 @@ def test_uvx_verifier_uses_real_application_python_and_imports(
             _run(
                 [str(python), "-c", "import sysconfig; print(sysconfig.get_path('purelib'))"],
                 cwd=application,
-                env=uvx_tool.env,
+                env=power_tool.env,
             )
         ).stdout.strip()
     )
@@ -495,7 +378,7 @@ def test_uvx_verifier_uses_real_application_python_and_imports(
         "'virtual_env': os.environ.get('VIRTUAL_ENV'), "
         "'marker': 'application-only dependency'}, sort_keys=True))\n"
     )
-    environment = dict(uvx_tool.env)
+    environment = dict(power_tool.env)
     environment["PATH"] = os.pathsep.join([str(venv / "bin"), environment.get("PATH", "")])
     environment["VIRTUAL_ENV"] = str(venv)
     baseline = json.loads(
@@ -503,10 +386,10 @@ def test_uvx_verifier_uses_real_application_python_and_imports(
     )
     assert Path(baseline["prefix"]) == venv
     assert Path(baseline["module"]).is_relative_to(venv)
-    _json(_run(uvx_tool.command("setup", "--output", "json"), cwd=application, env=environment))
+    _json(_run(power_tool.command("setup", "--output", "json"), cwd=application, env=environment))
     _json(
         _run(
-            uvx_tool.command(
+            power_tool.command(
                 "goal",
                 "start",
                 "Use the application environment",
@@ -521,7 +404,9 @@ def test_uvx_verifier_uses_real_application_python_and_imports(
     )
     result = _json(
         _run(
-            uvx_tool.command("goal", "verify", "--output", "json"), cwd=application, env=environment
+            power_tool.command("goal", "verify", "--output", "json"),
+            cwd=application,
+            env=environment,
         )
     )
     assert json.loads(result["goal"]["last_result"]["stdout"]) == baseline
@@ -529,7 +414,7 @@ def test_uvx_verifier_uses_real_application_python_and_imports(
     direct = _json(
         _run([str(wrapper), "version", "--output", "json"], cwd=application, env=environment)
     )
-    through_uvx = _json(
-        _run(uvx_tool.command("version", "--output", "json"), cwd=application, env=environment)
+    repeated = _json(
+        _run(power_tool.command("version", "--output", "json"), cwd=application, env=environment)
     )
-    assert through_uvx == direct
+    assert repeated == direct

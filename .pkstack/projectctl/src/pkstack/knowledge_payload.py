@@ -9,12 +9,12 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-import os
 from pathlib import Path, PurePosixPath
 from typing import Any
 
 from pkstack.features import FeatureMapError, _read_bounded_bytes
-from pkstack.paths import WorkspacePathError, ensure_tree_no_symlinks, workspace_path
+from pkstack.knowledge_layout import out_of_layout_documents
+from pkstack.paths import WorkspacePathError, ensure_tree_no_symlinks
 
 SOURCE_ROOTS = ("Wiki/knowledge", "Wiki/features", ".kiro/specs")
 MAX_DOCUMENT_BYTES = 512 * 1024
@@ -27,27 +27,6 @@ class KnowledgeRuntimeError(RuntimeError):
     """The bounded knowledge task could not produce usable evidence."""
 
 
-def legacy_documents(root: Path) -> list[str]:
-    """Locate retained Markdown outside the explicit topic/feature roots."""
-
-    wiki = workspace_path(root, Path("Wiki"))
-    legacy: list[str] = []
-    for directory, subdirectories, files in os.walk(wiki, followlinks=False):
-        parent = Path(directory)
-        if parent == wiki:
-            subdirectories[:] = [
-                name for name in subdirectories if name not in {"knowledge", "features", "work"}
-            ]
-        for name in subdirectories:
-            workspace_path(root, parent / name)
-        for name in files:
-            if Path(name).suffix.lower() != ".md" or (parent == wiki and name == "index.md"):
-                continue
-            path = workspace_path(root, parent / name)
-            legacy.append(path.relative_to(root.resolve()).as_posix())
-    return sorted(legacy)
-
-
 def snapshot_sources(root: Path) -> dict[str, bytes]:
     """Read only retained knowledge, feature records, and native Markdown specs."""
 
@@ -55,7 +34,7 @@ def snapshot_sources(root: Path) -> dict[str, bytes]:
     documents: dict[str, bytes] = {}
     total = 0
     try:
-        legacy = legacy_documents(root)
+        legacy = out_of_layout_documents(root)
         if legacy:
             raise KnowledgeRuntimeError(
                 "legacy Wiki knowledge would be omitted; migrate it into Wiki/knowledge first: "
