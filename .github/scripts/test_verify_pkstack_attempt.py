@@ -27,6 +27,7 @@ class VerifierExecutionTests(unittest.TestCase):
         cleanup_failure: bool = False,
         proposal_reason: str = "",
         wrong_control_head: bool = False,
+        coverage_failure: bool = False,
     ):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -91,6 +92,14 @@ class VerifierExecutionTests(unittest.TestCase):
         """),
             encoding="utf-8",
         )
+        (root / "pkstack_knowledge_coverage.py").write_text(
+            "import os, sys\n"
+            "assert not os.environ.get('KIRO_API_KEY')\n"
+            "assert '--base' in sys.argv and '--repo-root' in sys.argv\n"
+            "if os.environ['TEST_COVERAGE_FAILURE'] == 'true':\n"
+            "    print(os.environ['TEST_SENTINEL'] + ' current_sha256=' + 'c' * 64)\n"
+            "    raise SystemExit(18)\n"
+        )
         for name in ("git", "uv"):
             command = binary / name
             command.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
@@ -137,6 +146,7 @@ class VerifierExecutionTests(unittest.TestCase):
             "TEST_CLEANUP_FAILURE": str(cleanup_failure).lower(),
             "TEST_PROPOSAL_REASON": proposal_reason,
             "TEST_SENTINEL": SENTINEL,
+            "TEST_COVERAGE_FAILURE": str(coverage_failure).lower(),
         }
         for key, name in (
             ("KIRO_BIN_DIR", "kiro-bin"),
@@ -221,6 +231,16 @@ class VerifierExecutionTests(unittest.TestCase):
             (17, 19, False),
         )
         self.assertFalse(output.exists())
+
+    def test_coverage_failure_blocks_packaging_and_keeps_hash_feedback_private(self):
+        result, report, output, feedback, _ = self.execute(coverage_failure=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(
+            (report["stage"], report["exit_code"], report["passed"]), ("post-accept", 18, False)
+        )
+        self.assertEqual(output.read_text(), "passed=false\nattempt=1\n")
+        self.assertIn("current_sha256=" + "c" * 64, feedback.read_text())
+        self.assertNotIn("current_sha256", result.stdout + result.stderr)
 
     def test_proposal_failures_retain_only_allowlisted_reason_codes(self):
         for reason in sorted(guard_module.PROPOSAL_FAILURE_REASONS):

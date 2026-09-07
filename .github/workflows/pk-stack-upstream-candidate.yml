@@ -433,6 +433,7 @@ jobs:
       - name: Run candidate gates without credentials
         env:
           EXPECTED_SHA: ${{ needs.resolve.outputs.head_sha }}
+          COVERAGE_BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
           TRUSTED_ROOT: ${{ runner.temp }}/pkstack-candidate-trusted
           PKSTACK_BROWSER_PROFILE: full
         run: |
@@ -447,6 +448,10 @@ jobs:
           trusted_projectctl feature validate --output json
           trusted_projectctl version --output json
           trusted_projectctl knowledge validate --output json
+          PYTHONPATH="$TRUSTED_ROOT/.pkstack/projectctl/src" \
+            "$TRUSTED_ROOT/.pkstack/projectctl/.venv/bin/python" -B \
+            "$TRUSTED_ROOT/.github/scripts/pkstack_knowledge_coverage.py" \
+            --repo-root . --base "$COVERAGE_BASE_SHA"
           # Protected controls match the base; discovery also includes the
           # maintenance guard and stream regressions, once each.
           python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'

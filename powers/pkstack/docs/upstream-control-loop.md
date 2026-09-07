@@ -11,7 +11,13 @@ Kiro CLI and IDE sessions do not depend on the pipeline.
 ![One source update moves through bounded Kiro repair, secretless verification, independent review, and exact-candidate merge.](artifacts/pkstack-updater-workflow.png)
 
 The updater can adapt existing skill and documentation text within the paths allowed
-by [the maintenance policy](../../../.github/pkstack-maintenance-policy.json). It
+by [the maintenance policy](../../../.github/pkstack-maintenance-policy.json). It can also
+propose related `Wiki/knowledge/` Markdown and affected entries in
+`maintenance/knowledge-coverage.json`. The source-scoped coverage check preserves existing
+classifications, topic mappings, exclusions, and unrelated entries. New authored guides
+need mapped Wiki topics; an updated hash alone does not establish useful knowledge capture.
+The independent reviewer assesses the source and Wiki changes together and rejects insufficient
+context or lost guidance. The updater
 cannot edit executable helpers, controller code, tests, dependencies, permissions,
 or workflow controls. Those changes require a maintainer.
 
@@ -114,6 +120,11 @@ credentials are never published. Artifact expiry does not reset the durable coun
 - A generated-only parity mismatch produces `manual-parity`, with no model call.
   Run setup from reviewed Power source, inspect the generated diff, and run the
   deterministic tests. An LLM is not needed to regenerate known outputs.
+- A stale knowledge source hash or missing Wiki mapping fails verification. The private feedback
+  supplies observed `current_sha256` values after trusted regeneration, so the next repair can
+  update only the reviewed affected entries, including generated mirrors. The checker does not
+  rewrite hashes or accept exclusions automatically. Final candidate tests rerun the trusted
+  base checker with the exact base SHA before the candidate can merge.
 - Source code, security-policy, executable, or dependency changes remain outside
   the automated text-maintenance boundary.
 

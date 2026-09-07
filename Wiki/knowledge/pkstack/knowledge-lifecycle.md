@@ -36,7 +36,7 @@ The [native planning decision](native-spec-and-okn.md) and
 | Native requirements, designs, and task plans | `.kiro/specs/` |
 | Skills, bundled references, scripts, and templates | Native skill package directories |
 | Agent instructions, steering, configuration, and runtime state | Existing native locations |
-| Package usage guides, provenance, and historical evidence | Existing locations classified in the [corpus inventory](corpus-migration.md) |
+| Package usage guides, provenance, and historical evidence | Original locations; reusable understanding is curated into linked Wiki topics under the [current coverage policy](quality-and-ci.md#repository-knowledge-gate) |
 
 Use a topic name that the next reader can recognize. Link to authoritative native artifacts with
 ordinary relative links; do not create a second task graph, native document copy, or synchronization
@@ -94,3 +94,44 @@ this design contract into a blanket pass for later workflows.
 
 Later Pocock integrations use the proven lifecycle after this foundation is accepted. This decision
 does not declare the remaining integrations implemented or their behavior verified.
+
+## Current repository coverage policy
+
+The original [migration report](corpus-migration.md) and its 247-file inventory remain historical
+records. Their decision to keep package docs and reviews outside ordinary retrieval did not mean
+those documents contained no reusable knowledge. The current policy curates that understanding
+into topic pages while keeping original guides, evidence and native assets intact. This supersedes
+the earlier retained-corpus treatment as an ongoing coverage rule, without rewriting its baseline.
+
+The repository-only [coverage manifest](../../../maintenance/knowledge-coverage.json) records each
+Markdown file's disposition. It is an accountability and freshness check, not a synchronization
+registry or a second copy of native artifacts. A mapped source's SHA-256 changes when its bytes
+change, requiring a review of its Wiki summary or a reason no knowledge update is needed.
+Sources remain untrusted data, and a current hash is not evidence that a claim is true.
+
+Reusable findings from historical reviews belong in the relevant topic with their source and
+limits. Retain a prior failure even when a later candidate fixes it. Link a superseding observation
+to the exact older claim rather than treating every result in a campaign as superseded. A topic
+must carry enough of the explanation to answer bounded questions; links alone do not bring
+external guide/report contents into the retrieval corpus.
+
+The local metadata/link gate does not invoke Kiro or a model. The knowledge-foundation evidence
+records a bounded macOS Kiro CLI 2.21.1 / KAS 0.58.7 query and host corrections; Linux live retrieval
+is not established by the separate Linux discovery/model-inventory canary. Selected Auto does not
+identify its internal model. Quote/path/hash verification checks cited passages, not the truth of
+all synthesized prose. The later parser optimization caches heading parsing by content for one
+validation only, retaining fresh bounded reads and path checks for every link.
+
+During this coverage expansion, old security/support and artwork wording was retained and
+identified in [release guidance](release-and-review.md#open-documentation-inconsistencies).
+Unknown policy decisions stay open; curation must not silently select a new support policy.
+
+## Source-specific retained knowledge
+
+These summaries describe what is retained from each source. Historical observations keep their
+original candidate and scope; they are not fresh verification of this checkout.
+
+| Source | Retained guidance or bounded observation |
+| --- | --- |
+| [reviews/knowledge-foundation.md](../../../reviews/knowledge-foundation.md) | The foundation retired okn, preserved user-owned knowledge indexes, and tested bounded local validation and macOS retrieval with host corrections; source ownership and live-query proof remain distinct. |
+| [reviews/okf-integration-evidence.md](../../../reviews/okf-integration-evidence.md) | The September 3 comparison separated Google format semantics, OKF methodology and then-selected okn runtime; the runtime choice is superseded by the later foundation, not silently rewritten. |

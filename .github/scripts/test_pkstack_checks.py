@@ -367,6 +367,7 @@ class GitPlanTests(unittest.TestCase):
             "powers/pkstack/uv.lock",
             "ruff.toml",
             "ty.toml",
+            "maintenance/knowledge-coverage.json",
             "reviews/release-status.md",
         ):
             target = self.root / path
@@ -414,6 +415,12 @@ class GitPlanTests(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             checks.check_reports(self.root, plan["changes"], plan["base"])
 
+    def test_changed_coverage_manifest_invalidates_the_plan(self):
+        plan = checks.make_plan(self.root, "local")
+        (self.root / "maintenance/knowledge-coverage.json").write_text("changed\n")
+        with self.assertRaises(ValueError):
+            checks.validate_plan(plan, self.root)
+
     def test_reports_validate_relative_links_and_allow_machine_evidence(self):
         path = self.root / "reviews/release-status.md"
         path.write_text(
@@ -432,6 +439,56 @@ class GitPlanTests(unittest.TestCase):
         path.write_text("[outside](../../outside.md)\n")
         with self.assertRaises(ValueError):
             checks.check_reports(self.root, changes, self.base)
+
+
+class KnowledgeGateTests(unittest.TestCase):
+    def test_coverage_failure_stops_both_profiles_and_records_failure(self):
+        for profile in ("normal", "reports"):
+            with self.subTest(profile=profile), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                plan, _ = plan_and_receipts()
+                plan.update(profile=profile, base="a" * 40, changes=[])
+                receipt = root / "receipt.json"
+                with (
+                    patch.object(checks, "validate_plan"),
+                    patch.object(
+                        checks,
+                        "run_commands",
+                        side_effect=subprocess.CalledProcessError(1, ["coverage"]),
+                    ) as gate,
+                    patch.object(checks, "check_reports") as reports,
+                    patch.object(checks.subprocess, "run") as product_tests,
+                ):
+                    self.assertEqual(checks.run_lane(root, plan, "fast", receipt), 1)
+                self.assertIn("pkstack_knowledge_coverage.py", str(gate.call_args))
+                reports.assert_not_called()
+                product_tests.assert_not_called()
+                self.assertEqual(json.loads(receipt.read_text())["outcome"], "failed")
+
+    def test_report_profile_runs_coverage_before_report_checks(self):
+        with tempfile.TemporaryDirectory() as folder:
+            plan, _ = plan_and_receipts()
+            plan.update(profile="reports", base="a" * 40, changes=[])
+            order = []
+            with (
+                patch.object(checks, "validate_plan"),
+                patch.object(
+                    checks, "run_commands", side_effect=lambda *_: order.append("coverage")
+                ),
+                patch.object(
+                    checks, "check_reports", side_effect=lambda *_: order.append("reports")
+                ),
+            ):
+                code = checks.run_lane(Path(folder), plan, "fast", Path(folder) / "receipt.json")
+            self.assertEqual(code, 0)
+            self.assertEqual(order, ["coverage", "reports"])
+
+    def test_report_profile_has_the_locked_validation_environment(self):
+        workflow = (Path(__file__).resolve().parents[1] / "workflows/pk-stack-ci.yml").read_text()
+        fast = workflow.split("\n  fast:\n", 1)[1].split("\n  browser:\n", 1)[0]
+        for name in ("Install uv", "Materialize the locked Power environment"):
+            step = fast.split("- name: " + name, 1)[1].split("- name:", 1)[0]
+            self.assertNotIn("if:", step)
 
 
 if __name__ == "__main__":

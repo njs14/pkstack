@@ -205,11 +205,13 @@ def test_active_user_guidance_does_not_use_legacy_pkstack_names() -> None:
     }
     # Historical reviews and bundled upstream bytes are outside this scan. These exact
     # live references identify an external lab, durable provenance markers, stable
-    # GitHub workflow IDs, or the old files users must inspect before a clean install.
+    # GitHub workflow IDs, a retained historical report, or the old files users must
+    # inspect before a clean install. Historical report links retain original names.
     exceptions = (
         "pk-stack-floci-lab",
         "pk-stack-upstream-genesis",
         "pk-stack-upstream-review",
+        "reviews/pk-stack-maintenance-campaign.md",
         ".pk-stack/bootstrap.json",
         "`pk-stack`-named agent files",
         *(path.name for path in (REPOSITORY_ROOT / ".github" / "workflows").glob("pk-stack-*.yml")),
