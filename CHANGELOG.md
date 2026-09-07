@@ -4,6 +4,30 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.4.4] — 2026-09-06
+
+PKStack 0.4.4 adds a uvx launcher and bundled Python tooling guidance while keeping
+the installed project controller authoritative for project operations.
+
+- Runs setup, explicit upgrades, and everyday commands through `uvx --from` a
+  reviewed local wheel or checkout, with explicit project selection.
+- Preserves the application's verifier environment, installed controller version,
+  structured errors, exit status, and cancellation behavior.
+- Leads onboarding with uvx while retaining Kiro Power folder import and existing
+  `projectctl` and `pkstack-setup` entrypoints. No registry publication or global
+  installation is required, and upgrades never run automatically.
+- Bundles reviewed Astral `uv`, `ruff`, and `ty` guidance and checks maintained
+  Python source, tests, scripts, and executable templates with locked tooling.
+- Preserves Kiro-owned Auto model selection and records bounded native routing
+  evidence without claiming that Auto identifies its resolved model.
+- Runs stacked-PR checks and isolates dependency resolution for executable
+  documentation walkthroughs.
+
+See the [Astral and Auto acceptance report](reviews/astral-python-auto/README.md),
+[uvx validation and independent review](reviews/uvx-entrypoint/README.md), and
+[installation and upgrade guide](powers/pkstack/docs/usage.md). The uvx acceptance
+is deterministic CLI evidence, not a new native Kiro model/IDE campaign.
+
 ## [0.4.3] — 2026-09-06
 
 The [native planning acceptance report](reviews/planning-043-v5/README.md)
