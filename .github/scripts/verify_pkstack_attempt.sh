@@ -276,6 +276,11 @@ set +e
     --power-root powers/pkstack \
     --update-managed \
     --output json
+  # The trusted checker validates candidate data after final regeneration. Its
+  # hash diagnostics go to the private repair log; it never rewrites coverage.
+  PYTHONPATH="$TRUSTED_PROJECTCTL_ROOT/src" \
+    "$trusted_python" -B "$(dirname "$GUARD_PATH")/pkstack_knowledge_coverage.py" \
+    --repo-root "$project_root" --base "$BASE_SHA"
   python3 "$GUARD_PATH" --root "$project_root" boundary \
     --base "$BASE_SHA" \
     --scope final \

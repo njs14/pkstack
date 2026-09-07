@@ -91,13 +91,11 @@ jobs:
           name: pkstack-plan-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/pkstack-ci/plan
       - name: Install uv
-        if: needs.classify.outputs.profile == 'normal'
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
           cache-dependency-glob: powers/pkstack/uv.lock
       - name: Materialize the locked Power environment
-        if: needs.classify.outputs.profile == 'normal'
         run: uv sync --quiet --locked --all-groups --project powers/pkstack
       - name: Run shared fast checks
         env:

@@ -74,7 +74,8 @@ runners and reconciles their receipts. The installed-Kiro discovery probe may be
 on machines without Kiro; browser dependencies are required for complete proof.
 
 PR CI uses a narrow allowlist for release-report-only changes. It checks local
-links, referenced files, and diff integrity without starting the product suite.
+links, referenced files, diff integrity, and repository knowledge coverage using
+the locked Power environment without starting the product suite.
 Mixed changes, reviewer prompts, policy, dependencies, and unknown paths use normal
 CI. Normal CI retains the core suite and a small browser smoke; Archify, dependency,
 and CI/browser changes select expanded browser coverage. Main always runs the
@@ -105,6 +106,22 @@ same fixture, interpreter, and machine before and after a change. Timing is
 diagnostic evidence, not a CI pass/fail threshold; retain the individual samples.
 
 ## Pull requests
+
+For documentation changes, read the affected source diff and update the related
+`Wiki/knowledge/` topic, or explain why its retained understanding does not change.
+Update only the affected entries in `maintenance/knowledge-coverage.json`, including
+source SHA-256s. Each mapped source needs a useful summary and a backlink from every
+destination topic. New Markdown needs an explicit mapping or a specific exclusion;
+being under `docs/`, `reviews/`, or beside an excluded native resource is not an exemption.
+Preserve original historical evidence and distinguish it from current guidance.
+
+Run `uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_knowledge_coverage.py`
+from the repository root, or run the shared fast checks, which include it. The checker
+also inventories nonignored untracked Markdown locally. It is read-only and has no
+bulk hash-refresh mode. CI enforces coverage, freshness, metadata and links; reviewers
+must still assess semantic completeness and whether exclusions are justified.
+Adding a coverage-manifest or Wiki change selects normal CI under the existing
+conservative classification, even when the source itself is a release report.
 
 - Explain the user-visible outcome and the files that own it.
 - Include tests or a documented reason a test is not useful.

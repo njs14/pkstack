@@ -60,7 +60,9 @@
       "powers/pkstack/docs/astral-python-source-parity.json",
       "powers/pkstack/docs/astral-uv-bundle-manifest.json",
       "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
-      "powers/pkstack/docs/astral-ty-bundle-manifest.json"
+      "powers/pkstack/docs/astral-ty-bundle-manifest.json",
+      "Wiki/knowledge/**/*.md",
+      "maintenance/knowledge-coverage.json"
     ],
     "deny_patterns": [
       ".github/**",
@@ -84,8 +86,6 @@
       "CLAUDE.local.md",
       "CLAUDE.md",
       "GEMINI.md",
-      "Wiki/**",
-      "maintenance/**",
       "powers/pkstack/docs/validation-report.md",
       "powers/pkstack/examples/**",
       "powers/pkstack/pyproject.toml",
@@ -94,7 +94,15 @@
       "powers/pkstack/tests/**",
       "powers/pkstack/uv.lock",
       "projectctl",
-      "reviews/**"
+      "reviews/**",
+      "Wiki/index.md",
+      "Wiki/features/**",
+      "Wiki/work/**",
+      "Wiki/knowledge/pkstack/corpus-migration.md",
+      "Wiki/knowledge/pkstack/corpus-inventory.json",
+      "maintenance/upstreams.json",
+      "maintenance/upstream-reviews.json",
+      "maintenance/upstream-feedback.json"
     ]
   },
   "pull_request": {
@@ -152,7 +160,8 @@
     "powers/pkstack/docs/astral-python-source-parity.json",
     "powers/pkstack/docs/astral-uv-bundle-manifest.json",
     "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
-    "powers/pkstack/docs/astral-ty-bundle-manifest.json"
+    "powers/pkstack/docs/astral-ty-bundle-manifest.json",
+    "maintenance/knowledge-coverage.json"
   ],
   "agent_allowed_prefixes": {
     "powers/pkstack/dev.kiro/": [
@@ -166,6 +175,9 @@
     ],
     "powers/pkstack/templates/project/": [
       ".json"
+    ],
+    "Wiki/knowledge/": [
+      ".md"
     ]
   },
   "final_allowed_exact": [
@@ -202,7 +214,8 @@
     "powers/pkstack/docs/astral-python-source-parity.json",
     "powers/pkstack/docs/astral-uv-bundle-manifest.json",
     "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
-    "powers/pkstack/docs/astral-ty-bundle-manifest.json"
+    "powers/pkstack/docs/astral-ty-bundle-manifest.json",
+    "maintenance/knowledge-coverage.json"
   ],
   "final_allowed_prefixes": {
     ".kiro/agents/": [
@@ -228,6 +241,9 @@
     ],
     "powers/pkstack/templates/project/": [
       ".json"
+    ],
+    "Wiki/knowledge/": [
+      ".md"
     ]
   },
   "protected_exact": [
@@ -237,7 +253,9 @@
     ".kiro/agents/pkstack-maintainer.json",
     "AGENTS.md",
     "Wiki/features/pkstack-upstream-maintenance.md",
-    "powers/pkstack/docs/validation-report.md"
+    "powers/pkstack/docs/validation-report.md",
+    "Wiki/knowledge/pkstack/corpus-migration.md",
+    "Wiki/knowledge/pkstack/corpus-inventory.json"
   ],
   "protected_basenames": [
     "AGENTS.md",

@@ -55,6 +55,40 @@ class SourcePermissionTests(unittest.TestCase):
                     sibling = str(Path(path).with_name("unlisted-source-parity.json"))
                     self.assertFalse(guard._matches(sibling, exact, prefixes))
 
+    def test_knowledge_writes_are_data_only_and_cannot_change_controls(self):
+        for scope in ("agent", "final"):
+            exact = set(self.policy[f"{scope}_allowed_exact"])
+            prefixes = self.policy[f"{scope}_allowed_prefixes"]
+            for path in ("maintenance/knowledge-coverage.json", "Wiki/knowledge/pkstack/topic.md"):
+                with self.subTest(scope=scope, allowed=path):
+                    self.assertTrue(guard._matches(path, exact, prefixes))
+                    self.assertFalse(guard._is_protected(path, self.policy))
+            for path in (
+                "Wiki/knowledge/run.py",
+                "Wiki/work/notes.md",
+                "maintenance/other.json",
+                ".github/scripts/pkstack_knowledge_coverage.py",
+                "Wiki/knowledge/pkstack/corpus-migration.md",
+                "Wiki/knowledge/pkstack/corpus-inventory.json",
+            ):
+                with self.subTest(scope=scope, denied=path):
+                    self.assertTrue(
+                        guard._is_protected(path, self.policy)
+                        or not guard._matches(path, exact, prefixes)
+                    )
+
+    def test_candidate_gate_uses_trusted_checker_before_success_identity(self):
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
+        candidate = workflow.split("  candidate_tests:\n", 1)[1].split("\n  candidate_review:", 1)[
+            0
+        ]
+        self.assertIn('"$TRUSTED_ROOT/.github/scripts/pkstack_knowledge_coverage.py"', candidate)
+        self.assertIn('--base "$COVERAGE_BASE_SHA"', candidate)
+        self.assertLess(
+            candidate.index("pkstack_knowledge_coverage.py"),
+            candidate.index("Bind successful gates to candidate SHA"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

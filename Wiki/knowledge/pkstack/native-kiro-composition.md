@@ -73,6 +73,39 @@ This replaces separate mandatory planning interviews and opt-in-only post-plan k
 A standalone decision conversation does not automatically authorize file updates. The accepted
 plan is the source of this decision; native acceptance must separately establish candidate behavior.
 
+## Retained planning observations
+
+The September 6 CLI audit distinguishes native conversational Plan from Spec task files and
+command recognition from executed workflows. For an inactive, user-requested Plan, current
+routing guidance returns a runnable `/plan Read .kiro/skills/grilling/SKILL.md; ...` handoff and
+stops. It does not claim to select the mode itself. Native Specs keep their own artifact and
+approval flow; conversational Plan does not acquire a `tasks.md` requirement.
+
+The 0.4.3 evidence is a sequence, not one universal pass:
+
+- The original v1-v3 campaign recorded missing handoffs, repeated settled questions, premature
+  implementation before knowledge capture, and Unicode reasoning errors. IDE Quick Spec initially
+  lacked the final no-write acknowledgement. These failures remain preserved.
+- The v4 candidate `88bbe15b3858b6347f35dd975a6ecd35ffcadd93` recorded improved settled-answer
+  reuse, capture before implementation, and recovered/observed no-write acknowledgements. Two
+  CLI runs still failed to emit the exact runnable Plan line. Operator-assisted results remain
+  distinguished from autonomous behavior.
+- The v5 source `e4941073adf89a130e8ee268fb122c113cf8a409` corrected routing guidance and recorded
+  one fresh successful command emission and stop. Its router still proposed uppercasing before
+  rejecting non-ASCII input: `ab12ß` can become `AB12SS`. No implementation ran in that scenario.
+  This result supersedes the command-emission gap only, not the earlier Unicode failures or a
+  general autonomous reasoning limit. The v4 plan review corrected that ordering before execution.
+
+The practical lesson is to carry settled constraints through handoffs, preserve unanswered choices
+as questions, and verify transformations against counterexamples before treating them as derived
+mechanics. A recommendation is not an accepted user decision. An approved plan is not proof of
+implementation, and capture denial or failed validation remains an incomplete checkpoint.
+
+Earlier 0.3 native Standard/Quick and builder-composition campaigns retain useful bounded
+fail-repair-pass examples. Their preserved tests, source hashes and selected native conversations
+show the specific handoff/verification scenarios; they do not erase later failures or certify all
+client surfaces. The corresponding sources are listed below.
+
 ## Related knowledge
 
 - The [native-spec composition decision](native-spec-and-okn.md) records why the seam is
@@ -83,3 +116,19 @@ plan is the source of this decision; native acceptance must separately establish
   the native, packaged, and historical materials retained in their existing locations.
 - The separate private `njs14/pk-stack-floci-lab` repository exercises this boundary against a
   deployed application without placing demo code in the Power repository.
+
+## Source-specific retained knowledge
+
+These summaries describe what is retained from each source. Historical observations keep their
+original candidate and scope; they are not fresh verification of this checkout.
+
+| Source | Retained guidance or bounded observation |
+| --- | --- |
+| [reviews/cli-native-command-audit/README.md](../../../reviews/cli-native-command-audit/README.md) | The CLI audit separates conversational Plan from Spec task files and command recognition from execution, motivating explicit native workflow handoffs. |
+| [reviews/planning-043/README.md](../../../reviews/planning-043/README.md) | The initial 0.4.3 campaign retains failed handoffs, premature implementation/capture ordering, unanswered approval checks and Unicode constraint violations. |
+| [reviews/planning-043-v4/README.md](../../../reviews/planning-043-v4/README.md) | v4 improved settled-answer reuse and capture ordering and recovered no-write evidence, but two exact-command handoffs still failed and v3 Unicode failures were not erased. |
+| [reviews/planning-043-v5/README.md](../../../reviews/planning-043-v5/README.md) | v5 produced one exact Plan command and stopped, but still proposed incorrect uppercase-before-ASCII validation; no Plan or implementation ran in that router-only check. |
+| [reviews/friends-cli-validation.md](../../../reviews/friends-cli-validation.md) | Historical native Standard/Quick fixture campaigns distinguish skill loading, same-conversation execution and exact verifier preservation; shared account deltas are not per-campaign costs. |
+| [reviews/friends-ide-validation.md](../../../reviews/friends-ide-validation.md) | IDE Standard/Quick fixtures record agent-panel/model/approval context separately from CLI; Autopilot off did not imply a prompt for every command. |
+| [reviews/release-030-cli.md](../../../reviews/release-030-cli.md) | Quick Spec followed by same-conversation agent swap and immutable verifier failure/repair/pass proves the bounded fixture, not every native route or release-wide correctness. |
+| [reviews/release-030-composition.md](../../../reviews/release-030-composition.md) | A native generated-loop task composed the builder method with a stored verified goal, preserving fixed tests and passing at 2 of 4 within its explicit fixture scope. |

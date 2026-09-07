@@ -61,7 +61,9 @@
           "powers/pkstack/docs/astral-python-source-parity.json",
           "powers/pkstack/docs/astral-uv-bundle-manifest.json",
           "powers/pkstack/docs/astral-ruff-bundle-manifest.json",
-          "powers/pkstack/docs/astral-ty-bundle-manifest.json"
+          "powers/pkstack/docs/astral-ty-bundle-manifest.json",
+          "Wiki/knowledge/**/*.md",
+          "maintenance/knowledge-coverage.json"
         ],
         "effect": "allow"
       },
@@ -89,8 +91,6 @@
           "CLAUDE.local.md",
           "CLAUDE.md",
           "GEMINI.md",
-          "Wiki/**",
-          "maintenance/**",
           "powers/pkstack/docs/validation-report.md",
           "powers/pkstack/examples/**",
           "powers/pkstack/pyproject.toml",
@@ -99,7 +99,15 @@
           "powers/pkstack/tests/**",
           "powers/pkstack/uv.lock",
           "projectctl",
-          "reviews/**"
+          "reviews/**",
+          "Wiki/index.md",
+          "Wiki/features/**",
+          "Wiki/work/**",
+          "Wiki/knowledge/pkstack/corpus-migration.md",
+          "Wiki/knowledge/pkstack/corpus-inventory.json",
+          "maintenance/upstreams.json",
+          "maintenance/upstream-reviews.json",
+          "maintenance/upstream-feedback.json"
         ],
         "effect": "deny"
       }

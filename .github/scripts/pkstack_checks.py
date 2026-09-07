@@ -60,6 +60,7 @@ def config_digest(root):
         root / "powers/pkstack/uv.lock",
         root / "ruff.toml",
         root / "ty.toml",
+        root / "maintenance/knowledge-coverage.json",
     ]
     return digest(
         [(str(p.relative_to(root)), hashlib.sha256(p.read_bytes()).hexdigest()) for p in paths]
@@ -362,6 +363,30 @@ def run_lane(root, plan, lane, receipt):
     validate_plan(plan, root)
     if lane not in plan["scheduled"]:
         raise ValueError("lane not scheduled by this profile")
+    if lane == "fast":
+        try:
+            run_commands(
+                [
+                    [
+                        "uv",
+                        "run",
+                        "--frozen",
+                        "--project",
+                        "powers/pkstack",
+                        "python",
+                        "-B",
+                        ".github/scripts/pkstack_knowledge_coverage.py",
+                        "--repo-root",
+                        ".",
+                    ]
+                ],
+                root,
+            )
+        except (OSError, subprocess.CalledProcessError) as error:
+            result = receipt_base(plan, lane)
+            result.update(outcome="failed", error=f"knowledge coverage failed: {error}")
+            write_json(receipt, result)
+            return 1
     if lane != "policy" and plan["profile"] != "reports":
         env = dict(
             os.environ,
