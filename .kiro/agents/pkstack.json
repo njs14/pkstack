@@ -107,7 +107,9 @@
           ".kiro/steering/**",
           ".kiro/skills/uv/**",
           ".kiro/skills/ruff/**",
-          ".kiro/skills/ty/**"
+          ".kiro/skills/ty/**",
+          ".kiro/skills/impeccable/**",
+          ".kiro/skills/babysit-pr/**"
         ],
         "effect": "deny"
       },

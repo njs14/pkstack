@@ -12,6 +12,15 @@
       "target": "skills/archify/SKILL.md"
     },
     {
+      "bundle_manifest": "docs/openai-babysit-pr-bundle-manifest.json",
+      "bundle_root": "skills/babysit-pr",
+      "name": "babysit-pr",
+      "provenance": "docs/openai-babysit-pr-provenance.md",
+      "source_id": "openai-babysit-pr",
+      "source_parity": "docs/openai-babysit-pr-source-parity.json",
+      "target": "skills/babysit-pr/SKILL.md"
+    },
+    {
       "bundle_manifest": "docs/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
       "bundle_root": "skills/build-iterated-agentic-loop",
       "name": "build-iterated-agentic-loop",
@@ -64,6 +73,15 @@
       "source_id": "mattpocock-grilling",
       "source_parity": "docs/mattpocock-grilling-source-parity.json",
       "target": "skills/grilling/SKILL.md"
+    },
+    {
+      "bundle_manifest": "docs/pbakaus-impeccable-bundle-manifest.json",
+      "bundle_root": "skills/impeccable",
+      "name": "impeccable",
+      "provenance": "docs/pbakaus-impeccable-provenance.md",
+      "source_id": "pbakaus-impeccable",
+      "source_parity": "docs/pbakaus-impeccable-source-parity.json",
+      "target": "skills/impeccable/SKILL.md"
     },
     {
       "bundle_manifest": "docs/humanlayer-narrow-react-prop-types-bundle-manifest.json",
@@ -121,8 +139,8 @@
     }
   ],
   "summary": {
-    "bundle_file_count": 90,
-    "curated_skill_count": 13,
-    "shipped_skill_directories": 13
+    "bundle_file_count": 97,
+    "curated_skill_count": 15,
+    "shipped_skill_directories": 15
   }
 }

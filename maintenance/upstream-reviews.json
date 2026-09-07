@@ -395,6 +395,30 @@
       "provenance_path": "powers/pkstack/docs/astral-python-provenance.md",
       "repository": "astral-sh/claude-code-plugins",
       "transitions": []
+    },
+    {
+      "genesis": {
+        "commit": "dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9",
+        "subtree_sha": "90d9f3c53a7fb64b44d0411bc0858a111c4aac23"
+      },
+      "id": "pbakaus-impeccable",
+      "parity_path": "powers/pkstack/docs/pbakaus-impeccable-source-parity.json",
+      "path": "skill",
+      "provenance_path": "powers/pkstack/docs/pbakaus-impeccable-provenance.md",
+      "repository": "pbakaus/impeccable",
+      "transitions": []
+    },
+    {
+      "genesis": {
+        "commit": "9f70e348e0227980de97e361cce830236fb18317",
+        "subtree_sha": "930db390730c900f644d054e4a322fc865437c34"
+      },
+      "id": "openai-babysit-pr",
+      "parity_path": "powers/pkstack/docs/openai-babysit-pr-source-parity.json",
+      "path": ".codex/skills/babysit-pr",
+      "provenance_path": "powers/pkstack/docs/openai-babysit-pr-provenance.md",
+      "repository": "openai/codex",
+      "transitions": []
     }
   ]
 }

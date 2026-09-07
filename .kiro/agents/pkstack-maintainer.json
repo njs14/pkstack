@@ -67,7 +67,11 @@
           "powers/pkstack/docs/astral-ty-bundle-manifest.json",
           "Wiki/knowledge/**/*.md",
           "maintenance/knowledge-coverage.json",
-          "powers/pkstack/docs/google-open-knowledge-format-source-parity.json"
+          "powers/pkstack/docs/google-open-knowledge-format-source-parity.json",
+          "powers/pkstack/docs/pbakaus-impeccable-source-parity.json",
+          "powers/pkstack/docs/pbakaus-impeccable-bundle-manifest.json",
+          "powers/pkstack/docs/openai-babysit-pr-source-parity.json",
+          "powers/pkstack/docs/openai-babysit-pr-bundle-manifest.json"
         ],
         "effect": "allow"
       },
