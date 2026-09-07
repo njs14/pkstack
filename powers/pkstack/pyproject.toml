@@ -19,6 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
+pkstack = "pkstack.launcher:main"
 projectctl = "pkstack.cli:main"
 pkstack-setup = "pkstack.bootstrap:main"
 

@@ -68,6 +68,25 @@ def plan_and_receipts():
 
 
 class ProfileTests(unittest.TestCase):
+    def test_stacked_pr_checks_keep_artifact_promotion_main_only(self):
+        workflow = (Path(__file__).resolve().parents[1] / "workflows/pk-stack-ci.yml").read_text()
+        triggers = workflow.split("permissions:", 1)[0]
+        self.assertIn("  push:\n    branches: [main]", triggers)
+        self.assertIn("  pull_request:\n\n", triggers)
+        self.assertNotIn("pull_request_target", workflow)
+        for step in (
+            "Build and validate reproducible main artifact",
+            "Retain immutable release package",
+        ):
+            section = workflow.split("- name: " + step, 1)[1].split("- name:", 1)[0]
+            self.assertIn(
+                "if: github.event_name == 'push' && github.ref == 'refs/heads/main'", section
+            )
+        self.assertEqual(
+            workflow.count("if: github.event_name == 'push' && github.ref == 'refs/heads/main'"),
+            2,
+        )
+
     def test_only_enumerated_reports_take_fast_path(self):
         for path in (
             "reviews/release-status.md",
@@ -150,6 +169,12 @@ class ProfileTests(unittest.TestCase):
 
     def test_partition_is_stable_and_module_overrides_preserve_categories(self):
         self.assertEqual(checks.lane_for("tests/test_packaging.py::test_install"), "package")
+        self.assertEqual(
+            checks.lane_for("tests/test_uvx_launcher_acceptance.py::test_install"), "package"
+        )
+        self.assertEqual(
+            checks.lane_for("tests/test_readme_walkthrough.py::test_install"), "package"
+        )
         self.assertEqual(checks.lane_for("tests/test_branding.py::new_test"), "fast")
         self.assertEqual(
             checks.lane_for("tests/test_archify_reader_layout.py::test_startup"),

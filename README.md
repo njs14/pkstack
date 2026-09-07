@@ -21,11 +21,11 @@ PKStack adds the workflows, verification records, and repository Wiki.
 
 ## Quick start
 
-You need Kiro CLI with v3 support or Kiro IDE, installed and signed in;
-[`uv`](https://docs.astral.sh/uv/) on your `PATH`; and a `python3` launcher.
-The controller runs on Python 3.11+. The installer also supports the tested
-macOS Python 3.9 launcher through `uv`, so you can keep the system Python.
-First use may download Python and dependencies.
+You need Kiro CLI with v3 support or Kiro IDE, installed and signed in, and
+[`uv`](https://docs.astral.sh/uv/) on your `PATH`. The CLI runs on Python 3.11+;
+uv can acquire a supported interpreter without replacing system Python.
+First use may download Python and dependencies. No global PKStack installation
+or package registry is required.
 
 Clone this private repository and save the Power path:
 
@@ -33,9 +33,11 @@ Clone this private repository and save the Power path:
 git clone https://github.com/njs14/pkstack.git
 cd pkstack
 export PKSTACK_POWER="$PWD/powers/pkstack"
+test -f "$PKSTACK_POWER/plugin.json"
+export PKSTACK_PACKAGE="$PKSTACK_POWER"
 ```
 
-Keep this terminal open. `PKSTACK_POWER` points to the installer; the target
+Keep this terminal open. `PKSTACK_PACKAGE` selects the reviewed package for uvx; the target
 project is the application you want Kiro to work on. Choose the CLI or IDE
 path below.
 
@@ -52,8 +54,8 @@ what setup will add:
 ```sh
 cd "/absolute/path/to/your/project"
 export PKSTACK_PROJECT="$PWD"
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PKSTACK_PROJECT" --dry-run --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack --project "$PKSTACK_PROJECT" \
+  setup --dry-run --output json
 ```
 
 Confirm the target path and listed files. The preview leaves managed target
@@ -63,12 +65,18 @@ dependencies. If setup reports conflicts, inspect those files before continuing.
 Apply the installation and check it:
 
 ```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PKSTACK_PROJECT" --output json
-.pkstack/bin/projectctl version --output json
-.pkstack/bin/projectctl doctor --output json
-.pkstack/bin/projectctl knowledge validate --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack --project "$PKSTACK_PROJECT" \
+  setup --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack version --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack doctor --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge validate --output json
 ```
+
+The `pkstack` launcher uses the selected package for setup and upgrades. Other
+commands run the project's pinned `.pkstack/bin/projectctl`; choosing a newer
+package does not silently update it. `pkstack --version` shows the launcher
+version; `pkstack version` shows the installed controller version. The usage
+guide also covers [local wheels](powers/pkstack/docs/usage.md#use-a-local-wheel).
 
 When the checks pass, start Kiro from the target project:
 

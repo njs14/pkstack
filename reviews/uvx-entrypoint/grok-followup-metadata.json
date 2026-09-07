@@ -1,0 +1,13 @@
+{
+  "session_id": "f69f6592-6274-4288-aa7a-e8529015f9d8",
+  "started_at": 1788744377.751477,
+  "finished_at": 1788744498.725462,
+  "exit_code": 0,
+  "model": "grok-4.6",
+  "reasoning_effort": "xhigh",
+  "candidate": "f218172",
+  "base": "8b46291",
+  "verdict": "APPROVE",
+  "candidate_execution": false,
+  "review_sha256": "261e7e94476d8b7d1247cd115aa37a586c88e01de7e9f332b5ecc96a8a2e3dd1"
+}
