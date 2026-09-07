@@ -164,7 +164,7 @@ engine/configuration generation, not Kiro IDE's
 
 | Item | Observed result |
 | --- | --- |
-| Executable | `/Users/noahsutter/.local/bin/kiro-cli`, a symlink into `/Applications/Kiro CLI.app` |
+| Executable | `~/.local/bin/kiro-cli`, a symlink into `/Applications/Kiro CLI.app` |
 | Initial CLI/app version | `2.20.2` |
 | Later selected-profile validation | Kiro CLI `2.21.0` on 2026-09-02 |
 | Kiro CLI macOS app build | `20260831.180303` |
@@ -263,8 +263,9 @@ The [usage guide](usage.md#cli-powers-and-project-setup) separates Power
 registration from project setup.
 
 The root manifest uses Agent Plugins `plugin.json`. Skills are stored as
-`skills/<lowercase-hyphenated-name>/SKILL.md` with `name`, `description`, and
-optional `compatibility` frontmatter. Kiro passes text following a skill name as
+`skills/<lowercase-hyphenated-name>/SKILL.md` with exactly `name` and
+`description` frontmatter; the asset tests reject other keys, including Kiro's
+optional `compatibility` field. Kiro passes text following a skill name as
 request context in IDE, CLI, and Web. Placeholder substitution such as
 `$ARGUMENTS` is currently CLI-only, so PKStack skills refer to the activation
 request directly and do not depend on that placeholder.

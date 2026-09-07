@@ -209,3 +209,21 @@ def test_bootstrap_main_and_missing_asset_paths(
     with pytest.raises(ValueError, match="required PKStack Power assets are missing"):
         bootstrap.bootstrap_project(minimal_target, power_root=minimal_power)
     assert list(minimal_target.iterdir()) == []
+
+
+def test_inline_program_interpreters_and_home_paths_are_rejected(tmp_path: Path) -> None:
+    from pkstack.runner import CommandRejected, enforce_verification_policy, parse_command
+
+    for command in (
+        "awk 'BEGIN{system(\"id\")}'",
+        "lua -e 'os.execute(\"id\")'",
+        "bun -e '1'",
+        "jq -n 1",
+        "Rscript -e 'q()'",
+    ):
+        with pytest.raises(CommandRejected, match="inline programs"):
+            enforce_verification_policy(parse_command(command), root=tmp_path)
+    with pytest.raises(CommandRejected, match="home directory"):
+        enforce_verification_policy(parse_command("pytest --basetemp=~/x"), root=tmp_path)
+    with pytest.raises(CommandRejected, match="home directory"):
+        enforce_verification_policy(parse_command("pytest ~/tests"), root=tmp_path)

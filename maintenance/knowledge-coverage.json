@@ -761,7 +761,7 @@
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "6b53c66e37c32fa1829fe93ced7678a5b22c04e51955965261cbe3c58a0c95b0",
+      "sha256": "057102eaa0418c95f44402dbfc1ce4e87437a517f1e5b3dfaee86e78ee22cb1d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/quality-and-ci.md"
@@ -877,7 +877,7 @@
     },
     {
       "path": "powers/pkstack/THIRD_PARTY_NOTICES.md",
-      "sha256": "1638f6116870c7e9532b5822a9c303f4a7cc4246aa3f26b17515aae50a3d5a3c",
+      "sha256": "ec222316947c74eb9f19b84ec93f4956dc5ae912d3ca331da7d32e8350f217af",
       "classification": "excluded",
       "category": "policy",
       "reason": "Complete legal notices remain canonical in the package; source ownership and adaptation decisions are retained from linked provenance guides."
@@ -928,7 +928,7 @@
     },
     {
       "path": "powers/pkstack/docs/architecture.md",
-      "sha256": "d64793d9241a23e64a442ff1395e96901c1458858b93b0eca83a3d0aa922a7a9",
+      "sha256": "5100a5e9d10429696b028e38119427809e0934785a9ddca5e1a66e9875519a5b",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -992,7 +992,7 @@
     },
     {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "1f0075ae6eae696e2126e092ea51e99b37d1a544f53019801d5ffa20f34f175e",
+      "sha256": "df814ea5a416c9b142d81d0594bdb1f22b2949d9a0447c015b1c9e98555dd909",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -1127,7 +1127,7 @@
     },
     {
       "path": "powers/pkstack/docs/upstream-control-loop.md",
-      "sha256": "847d6013666ae00fc28652f1b251118b9ad00cd912a2350c2edad1ded228d86d",
+      "sha256": "51516eb637a0136a4318344506b605ce227d40485bbb7a0ace7047f0a71fcca8",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/upstream-maintenance/operations.md"
@@ -1145,7 +1145,7 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "5cd91283130b8e9615af16306a8cfa7360b6a8320ab90f9a87c8903a5b57164a",
+      "sha256": "46eb1d63a6adc026e38892f90a4b2ac6d7c0c2d3c15393d45da21408eca90374",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"

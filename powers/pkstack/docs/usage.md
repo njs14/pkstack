@@ -347,8 +347,11 @@ before deciding whether to retry.
 ### Verifier boundary
 
 Commands run as argv with `shell=False`. Pipelines, redirects, substitutions,
-direct shell interpreters, obvious placeholders, destructive operations, and
-known path escapes are rejected. The policy is an evidence screen, not a
+the named shell and inline-program interpreters, obvious placeholders, a short
+list of destructive patterns, and known path escapes are rejected. The
+interpreter lists are closed name lists in the runner, not a general
+interpreter detector, and network tools, remote shells, and package installers
+are not screened. The policy is an evidence screen, not a
 sandbox or a semantic proof checker. A permitted project script can still
 write files, access the network, or use credentials available to its process.
 Review the displayed command, its project scope, and its output before

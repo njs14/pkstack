@@ -2337,6 +2337,7 @@ def validate_detector(path: Path) -> dict[str, Any]:
             "conflicts",
             "notes",
             "discovery",
+            "preserved",
         },
         "upstream detector bootstrap_preview",
     )
@@ -2352,6 +2353,7 @@ def validate_detector(path: Path) -> dict[str, Any]:
         "unchanged",
         "conflicts",
         "notes",
+        "preserved",
     ):
         if not isinstance(preview[key], list) or not all(
             isinstance(item, str) for item in preview[key]

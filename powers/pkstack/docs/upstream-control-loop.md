@@ -12,8 +12,10 @@ Kiro CLI and IDE sessions do not depend on the pipeline.
 
 The updater can adapt existing skill and documentation text within the paths allowed
 by [the maintenance policy](../../../.github/pkstack-maintenance-policy.json). It
-cannot edit executable helpers, controller code, tests, dependencies, permissions,
-or workflow controls. Those changes require a maintainer.
+cannot edit executable helpers, controller code, tests, dependencies, or workflow
+controls. It can edit the shipped project agent templates, including their prompt
+and `ask`/`deny` rules, within the envelope check that forbids new `allow` rules;
+those diffs and any other permission change deserve maintainer review.
 
 1. The detector proves each pinned source and compares its imported subtree with
    the remote revision. A repository commit outside that subtree is informational:

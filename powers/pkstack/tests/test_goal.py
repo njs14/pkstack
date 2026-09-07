@@ -632,3 +632,26 @@ def test_old_goal_state_is_rejected_without_any_file_mutation(
     }
     assert after == before
     assert store.directory.stat().st_mode & 0o777 == 0o755
+
+
+def test_forced_clear_archives_unreadable_goal_state(tmp_path: Path) -> None:
+    start_goal(tmp_path, "Test", command=_sentinel_command(tmp_path))
+    store = GoalStore(tmp_path)
+    store.path.write_text("{not json", encoding="utf-8")
+
+    with pytest.raises(GoalError, match="corrupt"):
+        clear_goal(tmp_path)
+
+    result = clear_goal(tmp_path, force=True)
+
+    assert result["cleared"] is True
+    assert result["status"] == "unreadable"
+    archived = Path(result["archived"])
+    assert archived.parent == store.path.parent
+    assert archived.read_text(encoding="utf-8") == "{not json"
+    assert not store.path.exists()
+    assert clear_goal(tmp_path, force=True) == {
+        "cleared": False,
+        "reason": "no goal state exists",
+    }
+    assert start_goal(tmp_path, "Again", command=_sentinel_command(tmp_path)).status == "active"

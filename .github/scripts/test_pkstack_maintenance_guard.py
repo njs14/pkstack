@@ -981,6 +981,7 @@ def detector_fixture(*, transition_count: int = 0) -> dict[str, Any]:
         "conflicts": [],
         "notes": [],
         "discovery": {},
+        "preserved": [],
     }
     return {
         "ok": True,

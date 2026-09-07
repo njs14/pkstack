@@ -12,5 +12,5 @@ else
   PKSTACK_CALLER_PYTHONPATH=
 fi
 export PKSTACK_CALLER_PYTHONPATH_SET PKSTACK_CALLER_PYTHONPATH
-uv sync --quiet --locked --no-config --project "$PROJECTCTL_ROOT"
+UV_PROJECT_ENVIRONMENT="$PROJECTCTL_ROOT/.venv"   uv sync --quiet --locked --no-config --project "$PROJECTCTL_ROOT"
 PYTHONPATH="$PROJECTCTL_ROOT/src"   exec "$PROJECTCTL_ROOT/.venv/bin/python" -B -X pycache_prefix=/dev/null     -m pkstack "$@"

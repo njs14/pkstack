@@ -591,6 +591,26 @@ def resume_goal(
 
 def clear_goal(root: Path, *, force: bool = False) -> dict[str, Any]:
     store = GoalStore(root)
+    if force:
+        try:
+            store.load(check_command_policy=False)
+        except GoalError as exc:
+            if "unsupported goal state schema" in str(exc):
+                # Old evidence is preserved untouched; a clean reinstall is the documented path.
+                raise
+            # Undecodable state has no transition path; --force preserves the bytes beside
+            # the slot instead of leaving the slot permanently wedged.
+            archived = store.path.with_name(
+                f"goal.{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}.unreadable.json"
+            )
+            os.replace(store.path, archived)
+            return {
+                "cleared": True,
+                "goal_id": None,
+                "status": "unreadable",
+                "archived": str(archived),
+                "reason": str(exc),
+            }
     with store.locked():
         state = store.load(check_command_policy=not force)
         if state is None:

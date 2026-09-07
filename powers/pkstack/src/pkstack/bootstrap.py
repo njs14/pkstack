@@ -133,7 +133,8 @@ else
   PKSTACK_CALLER_PYTHONPATH=
 fi
 export PKSTACK_CALLER_PYTHONPATH_SET PKSTACK_CALLER_PYTHONPATH
-uv sync --quiet --locked --no-config --project "$PROJECTCTL_ROOT"
+UV_PROJECT_ENVIRONMENT="$PROJECTCTL_ROOT/.venv" \
+  uv sync --quiet --locked --no-config --project "$PROJECTCTL_ROOT"
 PYTHONPATH="$PROJECTCTL_ROOT/src" \
   exec "$PROJECTCTL_ROOT/.venv/bin/python" -B -X pycache_prefix=/dev/null \
     -m pkstack "$@"
@@ -1210,13 +1211,18 @@ def _ensure_gitignore(root: Path, *, result: BootstrapResult, dry_run: bool) -> 
         ".pkstack-maintenance/",
         "/Wiki/work/",
     )
-    if all(gitignore_has_entry(existing, ignored_path) for ignored_path in ignored_paths):
+    missing = [path for path in ignored_paths if not gitignore_has_entry(existing, path)]
+    if not missing:
         result.unchanged.append(GITIGNORE_RESULT_KEY)
         return
+    prefix = "" if not existing or existing.endswith("\n") else "\n"
+    separator = "" if not existing else "\n"
+    if len(missing) == len(ignored_paths):
+        block = GITIGNORE_BLOCK
     else:
-        prefix = "" if not existing or existing.endswith("\n") else "\n"
-        separator = "" if not existing else "\n"
-        content = f"{existing}{prefix}{separator}{GITIGNORE_BLOCK}"
+        # Repair a partially edited block without duplicating entries that still exist.
+        block = "".join(f"{path}\n" for path in missing)
+    content = f"{existing}{prefix}{separator}{block}"
     if content == existing:
         result.unchanged.append(GITIGNORE_RESULT_KEY)
         return

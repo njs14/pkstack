@@ -293,6 +293,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## markdown-it-py
+
+markdown-it-py is a direct runtime dependency used for CommonMark link and
+heading parsing in local knowledge validation. `pyproject.toml` allows
+`markdown-it-py>=4,<5`; the committed lockfile currently resolves version `4.2.0`.
+
+- Package: `markdown-it-py 4.2.0` in `uv.lock`
+- Source: <https://github.com/executablebooks/markdown-it-py/tree/v4.2.0>
+- License: MIT (the port also carries the MIT notice of the original
+  `markdown-it` by Vitaly Puzrin and Alex Kocharin)
+- License text: <https://github.com/executablebooks/markdown-it-py/blob/v4.2.0/LICENSE>
+  and <https://github.com/executablebooks/markdown-it-py/blob/v4.2.0/LICENSE.markdown-it>
+
+## agent-client-protocol
+
+agent-client-protocol is the official Python ACP client used by the bounded
+`knowledge search` worker. `pyproject.toml` pins `agent-client-protocol==0.12.1`.
+
+- Package: `agent-client-protocol 0.12.1` in `uv.lock`
+- Source: <https://github.com/agentclientprotocol/python-sdk>
+- License: Apache-2.0
+- License text: the `LICENSE` file shipped in the distribution's `licenses/`
+  directory
+
 ## Build, development, and transitive packages
 
 `hatchling` is the build backend. Test and development groups include tools
@@ -306,11 +330,12 @@ license metadata and license files.
 
 ## Kiro visual reference
 
-The private repository's `assets/logo.png` mascot is an AI-generated transformation made at the
-project owner's request with the installed Kiro application icon as a visual reference. The
-source `.icns` file is not included. The generated mascot intentionally retains the recognizable
-two-eye ghost silhouette and purple rounded-square visual language while replacing the body with
-a potato. See [`assets/README.md`](assets/README.md) for generation provenance.
+The repository's artwork references Kiro's ghost mascot. The historical `assets/banner.png`
+mascot is an AI-generated transformation made at the project owner's request with the
+installed Kiro application icon as a visual reference; the source `.icns` file is not included.
+The current `assets/logo.png` "Knowledge crest" depicts four ghost characters with a book and
+knowledge tree and was selected on September 6, 2026. See [`assets/README.md`](assets/README.md)
+for the generation provenance of both images.
 
 Kiro and its original artwork remain the property of their respective owner. This attribution
 does not claim a license, endorsement, or affiliation. Review or replace the mascot before any
