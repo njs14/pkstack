@@ -738,7 +738,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "e948d92d270749094d5e556779ed4b81d6493bbfbd17f1fec81818020ec8e6da",
+      "sha256": "a4fe150fd3a3a95356b6e8fb241bbad4c987cfdcda741c00b56afd1e7559c6d4",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -779,12 +779,12 @@
     },
     {
       "path": "SECURITY.md",
-      "sha256": "ec361ad0896e74da10ed96233df399bf4f63c247e6f24f2d60c0824cc044dd20",
+      "sha256": "009aa23e6bac2d551969ad817db7b42f1cd060304a30bb3d6fe5fe2b221e111b",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
       ],
-      "summary": "Retain credential/import trust boundaries, while flagging the stale 0.2 support table and optional-tool wording as unresolved policy/documentation drift rather than inventing a new support policy."
+      "summary": "Current main and the 0.5 release line receive security fixes; earlier lines have no backport commitment. Local validation and bounded Kiro retrieval retain separate trust boundaries."
     },
     {
       "path": "Wiki/features/README.md",

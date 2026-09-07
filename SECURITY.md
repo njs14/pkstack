@@ -8,7 +8,7 @@ through a Kiro ACP worker. Treat its permissions and imported content as sensiti
 
 | Version | Support |
 | --- | --- |
-| Current `main` / next `0.5.0` pre-release | Security fixes and release-blocking reports |
+| Current `main` / `0.5` release line | Security fixes and release-blocking reports |
 | Earlier release lines | No backport commitment; reproduce against the maintained line |
 
 The Power's release version is the `version` field in
