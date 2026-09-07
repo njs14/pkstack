@@ -108,7 +108,7 @@ client surfaces. The corresponding sources are listed below.
 
 ## Carry constraints through the handoff without turning recommendations into decisions
 
-The [v4 planning review](../../../reviews/planning-043-v4/README.md) separates two improvements:
+The [v4 planning review](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/planning-043-v4/README.md) separates two improvements:
 the router stopped re-asking settled constraints, and the plan placed knowledge capture before
 implementation. Neither repaired the model's reasoning about a derived transformation. The
 settled ASCII-only input rule still produced the proposed sequence strip → uppercase → validate;
@@ -120,7 +120,7 @@ A handoff should carry three distinct things: settled requirements, mechanics ju
 requirements, and genuinely open choices. Check derived mechanics against counterexamples before
 labeling them settled. Ask for a choice when one is needed; the earlier Quick Spec run's preferred
 answer was not an accepted decision merely because the model recommended it. The
-[v1–v3 record](../../../reviews/planning-043/README.md) remains evidence of those failures.
+[v1–v3 record](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/planning-043/README.md) remains evidence of those failures.
 
 Place capture and its validation in the approved plan's ordered steps, then inspect their order
 relative to the first product edit. A later Wiki file does not prove capture happened first. For
@@ -129,8 +129,8 @@ manufacture a capture result. Repeated approval should reuse existing accepted k
 duplicate records. v4's file events and no-write receipts support these bounded observations;
 its operator-assisted Plan entry remains distinct from v5's autonomous command emission.
 
-The [CLI](../../../reviews/friends-cli-validation.md) and
-[IDE](../../../reviews/friends-ide-validation.md) Spec campaigns demonstrate another boundary:
+The [CLI](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-cli-validation.md) and
+[IDE](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-ide-validation.md) Spec campaigns demonstrate another boundary:
 same-conversation planning, immutable tests, genuine failure, implementation-only repair, and
 stored pass can all work while the prose contract exceeds what four tests establish. IDE Standard's
 ASCII edge case was outside that predicate. Keep native artifacts and test identities unchanged,
@@ -155,11 +155,11 @@ original candidate and scope; they are not fresh verification of this checkout.
 
 | Source | Retained guidance or bounded observation |
 | --- | --- |
-| [reviews/cli-native-command-audit/README.md](../../../reviews/cli-native-command-audit/README.md) | The CLI audit separates conversational Plan from Spec task files and command recognition from execution, motivating explicit native workflow handoffs. |
-| [reviews/planning-043/README.md](../../../reviews/planning-043/README.md) | The initial 0.4.3 campaign retains failed handoffs, premature implementation/capture ordering, unanswered approval checks and Unicode constraint violations. |
-| [reviews/planning-043-v4/README.md](../../../reviews/planning-043-v4/README.md) | v4 improved settled-answer reuse and capture ordering and recovered no-write evidence, but two exact-command handoffs still failed and v3 Unicode failures were not erased. |
-| [reviews/planning-043-v5/README.md](../../../reviews/planning-043-v5/README.md) | v5 produced one exact Plan command and stopped, but still proposed incorrect uppercase-before-ASCII validation; no Plan or implementation ran in that router-only check. |
-| [reviews/friends-cli-validation.md](../../../reviews/friends-cli-validation.md) | Historical native Standard/Quick fixture campaigns distinguish skill loading, same-conversation execution and exact verifier preservation; shared account deltas are not per-campaign costs. |
-| [reviews/friends-ide-validation.md](../../../reviews/friends-ide-validation.md) | IDE Standard/Quick fixtures record agent-panel/model/approval context separately from CLI; Autopilot off did not imply a prompt for every command. |
-| [reviews/release-030-cli.md](../../../reviews/release-030-cli.md) | Quick Spec followed by same-conversation agent swap and immutable verifier failure/repair/pass proves the bounded fixture, not every native route or release-wide correctness. |
-| [reviews/release-030-composition.md](../../../reviews/release-030-composition.md) | A native generated-loop task composed the builder method with a stored verified goal, preserving fixed tests and passing at 2 of 4 within its explicit fixture scope. |
+| [reviews/cli-native-command-audit/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/cli-native-command-audit/README.md) | The CLI audit separates conversational Plan from Spec task files and command recognition from execution, motivating explicit native workflow handoffs. |
+| [reviews/planning-043/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/planning-043/README.md) | The initial 0.4.3 campaign retains failed handoffs, premature implementation/capture ordering, unanswered approval checks and Unicode constraint violations. |
+| [reviews/planning-043-v4/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/planning-043-v4/README.md) | v4 improved settled-answer reuse and capture ordering and recovered no-write evidence, but two exact-command handoffs still failed and v3 Unicode failures were not erased. |
+| [reviews/planning-043-v5/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/planning-043-v5/README.md) | v5 produced one exact Plan command and stopped, but still proposed incorrect uppercase-before-ASCII validation; no Plan or implementation ran in that router-only check. |
+| [reviews/friends-cli-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-cli-validation.md) | Historical native Standard/Quick fixture campaigns distinguish skill loading, same-conversation execution and exact verifier preservation; shared account deltas are not per-campaign costs. |
+| [reviews/friends-ide-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-ide-validation.md) | IDE Standard/Quick fixtures record agent-panel/model/approval context separately from CLI; Autopilot off did not imply a prompt for every command. |
+| [reviews/release-030-cli.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-cli.md) | Quick Spec followed by same-conversation agent swap and immutable verifier failure/repair/pass proves the bounded fixture, not every native route or release-wide correctness. |
+| [reviews/release-030-composition.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-composition.md) | A native generated-loop task composed the builder method with a stored verified goal, preserving fixed tests and passing at 2 of 4 within its explicit fixture scope. |

@@ -37,8 +37,8 @@ CREW_CLI_FEED_URL = "https://download.crew.kiro.dev/feed/nightly/latest-cli.json
 CREW_DESKTOP_FEED_URL = "https://updates.crew.kiro.dev/feed/nightly/latest-mac.yml"
 CHANGELOG_FEED_URL = "https://kiro.dev/changelog/feed.atom"
 DOC_EVIDENCE_PATHS = (
-    "reviews/kiro-model-guidance-evidence.json",
-    "reviews/kiro-v3-agent-discovery-probe.json",
+    ".github/fixtures/kiro-model-guidance-evidence.json",
+    ".github/fixtures/kiro-v3-agent-discovery-probe.json",
 )
 
 EXPECTED_AGENTS = (

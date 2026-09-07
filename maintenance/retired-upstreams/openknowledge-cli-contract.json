@@ -1,5 +1,5 @@
 {
-  "evidence": "reviews/knowledge-foundation.md",
+  "evidence": "https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md",
   "manifest_source": {
     "commit": "6e8bbe026448fd890ace9293bcfe89b53363cd1f",
     "id": "openknowledge-cli-contract",

@@ -367,7 +367,6 @@ jobs:
             .github/scripts \
             .github/workflows \
             .kiro/agents \
-            reviews \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --all-groups --project powers/pkstack
           uv sync --quiet --locked --no-config --project "$TRUSTED_PROJECTCTL_ROOT"

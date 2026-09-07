@@ -70,8 +70,8 @@ changes, then refresh only that source's manifest entry. Do not mass-accept new 
 has no write or refresh mode. Hash freshness and valid links cannot prove semantic completeness;
 human or agent review must still check that the retained explanation is adequate and honest.
 
-Both normal and report-only fast CI run the gate using the locked environment. Report-only
-changes retain lightweight report checks; adding a manifest or Wiki change selects normal CI
+Both normal and report-only fast CI run the gate using the locked environment. The exact Wiki release record retains lightweight report checks; adding a manifest or other
+Wiki change selects normal CI
 under the existing conservative classifier. Main also runs the gate. Consumer-project setup and
 the public `projectctl` interface do not acquire this repository-specific policy.
 
@@ -84,7 +84,7 @@ explains proposed Wiki updates, private hash diagnostics, and independent semant
 
 ## Preserve the failure, then test the mechanism
 
-The [browser investigation](../../../reviews/release-030-browser-harness.md) began with an Ubuntu
+The [browser investigation](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-browser-harness.md) began with an Ubuntu
 CDP startup timeout that was not reproduced locally. It did reproduce a cleanup bug: awaiting
 startup before entering `try/finally` left the child and temporary browser profile alive when
 startup rejected. A fake browser that emitted malformed protocol JSON and stayed alive made the
@@ -98,7 +98,7 @@ protocol errors and per-request timeouts remain recoverable. The test owns its d
 does not establish general process-tree cleanup. Later Linux passes validate those repairs without
 identifying the original timeout trigger.
 
-The [uvx CI correction](../../../reviews/uvx-entrypoint/grok-followup.md) illustrates a different
+The [uvx CI correction](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/grok-followup.md) illustrates a different
 hidden prerequisite. Locked sync populated distribution files, but checkout-based uvx resolution
 still needed registry metadata. A developer's warm cache masked an offline-only test environment.
 The correction used empty per-test cache/tool directories, removed inherited uv configuration, and
@@ -108,7 +108,7 @@ when moving examples between documents; a text assertion cannot establish succes
 
 ## Optimize repeated computation without caching trust decisions
 
-The [performance campaign](../../../reviews/evidence-led-improvements/README.md) cached heading
+The [performance campaign](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/evidence-led-improvements/README.md) cached heading
 parsing by freshly read text, with an eight-entry LRU scoped to one validation. It continued to
 check path containment, target existence, bounded reads, and decoding for every link. Tests changed
 a target both within a validation and between calls to ensure freshness remained observable.
@@ -121,11 +121,11 @@ CI timing threshold. Doctor's separate profile mostly waited for subprocess chec
 justify deleting integrity checks or adding concurrency. The same review kept small containment
 and strict-decoding helpers because their boundary role mattered more than their line count.
 
-For static cleanup, the [Python coverage report](../../../reviews/astral-python-auto/python-coverage.md)
+For static cleanup, the [Python coverage report](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/python-coverage.md)
 records a concrete behavioral regression: type narrowing briefly let an unhashable title raise
 `TypeError` instead of the structured `StreamError`. Keep malformed-input tests while satisfying
 the type checker. Extracted heredocs are analyzed without executing them; unsupported syntax
-stops the bounded extractor. The [campaign correction](../../../reviews/astral-python-auto/README.md)
+stops the bounded extractor. The [campaign correction](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/README.md)
 also fixes its raw review's shell claim: both single- and double-quoted heredoc delimiters disable
 body expansion. A review approval does not make every explanatory sentence authoritative.
 
@@ -137,7 +137,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 | Source | Retained guidance or bounded observation |
 | --- | --- |
 | [CONTRIBUTING.md](../../../CONTRIBUTING.md) | Fresh worktrees use locked environments and reviewed setup; fast/full checks and explicit knowledge mappings preserve evidence scope and fail rather than hide missing coverage. |
-| [reviews/astral-python-auto/python-coverage.md](../../../reviews/astral-python-auto/python-coverage.md) | The shared static gate covers maintained Python and quoted heredocs without executing extracted bodies; malformed-input behavior needs regressions alongside type narrowing. |
-| [reviews/astral-python-auto/independent-review.md](../../../reviews/astral-python-auto/independent-review.md) | Read-only d36bb88 source review checked provenance, routing and maintained Python coverage; coordinator test results and native observations remain separately identified evidence. |
-| [reviews/evidence-led-improvements/README.md](../../../reviews/evidence-led-improvements/README.md) | Content-keyed per-validation heading caching preserves fresh bounded reads and path validation; performance observations and clean-worktree guidance do not justify speculative cleanup. |
-| [reviews/release-030-browser-harness.md](../../../reviews/release-030-browser-harness.md) | Startup cleanup and process/pipe lifecycle defects were reproduced, while the initiating Linux Target.getTargets timeout remained unexplained; retain that distinction. |
+| [reviews/astral-python-auto/python-coverage.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/python-coverage.md) | The shared static gate covers maintained Python and quoted heredocs without executing extracted bodies; malformed-input behavior needs regressions alongside type narrowing. |
+| [reviews/astral-python-auto/independent-review.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/independent-review.md) | Read-only d36bb88 source review checked provenance, routing and maintained Python coverage; coordinator test results and native observations remain separately identified evidence. |
+| [reviews/evidence-led-improvements/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/evidence-led-improvements/README.md) | Content-keyed per-validation heading caching preserves fresh bounded reads and path validation; performance observations and clean-worktree guidance do not justify speculative cleanup. |
+| [reviews/release-030-browser-harness.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-browser-harness.md) | Startup cleanup and process/pipe lifecycle defects were reproduced, while the initiating Linux Target.getTargets timeout remained unexplained; retain that distinction. |

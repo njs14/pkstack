@@ -634,7 +634,7 @@ reviewed Power. Old goals and schema-1 feature records are not imported.
 
 Use the commands below for explicit, reviewed maintenance. The
 [updater guide](upstream-control-loop.md) describes the hosted schedule and
-its limits; the [release status](../../../reviews/release-status.md) records
+its limits; the [release status](../../../Wiki/knowledge/pkstack/release-record.md) records
 live validation and whether that schedule is enabled.
 
 In this repository, use `/pkstack-maintain` or inspect the pinned sources with:
@@ -692,4 +692,4 @@ workspace or rewrite user-owned Wiki material as a cleanup shortcut.
 - [Provenance and porting boundary](provenance.md)
 - [Validation report](validation-report.md)
 - [Review harness](../reviews/README.md)
-- [Release status and validation evidence](../../../reviews/release-status.md)
+- [Release status and validation evidence](../../../Wiki/knowledge/pkstack/release-record.md)

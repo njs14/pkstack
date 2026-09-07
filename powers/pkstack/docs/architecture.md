@@ -4,7 +4,7 @@ PKStack is a Kiro Power plus a small repository-local control plane. The
 package's release metadata authority is
 [`plugin.json`](../plugin.json). This document describes runtime boundaries,
 not release acceptance. See the [validation report](validation-report.md) and
-[current release status](../../../reviews/release-status.md) for evidence.
+[current release status](../../../Wiki/knowledge/pkstack/release-record.md) for evidence.
 
 ## Boundary and ownership
 
@@ -39,7 +39,7 @@ Its [Archify source specification](artifacts/pkstack-architecture.json) is
 committed beside it so the diagram can be reviewed and regenerated. The
 artifacts show retained knowledge, native Specs, bounded ACP retrieval, and
 local validation. The [artifact guide](artifacts/README.md) and
-[delivery receipt](../../../reviews/release-040-diagrams.json) record their
+[delivery receipt](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-040-diagrams.json) record their
 source identities and visual verification scope.
 
 The Python package parses explicit inputs, validates data, runs the stored
@@ -313,4 +313,4 @@ of this repository.
 - [Upstream skill parity](upstream-skill-parity.md)
 - [Porting provenance](provenance.md)
 - [Validation report](validation-report.md)
-- [Current release status](../../../reviews/release-status.md)
+- [Current release status](../../../Wiki/knowledge/pkstack/release-record.md)

@@ -179,7 +179,8 @@ class KiroReviewStreamTests(unittest.TestCase):
     ) -> None:
         fixture = json.loads(
             (
-                Path(__file__).resolve().parents[2] / "reviews/kiro-v3-review-stream-shape.json"
+                Path(__file__).resolve().parents[2]
+                / ".github/fixtures/kiro-v3-review-stream-shape.json"
             ).read_text(encoding="utf-8")
         )
         self.assertEqual(fixture["cli_version"], "2.21.0")

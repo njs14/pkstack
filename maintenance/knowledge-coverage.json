@@ -689,7 +689,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "53a3fcc15dd3cb6605b56712bfc4c2aa43157ecef5ae096c91168a6dad1af945",
+      "sha256": "7a5ad7c30d1676c6554b4808d29f4aa9632df1fcdb9d9f085c18746dc880bea9",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -712,7 +712,7 @@
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "9511fab741e54980cbd5623a47896e97158ae1dd7c60bf12fa7c71f66f2b4d9e",
+      "sha256": "6b53c66e37c32fa1829fe93ced7678a5b22c04e51955965261cbe3c58a0c95b0",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/quality-and-ci.md"
@@ -721,7 +721,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "b0451950135e8583bd9c0507d12c72adf4909e4833f21b2485b89f17150d3ec0",
+      "sha256": "f99ddf75121fcbf46fa9149cae6b8ef15a972f716bb0ada1c81f1aa8fd4bb63d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -815,7 +815,7 @@
     },
     {
       "path": "powers/pkstack/README.md",
-      "sha256": "f92256c988fd9462a5aec57e136b41c175c084d8c8f446ab51c88cfcf97a5f6a",
+      "sha256": "6d82c70d2ac47a3c190c4ddafee4fc7d424abd763e8ccf0c54ca50d121460a90",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -875,7 +875,7 @@
     },
     {
       "path": "powers/pkstack/docs/architecture.md",
-      "sha256": "390da3c71d11e11dfea1c3f6c7d9ef3ec3079a13f5e2f71f675bf27a35467fc0",
+      "sha256": "f836d6bc77488421c3e0fa30b689a824f31d11c7d82effd4aeedc11910cc56d0",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -884,7 +884,7 @@
     },
     {
       "path": "powers/pkstack/docs/artifacts/README.md",
-      "sha256": "fe9bf137a308178c39ce681ca133f1c9aedf444d1edca22c8ef9b90f8f0904cd",
+      "sha256": "755caaccb761109710b498193587f663b1efd26fa393b8570e833864ead92d7c",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
@@ -902,7 +902,7 @@
     },
     {
       "path": "powers/pkstack/docs/curated-skills.md",
-      "sha256": "55e84a55026e5c44715c3950947a366e4cb9e34d2a52fc4d1f02ac52c5f2aabd",
+      "sha256": "5bd8e21472248ace4bb8e353c5d40b80a8d4b91030fe998af078eac48eec41ff",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -929,7 +929,7 @@
     },
     {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "b46bc5a2dcfdb91f3630b6315d168613f80f19aff91f594ecb1c6aa609966fec",
+      "sha256": "2f9d31a1e90f2c59a013aa04d10327c514e97db8f8c0a584a2bc4f849bed22d7",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -1019,7 +1019,7 @@
     },
     {
       "path": "powers/pkstack/docs/openknowledge-cli-contract-provenance.md",
-      "sha256": "7b1c649c31a9a55117b3f07a791cfbb7d43a989530dc2a768682439a146f2311",
+      "sha256": "d70084549913b98ffbf052b132779e7722c3842e3f36fc04f3a7e7e2a294ad55",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1028,7 +1028,7 @@
     },
     {
       "path": "powers/pkstack/docs/provenance.md",
-      "sha256": "1c0e88315d8b37872662fdb2d0dd5c2d069c7f83970f98eb6a893b3f0f7dd51e",
+      "sha256": "10448a5c87d0950f47a87e5112d92dd10cca7180544541e1170d1d233d06c784",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1037,7 +1037,7 @@
     },
     {
       "path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
-      "sha256": "dd65fb2c9c049d53da9d85fdd497816490825cc2fefee79fde0ac15b7d29826f",
+      "sha256": "b572e1895d0083b2ac4989c1e986ccddd3172a604638fd9a2085d2f3257fd0a4",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
@@ -1064,7 +1064,7 @@
     },
     {
       "path": "powers/pkstack/docs/upstream-control-loop.md",
-      "sha256": "8e29ed84aa2f34bef39e229dd2cfb58d745a70c5202bde936be7b845eee90281",
+      "sha256": "847d6013666ae00fc28652f1b251118b9ad00cd912a2350c2edad1ded228d86d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/upstream-maintenance/operations.md"
@@ -1082,7 +1082,7 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "bb019c91ab8299ac39c0f7e9216b3be9f2029d42bdd79d4dfc08f6fafc82b320",
+      "sha256": "366a0233a474f71ba2a87a6457d87caeab6a3773ebf32dba9c656bf970679c84",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1091,7 +1091,7 @@
     },
     {
       "path": "powers/pkstack/docs/validation-report.md",
-      "sha256": "647f1b92c8ff1ed32cc569289c9a9f88f05a675f5c99ba459509e6840e04d135",
+      "sha256": "8362f99a527cc89bb0602c770366630916fa0dc6152d360849c19b5d8c4a32df",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -1109,7 +1109,7 @@
     },
     {
       "path": "powers/pkstack/reviews/README.md",
-      "sha256": "f965eb3220fdcd182134ae2c418192e0c356e824aa229bdc2f0bff2a60e46df7",
+      "sha256": "a7e9b5690915a6836903e55a595d2fadd863ce6d0ebacbee30e20f51f1d522c4",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -1199,7 +1199,7 @@
     },
     {
       "path": "powers/pkstack/reviews/historical/pre-v0.2/README.md",
-      "sha256": "c767084395e200c26907759246ca4bddd0f35fe8c67c837fa55404a90ea7c749",
+      "sha256": "7e2fe3c09aa6cccdc955e65a525e059f32431e018a61adbfacf02aaed69a12b6",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -1841,557 +1841,8 @@
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/writing-for-agents/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
-      "path": "reviews/README.md",
-      "sha256": "5f361419c3b2b87c188fb23bb54ca3a03715719fc99329918084d845c4f02238",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Current release status is the release-record entrypoint; historical reports and the separate Floci lab cannot accept a different PKStack candidate."
-    },
-    {
-      "path": "reviews/acceptance-ledger.md",
-      "sha256": "6059491497788eec66bda58dd51ed267504945ef9c24426308b954adfd8a99df",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "This stable compatibility link still names v0.2 and old paths; follow release-status.md for current records rather than treating the alias wording as current metadata."
-    },
-    {
-      "path": "reviews/astral-python-auto/README.md",
-      "sha256": "87d5d625fafa9dcf5ede06484fbe6dcd3f566b62a91a2f3482497a2d708ca675",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md",
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md",
-        "Wiki/knowledge/pkstack/quality-and-ci.md"
-      ],
-      "summary": "Separates headless diagnosis from one-time-approved repair, actual verifier output from claimed receipt persistence, Auto selection from unknown model identity, and corrects the raw review heredoc explanation."
-    },
-    {
-      "path": "reviews/astral-python-auto/independent-review.md",
-      "sha256": "4f9c371c93f6cf694dcd70aa8da52acbadc82869775d083386d87528ca970553",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/quality-and-ci.md"
-      ],
-      "summary": "Read-only d36bb88 source review checked provenance, routing and maintained Python coverage; coordinator test results and native observations remain separately identified evidence."
-    },
-    {
-      "path": "reviews/astral-python-auto/python-coverage.md",
-      "sha256": "ea12718ec9f3ede4b95972d07c2ee2dff52ad098dbea6b2bdce30b0080b9f60a",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/quality-and-ci.md"
-      ],
-      "summary": "The shared static gate covers maintained Python and quoted heredocs without executing extracted bodies; malformed-input behavior needs regressions alongside type narrowing."
-    },
-    {
-      "path": "reviews/branding-ghost-options/README.md",
-      "sha256": "474391df902c9c9949ab37cf7ff53b8dcef9c50956171d6317a8f817cb0ae0d3",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/visual-artifacts.md"
-      ],
-      "summary": "The owner selected Option 2 Knowledge crest on September 6; four separate ghosts and a linked book/tree explain the theme without implying portraits or endorsement."
-    },
-    {
-      "path": "reviews/cleanup-validation.md",
-      "sha256": "11584cabf6b24ced3ea29d61e2333740c0a3e086e5c229db5c4a47e2068ba855",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md",
-        "Wiki/knowledge/upstream-maintenance/operations.md"
-      ],
-      "summary": "Cleanup removed obsolete schema/cache machinery and corrected cancellation/environment/retry handling based on observed failures; unfinished native gates remained failures or limits."
-    },
-    {
-      "path": "reviews/cli-native-command-audit/README.md",
-      "sha256": "fef7d7574225a1ddbd41cd655d9a5b78e0f5c934e00c34859e5e84145bbaa0ba",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md",
-        "Wiki/knowledge/pkstack/runtime-and-verification.md",
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
-      ],
-      "summary": "The CLI audit separates conversational Plan from Spec task files and command recognition from execution, motivating explicit native workflow handoffs."
-    },
-    {
-      "path": "reviews/evidence-led-improvements/README.md",
-      "sha256": "6a31317f16dc3d3420e3011a2db727712944116b5579baf813159491fccd6e18",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/quality-and-ci.md",
-        "Wiki/knowledge/upstream-maintenance/operations.md"
-      ],
-      "summary": "Derives content-keyed per-call parsing reuse while preserving fresh bounded reads; contrasts real and synthetic benchmark results, preserves intentional boundary helpers, and distinguishes closed evidence branches from unfinished work."
-    },
-    {
-      "path": "reviews/fable-fbl046-peer-review.md",
-      "sha256": "f67eb0bdbc1a11f4277ac79450192cce2ebed848cc3d76e24381da9878cb196c",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/upstream-maintenance/operations.md"
-      ],
-      "summary": "FBL-046 review examined hosted reviewer readiness for checkpoint 347d461; source inspection and authenticated preflight are separate from full release acceptance."
-    },
-    {
-      "path": "reviews/fable-review-prompt.md",
-      "sha256": "68a321e1032b2ba488b2fe6cea1bf4c7f2cbf1f5e53b031781829a0ba274f594",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Retains the method of read-only exact-candidate review with stable findings and acceptance tests; old paths, okn and product-contract wording need reconciliation before reuse."
-    },
-    {
-      "path": "reviews/friends-cli-validation.md",
-      "sha256": "93010696fc5b0869996f08cf3b113b597108b052b1a918cf5a03871c6fa9e8f3",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md"
-      ],
-      "summary": "Historical native Standard/Quick fixture campaigns distinguish skill loading, same-conversation execution and exact verifier preservation; shared account deltas are not per-campaign costs."
-    },
-    {
-      "path": "reviews/friends-curated-validation.md",
-      "sha256": "e5e1764c4ee15c5e7d1befb7ef659131869f1c29ebb63122753094b43344d7a9",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Six skills loaded in native smokes, but design/diagram/builder limitations remained; a successful skill load alone does not establish the requested result."
-    },
-    {
-      "path": "reviews/friends-ide-validation.md",
-      "sha256": "ef1b0c39ebfa1bda3990a9c6623a158a45754b3df0be2ae9e87a67695ab18565",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md"
-      ],
-      "summary": "IDE Standard/Quick fixtures record agent-panel/model/approval context separately from CLI; Autopilot off did not imply a prompt for every command."
-    },
-    {
-      "path": "reviews/friends-validation.md",
-      "sha256": "5fddcc8ed39ad0f99c351c3da1cdc0a4aba6e6b637602687a88fccaefe92f82d",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "The friends integration made neighboring skill outputs and forbidden effects explicit; static routing cases and a bounded review bundle are not universal semantic routing proof."
-    },
-    {
-      "path": "reviews/github-app-council-probe.md",
-      "sha256": "3f758554eab8fbc54a630c4362202369e06c46bd1914dbfe323b56466b3cfa27",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/upstream-maintenance/operations.md"
-      ],
-      "summary": "GitHub App acknowledgements/no-response were insufficient deterministic review evidence; the shipped hosted authority uses exact-candidate Kiro review with isolated credentials."
-    },
-    {
-      "path": "reviews/grok-sweep-prompt.md",
-      "sha256": "d20110c81251a14e90ecf62589b4bfda3a088eefe776e20969c34b871bf09686",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Adversarial sweep checks containment, evidence identity and unsupported claims independently; historical command/backend names are not current instructions."
-    },
-    {
-      "path": "reviews/historical/pre-v0.2/README.md",
-      "sha256": "30acb89a6aa48ba178fad9d6441dfbf6762bfce768278fe4f7fe6dc3b1c0e9f1",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Archived pre-0.2 evidence preserves original identities and limitations and cannot establish acceptance of later candidates."
-    },
-    {
-      "path": "reviews/historical/v0.2-release-status.md",
-      "sha256": "0183ed319c07e9aa2355bb4938caa50a48f6615fbd6cb89341037bf6b909c1c4",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Archived v0.2 tag-derived/pending status is historical despite internal current wording; do not carry its labels forward to later releases."
-    },
-    {
-      "path": "reviews/historical/v0.3-release-status.md",
-      "sha256": "6f6768f96ff45e9b9bd64c9238fdb494cdea27b5eb128dbeb49217727dfe703d",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Archived v0.3 candidate checkpoint predates its publication and preserves assumptions and uncompleted checks without replacing the later publication record."
-    },
-    {
-      "path": "reviews/kiro-runtime-canary-campaign.md",
-      "sha256": "b795b0189ffbb34685d230dcf8a8f1f80b03af7b0cbe8a2a33d129b576eb4a0d",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/upstream-maintenance/operations.md"
-      ],
-      "summary": "The September 3 canary observed exact runtime/agent/model-inventory identity, without promoting pins, exercising a model task, or proving IDE/Web/maintenance acceptance."
-    },
-    {
-      "path": "reviews/kirocrew-nightly-smoke-campaign.md",
-      "sha256": "efe74ce63ca610019cae20287c8d74ab1a9fbf1f91c802425e5c21a35df2311f",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "September 3 Crew command-surface and doctor observations passed with a packaging limitation; no PKStack task orchestration or verified-goal workflow was exercised."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/.kiro/specs/knowledge-foundation/requirements.md",
-      "sha256": "0d202964c59d114dbf4d16c56b91924da3bd494995394ffaa24ec341c59a1638",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/.kiro/specs/knowledge-foundation/requirements.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/features/README.md",
-      "sha256": "aac76bcc9465afe43375eb0b1d986f9508cac6ada7b1f012aee3e3a00c448bed",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/features/README.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/features/pkstack-upstream-maintenance.md",
-      "sha256": "87630a940742662eeb0a3237dc6d5759aef2dcc47853a2888be17163de2c53df",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/features/pkstack-upstream-maintenance.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/index.md",
-      "sha256": "3e25515c364f3e2ff50b8b9a67368feb05f60704095e7765193ee26710335fb2",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/index.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/context-depth.md",
-      "sha256": "1bc04608d684f3aab4ddcdd0407acbd9fb8b2da27aa1a7b1d3b8167334b7c33b",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/context-depth.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/corpus-migration.md",
-      "sha256": "759f2c9ecc8757b1ba830bf83547e23a0fa4f300ff6988629cad85347f7fe486",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/corpus-migration.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/knowledge-lifecycle.md",
-      "sha256": "9398043c8bb1778dfaec5bd47ca824e7725014b21145eeb7f8f34823ead9aafb",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/knowledge-lifecycle.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/native-kiro-composition.md",
-      "sha256": "75c85ffdcc604d840fd9f3f705e17e0b806f4e7563f58ce7e979e0f105b86959",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/native-kiro-composition.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/native-spec-and-okn.md",
-      "sha256": "998664be6e83b2f92473b51192508c4d8882d1e1d92bf16297754b18d4aedf92",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/pkstack/native-spec-and-okn.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/upstream-maintenance/decisions.md",
-      "sha256": "e01e4266404179cf9fb745cf44c652a12455375d5510c412325e94ac0d6d88e3",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/upstream-maintenance/decisions.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/upstream-maintenance/glossary.md",
-      "sha256": "b8fb53b790ac4dd5b9c4e26f6e20f932b11445d35ab67395d91451a97f5f9e12",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/upstream-maintenance/glossary.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/upstream-maintenance/observations.md",
-      "sha256": "b070992a6e8509ca439bff6426f1165eef1de343283009d916050a6599665c85",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/knowledge/upstream-maintenance/observations.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/fixture/Wiki/work/contradictory-draft.md",
-      "sha256": "1f5bde1fa7f2d1402b54c2ca7223e65cdd688f57274627416e326fb122f7b17d",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen foundation scenario input reviews/knowledge-foundation-evidence/fixture/Wiki/work/contradictory-draft.md; preserve its original or intentionally contradictory content for retrieval evidence. The parent foundation report and lifecycle topic retain the observed lessons."
-    },
-    {
-      "path": "reviews/knowledge-foundation-evidence/post-retirement-fixture/validation-migration.md",
-      "sha256": "19481b68fe4c7370416cd385ff61b88d2ffa40d0aba7ef4446b5aa160f624559",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen observation used by the foundation retrieval fixture; its deliberately fixture-relative links are not live repository links. The foundation/lifecycle topic retains its local-validation supersession and limits."
-    },
-    {
-      "path": "reviews/knowledge-foundation.md",
-      "sha256": "e6b467a089e4b810611842d271a8057e8b09e62d9d247d3ee55f209f06447231",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/knowledge-lifecycle.md"
-      ],
-      "summary": "Synthesizes predeclared usefulness cases, authoring correction, superseded observations and the limits of verified quotations; separates return/model/wire budgets, version-specific isolation and cancellation/cleanup safeguards."
-    },
-    {
-      "path": "reviews/okf-integration-evidence.md",
-      "sha256": "d3eed6af0f5e3ccb48d4aa31b438439b0e45d36d34f6346ea788a99588fcca9c",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/knowledge-lifecycle.md"
-      ],
-      "summary": "The September 3 comparison separated Google format semantics, OKF methodology and then-selected okn runtime; the runtime choice is superseded by the later foundation, not silently rewritten."
-    },
-    {
-      "path": "reviews/onboarding-042/README.md",
-      "sha256": "94688ce3db9ffe149f727f84d118af053ee5d4aaaeda492aa8841edb11b92954",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md",
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "The 0.4.2 CLI campaign recorded failure then native repair/pass at 2 of 4 with unchanged tests and paths containing spaces; existing account/cache state limits first-install claims."
-    },
-    {
-      "path": "reviews/pipeline-readiness-validation.md",
-      "sha256": "23dc15c13c2f4e206b63a83451fe5878ea6b77b0c6f8f6554596d6b32aa1d4c8",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/upstream-maintenance/operations.md",
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "Retains actual-agent attestation after listing/fallback mismatch, invalid stream versus substantive rejection, trusted retrieval dates, preserved rationale and bound end-to-end acceptance without upgrading historical runs to current health."
-    },
-    {
-      "path": "reviews/pk-stack-maintenance-campaign.md",
-      "sha256": "09d90e37c3c0841efee99e1a4aa1587bdb52b73e63d09b21532e5bf45d70fb45",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/upstream-maintenance/operations.md"
-      ],
-      "summary": "A source-scoped goal recorded real drift then accepted-baseline pass with unchanged other sources; the two-path Cursor-only transition does not prove today's updater health."
-    },
-    {
-      "path": "reviews/pkstack-identity-validation.md",
-      "sha256": "121374865ba15324ba537ce5a6107123465f3c0172fb947885a532a4b01f3e52",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Naming cleanup repaired links and restored altered historical transition rationales; current naming must not rewrite provenance or treat naming checks as functional proof."
-    },
-    {
-      "path": "reviews/planning-043-v4/README.md",
-      "sha256": "b35f50023313950d9f1ab73cde1c1381c80e5343af1caa7972aecb2fec3415bd",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md"
-      ],
-      "summary": "Separates improved handoff/capture ordering from operator-assisted mode entry and persistent Unicode reasoning errors; file-event ordering, no-write deltas and counterexamples bound the retained native acceptance."
-    },
-    {
-      "path": "reviews/planning-043-v5/README.md",
-      "sha256": "b6f1b1ad2335725697c06211c6f37bb836523064ad7b595348c6592de46b23d7",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md"
-      ],
-      "summary": "v5 produced one exact Plan command and stopped, but still proposed incorrect uppercase-before-ASCII validation; no Plan or implementation ran in that router-only check."
-    },
-    {
-      "path": "reviews/planning-043/README.md",
-      "sha256": "f89cff6094d00f78814512730975f918ec8a34cb59ba83e9ee063ac1a5914e61",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md"
-      ],
-      "summary": "The initial 0.4.3 campaign retains failed handoffs, premature implementation/capture ordering, unanswered approval checks and Unicode constraint violations."
-    },
-    {
-      "path": "reviews/planning-043/ide-spec-native/design.md",
-      "sha256": "22de7c259a8e46504fda90eb215a16a8550bdcb82be21415553f739296181379",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen native planning artifact reviews/planning-043/ide-spec-native/design.md; preserve requirements, design and task choices including historical mistakes. The planning topic retains the later bounded corrections without rewriting this fixture."
-    },
-    {
-      "path": "reviews/planning-043/ide-spec-native/requirements.md",
-      "sha256": "937aa0a3ec1194a05844cbcf1ee428d13407bfaf3133572f222a397ba441c7c7",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen native planning artifact reviews/planning-043/ide-spec-native/requirements.md; preserve requirements, design and task choices including historical mistakes. The planning topic retains the later bounded corrections without rewriting this fixture."
-    },
-    {
-      "path": "reviews/planning-043/ide-spec-native/tasks.md",
-      "sha256": "64d7d316b26832af4dfe77161d79b0e3b983497c55338ce2fed009642a626cae",
-      "classification": "excluded",
-      "category": "historical-fixture",
-      "reason": "Frozen native planning artifact reviews/planning-043/ide-spec-native/tasks.md; preserve requirements, design and task choices including historical mistakes. The planning topic retains the later bounded corrections without rewriting this fixture."
-    },
-    {
-      "path": "reviews/release-030-acceptance.md",
-      "sha256": "24eefd447d4e2749e59a4f8dc41f546022b758a8d6780a728e9cd4def0e6437e",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Acceptance used explicit bounded coverage and GUI waivers; waived native checks are assumptions, not new passing observations or publication authorization."
-    },
-    {
-      "path": "reviews/release-030-archify.md",
-      "sha256": "f130d53df43b3433af3dee7467ed5daf5e1bc5effd8571086b6f81ec6a0cf72d",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/visual-artifacts.md"
-      ],
-      "summary": "Derives fixed-input layout reproduction, shared caption geometry, semantic-band and frame containment, per-control viewport checks, actual export invariance, and separate CLI/watcher/provenance regressions."
-    },
-    {
-      "path": "reviews/release-030-browser-harness.md",
-      "sha256": "6ae65de946d9c762d56f2470fe979f70d03e2dbedf92cfeeb9f5a0aecb681123",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/quality-and-ci.md"
-      ],
-      "summary": "Separates the unreproduced Linux startup trigger from reproduced startup-cleanup and terminal pipe/process defects; deterministic child/profile cleanup and real browser exports validate different properties."
-    },
-    {
-      "path": "reviews/release-030-cli.md",
-      "sha256": "2654a3d76c66d5f67a0a861535160f683f08fb3274c1ce951df96085c8fbd78a",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md"
-      ],
-      "summary": "Quick Spec followed by same-conversation agent swap and immutable verifier failure/repair/pass proves the bounded fixture, not every native route or release-wide correctness."
-    },
-    {
-      "path": "reviews/release-030-composition.md",
-      "sha256": "896848f977733a254746c7eb010404f1404a54f6d7db931c0e3ed4eb8e16d95a",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md",
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Binds the immutable reusable-loop acceptance suite to a stored fail-repair-pass goal; a proved pre-binding command adjustment preserves test meaning, while a one-sample demonstration would not establish loop correctness."
-    },
-    {
-      "path": "reviews/release-030-core.md",
-      "sha256": "0b4a7a5bc7fa90606f03ff047163d7f334f5be1b75b8171bcc412ba924d1c5f0",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Standard planning, legacy installation refusal and local knowledge checks were recorded for specific 0.3 candidates, separate from helper/pipeline edits and publication."
-    },
-    {
-      "path": "reviews/release-030-loop-helpers.md",
-      "sha256": "55ad9b4ffc9a03f5c381f5face284dc3b3e25bfc2925e06a9c04d953e90e025f",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Derives durable attempt reservation, pre-actuation preservation, restart reconciliation and separate increment/completion semantics from failed generated loops; distinguishes five single-process tests from 24 independent process/state cases."
-    },
-    {
-      "path": "reviews/release-030-other-helpers.md",
-      "sha256": "b4d416a5ca56bbfa3b2518ef0b90777c8edc07b0bf318eb52e11e92a4e553a4d",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Separates correct output from assisted method compliance, inference-labeled diagrams from rendered evidence, and live-caller-driven React prop narrowing from browser behavior."
-    },
-    {
-      "path": "reviews/release-030-permissions.md",
-      "sha256": "99f42640b06bbca1bf868f0e5c3670bfdc95e8fe4cc63c7f1686d25871651e1d",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "Explains ask versus hard deny, reordered/grouped Git-switch gaps, ordinary-command controls and non-Git probe containment; the three repaired groups do not establish comprehensive shell containment."
-    },
-    {
-      "path": "reviews/release-030-pipeline.md",
-      "sha256": "c12b79510b2089e36ab84eaf6c1221653fef2a4da598044e062a7ed29a2f803b",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/upstream-maintenance/operations.md"
-      ],
-      "summary": "Explains successful rejection handling versus candidate approval, complete path-keyed reviewer context, same-day retrieval, combined context caps, EOF cleanup regression and separate exact-main artifact eligibility."
-    },
-    {
-      "path": "reviews/release-030-review.md",
-      "sha256": "b22f5c7832704a1903275f8f30da98198337ce7461acdd0cb178bbf39d2b8d29",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Independent frozen-candidate review found grouped-option permission gaps and reviewed their correction; later scoped reviews and GUI assumptions remain separately attributable."
-    },
-    {
-      "path": "reviews/release-044-review.md",
-      "sha256": "0d3dd01b28b5124a7514e3f7eb8d7429bbffc63b34d6f507f248b2fc69c4cc52",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Grok approved metadata-only 6a78b19 against 5a905eb; matching mirrors and coordinator evidence did not themselves authorize or perform publication."
-    },
-    {
-      "path": "reviews/release-status.md",
-      "sha256": "5482676b991773dd8e99eb2b5e43a56174d9e6ec92458983385e398a4712edd0",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Release records bind version, exact candidate, CI/tag runs and archive comparison; copied status is not a fresh remote check or acceptance of this knowledge expansion."
-    },
-    {
-      "path": "reviews/uvx-entrypoint/README.md",
-      "sha256": "3384c2db7bd90b69c2de088554ef8f44707ecb90098d728bef17c6129c6a0c70",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
-      ],
-      "summary": "Launcher/controller separation and explicit upgrades were exercised with real wheels; cold-cache hosted walkthrough failures required isolated resolution tests rather than runtime changes."
-    },
-    {
-      "path": "reviews/uvx-entrypoint/grok-followup.md",
-      "sha256": "261e7e94476d8b7d1247cd115aa37a586c88e01de7e9f332b5ecc96a8a2e3dd1",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md",
-        "Wiki/knowledge/pkstack/quality-and-ci.md",
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Explains why locked-sync distributions did not satisfy offline uvx registry resolution; isolates cold caches and moves walkthroughs to the existing package lane while keeping launcher approval bound to unchanged source."
-    },
-    {
-      "path": "reviews/uvx-entrypoint/grok-review.md",
-      "sha256": "0f74006e8580e9dbc2c816127ed76e8181a6d2b459bf82c12abb286462afb755",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
-      ],
-      "summary": "Read-only review of 9e9f327 distinguished launcher version from controller version, exact current-directory selection, receipt ownership from trust, and inherited application dependencies."
+      "path": "Wiki/knowledge/pkstack/release-record.md",
+      "classification": "canonical"
     }
   ]
 }

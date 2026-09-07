@@ -23,14 +23,14 @@ the installed project controller authoritative for project operations.
 - Runs stacked-PR checks and isolates dependency resolution for executable
   documentation walkthroughs.
 
-See the [Astral and Auto acceptance report](reviews/astral-python-auto/README.md),
-[uvx validation and independent review](reviews/uvx-entrypoint/README.md), and
+See the [Astral and Auto acceptance report](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/README.md),
+[uvx validation and independent review](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/README.md), and
 [installation and upgrade guide](powers/pkstack/docs/usage.md). The uvx acceptance
 is deterministic CLI evidence, not a new native Kiro model/IDE campaign.
 
 ## [0.4.3] — 2026-09-06
 
-The [native planning acceptance report](reviews/planning-043-v5/README.md)
+The [native planning acceptance report](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/planning-043-v5/README.md)
 records the passing routing check, composed workflow evidence, and review limits.
 
 PKStack planning uses one shared grilling method inside native Kiro Plan and
@@ -89,7 +89,7 @@ compatibility limits.
   removes duplicate ignore rules.
 
 Use the [0.4 upgrade guide](powers/pkstack/docs/upgrade-0.4.md) for a reviewed
-managed refresh. The [measurement evidence](reviews/evidence-led-improvements/README.md)
+managed refresh. The [measurement evidence](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/evidence-led-improvements/README.md)
 distinguishes the synthetic benchmark from the smaller repository workload.
 
 ## [0.4.0] — 2026-09-06
@@ -115,7 +115,7 @@ discovery and model inventory, not end-to-end knowledge retrieval. Other Kiro
 versions and Windows knowledge retrieval remain outside the verified contract.
 
 Read the [0.4 upgrade guide](powers/pkstack/docs/upgrade-0.4.md) and the
-[knowledge acceptance report](reviews/knowledge-foundation.md) for migration,
+[knowledge acceptance report](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md) for migration,
 evidence, and limits.
 
 ## [0.3.0] — 2026-09-05
@@ -148,7 +148,7 @@ goal state, and feature schemas are not automatically migrated.
   SHA-256 checksums, and publishes version-specific release notes.
 
 See the [upgrade guide](powers/pkstack/docs/upgrade-0.3.md) before replacing an
-older installation and the [release acceptance ledger](reviews/release-030-acceptance.md)
+older installation and the [release acceptance ledger](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-acceptance.md)
 for checks, evidence, and compatibility limits.
 
 ## [0.2.0] — 2026-09-03

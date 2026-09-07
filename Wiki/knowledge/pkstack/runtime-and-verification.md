@@ -81,7 +81,7 @@ supported tuple and remaining Linux live-query gap belong to the
 
 ## Design permission probes with both refusal and ordinary controls
 
-The [Git-switch audit](../../../reviews/release-030-permissions.md) first found destructive forms
+The [Git-switch audit](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-permissions.md) first found destructive forms
 falling through to **ask**, rather than the intended **deny**. The difference matters: this was a
 missing hard-deny rule, not evidence that commands ran silently. After standalone and reordered
 forms were repaired, review found grouped spellings such as `-qf`, `-dqf`, and `-qC` still asked.
@@ -98,10 +98,10 @@ absolute executables, quoting variants, or subprocess containment.
 
 ## Schema, discovery, selection, and action are separate gates
 
-The [2.21.0 loader probe](../../../reviews/kiro-v3-agent-discovery-probe.json) found three read-only
+The [2.21.0 loader probe](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kiro-v3-agent-discovery-probe.json) found three read-only
 helpers that passed schema validation but were absent from Workspace agent rows. An inert empty
 `toolsSettings` object restored discovery without adding authority. The later
-[updater investigation](../../../reviews/pipeline-readiness-validation.md#global-agent-loading-defect)
+[updater investigation](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pipeline-readiness-validation.md#global-agent-loading-defect)
 found a different mismatch: global listing saw the maintainer while v3 chat silently selected the
 default agent under a split home layout. A nonempty JSON stream had been mistaken for sufficient
 execution evidence. Require actual session-bound agent selection before model/tool activity;
@@ -111,7 +111,7 @@ These versioned defects explain why schema checks, effective inventory, selected
 and concrete permission behavior all have a role. The sentinel is not a universal schema rule,
 and a canary exercising workspace agents does not validate a differently configured global agent.
 
-The [native command audit](../../../reviews/cli-native-command-audit/README.md) also distinguished
+The [native command audit](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/cli-native-command-audit/README.md) also distinguished
 working commands from completion entries: the bare agent picker, same-session agent swap,
 `/config skills`, and `/code status` ran; requirements analysis and several planning commands were
 only recognized. In that build `/agent list` tried to select an agent named `list`. Diagnose the
@@ -136,6 +136,6 @@ original candidate and scope; they are not fresh verification of this checkout.
 | [powers/pkstack/reviews/grok-round-3.md](../../../powers/pkstack/reviews/grok-round-3.md) | GRK-021 demonstrates generator/loader YAML round-trip failures; bridge argv typing, setup fallback errors, and parent-exit/descendant cleanup limits remain distinct from semantic proof. |
 | [powers/pkstack/reviews/kiro-selected-profile-campaign.md](../../../powers/pkstack/reviews/kiro-selected-profile-campaign.md) | The bc6e79a-era selected pstack-profile run records concrete permission observations and a 2-of-4 fixture pass, preceding the later bytecode-boundary campaign. |
 | [powers/pkstack/reviews/kiro-final-campaign.md](../../../powers/pkstack/reviews/kiro-final-campaign.md) | The b39c20a post-CDX-004 campaign supersedes the earlier run for its original acceptance scope; it records selected-profile fail-repair-pass and preservation, not current release proof. |
-| [reviews/release-030-permissions.md](../../../reviews/release-030-permissions.md) | Missing destructive git switch forms and later grouped-option gaps required real matcher probes and narrow regressions; this is not complete shell containment. |
-| [reviews/kirocrew-nightly-smoke-campaign.md](../../../reviews/kirocrew-nightly-smoke-campaign.md) | September 3 Crew command-surface and doctor observations passed with a packaging limitation; no PKStack task orchestration or verified-goal workflow was exercised. |
-| [reviews/astral-python-auto/README.md](../../../reviews/astral-python-auto/README.md) | A bounded Auto-selected Python repair passed after one-time interactive permission; underlying model, universal routing, and zero-intervention behavior were not established. |
+| [reviews/release-030-permissions.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-permissions.md) | Missing destructive git switch forms and later grouped-option gaps required real matcher probes and narrow regressions; this is not complete shell containment. |
+| [reviews/kirocrew-nightly-smoke-campaign.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kirocrew-nightly-smoke-campaign.md) | September 3 Crew command-surface and doctor observations passed with a packaging limitation; no PKStack task orchestration or verified-goal workflow was exercised. |
+| [reviews/astral-python-auto/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/README.md) | A bounded Auto-selected Python repair passed after one-time interactive permission; underlying model, universal routing, and zero-intervention behavior were not established. |

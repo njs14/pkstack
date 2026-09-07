@@ -571,7 +571,7 @@ def test_kiro_workspace_agent_discovery_fails_closed_on_nonzero(
 
 def test_agent_discovery_probe_records_bounded_221_evidence() -> None:
     evidence = json.loads(
-        (REPOSITORY_ROOT / "reviews" / "kiro-v3-agent-discovery-probe.json").read_text(
+        (REPOSITORY_ROOT / ".github" / "fixtures" / "kiro-v3-agent-discovery-probe.json").read_text(
             encoding="utf-8"
         )
     )

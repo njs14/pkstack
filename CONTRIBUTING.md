@@ -107,6 +107,12 @@ diagnostic evidence, not a CI pass/fail threshold; retain the individual samples
 
 ## Pull requests
 
+PKStack project documentation belongs in the root `Wiki/knowledge/`: architecture decisions,
+review synthesis, development lessons, CI policy, and release evidence about building PKStack.
+It is separate from the installable `powers/pkstack/` deliverable. Do not copy this project
+knowledge into Power guides, skills, templates, or generated consumer assets. Product-facing
+usage instructions and required upstream provenance keep their existing package roles.
+
 For documentation changes, read the affected source diff and update the related
 `Wiki/knowledge/` topic, or explain why its retained understanding does not change.
 Update only the affected entries in `maintenance/knowledge-coverage.json`, including
@@ -120,8 +126,10 @@ from the repository root, or run the shared fast checks, which include it. The c
 also inventories nonignored untracked Markdown locally. It is read-only and has no
 bulk hash-refresh mode. CI enforces coverage, freshness, metadata and links; reviewers
 must still assess semantic completeness and whether exclusions are justified.
-Adding a coverage-manifest or Wiki change selects normal CI under the existing
-conservative classification, even when the source itself is a release report.
+Adding a coverage-manifest or general Wiki change selects normal CI under the existing
+conservative classification. The exact Wiki release record retains the report-only route.
+Root `reviews/` is retired: synthesize findings into Wiki topics and cite immutable Git history
+for original evidence. Keep executable test inputs in their fixture directories.
 
 - Explain the user-visible outcome and the files that own it.
 - Include tests or a documented reason a test is not useful.

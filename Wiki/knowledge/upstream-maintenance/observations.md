@@ -9,7 +9,7 @@ tags: [upstream-maintenance, observation, okn, acp, validation]
 
 This is the pre-retirement prototype observation produced during the native authoring fixture.
 Its code and native requirement links below point to frozen test inputs. The current implementation
-and verification are recorded in the [foundation report](../../../reviews/knowledge-foundation.md);
+and verification are recorded in the [foundation report](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md);
 this historical record does not describe the final migrated validator.
 
 ## Observation of 2026-09-05
@@ -19,7 +19,7 @@ record.
 
 ### What the native requirement asks for
 
-[`.kiro/specs/knowledge-foundation/requirements.md`](../../../reviews/knowledge-foundation-evidence/fixture/.kiro/specs/knowledge-foundation/requirements.md)
+[`.kiro/specs/knowledge-foundation/requirements.md`](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation-evidence/fixture/.kiro/specs/knowledge-foundation/requirements.md)
 requires that `projectctl knowledge validate` run deterministically and locally, with no model turn
 and no `okn` subprocess, and that the replacement search use Kiro ACP and return independently
 verifiable source quotations inside a host-enforced returned-context budget. The accepted plan
@@ -29,7 +29,7 @@ inspected before anyone claims the requirements are implemented.
 
 ### What the current code does
 
-From [`powers/pkstack/src/pkstack/knowledge.py`](../../../reviews/knowledge-foundation-evidence/fixture/powers/pkstack/src/pkstack/knowledge.py):
+From [`powers/pkstack/src/pkstack/knowledge.py`](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation-evidence/fixture/powers/pkstack/src/pkstack/knowledge.py):
 
 - `validate()` calls `status()`, which resolves `okn`/`openknowledge` on `PATH`, refuses a
   workspace-local executable, and probes it with `okn version` against a `0.13.0` minimum. When that
