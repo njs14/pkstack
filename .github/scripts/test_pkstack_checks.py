@@ -173,9 +173,7 @@ class ProfileTests(unittest.TestCase):
 
     def test_partition_is_stable_and_module_overrides_preserve_categories(self):
         self.assertEqual(checks.lane_for("tests/test_packaging.py::test_install"), "package")
-        self.assertEqual(
-            checks.lane_for("tests/test_uvx_launcher_acceptance.py::test_install"), "package"
-        )
+        self.assertEqual(checks.lane_for("tests/test_power_acceptance.py::test_install"), "package")
         self.assertEqual(
             checks.lane_for("tests/test_readme_walkthrough.py::test_install"), "package"
         )

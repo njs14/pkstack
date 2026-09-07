@@ -44,9 +44,8 @@ must repair links without rewriting historical source ledgers.
 The September 6 branding record says the owner selected Option 2, “Knowledge crest”: four
 distinct ghost figures, a book and linked knowledge tree. The TypeScript figure is an archetype,
 not a portrait, and HumanLayer's layered shape is a visual interpretation. Both inspected READMEs
-reference `assets/logo.png` at their respective relative paths. The older assets README describes
-the previous banner as current; preserve it as artwork provenance and use the later selection
-record for the decision. A design selection is not evidence of package behavior or endorsement
+reference `assets/logo.png` at their respective relative paths. The assets README identifies the current logo and retains
+the previous banner and mascot as historical artwork provenance. A design selection is not evidence of package behavior or endorsement
 by the depicted projects.
 
 
@@ -83,7 +82,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 
 | Source | Retained guidance or bounded observation |
 | --- | --- |
-| [powers/pkstack/assets/README.md](../../../powers/pkstack/assets/README.md) | Retains earlier mascot/banner provenance; its current-banner wording predates the later selected four-ghost logo and should not override that selection. |
+| [powers/pkstack/assets/README.md](../../../powers/pkstack/assets/README.md) | Identifies the current four-ghost Knowledge crest and retains the earlier mascot/banner provenance as history. |
 | [powers/pkstack/docs/artifacts/README.md](../../../powers/pkstack/docs/artifacts/README.md) | Editable JSON, interactive HTML and static previews explain component/planning/updater boundaries at a recorded source snapshot; diagrams are not executable proof. |
 | [powers/pkstack/docs/tt-a1i-archify-provenance.md](../../../powers/pkstack/docs/tt-a1i-archify-provenance.md) | Original upstream bytes and adapted runtime bytes remain separately bound, including local caption/viewport/transport patches and reviewed upstream parser/watcher corrections. |
 | [reviews/branding-ghost-options/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/branding-ghost-options/README.md) | The owner selected Option 2 Knowledge crest on September 6; four separate ghosts and a linked book/tree explain the theme without implying portraits or endorsement. |

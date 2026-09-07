@@ -199,7 +199,7 @@ def test_bootstrap_rejects_traversal_or_empty_receipt_keys_before_writing(
     receipt.write_text(
         json.dumps(
             {
-                "schema_version": 1,
+                "schema_version": 2,
                 "manager": "pkstack",
                 "files": {receipt_key: "0" * 64},
             }
@@ -214,17 +214,18 @@ def test_bootstrap_rejects_traversal_or_empty_receipt_keys_before_writing(
 
 
 def test_forged_receipt_cannot_authorize_automatic_overwrite(tmp_path: Path) -> None:
-    foreign = tmp_path / "projectctl"
+    foreign = tmp_path / ".pkstack/bin/projectctl"
+    foreign.parent.mkdir(parents=True)
     foreign.write_text("foreign\n", encoding="utf-8")
     receipt = tmp_path / ".pkstack" / "bootstrap.json"
-    receipt.parent.mkdir(parents=True)
+    receipt.parent.mkdir(parents=True, exist_ok=True)
     digest = hashlib.sha256(foreign.read_bytes()).hexdigest()
     receipt.write_text(
         json.dumps(
             {
-                "schema_version": 1,
+                "schema_version": 2,
                 "manager": "pkstack",
-                "files": {"projectctl": digest},
+                "files": {".pkstack/bin/projectctl": digest},
             }
         ),
         encoding="utf-8",
@@ -233,7 +234,7 @@ def test_forged_receipt_cannot_authorize_automatic_overwrite(tmp_path: Path) -> 
     result = bootstrap_project(tmp_path, power_root=POWER_ROOT)
 
     assert result.ok is False
-    assert "projectctl" in result.pending_updates
+    assert ".pkstack/bin/projectctl" in result.pending_updates
     assert foreign.read_text(encoding="utf-8") == "foreign\n"
     assert not (tmp_path / ".kiro").exists()
 

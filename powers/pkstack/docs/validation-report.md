@@ -1,9 +1,10 @@
 # Validation report
 
 This report describes how to validate a PKStack release candidate. It is a
-release-process document, not a standing pass claim. The [current release
-status](../../../Wiki/knowledge/pkstack/release-record.md) is the single place for the
-candidate commit and gate verdicts.
+release-process document. Record candidate verdicts in a dated evidence packet
+using the [gate contract below](#release-gate-record). The
+[release record](../../../Wiki/knowledge/pkstack/release-record.md) retains publication
+facts and links to evidence; its historical entries do not validate this candidate.
 
 ## Authority and evidence boundary
 
@@ -22,48 +23,23 @@ owned by the separate private
 
 ## Deterministic local checks
 
-Run these commands from the indicated directory on the exact candidate commit.
-Record the exit code, test count, and any missing optional dependency in the
-release-status evidence packet.
-
-From `powers/pkstack/`:
+Run the shared gate from the repository root on the exact candidate:
 
 ```sh
-uv lock --check
-uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-uv run --frozen ty check
-uv run --frozen pytest -q
+uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local full
 ```
 
-From the repository root:
+The command prints a fresh evidence directory containing its plan, lane receipts,
+logs, and aggregate summary. Retain that packet with the candidate commit, exit
+status, test counts, and limitations. This is the same partitioned command contract
+used by CI; avoid maintaining a second checklist of individual test commands here.
+The full profile covers package and repository tests, metadata/lock consistency,
+static checks, policy checks, and generated/distribution contracts.
 
-```sh
-uv run --frozen --project powers/pkstack pytest powers/pkstack/tests/test_release_metadata.py -q
-.pkstack/bin/projectctl doctor --output json
-.pkstack/bin/projectctl feature validate --output json
-.pkstack/bin/projectctl knowledge validate --output json
-```
-
-The metadata regression compares `plugin.json`, `pyproject.toml`, the package
-`__version__`, and the package lock. It does not make generated `.pkstack/`
-content authoritative; generated parity must be checked through setup and the
-receipt after the Power's bootstrap source is updated.
-
-Repository checks are separate from the package suite:
-
-```sh
-python3 .github/scripts/test_pkstack_maintenance_guard.py
-python3 .github/scripts/test_kiro_runtime_canary.py
-node --test .github/scripts/test_pkstack_pr_policy.js
-actionlint .github/workflows/*.yml
-shellcheck .github/scripts/*.sh
-```
-
-Run only the checks that are in scope for the candidate. A tool that is not
-installed is a limitation, not a passing result. Do not copy host-specific
-absolute paths into a report; use the command as run from the repository root
-or a temporary directory name without exposing local identity.
+For a focused edit, run the affected tests first; run the full profile on the
+completed release candidate. A missing tool or failed lane is a failed or
+unverified gate. Generated `.pkstack/` content is never a source authority: check
+its bytes through reviewed setup and the receipt after updating the Power source.
 
 ## Workspace and Kiro checks
 
@@ -81,8 +57,8 @@ must not replace deterministic checks.
 
 ## Release gate record
 
-The final candidate must have a fresh result for each row in
-[`Wiki/knowledge/pkstack/release-record.md`](../../../Wiki/knowledge/pkstack/release-record.md):
+The dated evidence packet for the final candidate must record a fresh verdict
+and supporting command/output or artifact for each acceptance row below:
 
 1. metadata equality and lock consistency;
 2. package tests, lint, format, and type checks;

@@ -129,7 +129,7 @@
     },
     {
       "path": ".kiro/skills/arena/SKILL.md",
-      "sha256": "377611ff85c6c14593222977cf56af4c2a10952a852d31040d4c6d39873cf2f8",
+      "sha256": "60c8b3928077072ccb07499e6405a36ecd62ebc731934039b72521366a3628ee",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/arena/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -318,7 +318,7 @@
     },
     {
       "path": ".kiro/skills/pkstack-maintain/SKILL.md",
-      "sha256": "c8b66fb05266a882caab2a9487affa8cc953b3a318d613fc5e815c6aa1f8ceff",
+      "sha256": "47b3bda21afc0852113831f81c0e1bc94697b436db57bd060969884c097a7a46",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/pkstack-maintain/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -675,7 +675,7 @@
     },
     {
       "path": ".pkstack/projectctl/README.md",
-      "sha256": "c488d1ed7dfd6e2e71758fd71b085e89755730b83323c5726c3fdafe4fc725c3",
+      "sha256": "c048783da4b2f5c0d1f9c1238d546dea389beb29885b5d560f942fd2609fa7fb",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .pkstack/projectctl/README.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -689,7 +689,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "7a5ad7c30d1676c6554b4808d29f4aa9632df1fcdb9d9f085c18746dc880bea9",
+      "sha256": "e948d92d270749094d5e556779ed4b81d6493bbfbd17f1fec81818020ec8e6da",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -721,7 +721,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "247b55dae2a8103a244310225583a54c470e18ec00bd023db464b2068bb0c5d5",
+      "sha256": "b76c53f6c862b1eb499323fa02bc0699c6b52d7d708ffb8fb2b9bad5871dcd6d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -730,7 +730,7 @@
     },
     {
       "path": "SECURITY.md",
-      "sha256": "5b85933f1c83b2a9ed06c213e30b374f7a8a27f1144f371c2f5420fbf85b0ff0",
+      "sha256": "ec361ad0896e74da10ed96233df399bf4f63c247e6f24f2d60c0824cc044dd20",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -786,6 +786,10 @@
       "classification": "canonical"
     },
     {
+      "path": "Wiki/knowledge/pkstack/release-record.md",
+      "classification": "canonical"
+    },
+    {
       "path": "Wiki/knowledge/pkstack/runtime-and-verification.md",
       "classification": "canonical"
     },
@@ -815,7 +819,7 @@
     },
     {
       "path": "powers/pkstack/README.md",
-      "sha256": "d8f5bf12320cbfed66ea8fd76cca0127802bec861c92e12f433b5d289a8bf060",
+      "sha256": "8a0f47dfb76ac4fb5dab4d4ba05bbc14ff72a5b9abaa361c64170fc217fed674",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -831,7 +835,7 @@
     },
     {
       "path": "powers/pkstack/assets/README.md",
-      "sha256": "0ce79399939801fa3ab16c2f6bbe0a9aa66abf183f1e13f3c9772eb0fa15504c",
+      "sha256": "3675680219416138ef6d382f5155f2c0da1a0f653f909a4ed57c6f4165fe7c5d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
@@ -875,7 +879,7 @@
     },
     {
       "path": "powers/pkstack/docs/architecture.md",
-      "sha256": "f836d6bc77488421c3e0fa30b689a824f31d11c7d82effd4aeedc11910cc56d0",
+      "sha256": "d64793d9241a23e64a442ff1395e96901c1458858b93b0eca83a3d0aa922a7a9",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -902,7 +906,7 @@
     },
     {
       "path": "powers/pkstack/docs/curated-skills.md",
-      "sha256": "5bd8e21472248ace4bb8e353c5d40b80a8d4b91030fe998af078eac48eec41ff",
+      "sha256": "396021f0b9608b13c47b460c29286776b302f9746c9f68163a6fae205a9e993d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -911,12 +915,22 @@
     },
     {
       "path": "powers/pkstack/docs/first-task.md",
-      "sha256": "df281102aa8dea32c7846abd4c725d76122835a8a92d1c5e7e6149996e0d2f72",
+      "sha256": "3dc9a1d9f312ec424056c9a123865e8e037ea3aa3c929ac72384e6c66729ef62",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
       "summary": "Use a disposable intentionally failing account fixture, record the failure, preserve tests, and let native Kiro repair the implementation before stored verification."
+    },
+    {
+      "path": "powers/pkstack/docs/google-open-knowledge-format-provenance.md",
+      "sha256": "e1a156788e71f156162a3ee704edae23523c88092537b80c0d22c35ec755c65b",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/knowledge-lifecycle.md",
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Active canonical OKF source uses a fresh root-scoped genesis with complete blob inventory; frozen source identities stay historical and identical SPEC bytes require no normative runtime change."
     },
     {
       "path": "powers/pkstack/docs/humanlayer-skills-provenance.md",
@@ -929,7 +943,7 @@
     },
     {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "2f9d31a1e90f2c59a013aa04d10327c514e97db8f8c0a584a2bc4f849bed22d7",
+      "sha256": "1f0075ae6eae696e2126e092ea51e99b37d1a544f53019801d5ffa20f34f175e",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -1001,7 +1015,7 @@
     },
     {
       "path": "powers/pkstack/docs/okf-spec-provenance.md",
-      "sha256": "9a23c09ea7fde5e538e2ff04c17d78ebd3ee9801510629de8f4504fa9e3e96b4",
+      "sha256": "8da86633cf186741ba42cd8371bfdf372ec8b4d36c2e81462c9c3de96db84154",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1045,24 +1059,6 @@
       "summary": "Original upstream bytes and adapted runtime bytes remain separately bound, including local caption/viewport/transport patches and reviewed upstream parser/watcher corrections."
     },
     {
-      "path": "powers/pkstack/docs/upgrade-0.3.md",
-      "sha256": "9a73ea1ec245493341f86cbee0de739ace00dc78fb53120ca00dccb7e363831c",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
-      ],
-      "summary": "Legacy namespace transition uses a separate clean checkout and preserves rollback evidence; receipt-aware refresh cannot bypass incompatible installation boundaries."
-    },
-    {
-      "path": "powers/pkstack/docs/upgrade-0.4.md",
-      "sha256": "edd971085de8dacf99799e68f41ba7037b35ad9bca91a6e6d68db74bf0139d41",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
-      ],
-      "summary": "The 0.4 transition retires okn, preserves user-owned Wiki/Specs, and distinguishes local validation from runtime-dependent bounded retrieval."
-    },
-    {
       "path": "powers/pkstack/docs/upstream-control-loop.md",
       "sha256": "847d6013666ae00fc28652f1b251118b9ad00cd912a2350c2edad1ded228d86d",
       "classification": "mapped",
@@ -1082,7 +1078,7 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "f307adacc7f668f5a09145f3af3aed495870c317226a43145c84fe2e1698e932",
+      "sha256": "5cd91283130b8e9615af16306a8cfa7360b6a8320ab90f9a87c8903a5b57164a",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1091,7 +1087,7 @@
     },
     {
       "path": "powers/pkstack/docs/validation-report.md",
-      "sha256": "8362f99a527cc89bb0602c770366630916fa0dc6152d360849c19b5d8c4a32df",
+      "sha256": "b10e389508047391f337bca7756fb30d19b2280b0d54e02c05fe55a5a20b406c",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -1324,7 +1320,7 @@
     },
     {
       "path": "powers/pkstack/skills/arena/SKILL.md",
-      "sha256": "377611ff85c6c14593222977cf56af4c2a10952a852d31040d4c6d39873cf2f8",
+      "sha256": "60c8b3928077072ccb07499e6405a36ecd62ebc731934039b72521366a3628ee",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/arena/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1513,7 +1509,7 @@
     },
     {
       "path": "powers/pkstack/skills/pkstack-maintain/SKILL.md",
-      "sha256": "c8b66fb05266a882caab2a9487affa8cc953b3a318d613fc5e815c6aa1f8ceff",
+      "sha256": "47b3bda21afc0852113831f81c0e1bc94697b436db57bd060969884c097a7a46",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack-maintain/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1541,7 +1537,7 @@
     },
     {
       "path": "powers/pkstack/skills/pkstack-setup/SKILL.md",
-      "sha256": "fc72798f6dc389b89da51d488543b8ec08d578effb6f4ce1247355f8646ece64",
+      "sha256": "5e398df70c310d593620203f49dae18198442495c4fe9a65abfb75d1f913bc0b",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack-setup/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1839,10 +1835,6 @@
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/writing-for-agents/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
-    },
-    {
-      "path": "Wiki/knowledge/pkstack/release-record.md",
-      "classification": "canonical"
     }
   ]
 }

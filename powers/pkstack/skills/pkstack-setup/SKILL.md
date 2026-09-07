@@ -9,8 +9,7 @@ Set up the current workspace without leaving the user's current Kiro agent sessi
 
 Treat the request text that activated this skill as the setup context.
 
-This Kiro-native replacement does not enumerate or write Cursor-style per-role model slugs. Native
-sub-agents inherit the current session's selected Kiro model and effort unless the user makes another
+Native sub-agents inherit the current session's selected Kiro model and effort unless the user makes another
 supported selection. Bootstrap never edits the user's global model, effort, or role settings.
 
 ## Resolve setup from this Power
@@ -53,9 +52,11 @@ version, doctor, and local validation checks below.
 4. Run `<runner> version --output json`, then `<runner> doctor --output json`.
 5. Resolve only setup defects that are within the requested workspace. Re-run `doctor` after each material repair.
 6. Report DO (`projectctl` and project levers), PROVE (feature records), and KNOW (durable Wiki
-   layout, local validation, and Kiro ACP retrieval availability) separately. Use
+   layout, local validation, and Kiro ACP capability stages) separately. Use
    `<runner> knowledge status --output json` and also report discovered `.kiro/specs/`.
    Existing native specs remain Kiro-owned planning artifacts; setup never rewrites them.
+   Report `cli_compatible`, `isolation_verified`, and `search_verified` separately.
+   A no-model status probe leaves the latter two false and does not prove retrieval.
 7. Whenever `Wiki/` exists, run `<runner> knowledge validate --output json`, even when no feature
    records exist. Its result composes the feature-map verdict with minimal metadata and local
    Markdown links, so a second feature-only validation is unnecessary. Without `Wiki/`, use

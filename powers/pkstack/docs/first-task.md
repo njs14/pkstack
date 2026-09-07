@@ -36,8 +36,8 @@ Choose either surface, using the disposable target directory:
   ```
 
 - **IDE:** Open the directory printed by `pwd` in Kiro, start a fresh chat or
-  Agent Focus session, and select the workspace `pkstack` agent. The terminal
-  setup above has already created its workspace assets.
+  Agent Focus session, and select the workspace `pkstack` agent. The Power setup
+  above has already created its workspace assets.
 
 Then send the same request in that session:
 

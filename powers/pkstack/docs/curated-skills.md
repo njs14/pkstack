@@ -15,7 +15,7 @@ reviewed skills, not a promise to install every upstream plugin.
 | [Astral](https://github.com/astral-sh/claude-code-plugins) | `uv`, `ruff`, `ty` | Project-aware Python environments, scripting, lint/format, and typing; [reviewed Kiro adaptations](astral-python-provenance.md). |
 | [Archify](https://github.com/tt-a1i/archify) | `archify` and its reviewed renderer | Produce validated diagrams without installing a renderer on each run. Keep the Kiro wrapper and documented PKStack runtime patches distinct from the pinned upstream source. |
 | [OKF skills](https://github.com/scaccogatto/okf-skills) | Durable knowledge-working methods in `/okf` | Produce, maintain, and consume the project Wiki. Exclude transcript backfill, upstream executables, hooks, and MCP activation. |
-| [Google’s OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) | Knowledge format semantics | Keep the format source independent from knowledge-working methods. Local validation checks minimal metadata and Markdown links; Kiro ACP supplies bounded retrieval. |
+| [Google’s OKF specification](https://github.com/GoogleCloudPlatform/open-knowledge-format) | Knowledge format semantics | Keep the format source independent from knowledge-working methods. Local validation checks minimal metadata and Markdown links; Kiro ACP supplies bounded retrieval. |
 
 HumanLayer’s `improve-claude-md` and plugin registration are provenance-only.
 `writing-for-agents` covers the cross-runtime instruction-writing job instead.

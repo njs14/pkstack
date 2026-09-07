@@ -1,8 +1,7 @@
 # Repo-local projectctl
 
 This directory is managed by the PKStack bootstrap. Use the canonical
-`.pkstack/bin/projectctl` entrypoint. A bootstrap-managed `./projectctl` may also
-exist as a convenience, but workflows never select an ambient root executable.
+`.pkstack/bin/projectctl` entrypoint.
 
 The cached controller is not setup authority. Setup and refresh must use the
 Power-local `/pkstack-setup` skill, or an explicitly reviewed `--power-root`;

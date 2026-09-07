@@ -101,12 +101,12 @@ def test_status_reports_unavailable_search_without_degrading_local_validation(
     corpus(tmp_path)
     monkeypatch.setattr(
         "pkstack.knowledge_acp.runtime_status",
-        lambda root: {"available": False, "error": "Kiro is unavailable"},
+        lambda root: {"cli_compatible": False, "error": "Kiro is unavailable"},
     )
     info = status(tmp_path)
     assert info["mode"] == "kiro-acp"
     assert info["validation_mode"] == "local"
-    assert info["runtime"]["available"] is False
+    assert info["runtime"]["cli_compatible"] is False
     assert "okn" not in json.dumps(info)
     assert validate(tmp_path)["ok"] is True
 

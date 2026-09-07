@@ -396,3 +396,33 @@ def test_progress_before_read_is_separate_from_final_answer_but_remains_bounded(
         assert client.failure
 
     asyncio.run(exercise())
+
+
+@pytest.mark.parametrize("version,compatible", [(worker.KIRO_VERSION, True), ("9.99.0", False)])
+def test_runtime_status_reports_cli_compatibility_without_claiming_retrieval(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, version: str, compatible: bool
+) -> None:
+    monkeypatch.setattr(worker.shutil, "which", lambda name: "/opt/kiro/bin/kiro-cli")
+    probe = Mock(returncode=0, stdout=f"kiro-cli {version}\n")
+    run = Mock(return_value=probe)
+    monkeypatch.setattr(worker.subprocess, "run", run)
+    status = worker.runtime_status(tmp_path)
+    assert status["cli_compatible"] is compatible
+    assert status["isolation_verified"] is False
+    assert status["search_verified"] is False
+    assert "available" not in status
+    assert status["version"] == version
+    run.assert_called_once()
+    assert run.call_args.args[0] == ["/opt/kiro/bin/kiro-cli", "--version"]
+
+
+def test_missing_runtime_reports_unverified_capabilities(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(worker.shutil, "which", lambda name: None)
+    status = worker.runtime_status(tmp_path)
+    assert status["cli_compatible"] is False
+    assert status["isolation_verified"] is False
+    assert status["search_verified"] is False
+    assert "available" not in status
+    assert "not installed" in status["error"]

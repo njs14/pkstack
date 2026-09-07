@@ -7,6 +7,16 @@ tags: [pkstack, knowledge, okf, workflow]
 
 # Project knowledge ownership and lifecycle
 
+Google's current OKF documentation lives in
+[open-knowledge-format](https://github.com/GoogleCloudPlatform/open-knowledge-format).
+The former `knowledge-catalog/okf` copy is frozen and its accepted source record
+remains historical provenance. Active maintenance now tracks the canonical
+repository from a fresh genesis at `ad30107c31c06aec8a7d5636e0d1058118604e6f`.
+The [canonical source record](../../../powers/pkstack/docs/google-open-knowledge-format-provenance.md)
+accounts for 132 regular blobs. Its normative `SPEC.md` blob is identical to the
+accepted frozen copy; the migration changes source identity and scope without
+introducing a specification change.
+
 ## Decision and rationale
 
 Wiki is the home for project understanding. Workflows consult relevant knowledge before substantial
@@ -125,7 +135,7 @@ all synthesized prose. The later parser optimization caches heading parsing by c
 validation only, retaining fresh bounded reads and path checks for every link.
 
 During this coverage expansion, old security/support and artwork wording was retained and
-identified in [release guidance](release-and-review.md#open-documentation-inconsistencies).
+identified in [release guidance](release-and-review.md#current-policy-and-historical-records).
 Unknown policy decisions stay open; curation must not silently select a new support policy.
 
 ## What the foundation's retrieval tests actually established

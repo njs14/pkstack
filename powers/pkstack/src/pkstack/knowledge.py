@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from pkstack.features import validate_feature_map
+from pkstack.knowledge_layout import out_of_layout_documents
 from pkstack.knowledge_links import validate_local_links, validate_metadata
 from pkstack.knowledge_payload import SOURCE_ROOTS, KnowledgeRuntimeError
 from pkstack.paths import WorkspacePathError, ensure_tree_no_symlinks
@@ -19,23 +20,15 @@ def _layout(root: Path) -> dict[str, Any]:
     root = root.resolve()
     try:
         wiki = ensure_tree_no_symlinks(root, Path("Wiki"))
+        legacy_documents = out_of_layout_documents(root)
         workspace_safe = True
         path_error = None
     except WorkspacePathError as exc:
         wiki = root / "Wiki"
+        legacy_documents = []
         workspace_safe = False
         path_error = str(exc)
     knowledge_root = wiki / "knowledge"
-    legacy_documents: list[str] = []
-    if workspace_safe and wiki.is_dir():
-        for path in wiki.rglob("*"):
-            if not path.is_file() or path.suffix.lower() != ".md":
-                continue
-            relative = path.relative_to(wiki)
-            if relative.parts[0] not in {"features", "knowledge", "work"} and relative != Path(
-                "index.md"
-            ):
-                legacy_documents.append(relative.as_posix())
     layout_error = None
     if legacy_documents:
         layout_error = (

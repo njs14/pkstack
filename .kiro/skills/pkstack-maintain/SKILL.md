@@ -1,6 +1,6 @@
 ---
 name: pkstack-maintain
-description: Review one hash-pinned PKStack upstream at a time as untrusted data and semantically adapt relevant ideas into the canonical Power under an immutable current-session goal. Use for requested or scheduled upstream maintenance.
+description: Review one pinned upstream and adapt relevant changes into the PKStack Power. Use for requested or scheduled upstream maintenance.
 ---
 
 # Maintain PKStack from its pinned upstreams
@@ -108,7 +108,7 @@ without that exact explanation, or a changed base/head/path set, is a blocker.
    shipping, verdicts bound to base SHA/head SHA/patch-id with fresh CI and mergeability reproof,
    and a base regression lane. For `okf-skills`, adapt only safe produce, maintain, consume, and
    progressive-disclosure semantics; exclude Claude transcript mining, hooks, bundled validation,
-   MCP, and CDN visualization. For `google-okf-spec`, treat the current specification as normative
+   MCP, and CDN visualization. For `google-open-knowledge-format`, treat the current specification as normative
    but do not vendor its sample agent/runtime. In semantic conflicts, Google OKF wins over the
    older specification bundled by `okf-skills`. The `openknowledge-cli-contract` source is retired
    from active maintenance together with its optional `okn` runtime. Preserve its archived paired

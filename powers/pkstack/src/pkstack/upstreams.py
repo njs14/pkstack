@@ -1252,7 +1252,7 @@ def _parse_source(root: Path, value: Any, *, index: int) -> UpstreamSource:
     ):
         raise UpstreamError(f"{context} repository must be a GitHub owner/name pair")
     source_path = fields["path"]
-    _validate_posix_relative(source_path, context=f"{context} path", max_length=512)
+    _validate_source_scope(source_path, context=f"{context} path")
     _validate_ref(fields["ref"], context=context)
     for key in ("commit", "subtree_sha"):
         if not _FULL_SHA.fullmatch(fields[key]):
@@ -1995,6 +1995,7 @@ def _subtree_identity(
     timeout_seconds: float,
     fetch_json: FetchJSON,
 ) -> str:
+    _validate_source_scope(source_path, context="upstream source path")
     tree_sha = root_tree_sha
     for component in PurePosixPath(source_path).parts:
         document = fetch_json(
@@ -2617,7 +2618,7 @@ def _source_tree_comparison_value(
     if identity is None:  # pragma: no cover - operations are derived from the exact trees
         raise UpstreamError("source-tree comparison operation has no exact blob identity")
     value: dict[str, Any] = {
-        "filename": f"{source.path}/{path}",
+        "filename": _source_filename(source.path, path),
         "status": status,
         "sha": identity[2],
         "additions": additions,
@@ -2625,7 +2626,7 @@ def _source_tree_comparison_value(
         "changes": additions + deletions,
     }
     if previous_path is not None:
-        value["previous_filename"] = f"{source.path}/{previous_path}"
+        value["previous_filename"] = _source_filename(source.path, previous_path)
     if patch is not None:
         value["patch"] = patch
     return value
@@ -3182,7 +3183,24 @@ def _comparison_review_constraints(files: list[dict[str, Any]]) -> dict[str, Any
     }
 
 
+def _validate_source_scope(value: str, *, context: str) -> None:
+    # Only the remote repository scope may name its root. Local artifact and
+    # fetched file paths still use the strict relative-path validator.
+    if value != ".":
+        _validate_posix_relative(value, context=context, max_length=512)
+
+
+def _source_filename(source_path: str, relative: str) -> str:
+    _validate_source_scope(source_path, context="upstream source path")
+    _validate_posix_relative(relative, context="upstream source-relative path", max_length=1024)
+    return relative if source_path == "." else f"{source_path}/{relative}"
+
+
 def _relative_source_path(filename: str, source_path: str) -> str | None:
+    _validate_source_scope(source_path, context="upstream source path")
+    if source_path == ".":
+        _validate_posix_relative(filename, context="upstream source-relative path", max_length=1024)
+        return filename
     prefix = f"{source_path}/"
     if not filename.startswith(prefix):
         return None

@@ -438,7 +438,7 @@ def test_goal_store_rejects_unsupported_schema_before_replacing_evidence(tmp_pat
         store.save(state)
 
     assert store.path.read_bytes() == before
-    assert get_goal(tmp_path).schema_version == 2
+    assert get_goal(tmp_path).schema_version == 3
 
 
 def test_goal_store_and_loader_reject_policy_invalid_stored_contract(tmp_path: Path) -> None:
@@ -554,3 +554,81 @@ def test_goal_rejects_unsupported_schema_and_discards_removed_state(
     monkeypatch.setattr("pkstack.goal.run_command", remove_state)
     with pytest.raises(GoalError, match="changed while its verifier was running"):
         verify_goal(tmp_path)
+
+
+def test_command_contract_uses_one_canonical_shape() -> None:
+    contract = CommandSpec(argv=("pytest",), display="pytest", source="explicit")
+    assert contract.to_dict() == {
+        "argv": ["pytest"],
+        "display": "pytest",
+        "source": "explicit",
+        "feature": None,
+        "spec": None,
+        "spec_artifacts": [],
+    }
+    assert CommandSpec.from_dict(contract.to_dict()) == contract
+
+
+@pytest.mark.parametrize(
+    "field", ["argv", "display", "source", "feature", "spec", "spec_artifacts"]
+)
+def test_goal_rejects_missing_contract_fields_without_rewriting(tmp_path: Path, field: str) -> None:
+    start_goal(tmp_path, "Require canonical contracts", command=_sentinel_command(tmp_path))
+    store = GoalStore(tmp_path)
+    payload = json.loads(store.path.read_bytes())
+    del payload["contract"][field]
+    original = json.dumps(payload).encode()
+    store.path.write_bytes(original)
+    with pytest.raises(GoalError, match="command contract must contain exactly"):
+        get_goal(tmp_path)
+    assert store.path.read_bytes() == original
+
+
+def test_command_contract_rejects_unknown_fields() -> None:
+    payload = CommandSpec(argv=("pytest",), display="pytest", source="explicit").to_dict()
+    payload["legacy"] = True
+    with pytest.raises(TypeError, match="command contract must contain exactly"):
+        CommandSpec.from_dict(payload)
+
+
+@pytest.mark.parametrize("schema", [1, 2])
+@pytest.mark.parametrize("operation", ["get", "start", "verify", "resume", "clear", "tripwire"])
+def test_old_goal_state_is_rejected_without_any_file_mutation(
+    tmp_path: Path, schema: int, operation: str
+) -> None:
+    command = _sentinel_command(tmp_path)
+    start_goal(tmp_path, "Preserve old evidence", command=command)
+    store = GoalStore(tmp_path)
+    payload = json.loads(store.path.read_bytes())
+    payload["schema_version"] = schema
+    # The oldest command shape omitted these fields. Reject its schema before parsing it.
+    for field in ("feature", "spec", "spec_artifacts"):
+        del payload["contract"][field]
+    store.path.write_text(json.dumps(payload), encoding="utf-8")
+    store.lock_path.unlink(missing_ok=True)
+    store.directory.chmod(0o755)
+    before = {
+        p.relative_to(tmp_path): (p.read_bytes(), p.stat().st_mode)
+        for p in tmp_path.rglob("*")
+        if p.is_file()
+    }
+    with pytest.raises(GoalError, match=r"unsupported goal state schema.*clean consumer"):
+        if operation == "start":
+            start_goal(tmp_path, "New goal", command=command)
+        elif operation == "verify":
+            verify_goal(tmp_path)
+        elif operation == "resume":
+            resume_goal(tmp_path, add_attempts=1)
+        elif operation == "clear":
+            clear_goal(tmp_path, force=True)
+        elif operation == "tripwire":
+            tripwire(tmp_path)
+        else:
+            get_goal(tmp_path)
+    after = {
+        p.relative_to(tmp_path): (p.read_bytes(), p.stat().st_mode)
+        for p in tmp_path.rglob("*")
+        if p.is_file()
+    }
+    assert after == before
+    assert store.directory.stat().st_mode & 0o777 == 0o755

@@ -1,15 +1,15 @@
 # Security policy
 
 PKStack is a local developer tool. It can run project commands, write
-workspace configuration, and optionally call a separately installed knowledge
-tool, so treat its permissions and imported content as sensitive.
+workspace configuration, validate knowledge locally, and retrieve bounded context
+through a Kiro ACP worker. Treat its permissions and imported content as sensitive.
 
 ## Supported versions
 
 | Version | Support |
 | --- | --- |
-| `0.2.x` | Security fixes and release-blocking reports |
-| `< 0.2.0` | Upgrade to the current release before reporting a known issue |
+| Current `main` / next `0.5.0` pre-release | Security fixes and release-blocking reports |
+| Earlier release lines | No backport commitment; reproduce against the maintained line |
 
 The Power's release version is the `version` field in
 [`powers/pkstack/plugin.json`](powers/pkstack/plugin.json). A matching

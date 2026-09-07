@@ -47,6 +47,6 @@ plans use the shared capture checkpoint when writes become permitted. If impleme
 execution are authorized, after setup use only the managed `.pkstack/bin/projectctl` entrypoint.
 Run the repository's executable verifier, preferably
 `.pkstack/bin/projectctl feature verify <slug> --output json` or
-`.pkstack/bin/projectctl verify <slug> --output json`. Do not select an ambient
+`.pkstack/bin/projectctl feature verify <slug> --output json`. Do not select an ambient
 `projectctl` or repository-owned `./projectctl`. Report the rubric, scorecard,
 chosen base, grafted ideas, exact verifier, and unresolved uncertainty.

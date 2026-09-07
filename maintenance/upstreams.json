@@ -23,14 +23,14 @@
       "subtree_sha": "1dd095000af2d0bb29986a9f11f97e3742feb2b3"
     },
     {
-      "commit": "fbbc7975388288244dfc62aea0066600b25b7c47",
-      "id": "google-okf-spec",
-      "parity_path": "powers/pkstack/docs/okf-spec-source-parity.json",
-      "path": "okf",
-      "provenance_path": "powers/pkstack/docs/okf-spec-provenance.md",
+      "commit": "ad30107c31c06aec8a7d5636e0d1058118604e6f",
+      "id": "google-open-knowledge-format",
+      "parity_path": "powers/pkstack/docs/google-open-knowledge-format-source-parity.json",
+      "path": ".",
+      "provenance_path": "powers/pkstack/docs/google-open-knowledge-format-provenance.md",
       "ref": "main",
-      "repository": "GoogleCloudPlatform/knowledge-catalog",
-      "subtree_sha": "a8cc7ed0f4ec6bb6019da9b8ace51e3e6dafd06f"
+      "repository": "GoogleCloudPlatform/open-knowledge-format",
+      "subtree_sha": "d8b7583265ead834e3e7a3146ff7ce9a3533ddfe"
     },
     {
       "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76",

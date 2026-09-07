@@ -79,8 +79,6 @@ def test_direct_feature_commands_cover_success_and_failure(
     assert _json(capsys)["ok"] is True
     cli.feature_verify("health", root=tmp_path, output="json")
     assert _json(capsys)["ok"] is True
-    cli.verify_alias("health", root=tmp_path, output="json")
-    assert _json(capsys)["ok"] is True
 
     generate_fixture_cli_feature(
         "broken",
