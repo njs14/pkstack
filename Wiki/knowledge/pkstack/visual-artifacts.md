@@ -50,6 +50,32 @@ record for the decision. A design selection is not evidence of package behavior 
 by the depicted projects.
 
 
+## Keep input facts fixed while repairing presentation
+
+The [renderer review](../../../reviews/release-030-archify.md) reproduced an artifact that passed
+all nine showcase checks but failed viewport containment. Its compact aspect ratio fell outside
+the adaptive-layout rule and was inflated to a desktop width that made it too tall. Reusing the
+same frozen JSON isolated the renderer defect; shrinking the authored content, clipping it, or
+relaxing the threshold would have changed the acceptance question.
+
+Caption correctness needs more than “inside the SVG.” Opaque participant boxes can hide a label,
+collision avoidance can move it into the previous semantic band, and a caption can fit the canvas
+while exceeding its own frame. Render and validate the same computed rectangle, include preceding
+bands and participant boxes as obstacles, and fail if bounded placement cannot preserve meaning.
+The upstream follow-up used an exact-fit caption control beside a one-character-overflow case.
+
+At narrow widths, document scroll width missed buttons overflowing to the left. Measure each
+visible toolbar control's bounds, in both themes, as well as document overflow. Exercise zoom,
+pointer pan and reset, then download exports through the actual menu. The retained campaign checked
+that camera changes left the canonical SVG and input bytes unchanged; successful delivery of all
+example JSON files remained schema/render evidence rather than visual review of every example.
+
+The same source records two nonvisual counterexamples: an unknown render option was used as an
+output filename, and an injected watcher error escaped preview. The upstream fixes rejected bad
+arguments before writing and switched a failed watcher to polling, publishing the next edit and
+closing the watcher once. Runtime tests and inverse-patch/source identity checks answer different
+questions; retain both when reconciling local presentation patches with an upstream update.
+
 ## Source-specific retained knowledge
 
 These summaries describe what is retained from each source. Historical observations keep their

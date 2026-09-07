@@ -1863,9 +1863,11 @@
       "sha256": "87d5d625fafa9dcf5ede06484fbe6dcd3f566b62a91a2f3482497a2d708ca675",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+        "Wiki/knowledge/pkstack/runtime-and-verification.md",
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md",
+        "Wiki/knowledge/pkstack/quality-and-ci.md"
       ],
-      "summary": "A bounded Auto-selected Python repair passed after one-time interactive permission; underlying model, universal routing, and zero-intervention behavior were not established."
+      "summary": "Separates headless diagnosis from one-time-approved repair, actual verifier output from claimed receipt persistence, Auto selection from unknown model identity, and corrects the raw review heredoc explanation."
     },
     {
       "path": "reviews/astral-python-auto/independent-review.md",
@@ -1899,7 +1901,8 @@
       "sha256": "11584cabf6b24ced3ea29d61e2333740c0a3e086e5c229db5c4a47e2068ba855",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
+        "Wiki/knowledge/pkstack/release-and-review.md",
+        "Wiki/knowledge/upstream-maintenance/operations.md"
       ],
       "summary": "Cleanup removed obsolete schema/cache machinery and corrected cancellation/environment/retry handling based on observed failures; unfinished native gates remained failures or limits."
     },
@@ -1908,7 +1911,9 @@
       "sha256": "fef7d7574225a1ddbd41cd655d9a5b78e0f5c934e00c34859e5e84145bbaa0ba",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md"
+        "Wiki/knowledge/pkstack/native-kiro-composition.md",
+        "Wiki/knowledge/pkstack/runtime-and-verification.md",
+        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
       "summary": "The CLI audit separates conversational Plan from Spec task files and command recognition from execution, motivating explicit native workflow handoffs."
     },
@@ -1917,9 +1922,10 @@
       "sha256": "6a31317f16dc3d3420e3011a2db727712944116b5579baf813159491fccd6e18",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/quality-and-ci.md"
+        "Wiki/knowledge/pkstack/quality-and-ci.md",
+        "Wiki/knowledge/upstream-maintenance/operations.md"
       ],
-      "summary": "Content-keyed per-validation heading caching preserves fresh bounded reads and path validation; performance observations and clean-worktree guidance do not justify speculative cleanup."
+      "summary": "Derives content-keyed per-call parsing reuse while preserving fresh bounded reads; contrasts real and synthetic benchmark results, preserves intentional boundary helpers, and distinguishes closed evidence branches from unfinished work."
     },
     {
       "path": "reviews/fable-fbl046-peer-review.md",
@@ -2143,7 +2149,7 @@
       "topics": [
         "Wiki/knowledge/pkstack/knowledge-lifecycle.md"
       ],
-      "summary": "The foundation retired okn, preserved user-owned knowledge indexes, and tested bounded local validation and macOS retrieval with host corrections; source ownership and live-query proof remain distinct."
+      "summary": "Synthesizes predeclared usefulness cases, authoring correction, superseded observations and the limits of verified quotations; separates return/model/wire budgets, version-specific isolation and cancellation/cleanup safeguards."
     },
     {
       "path": "reviews/okf-integration-evidence.md",
@@ -2159,7 +2165,8 @@
       "sha256": "94688ce3db9ffe149f727f84d118af053ee5d4aaaeda492aa8841edb11b92954",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
+        "Wiki/knowledge/pkstack/installation-and-upgrades.md",
+        "Wiki/knowledge/pkstack/release-and-review.md"
       ],
       "summary": "The 0.4.2 CLI campaign recorded failure then native repair/pass at 2 of 4 with unchanged tests and paths containing spaces; existing account/cache state limits first-install claims."
     },
@@ -2168,9 +2175,10 @@
       "sha256": "23dc15c13c2f4e206b63a83451fe5878ea6b77b0c6f8f6554596d6b32aa1d4c8",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/upstream-maintenance/operations.md"
+        "Wiki/knowledge/upstream-maintenance/operations.md",
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
       ],
-      "summary": "Proposal diagnostics fixed a wrong drift_count prompt assumption without claiming the missing original cause; the canary pin mismatch correctly stopped authenticated work pending review."
+      "summary": "Retains actual-agent attestation after listing/fallback mismatch, invalid stream versus substantive rejection, trusted retrieval dates, preserved rationale and bound end-to-end acceptance without upgrading historical runs to current health."
     },
     {
       "path": "reviews/pk-stack-maintenance-campaign.md",
@@ -2197,7 +2205,7 @@
       "topics": [
         "Wiki/knowledge/pkstack/native-kiro-composition.md"
       ],
-      "summary": "v4 improved settled-answer reuse and capture ordering and recovered no-write evidence, but two exact-command handoffs still failed and v3 Unicode failures were not erased."
+      "summary": "Separates improved handoff/capture ordering from operator-assisted mode entry and persistent Unicode reasoning errors; file-event ordering, no-write deltas and counterexamples bound the retained native acceptance."
     },
     {
       "path": "reviews/planning-043-v5/README.md",
@@ -2254,7 +2262,7 @@
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
       ],
-      "summary": "Unchanged-input reproductions exposed caption collisions and mobile toolbar overflow; render and validation geometry must agree and visual checks remain separate from provenance."
+      "summary": "Derives fixed-input layout reproduction, shared caption geometry, semantic-band and frame containment, per-control viewport checks, actual export invariance, and separate CLI/watcher/provenance regressions."
     },
     {
       "path": "reviews/release-030-browser-harness.md",
@@ -2263,7 +2271,7 @@
       "topics": [
         "Wiki/knowledge/pkstack/quality-and-ci.md"
       ],
-      "summary": "Startup cleanup and process/pipe lifecycle defects were reproduced, while the initiating Linux Target.getTargets timeout remained unexplained; retain that distinction."
+      "summary": "Separates the unreproduced Linux startup trigger from reproduced startup-cleanup and terminal pipe/process defects; deterministic child/profile cleanup and real browser exports validate different properties."
     },
     {
       "path": "reviews/release-030-cli.md",
@@ -2279,9 +2287,10 @@
       "sha256": "896848f977733a254746c7eb010404f1404a54f6d7db931c0e3ed4eb8e16d95a",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/native-kiro-composition.md"
+        "Wiki/knowledge/pkstack/native-kiro-composition.md",
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
       ],
-      "summary": "A native generated-loop task composed the builder method with a stored verified goal, preserving fixed tests and passing at 2 of 4 within its explicit fixture scope."
+      "summary": "Binds the immutable reusable-loop acceptance suite to a stored fail-repair-pass goal; a proved pre-binding command adjustment preserves test meaning, while a one-sample demonstration would not establish loop correctness."
     },
     {
       "path": "reviews/release-030-core.md",
@@ -2299,7 +2308,7 @@
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
       ],
-      "summary": "Builder preservation checks required an explicit pre-edit baseline and end-to-end composition; later bounded native runs supersede only the reproduced earlier failures."
+      "summary": "Derives durable attempt reservation, pre-actuation preservation, restart reconciliation and separate increment/completion semantics from failed generated loops; distinguishes five single-process tests from 24 independent process/state cases."
     },
     {
       "path": "reviews/release-030-other-helpers.md",
@@ -2308,7 +2317,7 @@
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
       ],
-      "summary": "show-me, writing-for-agents and narrow-react-prop-types passed bounded native fixtures; inferred diagram links and untested browser rendering stayed disclosed."
+      "summary": "Separates correct output from assisted method compliance, inference-labeled diagrams from rendered evidence, and live-caller-driven React prop narrowing from browser behavior."
     },
     {
       "path": "reviews/release-030-permissions.md",
@@ -2317,7 +2326,7 @@
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
       ],
-      "summary": "Missing destructive git switch forms and later grouped-option gaps required real matcher probes and narrow regressions; this is not complete shell containment."
+      "summary": "Explains ask versus hard deny, reordered/grouped Git-switch gaps, ordinary-command controls and non-Git probe containment; the three repaired groups do not establish comprehensive shell containment."
     },
     {
       "path": "reviews/release-030-pipeline.md",
@@ -2326,7 +2335,7 @@
       "topics": [
         "Wiki/knowledge/upstream-maintenance/operations.md"
       ],
-      "summary": "The 0.3 audit repaired digest/context limits, trusted cleanup and retry accounting, and retained failed live campaigns before a bounded accepted source update."
+      "summary": "Explains successful rejection handling versus candidate approval, complete path-keyed reviewer context, same-day retrieval, combined context caps, EOF cleanup regression and separate exact-main artifact eligibility."
     },
     {
       "path": "reviews/release-030-review.md",
@@ -2369,9 +2378,11 @@
       "sha256": "261e7e94476d8b7d1247cd115aa37a586c88e01de7e9f332b5ecc96a8a2e3dd1",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
+        "Wiki/knowledge/pkstack/installation-and-upgrades.md",
+        "Wiki/knowledge/pkstack/quality-and-ci.md",
+        "Wiki/knowledge/pkstack/release-and-review.md"
       ],
-      "summary": "Test-only f218172 correction addressed offline uvx resolution missing registry metadata despite locked sync; warm local caches had hidden it."
+      "summary": "Explains why locked-sync distributions did not satisfy offline uvx registry resolution; isolates cold caches and moves walkthroughs to the existing package lane while keeping launcher approval bound to unchanged source."
     },
     {
       "path": "reviews/uvx-entrypoint/grok-review.md",

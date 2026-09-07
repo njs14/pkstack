@@ -82,6 +82,53 @@ it cannot drop mappings, broaden exclusions, or change unrelated entries. The
 explains proposed Wiki updates, private hash diagnostics, and independent semantic review.
 
 
+## Preserve the failure, then test the mechanism
+
+The [browser investigation](../../../reviews/release-030-browser-harness.md) began with an Ubuntu
+CDP startup timeout that was not reproduced locally. It did reproduce a cleanup bug: awaiting
+startup before entering `try/finally` left the child and temporary browser profile alive when
+startup rejected. A fake browser that emitted malformed protocol JSON and stayed alive made the
+failure deterministic. The repair had to produce the expected error, terminate the child, and
+remove the profile. Increasing the timeout or retrying would not test that ownership obligation.
+
+A later reproduction separated terminal transport failure from an ordinary request error. Pipe
+EOF with a live child, and browser exit with a descendant holding pipes open, waited for the full
+deadline. Terminal process/pipe errors now reject pending and future requests promptly, while
+protocol errors and per-request timeouts remain recoverable. The test owns its descendant; it
+does not establish general process-tree cleanup. Later Linux passes validate those repairs without
+identifying the original timeout trigger.
+
+The [uvx CI correction](../../../reviews/uvx-entrypoint/grok-followup.md) illustrates a different
+hidden prerequisite. Locked sync populated distribution files, but checkout-based uvx resolution
+still needed registry metadata. A developer's warm cache masked an offline-only test environment.
+The correction used empty per-test cache/tool directories, removed inherited uv configuration, and
+put executable documentation walkthroughs in the existing network-capable package lane. It did
+not change the launcher or grant additional workflow permissions. Preserve executable walkthroughs
+when moving examples between documents; a text assertion cannot establish successful installation.
+
+## Optimize repeated computation without caching trust decisions
+
+The [performance campaign](../../../reviews/evidence-led-improvements/README.md) cached heading
+parsing by freshly read text, with an eight-entry LRU scoped to one validation. It continued to
+check path containment, target existence, bounded reads, and decoding for every link. Tests changed
+a target both within a validation and between calls to ensure freshness remained observable.
+Caching a path's prior verdict or retaining the cache across calls would have a different contract.
+
+Seven measured samples after a warm-up showed 12× speedup for a synthetic repeated-target corpus,
+but only 11.5% less time for the then-small repository Wiki. Report both workloads and require
+identical outputs; do not turn the synthetic result into a product latency guarantee or a brittle
+CI timing threshold. Doctor's separate profile mostly waited for subprocess checks, which did not
+justify deleting integrity checks or adding concurrency. The same review kept small containment
+and strict-decoding helpers because their boundary role mattered more than their line count.
+
+For static cleanup, the [Python coverage report](../../../reviews/astral-python-auto/python-coverage.md)
+records a concrete behavioral regression: type narrowing briefly let an unhashable title raise
+`TypeError` instead of the structured `StreamError`. Keep malformed-input tests while satisfying
+the type checker. Extracted heredocs are analyzed without executing them; unsupported syntax
+stops the bounded extractor. The [campaign correction](../../../reviews/astral-python-auto/README.md)
+also fixes its raw review's shell claim: both single- and double-quoted heredoc delimiters disable
+body expansion. A review approval does not make every explanatory sentence authoritative.
+
 ## Source-specific retained knowledge
 
 These summaries describe what is retained from each source. Historical observations keep their

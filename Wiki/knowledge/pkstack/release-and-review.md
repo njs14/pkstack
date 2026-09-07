@@ -69,6 +69,34 @@ claiming which release lines receive security fixes. Package artwork guidance li
 the selected four-ghost logo; the newer branding decision is recorded in the visual artifact topic.
 
 
+## Carry acceptance across changes only with an explicit binding
+
+The [onboarding evidence](../../../reviews/onboarding-042/README.md#evidence-and-candidate-binding)
+binds unchanged first-task, installer, runtime, skill, fixture, and template objects across a later
+documentation edit. It does not call the whole changed Power tree identical. The
+[uvx follow-up review](../../../reviews/uvx-entrypoint/grok-followup.md) likewise retains approval
+of unchanged launcher code while separately reviewing the cold-cache test correction. Identify
+exactly which prior evidence still applies, then verify the changed scope and final hosted head.
+A prior full pass is not silently rebound to a later commit.
+
+The [0.3 acceptance record](../../../reviews/release-030-acceptance.md) keeps waived GUI work beside
+completed checks. The [final review](../../../reviews/release-030-review.md) still found grouped
+Git option forms missed by earlier permission testing; the bounded native repair did not become
+complete shell containment. A review should look for counterexamples to the actual promise, not
+just repeat existing green tests. Preserve initial failures and reviewer disagreement even after
+remediation so the next maintainer can see why the narrower contract exists.
+
+The [identity audit](../../../reviews/pkstack-identity-validation.md) shows why cleanup also needs
+an evidence boundary: product renaming had changed historical acceptance rationale and broken
+consolidated links. Update live terminology and repair links, while preserving original source
+identities and transition arrays. Historical support wording and frozen reports may remain stale;
+label their role rather than rewrite them into a current acceptance claim.
+
+Across these campaigns, a useful review conclusion answers four questions: which candidate and
+behavior were examined, what concrete failure or counterexample was found, what observation
+supports its disposition, and what remains unverified. This topic synthesis carries those lessons;
+original reports retain the full chronology, exact hashes, commands, and preserved failures.
+
 ## Source-specific retained knowledge
 
 These summaries describe what is retained from each source. Historical observations keep their

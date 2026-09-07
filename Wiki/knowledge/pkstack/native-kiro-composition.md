@@ -106,6 +106,37 @@ fail-repair-pass examples. Their preserved tests, source hashes and selected nat
 show the specific handoff/verification scenarios; they do not erase later failures or certify all
 client surfaces. The corresponding sources are listed below.
 
+## Carry constraints through the handoff without turning recommendations into decisions
+
+The [v4 planning review](../../../reviews/planning-043-v4/README.md) separates two improvements:
+the router stopped re-asking settled constraints, and the plan placed knowledge capture before
+implementation. Neither repaired the model's reasoning about a derived transformation. The
+settled ASCII-only input rule still produced the proposed sequence strip → uppercase → validate;
+`ab12ß` becomes `AB12SS`, so validating afterward loses the evidence that the original input was
+forbidden. Ordinary plan review supplied the counterexample and moved validation before case
+conversion. Keep tests for the input contract, rather than only examples of the desired output.
+
+A handoff should carry three distinct things: settled requirements, mechanics justified by those
+requirements, and genuinely open choices. Check derived mechanics against counterexamples before
+labeling them settled. Ask for a choice when one is needed; the earlier Quick Spec run's preferred
+answer was not an accepted decision merely because the model recommended it. The
+[v1–v3 record](../../../reviews/planning-043/README.md) remains evidence of those failures.
+
+Place capture and its validation in the approved plan's ordered steps, then inspect their order
+relative to the first product edit. A later Wiki file does not prove capture happened first. For
+a no-write request, inspect the post-approval delta and acknowledge pending knowledge rather than
+manufacture a capture result. Repeated approval should reuse existing accepted knowledge without
+duplicate records. v4's file events and no-write receipts support these bounded observations;
+its operator-assisted Plan entry remains distinct from v5's autonomous command emission.
+
+The [CLI](../../../reviews/friends-cli-validation.md) and
+[IDE](../../../reviews/friends-ide-validation.md) Spec campaigns demonstrate another boundary:
+same-conversation planning, immutable tests, genuine failure, implementation-only repair, and
+stored pass can all work while the prose contract exceeds what four tests establish. IDE Standard's
+ASCII edge case was outside that predicate. Keep native artifacts and test identities unchanged,
+but inspect whether their acceptance meaning covers the requirement; a green predicate cannot
+retroactively resolve a mismatch in the approved prose.
+
 ## Related knowledge
 
 - The [native-spec composition decision](native-spec-and-okn.md) records why the seam is

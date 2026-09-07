@@ -82,6 +82,53 @@ The 0.3 live acceptance results and the earlier successful source-scoped goal do
 today's updater health. Check current runs only when live operational status is requested.
 
 
+## Diagnose a completed workflow by its actual terminal outcome
+
+The [0.3 pipeline audit](../../../reviews/release-030-pipeline.md) records a successful candidate
+workflow that *rejected and closed* PR #32. Feedback persistence and cleanup succeeded; merge was
+skipped. It also records a later accepted candidate whose exact tree merged without an ordinary
+push-main CI run. Therefore inspect the bound verdict, tested candidate, merge job, and resulting
+commit separately. A green workflow badge can mean correct rejection handling, and an accepted
+updater tree still lacks release eligibility until the required main artifact exists.
+
+Two findings against PR #32 were disproved: short diff hunks hid the upstream record paths, causing
+the reviewer to swap blob identities; a second inventory fetched on the same UTC day legitimately
+kept the same retrieval date. The repair supplied complete changed records keyed by upstream path,
+with exact base/head source identities. It retained the rejection history instead of rewriting it
+as approval. Review context must make attribution possible, and the producer and consumer must
+enforce the *combined* context cap rather than separate caps that fit only individually.
+
+The [readiness campaign](../../../reviews/pipeline-readiness-validation.md) distinguishes a third
+outcome: the model process exited zero but stream validation rejected an unknown event kind.
+There was no authenticated verdict and no substantive rejection-budget charge. A fresh minimal
+probe reproduced the structural parser failure; missing private logs did not justify inventing
+what happened in the original run. Validate session, agent and final report bindings before
+interpreting prose, retain safe structural diagnostics, and keep rejected/unvalidated content
+out of durable acceptance history.
+
+## Retry from preserved authority, not an edited history
+
+The readiness review found provenance changes that rewrote unchanged safety rationale and guessed
+retrieval dates. Keep prior rationale verbatim when the disposition is unchanged; put new delta
+reasoning in the new proposal. The trusted detector supplies the UTC date and rejects a retrieval
+crossing midnight, so neither a model's clock nor candidate content sets provenance authority.
+A repeated same-day date is valid. These controls preserve what was accepted and why while still
+recording the new transition. [Source and remediation](../../../reviews/pipeline-readiness-validation.md#review-finding-remediation)
+
+A subsequent [retry failure](../../../reviews/release-030-pipeline.md#cleanup-follow-up-and-second-source-campaign)
+was caused by trusted cleanup itself: deleting a pending final marker exposed a trailing blank
+separator, making a previously clean staged diff fail. The regression ran the real preparation
+path, then the repair removed only empty separators exposed at EOF. It preserved accepted markers,
+prose after a marker, and the existing rejection of unrelated whitespace. Diagnose cleanup's
+transformation separately from the original accept-preview failure, whose cause was not retained.
+
+Finally, [cleanup review](../../../reviews/cleanup-validation.md) removed model-driven repair of
+known generated output. Regenerate reviewed assets deterministically and report manual parity
+when that cannot proceed. Keep one latest validated rejection and count per source/content pair;
+failed feedback persistence leaves the candidate open so its history is not lost. Branch
+existence alone is not unfinished work: the [later branch audit](../../../reviews/evidence-led-improvements/README.md#branch-triage-and-review-boundary)
+found both superseded updater attempts and a deliberately unmergeable CI-failure demonstration.
+
 ## Source-specific retained knowledge
 
 These summaries describe what is retained from each source. Historical observations keep their

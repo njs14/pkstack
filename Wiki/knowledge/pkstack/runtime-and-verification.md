@@ -79,6 +79,46 @@ supported tuple and remaining Linux live-query gap belong to the
 [knowledge lifecycle](knowledge-lifecycle.md) and runtime decision, separately from local checks.
 
 
+## Design permission probes with both refusal and ordinary controls
+
+The [Git-switch audit](../../../reviews/release-030-permissions.md) first found destructive forms
+falling through to **ask**, rather than the intended **deny**. The difference matters: this was a
+missing hard-deny rule, not evidence that commands ran silently. After standalone and reordered
+forms were repaired, review found grouped spellings such as `-qf`, `-dqf`, and `-qC` still asked.
+The follow-up added exact supported groups and ordinary controls with benign branch names. A
+broad pattern containing `*f*` could span spaces into a branch name and falsely reject safe work.
+
+The native probes used disposable directories with no Git repository in any parent, tested the
+actual installed profile, and compared the complete protected file inventory afterward. That
+fixture choice contained an operator error: an intended Deny selection was interpreted as Allow,
+and Git failed because there was no repository. It is not deny evidence. Later ordinary controls
+were cancelled with Escape; destructive cases had to return the agent-profile denial without an
+approval. The resulting claim covers the tested option spellings, not aliases, arbitrary grouping,
+absolute executables, quoting variants, or subprocess containment.
+
+## Schema, discovery, selection, and action are separate gates
+
+The [2.21.0 loader probe](../../../reviews/kiro-v3-agent-discovery-probe.json) found three read-only
+helpers that passed schema validation but were absent from Workspace agent rows. An inert empty
+`toolsSettings` object restored discovery without adding authority. The later
+[updater investigation](../../../reviews/pipeline-readiness-validation.md#global-agent-loading-defect)
+found a different mismatch: global listing saw the maintainer while v3 chat silently selected the
+default agent under a split home layout. A nonempty JSON stream had been mistaken for sufficient
+execution evidence. Require actual session-bound agent selection before model/tool activity;
+advertised choices and successful process exit are insufficient.
+
+These versioned defects explain why schema checks, effective inventory, selected-agent attestation,
+and concrete permission behavior all have a role. The sentinel is not a universal schema rule,
+and a canary exercising workspace agents does not validate a differently configured global agent.
+
+The [native command audit](../../../reviews/cli-native-command-audit/README.md) also distinguished
+working commands from completion entries: the bare agent picker, same-session agent swap,
+`/config skills`, and `/code status` ran; requirements analysis and several planning commands were
+only recognized. In that build `/agent list` tried to select an agent named `list`. Diagnose the
+specific client surface before recommending restart or a command from broader documentation.
+Automatic Power inclusion and inherited skills are distinct settings; inspect the selected
+agent's effective inventory rather than infer complete isolation from one switch.
+
 ## Source-specific retained knowledge
 
 These summaries describe what is retained from each source. Historical observations keep their
