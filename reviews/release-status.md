@@ -1,10 +1,32 @@
 ---
-release: "0.4.3"
-status: published
+release: "0.4.4"
+status: prepared
 version_authority: powers/pkstack/plugin.json
 ---
 
 # PKStack release status
+
+## Prepared release: 0.4.4
+
+PKStack 0.4.4 contains the combined changes from
+[PR #53](https://github.com/njs14/pkstack/pull/53) and
+[PR #54](https://github.com/njs14/pkstack/pull/54), merged into main at
+`5a905eb81d587fe0d8275594c12ba0eb9454f200`. That exact main build passed all
+12 CI jobs. The [changelog](../CHANGELOG.md#044--2026-09-06) describes the release.
+
+The [Astral report](astral-python-auto/README.md) retains bounded native Kiro
+observations; the [uvx report](uvx-entrypoint/README.md) retains deterministic CLI
+acceptance and independent Grok approvals, including the cold-cache CI correction.
+The uvx full local gate passed 1,016 Power tests and 235 repository tests. These
+results are bound to their recorded commits and do not assert a fresh native
+campaign for this metadata-only version update.
+
+Publication requires all checks and a reproducible package from the exact release
+commit on main, followed by the tag-bound verification/publication workflow and a
+byte-for-byte comparison of the downloaded release archive with that CI package.
+The existing v0.4.3 release remains available; no rollback has run.
+
+## Previous publication: 0.4.3
 
 **[PKStack v0.4.3](https://github.com/njs14/pkstack/releases/tag/v0.4.3) was
 published on September 6, 2026 at 22:32:43 UTC.** Planning uses one shared grilling
