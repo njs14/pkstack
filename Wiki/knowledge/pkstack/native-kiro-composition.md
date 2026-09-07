@@ -137,6 +137,36 @@ ASCII edge case was outside that predicate. Keep native artifacts and test ident
 but inspect whether their acceptance meaning covers the requirement; a green predicate cannot
 retroactively resolve a mismatch in the approved prose.
 
+## September 7 bounded native verification
+
+The [verification evidence](evidence/2026-09-07/verification.json) records new normal Kiro CLI
+v3 demonstrations using CLI 2.21.1, the generated `pkstack` agent, and selected
+`claude-opus-5` / high. The Power tree `b6ade2ad26bb1b204c745db9d6cda1eab0978bb2` is
+unchanged from trusted main `3a370aa`; repository diagnostic/evidence edits do not change
+these shipped skills or controller bytes. The final PR binds the frozen containing tree.
+
+For stored verification, the operator predeclared a string-normalization contract and tests,
+installed the reviewed Power, and retained a genuine failing `node acceptance.mjs` result.
+Kiro read the shipped method and contract, displayed the stored predicate, edited only the
+implementation, and ran the same stored verifier to `passed` at attempt 2 of 4. Contract,
+acceptance-test bytes and stored command were unchanged. Tests include type errors, length
+boundaries, invalid ASCII punctuation and Unicode expansion before casing. This is bounded
+command-bound repair evidence; no new native Spec, Quick Spec or IDE result is claimed.
+
+For Impeccable, Kiro read the shipped guidance and refined only the stylesheet of an existing
+cream/forest, serif reading-list fixture. It captured and viewed narrow/wide rendered evidence
+before and after, exercised toggle/progress behavior and keyboard focus, and stopped after one
+confirmation pass. A separate operator browser check confirmed exact content, reversible toggles,
+Tab/Enter/Space operation, pressed state, polite progress, visible focus, 44px targets and no
+overflow at 390 and 1280 pixels. The fixture sources and screenshot hashes are in the evidence.
+This establishes Chromium behavior only, without a screen-reader, full WCAG or real-device claim;
+no absent upstream runtime, hooks or live variants were installed.
+
+PR supervision uses the real scoped PR in `check` mode, with the independent-review hold and
+zero retries carried in session context. Its snapshot and any correction are retained separately
+from an acceptance verdict. A successful read-only check does not prove failure repair, flaky
+retry handling, substantive reviewer-response work or merge-ready status.
+
 ## Related knowledge
 
 - The [native-spec composition decision](native-spec-and-okn.md) records why the seam is

@@ -1,0 +1,417 @@
+{
+  "schema_version": 1,
+  "repository": "njs14/pkstack",
+  "pr": 69,
+  "trusted_base": "3a370aa92d881ea8bab48c4b55c70cad347c49b7",
+  "behavior_commit": "44edfc11f93d70e344ff54256e1d55142c21b018",
+  "behavior_tree": "63f1093134b2160930a8b7ecf2f279edba49217c",
+  "final_binding": "The final commit/tree and exact-candidate CI are recorded in PR #69 and the task-local review packet after this evidence is committed. This file does not self-identify its containing commit.",
+  "power_source_equivalence": {
+    "power_tree": "b6ade2ad26bb1b204c745db9d6cda1eab0978bb2",
+    "kiro_tree": "a3b20dd934d56a0319c81076ad0cd2ca3573b674",
+    "controller_tree": "566c0e76843c26bedbc7a5cdc2d4a9652f9739db",
+    "binding": "All three trees are byte-identical at trusted base and behavior commit; final preparation changes only repository controls and Wiki evidence, not Power content."
+  },
+  "F1": {
+    "status": "repaired awaiting independent review",
+    "reproduction_command": "python .github/scripts/pkstack_maintenance_guard.py validate-detector --detector detector.json",
+    "input": {
+      "error": "GitHub API returned HTTP 403",
+      "error_type": "UpstreamError",
+      "ok": false
+    },
+    "original_diagnostic": "upstream detector output has unexpected or missing fields",
+    "repaired_diagnostic": {
+      "ok": false,
+      "error": "upstream detector execution failed (UpstreamError: GitHub API returned HTTP 403); no inventory produced"
+    },
+    "exit_before": 1,
+    "exit_after": 1,
+    "initial_regression": "Four subcases failed before repair because execution failures were mislabeled as schema errors",
+    "regression_after": "20 DetectorTests passed, including safe error categories, exact HTTP/network-budget messages and hostile fields",
+    "scope": "No successful detector schema, source selection, permissions, retry budget, review or merge control changed"
+  },
+  "maintenance": {
+    "historical_run": 34127637886,
+    "historical_source": "bd6baccd178915a74240a0579c9df9c9a98597b4",
+    "historical_failure": "bootstrap_preview unexpected/missing fields; preserved field allowed by v0.5.2",
+    "current_run": 34158581533,
+    "attempt": 1,
+    "current_base": "3a370aa92d881ea8bab48c4b55c70cad347c49b7",
+    "retry_source": "",
+    "plan": "success",
+    "detect": "failure",
+    "diagnostic": "upstream detector output has unexpected or missing fields",
+    "detector_artifacts": 0,
+    "maintain": "skipped",
+    "publish": "skipped",
+    "candidate_run": 34158658952,
+    "candidate_conclusion": "skipped",
+    "verdict": null,
+    "proposal": null,
+    "disposition": null,
+    "limits": "Current initiating cause was not retained. The separately observed local unauthenticated HTTP403 does not identify the CI cause. No live drift selection, proposal, acceptance or rejection proved. No unchanged retry, reset, manufactured drift or control weakening."
+  },
+  "native_repair": {
+    "source": "unchanged candidate Power, reviewed operator setup",
+    "runtime": "Kiro CLI 2.21.1 normal v3; Node.js 26.7.0",
+    "agent": "pkstack",
+    "model": "claude-opus-5",
+    "effort": "high",
+    "session": "sess_67ac72fc-576b-46fd-b8b4-8c5243167052",
+    "operator_actions": [
+      "Predeclare CONTRACT.txt and acceptance.mjs",
+      "Install reviewed Power from candidate",
+      "Store command-bound goal; run genuine initial failing verifier"
+    ],
+    "model_actions": [
+      "Read shipped verified-goal skill, contract, tests, implementation",
+      "Read stored goal; display stored predicate",
+      "Edit only normalize.mjs through normal approval",
+      "Run unchanged stored verifier and inspect terminal passed status"
+    ],
+    "contract": {
+      "sha256": "f0b7ce5c3457e764dc6f634dca06207ba244ae661af0d7f340bb450589058bfd",
+      "content": "normalizeCode accepts only strings; non-strings throw TypeError. Trim first, then require 2..12 ASCII letters, digits or hyphen. Invalid strings throw RangeError. Validate ASCII before uppercasing (ß must not expand into valid SS). Return uppercase. acceptance.mjs is immutable operator-authored acceptance; only normalize.mjs may be repaired. No native Spec claimed.\n"
+    },
+    "acceptance": {
+      "sha256": "fb4f805e0365eacfc7098b97cc6faf4c9fabddac2a584eed551a7eef9a9db5ad",
+      "content": "import assert from 'node:assert/strict';\nimport {normalizeCode} from './normalize.mjs';\nconst valid = [[' ab-12 ', 'AB-12'], ['a0','A0'], ['Z9-Z','Z9-Z']];\nfor (const [input, expected] of valid) assert.equal(normalizeCode(input), expected);\nfor (const input of ['', ' ', 'a', 'a_b', 'a b', 'éa', 'ßa', 'a–b', 'a'.repeat(13)]) assert.throws(() => normalizeCode(input), RangeError, JSON.stringify(input));\nfor (const input of [null, undefined, 123, {}, ['ab']]) assert.throws(() => normalizeCode(input), TypeError);\nassert.equal(normalizeCode('a'.repeat(12)), 'A'.repeat(12));\nconsole.log('PASS: string-only, trimmed ASCII letters/digits/hyphen, length 2..12, uppercase output; Unicode rejected before casing.');\n"
+    },
+    "before_implementation": "export function normalizeCode(value) { return value.trim().toUpperCase(); }\n",
+    "after_implementation": {
+      "sha256": "219b01e3816b4fdbea390a1b7b31b927a25c228e0eb66c33f7330d615c200433",
+      "content": "const CODE_PATTERN = /^[A-Za-z0-9-]{2,12}$/;\n\nexport function normalizeCode(value) {\n  if (typeof value !== 'string') {\n    throw new TypeError(`normalizeCode expects a string, received ${typeof value}`);\n  }\n  const trimmed = value.trim();\n  if (!CODE_PATTERN.test(trimmed)) {\n    throw new RangeError(\n      'normalizeCode expects 2..12 ASCII letters, digits or hyphens after trimming',\n    );\n  }\n  return trimmed.toUpperCase();\n}\n"
+    },
+    "stored_contract": {
+      "argv": [
+        "node",
+        "acceptance.mjs"
+      ],
+      "display": "node acceptance.mjs",
+      "feature": null,
+      "source": "explicit",
+      "spec": null,
+      "spec_artifacts": []
+    },
+    "contract_digest": "cc84eaf9103875a028c989aa7e13fd193700c73ceb335b043bf7d4a1733ac9b5",
+    "contract_unchanged": true,
+    "acceptance_and_contract_hashes_unchanged": true,
+    "history": [
+      {
+        "duration_ms": 87,
+        "error": null,
+        "exit_code": 1,
+        "passed": false,
+        "started_at": "2026-09-07T20:14:48.377374+00:00",
+        "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Missing expected exception (RangeError): \"\"\n    at file://$CONSUMER/acceptance.mjs:5:93\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: undefined,\n  expected: [Function: RangeError],\n  operator: 'throws',\n  diff: 'simple'\n}\n\nNode.js v26.7.0\n",
+        "stdout": "",
+        "timed_out": false,
+        "truncated": false
+      },
+      {
+        "duration_ms": 47,
+        "error": null,
+        "exit_code": 0,
+        "passed": true,
+        "started_at": "2026-09-07T20:18:03.733552+00:00",
+        "stderr": "",
+        "stdout": "PASS: string-only, trimmed ASCII letters/digits/hyphen, length 2..12, uppercase output; Unicode rejected before casing.\n",
+        "timed_out": false,
+        "truncated": false
+      }
+    ],
+    "status": "passed",
+    "attempt_count": 2,
+    "max_attempts": 4,
+    "limits": "Bounded command repair with operator-authored tests, not new Spec/Quick Spec or IDE proof. Intentional consumer bug is not a PKStack product defect."
+  },
+  "native_impeccable": {
+    "runtime": "Kiro CLI 2.21.1 normal v3; Playwright CLI Chromium",
+    "agent": "pkstack",
+    "model": "claude-opus-5",
+    "effort": "high",
+    "session": "sess_9a8734a0-fb95-4198-afb6-94862a6c85b2",
+    "operator_actions": [
+      "Create existing cream/forest serif reading-list app and scoped brief",
+      "Reviewed Power setup and local HTTP server",
+      "Separate post-model browser assertions"
+    ],
+    "model_actions": [
+      "Read shipped Impeccable skill/refinement/quality and fixture",
+      "Capture/view before narrow/wide screenshots",
+      "Edit style.css only through normal approval",
+      "Exercise toggles, progress, keyboard and overflow",
+      "Capture/view after narrow/wide and intermediate screenshots"
+    ],
+    "index_html": {
+      "sha256": "6176c122dc7238b1089b8bf86ab3522c581a765de16c8b77fb2c56ce22e48e70",
+      "content": "<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Harbor reading list</title><link rel=\"stylesheet\" href=\"style.css\">\n<main><header><p class=\"eyebrow\">HARBOR / PERSONAL LIBRARY</p><h1>Reading for a quiet hour</h1><p>Three books, one small shelf. Mark a book when you finish it.</p></header>\n<section aria-label=\"Reading list\"><article><h2>The Secret Garden</h2><p>Frances Hodgson Burnett</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article><article><h2>A Room of One’s Own</h2><p>Virginia Woolf</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article><article><h2>The Wind in the Willows</h2><p>Kenneth Grahame</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article></section>\n<p id=\"progress\" role=\"status\" aria-live=\"polite\">0 of 3 finished</p></main><script src=\"app.js\"></script></html>\n"
+    },
+    "app_js": {
+      "sha256": "29e2070c932f18436baca68cb006f82b0afd8ae2198231b6829311a01f657e00",
+      "content": "document.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {\nconst finished = button.getAttribute('aria-pressed') !== 'true';\nbutton.setAttribute('aria-pressed', String(finished));\nbutton.textContent = finished ? 'Mark unread' : 'Mark finished';\ndocument.querySelector('#progress').textContent = `${document.querySelectorAll('button[aria-pressed=\"true\"]').length} of 3 finished`;\n}));\n"
+    },
+    "before_style": "* { box-sizing: border-box; } body { margin:0; background:#f6f0e5; color:#163e3a; font:17px/1.6 Georgia,serif; } main { max-width:1024px; margin:auto; padding:40px 24px; } .eyebrow { font:12px/1.5 system-ui; letter-spacing:.15em; } h1 { font-size:44px; line-height:1.2; } section { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; } article { border:1px solid #8faaa4; padding:14px; } h2 { font-size:23px; line-height:1.3; } button { background:#163e3a; color:#fff; border:0; border-radius:3px; padding:8px 12px; font:14px system-ui; cursor:pointer; } button:focus-visible { outline:3px solid #af600e; outline-offset:3px; } @media(max-width:600px) { section { grid-template-columns:1fr; } h1 { font-size:34px; } }\n",
+    "after_style": {
+      "sha256": "06d598b6d52ee7a1bc06165229e1b1c94100583bca881b1375bfc51f9809f837",
+      "content": ":root {\n  --cream: #f6f0e5;\n  --forest: #163e3a;\n  --forest-deep: #0f2d2a;\n  --rule: #8faaa4;\n  --focus: #af600e;\n  --space-2: 12px;\n  --space-3: 16px;\n  --space-5: 32px;\n}\n\n* { box-sizing: border-box; }\n\nbody {\n  margin: 0;\n  background: var(--cream);\n  color: var(--forest);\n  font: 17px/1.6 Georgia, serif;\n}\n\nmain {\n  max-width: 1024px;\n  margin: auto;\n  padding: clamp(32px, 5vw, 56px) clamp(24px, 4vw, 32px);\n}\n\nheader {\n  margin-bottom: clamp(24px, 3vw, var(--space-5));\n}\n\n.eyebrow {\n  margin: 0 0 var(--space-2);\n  font: 12px/1.5 system-ui;\n  letter-spacing: .15em;\n}\n\nh1 {\n  margin: 0 0 var(--space-3);\n  font-size: 44px;\n  line-height: 1.2;\n}\n\nheader p:not(.eyebrow) {\n  margin: 0;\n  max-width: 52ch;\n}\n\nsection {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: clamp(16px, 2vw, 24px);\n  margin-bottom: clamp(24px, 3vw, var(--space-5));\n}\n\narticle {\n  display: flex;\n  flex-direction: column;\n  gap: var(--space-2);\n  border: 1px solid var(--rule);\n  padding: clamp(16px, 2.2vw, 24px);\n}\n\nh2 {\n  margin: 0;\n  font-size: 23px;\n  line-height: 1.3;\n}\n\narticle p {\n  margin: 0;\n}\n\nbutton {\n  align-self: flex-start;\n  margin-top: auto;\n  background: var(--forest);\n  color: #fff;\n  border: 0;\n  border-radius: 3px;\n  min-height: 44px;\n  padding: 11px 20px;\n  font: 14px/1.2 system-ui;\n  cursor: pointer;\n}\n\nbutton:hover,\nbutton:active {\n  background: var(--forest-deep);\n}\n\nbutton:focus-visible {\n  outline: 3px solid var(--focus);\n  outline-offset: 3px;\n}\n\n#progress {\n  margin: 0;\n}\n\n@media (max-width: 600px) {\n  section { grid-template-columns: 1fr; }\n  h1 { font-size: 34px; }\n}\n"
+    },
+    "html_and_js_unchanged": true,
+    "operator_browser_check": {
+      "sha256": "31169e9d3fafa3e40cef652de166dc1adfda9fbf93d332f5e30501fed70b9475",
+      "content": "async page => {\n  const results = [];\n  const assert = (condition, label) => { if (!condition) throw new Error(label); };\n  for (const [width, height] of [[390,844],[1280,900]]) {\n    await page.setViewportSize({width,height});\n    await page.goto('http://127.0.0.1:8765');\n    const names = await page.locator('h2').allTextContents();\n    assert(JSON.stringify(names)===JSON.stringify(['The Secret Garden','A Room of One’s Own','The Wind in the Willows']), 'exact book content');\n    const authors = await page.locator('article p').allTextContents();\n    assert(JSON.stringify(authors)===JSON.stringify(['Frances Hodgson Burnett','Virginia Woolf','Kenneth Grahame']), 'exact authors');\n    const buttons=page.getByRole('button');\n    assert(await buttons.count()===3,'three real buttons');\n    for(let i=0;i<3;i++) {\n      await buttons.nth(i).click();\n      assert(await buttons.nth(i).getAttribute('aria-pressed')==='true','click toggles pressed');\n      assert(await page.getByRole('status').textContent()===`${i+1} of 3 finished`,'live progress count');\n    }\n    await page.reload();\n    await page.keyboard.press('Tab');\n    for(let i=0;i<3;i++) {\n      assert(await buttons.nth(i).evaluate(b=>b===document.activeElement),'keyboard order');\n      await page.keyboard.press(i===1?'Space':'Enter');\n      assert(await buttons.nth(i).getAttribute('aria-pressed')==='true','keyboard toggles');\n      if(i<2) await page.keyboard.press('Tab');\n    }\n    assert(await page.getByRole('status').textContent()==='3 of 3 finished','keyboard progress');\n    const layout=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,heights:[...document.querySelectorAll('button')].map(b=>b.getBoundingClientRect().height),focus:{width:getComputedStyle(document.activeElement).outlineWidth,style:getComputedStyle(document.activeElement).outlineStyle},live:document.querySelector('#progress').getAttribute('aria-live'),background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.body).color,font:getComputedStyle(document.body).fontFamily}));\n    assert(layout.scrollWidth<=width,'no horizontal overflow');assert(layout.heights.every(h=>h>=44),'44px comfortable target');assert(layout.focus.width==='3px'&&layout.focus.style==='solid','visible keyboard focus');assert(layout.live==='polite','polite progress announcement');\n    for(let i=0;i<3;i++) await buttons.nth(i).click();\n    assert(await page.getByRole('status').textContent()==='0 of 3 finished','toggle reversal');\n    await page.emulateMedia({reducedMotion:'reduce'});\n    results.push({width,height,passed:true,layout});\n  }\n  return {passed:true,runtime:await page.evaluate(()=>navigator.userAgent),checks:results,limits:'Chromium DOM and keyboard checks, no screen-reader session or cross-browser claim'};\n}\n"
+    },
+    "operator_browser_result": {
+      "passed": true,
+      "runtime": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36",
+      "checks": [
+        {
+          "width": 390,
+          "height": 844,
+          "passed": true,
+          "layout": {
+            "width": 390,
+            "scrollWidth": 390,
+            "heights": [
+              44,
+              44,
+              44
+            ],
+            "focus": {
+              "width": "3px",
+              "style": "solid"
+            },
+            "live": "polite",
+            "background": "rgb(246, 240, 229)",
+            "color": "rgb(22, 62, 58)",
+            "font": "Georgia, serif"
+          }
+        },
+        {
+          "width": 1280,
+          "height": 900,
+          "passed": true,
+          "layout": {
+            "width": 1280,
+            "scrollWidth": 1280,
+            "heights": [
+              44,
+              44,
+              44
+            ],
+            "focus": {
+              "width": "3px",
+              "style": "solid"
+            },
+            "live": "polite",
+            "background": "rgb(246, 240, 229)",
+            "color": "rgb(22, 62, 58)",
+            "font": "Georgia, serif"
+          }
+        }
+      ],
+      "limits": "Chromium DOM and keyboard checks, no screen-reader session or cross-browser claim"
+    },
+    "screenshots": {
+      "after-wide-1280x900.png": "04392de0887d66e918cb2c8e59114d65f5ee23cebf2707bb05d54870d82e0b35",
+      "before-wide-1280x900.png": "43e3e44b5b92b646a15c65971d6a63879003a33fb2a97fa725cef5eefab534db",
+      "before-narrow-390x844.png": "0836b15b78b4b8b9197164664e21f7bf723efcf72ac5d3366f3e0420b6d32cd5",
+      "after-narrow-all-finished-focus.png": "4c897c79e7514f2d8a7d9d7dd50e439cffadb697820725bceeba5b8d106acad3"
+    },
+    "limits": [
+      "Chromium only; no real device or screen-reader session",
+      "No automated WCAG/axe or cross-browser conformance claim",
+      "No absent upstream runtime/hooks/live variants installed or claimed",
+      "Baseline favicon 404 does not affect list functionality; decorative border contrast is not asserted as a control-boundary conformance result"
+    ]
+  },
+  "setup": {
+    "repository": "Preview/apply/repeat: 0 created, 0 updated, 0 pending, 0 stale, 0 conflicts; 191 unchanged",
+    "consumer_discovery_refresh": "Operator initialized Git after initial setup. Repeat preview changed only discovery.git false to true; reviewed setup refreshed that metadata, then repeated setup made zero changes. This operator refresh followed verification of model-only diffs.",
+    "consumers": {
+      "native-repair": {
+        "ok": true,
+        "created": [],
+        "updated": [],
+        "pending_updates": [],
+        "stale_managed": [],
+        "conflicts": []
+      },
+      "native-ui": {
+        "ok": true,
+        "created": [],
+        "updated": [],
+        "pending_updates": [],
+        "stale_managed": [],
+        "conflicts": []
+      }
+    },
+    "doctor": true,
+    "feature_validate": true,
+    "knowledge_validate": true,
+    "receipt_parity": {
+      "review_worktree": {
+        "managed_files": 190,
+        "mismatches": [],
+        "receipt_sha256": "a75e18e09774c136b213cbf4d2537668a5dcff7543eccc0238a633976d1538ff"
+      },
+      "native_repair": {
+        "managed_files": 190,
+        "mismatches": [],
+        "receipt_sha256": "c5f50d011a00da63ccaedffeedf121d4ab9da60deadca0d9d17cd8a526366286"
+      },
+      "native_ui": {
+        "managed_files": 190,
+        "mismatches": [],
+        "receipt_sha256": "c5f50d011a00da63ccaedffeedf121d4ab9da60deadca0d9d17cd8a526366286"
+      }
+    }
+  },
+  "checkpoint_ci": {
+    "run": 34159005554,
+    "attempt": 1,
+    "pr_head": "44edfc11f93d70e344ff54256e1d55142c21b018",
+    "base": "3a370aa92d881ea8bab48c4b55c70cad347c49b7",
+    "synthetic_merge": "af254a3612b5ce159e7df14076096593202869ac",
+    "merge_tree_equals_head_tree": true,
+    "jobs_successful": 12,
+    "product_tests": 1063,
+    "python_policy_tests": 271,
+    "javascript_policy_tests": 17,
+    "plan_artifact": 10031949578,
+    "summary_artifact": 10031986663,
+    "policy_job": 101856779740,
+    "local_fast_tests": 23,
+    "failed_pr_ci_runs": [],
+    "reruns": 0,
+    "limits": "Final evidence commit must have its own exact-candidate CI; checkpoint CI is not silently rebound."
+  },
+  "linux": {
+    "status": "unresolved external prerequisite",
+    "observations": [
+      "Docker available but no suitable running environment",
+      "No SSH config and no known authenticated Linux access route established",
+      "Kiro cloud-session inventory and existing CI runtime canary are not Linux retrieval proof"
+    ],
+    "needed": "An existing authorized Linux environment with its own supported Kiro authentication, then actual bounded projectctl knowledge search returning substantive independently validated citations and unchanged corpus hashes",
+    "not_done": [
+      "No credentials/session state transferred",
+      "No CI secrets extracted",
+      "No paid infrastructure created",
+      "No model inventory, macOS result or fixture substituted for Linux live retrieval"
+    ]
+  },
+  "review": {
+    "status": "not independently accepted",
+    "session": "270ac4ba-5584-4c07-a7a9-c0fc59deb6bb",
+    "model": "claude-fable-5-1",
+    "availability": "One supported Claude Code 2.1.258 safe-mode resume with tools disabled returned AVAILABLE; no candidate verdict requested",
+    "acceptance_requested": "Review the exact final PR head/tree, safe failure diagnostics and regressions, evidence attribution and unresolved prerequisites. Separate rerun checks from coordinator evidence. No historical approval applies. Any correction requires independent review of its changed bytes.",
+    "hold": "Final candidate remains unmerged, untagged and unpublished."
+  },
+  "release_implications": "Repository-control and evidence changes only. Power remains 0.5.2 byte-for-byte; no product version bump or product RC label.",
+  "native_pr_supervision": {
+    "runtime": "Kiro CLI 2.21.1 normal v3",
+    "agent": "pkstack",
+    "model": "claude-opus-5",
+    "effort": "high",
+    "session": "sess_6a296234-309a-4d91-bcec-c394686ab8c4",
+    "mode": "check",
+    "stop": "one read-only snapshot, followed by bounded correction of a prose count",
+    "pr": 69,
+    "head": "44edfc11f93d70e344ff54256e1d55142c21b018",
+    "base": "3a370aa92d881ea8bab48c4b55c70cad347c49b7",
+    "model_actions": [
+      "Load shipped babysit-pr skill and read GitHub reference",
+      "Fresh PR/head/base and check/run reads",
+      "Paginated published comments, reviews and inline comments reads; GraphQL threads",
+      "Read required checks and branch protection endpoint",
+      "Inspect local worktree",
+      "Correct 13-to-12 prose counting error through fresh structured PR/run queries in the same session"
+    ],
+    "checks": {
+      "count": 12,
+      "successful": 12,
+      "run": 34159005554,
+      "attempt": 1
+    },
+    "reviews": 0,
+    "comments": 0,
+    "inline_comments": 0,
+    "review_threads": 0,
+    "threads_has_next_page": false,
+    "is_draft": true,
+    "mergeable": "MERGEABLE",
+    "merge_state": "CLEAN",
+    "required_checks_cli": "no required checks reported",
+    "protection_api": "HTTP403 plan restriction; no policy changes attempted",
+    "independent_acceptance": false,
+    "merge_ready": false,
+    "retries_used": 0,
+    "retry_allowance_per_head": 1,
+    "limits": [
+      "Read-only representative scenario; no fabricated failure, reviewer message or accepted disposition",
+      "Does not exercise failure repair or retry execution",
+      "Initial prose counted 13 checks despite enumerating 12; native structured recount corrected to 12; no shipped-skill defect inferred from that arithmetic error",
+      "Final head re-observation belongs to the final PR binding, not this earlier checkpoint snapshot"
+    ]
+  },
+  "requirements": {
+    "R1": {
+      "status": "proven",
+      "acceptance": "Refresh authority, checkout/GitHub state and source/evidence bindings"
+    },
+    "R2": {
+      "status": "proven",
+      "acceptance": "Discover external prerequisites early; runtime discovery and availability are separate from working retrieval"
+    },
+    "R3": {
+      "status": "blocked",
+      "acceptance": "Complete live unattended maintenance chain",
+      "next_action": "Independently accept and merge diagnostic repair, then one changed trusted-main run to resolve missing initiating cause; no unchanged retry"
+    },
+    "R3A": {
+      "status": "blocked",
+      "acceptance": "Live accepted source-scoped update with exact authenticated verdict and disposition",
+      "next_action": "Real eligible upstream drift and successful complete gated candidate lifecycle"
+    },
+    "R3R": {
+      "status": "blocked",
+      "acceptance": "Live substantive rejection feedback/budget/cleanup when naturally exercised",
+      "next_action": "Natural rejection with passed candidate tests and validated persisted feedback; deterministic coverage is separate"
+    },
+    "R4A": {
+      "status": "proven",
+      "acceptance": "Native implementation repair with meaningful unchanged stored verifier"
+    },
+    "R4B": {
+      "status": "proven",
+      "acceptance": "Scoped native Impeccable refinement with bounded browser/function/accessibility checks"
+    },
+    "R4C": {
+      "status": "proven",
+      "acceptance": "Native one-shot PR supervision with exact identity and review hold; limited read-only coverage"
+    },
+    "R5": {
+      "status": "blocked",
+      "acceptance": "Substantive Linux retrieval with independently verified citations and unchanged corpus",
+      "next_action": "Existing authorized Linux access route with its own supported Kiro authentication; no credentials requested"
+    },
+    "R6": {
+      "status": "running",
+      "acceptance": "Reproduced repairs, regressions and applicable exact-candidate checks",
+      "next_action": "Final evidence commit CI; successful behavior-checkpoint CI retained separately"
+    },
+    "R7": {
+      "status": "running",
+      "acceptance": "Freeze final PR/head/tree and complete review packet",
+      "next_action": "Commit packet, finish final CI and bind immutable identities in PR description"
+    },
+    "R8": {
+      "status": "untested",
+      "acceptance": "Independent exact-candidate acceptance and authorized post-review merge/publication",
+      "next_action": "Outside current preparation stopping point; no historical acceptance applies"
+    }
+  }
+}

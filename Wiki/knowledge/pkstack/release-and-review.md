@@ -44,6 +44,38 @@ merge, or local fixture is not this publication proof. The retained
 commit `12ecc1abe6a59c57bb91260d9f4a8cb06651291a`, its main artifact, tag workflow, and byte
 comparison. It proves only that recorded publication; this curation does not refresh remote state.
 
+## September 7 verification review candidate
+
+[PR #69](https://github.com/njs14/pkstack/pull/69) holds a repository-control and evidence
+candidate against `3a370aa92d881ea8bab48c4b55c70cad347c49b7`. Its
+[structured packet](evidence/2026-09-07/verification.json) contains the initial diagnostic
+reproduction, regression dispositions, executable consumer fixtures, native-session identities,
+browser assertions and screenshot hashes. The PR description supplies the final commit/tree and
+its exact CI run/attempt after packet preparation; the evidence file does not claim to contain
+its own eventual commit identity.
+
+The reproduced repair distinguishes safe detector execution errors from malformed inventories,
+while preserving rejection and withholding arbitrary error text. It changes repository controls,
+not the installable Power. Power version 0.5.2 and its source tree remain unchanged; no product
+version bump, product RC label or tag is warranted. Native demonstration implementations remain
+consumer evidence, not product changes. The packet distinguishes operator setup and predicates,
+model-authored repairs and independent browser assertions.
+
+Two live requirements remain unresolved: trusted-main unattended maintenance did not produce a
+validated detector/proposal/verdict, and an authorized Linux environment with working supported
+Kiro authentication was not established. The maintenance failure's initiating payload was not
+retained, and a separate local HTTP 403 must not be assigned as its cause. The diagnostic repair
+requires exact independent acceptance and merge before changed trusted-main reproof. Deterministic
+acceptance/rejection/feedback/cleanup tests remain separate from unobserved live outcomes.
+
+Independent acceptance is requested from the original Claude Code session
+`270ac4ba-5584-4c07-a7a9-c0fc59deb6bb`, model `claude-fable-5-1`, bound to the final PR head/tree.
+One supported availability turn returned `AVAILABLE`; that is not review or acceptance.
+The reviewer should assess the failure boundary and meaningful regressions, source equivalence,
+evidence attribution and explicit remaining prerequisites, stating which checks were rerun.
+A correction needs independent review of its changed bytes. The final candidate stays unmerged,
+untagged and unpublished pending that acceptance; preparation is not overall release completion.
+
 ## Historical findings worth reusing
 
 - Early selected-profile campaigns distinguish generic Kiro execution from actual use of the
