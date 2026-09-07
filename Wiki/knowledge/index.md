@@ -26,4 +26,18 @@ These topic documents explain decisions and observations; executable checks rema
   [historical prototype observation](upstream-maintenance/observations.md), plus
   [operation and recovery](upstream-maintenance/operations.md).
 
+## Lessons synthesized from reviews
+
+The review reports remain the evidence archive. Their reusable conclusions live in these topics,
+including failure mechanisms, counterexamples, remediation, and limits:
+
+| Question | Retained explanation |
+| --- | --- |
+| Why can a loop pass once but exceed its budget after restart? | [Durable reservations, baseline proof, and independent process tests](pkstack/skill-composition-and-provenance.md#reusable-loops-need-a-durable-transition-contract) |
+| How can native planning pass its tests but violate a settled requirement? | [Derived mechanics, counterexamples, and capture ordering](pkstack/native-kiro-composition.md#carry-constraints-through-the-handoff-without-turning-recommendations-into-decisions) |
+| Why are schema validation and a listed agent insufficient permission evidence? | [Discovery, selection, action, and ordinary controls](pkstack/runtime-and-verification.md#schema-discovery-selection-and-action-are-separate-gates) |
+| What does a green updater run actually mean? | [Rejection handling, complete review context, and candidate identity](upstream-maintenance/operations.md#diagnose-a-completed-workflow-by-its-actual-terminal-outcome) |
+| What can still be wrong when every citation verifies? | [Source attribution versus inference, freshness, and transport limits](pkstack/knowledge-lifecycle.md#what-the-foundations-retrieval-tests-actually-established) |
+| How should a regression repair preserve the original acceptance question? | [Deterministic failure reproduction and environment isolation](pkstack/quality-and-ci.md#preserve-the-failure-then-test-the-mechanism), [unchanged visual inputs](pkstack/visual-artifacts.md#keep-input-facts-fixed-while-repairing-presentation) |
+
 Temporary drafts belong under ignored `Wiki/work/` and are excluded from ordinary retrieval.

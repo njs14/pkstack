@@ -126,6 +126,43 @@ During this coverage expansion, old security/support and artwork wording was ret
 identified in [release guidance](release-and-review.md#open-documentation-inconsistencies).
 Unknown policy decisions stay open; curation must not silently select a new support policy.
 
+## What the foundation's retrieval tests actually established
+
+The [foundation campaign](../../../reviews/knowledge-foundation.md#native-authoring-and-fresh-recall)
+predeclared questions before authoring. Its cases asked for an accepted decision, an unknown owner
+or date, a planned requirement versus observed implementation, a native Spec, an excluded draft,
+and superseded guidance. This tests whether a fresh caller can recover a useful distinction;
+simply finding a document or repeating a quoted sentence would not satisfy the whole question.
+
+Initial native authoring made five material mistakes, including a guessed date, a rejected choice
+presented as unresolved, and old adapter checks attributed to current search. The same-session
+correction was required before acceptance. A later lookup verified all seven quoted passages yet
+still included an imprecise clause conflating model-backed search with model-free validation.
+Host-validated quotations establish where words came from; reviewers must still assess the
+inference connecting them and whether a newer observation supersedes the specific older claim.
+
+Retain the original fixture and the later superseding observation separately. The foundation did
+so for the prototype's external validation behavior and the post-retirement local validator.
+Working drafts stayed excluded from retrieval authority. This is why synthesis should state the
+accepted conclusion, its rationale, the contradictory or superseded observation, and the remaining
+unknown in the topic itself, with source links next to those claims. A table of document labels
+cannot supply those distinctions on its own.
+
+## Bound the transport as well as the returned context
+
+The [transport review](../../../reviews/knowledge-foundation.md#runtime-evidence) found that a home
+override alone did not isolate the embedded server, SDK shutdown exceptions could skip cleanup,
+a cancellation send could block, and the SDK stream-reader limit did not bound protocol frames.
+The repaired adapter isolated the version-checked worker, scoped diagnostic redaction, bounded
+cancellation sends, and enforced frame/task wire limits before SDK parsing. Ignored traffic still
+counts toward the wire cap. Private reasoning is not retained or returned.
+
+These are different budgets: returned context includes citation overhead; internal model usage
+was undisclosed; transport limits bound captured protocol bytes. A small returned answer does not
+prove a small model bill or bounded transport. Likewise, graceful shutdown and owned-process cleanup
+are separate checks. The actual probes ran on macOS and do not establish Linux live retrieval or
+compatibility with an untested future runtime.
+
 ## Source-specific retained knowledge
 
 These summaries describe what is retained from each source. Historical observations keep their

@@ -71,6 +71,59 @@ when upstream changes. The [visual artifact topic](visual-artifacts.md) records 
 layout and browser-process lessons.
 
 
+## Reusable loops need a durable transition contract
+
+The early curated loop could trim one label correctly yet accept three independent controller
+invocations under a two-attempt budget. Its preservation check also decided which value was
+allowed to change from the *post-edit* eligible list, rejecting a legitimate trim. These are
+separate failures: a correct single output does not establish either persistent budget enforcement
+or preservation. The [original campaign](../../../reviews/friends-curated-validation.md) and
+[loop remediation](../../../reviews/release-030-loop-helpers.md) supply the counterexamples.
+
+For a reusable loop, retain the selected item and full pre-actuation baseline, reserve an attempt
+before acting, and persist that reservation between commands. Verify the allowed delta against
+that baseline, including unchanged keys and unrelated values. A verified increment must clear its
+pending state so the next increment can proceed; global completion is a separate decision. If
+restart support is promised, reconcile applied and unapplied reservations without refunding spent
+attempts. Missing state on resume and malformed existing state must fail without creating a fresh
+budget. A valid no-op consumes no attempt; invalid input is not a no-op.
+
+The final 0.3 native run wrote five isolated tests before implementation and repaired code against
+the unchanged suite. Those tests still called one exported function in one process, and a test
+name claimed malformed-state coverage its body did not exercise. The independent 24-case harness
+therefore launched a fresh process for each command. It checked exhausted budgets, pending work,
+stale baselines, corrupt state, missing-state resume, preservation, and valid no-op behavior.
+All 24 passed for the retained implementation; competing simultaneous controllers were untested.
+Use this separation when assessing a generated test suite: inspect assertions and invocation
+boundaries, then add independent counterexamples for the promised properties.
+
+[Builder/goal composition](../../../reviews/release-030-composition.md) bound that fixed suite to a
+stored goal after deliberately reducing the implementation's attempt limit. The goal retained a
+real failure and implementation-only repair, passing at attempt 2/4. A single demonstration such
+as “this one trim succeeded” would have weakened the reusable-loop acceptance contract. The first
+command spelling was rejected by the runner; an equivalent direct-script spelling was proved to
+run the same tests and approved *before* binding. That was a command adjustment, not permission to
+change a stored predicate until it passes.
+
+## Skill use has output and method obligations
+
+The [helper campaign](../../../reviews/release-030-other-helpers.md) separates three distinct checks.
+A visual explanation preserved an unwired queue-to-worker edge as an inference and changed no
+files; producing Mermaid text did not test its rendering. The writing helper produced the right
+edit but initially omitted its required prose-cleanup and reference checks. One follow-up completed
+those steps, so the result is assisted method compliance. React prop narrowing used the wired
+caller as authority, adapted its support story, and passed the existing strict compiler harness;
+it did not establish browser behavior. Preserve these distinctions when deciding whether another
+helper is needed or whether the requested job is finished.
+
+The [Astral exercise](../../../reviews/astral-python-auto/README.md) similarly separates diagnosis
+from authorized repair. The non-interactive attempt could read skills but could not approve edits;
+the same session completed the repair after one interactive write approval. Its claimed persisted
+receipt was not supported by the actual command, which returned verifier output retained by the
+observer. Prefer the command/result and source diff over a model's completion narrative. Auto was
+the observed selector; neither an underlying model identity nor zero-intervention operation was
+established.
+
 ## Source-specific retained knowledge
 
 These summaries describe what is retained from each source. Historical observations keep their

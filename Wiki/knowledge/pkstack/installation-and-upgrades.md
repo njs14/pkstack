@@ -78,6 +78,31 @@ use isolated empty uv tool/cache directories in the packaging lane with its exis
 allowlist. A successful warm-cache install is insufficient evidence for an offline first install.
 
 
+## Diagnose onboarding by the boundary that failed
+
+The [0.4.2 first-task campaign](../../../reviews/onboarding-042/README.md) cloned a source path with
+spaces, captured it before entering a different target with spaces, and verified preview,
+installation, doctor, and an unchanged second setup. A native session then repaired only the
+implementation against the stored failed verifier. The observer neither supplied that repair nor
+created a passing attempt. Fresh paths did not imply a fresh account or empty cache; that claim
+needed the later [cold-cache walkthrough](../../../reviews/uvx-entrypoint/README.md#hosted-ci-remediation).
+
+The [launcher review](../../../reviews/uvx-entrypoint/grok-review.md) used a real application
+virtualenv with a dependency unavailable to the controller. It also checked cancellation and
+previous-controller compatibility. Use these boundaries when diagnosing an import failure: the
+launcher selects the package, the project wrapper owns forwarding, and the application supplies
+its own verifier environment. Removing every matching PATH entry would damage a legitimate caller
+entry; the reviewed launcher removes only its own leading environment entry.
+
+Input delivery is another boundary. One onboarding probe submitted only the skill name because
+terminal completion separated it from the request; it was cancelled before implementation and
+remained a failed attempt. The successful run submitted the complete inspected request. Similarly,
+a prompt menu opening did not prove saved-request creation or expansion: a purported details
+command became an ordinary model request. Keep the direct first-task path usable without those
+unverified conveniences. The [command audit](../../../reviews/cli-native-command-audit/README.md)
+adds observed agent and skill diagnostics without claiming that agent hot reload proves skill hot
+reload or a complete installation.
+
 ## Source-specific retained knowledge
 
 These summaries describe what is retained from each source. Historical observations keep their
