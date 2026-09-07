@@ -235,7 +235,11 @@ def lane_for(nodeid):
         return "fast"
     if filename == "test_archify_reader_layout.py":
         return "browser"
-    if filename in {"test_packaging.py", "test_uvx_launcher_acceptance.py"}:
+    if filename in {
+        "test_packaging.py",
+        "test_uvx_launcher_acceptance.py",
+        "test_readme_walkthrough.py",
+    }:
         return "package"
     return f"core-{int(hashlib.sha256(nodeid.encode()).hexdigest(), 16) % CORE_SHARDS}"
 

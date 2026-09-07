@@ -172,6 +172,9 @@ class ProfileTests(unittest.TestCase):
         self.assertEqual(
             checks.lane_for("tests/test_uvx_launcher_acceptance.py::test_install"), "package"
         )
+        self.assertEqual(
+            checks.lane_for("tests/test_readme_walkthrough.py::test_install"), "package"
+        )
         self.assertEqual(checks.lane_for("tests/test_branding.py::new_test"), "fast")
         self.assertEqual(
             checks.lane_for("tests/test_archify_reader_layout.py::test_startup"),

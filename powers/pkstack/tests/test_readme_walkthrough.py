@@ -28,12 +28,16 @@ def _clean_environment(tmp_path: Path) -> dict[str, str]:
         key: value
         for key, value in os.environ.items()
         if key not in {"PYTHONPATH", "PKSTACK_POWER", "PKSTACK_PACKAGE", "VIRTUAL_ENV"}
-        and not key.startswith(("COV_CORE_", "COVERAGE_"))
+        and not key.startswith(("COV_CORE_", "COVERAGE_", "UV_"))
     }
     environment.update(
         TMPDIR=str(tmp_path),
         PATH=os.pathsep.join((str(Path(sys.executable).parent), os.environ.get("PATH", ""))),
-        UV_OFFLINE="1",
+        # uvx resolves package metadata; a locked sync alone does not warm it.
+        # These walkthroughs run in the dependency-enabled packaging lane.
+        UV_CACHE_DIR=str(tmp_path / "uv-cache"),
+        UV_TOOL_DIR=str(tmp_path / "uv-tools"),
+        UV_TOOL_BIN_DIR=str(tmp_path / "uv-tool-bin"),
     )
     return environment
 
