@@ -7,11 +7,52 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This record retains exact release identities, checksums, and acceptance scope. The 0.5.1
-and 0.5.0 entries record publication verification; earlier entries retain the facts reported
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.2,
+0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
 before the root reviews directory was removed. The Power manifest remains version authority.
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
+
+## Verified publication: 0.5.2
+
+[Version 0.5.2](https://github.com/njs14/pkstack/releases/tag/v0.5.2) was published in the
+private repository on September 7, 2026 at 19:37:14 UTC from commit
+`071ab3a36da4d25f568e03c91606fc9c8e6986ad`. It includes the reviewed controller recovery,
+setup, maintenance-schema, verifier-command, and documentation fixes from
+[PR #66](https://github.com/njs14/pkstack/pull/66), with release metadata prepared in
+[PR #67](https://github.com/njs14/pkstack/pull/67).
+[Exact-main CI](https://github.com/njs14/pkstack/actions/runs/34155963367) passed all 12 jobs.
+The [tag-bound release workflow](https://github.com/njs14/pkstack/actions/runs/34156227097)
+passed verification and publication, promoting artifact `10030994738` from attempt 1.
+The downloaded 4,582,590-byte archive matched that verified CI package byte-for-byte;
+its checksum file, both release asset digests, and release notes also matched.
+Release ID: `384285607`; archive asset ID: `549286561`; checksum asset ID: `549286562`.
+
+Archive SHA-256: `19d5dd8b24ac0ad3eaac2f35bcae17fc56e639bb1279ff5c6f5ad9617376559c`.
+Artifact ZIP SHA-256: `66b9b3721a79761219366ceef8eb2d311e18dbb077919bee3c0ff26da45cbfda`.
+
+Codex reviewed Fable's original PR and reproduced three recovery defects: archiving
+before acquiring the state lock, overwriting an earlier archive during a timestamp
+collision, and failing to recover invalid UTF-8. Five added regression cases failed
+against the original source and passed after correction; 368 goal/runner tests,
+static checks, local fast checks, knowledge validation, and generated parity passed.
+Fable accepted the corrections at `c34a392e40d1d2434cf267f59609376daca18f55`; PR #66's
+merge tree is identical. The final PR CI passed all 12 jobs on attempt 3 after an
+unrelated browser WebP timeout and a partial rerun that could not find its
+attempt-specific execution plan. The isolated local browser check and full CI rerun
+passed without browser source changes.
+
+Fable separately accepted metadata candidate `fba3d32890bf36f3ff46416821f8c453dd9c40cb`;
+the tagged release tree is identical. That review covered the complete eleven-file
+metadata diff and supplied validation receipts without independently rerunning tests.
+All 190 generated receipt hashes matched and setup had no pending changes. Every code
+fix was reviewed by the reviewer who did not author it.
+
+The exact-main package consumer smoke passed fresh setup, repeated setup, feature and
+local knowledge validation, and a failing-then-passing goal with the verifier unchanged.
+Doctor reported 83 passes, no failures, and one warning. This release establishes no
+new native Kiro reasoning or Linux live retrieval evidence, and no completed unattended
+maintenance run. Earlier native acceptance retains its recorded scope.
 
 ## Verified publication: 0.5.1
 
