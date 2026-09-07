@@ -1,33 +1,28 @@
 ---
 type: Guide
 title: Installation, controller ownership, and upgrades
-description: How reviewed package sources, uvx, project controllers, and receipt-aware upgrades fit together.
+description: Official Kiro Power installation, workspace initialization, controller ownership, and reviewed upgrades.
 tags: [pkstack, installation, uvx, upgrades, ownership]
 ---
 
 # Installation, controller ownership, and upgrades
 
-## Choose a source and a project separately
+## Install through Kiro
 
-PKStack supplies engineering workflows for Kiro, a project-local command runner, and retained
-knowledge. The source Power is `powers/pkstack/`. A reviewed checkout or local wheel supplies the
-installer; the target is the application repository where Kiro will work. Capture the absolute
-source path before changing directories. Quote paths, including paths containing spaces. The
-documented uvx commands explicitly request Python `>=3.11`; the bootstrap shim's older-Python
-guard is a separate, intentional compatibility boundary.
+For the private PKStack repository, clone locally and use Kiro's **Powers → Add
+Custom Power → Import power from a folder** flow. Select `powers/pkstack/`, review
+it, and click **Install**. This follows the [official installation guide](https://kiro.dev/docs/powers/installation/).
+CLI v3 [detects IDE-installed Powers](https://kiro.dev/docs/cli/v3/new-features/#powers-auto-pickup).
+Power installation requires no package-selection exports or separate uvx setup.
 
-Set `PKSTACK_PACKAGE` to that reviewed checkout's Power directory or local wheel. From the target:
+After installation, invoke `/pkstack-setup` where Kiro exposes the Power's skill
+to initialize the application workspace. Review its preview before applying
+changes. Select the workspace `pkstack` agent afterward; Power registration alone
+does not establish that its skills are attached to the active agent.
 
-```sh
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack setup --dry-run --output json
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack setup --output json
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack doctor --output json
-```
-
-Review the preview before applying it. No global tool install or package-registry publication is
-needed. Installed native skills still need discovery under the selected workspace agent. In CLI,
-use `/agent swap pkstack` and inspect `/config skills`; in IDE, select the workspace agent. A Power
-being listed is not evidence that its skills are attached to the active agent.
+The project-local `.pkstack/bin/projectctl` runs explicit operational commands.
+The launcher described below remains an implementation and troubleshooting
+reference, not an additional Power installation step.
 
 ## The launcher is not the installed controller
 
@@ -50,7 +45,7 @@ managed files. This is bounded compatibility evidence, not a promise for every o
 
 ## Upgrade without discarding project ownership
 
-Preview `pkstack upgrade --dry-run --output json` from an explicitly selected reviewed package.
+Invoke `/pkstack-setup` from the reviewed installed Power and review its pending-update preview before approving managed changes.
 Upgrade updates managed files only when they still match the previous receipt. Changed managed
 files require reconciliation; stale managed files are not automatically deleted. Keep a rollback
 copy with the receipt, native Specs, goals, Wiki, settings, and user changes. Never remove entire
@@ -110,9 +105,9 @@ original candidate and scope; they are not fresh verification of this checkout.
 
 | Source | Retained guidance or bounded observation |
 | --- | --- |
-| [README.md](../../../README.md) | Current product entrypoint: explicit reviewed package source, CLI/IDE setup, DO/PROVE/KNOW roles, and links to first-task and recovery guides. |
-| [powers/pkstack/README.md](../../../powers/pkstack/README.md) | Power-local entrypoint preserves the same installation contract with package-relative asset and documentation links. |
-| [powers/pkstack/docs/usage.md](../../../powers/pkstack/docs/usage.md) | Source selection is distinct from target selection; uvx forwards project operations to the installed controller, explicit upgrades reconcile receipts, and native agent discovery must be checked. |
+| [README.md](../../../README.md) | Current product entrypoint follows official private Power folder installation and links workspace initialization and first-task guidance. |
+| [powers/pkstack/README.md](../../../powers/pkstack/README.md) | Power-local entrypoint uses the same official folder installation flow with package-relative documentation links. |
+| [powers/pkstack/docs/usage.md](../../../powers/pkstack/docs/usage.md) | Install through Kiro, initialize the workspace with the installed setup skill, use the project-local controller, and review receipt-aware managed updates. |
 | [powers/pkstack/docs/first-task.md](../../../powers/pkstack/docs/first-task.md) | Use a disposable intentionally failing account fixture, record the failure, preserve tests, and let native Kiro repair the implementation before stored verification. |
 | [powers/pkstack/docs/upgrade-0.3.md](../../../powers/pkstack/docs/upgrade-0.3.md) | Legacy namespace transition uses a separate clean checkout and preserves rollback evidence; receipt-aware refresh cannot bypass incompatible installation boundaries. |
 | [powers/pkstack/docs/upgrade-0.4.md](../../../powers/pkstack/docs/upgrade-0.4.md) | The 0.4 transition retires okn, preserves user-owned Wiki/Specs, and distinguishes local validation from runtime-dependent bounded retrieval. |

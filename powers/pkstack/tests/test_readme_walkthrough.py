@@ -64,83 +64,37 @@ def _run_blocks(
     )
 
 
+def _setup_command(power: Path, *, preview: bool = False) -> str:
+    # Exercise the Power-local skill shim; this does not claim live Kiro UI proof.
+    shim = power / "skills/pkstack-setup/scripts/setup_pkstack.py"
+    return (
+        f"{shlex.quote(sys.executable)} {shlex.quote(str(shim))} --root . "
+        + ("--dry-run " if preview else "")
+        + "--output json"
+    )
+
+
 @pytest.mark.parametrize("layout", ["checkout", "standalone"])
-def test_documented_source_and_install_blocks_work_independently(
-    tmp_path: Path, layout: str
-) -> None:
+def test_power_local_setup_works_independently(tmp_path: Path, layout: str) -> None:
     source = tmp_path / "source with spaces" / "pkstack"
     power = source / "powers/pkstack" if layout == "checkout" else source
     _copy_power(power)
-    environment = _clean_environment(tmp_path)
-    usage = _shell_blocks(POWER_ROOT / "docs/usage.md")
-    assignment = (
-        'export PKSTACK_POWER="$PWD/powers/pkstack"'
-        if layout == "checkout"
-        else 'export PKSTACK_POWER="$PWD"'
-    )
-    capture = next(block for block in usage if block.startswith(assignment + "\n"))
-    if layout == "checkout":
-        # Substitute a local fixture origin; execute the README clone/cd/assignment literally.
-        for command in (
-            ["git", "init", "-q", str(source)],
-            ["git", "-C", str(source), "add", "."],
-            [
-                "git",
-                "-C",
-                str(source),
-                "-c",
-                "user.name=Test",
-                "-c",
-                "user.email=test@example.invalid",
-                "-c",
-                "core.hooksPath=/dev/null",
-                "-c",
-                "commit.gpgsign=false",
-                "commit",
-                "-qm",
-                "fixture",
-            ],
-        ):
-            subprocess.run(command, check=True, capture_output=True)
-        source_block = next(
-            block
-            for block in _shell_blocks(REPOSITORY_ROOT / "README.md")
-            if block.startswith("git clone ")
-        ).replace("https://github.com/njs14/pkstack.git", shlex.quote(str(source)))
-        cwd = tmp_path / "clone parent with spaces"
-        cwd.mkdir()
-    else:
-        source_block = next(
-            block
-            for block in _shell_blocks(POWER_ROOT / "README.md")
-            if block.startswith(assignment + "\n")
-        )
-        cwd = source
     target = tmp_path / "application with spaces"
     target.mkdir()
-    preview = next(block for block in usage if "setup --dry-run --output json" in block)
-    apply = next(block for block in usage if "setup --output json" in block)
-    check = next(block for block in usage if block.startswith('cd "$PKSTACK_PROJECT"\n'))
-    target_capture = next(
-        block for block in usage if block.startswith('cd "/absolute/path/to/your/project"\n')
-    ).replace('"/absolute/path/to/your/project"', shlex.quote(str(target)))
     result = _run_blocks(
         [
-            source_block,
-            'test -f "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py"',
-            capture,
-            target_capture,
-            preview,
-            apply,
-            check,
-            apply,
+            _setup_command(power, preview=True),
+            _setup_command(power),
+            ".pkstack/bin/projectctl version --output json",
+            ".pkstack/bin/projectctl doctor --output json",
+            ".pkstack/bin/projectctl knowledge validate --output json",
+            _setup_command(power),
         ],
-        cwd=cwd,
-        environment=environment,
+        cwd=target,
+        environment=_clean_environment(tmp_path),
     )
     assert result.returncode == 0, result.stdout + result.stderr
-    inventory = _json_documents(result.stdout[result.stdout.index("{") :])
-    preflight, installed, version, doctor, knowledge, repeated = inventory
+    preflight, installed, version, doctor, knowledge, repeated = _json_documents(result.stdout)
     assert preflight["ok"] and preflight["dry_run"]
     assert installed["ok"] and installed["created"]
     assert version["name"] == "pkstack"
@@ -164,28 +118,25 @@ def test_linked_first_task_records_failure_before_repair_and_pass(tmp_path: Path
     readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
     assert "powers/pkstack/docs/first-task.md" in readme
     blocks = _shell_blocks(POWER_ROOT / "docs/first-task.md")
-    walkthroughs = [block for block in blocks if block.startswith("PKSTACK_DEMO=$(mktemp")]
-    goals = [
-        block for block in blocks if "pkstack goal start" in block and block.startswith("uvx ")
-    ]
-    assert len(walkthroughs) == len(goals) == 1, "Keep one setup and one failure block in the guide"
+    goals = [block for block in blocks if 'goal start "Repair account ID normalization"' in block]
+    assert len(goals) == 1, "Keep one failure block in the guide"
     checkout = tmp_path / "checkout with spaces"
-    _copy_power(checkout / "powers/pkstack")
-    source = checkout / "powers/pkstack/examples/verified-goal-demo/account.py"
+    power = checkout / "powers/pkstack"
+    _copy_power(power)
+    source = power / "examples/verified-goal-demo/account.py"
     source_before = source.read_bytes()
     environment = _clean_environment(tmp_path)
-    capture = next(
-        block
-        for block in _shell_blocks(POWER_ROOT / "docs/usage.md")
-        if block.startswith('export PKSTACK_POWER="$PWD/powers/pkstack"\n')
-    )
-    apply = next(
-        block for block in blocks if "pkstack setup --output" in block and block.startswith("uvx ")
-    )
-    guard = next(block for block in blocks if block.startswith(': "${PKSTACK_POWER:?'))
+    project = tmp_path / "pkstack-demo.fixture"
+    shutil.copytree(power / "examples/verified-goal-demo", project)
     first_run = _run_blocks(
-        [capture, guard, walkthroughs[0], apply, goals[0]],
-        cwd=checkout,
+        [
+            "git init -q",
+            _setup_command(power, preview=True),
+            _setup_command(power),
+            ".pkstack/bin/projectctl doctor --output json",
+            goals[0],
+        ],
+        cwd=project,
         environment=environment,
     )
     assert first_run.returncode == 1, first_run.stdout + first_run.stderr

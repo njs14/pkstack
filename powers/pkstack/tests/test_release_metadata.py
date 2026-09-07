@@ -56,11 +56,13 @@ def test_setup_docs_use_declared_power_source() -> None:
     )
     for path in docs:
         text = path.read_text(encoding="utf-8")
-        # The target is user-selected; installer commands must use the captured source.
-        for line in text.splitlines():
-            if "setup_pkstack.py" in line:
-                assert '"$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py"' in line
-    assert "PKSTACK_POWER" in (POWER_ROOT / "docs/usage.md").read_text(encoding="utf-8")
+        assert "https://kiro.dev/docs/powers/installation/" in text
+        assert "Import power from a folder" in text
+        assert "plugin.json" in text
+        assert "/pkstack-setup" in text
+        assert "PKSTACK_POWER" not in text
+        assert "PKSTACK_PACKAGE" not in text
+        assert "uvx " not in text
 
 
 def test_release_isolates_publication_authority_after_verification() -> None:

@@ -721,12 +721,12 @@
     },
     {
       "path": "README.md",
-      "sha256": "f99ddf75121fcbf46fa9149cae6b8ef15a972f716bb0ada1c81f1aa8fd4bb63d",
+      "sha256": "247b55dae2a8103a244310225583a54c470e18ec00bd023db464b2068bb0c5d5",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Current product entrypoint: explicit reviewed package source, CLI/IDE setup, DO/PROVE/KNOW roles, and links to first-task and recovery guides."
+      "summary": "Current product entrypoint follows official private Power folder installation and links workspace initialization and first-task guidance."
     },
     {
       "path": "SECURITY.md",
@@ -815,12 +815,12 @@
     },
     {
       "path": "powers/pkstack/README.md",
-      "sha256": "6d82c70d2ac47a3c190c4ddafee4fc7d424abd763e8ccf0c54ca50d121460a90",
+      "sha256": "d8f5bf12320cbfed66ea8fd76cca0127802bec861c92e12f433b5d289a8bf060",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Power-local entrypoint preserves the same installation contract with package-relative asset and documentation links."
+      "summary": "Power-local entrypoint uses the same official folder installation flow with package-relative documentation links."
     },
     {
       "path": "powers/pkstack/THIRD_PARTY_NOTICES.md",
@@ -911,7 +911,7 @@
     },
     {
       "path": "powers/pkstack/docs/first-task.md",
-      "sha256": "3181f0e43ce452b36b88411974cdd1a94eced50da8565738c93060662e014e99",
+      "sha256": "df281102aa8dea32c7846abd4c725d76122835a8a92d1c5e7e6149996e0d2f72",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1082,12 +1082,12 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "366a0233a474f71ba2a87a6457d87caeab6a3773ebf32dba9c656bf970679c84",
+      "sha256": "f307adacc7f668f5a09145f3af3aed495870c317226a43145c84fe2e1698e932",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Source selection is distinct from target selection; uvx forwards project operations to the installed controller, explicit upgrades reconcile receipts, and native agent discovery must be checked."
+      "summary": "Install through Kiro, initialize the workspace with the installed setup skill, use the project-local controller, and review receipt-aware managed updates."
     },
     {
       "path": "powers/pkstack/docs/validation-report.md",
