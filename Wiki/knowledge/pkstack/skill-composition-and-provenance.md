@@ -77,8 +77,8 @@ The early curated loop could trim one label correctly yet accept three independe
 invocations under a two-attempt budget. Its preservation check also decided which value was
 allowed to change from the *post-edit* eligible list, rejecting a legitimate trim. These are
 separate failures: a correct single output does not establish either persistent budget enforcement
-or preservation. The [original campaign](../../../reviews/friends-curated-validation.md) and
-[loop remediation](../../../reviews/release-030-loop-helpers.md) supply the counterexamples.
+or preservation. The [original campaign](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-curated-validation.md) and
+[loop remediation](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-loop-helpers.md) supply the counterexamples.
 
 For a reusable loop, retain the selected item and full pre-actuation baseline, reserve an attempt
 before acting, and persist that reservation between commands. Verify the allowed delta against
@@ -97,7 +97,7 @@ All 24 passed for the retained implementation; competing simultaneous controller
 Use this separation when assessing a generated test suite: inspect assertions and invocation
 boundaries, then add independent counterexamples for the promised properties.
 
-[Builder/goal composition](../../../reviews/release-030-composition.md) bound that fixed suite to a
+[Builder/goal composition](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-composition.md) bound that fixed suite to a
 stored goal after deliberately reducing the implementation's attempt limit. The goal retained a
 real failure and implementation-only repair, passing at attempt 2/4. A single demonstration such
 as “this one trim succeeded” would have weakened the reusable-loop acceptance contract. The first
@@ -107,7 +107,7 @@ change a stored predicate until it passes.
 
 ## Skill use has output and method obligations
 
-The [helper campaign](../../../reviews/release-030-other-helpers.md) separates three distinct checks.
+The [helper campaign](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-other-helpers.md) separates three distinct checks.
 A visual explanation preserved an unwired queue-to-worker edge as an inference and changed no
 files; producing Mermaid text did not test its rendering. The writing helper produced the right
 edit but initially omitted its required prose-cleanup and reference checks. One follow-up completed
@@ -116,7 +116,7 @@ caller as authority, adapted its support story, and passed the existing strict c
 it did not establish browser behavior. Preserve these distinctions when deciding whether another
 helper is needed or whether the requested job is finished.
 
-The [Astral exercise](../../../reviews/astral-python-auto/README.md) similarly separates diagnosis
+The [Astral exercise](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/README.md) similarly separates diagnosis
 from authorized repair. The non-interactive attempt could read skills but could not approve edits;
 the same session completed the repair after one interactive write approval. Its claimed persisted
 receipt was not supported by the actual command, which returned verifier output retained by the
@@ -146,7 +146,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 | [powers/pkstack/docs/okf-spec-provenance.md](../../../powers/pkstack/docs/okf-spec-provenance.md) | The whole Google OKF subtree is tracked for drift, with SPEC.md normative; provenance and samples do not expand local validator conformance claims. |
 | [powers/pkstack/docs/okf-spec-source-parity.md](../../../powers/pkstack/docs/okf-spec-source-parity.md) | The 129-blob source accounting adopts the normative specification while excluding upstream implementations and retaining notices as provenance. |
 | [powers/pkstack/docs/openknowledge-cli-contract-provenance.md](../../../powers/pkstack/docs/openknowledge-cli-contract-provenance.md) | The OpenKnowledge CLI schema inventory is a retired runtime reference; preserved accepted identities do not make okn an active dependency or fallback. |
-| [reviews/friends-validation.md](../../../reviews/friends-validation.md) | The friends integration made neighboring skill outputs and forbidden effects explicit; static routing cases and a bounded review bundle are not universal semantic routing proof. |
-| [reviews/friends-curated-validation.md](../../../reviews/friends-curated-validation.md) | Six skills loaded in native smokes, but design/diagram/builder limitations remained; a successful skill load alone does not establish the requested result. |
-| [reviews/release-030-loop-helpers.md](../../../reviews/release-030-loop-helpers.md) | Builder preservation checks required an explicit pre-edit baseline and end-to-end composition; later bounded native runs supersede only the reproduced earlier failures. |
-| [reviews/release-030-other-helpers.md](../../../reviews/release-030-other-helpers.md) | show-me, writing-for-agents and narrow-react-prop-types passed bounded native fixtures; inferred diagram links and untested browser rendering stayed disclosed. |
+| [reviews/friends-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-validation.md) | The friends integration made neighboring skill outputs and forbidden effects explicit; static routing cases and a bounded review bundle are not universal semantic routing proof. |
+| [reviews/friends-curated-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-curated-validation.md) | Six skills loaded in native smokes, but design/diagram/builder limitations remained; a successful skill load alone does not establish the requested result. |
+| [reviews/release-030-loop-helpers.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-loop-helpers.md) | Builder preservation checks required an explicit pre-edit baseline and end-to-end composition; later bounded native runs supersede only the reproduced earlier failures. |
+| [reviews/release-030-other-helpers.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-other-helpers.md) | show-me, writing-for-agents and narrow-react-prop-types passed bounded native fixtures; inferred diagram links and untested browser rendering stayed disclosed. |

@@ -72,23 +72,7 @@ def git(root, *args):
 
 
 def report_path(path):
-    reports = {"reviews/release-status.md"}
-    reports.update(
-        f"reviews/release-030-{name}.md"
-        for name in (
-            "cli",
-            "other-helpers",
-            "acceptance",
-            "core",
-            "loop-helpers",
-            "browser-harness",
-            "permissions",
-            "pipeline",
-            "review",
-            "archify",
-            "composition",
-        )
-    )
+    reports = {"Wiki/knowledge/pkstack/release-record.md"}
     reports.update(
         f"powers/pkstack/reviews/{name}.md"
         for name in (

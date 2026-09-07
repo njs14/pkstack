@@ -21,7 +21,7 @@ frontmatter and a completed migration alone do not demonstrate that payoff.
 
 This is the accepted design contract for the knowledge foundation. This document does not itself
 prove that a native workflow, fresh-session scenario, or release candidate passed its checks.
-The [foundation report](../../../reviews/knowledge-foundation.md) records the bounded native
+The [foundation report](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md) records the bounded native
 observations, host corrections, and fresh retrieval evidence separately.
 The [native planning decision](native-spec-and-okn.md) and
 [composition architecture](native-kiro-composition.md) retain the runtime and verification boundaries.
@@ -100,7 +100,9 @@ does not declare the remaining integrations implemented or their behavior verifi
 The original [migration report](corpus-migration.md) and its 247-file inventory remain historical
 records. Their decision to keep package docs and reviews outside ordinary retrieval did not mean
 those documents contained no reusable knowledge. The current policy curates that understanding
-into topic pages while keeping original guides, evidence and native assets intact. This supersedes
+into topic pages. Original root review evidence is now retained in Git history; package guides
+and native assets stay in place. The [release record](release-record.md#review-directory-retirement)
+documents removal of the root review archive. This supersedes
 the earlier retained-corpus treatment as an ongoing coverage rule, without rewriting its baseline.
 
 The repository-only [coverage manifest](../../../maintenance/knowledge-coverage.json) records each
@@ -128,7 +130,7 @@ Unknown policy decisions stay open; curation must not silently select a new supp
 
 ## What the foundation's retrieval tests actually established
 
-The [foundation campaign](../../../reviews/knowledge-foundation.md#native-authoring-and-fresh-recall)
+The [foundation campaign](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md#native-authoring-and-fresh-recall)
 predeclared questions before authoring. Its cases asked for an accepted decision, an unknown owner
 or date, a planned requirement versus observed implementation, a native Spec, an excluded draft,
 and superseded guidance. This tests whether a fresh caller can recover a useful distinction;
@@ -150,7 +152,7 @@ cannot supply those distinctions on its own.
 
 ## Bound the transport as well as the returned context
 
-The [transport review](../../../reviews/knowledge-foundation.md#runtime-evidence) found that a home
+The [transport review](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md#runtime-evidence) found that a home
 override alone did not isolate the embedded server, SDK shutdown exceptions could skip cleanup,
 a cancellation send could block, and the SDK stream-reader limit did not bound protocol frames.
 The repaired adapter isolated the version-checked worker, scoped diagnostic redaction, bounded
@@ -170,5 +172,5 @@ original candidate and scope; they are not fresh verification of this checkout.
 
 | Source | Retained guidance or bounded observation |
 | --- | --- |
-| [reviews/knowledge-foundation.md](../../../reviews/knowledge-foundation.md) | The foundation retired okn, preserved user-owned knowledge indexes, and tested bounded local validation and macOS retrieval with host corrections; source ownership and live-query proof remain distinct. |
-| [reviews/okf-integration-evidence.md](../../../reviews/okf-integration-evidence.md) | The September 3 comparison separated Google format semantics, OKF methodology and then-selected okn runtime; the runtime choice is superseded by the later foundation, not silently rewritten. |
+| [reviews/knowledge-foundation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md) | The foundation retired okn, preserved user-owned knowledge indexes, and tested bounded local validation and macOS retrieval with host corrections; source ownership and live-query proof remain distinct. |
+| [reviews/okf-integration-evidence.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/okf-integration-evidence.md) | The September 3 comparison separated Google format semantics, OKF methodology and then-selected okn runtime; the runtime choice is superseded by the later foundation, not silently rewritten. |

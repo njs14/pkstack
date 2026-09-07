@@ -89,8 +89,8 @@ class ProfileTests(unittest.TestCase):
 
     def test_only_enumerated_reports_take_fast_path(self):
         for path in (
-            "reviews/release-status.md",
-            "reviews/release-030-composition.md",
+            "Wiki/knowledge/pkstack/release-record.md",
+            "powers/pkstack/reviews/fable-final.md",
             "powers/pkstack/reviews/kiro-final-campaign.md",
         ):
             with self.subTest(path=path):
@@ -103,6 +103,8 @@ class ProfileTests(unittest.TestCase):
             "powers/pkstack/reviews/acceptance-criteria.md",
             "powers/pkstack/reviews/new-report.md",
             "reviews/release-030-future.md",
+            "reviews/release-status.md",
+            "reviews/release-030-composition.md",
             "reviews/release-status.json",
         ):
             with self.subTest(path=path):
@@ -112,19 +114,19 @@ class ProfileTests(unittest.TestCase):
                 )
 
     def test_main_mixed_unknown_and_cross_boundary_renames_get_normal(self):
-        report = change("reviews/release-status.md")
+        report = change("Wiki/knowledge/pkstack/release-record.md")
         cases = [
             ("push", [report]),
             ("pull_request", []),
             ("pull_request", [report, change("powers/pkstack/src/pkstack/cli.py")]),
-            ("pull_request", [change("reviews/release-status.md", "U")]),
+            ("pull_request", [change("Wiki/knowledge/pkstack/release-record.md", "U")]),
             (
                 "pull_request",
                 [
                     change(
                         "powers/pkstack/src/pkstack/cli.py",
                         "R100",
-                        "reviews/release-status.md",
+                        "Wiki/knowledge/pkstack/release-record.md",
                     )
                 ],
             ),
@@ -158,10 +160,12 @@ class ProfileTests(unittest.TestCase):
         )
 
     def test_git_nul_records_preserve_spaces_and_renames(self):
-        raw = "R100\0reviews/old report.md\0reviews/release-status.md\0M\0source.py\0"
+        raw = (
+            "R100\0reviews/old report.md\0Wiki/knowledge/pkstack/release-record.md\0M\0source.py\0"
+        )
         self.assertEqual(
             checks.parse_changes(raw)[0]["paths"],
-            ["reviews/old report.md", "reviews/release-status.md"],
+            ["reviews/old report.md", "Wiki/knowledge/pkstack/release-record.md"],
         )
         for raw in ("R100\0one\0", "Z\0path\0", "M\0"):
             with self.assertRaises(ValueError):
@@ -368,7 +372,7 @@ class GitPlanTests(unittest.TestCase):
             "ruff.toml",
             "ty.toml",
             "maintenance/knowledge-coverage.json",
-            "reviews/release-status.md",
+            "Wiki/knowledge/pkstack/release-record.md",
         ):
             target = self.root / path
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -393,7 +397,7 @@ class GitPlanTests(unittest.TestCase):
         self.git("commit", "-qm", message)
 
     def test_plan_rejects_forged_changes_and_changed_configuration(self):
-        (self.root / "reviews/release-status.md").write_text("updated\n")
+        (self.root / "Wiki/knowledge/pkstack/release-record.md").write_text("updated\n")
         self.commit("report")
         plan = checks.make_plan(self.root, "pull_request", self.base)
         checks.validate_plan(plan, self.root)
@@ -406,10 +410,10 @@ class GitPlanTests(unittest.TestCase):
             checks.validate_plan(plan, self.root)
 
     def test_report_check_sees_whitespace_in_earlier_pr_commit(self):
-        path = self.root / "reviews/release-status.md"
+        path = self.root / "Wiki/knowledge/pkstack/release-record.md"
         path.write_text("bad trailing space \n")
         self.commit("earlier whitespace")
-        (self.root / "reviews/release-030-cli.md").write_text("later valid report\n")
+        (self.root / "Wiki/knowledge/pkstack/later.md").write_text("later valid report\n")
         self.commit("later clean")
         plan = checks.make_plan(self.root, "pull_request", self.base)
         with self.assertRaises(subprocess.CalledProcessError):
@@ -422,21 +426,21 @@ class GitPlanTests(unittest.TestCase):
             checks.validate_plan(plan, self.root)
 
     def test_reports_validate_relative_links_and_allow_machine_evidence(self):
-        path = self.root / "reviews/release-status.md"
+        path = self.root / "Wiki/knowledge/pkstack/release-record.md"
         path.write_text(
-            "[config](../powers/pkstack/pyproject.toml) [web](https://example.com) "
+            "[config](../../../powers/pkstack/pyproject.toml) [web](https://example.com) "
             "[machine](/private/tmp/old-log)\n"
         )
         self.commit("valid links")
-        changes = [change("reviews/release-status.md")]
+        changes = [change("Wiki/knowledge/pkstack/release-record.md")]
         self.assertEqual(
             checks.check_reports(self.root, changes, self.base),
-            ["reviews/release-status.md"],
+            ["Wiki/knowledge/pkstack/release-record.md"],
         )
         path.write_text("[missing](missing.md)\n")
         with self.assertRaises(ValueError):
             checks.check_reports(self.root, changes, self.base)
-        path.write_text("[outside](../../outside.md)\n")
+        path.write_text("[outside](../../../../outside.md)\n")
         with self.assertRaises(ValueError):
             checks.check_reports(self.root, changes, self.base)
 

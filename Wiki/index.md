@@ -25,7 +25,7 @@ is replaced by a broad knowledge search.
 | Decide how far to search | [Context-depth runbook](knowledge/pkstack/context-depth.md) |
 | Understand knowledge ownership and retention | [Knowledge lifecycle](knowledge/pkstack/knowledge-lifecycle.md) |
 | Install or recover the Power | [Usage guide](../powers/pkstack/docs/usage.md) |
-| Check release claims | [Release status](../reviews/release-status.md) |
+| Check release claims | [Release status](knowledge/pkstack/release-record.md) |
 
 ## Layer map
 

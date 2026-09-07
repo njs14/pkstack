@@ -59,5 +59,5 @@ settled, the scope in [the accepted decisions](decisions.md) stands as written.
 
 Deterministic local-only `projectctl knowledge validate` is already required by the accepted plan,
 which also rejects shipping an optional `okn` backend. The current candidate and its checks are described in the
-[knowledge foundation report](../../../reviews/knowledge-foundation.md); the earlier prototype
+[knowledge foundation report](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md); the earlier prototype
 state is retained as a dated [observation](observations.md).

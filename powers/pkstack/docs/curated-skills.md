@@ -60,10 +60,10 @@ competing acceptance checks, and unrequested writes are conflicts.
 Setup installs and checks the reviewed bundle. It reports optional capabilities
 and suggests next steps; it does not run all these workflows as onboarding.
 
-The historical [live Luna/Low smokes](https://github.com/njs14/pkstack/blob/main/reviews/friends-curated-validation.md) record
+The historical [live Luna/Low smokes](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-curated-validation.md) record
 what each helper actually did. They include an Archify clipping failure and
 control-loop design/builder limitations; installation is not proof that generated
-output is correct. The [Archify release repair](../../../reviews/release-030-archify.md)
+output is correct. The [Archify release repair](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-archify.md)
 records the reproduced clipping defect, runtime corrections, and fresh browser
 and export checks. Keep each skill's verification and review checkpoints.
 

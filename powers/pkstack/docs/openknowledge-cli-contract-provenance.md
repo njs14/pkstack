@@ -1,7 +1,7 @@
 # OpenKnowledge CLI contract provenance
 
 Historical reference: the active CLI adapter and maintenance source were retired by the
-[knowledge foundation migration](../../../reviews/knowledge-foundation.md). The accepted identities
+[knowledge foundation migration](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/knowledge-foundation.md). The accepted identities
 and provenance markers below are preserved; this document is not a current runtime dependency.
 
 PKStack tracks the versioned public CLI schema tree from

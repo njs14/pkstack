@@ -63,7 +63,6 @@ TRUSTED_SNAPSHOT_PREFIXES = (
     ".github/workflows",
     ".kiro/agents",
     ".pkstack/projectctl",
-    "reviews",
 )
 CANDIDATE_PACKAGE_MAX_BYTES = 33_554_432
 REVIEW_LEDGER_MAX_BYTES = 8 * 1024 * 1024

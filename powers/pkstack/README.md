@@ -189,7 +189,7 @@ The command runner limits execution time and captured output; review the
 verification command before approving it because it runs with your local access.
 
 Kiro CLI v3 and Kiro IDE are the primary surfaces. Kiro Crew is optional;
-Kiro Web is untested. The [validation and release status](https://github.com/njs14/pkstack/blob/main/reviews/release-status.md)
+Kiro Web is untested. The [validation and release status](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/release-record.md)
 records the specific CLI, IDE, platform, and retrieval paths that have been
 exercised. Setup checks establish installation health; the failing-task guide
 shows how to verify a repair.

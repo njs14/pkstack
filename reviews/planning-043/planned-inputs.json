@@ -1,8 +1,0 @@
-{
-  "cli_router_request": "/pkstack Plan the implementation of reference.normalize_reference in this disposable fixture. Read README.md, reference.py, and tests/test_reference.py for settled requirements and the remaining design choice. Use native conversational Plan. Do not implement or write knowledge before I approve the plan. Keep the scope small and preserve the tests.",
-  "plan_answer": "Use one uniform ValueError message: invalid reference. Keep all settled requirements from README.md. Finish the conversational plan and wait for approval.",
-  "plan_approval": "I approve this implementation plan. Proceed in this fixture with implementation and the normal approved-plan knowledge capture. Preserve the tests. Verify with python3 -B -m unittest discover -s tests -v.",
-  "repeat_approval": "I approve the same reference-normalization plan again, with no changed decisions. Reconcile its approved-plan knowledge checkpoint and report whether anything needs updating. Do not duplicate existing entries or rerun implementation.",
-  "standalone_no_write": "/grill-me Help me decide whether the internal name should be reference or reference code. This is a standalone decision conversation. The existing six-character contract is settled. Do not write any files or start an implementation plan.",
-  "spec_request": "Read .kiro/skills/grilling/SKILL.md and use its shared interview method for this native Spec. Plan reference.normalize_reference from README.md, reference.py, and tests/test_reference.py. Reuse settled requirements; the only remaining choice is error wording. Do not implement. Do not write Wiki knowledge during this request. Native Spec documents are permitted."
-}

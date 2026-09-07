@@ -10,7 +10,7 @@ tags: [pkstack, release, review, evidence, provenance]
 ## Evidence has an identity and a scope
 
 The Power manifest supplies release version authority. Package metadata, source version, lockfiles,
-and generated mirrors must agree with it. `reviews/release-status.md` is the current release-record
+and generated mirrors must agree with it. [the Wiki release record](release-record.md) is the maintained release-record
 entrypoint; older reports remain historical even if their original prose says “current,” “blocked,”
 or “accepted.” Neither this Wiki nor a manifest hash is a release verdict. The coverage manifest
 proves which source bytes were considered, not that the source's claims are true.
@@ -40,7 +40,7 @@ Publication requires its own exact-source gates. Main CI builds the reproducible
 tag-bound verification checks the manifest version, source commit/run/artifact, and publication
 eligibility. Compare downloaded release bytes/checksum with the approved CI artifact. A green PR,
 merge, or local fixture is not this publication proof. The retained
-[0.4.0 publication receipt](../../../reviews/release-040-publication.json), for example, binds
+[0.4.0 publication receipt](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-040-publication.json), for example, binds
 commit `12ecc1abe6a59c57bb91260d9f4a8cb06651291a`, its main artifact, tag workflow, and byte
 comparison. It proves only that recorded publication; this curation does not refresh remote state.
 
@@ -60,8 +60,8 @@ comparison. It proves only that recorded publication; this curation does not ref
 
 ## Open documentation inconsistencies
 
-Some retained entrypoints have stale wording. `reviews/acceptance-ledger.md` is a compatibility link
-that still names 0.2 and old paths. `SECURITY.md` still lists a 0.2 support table and an optional
+Some retained entrypoints have stale wording. The deleted acceptance-ledger alias named 0.2 and old paths; its historical wording
+does not define the current release. `SECURITY.md` still lists a 0.2 support table and an optional
 external knowledge tool, while current source and upgrade guidance have moved on. This curation
 does not choose a new security support policy. Use the current implementation for runtime
 behavior, preserve the policy source, and obtain an explicit support-policy decision before
@@ -71,22 +71,22 @@ the selected four-ghost logo; the newer branding decision is recorded in the vis
 
 ## Carry acceptance across changes only with an explicit binding
 
-The [onboarding evidence](../../../reviews/onboarding-042/README.md#evidence-and-candidate-binding)
+The [onboarding evidence](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/onboarding-042/README.md#evidence-and-candidate-binding)
 binds unchanged first-task, installer, runtime, skill, fixture, and template objects across a later
 documentation edit. It does not call the whole changed Power tree identical. The
-[uvx follow-up review](../../../reviews/uvx-entrypoint/grok-followup.md) likewise retains approval
+[uvx follow-up review](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/grok-followup.md) likewise retains approval
 of unchanged launcher code while separately reviewing the cold-cache test correction. Identify
 exactly which prior evidence still applies, then verify the changed scope and final hosted head.
 A prior full pass is not silently rebound to a later commit.
 
-The [0.3 acceptance record](../../../reviews/release-030-acceptance.md) keeps waived GUI work beside
-completed checks. The [final review](../../../reviews/release-030-review.md) still found grouped
+The [0.3 acceptance record](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-acceptance.md) keeps waived GUI work beside
+completed checks. The [final review](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-review.md) still found grouped
 Git option forms missed by earlier permission testing; the bounded native repair did not become
 complete shell containment. A review should look for counterexamples to the actual promise, not
 just repeat existing green tests. Preserve initial failures and reviewer disagreement even after
 remediation so the next maintainer can see why the narrower contract exists.
 
-The [identity audit](../../../reviews/pkstack-identity-validation.md) shows why cleanup also needs
+The [identity audit](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pkstack-identity-validation.md) shows why cleanup also needs
 an evidence boundary: product renaming had changed historical acceptance rationale and broken
 consolidated links. Update live terminology and repair links, while preserving original source
 identities and transition arrays. Historical support wording and frozen reports may remain stale;
@@ -106,20 +106,20 @@ original candidate and scope; they are not fresh verification of this checkout.
 | --- | --- |
 | [CHANGELOG.md](../../../CHANGELOG.md) | Versioned notes summarize changes but the Power manifest is metadata authority; source reviews, merged changes and publication receipts are separate gates. |
 | [SECURITY.md](../../../SECURITY.md) | Retain credential/import trust boundaries, while flagging the stale 0.2 support table and optional-tool wording as unresolved policy/documentation drift rather than inventing a new support policy. |
-| [reviews/README.md](../../../reviews/README.md) | Current release status is the release-record entrypoint; historical reports and the separate Floci lab cannot accept a different PKStack candidate. |
-| [reviews/acceptance-ledger.md](../../../reviews/acceptance-ledger.md) | This stable compatibility link still names v0.2 and old paths; follow release-status.md for current records rather than treating the alias wording as current metadata. |
-| [reviews/historical/pre-v0.2/README.md](../../../reviews/historical/pre-v0.2/README.md) | Archived pre-0.2 evidence preserves original identities and limitations and cannot establish acceptance of later candidates. |
-| [reviews/historical/v0.2-release-status.md](../../../reviews/historical/v0.2-release-status.md) | Archived v0.2 tag-derived/pending status is historical despite internal current wording; do not carry its labels forward to later releases. |
-| [reviews/historical/v0.3-release-status.md](../../../reviews/historical/v0.3-release-status.md) | Archived v0.3 candidate checkpoint predates its publication and preserves assumptions and uncompleted checks without replacing the later publication record. |
-| [reviews/release-status.md](../../../reviews/release-status.md) | Release records bind version, exact candidate, CI/tag runs and archive comparison; copied status is not a fresh remote check or acceptance of this knowledge expansion. |
-| [reviews/release-044-review.md](../../../reviews/release-044-review.md) | Grok approved metadata-only 6a78b19 against 5a905eb; matching mirrors and coordinator evidence did not themselves authorize or perform publication. |
-| [reviews/release-030-acceptance.md](../../../reviews/release-030-acceptance.md) | Acceptance used explicit bounded coverage and GUI waivers; waived native checks are assumptions, not new passing observations or publication authorization. |
-| [reviews/release-030-core.md](../../../reviews/release-030-core.md) | Standard planning, legacy installation refusal and local knowledge checks were recorded for specific 0.3 candidates, separate from helper/pipeline edits and publication. |
-| [reviews/release-030-review.md](../../../reviews/release-030-review.md) | Independent frozen-candidate review found grouped-option permission gaps and reviewed their correction; later scoped reviews and GUI assumptions remain separately attributable. |
-| [reviews/pkstack-identity-validation.md](../../../reviews/pkstack-identity-validation.md) | Naming cleanup repaired links and restored altered historical transition rationales; current naming must not rewrite provenance or treat naming checks as functional proof. |
-| [reviews/cleanup-validation.md](../../../reviews/cleanup-validation.md) | Cleanup removed obsolete schema/cache machinery and corrected cancellation/environment/retry handling based on observed failures; unfinished native gates remained failures or limits. |
-| [reviews/fable-review-prompt.md](../../../reviews/fable-review-prompt.md) | Retains the method of read-only exact-candidate review with stable findings and acceptance tests; old paths, okn and product-contract wording need reconciliation before reuse. |
-| [reviews/grok-sweep-prompt.md](../../../reviews/grok-sweep-prompt.md) | Adversarial sweep checks containment, evidence identity and unsupported claims independently; historical command/backend names are not current instructions. |
+| [reviews/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/README.md) | Current release status is the release-record entrypoint; historical reports and the separate Floci lab cannot accept a different PKStack candidate. |
+| [reviews/acceptance-ledger.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/acceptance-ledger.md) | This stable compatibility link still names v0.2 and old paths; follow release-status.md for current records rather than treating the alias wording as current metadata. |
+| [reviews/historical/pre-v0.2/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/historical/pre-v0.2/README.md) | Archived pre-0.2 evidence preserves original identities and limitations and cannot establish acceptance of later candidates. |
+| [reviews/historical/v0.2-release-status.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/historical/v0.2-release-status.md) | Archived v0.2 tag-derived/pending status is historical despite internal current wording; do not carry its labels forward to later releases. |
+| [reviews/historical/v0.3-release-status.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/historical/v0.3-release-status.md) | Archived v0.3 candidate checkpoint predates its publication and preserves assumptions and uncompleted checks without replacing the later publication record. |
+| [Wiki release record](release-record.md) | Release records bind version, exact candidate, CI/tag runs and archive comparison; copied status is not a fresh remote check or acceptance of this knowledge expansion. |
+| [reviews/release-044-review.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-044-review.md) | Grok approved metadata-only 6a78b19 against 5a905eb; matching mirrors and coordinator evidence did not themselves authorize or perform publication. |
+| [reviews/release-030-acceptance.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-acceptance.md) | Acceptance used explicit bounded coverage and GUI waivers; waived native checks are assumptions, not new passing observations or publication authorization. |
+| [reviews/release-030-core.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-core.md) | Standard planning, legacy installation refusal and local knowledge checks were recorded for specific 0.3 candidates, separate from helper/pipeline edits and publication. |
+| [reviews/release-030-review.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-review.md) | Independent frozen-candidate review found grouped-option permission gaps and reviewed their correction; later scoped reviews and GUI assumptions remain separately attributable. |
+| [reviews/pkstack-identity-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pkstack-identity-validation.md) | Naming cleanup repaired links and restored altered historical transition rationales; current naming must not rewrite provenance or treat naming checks as functional proof. |
+| [reviews/cleanup-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/cleanup-validation.md) | Cleanup removed obsolete schema/cache machinery and corrected cancellation/environment/retry handling based on observed failures; unfinished native gates remained failures or limits. |
+| [reviews/fable-review-prompt.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/fable-review-prompt.md) | Retains the method of read-only exact-candidate review with stable findings and acceptance tests; old paths, okn and product-contract wording need reconciliation before reuse. |
+| [reviews/grok-sweep-prompt.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/grok-sweep-prompt.md) | Adversarial sweep checks containment, evidence identity and unsupported claims independently; historical command/backend names are not current instructions. |
 | [powers/pkstack/docs/validation-report.md](../../../powers/pkstack/docs/validation-report.md) | Release procedure requires candidate-bound metadata, checks, generated parity, native evidence where required, independent review and separate publication gates. |
 | [powers/pkstack/reviews/README.md](../../../powers/pkstack/reviews/README.md) | The package review harness separates source inspection from executable checks and recommends immutable evidence packets with bounded reviewer tools. |
 | [powers/pkstack/reviews/fable-review-prompt.md](../../../powers/pkstack/reviews/fable-review-prompt.md) | The historical acceptance prompt supplies reproducible finding and trust-boundary methods, but its old brand/namespace assumptions are not current Power interfaces. |

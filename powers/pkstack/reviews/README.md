@@ -1,7 +1,7 @@
 # Review harness
 
 This directory contains read-only review contracts for the PKStack Power. The
-current release record is the root [release status](../../../reviews/release-status.md).
+current release record is the root [release status](../../../Wiki/knowledge/pkstack/release-record.md).
 The reusable prompt files are:
 
 - [Fable peer and acceptance contract](fable-review-prompt.md); and

@@ -284,7 +284,6 @@ jobs:
             .github/scripts \
             .github/workflows \
             .kiro/agents \
-            reviews \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pkstack/projectctl"
           python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
@@ -420,7 +419,6 @@ jobs:
             .github/scripts \
             .github/workflows \
             .kiro/agents \
-            reviews \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pkstack/projectctl"
           python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \

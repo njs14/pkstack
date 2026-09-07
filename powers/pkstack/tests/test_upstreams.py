@@ -60,7 +60,7 @@ CHANGED_PATHS = (
 
 def test_committed_maintenance_campaign_matches_recorded_transition_and_manifest_tip() -> None:
     campaign = json.loads(
-        (REPOSITORY_ROOT / "reviews" / "pk-stack-maintenance-campaign.json").read_text(
+        (REPOSITORY_ROOT / ".github" / "fixtures" / "pk-stack-maintenance-campaign.json").read_text(
             encoding="utf-8"
         )
     )

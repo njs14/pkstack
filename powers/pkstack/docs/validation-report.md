@@ -2,7 +2,7 @@
 
 This report describes how to validate a PKStack release candidate. It is a
 release-process document, not a standing pass claim. The [current release
-status](../../../reviews/release-status.md) is the single place for the
+status](../../../Wiki/knowledge/pkstack/release-record.md) is the single place for the
 candidate commit and gate verdicts.
 
 ## Authority and evidence boundary
@@ -13,7 +13,7 @@ lockfiles are mirrors. Verify the authority first and compare every mirror
 before recording any other result.
 
 Historical runs and review reports are retained under
-[`reviews/historical/pre-v0.2/`](../../../reviews/historical/pre-v0.2/) and
+[`reviews/historical/pre-v0.2/`](https://github.com/njs14/pkstack/tree/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/historical/pre-v0.2) and
 [`powers/pkstack/reviews/historical/pre-v0.2/`](../reviews/historical/pre-v0.2/).
 They preserve useful source identities and limitations, but they do not prove
 the current release. The Floci application and live integration campaigns are
@@ -82,7 +82,7 @@ must not replace deterministic checks.
 ## Release gate record
 
 The final candidate must have a fresh result for each row in
-[`reviews/release-status.md`](../../../reviews/release-status.md):
+[`Wiki/knowledge/pkstack/release-record.md`](../../../Wiki/knowledge/pkstack/release-record.md):
 
 1. metadata equality and lock consistency;
 2. package tests, lint, format, and type checks;

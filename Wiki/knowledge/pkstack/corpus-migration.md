@@ -72,7 +72,7 @@ references, outside the ordinary project-knowledge search root. No copied versio
 Historical evidence means a recorded result for its original candidate, runtime, and test scope.
 It does not mean the report is inaccurate, and it does not mean its result still holds. This
 classification preserves the historical documents' bytes. The
-[release-record entrypoint](../../../reviews/release-status.md) can identify the candidate it
+[release-record entrypoint](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-status.md) can identify the candidate it
 actually evaluates; it does not establish acceptance of this migration. Reusable review prompts
 and validation procedures are classified separately from past result reports.
 

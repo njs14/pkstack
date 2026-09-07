@@ -10,6 +10,8 @@ tags: [pkstack, knowledge, navigation]
 
 Start with the relevant [feature contract](../features/README.md), then follow its related sources.
 These topic documents explain decisions and observations; executable checks remain the proof.
+This is PKStack's own repository documentation layer, separate from the installable Power and
+from the knowledge each consumer project authors for itself.
 
 - PKStack: [native composition](pkstack/native-kiro-composition.md),
   [runtime decision](pkstack/native-spec-and-okn.md),
@@ -20,7 +22,8 @@ These topic documents explain decisions and observations; executable checks rema
   [skill composition and provenance](pkstack/skill-composition-and-provenance.md),
   [visual artifacts](pkstack/visual-artifacts.md),
   [local checks and CI](pkstack/quality-and-ci.md), and
-  [release and review evidence](pkstack/release-and-review.md).
+  [release and review evidence](pkstack/release-and-review.md), with the
+  [maintained release record](pkstack/release-record.md).
 - Upstream maintenance: [vocabulary](upstream-maintenance/glossary.md),
   [accepted decisions](upstream-maintenance/decisions.md), and
   [historical prototype observation](upstream-maintenance/observations.md), plus
@@ -28,7 +31,7 @@ These topic documents explain decisions and observations; executable checks rema
 
 ## Lessons synthesized from reviews
 
-The review reports remain the evidence archive. Their reusable conclusions live in these topics,
+Original review reports are retained in Git history. Their reusable conclusions live in these topics,
 including failure mechanisms, counterexamples, remediation, and limits:
 
 | Question | Retained explanation |

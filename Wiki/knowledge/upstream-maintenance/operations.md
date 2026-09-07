@@ -84,7 +84,7 @@ today's updater health. Check current runs only when live operational status is 
 
 ## Diagnose a completed workflow by its actual terminal outcome
 
-The [0.3 pipeline audit](../../../reviews/release-030-pipeline.md) records a successful candidate
+The [0.3 pipeline audit](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-pipeline.md) records a successful candidate
 workflow that *rejected and closed* PR #32. Feedback persistence and cleanup succeeded; merge was
 skipped. It also records a later accepted candidate whose exact tree merged without an ordinary
 push-main CI run. Therefore inspect the bound verdict, tested candidate, merge job, and resulting
@@ -98,7 +98,7 @@ with exact base/head source identities. It retained the rejection history instea
 as approval. Review context must make attribution possible, and the producer and consumer must
 enforce the *combined* context cap rather than separate caps that fit only individually.
 
-The [readiness campaign](../../../reviews/pipeline-readiness-validation.md) distinguishes a third
+The [readiness campaign](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pipeline-readiness-validation.md) distinguishes a third
 outcome: the model process exited zero but stream validation rejected an unknown event kind.
 There was no authenticated verdict and no substantive rejection-budget charge. A fresh minimal
 probe reproduced the structural parser failure; missing private logs did not justify inventing
@@ -113,20 +113,20 @@ retrieval dates. Keep prior rationale verbatim when the disposition is unchanged
 reasoning in the new proposal. The trusted detector supplies the UTC date and rejects a retrieval
 crossing midnight, so neither a model's clock nor candidate content sets provenance authority.
 A repeated same-day date is valid. These controls preserve what was accepted and why while still
-recording the new transition. [Source and remediation](../../../reviews/pipeline-readiness-validation.md#review-finding-remediation)
+recording the new transition. [Source and remediation](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pipeline-readiness-validation.md#review-finding-remediation)
 
-A subsequent [retry failure](../../../reviews/release-030-pipeline.md#cleanup-follow-up-and-second-source-campaign)
+A subsequent [retry failure](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-pipeline.md#cleanup-follow-up-and-second-source-campaign)
 was caused by trusted cleanup itself: deleting a pending final marker exposed a trailing blank
 separator, making a previously clean staged diff fail. The regression ran the real preparation
 path, then the repair removed only empty separators exposed at EOF. It preserved accepted markers,
 prose after a marker, and the existing rejection of unrelated whitespace. Diagnose cleanup's
 transformation separately from the original accept-preview failure, whose cause was not retained.
 
-Finally, [cleanup review](../../../reviews/cleanup-validation.md) removed model-driven repair of
+Finally, [cleanup review](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/cleanup-validation.md) removed model-driven repair of
 known generated output. Regenerate reviewed assets deterministically and report manual parity
 when that cannot proceed. Keep one latest validated rejection and count per source/content pair;
 failed feedback persistence leaves the candidate open so its history is not lost. Branch
-existence alone is not unfinished work: the [later branch audit](../../../reviews/evidence-led-improvements/README.md#branch-triage-and-review-boundary)
+existence alone is not unfinished work: the [later branch audit](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/evidence-led-improvements/README.md#branch-triage-and-review-boundary)
 found both superseded updater attempts and a deliberately unmergeable CI-failure demonstration.
 
 ## Source-specific retained knowledge
@@ -137,9 +137,9 @@ original candidate and scope; they are not fresh verification of this checkout.
 | Source | Retained guidance or bounded observation |
 | --- | --- |
 | [powers/pkstack/docs/upstream-control-loop.md](../../../powers/pkstack/docs/upstream-control-loop.md) | One-source proposals, isolated no-tool review, secretless tests, 64 KiB context and three-rejection budgets govern automation; stale candidates and failed feedback persistence stop safely. |
-| [reviews/pk-stack-maintenance-campaign.md](../../../reviews/pk-stack-maintenance-campaign.md) | A source-scoped goal recorded real drift then accepted-baseline pass with unchanged other sources; the two-path Cursor-only transition does not prove today's updater health. |
-| [reviews/pipeline-readiness-validation.md](../../../reviews/pipeline-readiness-validation.md) | Proposal diagnostics fixed a wrong drift_count prompt assumption without claiming the missing original cause; the canary pin mismatch correctly stopped authenticated work pending review. |
-| [reviews/release-030-pipeline.md](../../../reviews/release-030-pipeline.md) | The 0.3 audit repaired digest/context limits, trusted cleanup and retry accounting, and retained failed live campaigns before a bounded accepted source update. |
-| [reviews/fable-fbl046-peer-review.md](../../../reviews/fable-fbl046-peer-review.md) | FBL-046 review examined hosted reviewer readiness for checkpoint 347d461; source inspection and authenticated preflight are separate from full release acceptance. |
-| [reviews/github-app-council-probe.md](../../../reviews/github-app-council-probe.md) | GitHub App acknowledgements/no-response were insufficient deterministic review evidence; the shipped hosted authority uses exact-candidate Kiro review with isolated credentials. |
-| [reviews/kiro-runtime-canary-campaign.md](../../../reviews/kiro-runtime-canary-campaign.md) | The September 3 canary observed exact runtime/agent/model-inventory identity, without promoting pins, exercising a model task, or proving IDE/Web/maintenance acceptance. |
+| [reviews/pk-stack-maintenance-campaign.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pk-stack-maintenance-campaign.md) | A source-scoped goal recorded real drift then accepted-baseline pass with unchanged other sources; the two-path Cursor-only transition does not prove today's updater health. |
+| [reviews/pipeline-readiness-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pipeline-readiness-validation.md) | Proposal diagnostics fixed a wrong drift_count prompt assumption without claiming the missing original cause; the canary pin mismatch correctly stopped authenticated work pending review. |
+| [reviews/release-030-pipeline.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-pipeline.md) | The 0.3 audit repaired digest/context limits, trusted cleanup and retry accounting, and retained failed live campaigns before a bounded accepted source update. |
+| [reviews/fable-fbl046-peer-review.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/fable-fbl046-peer-review.md) | FBL-046 review examined hosted reviewer readiness for checkpoint 347d461; source inspection and authenticated preflight are separate from full release acceptance. |
+| [reviews/github-app-council-probe.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/github-app-council-probe.md) | GitHub App acknowledgements/no-response were insufficient deterministic review evidence; the shipped hosted authority uses exact-candidate Kiro review with isolated credentials. |
+| [reviews/kiro-runtime-canary-campaign.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kiro-runtime-canary-campaign.md) | The September 3 canary observed exact runtime/agent/model-inventory identity, without promoting pins, exercising a model task, or proving IDE/Web/maintenance acceptance. |

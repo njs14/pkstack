@@ -814,7 +814,7 @@ def test_skills_do_not_depend_on_cli_only_argument_substitution() -> None:
 
 def test_support_documentation_links_resolve() -> None:
     readme = REPO_ROOT / "README.md"
-    assert "](reviews/release-status.md)" in readme.read_text(encoding="utf-8")
+    assert "](Wiki/knowledge/pkstack/release-record.md)" in readme.read_text(encoding="utf-8")
     for source in (readme, ROOT / "docs/kiro-v3-compatibility.md"):
         for target in re.findall(
             r"\[[^\]]+\]\(([^)\s]+\.md)(?:#[^)]*)?\)", source.read_text(encoding="utf-8")

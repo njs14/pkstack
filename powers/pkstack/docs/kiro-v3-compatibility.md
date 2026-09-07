@@ -34,9 +34,9 @@ behavior](https://kiro.dev/docs/custom-agents/). Crew's boundary follows the
 official [Kiro Crew product contract](https://kiro.dev/crew/).
 
 Historical records retain the names and commands actually tested. The
-[friends validation](https://github.com/njs14/pkstack/blob/main/reviews/friends-validation.md)
+[friends validation](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-validation.md)
 records the September 5 candidate and exact campaign scope; the
-[release status](../../../reviews/release-status.md) distinguishes tested
+[release status](../../../Wiki/knowledge/pkstack/release-record.md) distinguishes tested
 behavior from a published release.
 
 Kiro CLI 2.21.0 has one observed discovery compatibility quirk: a valid
@@ -47,7 +47,7 @@ verifier profiles. This is a point-in-time 2.21 compatibility measure, not a
 claim that the key is a general V3 schema requirement; permissions remain
 entirely in `permissions.rules`, and no shell or write authority is placed
 under the sentinel. The sanitized controlled probe is recorded in
-[`reviews/kiro-v3-agent-discovery-probe.json`](../../../reviews/kiro-v3-agent-discovery-probe.json).
+[`reviews/kiro-v3-agent-discovery-probe.json`](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kiro-v3-agent-discovery-probe.json).
 
 When Kiro CLI is installed, `projectctl doctor` now runs the local, no-model
 `kiro-cli agent list` command from the actual project root before any
@@ -329,7 +329,7 @@ commands, MCP, prototypes, and validation. Explicit no-write instructions take
 precedence, repeated approval reuses existing knowledge entries, and denied writes
 or failed validation leave capture incomplete. See the [planning guide](usage.md#plan-and-bind-work).
 
-The [September 6 CLI audit](../../../reviews/cli-native-command-audit/README.md)
+The [September 6 CLI audit](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/cli-native-command-audit/README.md)
 separates native execution evidence from menu recognition and documentation:
 
 - `/spec analyze_requirements <feature-name>` is an optional checkpoint when
@@ -508,7 +508,7 @@ help, implementation strings, and the rejected historical
 `chat.enableWorkflows` setting are not substitutes for that interactive proof.
 The sanitized observation and cryptographic hashes of the externally retained
 raw session files are in
-[`reviews/kiro-v3-native-goal-probe.json`](../../../reviews/kiro-v3-native-goal-probe.json).
+[`reviews/kiro-v3-native-goal-probe.json`](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kiro-v3-native-goal-probe.json).
 
 `/pkstack-verified-goal` remains a separate, portable repository-visible executable
 acceptance contract even when native goal support becomes available. PKStack
@@ -547,7 +547,7 @@ post-compaction parity claim. Alternate Crew agent harnesses are likewise
 capability-dependent; PKStack's required compatibility target is the current
 Kiro CLI-backed path.
 
-The bounded [KiroCrew Nightly smoke record](../../../reviews/kirocrew-nightly-smoke-campaign.md)
+The bounded [KiroCrew Nightly smoke record](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kirocrew-nightly-smoke-campaign.md)
 verified the Sep. 3 package source, bundle identity, signature, notarization, public version/help
 surface, and doctor dependencies. It did not exercise `.kiro` ingestion, Task Runner, skill
 reinjection, Spec, or `/pkstack-verified-goal`. The smoke also found that a CLI invocation rewrote bundled
@@ -571,7 +571,7 @@ The reviewed Kiro documentation lists all three GPT-5.6 tiers as experimental,
 with 272,000-token context windows: Sol at a 2.4x credit multiplier, Terra at
 1.0x, and Luna at 0.1x. The active account's 2026-09-03 live listing returned
 all three exact IDs and `auto` as its default. That point-in-time evidence is
-recorded in [`reviews/kiro-model-guidance-evidence.json`](../../../reviews/kiro-model-guidance-evidence.json);
+recorded in [`reviews/kiro-model-guidance-evidence.json`](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kiro-model-guidance-evidence.json);
 documentation is not substituted for account availability, and one listing is
 not a promise that an experimental model will remain available.
 
@@ -692,7 +692,7 @@ the portable completion predicate on every supported path.
   and Quick Spec campaigns also completed same-tab handoff, recorded failure,
   implementation-only repair, and pass. These were two four-test fixtures,
   not every Spec mode or the Agent Focus view; see the
-  [IDE campaign evidence](../../../reviews/friends-ide-validation.md).
+  [IDE campaign evidence](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-ide-validation.md).
 - Crew compatibility is required, but Crew is optional. The current signed Nightly passed a
   bounded command-surface/doctor smoke; no Crew project, Spec, skill, or end-to-end verified-goal
   campaign is claimed. Invoking that package may also rewrite bundled `.pyc` files and invalidate

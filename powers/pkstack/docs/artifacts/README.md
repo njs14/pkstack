@@ -24,7 +24,7 @@ extracted statically from each HTML's SVG and rasterized with librsvg 2.62.3 at
 1600 pixels wide, using the light theme and Menlo. This does not execute the
 HTML's JavaScript or change the authored geometry. All three PNGs were inspected
 separately after export. The HTML retains zoom, theme selection, and export.
-The [delivery receipt](../../../../reviews/release-040-diagrams.json) binds the
+The [delivery receipt](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-040-diagrams.json) binds the
 three source/artifact hashes and records the browser and visual review scope.
 
 To regenerate from the repository root, set `ARCHIFY` to a reviewed Archify

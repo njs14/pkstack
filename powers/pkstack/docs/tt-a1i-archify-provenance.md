@@ -55,7 +55,7 @@ reviewed adaptation recorded here. The bundle manifest marks those files
   lifecycle failures; they do not identify the initiating cause of the Ubuntu CI
   startup timeout.
 
-The [release repair evidence](../../../reviews/release-030-archify.md) records
+The [release repair evidence](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-archify.md) records
 unchanged-input reproduction, browser containment and visual inspection,
 zoom/pan/reset, and canonical exports. A source update must review whether these
 patches remain needed; it must not rewrite upstream identities to match adapted

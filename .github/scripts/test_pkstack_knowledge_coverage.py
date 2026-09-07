@@ -106,6 +106,12 @@ class CoverageTests(unittest.TestCase):
             ["git", "-C", str(self.root), "rev-parse", "HEAD"], text=True
         ).strip()
 
+    def test_root_review_archive_cannot_be_reintroduced_even_with_mapping(self):
+        self.write("reviews/new.md", "# A new report\n")
+        self.entries.append(self.mapping("reviews/new.md"))
+        self.topic("[Guide](../../docs/guide.md) [Report](../../reviews/new.md)")
+        self.run_gate("retired root review archive")
+
     def test_updater_can_update_changed_source_and_related_topic(self):
         base = self.commit_base()
         self.write(SOURCE, "# New source guidance\n")
@@ -158,11 +164,9 @@ class CoverageTests(unittest.TestCase):
         self.run_gate(base=base)
 
     def test_many_sources_one_topic_and_reference_backlinks(self):
-        self.write("reviews/result.MARKDOWN", "# Recorded finding\n")
-        self.entries.append(self.mapping("reviews/result.MARKDOWN"))
-        self.topic(
-            "[Guide][g]\n\n[g]: ../../docs/guide.md\n\n[Result](../../reviews/result.MARKDOWN)"
-        )
+        self.write("docs/result.MARKDOWN", "# Recorded finding\n")
+        self.entries.append(self.mapping("docs/result.MARKDOWN"))
+        self.topic("[Guide][g]\n\n[g]: ../../docs/guide.md\n\n[Result](../../docs/result.MARKDOWN)")
         result = self.run_gate()
         self.assertEqual(result["documents"], 3)
         self.assertEqual(result["classifications"], {"canonical": 1, "mapped": 2})

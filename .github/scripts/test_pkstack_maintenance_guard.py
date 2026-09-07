@@ -5895,7 +5895,10 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "provision CLAUDE_CODE_OAUTH_TOKEN",
             "Configure one valid CI credential",
         )
-        for path in sorted((ROOT / "reviews").glob("*")):
+        paths = sorted((ROOT / "Wiki/knowledge").rglob("*.md"))
+        paths += sorted((ROOT / ".github/fixtures").glob("*.json"))
+        self.assertTrue(paths)
+        for path in paths:
             if path.suffix not in {".md", ".json"}:
                 continue
             text = path.read_text(encoding="utf-8")

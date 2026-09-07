@@ -44,7 +44,7 @@ package source is trustworthy. Controller environment isolation preserves the ap
 interpreter and dependencies for its verifier. Keep launcher installation, controller installation,
 and application dependencies distinct when diagnosing import failures.
 
-The [previous-controller receipt](../../../reviews/uvx-entrypoint/previous-controller-compatibility.json)
+The [previous-controller receipt](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/previous-controller-compatibility.json)
 records a newer launcher calling version and doctor against a 0.4.3 controller without changing
 managed files. This is bounded compatibility evidence, not a promise for every old controller.
 
@@ -80,14 +80,14 @@ allowlist. A successful warm-cache install is insufficient evidence for an offli
 
 ## Diagnose onboarding by the boundary that failed
 
-The [0.4.2 first-task campaign](../../../reviews/onboarding-042/README.md) cloned a source path with
+The [0.4.2 first-task campaign](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/onboarding-042/README.md) cloned a source path with
 spaces, captured it before entering a different target with spaces, and verified preview,
 installation, doctor, and an unchanged second setup. A native session then repaired only the
 implementation against the stored failed verifier. The observer neither supplied that repair nor
 created a passing attempt. Fresh paths did not imply a fresh account or empty cache; that claim
-needed the later [cold-cache walkthrough](../../../reviews/uvx-entrypoint/README.md#hosted-ci-remediation).
+needed the later [cold-cache walkthrough](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/README.md#hosted-ci-remediation).
 
-The [launcher review](../../../reviews/uvx-entrypoint/grok-review.md) used a real application
+The [launcher review](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/grok-review.md) used a real application
 virtualenv with a dependency unavailable to the controller. It also checked cancellation and
 previous-controller compatibility. Use these boundaries when diagnosing an import failure: the
 launcher selects the package, the project wrapper owns forwarding, and the application supplies
@@ -99,7 +99,7 @@ terminal completion separated it from the request; it was cancelled before imple
 remained a failed attempt. The successful run submitted the complete inspected request. Similarly,
 a prompt menu opening did not prove saved-request creation or expansion: a purported details
 command became an ordinary model request. Keep the direct first-task path usable without those
-unverified conveniences. The [command audit](../../../reviews/cli-native-command-audit/README.md)
+unverified conveniences. The [command audit](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/cli-native-command-audit/README.md)
 adds observed agent and skill diagnostics without claiming that agent hot reload proves skill hot
 reload or a complete installation.
 
@@ -117,7 +117,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 | [powers/pkstack/docs/upgrade-0.3.md](../../../powers/pkstack/docs/upgrade-0.3.md) | Legacy namespace transition uses a separate clean checkout and preserves rollback evidence; receipt-aware refresh cannot bypass incompatible installation boundaries. |
 | [powers/pkstack/docs/upgrade-0.4.md](../../../powers/pkstack/docs/upgrade-0.4.md) | The 0.4 transition retires okn, preserves user-owned Wiki/Specs, and distinguishes local validation from runtime-dependent bounded retrieval. |
 | [powers/pkstack/examples/verified-goal-demo/README.md](../../../powers/pkstack/examples/verified-goal-demo/README.md) | The account-ID example is intentionally broken and its narrow verifier is a demonstration predicate, not general application acceptance. |
-| [reviews/onboarding-042/README.md](../../../reviews/onboarding-042/README.md) | The 0.4.2 CLI campaign recorded failure then native repair/pass at 2 of 4 with unchanged tests and paths containing spaces; existing account/cache state limits first-install claims. |
-| [reviews/uvx-entrypoint/README.md](../../../reviews/uvx-entrypoint/README.md) | Launcher/controller separation and explicit upgrades were exercised with real wheels; cold-cache hosted walkthrough failures required isolated resolution tests rather than runtime changes. |
-| [reviews/uvx-entrypoint/grok-review.md](../../../reviews/uvx-entrypoint/grok-review.md) | Read-only review of 9e9f327 distinguished launcher version from controller version, exact current-directory selection, receipt ownership from trust, and inherited application dependencies. |
-| [reviews/uvx-entrypoint/grok-followup.md](../../../reviews/uvx-entrypoint/grok-followup.md) | Test-only f218172 correction addressed offline uvx resolution missing registry metadata despite locked sync; warm local caches had hidden it. |
+| [reviews/onboarding-042/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/onboarding-042/README.md) | The 0.4.2 CLI campaign recorded failure then native repair/pass at 2 of 4 with unchanged tests and paths containing spaces; existing account/cache state limits first-install claims. |
+| [reviews/uvx-entrypoint/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/README.md) | Launcher/controller separation and explicit upgrades were exercised with real wheels; cold-cache hosted walkthrough failures required isolated resolution tests rather than runtime changes. |
+| [reviews/uvx-entrypoint/grok-review.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/grok-review.md) | Read-only review of 9e9f327 distinguished launcher version from controller version, exact current-directory selection, receipt ownership from trust, and inherited application dependencies. |
+| [reviews/uvx-entrypoint/grok-followup.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/uvx-entrypoint/grok-followup.md) | Test-only f218172 correction addressed offline uvx resolution missing registry metadata despite locked sync; warm local caches had hidden it. |

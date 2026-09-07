@@ -52,7 +52,7 @@ by the depicted projects.
 
 ## Keep input facts fixed while repairing presentation
 
-The [renderer review](../../../reviews/release-030-archify.md) reproduced an artifact that passed
+The [renderer review](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-archify.md) reproduced an artifact that passed
 all nine showcase checks but failed viewport containment. Its compact aspect ratio fell outside
 the adaptive-layout rule and was inflated to a desktop width that made it too tall. Reusing the
 same frozen JSON isolated the renderer defect; shrinking the authored content, clipping it, or
@@ -86,5 +86,5 @@ original candidate and scope; they are not fresh verification of this checkout.
 | [powers/pkstack/assets/README.md](../../../powers/pkstack/assets/README.md) | Retains earlier mascot/banner provenance; its current-banner wording predates the later selected four-ghost logo and should not override that selection. |
 | [powers/pkstack/docs/artifacts/README.md](../../../powers/pkstack/docs/artifacts/README.md) | Editable JSON, interactive HTML and static previews explain component/planning/updater boundaries at a recorded source snapshot; diagrams are not executable proof. |
 | [powers/pkstack/docs/tt-a1i-archify-provenance.md](../../../powers/pkstack/docs/tt-a1i-archify-provenance.md) | Original upstream bytes and adapted runtime bytes remain separately bound, including local caption/viewport/transport patches and reviewed upstream parser/watcher corrections. |
-| [reviews/branding-ghost-options/README.md](../../../reviews/branding-ghost-options/README.md) | The owner selected Option 2 Knowledge crest on September 6; four separate ghosts and a linked book/tree explain the theme without implying portraits or endorsement. |
-| [reviews/release-030-archify.md](../../../reviews/release-030-archify.md) | Unchanged-input reproductions exposed caption collisions and mobile toolbar overflow; render and validation geometry must agree and visual checks remain separate from provenance. |
+| [reviews/branding-ghost-options/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/branding-ghost-options/README.md) | The owner selected Option 2 Knowledge crest on September 6; four separate ghosts and a linked book/tree explain the theme without implying portraits or endorsement. |
+| [reviews/release-030-archify.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-archify.md) | Unchanged-input reproductions exposed caption collisions and mobile toolbar overflow; render and validation geometry must agree and visual checks remain separate from provenance. |

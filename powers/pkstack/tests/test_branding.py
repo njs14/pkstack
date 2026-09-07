@@ -122,7 +122,7 @@ def test_readmes_link_to_documentation_and_public_entrypoints() -> None:
     for path in (REPOSITORY_ROOT / "README.md", ROOT / "README.md"):
         content = path.read_text(encoding="utf-8")
         assert DISPLAY_NAME in content.splitlines()[0]
-        for detail in ("curated-skills.md", "first-task.md", "usage.md", "release-status.md"):
+        for detail in ("curated-skills.md", "first-task.md", "usage.md", "release-record.md"):
             assert detail in content
         assert "/pkstack-setup" in content and "/pkstack <task>" in content
         for target in re.findall(r"!?\[[^]]*\]\(([^)#]+)(?:#[^)]*)?\)", content):
