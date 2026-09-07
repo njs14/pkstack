@@ -1,0 +1,20 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/ty",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "bdf505fe30c68c4910a68c15ae9cfba7ef0c5b1aaf4419b89f80c4752d8fc5fe",
+      "size": 1837,
+      "source_path": "plugins/astral/skills/ty/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "ty",
+  "summary": {
+    "byte_count": 1837,
+    "file_count": 1
+  }
+}

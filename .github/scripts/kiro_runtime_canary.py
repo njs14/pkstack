@@ -20,7 +20,7 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Any, BinaryIO
+from typing import IO, Any
 
 from validate_kiro_model_inventory import InventoryError, validate_inventory_bytes
 
@@ -144,7 +144,7 @@ class _AllowlistedRedirectHandler(urllib.request.HTTPRedirectHandler):
     def redirect_request(
         self,
         req: urllib.request.Request,
-        fp: BinaryIO,
+        fp: IO[bytes],
         code: int,
         msg: str,
         headers: Any,
@@ -226,7 +226,8 @@ def _version_tuple(value: str) -> tuple[int, int, int]:
     match = VERSION_RE.fullmatch(value)
     if match is None:
         raise CanaryError("CLI version is invalid")
-    return tuple(int(part) for part in match.groups())  # type: ignore[return-value]
+    major, minor, patch = (int(part) for part in match.groups())
+    return major, minor, patch
 
 
 def _pin_status(target: dict[str, Any]) -> str:
@@ -337,7 +338,7 @@ def _download_archive(target: dict[str, Any], destination: Path) -> None:
         raise CanaryError("stable CLI archive does not match its advertised size and SHA-256")
 
 
-def _copy_tar_member(source: BinaryIO, destination: Path, expected_size: int) -> None:
+def _copy_tar_member(source: IO[bytes], destination: Path, expected_size: int) -> None:
     descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o500)
     written = 0
     try:
@@ -552,7 +553,7 @@ def _safe_observation(
         )
     # Product/docs observations are advisory by contract. Contain any ordinary
     # parser or transport failure and expose only its class, never remote text.
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         result.update(
             {
                 "status": "unavailable",

@@ -6,21 +6,23 @@ import copy
 import io
 import json
 import os
-from pathlib import Path
 import stat
 import subprocess
 import sys
 import tarfile
 import tempfile
 import unittest
-from unittest.mock import patch
 import warnings
+import zipfile
+from email.message import Message
+from pathlib import Path
+from typing import Any, cast
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.parse import parse_qs, urlsplit
-import zipfile
+from urllib.request import OpenerDirector
 
 import pkstack_ci_package as package
-
 
 REPOSITORY = "example/pkstack"
 REPOSITORY_ID = 123
@@ -30,8 +32,11 @@ ARTIFACT = 789
 
 
 def fixture_smoke() -> dict:
-    return {**dict.fromkeys(package.SMOKE_FLAGS, True),
-            "knowledge_mode": "local", "doctor_summary": {"pass": 81, "warn": 2, "fail": 0}}
+    return {
+        **dict.fromkeys(package.SMOKE_FLAGS, True),
+        "knowledge_mode": "local",
+        "doctor_summary": {"pass": 81, "warn": 2, "fail": 0},
+    }
 
 
 def zipped(contents: dict[str, bytes]) -> bytes:
@@ -45,25 +50,65 @@ def zipped(contents: dict[str, bytes]) -> bytes:
 class FakeGitHub:
     def __init__(self, commit: str, raw: bytes):
         self.raw = raw
-        self.repo = {"id": REPOSITORY_ID, "full_name": REPOSITORY, "private": True, "default_branch": "main"}
+        self.repo = {
+            "id": REPOSITORY_ID,
+            "full_name": REPOSITORY,
+            "private": True,
+            "default_branch": "main",
+        }
         self.branch = {"commit": {"sha": commit}}
-        self.tag = {"ref": "refs/tags/v0.3.0", "object": {"type": "commit", "sha": commit}}
+        self.tag: dict[str, Any] | None = {
+            "ref": "refs/tags/v0.3.0",
+            "object": {"type": "commit", "sha": commit},
+        }
         self.workflow = {"id": 99, "path": package.CI_WORKFLOW, "state": "active"}
-        self.run = {"id": RUN, "run_attempt": ATTEMPT, "workflow_id": 99, "path": package.CI_WORKFLOW,
-                    "head_sha": commit, "head_branch": "main", "event": "push", "status": "completed",
-                    "conclusion": "success", "repository": {"id": REPOSITORY_ID},
-                    "head_repository": {"id": REPOSITORY_ID}}
+        self.run = {
+            "id": RUN,
+            "run_attempt": ATTEMPT,
+            "workflow_id": 99,
+            "path": package.CI_WORKFLOW,
+            "head_sha": commit,
+            "head_branch": "main",
+            "event": "push",
+            "status": "completed",
+            "conclusion": "success",
+            "repository": {"id": REPOSITORY_ID},
+            "head_repository": {"id": REPOSITORY_ID},
+        }
         self.runs = [{"id": RUN}]
-        self.jobs = [{"name": name, "status": "completed", "conclusion": "success", "head_sha": commit,
-                      "run_id": RUN, "run_attempt": ATTEMPT} for name in package.REQUIRED_JOBS]
-        self.artifact = {"id": ARTIFACT, "name": package.artifact_name(commit, RUN, ATTEMPT),
-                         "expired": False, "digest": f"sha256:{package.sha256(raw)}",
-                         "workflow_run": {"id": RUN, "repository_id": REPOSITORY_ID,
-                                          "head_repository_id": REPOSITORY_ID,
-                                          "head_sha": commit, "head_branch": "main"}}
+        self.jobs = [
+            {
+                "name": name,
+                "status": "completed",
+                "conclusion": "success",
+                "head_sha": commit,
+                "run_id": RUN,
+                "run_attempt": ATTEMPT,
+            }
+            for name in package.REQUIRED_JOBS
+        ]
+        self.artifact = {
+            "id": ARTIFACT,
+            "name": package.artifact_name(commit, RUN, ATTEMPT),
+            "expired": False,
+            "digest": f"sha256:{package.sha256(raw)}",
+            "workflow_run": {
+                "id": RUN,
+                "repository_id": REPOSITORY_ID,
+                "head_repository_id": REPOSITORY_ID,
+                "head_sha": commit,
+                "head_branch": "main",
+            },
+        }
         self.artifacts = [self.artifact]
         self.downloads = 0
         self.after_download = lambda: None
+
+    def present_tag(self) -> dict[str, Any]:
+        """The tag fixture, for cases that mutate a tag they keep present."""
+        if self.tag is None:
+            raise AssertionError("tag fixture is absent")
+        return self.tag
 
     def get(self, path: str):
         parsed = urlsplit(path)
@@ -114,28 +159,49 @@ class PackageFixture(unittest.TestCase):
             "powers/pkstack/pyproject.toml": '[project]\nname = "pkstack"\nversion = "0.3.0"\n',
             "powers/pkstack/plugin.json": '{"version":"0.3.0"}\n',
             "powers/pkstack/src/pkstack/__init__.py": '__version__ = "0.3.0"\n',
-            ".github/scripts/pkstack_checks.py": 'def config_digest(root):\n    return "' + "c" * 64 + '"\n',
+            ".github/scripts/pkstack_checks.py": 'def config_digest(root):\n    return "'
+            + "c" * 64
+            + '"\n',
             ".github/workflows/pk-stack-ci.yml": "name: PKStack CI\n",
-            "CHANGELOG.md": "# Changes\n\n## [0.3.0]\n\nCurrent [guide](guide.md).\n\n## [0.2.0]\nOld text.\n",
+            "CHANGELOG.md": (
+                "# Changes\n\n## [0.3.0]\n\nCurrent [guide](guide.md).\n\n## [0.2.0]\nOld text.\n"
+            ),
         }
         for relative, text in files.items():
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(text)
-        for argv in (["init", "--quiet"], ["config", "user.email", "test@example.invalid"],
-                     ["config", "user.name", "Package fixture"], ["add", "."], ["commit", "--quiet", "-m", "fixture"]):
+        for argv in (
+            ["init", "--quiet"],
+            ["config", "user.email", "test@example.invalid"],
+            ["config", "user.name", "Package fixture"],
+            ["add", "."],
+            ["commit", "--quiet", "-m", "fixture"],
+        ):
             subprocess.run(["git", *argv], cwd=self.root, check=True, capture_output=True)
-        self.commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=self.root, text=True).strip()
+        self.commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=self.root, text=True
+        ).strip()
         self.output = Path(self.temporary.name) / "built"
         with patch.object(package, "consumer_smoke", return_value=fixture_smoke()):
-            self.built = package.build_package(self.root, self.output, REPOSITORY, REPOSITORY_ID,
-                                               self.commit, RUN, ATTEMPT)
+            self.built = package.build_package(
+                self.root, self.output, REPOSITORY, REPOSITORY_ID, self.commit, RUN, ATTEMPT
+            )
         self.contents = {path.name: path.read_bytes() for path in self.output.iterdir()}
         self.api = FakeGitHub(self.commit, zipped(self.contents))
 
     def verify(self, **kwargs):
-        return package.verify_package(self.root, Path(self.temporary.name) / "verified", self.api,
-                                      REPOSITORY, REPOSITORY_ID, self.commit, "v0.3.0", **kwargs)
+        return package.verify_package(
+            self.root,
+            Path(self.temporary.name) / "verified",
+            # The stand-in answers the same bounded read-only API surface.
+            cast(package.GitHub, self.api),
+            REPOSITORY,
+            REPOSITORY_ID,
+            self.commit,
+            "v0.3.0",
+            **kwargs,
+        )
 
     def replace_manifest(self, mutate):
         manifest = json.loads(self.contents["manifest.json"])
@@ -145,23 +211,43 @@ class PackageFixture(unittest.TestCase):
         self.api.artifact["digest"] = f"sha256:{package.sha256(self.api.raw)}"
 
     def test_exact_main_success_preserves_built_bytes_without_rebuild_or_execution(self):
-        with patch.object(package, "archive_for", side_effect=AssertionError("promotion rebuilt archive")), \
-                patch.object(package, "consumer_smoke", side_effect=AssertionError("promotion executed package")):
-            result = self.verify(run_id=RUN, attempt=ATTEMPT, artifact_id=ARTIFACT,
-                                 artifact_digest=package.sha256(self.api.raw))
+        with (
+            patch.object(
+                package, "archive_for", side_effect=AssertionError("promotion rebuilt archive")
+            ),
+            patch.object(
+                package, "consumer_smoke", side_effect=AssertionError("promotion executed package")
+            ),
+        ):
+            result = self.verify(
+                run_id=RUN,
+                attempt=ATTEMPT,
+                artifact_id=ARTIFACT,
+                artifact_digest=package.sha256(self.api.raw),
+            )
         self.assertEqual(result["mode"], "verify-only")
         self.assertEqual(result["archive_sha256"], self.built["archive_sha256"])
         promoted = Path(result["output_directory"])
-        self.assertEqual({path.name: path.read_bytes() for path in promoted.iterdir()}, self.contents)
-        self.assertIn(f"https://github.com/{REPOSITORY}/blob/{self.commit}/guide.md",
-                      self.contents["notes.md"].decode())
+        self.assertEqual(
+            {path.name: path.read_bytes() for path in promoted.iterdir()}, self.contents
+        )
+        self.assertIn(
+            f"https://github.com/{REPOSITORY}/blob/{self.commit}/guide.md",
+            self.contents["notes.md"].decode(),
+        )
         self.assertNotIn("Old text", self.contents["notes.md"].decode())
 
     def test_archives_are_reproducible_and_preserve_exact_git_contents(self):
-        self.assertEqual(package.archive_for(self.root, self.commit), self.contents["package.tar.gz"])
-        extracted = package.extract_archive(self.contents["package.tar.gz"], Path(self.temporary.name) / "extract")
-        self.assertEqual((extracted / "plugin.json").read_bytes(),
-                         (self.root / "powers/pkstack/plugin.json").read_bytes())
+        self.assertEqual(
+            package.archive_for(self.root, self.commit), self.contents["package.tar.gz"]
+        )
+        extracted = package.extract_archive(
+            self.contents["package.tar.gz"], Path(self.temporary.name) / "extract"
+        )
+        self.assertEqual(
+            (extracted / "plugin.json").read_bytes(),
+            (self.root / "powers/pkstack/plugin.json").read_bytes(),
+        )
 
     def test_changed_working_source_cannot_produce_or_promote(self):
         (self.root / "powers/pkstack/plugin.json").write_text('{"version":"9.9.9"}\n')
@@ -170,11 +256,16 @@ class PackageFixture(unittest.TestCase):
 
     def test_rejects_invalid_run_status_source_event_repository_and_attempt(self):
         mutations = [
-            lambda r: r.update(status="in_progress"), lambda r: r.update(conclusion="failure"),
-            lambda r: r.update(conclusion="cancelled"), lambda r: r.update(event="pull_request"),
-            lambda r: r.update(event="workflow_dispatch"), lambda r: r.update(head_branch="other"),
-            lambda r: r.update(head_repository={"id": 999}), lambda r: r.update(repository={"id": 999}),
-            lambda r: r.update(workflow_id=999), lambda r: r.update(path=".github/workflows/untrusted.yml"),
+            lambda r: r.update(status="in_progress"),
+            lambda r: r.update(conclusion="failure"),
+            lambda r: r.update(conclusion="cancelled"),
+            lambda r: r.update(event="pull_request"),
+            lambda r: r.update(event="workflow_dispatch"),
+            lambda r: r.update(head_branch="other"),
+            lambda r: r.update(head_repository={"id": 999}),
+            lambda r: r.update(repository={"id": 999}),
+            lambda r: r.update(workflow_id=999),
+            lambda r: r.update(path=".github/workflows/untrusted.yml"),
             lambda r: r.update(run_attempt=2),
         ]
         original = copy.deepcopy(self.api.run)
@@ -200,12 +291,15 @@ class PackageFixture(unittest.TestCase):
 
     def test_all_current_attempt_jobs_must_succeed_once(self):
         original = copy.deepcopy(self.api.jobs)
-        changes = [lambda jobs: jobs.pop(), lambda jobs: jobs.append(copy.deepcopy(jobs[0])),
-                   lambda jobs: jobs[0].update(conclusion="skipped"),
-                   lambda jobs: jobs[0].update(conclusion="neutral"),
-                   lambda jobs: jobs[0].update(status="in_progress"),
-                   lambda jobs: jobs[0].update(run_attempt=2),
-                   lambda jobs: jobs[0].update(head_sha="0" * 40)]
+        changes = [
+            lambda jobs: jobs.pop(),
+            lambda jobs: jobs.append(copy.deepcopy(jobs[0])),
+            lambda jobs: jobs[0].update(conclusion="skipped"),
+            lambda jobs: jobs[0].update(conclusion="neutral"),
+            lambda jobs: jobs[0].update(status="in_progress"),
+            lambda jobs: jobs[0].update(run_attempt=2),
+            lambda jobs: jobs[0].update(head_sha="0" * 40),
+        ]
         for mutate in changes:
             with self.subTest(mutation=mutate):
                 self.api.jobs = copy.deepcopy(original)
@@ -215,11 +309,13 @@ class PackageFixture(unittest.TestCase):
 
     def test_private_current_main_tag_and_version_are_required(self):
         original = copy.deepcopy((self.api.repo, self.api.branch, self.api.tag))
-        mutations = [lambda: self.api.repo.update(private=False),
-                     lambda: self.api.repo.update(default_branch="development"),
-                     lambda: self.api.branch["commit"].update(sha="a" * 40),
-                     lambda: self.api.tag["object"].update(sha="b" * 40),
-                     lambda: self.api.tag.update(ref="refs/tags/v0.2.0")]
+        mutations = [
+            lambda: self.api.repo.update(private=False),
+            lambda: self.api.repo.update(default_branch="development"),
+            lambda: self.api.branch["commit"].update(sha="a" * 40),
+            lambda: self.api.present_tag()["object"].update(sha="b" * 40),
+            lambda: self.api.present_tag().update(ref="refs/tags/v0.2.0"),
+        ]
         for mutate in mutations:
             with self.subTest(mutation=mutate):
                 self.api.repo, self.api.branch, self.api.tag = copy.deepcopy(original)
@@ -228,7 +324,7 @@ class PackageFixture(unittest.TestCase):
                     self.verify()
 
     def test_annotated_tag_is_peeled_to_exact_commit(self):
-        self.api.tag["object"] = {"type": "tag", "sha": "d" * 40}
+        self.api.present_tag()["object"] = {"type": "tag", "sha": "d" * 40}
         self.assertTrue(self.verify()["ok"])
 
     def test_pre_tag_dry_run_requires_absent_tag_and_cannot_be_publication_evidence(self):
@@ -245,7 +341,9 @@ class PackageFixture(unittest.TestCase):
             self.verify()
 
     def test_expected_failed_consumer_goal_is_accepted_only_as_failure(self):
-        result = subprocess.CompletedProcess(["fixture"], 1, b'{"ok":false,"goal":{"status":"active"}}', b"")
+        result = subprocess.CompletedProcess(
+            ["fixture"], 1, b'{"ok":false,"goal":{"status":"active"}}', b""
+        )
         with patch.object(package.subprocess, "run", return_value=result):
             self.assertFalse(package.run_json(["fixture"], self.root, {}, expected_exit=1)["ok"])
             with self.assertRaises(package.PackageError):
@@ -263,12 +361,15 @@ class PackageFixture(unittest.TestCase):
 
     def test_artifact_must_bind_id_attempt_and_repository(self):
         original = copy.deepcopy(self.api.artifact)
-        mutations = [lambda a: a.update(expired=True), lambda a: a.update(id=999),
-                     lambda a: a.update(name="pkstack-release-old-attempt"),
-                     lambda a: a["workflow_run"].update(head_sha="0" * 40),
-                     lambda a: a["workflow_run"].update(repository_id=999),
-                     lambda a: a["workflow_run"].update(head_repository_id=999),
-                     lambda a: a["workflow_run"].update(head_branch="other")]
+        mutations = [
+            lambda a: a.update(expired=True),
+            lambda a: a.update(id=999),
+            lambda a: a.update(name="pkstack-release-old-attempt"),
+            lambda a: a["workflow_run"].update(head_sha="0" * 40),
+            lambda a: a["workflow_run"].update(repository_id=999),
+            lambda a: a["workflow_run"].update(head_repository_id=999),
+            lambda a: a["workflow_run"].update(head_branch="other"),
+        ]
         for mutate in mutations:
             with self.subTest(mutation=mutate):
                 self.api.artifact = copy.deepcopy(original)
@@ -283,10 +384,15 @@ class PackageFixture(unittest.TestCase):
 
     def test_manifest_cannot_substitute_source_config_attempt_or_smoke(self):
         original = self.contents["manifest.json"]
-        mutations = [lambda m: m.update(commit="e" * 40), lambda m: m.update(check_config_digest="f" * 64),
-                     lambda m: m.update(run_attempt=2), lambda m: m.update(producer_job="untrusted"),
-                     lambda m: m.update(reproducible=False), lambda m: m["required_jobs"].pop(),
-                     lambda m: m["smoke"].update(goal_fail_pass=False)]
+        mutations = [
+            lambda m: m.update(commit="e" * 40),
+            lambda m: m.update(check_config_digest="f" * 64),
+            lambda m: m.update(run_attempt=2),
+            lambda m: m.update(producer_job="untrusted"),
+            lambda m: m.update(reproducible=False),
+            lambda m: m["required_jobs"].pop(),
+            lambda m: m["smoke"].update(goal_fail_pass=False),
+        ]
         for mutate in mutations:
             with self.subTest(mutation=mutate):
                 self.contents["manifest.json"] = original
@@ -300,8 +406,16 @@ class PackageFixture(unittest.TestCase):
         self.api.artifact["digest"] = f"sha256:{package.sha256(self.api.raw)}"
         with self.assertRaisesRegex(package.PackageError, "inner content"):
             self.verify()
-        self.replace_manifest(lambda m: m["files"].update({"notes.md": {
-            "sha256": package.sha256(self.contents["notes.md"]), "size": len(self.contents["notes.md"])}}))
+        self.replace_manifest(
+            lambda m: m["files"].update(
+                {
+                    "notes.md": {
+                        "sha256": package.sha256(self.contents["notes.md"]),
+                        "size": len(self.contents["notes.md"]),
+                    }
+                }
+            )
+        )
         with self.assertRaisesRegex(package.PackageError, "notes differ"):
             self.verify()
 
@@ -336,8 +450,11 @@ class ArchiveBoundaryTests(unittest.TestCase):
                 package.unpack_zip(raw)
 
     def test_tar_rejects_escape_symlinks_and_devices(self):
-        for name, kind in [("pkstack/../../escape", tarfile.REGTYPE),
-                           ("pkstack/link", tarfile.SYMTYPE), ("pkstack/device", tarfile.CHRTYPE)]:
+        for name, kind in [
+            ("pkstack/../../escape", tarfile.REGTYPE),
+            ("pkstack/link", tarfile.SYMTYPE),
+            ("pkstack/device", tarfile.CHRTYPE),
+        ]:
             with self.subTest(name=name), tempfile.TemporaryDirectory() as temporary:
                 raw = io.BytesIO()
                 with tarfile.open(fileobj=raw, mode="w:gz") as archive:
@@ -351,36 +468,69 @@ class ArchiveBoundaryTests(unittest.TestCase):
     def test_github_token_is_not_forwarded_to_artifact_storage(self):
         client = package.GitHub("fixture-secret")
         requests = []
+
         class Opener:
             def open(self, request, timeout):
                 requests.append(request)
                 if len(requests) == 1:
-                    raise HTTPError(request.full_url, 302, "redirect", {"Location": "https://store.example/artifact?signature=fixture"}, None)
+                    headers = Message()
+                    headers["Location"] = "https://store.example/artifact?signature=fixture"
+                    raise HTTPError(request.full_url, 302, "redirect", headers, None)
                 return io.BytesIO(b"zip payload")
-        client.opener = Opener()
-        self.assertEqual(client.download("repos/example/pkstack/actions/artifacts/1/zip"), b"zip payload")
+
+        client.opener = cast(OpenerDirector, Opener())
+        self.assertEqual(
+            client.download("repos/example/pkstack/actions/artifacts/1/zip"), b"zip payload"
+        )
         self.assertEqual(requests[0].get_header("Authorization"), "Bearer fixture-secret")
         self.assertIsNone(requests[1].get_header("Authorization"))
 
     def test_only_http_404_means_absent_tag_not_denied_or_failed_api(self):
         client = package.GitHub("fixture-secret")
         for code in [403, 404, 500]:
+
             class Opener:
+                status = code
+
                 def open(self, request, timeout):
-                    raise HTTPError(request.full_url, code, "fixture", {}, None)
-            client.opener = Opener()
+                    raise HTTPError(request.full_url, self.status, "fixture", Message(), None)
+
+            client.opener = cast(OpenerDirector, Opener())
             expected = package.ResourceNotFound if code == 404 else package.PackageError
             with self.subTest(code=code), self.assertRaises(expected) as caught:
                 client.get("repos/example/pkstack/git/ref/tags/v0.3.0")
             self.assertEqual(isinstance(caught.exception, package.ResourceNotFound), code == 404)
 
     def test_producer_cli_rejects_pr_execution(self):
-        parser_env = {**os.environ, "GITHUB_EVENT_NAME": "pull_request", "GITHUB_REF": "refs/pull/1/merge",
-                      "GITHUB_JOB": "package"}
-        result = subprocess.run([sys.executable, str(Path(package.__file__)), "build", "--output-dir", "/unused",
-                                 "--repository", REPOSITORY, "--repository-id", str(REPOSITORY_ID),
-                                 "--sha", "a" * 40, "--run-id", "1", "--run-attempt", "1"],
-                                env=parser_env, capture_output=True, text=True, timeout=10)
+        parser_env = {
+            **os.environ,
+            "GITHUB_EVENT_NAME": "pull_request",
+            "GITHUB_REF": "refs/pull/1/merge",
+            "GITHUB_JOB": "package",
+        }
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(Path(package.__file__)),
+                "build",
+                "--output-dir",
+                "/unused",
+                "--repository",
+                REPOSITORY,
+                "--repository-id",
+                str(REPOSITORY_ID),
+                "--sha",
+                "a" * 40,
+                "--run-id",
+                "1",
+                "--run-attempt",
+                "1",
+            ],
+            env=parser_env,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("main push package job", result.stderr)
 

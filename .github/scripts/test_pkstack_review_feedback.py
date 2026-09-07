@@ -33,9 +33,7 @@ class FeedbackTests(unittest.TestCase):
     def test_only_valid_substantive_rejections_consume_a_bounded_budget(self) -> None:
         ledger = {"schema_version": 1, "sources": {}}
         for run in range(10, 13):
-            ledger = feedback.record_rejection(
-                ledger, report(run), retry_override=False
-            )
+            ledger = feedback.record_rejection(ledger, report(run), retry_override=False)
         self.assertEqual(feedback.source_feedback(ledger, "alpha", "a" * 40)[0], 3)
         self.assertEqual(
             feedback.record_rejection(ledger, report(12), retry_override=False), ledger
@@ -44,9 +42,7 @@ class FeedbackTests(unittest.TestCase):
             feedback.record_rejection(ledger, report(13), retry_override=False)
         retried = feedback.record_rejection(ledger, report(13), retry_override=True)
         self.assertEqual(feedback.source_feedback(retried, "alpha", "a" * 40)[0], 1)
-        fresh = feedback.record_rejection(
-            ledger, report(13, tree="1" * 40), retry_override=False
-        )
+        fresh = feedback.record_rejection(ledger, report(13, tree="1" * 40), retry_override=False)
         self.assertEqual(feedback.source_feedback(fresh, "alpha", "1" * 40)[0], 1)
         self.assertEqual(len(fresh["sources"]), 1)
 
@@ -83,9 +79,7 @@ class FeedbackTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "older"):
             feedback.record_rejection(ledger, report(11), retry_override=False)
         with self.assertRaisesRegex(ValueError, "older"):
-            feedback.record_rejection(
-                ledger, report(11, tree="0" * 40), retry_override=False
-            )
+            feedback.record_rejection(ledger, report(11, tree="0" * 40), retry_override=False)
         with self.assertRaisesRegex(ValueError, "conflicting"):
             feedback.record_rejection(
                 ledger,
@@ -149,8 +143,10 @@ class FeedbackTests(unittest.TestCase):
                 retry = controller.decide(sensor, history, "alpha@" + "a" * 40)
                 self.assertEqual(retry["selected_source_id"], "alpha")
                 self.assertTrue(retry["retry_override"])
+                review_feedback = retry["review_feedback"]
+                assert isinstance(review_feedback, dict)
                 self.assertEqual(
-                    retry["review_feedback"]["material_findings"],
+                    review_feedback["material_findings"],
                     report()["material_findings"],
                 )
                 with self.assertRaisesRegex(ValueError, "exact-subtree"):
@@ -162,12 +158,8 @@ class FeedbackTests(unittest.TestCase):
                 "report": report(source_id="zeta"),
             }
             history.write_text(json.dumps(ledger))
-            with mock.patch.object(
-                controller.guard, "validate_detector", return_value=detector
-            ):
-                self.assertEqual(
-                    controller.decide(sensor, history)["action"], "exhausted"
-                )
+            with mock.patch.object(controller.guard, "validate_detector", return_value=detector):
+                self.assertEqual(controller.decide(sensor, history)["action"], "exhausted")
 
 
 if __name__ == "__main__":

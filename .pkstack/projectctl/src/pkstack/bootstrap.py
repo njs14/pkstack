@@ -62,6 +62,7 @@ REQUIRED_SOURCE_MODULES = (
     "knowledge_acp.py",
     "knowledge_payload.py",
     "knowledge_runtime_bridge.py",
+    "launcher.py",
     "models.py",
     "paths.py",
     "runner.py",
@@ -80,6 +81,7 @@ REQUIRED_POWER_ASSETS = (
     "dev.kiro/steering/pkstack-core.md",
     "dev.kiro/steering/pkstack-safety.md",
     "dev.kiro/steering/pkstack-typescript.md",
+    "dev.kiro/steering/pkstack-python.md",
     "dev.kiro/steering/pkstack-unslop.md",
     "templates/project/.kiro/agents/pkstack.json",
     "templates/project/.kiro/agents/pkstack-architect.json",
@@ -679,6 +681,17 @@ def audit_bootstrap_receipt(root: Path) -> BootstrapReceiptAudit:
         raise ValueError(f"{DISPLAY_NAME} ownership receipt is missing at {receipt_path}")
     managed_hashes: dict[str, str] = receipt["files"]
     return _audit_managed_hashes(root, managed_hashes)
+
+
+def receipt_managed_hashes(root: Path) -> dict[str, str]:
+    """Return the receipt's recorded managed-file hashes without touching the workspace."""
+
+    receipt = _load_receipt(root)
+    if receipt is None:
+        receipt_path = workspace_path(root, RECEIPT)
+        raise ValueError(f"{DISPLAY_NAME} ownership receipt is missing at {receipt_path}")
+    managed_hashes: dict[str, str] = receipt["files"]
+    return dict(managed_hashes)
 
 
 def _audit_managed_hashes(root: Path, managed_hashes: dict[str, str]) -> BootstrapReceiptAudit:

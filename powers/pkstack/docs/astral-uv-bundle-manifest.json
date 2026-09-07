@@ -1,0 +1,20 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/uv",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "fa007ce6f2193a089a46ecece51f32637e5242e8ac5490c3063ab96d8980a58b",
+      "size": 2663,
+      "source_path": "plugins/astral/skills/uv/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "uv",
+  "summary": {
+    "byte_count": 2663,
+    "file_count": 1
+  }
+}

@@ -131,6 +131,7 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     live_steering = {path.name for path in (tmp_path / ".kiro" / "steering").glob("*.md")}
     assert live_steering == {
         "pkstack-core.md",
+        "pkstack-python.md",
         "pkstack-safety.md",
         "pkstack-typescript.md",
         "pkstack-unslop.md",

@@ -7,8 +7,8 @@ import importlib.util
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 from unittest import mock
-
 
 SCRIPT = Path(__file__).with_name("pkstack_update_controller.py")
 SPEC = importlib.util.spec_from_file_location("pkstack_update_controller", SCRIPT)
@@ -26,7 +26,7 @@ class ControllerTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temporary.cleanup()
 
-    def decide(self, payload: dict[str, object]) -> dict[str, object]:
+    def decide(self, payload: dict[str, Any]) -> dict[str, Any]:
         with mock.patch.object(controller.guard, "validate_detector", return_value=payload):
             return controller.decide(self.detector)
 

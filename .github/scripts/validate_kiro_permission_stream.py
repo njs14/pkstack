@@ -386,11 +386,10 @@ def _validate_cloud_config_group(group: list[tuple[int, dict[str, Any]]]) -> Non
         base_keys = {"sessionUpdate", "status", "toolCallId"}
         if set(terminal) == base_keys:
             return
-        if (
-            set(terminal) != base_keys | {"rawOutput"}
-            or terminal.get("rawOutput")
-            != {"kind": "notEnabled", "retracted": False}
-        ):
+        if set(terminal) != base_keys | {"rawOutput"} or terminal.get("rawOutput") != {
+            "kind": "notEnabled",
+            "retracted": False,
+        }:
             raise StreamError("Kiro completed cloud-config terminal shape is invalid")
     else:
         raise StreamError("Kiro cloud-config bootstrap did not reach an allowed terminal state")
@@ -576,26 +575,28 @@ def _write_start_preview_diagnostic(
     if isinstance(preview, dict):
         expected_keys = {"file", "modifiedContent"} | ({"originalContent"} if denied else set())
         original = preview.get("originalContent")
-        facts.update({
-            "expected_keys_present": {key: key in preview for key in sorted(expected_keys)},
-            "unexpected_keys_present": any(key not in expected_keys for key in preview),
-            "file": _diagnostic_path(
-                preview.get("file"), workspace=workspace, relative_path=relative_path
-            ),
-            "modified_content": {
-                "type": _diagnostic_type(preview.get("modifiedContent")),
-                "matches_expected": preview.get("modifiedContent") == expected_text,
-            },
-            "original_content": {
-                "present": "originalContent" in preview,
-                "type": _diagnostic_type(original),
-                "matches_expected": (
-                    "originalContent" not in preview
-                    or (denied and original == f"PROTECTED_BASELINE {relative_path}\n")
+        facts.update(
+            {
+                "expected_keys_present": {key: key in preview for key in sorted(expected_keys)},
+                "unexpected_keys_present": any(key not in expected_keys for key in preview),
+                "file": _diagnostic_path(
+                    preview.get("file"), workspace=workspace, relative_path=relative_path
                 ),
-                "is_empty": original == "",
-            },
-        })
+                "modified_content": {
+                    "type": _diagnostic_type(preview.get("modifiedContent")),
+                    "matches_expected": preview.get("modifiedContent") == expected_text,
+                },
+                "original_content": {
+                    "present": "originalContent" in preview,
+                    "type": _diagnostic_type(original),
+                    "matches_expected": (
+                        "originalContent" not in preview
+                        or (denied and original == f"PROTECTED_BASELINE {relative_path}\n")
+                    ),
+                    "is_empty": original == "",
+                },
+            }
+        )
     diagnostic = {
         "schema": "pkstack-permission-write-start-preview-diagnostic-v1",
         "denied": denied,
@@ -1056,6 +1057,8 @@ def _validate_used_tools(
         or summary.get("usedTools") != expected_tools
         or len(request_ids) != expected_request_count
         or type(usage) not in {int, float}
+        # Restates the exact-type test above so the bound check is well typed.
+        or not isinstance(usage, int | float)
         or not 0 <= usage <= 100
     ):
         raise StreamError("Kiro prompt-turn summary values are invalid")
@@ -1164,7 +1167,7 @@ def validate_allowed_invocation(
             raise
         diagnostic = _grep_input_diagnostic(groups[1], workspace=workspace)
         raise StreamError(f"{exc}; grep_input_diagnostic={diagnostic}") from None
-    for group, (relative_path, expected_text) in zip(groups[2:], ALLOWED_WRITES):
+    for group, (relative_path, expected_text) in zip(groups[2:], ALLOWED_WRITES, strict=False):
         _validate_write_group(
             group,
             workspace=workspace,

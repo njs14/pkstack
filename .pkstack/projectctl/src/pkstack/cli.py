@@ -775,6 +775,11 @@ def knowledge_search_command(
             print("\nUnresolved:")
             for item in context["uncertainties"]:
                 print(f"- {item}")
+        execution = payload.get("execution", {})
+        if selected_model := execution.get("model"):
+            label = "Auto (Kiro-managed routing)" if selected_model == "auto" else selected_model
+            print(f"\nSelected model: {label}")
+            print(f"Underlying model: {execution.get('resolved_model') or 'not disclosed'}")
         print(
             f"\nReturned context: {payload['estimatedTokens']}/{payload['budget']} "
             "estimated tokens; internal model consumption is separate."

@@ -383,6 +383,18 @@
       "provenance_path": "powers/pkstack/docs/mattpocock-grill-with-docs-provenance.md",
       "repository": "mattpocock/skills",
       "transitions": []
+    },
+    {
+      "id": "astral-python",
+      "parity_path": "powers/pkstack/docs/astral-python-source-parity.json",
+      "path": "plugins/astral",
+      "provenance_path": "powers/pkstack/docs/astral-python-provenance.md",
+      "repository": "astral-sh/claude-code-plugins",
+      "genesis": {
+        "commit": "f3ce88a7ba830f53afd6d944c1d0278ed318e142",
+        "subtree_sha": "8cc1cb9f539f90fd98efa4be3857c6d74fd8d839"
+      },
+      "transitions": []
     }
   ]
 }

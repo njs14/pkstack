@@ -136,3 +136,10 @@ introduce another planner, editor-task metadata, automatic branch machinery, or 
 alternate completion predicate. A workflow that would publish, merge, push, install software,
 change networking, delete a worktree, or discard changes requires exact authorization for that
 action. Return the selected workflow and skill route, skipped checkpoints, and direct evidence.
+
+## Python tooling
+
+For Python work, use [uv](../uv/SKILL.md) for dependencies and script environments,
+[ruff](../ruff/SKILL.md) for lint/format, and [ty](../ty/SKILL.md) for typing.
+Read only the helpers relevant to the task and preserve the chosen toolchain unless migration
+is requested. These checks complement the existing behavioral tests and projectctl verification.

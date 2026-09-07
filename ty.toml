@@ -1,0 +1,15 @@
+# Type checking for maintained first-party Python outside the Power project.
+# `powers/pkstack/pyproject.toml` keeps its own `[tool.ty]` settings and is
+# checked separately from that directory, so it is excluded here.
+
+[environment]
+python-version = "3.11"
+# Workflow scripts are executed as `python3 -B .github/scripts/<name>.py` and
+# import each other by module name, so that directory is the first-party root.
+root = [".github/scripts"]
+
+[src]
+include = [".github/scripts"]
+
+[terminal]
+error-on-warning = true

@@ -10,6 +10,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 from unittest import mock
 
 import validate_kiro_review_stream as review
@@ -19,9 +20,7 @@ HEAD = "2" * 40
 PATCH_TEXT = "diff --git a/README.md b/README.md\n-old\n+new\n"
 PATCH = hashlib.sha256(PATCH_TEXT.encode()).hexdigest()
 PATHS = ["README.md"]
-PATHS_SHA256 = hashlib.sha256(
-    json.dumps(PATHS, separators=(",", ":")).encode()
-).hexdigest()
+PATHS_SHA256 = hashlib.sha256(json.dumps(PATHS, separators=(",", ":")).encode()).hexdigest()
 BUNDLE = {
     "schema_version": 3,
     "review_type": "mandatory-independent-exact-candidate",
@@ -62,7 +61,7 @@ def verdict(*, head: str = HEAD, findings: list[str] | None = None) -> str:
     )
 
 
-def model_event(model: str = MODEL) -> dict[str, object]:
+def model_event(model: str = MODEL) -> dict[str, Any]:
     return {
         "data": {
             "update": {
@@ -83,18 +82,15 @@ def model_event(model: str = MODEL) -> dict[str, object]:
     }
 
 
-def mode_event(mode: str = review.REQUIRED_AGENT) -> dict[str, object]:
-    return {
-        "data": {"update": {"configOptions": [{"id": "mode", "currentValue": mode}]}}
-    }
+def mode_event(mode: str = review.REQUIRED_AGENT) -> dict[str, Any]:
+    return {"data": {"update": {"configOptions": [{"id": "mode", "currentValue": mode}]}}}
 
 
 class KiroReviewStreamTests(unittest.TestCase):
     def test_reviewer_prompt_states_existing_verdict_contract(self) -> None:
         profile = json.loads(
             (
-                Path(__file__).resolve().parents[2]
-                / ".kiro/agents/pkstack-ci-reviewer.json"
+                Path(__file__).resolve().parents[2] / ".kiro/agents/pkstack-ci-reviewer.json"
             ).read_text(encoding="utf-8")
         )
         prompt = profile["prompt"]
@@ -110,7 +106,8 @@ class KiroReviewStreamTests(unittest.TestCase):
             'otherwise use "rejected"',
             "schema v3 skill_compatibility context",
             "complete changed file records at base and head, keyed by upstream path",
-            "An unchanged retrieved_on is valid for multiple inventory retrievals on the same UTC date",
+            "An unchanged retrieved_on is valid for multiple inventory retrievals on the "
+            "same UTC date",
             "Do not invent omitted context",
             "immutable base fixture",
             "Block supported conflicting instructions",
@@ -126,7 +123,7 @@ class KiroReviewStreamTests(unittest.TestCase):
             self.assertIn(field, prompt)
 
     def test_documented_findings_and_summary_limits_remain_strict(self) -> None:
-        def validate(payload: dict[str, object]) -> None:
+        def validate(payload: dict[str, Any]) -> None:
             review._validate_verdict(
                 json.dumps(payload),
                 base_sha=BASE,
@@ -141,7 +138,9 @@ class KiroReviewStreamTests(unittest.TestCase):
         validate(approved)
         composition = dict(
             approved,
-            summary="Intentional composition retains one primary owner and a bounded evidence helper.",
+            summary=(
+                "Intentional composition retains one primary owner and a bounded evidence helper."
+            ),
         )
         validate(composition)
         rejected = json.loads(verdict(findings=["é" * 1000] * 32))
@@ -150,13 +149,16 @@ class KiroReviewStreamTests(unittest.TestCase):
         invalid = [
             ("material_findings", value)
             for value in (
-                None, {}, [None], [{"issue": "Unsafe"}], [""], [" padded "],
-                ["é" * 1001], ["Issue"] * 33,
+                None,
+                {},
+                [None],
+                [{"issue": "Unsafe"}],
+                [""],
+                [" padded "],
+                ["é" * 1001],
+                ["Issue"] * 33,
             )
-        ] + [
-            ("summary", value)
-            for value in (None, {}, "", " padded ", "é" * 2001)
-        ]
+        ] + [("summary", value) for value in (None, {}, "", " padded ", "é" * 2001)]
         for field, value in invalid:
             with self.subTest(field=field, value=value):
                 payload = {**approved, field: value}
@@ -166,17 +168,18 @@ class KiroReviewStreamTests(unittest.TestCase):
             {**approved, "verdict": "rejected"},
             {**approved, "material_findings": ["Material issue"]},
         ):
-            with self.subTest(verdict=payload["verdict"]):
-                with self.assertRaisesRegex(review.ReviewError, "contradicts"):
-                    validate(payload)
+            with (
+                self.subTest(verdict=payload["verdict"]),
+                self.assertRaisesRegex(review.ReviewError, "contradicts"),
+            ):
+                validate(payload)
 
     def test_captured_kiro_221_model_projection_and_legacy_agent_rejection(
         self,
     ) -> None:
         fixture = json.loads(
             (
-                Path(__file__).resolve().parents[2]
-                / "reviews/kiro-v3-review-stream-shape.json"
+                Path(__file__).resolve().parents[2] / "reviews/kiro-v3-review-stream-shape.json"
             ).read_text(encoding="utf-8")
         )
         self.assertEqual(fixture["cli_version"], "2.21.0")
@@ -289,9 +292,7 @@ class KiroReviewStreamTests(unittest.TestCase):
             root = Path(directory)
             args = self._args(root)
             args.report_path = root / "report.json"
-            escaped = verdict(findings=["sentinel-secret"]).replace(
-                "sentinel", r"\u0073entinel"
-            )
+            escaped = verdict(findings=["sentinel-secret"]).replace("sentinel", r"\u0073entinel")
             self.assertNotIn("sentinel-secret", escaped)
             with (
                 mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
@@ -312,9 +313,7 @@ class KiroReviewStreamTests(unittest.TestCase):
                 "parse_args",
                 return_value=argparse.Namespace(github_output=None),
             ),
-            mock.patch.object(
-                review, "validate", return_value={"review_verdict": "rejected"}
-            ),
+            mock.patch.object(review, "validate", return_value={"review_verdict": "rejected"}),
             mock.patch("builtins.print") as printed,
         ):
             self.assertEqual(review.main(), 0)
@@ -346,9 +345,7 @@ class KiroReviewStreamTests(unittest.TestCase):
                 self.assertRaises(review.ReviewError),
             ):
                 review.validate(args)
-            args.stderr.write_text(
-                'agent not found, using "default"\n', encoding="utf-8"
-            )
+            args.stderr.write_text('agent not found, using "default"\n', encoding="utf-8")
             with (
                 mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
                 self.assertRaisesRegex(review.ReviewError, "fell back"),
@@ -387,94 +384,118 @@ class KiroReviewStreamTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             args = self._args(Path(directory))
             tampered = {**BUNDLE, "changed_files": 2}
-            raw = (
-                json.dumps(tampered, sort_keys=True, separators=(",", ":")) + "\n"
-            ).encode()
+            raw = (json.dumps(tampered, sort_keys=True, separators=(",", ":")) + "\n").encode()
             args.bundle.write_bytes(raw)
             args.content_sha256 = hashlib.sha256(raw).hexdigest()
             with (
                 mock.patch.dict(os.environ, {"KIRO_API_KEY": "sentinel-secret"}),
-                self.assertRaisesRegex(
-                    review.ReviewError, "bundle facts are malformed"
-                ),
+                self.assertRaisesRegex(review.ReviewError, "bundle facts are malformed"),
             ):
                 review.validate(args)
 
     THOUGHT_SENTINEL = "INERT_THOUGHT_SENTINEL_DO_NOT_PUBLISH"
     THOUGHT_SESSION = "sess_00000000-0000-4000-8000-000000000001"
 
-    def _review_envelope(self, update: dict[str, object]) -> dict[str, object]:
+    def _review_envelope(self, update: dict[str, Any]) -> dict[str, Any]:
         return {
             "type": "sessionUpdate",
             "data": {"sessionId": self.THOUGHT_SESSION, "update": update},
         }
 
-    def _review_bootstrap(self) -> list[dict[str, object]]:
+    def _review_bootstrap(self) -> list[dict[str, Any]]:
         call_id = "00000000-0000-4000-8000-000000000002"
         return [
-            self._review_envelope({
-                "sessionUpdate": "tool_call",
-                "toolCallId": call_id,
-                "status": "in_progress",
-                "title": "Fetching your cloud config",
-                "_meta": {"kiro": {"toolId": "fetch_cloud_config"}},
-            }),
-            self._review_envelope({
-                "sessionUpdate": "tool_call_update",
-                "toolCallId": call_id,
-                "status": "completed",
-            }),
+            self._review_envelope(
+                {
+                    "sessionUpdate": "tool_call",
+                    "toolCallId": call_id,
+                    "status": "in_progress",
+                    "title": "Fetching your cloud config",
+                    "_meta": {"kiro": {"toolId": "fetch_cloud_config"}},
+                }
+            ),
+            self._review_envelope(
+                {
+                    "sessionUpdate": "tool_call_update",
+                    "toolCallId": call_id,
+                    "status": "completed",
+                }
+            ),
         ]
 
-    def _review_thought_events(self, thought_count: int = 2) -> list[dict[str, object]]:
+    def _review_thought_events(self, thought_count: int = 2) -> list[dict[str, Any]]:
         profile = json.loads(
-            (Path(__file__).resolve().parents[2] / ".kiro/agents/pkstack-ci-reviewer.json")
-            .read_text(encoding="utf-8")
+            (
+                Path(__file__).resolve().parents[2] / ".kiro/agents/pkstack-ci-reviewer.json"
+            ).read_text(encoding="utf-8")
         )
         mode = {
-            "id": "mode", "name": "Mode", "category": "mode", "type": "select",
+            "id": "mode",
+            "name": "Mode",
+            "category": "mode",
+            "type": "select",
             "currentValue": review.REQUIRED_AGENT,
-            "options": [{
-                "name": review.REQUIRED_AGENT,
-                "value": review.REQUIRED_AGENT,
-                "description": profile["description"],
-                "_meta": {"kiro": {
-                    "source": "global",
-                    "welcomeMessage": profile["welcomeMessage"],
-                    "resource": {"resourceType": "agent", "source": {"origin": "user"}},
-                }},
-            }],
+            "options": [
+                {
+                    "name": review.REQUIRED_AGENT,
+                    "value": review.REQUIRED_AGENT,
+                    "description": profile["description"],
+                    "_meta": {
+                        "kiro": {
+                            "source": "global",
+                            "welcomeMessage": profile["welcomeMessage"],
+                            "resource": {"resourceType": "agent", "source": {"origin": "user"}},
+                        }
+                    },
+                }
+            ],
         }
         model = model_event()["data"]["update"]
         model["sessionUpdate"] = "config_option_update"
         return [
-            {"type": "runStarted", "data": {
-                "payloadSchema": "acp", "acpProtocolVersion": 1, "engine": "v3",
-            }},
-            self._review_envelope({"sessionUpdate": "config_option_update", "configOptions": [mode]}),
+            {
+                "type": "runStarted",
+                "data": {
+                    "payloadSchema": "acp",
+                    "acpProtocolVersion": 1,
+                    "engine": "v3",
+                },
+            },
+            self._review_envelope(
+                {"sessionUpdate": "config_option_update", "configOptions": [mode]}
+            ),
             self._review_envelope(model),
             *[
-                self._review_envelope({
-                    "sessionUpdate": "agent_thought_chunk",
-                    "_meta": {"kiro": {"replayId": "t" * 40}},
-                    "content": {"type": "text", "text": self.THOUGHT_SENTINEL},
-                })
+                self._review_envelope(
+                    {
+                        "sessionUpdate": "agent_thought_chunk",
+                        "_meta": {"kiro": {"replayId": "t" * 40}},
+                        "content": {"type": "text", "text": self.THOUGHT_SENTINEL},
+                    }
+                )
                 for _ in range(thought_count)
             ],
-            self._review_envelope({
-                "sessionUpdate": "agent_message_chunk",
-                "_meta": {"kiro": {"replayId": "m" * 40}},
-                "content": {"type": "text", "text": verdict()},
-            }),
-            {"type": "runFinished", "data": {
-                "sessionId": self.THOUGHT_SESSION,
-                "status": "success", "stopReason": "end_turn",
-                "finalText": verdict(), "finalTextTruncated": False,
-            }},
+            self._review_envelope(
+                {
+                    "sessionUpdate": "agent_message_chunk",
+                    "_meta": {"kiro": {"replayId": "m" * 40}},
+                    "content": {"type": "text", "text": verdict()},
+                }
+            ),
+            {
+                "type": "runFinished",
+                "data": {
+                    "sessionId": self.THOUGHT_SESSION,
+                    "status": "success",
+                    "stopReason": "end_turn",
+                    "finalText": verdict(),
+                    "finalTextTruncated": False,
+                },
+            },
         ]
 
     def _review_lifecycle_args(
-        self, root: Path, events: list[dict[str, object]]
+        self, root: Path, events: list[dict[str, Any]]
     ) -> argparse.Namespace:
         args = self._args(root)
         args.stream.write_text(
@@ -553,8 +574,13 @@ class KiroReviewStreamTests(unittest.TestCase):
 
     def test_unmocked_review_rejects_thought_identity_and_ordering_failures(self) -> None:
         cases = (
-            "wrong_session", "changed_replay", "pending_bootstrap", "after_message",
-            "late_bootstrap", "thought_only", "mismatched_final_text",
+            "wrong_session",
+            "changed_replay",
+            "pending_bootstrap",
+            "after_message",
+            "late_bootstrap",
+            "thought_only",
+            "mismatched_final_text",
         )
         for case in cases:
             with self.subTest(case=case), tempfile.TemporaryDirectory() as directory:

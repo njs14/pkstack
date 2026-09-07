@@ -104,7 +104,10 @@
           ".kiro/skills/unslop/**",
           ".kiro/skills/pkstack-verified-goal/**",
           ".kiro/skills/why/**",
-          ".kiro/steering/**"
+          ".kiro/steering/**",
+          ".kiro/skills/uv/**",
+          ".kiro/skills/ruff/**",
+          ".kiro/skills/ty/**"
         ],
         "effect": "deny"
       },

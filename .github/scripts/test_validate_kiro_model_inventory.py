@@ -10,6 +10,7 @@ import tempfile
 import textwrap
 import unittest
 from pathlib import Path
+from typing import Any
 
 from test_validate_kiro_maintenance_stream import attested_events, stream_bytes
 
@@ -22,7 +23,7 @@ validator = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(validator)
 
 
-def valid_inventory() -> dict[str, object]:
+def valid_inventory() -> dict[str, Any]:
     return {
         "default_model": "gpt-5.6-sol",
         "models": [copy.deepcopy(validator.EXPECTED_MODEL)],
@@ -62,31 +63,27 @@ class ModelInventoryTests(unittest.TestCase):
         for label, replacement in cases.items():
             with self.subTest(label=label):
                 inventory = valid_inventory()
-                inventory["models"][0].update(replacement)  # type: ignore[index,union-attr]
-                with self.assertRaisesRegex(
-                    validator.InventoryError, "context and cost contract"
-                ):
+                inventory["models"][0].update(replacement)
+                with self.assertRaisesRegex(validator.InventoryError, "context and cost contract"):
                     validator.validate_inventory_bytes(encoded(inventory))
 
     def test_rejects_duplicate_model_entries(self) -> None:
         inventory = valid_inventory()
-        inventory["models"].append(  # type: ignore[union-attr]
-            copy.deepcopy(validator.EXPECTED_MODEL)
-        )
+        inventory["models"].append(copy.deepcopy(validator.EXPECTED_MODEL))
         with self.assertRaisesRegex(validator.InventoryError, "duplicate"):
             validator.validate_inventory_bytes(encoded(inventory))
 
     def test_review_preflight_requires_exact_opus_5_contract(self) -> None:
         inventory = valid_inventory()
-        inventory["models"].append(copy.deepcopy(validator.EXPECTED_REVIEW_MODEL))  # type: ignore[union-attr]
+        inventory["models"].append(copy.deepcopy(validator.EXPECTED_REVIEW_MODEL))
         validator.validate_inventory_bytes(encoded(inventory), require_review_model=True)
-        inventory["models"][1]["rate_multiplier"] = 2.3  # type: ignore[index,union-attr]
+        inventory["models"][1]["rate_multiplier"] = 2.3
         with self.assertRaisesRegex(validator.InventoryError, "review contract"):
             validator.validate_inventory_bytes(encoded(inventory), require_review_model=True)
 
     def test_rejects_malformed_entries_and_json(self) -> None:
         inventory = valid_inventory()
-        del inventory["models"][0]["context_window_tokens"]  # type: ignore[index,union-attr]
+        del inventory["models"][0]["context_window_tokens"]
         with self.assertRaisesRegex(validator.InventoryError, "changed schema"):
             validator.validate_inventory_bytes(encoded(inventory))
         with self.assertRaisesRegex(validator.InventoryError, "strict UTF-8 JSON"):
@@ -130,14 +127,17 @@ class ModelInventoryTests(unittest.TestCase):
 
     def test_description_changes_and_better_context_or_cost_are_informational(self) -> None:
         inventory = valid_inventory()
-        inventory["models"][0].update(description="Generally available Sol",  # type: ignore[index,union-attr]
-                                     context_window_tokens=300000, rate_multiplier=2.0)
+        inventory["models"][0].update(
+            description="Generally available Sol",
+            context_window_tokens=300000,
+            rate_multiplier=2.0,
+        )
         validator.validate_inventory_bytes(encoded(inventory))
 
     def test_real_shell_success_paths_reach_repair_and_clean_inventory(self) -> None:
         """Execute the shell glue with a local fake Kiro; never call a model."""
         inventory = valid_inventory()
-        inventory["models"].append(copy.deepcopy(validator.EXPECTED_REVIEW_MODEL))  # type: ignore[union-attr]
+        inventory["models"].append(copy.deepcopy(validator.EXPECTED_REVIEW_MODEL))
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             binary = root / "bin"
@@ -150,7 +150,9 @@ class ModelInventoryTests(unittest.TestCase):
             repair_stream.write_bytes(stream_bytes(attested_events()))
             repair_stderr = root / "repair-fixture.stderr"
             repair_stderr.write_text("")
-            fake.write_text(f"#!{sys.executable}\n" + textwrap.dedent(f'''\
+            fake.write_text(
+                f"#!{sys.executable}\n"
+                + textwrap.dedent(f"""\
                 import json, os, pathlib, sys
                 if "--list-models" in sys.argv:
                     pathlib.Path(os.environ["KIRO_HOME"], "inventory-invoked").touch()
@@ -160,26 +162,37 @@ class ModelInventoryTests(unittest.TestCase):
                     pathlib.Path(os.environ["KIRO_HOME"], "repair-invoked").touch()
                     print(pathlib.Path({str(repair_stream)!r}).read_text(), end="")
                     print(pathlib.Path({str(repair_stderr)!r}).read_text(), end="", file=sys.stderr)
-                '''))
+                """)
+            )
             fake.chmod(0o755)
             timeout = binary / "timeout"
-            timeout.write_text(f"#!{sys.executable}\n" + textwrap.dedent('''\
+            timeout.write_text(
+                f"#!{sys.executable}\n"
+                + textwrap.dedent("""\
                 import os, sys
                 args = sys.argv[1:]
                 while args[0].startswith("-"):
                     args.pop(0)
                 args.pop(0)
                 os.execv(args[0], args)
-                '''))
+                """)
+            )
             timeout.chmod(0o755)
             guard = root / "guard.py"
             guard.write_text("import os\nassert 'KIRO_API_KEY' not in os.environ\n")
-            env = {**os.environ, "KIRO_API_KEY": "test-only-noncredential",
-                   "KIRO_BIN_DIR": str(binary), "KIRO_HOME": str(root / "kiro-user/.kiro"),
-                   "KIRO_USER_HOME": str(root / "kiro-user"), "RUNNER_TEMP": str(root),
-                   "BASE_SHA": "a" * 40, "GUARD_PATH": str(guard), "ATTEMPT_NUMBER": "1",
-                   "PKSTACK_UPSTREAM_RETRIEVED_ON": "2026-09-05",
-                   "GIT_BOUNDARY_STATE": str(root / "git-boundary")}
+            env = {
+                **os.environ,
+                "KIRO_API_KEY": "test-only-noncredential",
+                "KIRO_BIN_DIR": str(binary),
+                "KIRO_HOME": str(root / "kiro-user/.kiro"),
+                "KIRO_USER_HOME": str(root / "kiro-user"),
+                "RUNNER_TEMP": str(root),
+                "BASE_SHA": "a" * 40,
+                "GUARD_PATH": str(guard),
+                "ATTEMPT_NUMBER": "1",
+                "PKSTACK_UPSTREAM_RETRIEVED_ON": "2026-09-05",
+                "GIT_BOUNDARY_STATE": str(root / "git-boundary"),
+            }
             for invalid_date in (None, "", "20260905", "2026-02-30", "2026-09-05\nUNTRUSTED"):
                 with self.subTest(invalid_date=invalid_date):
                     invalid_env = {**env}
@@ -189,15 +202,25 @@ class ModelInventoryTests(unittest.TestCase):
                         invalid_env["PKSTACK_UPSTREAM_RETRIEVED_ON"] = invalid_date
                     invalid = subprocess.run(
                         ["bash", str(ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh")],
-                        cwd=root, env=invalid_env, capture_output=True, text=True, timeout=10,
+                        cwd=root,
+                        env=invalid_env,
+                        capture_output=True,
+                        text=True,
+                        timeout=10,
                     )
                     self.assertNotEqual(invalid.returncode, 0)
                     self.assertNotIn("UNTRUSTED", invalid.stdout + invalid.stderr)
                     self.assertFalse((root / "kiro-user/.kiro/inventory-invoked").exists())
                     self.assertFalse((root / "kiro-user/.kiro/repair-invoked").exists())
                     self.assertFalse((root / "pkstack-kiro-private-1").exists())
-            result = subprocess.run(["bash", str(ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh")],
-                                    cwd=root, env=env, capture_output=True, text=True, timeout=10)
+            result = subprocess.run(
+                ["bash", str(ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh")],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue((root / "kiro-user/.kiro/repair-invoked").is_file())
             self.assertFalse((root / "pkstack-kiro-private-1").exists())
@@ -205,15 +228,22 @@ class ModelInventoryTests(unittest.TestCase):
 
             for stream, stderr, reason in (
                 (b"{}\n", "", "maintenance-agent-selection-missing"),
-                (stream_bytes(attested_events()), 'Agent not found, using "default"\n',
-                 "maintenance-agent-fallback"),
+                (
+                    stream_bytes(attested_events()),
+                    'Agent not found, using "default"\n',
+                    "maintenance-agent-fallback",
+                ),
             ):
                 with self.subTest(reason=reason):
                     repair_stream.write_bytes(stream)
                     repair_stderr.write_text(stderr)
                     result = subprocess.run(
                         ["bash", str(ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh")],
-                        cwd=root, env=env, capture_output=True, text=True, timeout=10,
+                        cwd=root,
+                        env=env,
+                        capture_output=True,
+                        text=True,
+                        timeout=10,
                     )
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(reason, result.stderr)
@@ -221,14 +251,25 @@ class ModelInventoryTests(unittest.TestCase):
                     self.assertFalse((root / "pkstack-kiro-private-1").exists())
 
             workflow = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
-            invoke = workflow.split("      - name: Independent Kiro-hosted Claude Opus 5 review\n", 1)[1]
-            script = textwrap.dedent(invoke.split("        run: |\n", 1)[1].split("          printf -v prompt", 1)[0])
+            invoke = workflow.split(
+                "      - name: Independent Kiro-hosted Claude Opus 5 review\n", 1
+            )[1]
+            script = textwrap.dedent(
+                invoke.split("        run: |\n", 1)[1].split("          printf -v prompt", 1)[0]
+            )
             env.update(REVIEW_PRIVATE=str(root / "private"), TRUSTED_REVIEW_ROOT=str(ROOT))
-            result = subprocess.run(["bash", "-c", script], cwd=root, env=env,
-                                    capture_output=True, text=True, timeout=10)
+            result = subprocess.run(
+                ["bash", "-c", script],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse((root / "private/model-inventory.json").exists())
             self.assertFalse((root / "private/model-inventory.stderr").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

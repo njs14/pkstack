@@ -4,24 +4,21 @@ from __future__ import annotations
 
 import json
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import textwrap
 import unittest
+from pathlib import Path
 
 import pkstack_maintenance_guard as guard_module
-
 
 SCRIPT = Path(__file__).with_name("verify_pkstack_attempt.sh")
 SENTINEL = "UNTRUSTED_STDOUT_secret_like_value_123"
 
 
-@unittest.skipUnless(
-    shutil.which("bash") and shutil.which("jq"), "requires bash and jq"
-)
+@unittest.skipUnless(shutil.which("bash") and shutil.which("jq"), "requires bash and jq")
 class VerifierExecutionTests(unittest.TestCase):
     def execute(
         self,
@@ -100,22 +97,20 @@ class VerifierExecutionTests(unittest.TestCase):
             command.chmod(0o700)
         policy_test = project / ".github/scripts/test_pkstack_maintenance_guard.py"
         policy_test.parent.mkdir(parents=True)
-        policy_test.write_text(
-            "# Isolated immutable policy-test double.\n", encoding="utf-8"
-        )
+        policy_test.write_text("# Isolated immutable policy-test double.\n", encoding="utf-8")
         (project / "powers/pkstack").mkdir(parents=True)
         (project / ".pkstack-maintenance").mkdir()
-        (project / ".pkstack-maintenance/proposal.json").write_text(
-            "{}", encoding="utf-8"
-        )
+        (project / ".pkstack-maintenance/proposal.json").write_text("{}", encoding="utf-8")
         detector = runner / "detector.json"
         detector.write_text("{}", encoding="utf-8")
         control = runner / "control.json"
         control.write_text(
-            json.dumps({
-                "selected_source_id": "alpha",
-                "expected_head": ("c" if wrong_control_head else "b") * 40,
-            }),
+            json.dumps(
+                {
+                    "selected_source_id": "alpha",
+                    "expected_head": ("c" if wrong_control_head else "b") * 40,
+                }
+            ),
             encoding="utf-8",
         )
         output = runner / "output"
@@ -215,9 +210,7 @@ class VerifierExecutionTests(unittest.TestCase):
             ("setup", 17, 0, False),
         )
         self.assertEqual(output.read_text(), "passed=false\nattempt=1\n")
-        self.assertIn(
-            SENTINEL, feedback.read_text()
-        )  # Private repair input, never uploaded.
+        self.assertIn(SENTINEL, feedback.read_text())  # Private repair input, never uploaded.
         self.assertFalse((runner / "pkstack-verify-1.log").exists())
 
     def test_cleanup_failure_is_retained_but_cannot_report_success(self):
@@ -228,7 +221,6 @@ class VerifierExecutionTests(unittest.TestCase):
             (17, 19, False),
         )
         self.assertFalse(output.exists())
-
 
     def test_proposal_failures_retain_only_allowlisted_reason_codes(self):
         for reason in sorted(guard_module.PROPOSAL_FAILURE_REASONS):
@@ -262,7 +254,9 @@ class VerifierExecutionTests(unittest.TestCase):
 class VerifierRuntimeCleanupTests(unittest.TestCase):
     def execute_cleanup(self, runner: Path, binary: Path, home: Path, user: Path):
         source = SCRIPT.read_text(encoding="utf-8")
-        marker = 'python3 - "$RUNNER_TEMP" "$KIRO_BIN_DIR" "$KIRO_HOME" "$KIRO_USER_HOME" <<\'PY\'\n'
+        marker = (
+            'python3 - "$RUNNER_TEMP" "$KIRO_BIN_DIR" "$KIRO_HOME" "$KIRO_USER_HOME" <<\'PY\'\n'
+        )
         self.assertEqual(source.count(marker), 1)
         cleanup = source.split(marker, 1)[1].split("\nPY\n", 1)[0]
         harness = textwrap.dedent("""\

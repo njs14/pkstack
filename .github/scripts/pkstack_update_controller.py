@@ -11,20 +11,19 @@ from pathlib import Path
 import pkstack_maintenance_guard as guard
 import pkstack_review_feedback as feedback
 
+FEEDBACK_PATH = Path(__file__).resolve().parents[2] / "maintenance/upstream-feedback.json"
+
 
 def decide(
     detector_path: Path,
-    feedback_path: Path = Path(__file__).resolve().parents[2]
-    / "maintenance/upstream-feedback.json",
+    feedback_path: Path = FEEDBACK_PATH,
     retry_source: str = "",
 ) -> dict[str, object]:
     before_sha256 = hashlib.sha256(detector_path.read_bytes()).hexdigest()
     detector = guard.validate_detector(detector_path)
     sensor_sha256 = hashlib.sha256(detector_path.read_bytes()).hexdigest()
     if sensor_sha256 != before_sha256:
-        raise guard.GuardError(
-            "upstream detector changed while the controller was deciding"
-        )
+        raise guard.GuardError("upstream detector changed while the controller was deciding")
     drifts = detector["validated_drift_sources"]
     ledger = feedback.load_ledger(feedback_path)
     sources = {source["id"]: source for source in detector.get("sources", [])}
@@ -39,8 +38,7 @@ def decide(
             or not source
             or source["current"]["subtree_sha"] != retry_tree
             or not source["drift"]
-            or feedback.source_feedback(ledger, retry_id, retry_tree)[0]
-            != feedback.MAX_REJECTIONS
+            or feedback.source_feedback(ledger, retry_id, retry_tree)[0] != feedback.MAX_REJECTIONS
         ):
             raise ValueError(
                 "retry_source must name an exhausted drifting source@exact-subtree-sha"
@@ -85,10 +83,12 @@ def decide(
         objective = "Generated/source parity needs a reviewed deterministic setup run"
         goal = None
     source = sources.get(source_id) if source_id else None
-    tree = source["current"]["subtree_sha"] if source else None
-    count, report = (
-        feedback.source_feedback(ledger, source_id, tree) if source else (0, None)
-    )
+    if source_id and source:
+        tree = source["current"]["subtree_sha"]
+        count, report = feedback.source_feedback(ledger, source_id, tree)
+    else:
+        tree = None
+        count, report = 0, None
     return {
         "schema_version": 1,
         "action": action,

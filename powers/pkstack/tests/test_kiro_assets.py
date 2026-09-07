@@ -1207,6 +1207,7 @@ def test_steering_uses_native_always_and_file_match_inclusion() -> None:
     assert {path.name for path in paths} == {
         "pkstack-core.md",
         "pkstack-safety.md",
+        "pkstack-python.md",
         "pkstack-typescript.md",
         "pkstack-unslop.md",
     }
@@ -1220,6 +1221,18 @@ def test_steering_uses_native_always_and_file_match_inclusion() -> None:
             }
             normalized = " ".join(body.split())
             assert "typescript-best-practices" in normalized
+        elif path.name == "pkstack-python.md":
+            assert metadata["inclusion"] == "fileMatch"
+            patterns = metadata["fileMatchPattern"]
+            assert isinstance(patterns, list)
+            assert set(patterns) == {
+                "**/*.py",
+                "**/*.pyi",
+                "**/pyproject.toml",
+                "**/uv.lock",
+                "**/ruff.toml",
+                "**/ty.toml",
+            }
         else:
             assert metadata == {"inclusion": "always"}
 

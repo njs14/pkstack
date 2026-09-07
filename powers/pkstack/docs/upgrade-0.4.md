@@ -12,7 +12,8 @@ For 0.2 or older namespaces, first follow the separate-checkout
 
 ## Preview the managed refresh
 
-Set `PKSTACK_POWER` to the reviewed 0.4 Power directory. Leave the restricted
+Set `PKSTACK_PACKAGE` to the reviewed 0.4 checkout directory or local wheel, following
+the [package-source guide](usage.md#choose-the-power-source). Leave the restricted
 workspace agent in the same CLI conversation:
 
 ```text
@@ -23,11 +24,10 @@ In Kiro IDE, use the agent picker. Then preview setup from a terminal at the
 target project root:
 
 ```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PWD" --dry-run --update-managed --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack upgrade --dry-run --output json
 ```
 
-Review all reported paths. `--update-managed` updates only files that match the
+Review all reported paths. The explicit `upgrade` command uses `--update-managed` and updates only files that match the
 previous ownership receipt. User-modified files need deliberate reconciliation.
 Retired `stale_managed` files are not automatically removed; review them
 individually and preserve their original content. If the preview cannot apply
@@ -36,13 +36,12 @@ cleanly, use a separate clean checkout and retain the original for rollback.
 After resolving the preview, apply and check the new installation:
 
 ```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PWD" --update-managed --output json
-.pkstack/bin/projectctl version --output json
-.pkstack/bin/projectctl doctor --output json
-.pkstack/bin/projectctl feature validate --output json
-.pkstack/bin/projectctl knowledge validate --output json
-.pkstack/bin/projectctl knowledge status --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack upgrade --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack version --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack doctor --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature validate --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge validate --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge status --output json
 ```
 
 Keep durable project context in `Wiki/knowledge/`, feature contracts in
@@ -57,7 +56,7 @@ the [discovery guide](usage.md#attach-the-generated-agent) if refreshed skills
 remain absent. When context is needed, run a bounded query:
 
 ```sh
-.pkstack/bin/projectctl knowledge search "project acceptance criteria" \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge search "project acceptance criteria" \
   --budget 1200 --model auto --output json
 ```
 

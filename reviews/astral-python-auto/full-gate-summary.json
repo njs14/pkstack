@@ -1,0 +1,77 @@
+{
+  "command": "uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local full --output /private/tmp/pkstack-astral-evidence/full-gate-v2",
+  "commit": "d36bb88b2f10e3103060ecbad0c1053ccba5564e",
+  "config_digest": "9dbccd79fc4ec549e874438a0c2750ea16d8084d0bce2fb5b8bb356c2c0fa1a3",
+  "outcome": "passed",
+  "power_test_count": 974,
+  "repository_unittest_count": 234,
+  "lanes": [
+    {
+      "lane": "fast",
+      "outcome": "passed",
+      "results": 22,
+      "receipt_sha256": "9565d1ef544e7846a607dd8f5f6b2db1f28f7578a42e26e2e88888b0163405e4"
+    },
+    {
+      "lane": "browser",
+      "outcome": "passed",
+      "results": 5,
+      "receipt_sha256": "11930655bc650e6f041400e5dc5f4fc669d1e1c55d218cc766b1658149e240c5"
+    },
+    {
+      "lane": "package",
+      "outcome": "passed",
+      "results": 5,
+      "receipt_sha256": "b2521ff8316bef974138ea68aa73fd9b86417abb6a90ef7cf3a98d8beffd7165"
+    },
+    {
+      "lane": "core-0",
+      "outcome": "passed",
+      "results": 157,
+      "receipt_sha256": "95dd1ebcb9eda4bc7f6fd00a25c29164383926f349aa4fbcce0347b8c3d6f8fa"
+    },
+    {
+      "lane": "core-1",
+      "outcome": "passed",
+      "results": 157,
+      "receipt_sha256": "a285c5009c1901d95e4699bf77b4a54e0dabd2ed22ad8142fe80bdd594ef0412"
+    },
+    {
+      "lane": "core-2",
+      "outcome": "passed",
+      "results": 152,
+      "receipt_sha256": "f88996a1a002a6fa88deb9aca43c8f42d991fe230f8c7bae558c41ae166e8765"
+    },
+    {
+      "lane": "core-3",
+      "outcome": "passed",
+      "results": 150,
+      "receipt_sha256": "d5ec4a11a3452b622d4ed6c7e5212ecc3981d2e8da0c51ec9143900742780516"
+    },
+    {
+      "lane": "core-4",
+      "outcome": "passed",
+      "results": 153,
+      "receipt_sha256": "f6587de182fdaee43e7cefc964b34bdef008f7371e3463d69abea690f03e9fb2"
+    },
+    {
+      "lane": "core-5",
+      "outcome": "passed",
+      "results": 173,
+      "receipt_sha256": "029e6cd3a468f8091d9f385862fb19449d07c7269646d017d10d5408601b5f7c"
+    },
+    {
+      "lane": "policy",
+      "outcome": "passed",
+      "results": 0,
+      "receipt_sha256": "63a3657ec054ac469e6423b97b074c23aa24ab07b056457703fcd6706c35f8f7"
+    }
+  ],
+  "evidence_directory": "/private/tmp/pkstack-astral-evidence/full-gate-v2",
+  "log_sha256": "a669f52090d262b94266bd6e03bc454d5874259d16a95d1872370cb51ff74d00",
+  "previous_run": {
+    "commit": "3738ede71dd6b1f2cdaee8ce46ab4587b70b87d4",
+    "outcome": "failed",
+    "failure": "Bootstrap test expected the old steering set. Added pkstack-python.md to the explicit expected list; targeted rerun passed. All other lanes passed."
+  }
+}

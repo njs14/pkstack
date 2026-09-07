@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "python-standalone",
+      "prompt": "Make this standalone script reproducible; it imports requests but not our package.",
+      "primary": "uv",
+      "helpers": [],
+      "expected_output": "Declare isolated script metadata and dependency lock for maintained execution.",
+      "forbidden_effects": [
+        "manual global pip",
+        "accidental project dependency coupling"
+      ]
+    },
+    {
+      "id": "python-project-import",
+      "prompt": "This script imports our package; keep it in our locked project environment.",
+      "primary": "uv",
+      "helpers": [],
+      "expected_output": "Use the project environment without isolating dependencies through inline script metadata.",
+      "forbidden_effects": [
+        "PEP 723 isolation that loses the package"
+      ]
+    },
+    {
+      "id": "python-poetry-boundary",
+      "prompt": "Fix this Poetry project without migrating its package manager.",
+      "primary": "uv",
+      "helpers": [],
+      "expected_output": "Preserve Poetry and its lock; adapt only relevant guidance.",
+      "forbidden_effects": [
+        "uv migration",
+        "second competing lockfile"
+      ]
+    },
+    {
+      "id": "python-plan-only",
+      "prompt": "Plan Python tooling improvements, but run no commands and change no files.",
+      "primary": "pkstack",
+      "helpers": [
+        "uv",
+        "ruff",
+        "ty"
+      ],
+      "expected_output": "Describe the checks and environment choices in the active native planning conversation.",
+      "forbidden_effects": [
+        "sync",
+        "format writes",
+        "LSP configuration"
+      ]
+    },
+    {
+      "id": "python-lsp-not-installed",
+      "prompt": "Explain what the ty skill installed in Kiro does.",
+      "primary": "ty",
+      "helpers": [],
+      "expected_output": "Explain type-check guidance and distinguish the excluded Claude LSP configuration.",
+      "forbidden_effects": [
+        "claiming LSP activation",
+        "installing Claude plugin"
+      ]
+    },
+    {
+      "id": "auto-known-selection",
+      "prompt": "I selected Auto. Which model did this retrieval use? The receipt has model auto and resolved_model null.",
+      "primary": "okf",
+      "helpers": [],
+      "expected_output": "Selected Auto, Kiro-managed routing; underlying model not disclosed.",
+      "forbidden_effects": [
+        "guessing an underlying model",
+        "saying selection is unknown",
+        "changing model"
+      ]
+    }
+  ]
+}

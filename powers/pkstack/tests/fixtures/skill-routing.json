@@ -1,365 +1,53 @@
 {
   "schema_version": 1,
   "cases": [
-    {
-      "id": "setup-only",
-      "prompt": "Set up PKStack in this repository and tell me whether it is ready.",
-      "primary": "pkstack-setup",
-      "helpers": [],
-      "expected_output": "Installation inventory, doctor and validation results, agent handoff, and one relevant next-step offer.",
-      "forbidden_effects": ["automatic onboarding", "unrequested diagram or documentation", "automatic verifier creation", "global model or permission changes"]
-    },
-    {
-      "id": "setup-requested-tour",
-      "prompt": "Set up PKStack, then give me a small visual tour of this project's request path.",
-      "primary": "pkstack-setup",
-      "helpers": ["show-me", "how"],
-      "expected_output": "Setup results followed by the explicitly requested visual tour using inspected project evidence.",
-      "forbidden_effects": ["new evidence log", "global configuration changes", "claiming discovery before the required agent handoff"]
-    },
-    {
-      "id": "visual-request-flow",
-      "prompt": "Show me the request flow from the API handler to the worker as a small diagram.",
-      "primary": "show-me",
-      "helpers": ["how"],
-      "expected_output": "A compact diagram grounded in the inspected request path, with uncertainty retained.",
-      "forbidden_effects": ["new decision log", "product edits", "repeating an existing mechanics investigation"]
-    },
-    {
-      "id": "visual-polished-artifact",
-      "prompt": "Make a polished interactive HTML architecture diagram from the service map we just verified.",
-      "primary": "archify",
-      "helpers": ["show-me"],
-      "expected_output": "A validated local interactive diagram using the supplied service evidence and the reviewed Archify runtime.",
-      "forbidden_effects": ["new investigation without an evidence gap", "new decision log", "network fetch or runtime modification", "claiming the diagram proves runtime behavior"]
-    },
-    {
-      "id": "ambiguous-work-summary",
-      "prompt": "Show me what you did.",
-      "primary": "pkstack",
-      "helpers": [],
-      "expected_output": "A concise summary of existing changes and verification evidence, with gaps identified.",
-      "forbidden_effects": ["new evidence log", "new diagram", "new product work", "fabricated contemporaneous history"]
-    },
-    {
-      "id": "requested-evidence-trail",
-      "prompt": "Keep an auditable decision trail for this repair, connecting each requirement to the change and its verification.",
-      "primary": "show-me-your-work",
-      "helpers": [],
-      "expected_output": "A projectctl-managed bounded decision trail and coverage audit with exact evidence pointers.",
-      "forbidden_effects": ["hidden reasoning disclosure", "raw private transcripts", "committed evidence without a request", "retrospective events presented as contemporaneous"]
-    },
-    {
-      "id": "explicit-visual-route",
-      "prompt": "/show-me explain the retries in this code. Keep it read-only.",
-      "primary": "show-me",
-      "helpers": ["how"],
-      "expected_output": "An inline sketch of the inspected retry behavior using the explicitly selected visual method.",
-      "forbidden_effects": ["new decision log", "file writes", "changing retry behavior"]
-    },
-    {
-      "id": "explicit-evidence-summary-only",
-      "prompt": "/show-me-your-work summarize the evidence we already have; do not create or append any log.",
-      "primary": "show-me-your-work",
-      "helpers": [],
-      "expected_output": "An evidence coverage summary within the explicit read-only constraint.",
-      "forbidden_effects": ["creating a log", "appending a log", "treating skill invocation as broader write authority"]
-    },
-    {
-      "id": "human-runbook",
-      "prompt": "Rewrite the deployment runbook so an on-call engineer can follow the recovery steps.",
-      "primary": "technical-writing",
-      "helpers": ["unslop"],
-      "expected_output": "A human how-to with verified commands, prerequisites, expected results, and recovery in reader order.",
-      "forbidden_effects": ["rewriting agent policy instead", "running the deployment", "invented commands or certainty"]
-    },
-    {
-      "id": "agent-instructions",
-      "prompt": "Tighten AGENTS.md and its linked Kiro steering so agents load the right instructions for a migration.",
-      "primary": "writing-for-agents",
-      "helpers": ["unslop"],
-      "expected_output": "Agent instructions with discriminating pointers, leaf-owned rules, observable checkpoints, and preserved authority.",
-      "forbidden_effects": ["human tutorial replacing agent triggers", "new router runtime", "widening migration authority", "deleting safety rules to shorten prose"]
-    },
-    {
-      "id": "mixed-audience-docs",
-      "prompt": "Update the contributor guide and AGENTS.md for our new test command, using the same verified command reference.",
-      "primary": "technical-writing",
-      "helpers": ["writing-for-agents", "unslop"],
-      "expected_output": "Distinct human and agent instructions linked to one authoritative command reference.",
-      "forbidden_effects": ["duplicated conflicting command definitions", "dropping agent trigger conditions", "running unrelated workflows"]
-    },
-    {
-      "id": "prose-edit-only",
-      "prompt": "Make this status paragraph less synthetic while keeping the caveat that the live smoke has not run.",
-      "primary": "unslop",
-      "helpers": [],
-      "expected_output": "Revised prose preserving facts, voice, and the unperformed-smoke caveat after the four editing passes.",
-      "forbidden_effects": ["invented evidence", "erased uncertainty", "unrequested restructuring of the workflow"]
-    },
-    {
-      "id": "mechanics-question",
-      "prompt": "How does projectctl choose and run a goal's verifier? Trace the current code.",
-      "primary": "how",
-      "helpers": ["show-me"],
-      "expected_output": "An evidence-backed mechanics explanation from entrypoint through verifier result, optionally with a small flow.",
-      "forbidden_effects": ["invented historical motivation", "product edits", "new evidence log"]
-    },
-    {
-      "id": "rationale-question",
-      "prompt": "Why did we keep verification separate from model work? Recover the decision and distinguish inference.",
-      "primary": "why",
-      "helpers": ["recall"],
-      "expected_output": "A rationale answer with direct evidence, inference labels, source coverage, and unresolved gaps.",
-      "forbidden_effects": ["code shape treated as author intent", "unrelated transcript searches", "mechanics alone presented as rationale"]
-    },
-    {
-      "id": "teach-composed-lesson",
-      "prompt": "Teach me how this queue works and why it uses acknowledgements; build up a small diagram as you explain.",
-      "primary": "teach",
-      "helpers": ["how", "why", "show-me"],
-      "expected_output": "A layered lesson composing mechanics and rationale, with progressive visuals and shared evidence.",
-      "forbidden_effects": ["duplicate investigations", "quizzing the user", "turning inferred rationale into certainty", "diagram generation treated as proof"]
-    },
-    {
-      "id": "architecture-boundary",
-      "prompt": "Design the API and storage boundary for this component within the existing Kiro Spec. Compare viable shapes.",
-      "primary": "architect",
-      "helpers": ["how", "why", "grilling"],
-      "expected_output": "Usage-first scaffolds, one architecture alternatives pass, and an advisory delta to the native design.",
-      "forbidden_effects": ["second task graph", "duplicate arena for the same decision", "implementation when only design was requested"]
-    },
-    {
-      "id": "artifact-contest",
-      "prompt": "Compare these three retry-controller designs under one rubric and recommend a base; do not implement it.",
-      "primary": "arena",
-      "helpers": [],
-      "expected_output": "One bounded contest with a shared rubric, independent judging pass, evidence, and a coherent recommendation.",
-      "forbidden_effects": ["implementation edits", "repeating the contest through architect", "concatenating incompatible designs"]
-    },
-    {
-      "id": "loop-design-only",
-      "prompt": "Design a reusable dependency-update loop with local commands, bounded attempts, and a review gate. Do not build it yet.",
-      "primary": "design-control-loop",
-      "helpers": ["architect", "grilling"],
-      "expected_output": "A control contract naming measurement, authority, transitions, bounds, and local proof; architecture helps only unresolved boundaries.",
-      "forbidden_effects": ["workflow implementation", "enabled schedule", "duplicate alternatives contest", "second native planning graph", "hypothetical transitions labeled as observed runs"]
-    },
-    {
-      "id": "loop-build-authorized",
-      "prompt": "Implement the reusable loop from our approved control contract as local components and an inactive workflow. Verify it locally.",
-      "primary": "build-iterated-agentic-loop",
-      "helpers": ["design-control-loop", "writing-for-agents", "pkstack-verified-goal"],
-      "expected_output": "Locally runnable loop components and bounded agent instructions reusing the agreed contract, with exact verification results.",
-      "forbidden_effects": ["enabled schedule", "published candidate", "new model vendor credentials", "restarting settled design work"]
-    },
-    {
-      "id": "execute-current-task",
-      "prompt": "Keep working on this parser bug until the existing acceptance test passes.",
-      "primary": "pkstack-verified-goal",
-      "helpers": ["how", "tdd"],
-      "expected_output": "Current-session repair under the stored executable predicate, with initial failure and a verified terminal result or bounded exhaustion.",
-      "forbidden_effects": ["reusable loop scaffold", "scheduled automation", "weaker acceptance test", "automatic extra attempts"]
-    },
-    {
-      "id": "verifier-drift",
-      "prompt": "The UI renamed a button as designed. Update our verification skill and feature contract to drive the current UI, then prove them.",
-      "primary": "maintain-verification-skill",
-      "helpers": ["how"],
-      "expected_output": "Verifier drift reconciled against the live surface, with the mandatory live pass and proved contract updates.",
-      "forbidden_effects": ["product behavior edits", "weakened expected outcome", "static assertions replacing the live pass"]
-    },
-    {
-      "id": "product-defect",
-      "prompt": "The checkout now charges twice. Fix the product and keep the existing single-charge verifier unchanged.",
-      "primary": "pkstack-verified-goal",
-      "helpers": ["how"],
-      "expected_output": "A product repair proved against the unchanged single-charge expectation, using an authorized test surface.",
-      "forbidden_effects": ["verifier relaxed to accept duplicate charges", "verifier maintenance used to hide product failure", "real payment without exact authorization"]
-    },
-    {
-      "id": "recall-context",
-      "prompt": "What did we decide about retry limits last time? Check this repository's decision records.",
-      "primary": "recall",
-      "helpers": [],
-      "expected_output": "A bounded reconstruction with source locations and current, historical, or inferred labels.",
-      "forbidden_effects": ["durable edits", "lesson proposals substituted for retrieval", "unrelated private history search"]
-    },
-    {
-      "id": "reflect-proposals",
-      "prompt": "Reflect on the completed migration and propose changes that would prevent the failures we saw.",
-      "primary": "reflect",
-      "helpers": ["recall"],
-      "expected_output": "Three independent lenses and evidence-backed Accepted, Rejected, or Backlog proposals with owners and proof strategies.",
-      "forbidden_effects": ["unapproved durable edits", "automatic Wiki capture", "personal memory writes", "unrelated transcript mining"]
-    },
-    {
-      "id": "capture-approved-knowledge",
-      "prompt": "Record the approved retry-limit decision in our Wiki with its sources and validate the knowledge bundle.",
-      "primary": "okf",
-      "helpers": ["recall", "unslop"],
-      "expected_output": "Scoped durable OKF knowledge with provenance, links, and local metadata/link validation composed with feature validation.",
-      "forbidden_effects": ["unrelated lesson changes", "competing knowledge tree", "dependency installation", "local checks called full OKF conformance"]
-    },
-    {
-      "id": "react-props-too-broad",
-      "prompt": "This React component's optional handler and nullable title admit states no live caller uses. Tighten its props and update stories.",
-      "primary": "narrow-react-prop-types",
-      "helpers": ["typescript-best-practices"],
-      "expected_output": "A live-call-site inventory, narrowed production props, adapted support code, and focused type and behavior checks.",
-      "forbidden_effects": ["support code widening the production contract", "narrowing without inspecting live callers", "removing a real runtime state"]
-    },
-    {
-      "id": "typescript-boundary-schema",
-      "prompt": "Review the TypeScript schema that validates webhook payloads at the API boundary.",
-      "primary": "typescript-best-practices",
-      "helpers": [],
-      "expected_output": "A scoped review of runtime validation, honest domain types, and uncertainty at the external-data boundary.",
-      "forbidden_effects": ["React prop narrowing without a React contract issue", "unrequested edits", "type assertions substituted for validation"]
-    },
-    {
-      "id": "react-live-null-state",
-      "prompt": "/narrow-react-prop-types review this title prop; production deliberately passes null while the title loads.",
-      "primary": "narrow-react-prop-types",
-      "helpers": ["typescript-best-practices"],
-      "expected_output": "The explicit method checks live callers and preserves required nullable state, reporting any justified narrowing separately.",
-      "forbidden_effects": ["removing production null state", "review request treated as edit authority", "support-only evidence overriding live callers"]
-    },
-    {
-      "id": "explicit-loop-no-effects",
-      "prompt": "/design-control-loop sketch an updater from the current repository. Do not edit files, install anything, or enable it.",
-      "primary": "design-control-loop",
-      "helpers": ["grilling"],
-      "expected_output": "A read-only control-loop design using existing commands and constraints under the explicit invocation.",
-      "forbidden_effects": ["file writes", "software installation", "enabled automation", "skill invocation treated as broader authority"]
-    },
-    {
-      "id": "lesson-with-polished-visual",
-      "prompt": "Teach the approved update loop's mechanics and rationale, and make a polished interactive diagram from that same evidence.",
-      "primary": "teach",
-      "helpers": ["how", "why", "show-me", "archify"],
-      "expected_output": "A composed lesson and validated interactive diagram sharing one evidence packet, with each helper serving a distinct phase.",
-      "forbidden_effects": ["duplicate mechanics or rationale investigations", "changed confidence labels", "new evidence log", "enabled automation"]
-    },
-    {
-      "id": "explicit-grilling-method",
-      "prompt": "/grilling pressure-test this plan with a short interview. Stop when the consequential choices are clear; do not write files.",
-      "primary": "grilling",
-      "helpers": [],
-      "expected_output": "Dependency-ordered questions grounded in existing project evidence, then settled choices, rationale, and explicit unresolved decisions.",
-      "forbidden_effects": ["file writes", "implementation after the interview", "repeating settled definitions without contradictory evidence"]
-    },
-    {
-      "id": "interview-decision-only",
-      "prompt": "Grill me on this proposed queue redesign before I choose it. Use the existing code to resolve facts and keep the result conversational.",
-      "primary": "grill-me",
-      "helpers": ["grilling"],
-      "expected_output": "A focused decision interview applying the shared grilling method, with code-grounded facts and a clear stopping condition.",
-      "forbidden_effects": ["automatic Wiki capture", "product implementation", "asking the user questions code inspection can answer"]
-    },
-    {
-      "id": "domain-meaning-update",
-      "prompt": "Clarify what account and membership mean in this project, test the definitions against the code, and update the existing topic glossary.",
-      "primary": "domain-modeling",
-      "helpers": ["okf"],
-      "expected_output": "Scenario-tested domain definitions in the existing glossary, distinctions between decisions and observed behavior, and bounded local validation.",
-      "forbidden_effects": ["a competing glossary", "copied native task plans", "accepted terminology presented as verified behavior", "changes to skills or goal bindings"]
-    },
-    {
-      "id": "interview-and-retain-knowledge",
-      "prompt": "Interview me about this feature design while updating our Wiki definitions, consequential decisions, and open questions for the existing Kiro Spec.",
-      "primary": "grill-with-docs",
-      "helpers": ["grilling", "domain-modeling", "okf"],
-      "expected_output": "A bounded shared interview with permitted updates to existing topic knowledge, local validation, and authoritative native Spec links; pending capture stays conversational if read-only.",
-      "forbidden_effects": ["duplicate investigations by composed helpers", "a second native task graph", "raw transcript retention", "publication or permission changes"]
-    },
-    {
-      "id": "native-plan-shared-method",
-      "prompt": "Plan the retry redesign through PKStack. Read the existing code first; we already agreed on a three-attempt limit. Keep planning until I approve it.",
-      "primary": "pkstack",
-      "helpers": ["grilling"],
-      "expected_output": "A native Plan handoff carrying the three-attempt decision and directing the workflow to read grilling; the decision-complete plan stays conversational.",
-      "forbidden_effects": ["repeating the attempt-limit interview", "creating tasks.md", "shell or MCP calls during Plan", "implementation before native approval"]
-    },
-    {
-      "id": "native-plan-capture-pending",
-      "prompt": "We are in native Plan. I approve the implementation plan, but this phase still has read-only tools. Retain the agreed account definition for the later execution handoff.",
-      "primary": "pkstack",
-      "helpers": ["grilling", "domain-modeling", "okf"],
-      "expected_output": "Accepted understanding and pending topic/source/validation context remain in the conversation until permitted execution; approval does not change current capabilities.",
-      "forbidden_effects": ["file writes including Wiki/work", "shell retrieval or validation", "claiming capture succeeded", "changing mode permissions"]
-    },
-    {
-      "id": "approved-plan-first-write",
-      "prompt": "The retry implementation plan is approved and native execution now permits ordinary writes. Continue from the settled decisions.",
-      "primary": "pkstack",
-      "helpers": ["grilling", "domain-modeling", "okf"],
-      "expected_output": "At the first permitted execution step reconcile reusable definitions and decisions into existing topic knowledge, reference plan context, validate, then continue authorized work.",
-      "forbidden_effects": ["second interview", "copying the plan into Wiki", "new persistent planning-state format", "calling accepted design verified implementation"]
-    },
-    {
-      "id": "approved-plan-repeat",
-      "prompt": "The same retry plan is approved again. Its definitions and decisions were already captured and validated; continue from that state.",
-      "primary": "pkstack",
-      "helpers": ["grilling", "okf"],
-      "expected_output": "Inspect existing entries and approval context, confirm no knowledge delta, and continue without duplicate records or validation claims from an unexecuted check.",
-      "forbidden_effects": ["duplicate glossary or ADR", "duplicate index or log entry", "new plan identifier registry", "reopening settled choices without evidence"]
-    },
-    {
-      "id": "approved-plan-no-write",
-      "prompt": "I approve this implementation plan for reference only. Do not write files or implement it.",
-      "primary": "pkstack",
-      "helpers": ["grilling", "okf"],
-      "expected_output": "Acknowledge the accepted plan and retain understanding in conversation while the explicit no-write and no-implementation constraints apply.",
-      "forbidden_effects": ["Wiki edits", "scratch files", "implementation", "treating approval as broader write authority"]
-    },
-    {
-      "id": "approved-plan-capture-denied",
-      "prompt": "The plan is approved, but Kiro denied the Wiki update. Preserve the pending decision and report the actual capture status.",
-      "primary": "okf",
-      "helpers": ["domain-modeling", "grilling"],
-      "expected_output": "Capture remains incomplete with intended topic and sources in conversation, ready only for a later permitted step.",
-      "forbidden_effects": ["retry through a different tool", "claiming successful capture", "permission edits"]
-    },
-    {
-      "id": "approved-plan-validation-failed",
-      "prompt": "The approved plan decision was written to Wiki, but local knowledge validation failed on its link. Report and repair within the permitted document scope.",
-      "primary": "okf",
-      "helpers": ["domain-modeling"],
-      "expected_output": "Repair the scoped knowledge link if permitted, rerun local validation, and report capture incomplete until an actual passing result.",
-      "forbidden_effects": ["invented validation pass", "broad Wiki rewrite", "treating document existence as completion"]
-    },
-    {
-      "id": "native-spec-shared-ownership",
-      "prompt": "Continue our active Kiro Spec using PKStack. Requirements are approved; ask only about unresolved storage choices and preserve native phase approvals.",
-      "primary": "pkstack",
-      "helpers": ["grilling", "architect"],
-      "expected_output": "Read the shared method in the active Spec, reuse approved requirements, and refine native design and tasks within native phase control.",
-      "forbidden_effects": ["new Spec handoff for an already active mode", "duplicate task ledger", "repeating approved requirement questions", "interview completion treated as phase approval"]
-    },
-    {
-      "id": "plan-handoff-without-interview",
-      "prompt": "Use native conversational Plan for the retry redesign through PKStack. Read the code for the settled three-attempt limit first. Do not implement before I approve.",
-      "primary": "pkstack",
-      "helpers": ["grilling"],
-      "expected_output": "A read-only fact pass and one runnable /plan handoff carrying the settled limit and the open choices for native Plan to ask, then a stop for the user's selection.",
-      "forbidden_effects": ["asking the open choices under pkstack", "a paraphrased mode-switch request instead of the runnable line", "claiming the agent selected native Plan", "implementation before native approval"]
-    },
-    {
-      "id": "settled-constraint-mechanics",
-      "prompt": "Plan the identifier normalizer. The stated contract is settled; it does not say which of several compliant implementations to use.",
-      "primary": "grilling",
-      "helpers": ["how"],
-      "expected_output": "A simple compliant implementation is selected from the equivalent approaches and stated with the requirement it satisfies.",
-      "forbidden_effects": ["asking the user to confirm the settled contract", "offering an option that breaks it", "treating equivalent compliant routes as a product choice"]
-    },
-    {
-      "id": "docs-interview-read-only",
-      "prompt": "/grill-with-docs clarify membership as we plan, but native Plan is currently read-only. We already settled account ownership.",
-      "primary": "grill-with-docs",
-      "helpers": ["grilling", "domain-modeling", "okf"],
-      "expected_output": "Interview only unresolved terminology with permitted source reading; keep draft definitions and pending capture in conversation until permitted writes.",
-      "forbidden_effects": ["asking account ownership again", "Wiki or scratch writes", "shell or MCP retrieval", "validation commands"]
-    }
+    {"id":"setup-only","prompt":"Set up PKStack in this repository and tell me whether it is ready.","primary":"pkstack-setup","helpers":[],"expected_output":"Installation inventory, doctor and validation results, agent handoff, and one relevant next-step offer.","forbidden_effects":["automatic onboarding","unrequested diagram or documentation","automatic verifier creation","global model or permission changes"]},
+    {"id":"setup-requested-tour","prompt":"Set up PKStack, then give me a small visual tour of this project's request path.","primary":"pkstack-setup","helpers":["show-me","how"],"expected_output":"Setup results followed by the explicitly requested visual tour using inspected project evidence.","forbidden_effects":["new evidence log","global configuration changes","claiming discovery before the required agent handoff"]},
+    {"id":"visual-request-flow","prompt":"Show me the request flow from the API handler to the worker as a small diagram.","primary":"show-me","helpers":["how"],"expected_output":"A compact diagram grounded in the inspected request path, with uncertainty retained.","forbidden_effects":["new decision log","product edits","repeating an existing mechanics investigation"]},
+    {"id":"visual-polished-artifact","prompt":"Make a polished interactive HTML architecture diagram from the service map we just verified.","primary":"archify","helpers":["show-me"],"expected_output":"A validated local interactive diagram using the supplied service evidence and the reviewed Archify runtime.","forbidden_effects":["new investigation without an evidence gap","new decision log","network fetch or runtime modification","claiming the diagram proves runtime behavior"]},
+    {"id":"ambiguous-work-summary","prompt":"Show me what you did.","primary":"pkstack","helpers":[],"expected_output":"A concise summary of existing changes and verification evidence, with gaps identified.","forbidden_effects":["new evidence log","new diagram","new product work","fabricated contemporaneous history"]},
+    {"id":"requested-evidence-trail","prompt":"Keep an auditable decision trail for this repair, connecting each requirement to the change and its verification.","primary":"show-me-your-work","helpers":[],"expected_output":"A projectctl-managed bounded decision trail and coverage audit with exact evidence pointers.","forbidden_effects":["hidden reasoning disclosure","raw private transcripts","committed evidence without a request","retrospective events presented as contemporaneous"]},
+    {"id":"explicit-visual-route","prompt":"/show-me explain the retries in this code. Keep it read-only.","primary":"show-me","helpers":["how"],"expected_output":"An inline sketch of the inspected retry behavior using the explicitly selected visual method.","forbidden_effects":["new decision log","file writes","changing retry behavior"]},
+    {"id":"explicit-evidence-summary-only","prompt":"/show-me-your-work summarize the evidence we already have; do not create or append any log.","primary":"show-me-your-work","helpers":[],"expected_output":"An evidence coverage summary within the explicit read-only constraint.","forbidden_effects":["creating a log","appending a log","treating skill invocation as broader write authority"]},
+    {"id":"human-runbook","prompt":"Rewrite the deployment runbook so an on-call engineer can follow the recovery steps.","primary":"technical-writing","helpers":["unslop"],"expected_output":"A human how-to with verified commands, prerequisites, expected results, and recovery in reader order.","forbidden_effects":["rewriting agent policy instead","running the deployment","invented commands or certainty"]},
+    {"id":"agent-instructions","prompt":"Tighten AGENTS.md and its linked Kiro steering so agents load the right instructions for a migration.","primary":"writing-for-agents","helpers":["unslop"],"expected_output":"Agent instructions with discriminating pointers, leaf-owned rules, observable checkpoints, and preserved authority.","forbidden_effects":["human tutorial replacing agent triggers","new router runtime","widening migration authority","deleting safety rules to shorten prose"]},
+    {"id":"mixed-audience-docs","prompt":"Update the contributor guide and AGENTS.md for our new test command, using the same verified command reference.","primary":"technical-writing","helpers":["writing-for-agents","unslop"],"expected_output":"Distinct human and agent instructions linked to one authoritative command reference.","forbidden_effects":["duplicated conflicting command definitions","dropping agent trigger conditions","running unrelated workflows"]},
+    {"id":"prose-edit-only","prompt":"Make this status paragraph less synthetic while keeping the caveat that the live smoke has not run.","primary":"unslop","helpers":[],"expected_output":"Revised prose preserving facts, voice, and the unperformed-smoke caveat after the four editing passes.","forbidden_effects":["invented evidence","erased uncertainty","unrequested restructuring of the workflow"]},
+    {"id":"mechanics-question","prompt":"How does projectctl choose and run a goal's verifier? Trace the current code.","primary":"how","helpers":["show-me"],"expected_output":"An evidence-backed mechanics explanation from entrypoint through verifier result, optionally with a small flow.","forbidden_effects":["invented historical motivation","product edits","new evidence log"]},
+    {"id":"rationale-question","prompt":"Why did we keep verification separate from model work? Recover the decision and distinguish inference.","primary":"why","helpers":["recall"],"expected_output":"A rationale answer with direct evidence, inference labels, source coverage, and unresolved gaps.","forbidden_effects":["code shape treated as author intent","unrelated transcript searches","mechanics alone presented as rationale"]},
+    {"id":"teach-composed-lesson","prompt":"Teach me how this queue works and why it uses acknowledgements; build up a small diagram as you explain.","primary":"teach","helpers":["how","why","show-me"],"expected_output":"A layered lesson composing mechanics and rationale, with progressive visuals and shared evidence.","forbidden_effects":["duplicate investigations","quizzing the user","turning inferred rationale into certainty","diagram generation treated as proof"]},
+    {"id":"architecture-boundary","prompt":"Design the API and storage boundary for this component within the existing Kiro Spec. Compare viable shapes.","primary":"architect","helpers":["how","why","grilling"],"expected_output":"Usage-first scaffolds, one architecture alternatives pass, and an advisory delta to the native design.","forbidden_effects":["second task graph","duplicate arena for the same decision","implementation when only design was requested"]},
+    {"id":"artifact-contest","prompt":"Compare these three retry-controller designs under one rubric and recommend a base; do not implement it.","primary":"arena","helpers":[],"expected_output":"One bounded contest with a shared rubric, independent judging pass, evidence, and a coherent recommendation.","forbidden_effects":["implementation edits","repeating the contest through architect","concatenating incompatible designs"]},
+    {"id":"loop-design-only","prompt":"Design a reusable dependency-update loop with local commands, bounded attempts, and a review gate. Do not build it yet.","primary":"design-control-loop","helpers":["architect","grilling"],"expected_output":"A control contract naming measurement, authority, transitions, bounds, and local proof; architecture helps only unresolved boundaries.","forbidden_effects":["workflow implementation","enabled schedule","duplicate alternatives contest","second native planning graph","hypothetical transitions labeled as observed runs"]},
+    {"id":"loop-build-authorized","prompt":"Implement the reusable loop from our approved control contract as local components and an inactive workflow. Verify it locally.","primary":"build-iterated-agentic-loop","helpers":["design-control-loop","writing-for-agents","pkstack-verified-goal"],"expected_output":"Locally runnable loop components and bounded agent instructions reusing the agreed contract, with exact verification results.","forbidden_effects":["enabled schedule","published candidate","new model vendor credentials","restarting settled design work"]},
+    {"id":"execute-current-task","prompt":"Keep working on this parser bug until the existing acceptance test passes.","primary":"pkstack-verified-goal","helpers":["how","tdd"],"expected_output":"Current-session repair under the stored executable predicate, with initial failure and a verified terminal result or bounded exhaustion.","forbidden_effects":["reusable loop scaffold","scheduled automation","weaker acceptance test","automatic extra attempts"]},
+    {"id":"verifier-drift","prompt":"The UI renamed a button as designed. Update our verification skill and feature contract to drive the current UI, then prove them.","primary":"maintain-verification-skill","helpers":["how"],"expected_output":"Verifier drift reconciled against the live surface, with the mandatory live pass and proved contract updates.","forbidden_effects":["product behavior edits","weakened expected outcome","static assertions replacing the live pass"]},
+    {"id":"product-defect","prompt":"The checkout now charges twice. Fix the product and keep the existing single-charge verifier unchanged.","primary":"pkstack-verified-goal","helpers":["how"],"expected_output":"A product repair proved against the unchanged single-charge expectation, using an authorized test surface.","forbidden_effects":["verifier relaxed to accept duplicate charges","verifier maintenance used to hide product failure","real payment without exact authorization"]},
+    {"id":"recall-context","prompt":"What did we decide about retry limits last time? Check this repository's decision records.","primary":"recall","helpers":[],"expected_output":"A bounded reconstruction with source locations and current, historical, or inferred labels.","forbidden_effects":["durable edits","lesson proposals substituted for retrieval","unrelated private history search"]},
+    {"id":"reflect-proposals","prompt":"Reflect on the completed migration and propose changes that would prevent the failures we saw.","primary":"reflect","helpers":["recall"],"expected_output":"Three independent lenses and evidence-backed Accepted, Rejected, or Backlog proposals with owners and proof strategies.","forbidden_effects":["unapproved durable edits","automatic Wiki capture","personal memory writes","unrelated transcript mining"]},
+    {"id":"capture-approved-knowledge","prompt":"Record the approved retry-limit decision in our Wiki with its sources and validate the knowledge bundle.","primary":"okf","helpers":["recall","unslop"],"expected_output":"Scoped durable OKF knowledge with provenance, links, and local metadata/link validation composed with feature validation.","forbidden_effects":["unrelated lesson changes","competing knowledge tree","dependency installation","local checks called full OKF conformance"]},
+    {"id":"react-props-too-broad","prompt":"This React component's optional handler and nullable title admit states no live caller uses. Tighten its props and update stories.","primary":"narrow-react-prop-types","helpers":["typescript-best-practices"],"expected_output":"A live-call-site inventory, narrowed production props, adapted support code, and focused type and behavior checks.","forbidden_effects":["support code widening the production contract","narrowing without inspecting live callers","removing a real runtime state"]},
+    {"id":"typescript-boundary-schema","prompt":"Review the TypeScript schema that validates webhook payloads at the API boundary.","primary":"typescript-best-practices","helpers":[],"expected_output":"A scoped review of runtime validation, honest domain types, and uncertainty at the external-data boundary.","forbidden_effects":["React prop narrowing without a React contract issue","unrequested edits","type assertions substituted for validation"]},
+    {"id":"react-live-null-state","prompt":"/narrow-react-prop-types review this title prop; production deliberately passes null while the title loads.","primary":"narrow-react-prop-types","helpers":["typescript-best-practices"],"expected_output":"The explicit method checks live callers and preserves required nullable state, reporting any justified narrowing separately.","forbidden_effects":["removing production null state","review request treated as edit authority","support-only evidence overriding live callers"]},
+    {"id":"explicit-loop-no-effects","prompt":"/design-control-loop sketch an updater from the current repository. Do not edit files, install anything, or enable it.","primary":"design-control-loop","helpers":["grilling"],"expected_output":"A read-only control-loop design using existing commands and constraints under the explicit invocation.","forbidden_effects":["file writes","software installation","enabled automation","skill invocation treated as broader authority"]},
+    {"id":"lesson-with-polished-visual","prompt":"Teach the approved update loop's mechanics and rationale, and make a polished interactive diagram from that same evidence.","primary":"teach","helpers":["how","why","show-me","archify"],"expected_output":"A composed lesson and validated interactive diagram sharing one evidence packet, with each helper serving a distinct phase.","forbidden_effects":["duplicate mechanics or rationale investigations","changed confidence labels","new evidence log","enabled automation"]},
+    {"id":"explicit-grilling-method","prompt":"/grilling pressure-test this plan with a short interview. Stop when the consequential choices are clear; do not write files.","primary":"grilling","helpers":[],"expected_output":"Dependency-ordered questions grounded in existing project evidence, then settled choices, rationale, and explicit unresolved decisions.","forbidden_effects":["file writes","implementation after the interview","repeating settled definitions without contradictory evidence"]},
+    {"id":"interview-decision-only","prompt":"Grill me on this proposed queue redesign before I choose it. Use the existing code to resolve facts and keep the result conversational.","primary":"grill-me","helpers":["grilling"],"expected_output":"A focused decision interview applying the shared grilling method, with code-grounded facts and a clear stopping condition.","forbidden_effects":["automatic Wiki capture","product implementation","asking the user questions code inspection can answer"]},
+    {"id":"domain-meaning-update","prompt":"Clarify what account and membership mean in this project, test the definitions against the code, and update the existing topic glossary.","primary":"domain-modeling","helpers":["okf"],"expected_output":"Scenario-tested domain definitions in the existing glossary, distinctions between decisions and observed behavior, and bounded local validation.","forbidden_effects":["a competing glossary","copied native task plans","accepted terminology presented as verified behavior","changes to skills or goal bindings"]},
+    {"id":"interview-and-retain-knowledge","prompt":"Interview me about this feature design while updating our Wiki definitions, consequential decisions, and open questions for the existing Kiro Spec.","primary":"grill-with-docs","helpers":["grilling","domain-modeling","okf"],"expected_output":"A bounded shared interview with permitted updates to existing topic knowledge, local validation, and authoritative native Spec links; pending capture stays conversational if read-only.","forbidden_effects":["duplicate investigations by composed helpers","a second native task graph","raw transcript retention","publication or permission changes"]},
+    {"id":"native-plan-shared-method","prompt":"Plan the retry redesign through PKStack. Read the existing code first; we already agreed on a three-attempt limit. Keep planning until I approve it.","primary":"pkstack","helpers":["grilling"],"expected_output":"A native Plan handoff carrying the three-attempt decision and directing the workflow to read grilling; the decision-complete plan stays conversational.","forbidden_effects":["repeating the attempt-limit interview","creating tasks.md","shell or MCP calls during Plan","implementation before native approval"]},
+    {"id":"native-plan-capture-pending","prompt":"We are in native Plan. I approve the implementation plan, but this phase still has read-only tools. Retain the agreed account definition for the later execution handoff.","primary":"pkstack","helpers":["grilling","domain-modeling","okf"],"expected_output":"Accepted understanding and pending topic/source/validation context remain in the conversation until permitted execution; approval does not change current capabilities.","forbidden_effects":["file writes including Wiki/work","shell retrieval or validation","claiming capture succeeded","changing mode permissions"]},
+    {"id":"approved-plan-first-write","prompt":"The retry implementation plan is approved and native execution now permits ordinary writes. Continue from the settled decisions.","primary":"pkstack","helpers":["grilling","domain-modeling","okf"],"expected_output":"At the first permitted execution step reconcile reusable definitions and decisions into existing topic knowledge, reference plan context, validate, then continue authorized work.","forbidden_effects":["second interview","copying the plan into Wiki","new persistent planning-state format","calling accepted design verified implementation"]},
+    {"id":"approved-plan-repeat","prompt":"The same retry plan is approved again. Its definitions and decisions were already captured and validated; continue from that state.","primary":"pkstack","helpers":["grilling","okf"],"expected_output":"Inspect existing entries and approval context, confirm no knowledge delta, and continue without duplicate records or validation claims from an unexecuted check.","forbidden_effects":["duplicate glossary or ADR","duplicate index or log entry","new plan identifier registry","reopening settled choices without evidence"]},
+    {"id":"approved-plan-no-write","prompt":"I approve this implementation plan for reference only. Do not write files or implement it.","primary":"pkstack","helpers":["grilling","okf"],"expected_output":"Acknowledge the accepted plan and retain understanding in conversation while the explicit no-write and no-implementation constraints apply.","forbidden_effects":["Wiki edits","scratch files","implementation","treating approval as broader write authority"]},
+    {"id":"approved-plan-capture-denied","prompt":"The plan is approved, but Kiro denied the Wiki update. Preserve the pending decision and report the actual capture status.","primary":"okf","helpers":["domain-modeling","grilling"],"expected_output":"Capture remains incomplete with intended topic and sources in conversation, ready only for a later permitted step.","forbidden_effects":["retry through a different tool","claiming successful capture","permission edits"]},
+    {"id":"approved-plan-validation-failed","prompt":"The approved plan decision was written to Wiki, but local knowledge validation failed on its link. Report and repair within the permitted document scope.","primary":"okf","helpers":["domain-modeling"],"expected_output":"Repair the scoped knowledge link if permitted, rerun local validation, and report capture incomplete until an actual passing result.","forbidden_effects":["invented validation pass","broad Wiki rewrite","treating document existence as completion"]},
+    {"id":"native-spec-shared-ownership","prompt":"Continue our active Kiro Spec using PKStack. Requirements are approved; ask only about unresolved storage choices and preserve native phase approvals.","primary":"pkstack","helpers":["grilling","architect"],"expected_output":"Read the shared method in the active Spec, reuse approved requirements, and refine native design and tasks within native phase control.","forbidden_effects":["new Spec handoff for an already active mode","duplicate task ledger","repeating approved requirement questions","interview completion treated as phase approval"]},
+    {"id":"plan-handoff-without-interview","prompt":"Use native conversational Plan for the retry redesign through PKStack. Read the code for the settled three-attempt limit first. Do not implement before I approve.","primary":"pkstack","helpers":["grilling"],"expected_output":"A read-only fact pass and one runnable /plan handoff carrying the settled limit and the open choices for native Plan to ask, then a stop for the user's selection.","forbidden_effects":["asking the open choices under pkstack","a paraphrased mode-switch request instead of the runnable line","claiming the agent selected native Plan","implementation before native approval"]},
+    {"id":"settled-constraint-mechanics","prompt":"Plan the identifier normalizer. The stated contract is settled; it does not say which of several compliant implementations to use.","primary":"grilling","helpers":["how"],"expected_output":"A simple compliant implementation is selected from the equivalent approaches and stated with the requirement it satisfies.","forbidden_effects":["asking the user to confirm the settled contract","offering an option that breaks it","treating equivalent compliant routes as a product choice"]},
+    {"id":"docs-interview-read-only","prompt":"/grill-with-docs clarify membership as we plan, but native Plan is currently read-only. We already settled account ownership.","primary":"grill-with-docs","helpers":["grilling","domain-modeling","okf"],"expected_output":"Interview only unresolved terminology with permitted source reading; keep draft definitions and pending capture in conversation until permitted writes.","forbidden_effects":["asking account ownership again","Wiki or scratch writes","shell or MCP retrieval","validation commands"]},
+    {"id":"python-project-tools","prompt":"Fix this Python module in our uv project and run the relevant checks.","primary":"uv","helpers":["ruff","ty"],"expected_output":"Use the project lock, fix behavior, lint/format and type-check in the project environment; retain behavioral verification.","forbidden_effects":["global installation","duplicate check ownership","model changes"]},
+    {"id":"python-ruff-explicit","prompt":"Use ruff to lint and format this file only.","primary":"ruff","helpers":["uv"],"expected_output":"Use configured locked Ruff and inspect scope; preserve unrelated formatting.","forbidden_effects":["unrequested type-check migration","broad unrelated formatting"]},
+    {"id":"python-ty-explicit","prompt":"Use ty to fix these type errors without suppressions.","primary":"ty","helpers":["uv"],"expected_output":"Check actual included paths, fix truthful types and validate behavior.","forbidden_effects":["blanket ignores","lowering check severity"]}
   ]
 }

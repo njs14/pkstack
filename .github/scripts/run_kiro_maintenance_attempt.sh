@@ -15,6 +15,7 @@ set -euo pipefail
 if ! python3 - "$PKSTACK_UPSTREAM_RETRIEVED_ON" <<'PY'
 import datetime
 import sys
+
 value = sys.argv[1]
 try:
     valid = datetime.date.fromisoformat(value).isoformat() == value

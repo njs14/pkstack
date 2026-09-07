@@ -149,3 +149,7 @@ Local validation remains usable when Kiro retrieval is unavailable; report the s
 Return the selected mode, sources inspected, concepts created or changed, context depth and any
 escalation reason, exact validation commands and verdicts, unresolved stale or unverified claims,
 and anything deliberately left untouched.
+
+Retrieval receipts identify selected `auto` as Auto (Kiro-managed routing). A null
+`resolved_model` records an undisclosed underlying model; it does not erase the known selection.
+Preserve that distinction in evidence and do not infer another model or its effort settings.

@@ -1,0 +1,20 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/ruff",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "335473768b5e142386bc1a7c58bc4c745408673a8ed7b6f1eea7ef04dd93dba2",
+      "size": 1861,
+      "source_path": "plugins/astral/skills/ruff/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "ruff",
+  "summary": {
+    "byte_count": 1861,
+    "file_count": 1
+  }
+}
