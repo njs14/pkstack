@@ -39,9 +39,9 @@ repository root, then apply only a conflict-free preview:
 ```sh
 uv run --frozen --project powers/pkstack python powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py --root . --dry-run
 uv run --frozen --project powers/pkstack python powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py --root .
-./projectctl doctor --output json
-./projectctl feature validate --output json
-./projectctl knowledge validate --output json
+.pkstack/bin/projectctl doctor --output json
+.pkstack/bin/projectctl feature validate --output json
+.pkstack/bin/projectctl knowledge validate --output json
 ```
 
 After canonical Power changes, repeat the preview. If it lists only expected

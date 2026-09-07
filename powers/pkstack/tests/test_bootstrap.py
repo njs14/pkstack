@@ -621,3 +621,23 @@ def test_runtime_copy_uses_only_the_reviewed_module_inventory(tmp_path: Path) ->
     assert bootstrap_project(target, power_root=power).ok
     installed = target / ".pkstack/projectctl/src/pkstack"
     assert {path.name for path in installed.glob("*.py")} == set(REQUIRED_SOURCE_MODULES)
+
+
+def test_gitignore_repair_appends_only_missing_runtime_entries(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    gitignore = project / ".gitignore"
+    from pkstack.bootstrap import GITIGNORE_BLOCK
+
+    partial = "\n".join(line for line in GITIGNORE_BLOCK.splitlines() if line != ".pkstack/tmp/")
+    gitignore.write_text(partial + "\n", encoding="utf-8")
+
+    result = bootstrap_project(project, power_root=POWER_ROOT)
+    lines = gitignore.read_text(encoding="utf-8").splitlines()
+
+    assert result.ok is True
+    assert ".pkstack/tmp/" in lines
+    assert lines.count(".pkstack/state/") == 1
+    assert lines.count("/Wiki/work/") == 1
+    assert lines.count(GITIGNORE_BLOCK.splitlines()[0]) == 1
+    assert bootstrap_project(project, power_root=POWER_ROOT).updated == []

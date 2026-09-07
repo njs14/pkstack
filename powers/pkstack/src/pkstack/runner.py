@@ -52,6 +52,24 @@ _NON_EVIDENTIARY_EXECUTABLES = {
 _CONTROL_PLANE_EXECUTABLES = {"pkstack", "projectctl", "pkstack-setup"}
 _SHELL_EXECUTABLES = {"sh", "bash", "zsh", "fish", "dash", "ksh", "csh", "tcsh"}
 _SCRIPT_INTERPRETERS = {"node", "nodejs", "ruby", "perl", "php", "osascript"}
+# Interpreters whose first operand is program text rather than a project script. Their
+# inline programs are opaque to the path screen, so they are rejected like shells.
+_INLINE_PROGRAM_INTERPRETERS = {
+    "awk",
+    "gawk",
+    "mawk",
+    "nawk",
+    "bun",
+    "deno",
+    "expect",
+    "jq",
+    "julia",
+    "lua",
+    "luajit",
+    "rscript",
+    "tclsh",
+    "wish",
+}
 _PYTHON_DELEGATING_MODULES = {
     "cprofile",
     "compileall",
@@ -382,6 +400,9 @@ def _reject_path_escape(token: str, *, root: Path, executable: bool = False) -> 
             candidate = assigned
     if candidate.startswith("@") and len(candidate) > 1:
         candidate = candidate[1:]
+    if re.match(r"^~[A-Za-z0-9._-]*/", candidate):
+        # Tools that expand ``~`` themselves would resolve outside the project root.
+        raise CommandRejected("verification path operands cannot reference a home directory")
     if not candidate:
         return
     lowered_candidate = candidate.lower()
@@ -984,6 +1005,11 @@ def enforce_verification_policy(argv: Sequence[str], *, root: Path) -> None:
     if base in _SHELL_EXECUTABLES:
         raise CommandRejected(
             "shell interpreters are not supported as verifiers; execute a project script directly"
+        )
+    if base in _INLINE_PROGRAM_INTERPRETERS:
+        raise CommandRejected(
+            f"{base!r} accepts inline programs the verifier screen cannot inspect; "
+            "execute a project script directly"
         )
 
     interpreter_target: str | None = None

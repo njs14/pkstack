@@ -200,8 +200,10 @@ before changing only its draft marker. Every feature mutation uses a lock and
 compares exact bytes around proof to detect a concurrent edit.
 
 Commands execute as argv with `shell=False`; shell syntax is not interpreted.
-The runner rejects direct shell interpreters, obvious placeholders,
-destructive patterns, and known path escapes. It supports explicit project
+The runner rejects the named shell and inline-program interpreters, obvious
+placeholders, a short list of destructive patterns, and known path escapes;
+the interpreter lists are closed name lists, and network or package-install
+commands are not screened. It supports explicit project
 test/build commands and a narrow `uv run` grammar. This is an evidence and
 hazard screen, not a sandbox or proof that an arbitrary script is relevant.
 

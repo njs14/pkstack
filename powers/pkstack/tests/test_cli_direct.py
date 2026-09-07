@@ -216,3 +216,30 @@ def test_main_dispatches_through_cyclopts(
         cli.main(["version", "--output", "json"])
     payload = _json(capsys)
     assert {key: payload[key] for key in identity_payload()} == identity_payload()
+
+
+def test_direct_goal_verify_reports_runner_runtime_errors_as_structured_failures(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    cli.goal_start(
+        "Detached holder",
+        command=f"{sys.executable} check.py",
+        max_attempts=1,
+        root=tmp_path,
+        output="json",
+    )
+    capsys.readouterr()
+
+    def broken_pipe(*_args: object, **_kwargs: object) -> None:
+        raise RuntimeError("verifier output pipe did not close after process termination")
+
+    monkeypatch.setattr(cli, "verify_goal", broken_pipe)
+    with pytest.raises(SystemExit, match="2"):
+        cli.goal_verify(root=tmp_path, output="json")
+    payload = _json(capsys)
+    assert payload["ok"] is False
+    assert payload["error_type"] == "RuntimeError"
+    cli.goal_status(root=tmp_path, output="json")
+    assert _json(capsys)["goal"]["attempt_count"] == 0

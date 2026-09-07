@@ -11,6 +11,7 @@ import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
+from itertools import count
 from pathlib import Path
 from typing import Any
 
@@ -45,6 +46,10 @@ _SPEC_INTENT_ARTIFACTS = ("requirements.md", "bugfix.md")
 
 class GoalError(RuntimeError):
     """Raised when a goal transition is invalid or state is corrupt."""
+
+
+class _UnsupportedGoalSchemaError(GoalError):
+    """Old goal evidence must remain untouched, even during forced recovery."""
 
 
 def _object_without_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -331,8 +336,8 @@ class GoalStore:
             raise GoalError(str(exc)) from exc
 
     @contextmanager
-    def locked(self) -> Iterator[None]:
-        with self._lock(self.lock_path):
+    def locked(self, *, allow_corrupt: bool = False) -> Iterator[None]:
+        with self._lock(self.lock_path, allow_corrupt=allow_corrupt):
             yield
 
     @contextmanager
@@ -343,12 +348,18 @@ class GoalStore:
             yield
 
     @contextmanager
-    def _lock(self, path: Path) -> Iterator[None]:
+    def _lock(self, path: Path, *, allow_corrupt: bool = False) -> Iterator[None]:
         if fcntl is None:
             raise GoalError("goal-state locking requires POSIX fcntl")
         # Reject unsupported state before creating lock files or changing permissions.
         # The transition still reloads state under its lock to handle concurrent changes.
-        self.load(check_command_policy=False)
+        try:
+            self.load(check_command_policy=False)
+        except _UnsupportedGoalSchemaError:
+            raise
+        except GoalError:
+            if not allow_corrupt:
+                raise
         self.directory.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.directory.chmod(0o700)
         with path.open("a+", encoding="utf-8") as lock:
@@ -366,7 +377,7 @@ class GoalStore:
             serialized = self.path.read_text(encoding="utf-8")
         except FileNotFoundError:
             return None
-        except OSError as exc:
+        except (OSError, UnicodeDecodeError) as exc:
             raise GoalError(f"goal state is corrupt at {self.path}: {exc}") from exc
         try:
             payload = json.loads(serialized)
@@ -375,7 +386,7 @@ class GoalStore:
                 and type(payload.get("schema_version")) is int
                 and payload["schema_version"] != SCHEMA_VERSION
             ):
-                raise GoalError(
+                raise _UnsupportedGoalSchemaError(
                     f"unsupported goal state schema {payload['schema_version']}; "
                     f"expected {SCHEMA_VERSION}. Use a clean consumer installation; "
                     "preserve old goal evidence separately. No migration is performed."
@@ -384,7 +395,7 @@ class GoalStore:
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
             raise GoalError(f"goal state is corrupt at {self.path}: {exc}") from exc
         if state.schema_version != SCHEMA_VERSION:
-            raise GoalError(
+            raise _UnsupportedGoalSchemaError(
                 f"unsupported goal state schema {state.schema_version}; expected {SCHEMA_VERSION}"
             )
         _validate_state(state, root=self.root, check_command_policy=check_command_policy)
@@ -591,8 +602,34 @@ def resume_goal(
 
 def clear_goal(root: Path, *, force: bool = False) -> dict[str, Any]:
     store = GoalStore(root)
-    with store.locked():
-        state = store.load(check_command_policy=not force)
+    with store.locked(allow_corrupt=force):
+        try:
+            state = store.load(check_command_policy=not force)
+        except _UnsupportedGoalSchemaError:
+            raise
+        except GoalError as exc:
+            if not force:
+                raise
+            # Reload under the state lock before archiving. A writer may have repaired
+            # the state after the lock preflight; that state uses the normal clear path.
+            timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+            for index in count():
+                suffix = f".{index}" if index else ""
+                archived = store.path.with_name(f"goal.{timestamp}{suffix}.unreadable.json")
+                try:
+                    # Create-only publication preserves earlier evidence on collisions.
+                    os.link(store.path, archived)
+                except FileExistsError:
+                    continue
+                break
+            store.path.unlink()
+            return {
+                "cleared": True,
+                "goal_id": None,
+                "status": "unreadable",
+                "archived": str(archived),
+                "reason": str(exc),
+            }
         if state is None:
             return {"cleared": False, "reason": "no goal state exists"}
         if state.status == "active" and not force:

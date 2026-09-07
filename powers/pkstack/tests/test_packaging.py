@@ -546,3 +546,21 @@ def test_bootstrapped_wrapper_rejects_outside_executable_and_cache_setup(
     assert control.returncode == 0, control.stderr or control.stdout
     assert control.stderr == ""
     assert json.loads(control.stdout)["goal"]["contract"]["argv"] == [str(selected)]
+
+
+def test_bootstrapped_wrapper_ignores_caller_uv_project_environment(tmp_path: Path) -> None:
+    target = tmp_path / "target"
+    target.mkdir()
+    assert bootstrap_project(target, power_root=POWER_ROOT).ok is True
+    controller = target / ".pkstack" / "bin" / "projectctl"
+    foreign = tmp_path / "foreign-env"
+    env = os.environ.copy()
+    env["UV_PROJECT_ENVIRONMENT"] = str(foreign)
+
+    payload = json.loads(
+        _run([str(controller), "version", "--output", "json"], cwd=target, env=env)
+    )
+
+    assert payload["version"]
+    assert (target / ".pkstack" / "projectctl" / ".venv" / "bin" / "python").exists()
+    assert not foreign.exists()

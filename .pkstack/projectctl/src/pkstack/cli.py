@@ -659,7 +659,9 @@ def goal_verify(
 
     try:
         state = verify_goal(root, timeout_seconds=timeout_seconds, output_limit=output_limit)
-    except (GoalError, CommandRejected, OSError, ValueError) as exc:
+    except (GoalError, CommandRejected, OSError, ValueError, RuntimeError) as exc:
+        # RuntimeError covers a verifier whose detached descendant kept the output
+        # pipes open; no attempt is recorded and the caller receives exit 2.
         _fail(exc, output)
     payload = {"ok": state.status == "passed", "goal": state_payload(state)}
     _emit(payload, output)
