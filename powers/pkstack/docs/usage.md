@@ -340,6 +340,13 @@ Active state requires the explicit `--force` abandonment option. Clearing
 state does not revert project edits. `goal tripwire` is an advisory read and
 cannot schedule another turn or mark success.
 
+For corrupt state, `goal clear --force` takes the state lock and reloads the
+slot before acting. If it is still unreadable, the command archives the exact
+bytes in a unique `goal.<timestamp>[.<counter>].unreadable.json` file beside the
+slot, then frees the slot. Earlier archives are never overwritten. This also
+handles invalid UTF-8. Unsupported schema versions remain rejected untouched;
+use a clean consumer installation and preserve that evidence separately.
+
 Ctrl-C or SIGTERM stops the verifier's process group and releases the goal
 lock. Cancellation never records a passing result. Inspect `goal status`
 before deciding whether to retry.

@@ -1145,7 +1145,7 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "46eb1d63a6adc026e38892f90a4b2ac6d7c0c2d3c15393d45da21408eca90374",
+      "sha256": "00f850eb6ddd80d9968ab2633bf015e6df77eabfdf2c43289442b0063c8462b3",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"

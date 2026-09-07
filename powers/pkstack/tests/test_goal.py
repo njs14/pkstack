@@ -655,3 +655,109 @@ def test_forced_clear_archives_unreadable_goal_state(tmp_path: Path) -> None:
         "reason": "no goal state exists",
     }
     assert start_goal(tmp_path, "Again", command=_sentinel_command(tmp_path)).status == "active"
+
+
+@pytest.mark.parametrize("replacement", ["valid", "unsupported"])
+def test_forced_clear_waits_for_state_lock_and_reloads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, replacement: str
+) -> None:
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    import pkstack.goal as goal_module
+
+    state = start_goal(tmp_path, "Concurrent writer", command=_sentinel_command(tmp_path))
+    store = GoalStore(tmp_path)
+    assert goal_module.fcntl is not None
+    original_flock = goal_module.fcntl.flock
+    acquiring = Event()
+
+    def observed_flock(fd: int, operation: int) -> None:
+        assert goal_module.fcntl is not None
+        if operation == goal_module.fcntl.LOCK_EX:
+            acquiring.set()
+        original_flock(fd, operation)
+
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        with store.locked():
+            store.path.write_bytes(b"{corrupt before waiting")
+            monkeypatch.setattr(goal_module.fcntl, "flock", observed_flock)
+            pending = executor.submit(clear_goal, tmp_path, force=True)
+            assert acquiring.wait(timeout=5), "forced recovery did not take the state lock"
+            assert not pending.done()
+            if replacement == "valid":
+                store.save(state)
+            else:
+                payload = state.to_dict()
+                payload["schema_version"] = 2
+                store.path.write_text(json.dumps(payload), encoding="utf-8")
+                expected = store.path.read_bytes()
+        if replacement == "valid":
+            assert pending.result(timeout=5) == {
+                "cleared": True,
+                "goal_id": state.goal_id,
+                "status": state.status,
+            }
+            assert not store.path.exists()
+        else:
+            with pytest.raises(GoalError, match="unsupported goal state schema"):
+                pending.result(timeout=5)
+            assert store.path.read_bytes() == expected
+    assert list(store.directory.glob("*.unreadable.json")) == []
+
+
+def test_forced_clear_does_not_overwrite_recovery_archives(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from datetime import UTC, datetime
+
+    import pkstack.goal as goal_module
+
+    class FixedClock:
+        @staticmethod
+        def now(_timezone: object) -> datetime:
+            return datetime(2026, 9, 7, tzinfo=UTC)
+
+    start_goal(tmp_path, "Preserve archives", command=_sentinel_command(tmp_path))
+    store = GoalStore(tmp_path)
+    monkeypatch.setattr(goal_module, "datetime", FixedClock)
+    archives = []
+    for contents in (b"{first corrupt state", b"{second corrupt state"):
+        store.path.write_bytes(contents)
+        result = clear_goal(tmp_path, force=True)
+        archives.append(Path(result["archived"]))
+    assert archives[0] != archives[1]
+    assert archives[0].read_bytes() == b"{first corrupt state"
+    assert archives[1].read_bytes() == b"{second corrupt state"
+    assert not store.path.exists()
+
+
+def test_forced_clear_archives_invalid_utf8_without_changing_bytes(tmp_path: Path) -> None:
+    start_goal(tmp_path, "Unreadable encoding", command=_sentinel_command(tmp_path))
+    store = GoalStore(tmp_path)
+    contents = b"\xff\xfeinvalid"
+    store.path.write_bytes(contents)
+    with pytest.raises(GoalError, match="corrupt"):
+        clear_goal(tmp_path)
+    assert store.path.read_bytes() == contents
+    result = clear_goal(tmp_path, force=True)
+    assert result["status"] == "unreadable"
+    assert Path(result["archived"]).read_bytes() == contents
+    assert not store.path.exists()
+    assert start_goal(tmp_path, "Recovered", command=_sentinel_command(tmp_path)).status == "active"
+
+
+def test_forced_clear_requires_locking_even_for_corrupt_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import pkstack.goal as goal_module
+
+    start_goal(tmp_path, "Never clear unlocked", command=_sentinel_command(tmp_path))
+    store = GoalStore(tmp_path)
+    contents = b"{corrupt"
+    store.path.write_bytes(contents)
+    monkeypatch.setattr(goal_module, "fcntl", None)
+    with pytest.raises(GoalError, match="locking requires POSIX fcntl"):
+        clear_goal(tmp_path, force=True)
+    assert store.path.read_bytes() == contents
+    assert list(store.directory.glob("*.unreadable.json")) == []

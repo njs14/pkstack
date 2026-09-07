@@ -177,7 +177,7 @@
     ".pkstack/projectctl/src/pkstack/doctor.py": "bb17d7c977a4d34114578e06c3ae18c9477902d1ce4c266d22889d05614abc78",
     ".pkstack/projectctl/src/pkstack/evidence.py": "ea50f29fa86d0d1fb6b9f278c745f1ef27b33259cfc8fc39e17718dea9e61c39",
     ".pkstack/projectctl/src/pkstack/features.py": "dbee27a1eedbeec266cf675affe916d81c3cac69962e66865d12caa456bb2b5b",
-    ".pkstack/projectctl/src/pkstack/goal.py": "353578d1f6de73e5c1ac51a08a9d73bb252c99cd90ea111de4506df48cf0ae29",
+    ".pkstack/projectctl/src/pkstack/goal.py": "715be6b583f4725d23744b1b04490ac84b6df57f4cc9c1050b55f08d01ac73a6",
     ".pkstack/projectctl/src/pkstack/knowledge.py": "90d28fe8798038e71b1bf2a4d9ebb038878ce888eb3085de1092341f0e0c1487",
     ".pkstack/projectctl/src/pkstack/knowledge_acp.py": "3cb863af8a310b813cb20625de78669d31dd00919eb3d6ec2f55c336504a5f4a",
     ".pkstack/projectctl/src/pkstack/knowledge_layout.py": "7dd0f8df974177636c17b5e79ba380a179612c242b174d86956e3c3867fda0be",
