@@ -3,8 +3,8 @@ name: PKStack CI
 on:
   push:
     branches: [main]
+  # Stacked pull requests need the same read-only checks as main-targeted PRs.
   pull_request:
-    branches: [main]
 
 permissions: {}
 

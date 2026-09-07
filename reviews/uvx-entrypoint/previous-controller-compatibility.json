@@ -1,0 +1,23 @@
+{
+  "installed_from_commit": "2fe0babf05f753f732312b1187986ca5b0533e70",
+  "launcher_sha256": "8824b7404cda7714ae386722cec18a30e0eebcde8dec78d506798666759a134a",
+  "results": {
+    "version": {
+      "display_name": "PKStack",
+      "expanded_name": "Poteto Kiro",
+      "name": "pkstack",
+      "power_id": "pkstack",
+      "version": "0.4.3"
+    },
+    "doctor": {
+      "ok": true,
+      "summary": {
+        "fail": 0,
+        "pass": 87,
+        "warn": 0
+      }
+    }
+  },
+  "all_managed_files_unchanged": true,
+  "launcher_not_installed_in_old_controller": true
+}

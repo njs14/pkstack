@@ -27,7 +27,7 @@ def _clean_environment(tmp_path: Path) -> dict[str, str]:
     environment = {
         key: value
         for key, value in os.environ.items()
-        if key not in {"PYTHONPATH", "PKSTACK_POWER", "VIRTUAL_ENV"}
+        if key not in {"PYTHONPATH", "PKSTACK_POWER", "PKSTACK_PACKAGE", "VIRTUAL_ENV"}
         and not key.startswith(("COV_CORE_", "COVERAGE_"))
     }
     environment.update(
@@ -114,10 +114,8 @@ def test_documented_source_and_install_blocks_work_independently(
         cwd = source
     target = tmp_path / "application with spaces"
     target.mkdir()
-    preview = next(
-        block for block in usage if '--root "$PKSTACK_PROJECT" --dry-run --output json' in block
-    )
-    apply = next(block for block in usage if '--root "$PKSTACK_PROJECT" --output json' in block)
+    preview = next(block for block in usage if "setup --dry-run --output json" in block)
+    apply = next(block for block in usage if "setup --output json" in block)
     check = next(block for block in usage if block.startswith('cd "$PKSTACK_PROJECT"\n'))
     target_capture = next(
         block for block in usage if block.startswith('cd "/absolute/path/to/your/project"\n')
@@ -163,7 +161,9 @@ def test_linked_first_task_records_failure_before_repair_and_pass(tmp_path: Path
     assert "powers/pkstack/docs/first-task.md" in readme
     blocks = _shell_blocks(POWER_ROOT / "docs/first-task.md")
     walkthroughs = [block for block in blocks if block.startswith("PKSTACK_DEMO=$(mktemp")]
-    goals = [block for block in blocks if block.startswith(".pkstack/bin/projectctl goal start")]
+    goals = [
+        block for block in blocks if "pkstack goal start" in block and block.startswith("uvx ")
+    ]
     assert len(walkthroughs) == len(goals) == 1, "Keep one setup and one failure block in the guide"
     checkout = tmp_path / "checkout with spaces"
     _copy_power(checkout / "powers/pkstack")
@@ -175,7 +175,9 @@ def test_linked_first_task_records_failure_before_repair_and_pass(tmp_path: Path
         for block in _shell_blocks(POWER_ROOT / "docs/usage.md")
         if block.startswith('export PKSTACK_POWER="$PWD/powers/pkstack"\n')
     )
-    apply = next(block for block in blocks if block.startswith('python3 "$PKSTACK_POWER/'))
+    apply = next(
+        block for block in blocks if "pkstack setup --output" in block and block.startswith("uvx ")
+    )
     guard = next(block for block in blocks if block.startswith(': "${PKSTACK_POWER:?'))
     first_run = _run_blocks(
         [capture, guard, walkthroughs[0], apply, goals[0]],
@@ -220,7 +222,18 @@ def test_linked_first_task_records_failure_before_repair_and_pass(tmp_path: Path
         encoding="utf-8",
     )
     verified = subprocess.run(
-        [".pkstack/bin/projectctl", "goal", "verify", "--output", "json"],
+        [
+            "uvx",
+            "--python",
+            ">=3.11",
+            "--from",
+            str(checkout / "powers/pkstack"),
+            "pkstack",
+            "goal",
+            "verify",
+            "--output",
+            "json",
+        ],
         cwd=project,
         env=environment,
         capture_output=True,

@@ -9,21 +9,20 @@ later sessions. This guide works for CLI-only users and IDE users.
 
 - Kiro CLI with v3 support or Kiro IDE, installed and signed in;
 - [`uv`](https://docs.astral.sh/uv/) on `PATH`;
-- a `python3` launcher; and
-- access to the PKStack Power source and a project you are allowed to modify.
+- a reviewed PKStack checkout or locally built wheel; and
+- a project you are allowed to modify.
 
-The locked controller runtime requires Python 3.11+. The setup launcher can
-also start under the tested macOS Python 3.9 path and delegate to `uv`, which resolves
-a supported runtime. You do not need to replace macOS system Python. Initial
-setup may need network access to download Python and locked dependencies;
-[uv documents automatic Python acquisition](https://docs.astral.sh/uv/guides/install-python/).
-If runtime acquisition fails, resolve that prerequisite before continuing.
+The launcher and locked controller require Python 3.11+. The explicit `--python ">=3.11"`
+request keeps uvx from choosing an older system Python. uv can acquire a supported
+interpreter without replacing macOS system Python. Initial setup may need network
+access to download Python and dependencies; [uv documents automatic Python
+acquisition](https://docs.astral.sh/uv/guides/install-python/). Resolve runtime acquisition
+failures before continuing. The older Power-local `python3` setup script remains supported.
 
-Check the terminal tools:
+Check uv:
 
 ```sh
 uv --version
-python3 --version
 ```
 
 For the CLI path, also check:
@@ -57,7 +56,7 @@ Power registration makes the package available to Kiro. Project setup creates
 the workspace agent, skills, controller, and Wiki. A Power appearing in
 `/powers` does not prove that its setup skill is available in the current
 session. Invoke `/pkstack-setup` where Kiro exposes that Power-local skill;
-otherwise use its setup script below. After setup, select the workspace
+otherwise use the uvx terminal setup below. After setup, select the workspace
 `pkstack` agent. Its `includePowers: false` setting disables automatic Power
 inclusion; PKStack explicitly loads its reviewed workspace skills. Other skill
 scopes may still contribute. Inspect the effective inventory with `/config skills`
@@ -82,6 +81,7 @@ From the root of that checkout, capture the absolute Power path:
 export PKSTACK_POWER="$PWD/powers/pkstack"
 test -f "$PKSTACK_POWER/plugin.json"
 test -f "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py"
+export PKSTACK_PACKAGE="$PKSTACK_POWER"
 ```
 
 For an unpacked standalone Power instead, open a terminal in the folder that
@@ -91,12 +91,36 @@ contains `plugin.json` and capture that folder:
 export PKSTACK_POWER="$PWD"
 test -f "$PKSTACK_POWER/plugin.json"
 test -f "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py"
+export PKSTACK_PACKAGE="$PKSTACK_POWER"
 ```
 
 These variables last for this terminal session; restore the source path if you
 open another.
 Never derive the source from the target's `.pkstack/` cache. Review the Power
-before running its setup script or importing it in Kiro.
+before running it through uvx, its setup script, or importing it in Kiro.
+
+### Use a local wheel
+
+From a reviewed repository checkout, build a wheel without publishing it:
+
+```sh
+uv build --wheel --no-sources --out-dir dist powers/pkstack
+```
+
+Set the absolute path to the wheel produced by that build, using its actual filename:
+
+```sh
+export PKSTACK_PACKAGE="/absolute/path/to/dist/pkstack-0.4.3-py3-none-any.whl"
+test -f "$PKSTACK_PACKAGE"
+```
+
+A wheel includes the installer, workspace assets, and CLI. Keep the Power folder for
+Kiro's folder-import flow and the first-task example; a wheel is not a Power folder.
+The commands below accept either this wheel or the reviewed checkout directory through
+`--from`. Do not use bare `uvx pkstack`: that would select a package from a registry.
+No publishing or global tool installation is needed. Installing a wheel resolves its
+package requirements; it does not install the development `uv.lock`. After setup, project
+operations use the separately shipped, locked controller runtime.
 
 <a id="import-and-bootstrap"></a>
 
@@ -109,8 +133,8 @@ previewing changes:
 ```sh
 cd "/absolute/path/to/your/project"
 export PKSTACK_PROJECT="$PWD"
-: "${PKSTACK_POWER:?Capture the reviewed Power source path first}"
-printf 'Source: %s\nTarget: %s\n' "$PKSTACK_POWER" "$PKSTACK_PROJECT"
+: "${PKSTACK_PACKAGE:?Select the reviewed checkout or local wheel first}"
+printf 'Package: %s\nTarget: %s\n' "$PKSTACK_PACKAGE" "$PKSTACK_PROJECT"
 ```
 
 Confirm the target shown is your application, not the PKStack checkout. To try
@@ -120,8 +144,8 @@ PKStack before changing an existing application, use the disposable project in
 Preview setup:
 
 ```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PKSTACK_PROJECT" --dry-run --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack --project "$PKSTACK_PROJECT" \
+  setup --dry-run --output json
 ```
 
 A dry run previews target changes without writing managed target files. It can
@@ -133,17 +157,17 @@ before proceeding; use the refresh section for an existing installation.
 When the preview is acceptable, apply it:
 
 ```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PKSTACK_PROJECT" --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack --project "$PKSTACK_PROJECT" \
+  setup --output json
 ```
 
 From the target root, verify the installation:
 
 ```sh
 cd "$PKSTACK_PROJECT"
-.pkstack/bin/projectctl version --output json
-.pkstack/bin/projectctl doctor --output json
-.pkstack/bin/projectctl knowledge validate --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack version --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack doctor --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge validate --output json
 ```
 
 Expect `ok: true` from doctor and knowledge validation. Doctor checks the
@@ -177,10 +201,28 @@ Use `/pkstack <task>` for your own work, or [try one failing task](first-task.md
 with either surface. That example supplies a repeatable verifier and explains
 how to inspect the failure, Kiro's repair, and the stored passing result.
 
-Use `.pkstack/bin/projectctl` for project operations. Setup may create a root
-`projectctl` convenience wrapper when that name is unowned, but it is not the
-trusted entrypoint. The canonical wrapper uses the shipped locked runtime under
-`.pkstack/projectctl/`; its environment does not become the verifier's environment.
+Use `uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack <command>` for project operations. The
+launcher forwards them to the selected project's `.pkstack/bin/projectctl`, which uses
+the shipped locked runtime under `.pkstack/projectctl/`. Direct use of that wrapper and
+the existing `projectctl` and `pkstack-setup` package entrypoints remains supported.
+The root `./projectctl` convenience wrapper, when present, is not used for delegation.
+
+The launcher defaults to the current directory and never searches parent directories.
+To select another project, put `--project /absolute/path` before the command. A forwarded
+`--root` is rejected: use `--project` so the runtime and operation target agree. Setup
+and upgrade use the selected package's assets; other commands use the installed controller.
+A missing or altered runtime fails before delegation, with no automatic install or upgrade.
+The uvx tool environment's injected leading `PATH` entry is removed before delegation so
+application verifiers retain their own executable and import environment.
+
+```sh
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack --version
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack version --output json
+```
+
+The first command reports the launcher package version; the second reports the installed
+project controller version. They may differ until an explicit managed upgrade. Existing
+project command output, exit codes, and cancellation behavior remain unchanged.
 
 ### Attach the generated agent
 
@@ -329,11 +371,11 @@ the Spec is approved for implementation, return to `pkstack` and bind its artifa
 to an executable verifier. For a new, still-failing feature:
 
 ```sh
-.pkstack/bin/projectctl goal bind-spec account-lookup \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal bind-spec account-lookup \
   --command "python3 -m unittest discover -s tests -v" --output json
-.pkstack/bin/projectctl goal start "Repair account lookup" \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal start "Repair account lookup" \
   --spec account-lookup --max-attempts 4 --output json
-.pkstack/bin/projectctl goal verify --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal verify --output json
 ```
 
 Record that initial failure before editing, repair in the same Kiro session,
@@ -352,7 +394,7 @@ hyphens.
 Create a draft without running its command:
 
 ```sh
-.pkstack/bin/projectctl feature generate account-lookup \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature generate account-lookup \
   --title "Account lookup" \
   --behavior "A caller can retrieve account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
@@ -370,7 +412,7 @@ Create a draft without running its command:
 Add `--ready` to run the command before writing `draft: false`:
 
 ```sh
-.pkstack/bin/projectctl feature generate account-lookup \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature generate account-lookup \
   --title "Account lookup" \
   --behavior "A caller can retrieve account status." \
   --expected-path "CLI -> gateway -> account service -> response" \
@@ -391,16 +433,16 @@ existing target unchanged. `feature validate` checks syntax, links, location,
 duplicate slugs, and command policy; it does not prove the behavior:
 
 ```sh
-.pkstack/bin/projectctl feature show account-lookup --output json
-.pkstack/bin/projectctl feature list --output json
-.pkstack/bin/projectctl feature validate --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature show account-lookup --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature list --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature validate --output json
 ```
 
 For one to five features, prepare one JSON plan and prove only the named
 representative during generation:
 
 ```sh
-.pkstack/bin/projectctl feature generate-map feature-plan.json \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature generate-map feature-plan.json \
   --representative account-lookup --output json
 ```
 
@@ -408,8 +450,8 @@ The other records remain drafts until each verifier passes. Publish and verify
 them separately:
 
 ```sh
-.pkstack/bin/projectctl feature publish account-lookup --output json
-.pkstack/bin/projectctl feature verify account-lookup --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature publish account-lookup --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack feature verify account-lookup --output json
 ```
 
 Aim for the most useful three to five features when the project has that many;
@@ -432,7 +474,7 @@ the primary session owns edits and final evidence.
 For explicit CLI control, start one goal from exactly one source:
 
 ```sh
-.pkstack/bin/projectctl goal start \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal start \
   "Repair account lookup" \
   --feature account-lookup --max-attempts 4 --output json
 ```
@@ -440,7 +482,7 @@ For explicit CLI control, start one goal from exactly one source:
 Or supply one reviewed command:
 
 ```sh
-.pkstack/bin/projectctl goal start \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal start \
   "Repair account lookup" \
   --command "uv run pytest tests/test_account_lookup.py -q" \
   --max-attempts 4 --output json
@@ -449,8 +491,8 @@ Or supply one reviewed command:
 Inspect and verify:
 
 ```sh
-.pkstack/bin/projectctl goal status --output json
-.pkstack/bin/projectctl goal verify --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal status --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal verify --output json
 ```
 
 | Result | Exit | Stored status |
@@ -466,7 +508,7 @@ one. An exhausted goal needs an explicit larger budget (`goal resume
 preserving evidence:
 
 ```sh
-.pkstack/bin/projectctl goal clear --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal clear --output json
 ```
 
 Active state requires the explicit `--force` abandonment option. Clearing
@@ -494,9 +536,9 @@ The feature map is the first context layer. Check the broader integration only
 when the feature and its explicit links do not answer the question:
 
 ```sh
-.pkstack/bin/projectctl knowledge status --output json
-.pkstack/bin/projectctl knowledge validate --output json
-.pkstack/bin/projectctl knowledge search "account suspension" --budget 1200 --model auto --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge status --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge validate --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack knowledge search "account suspension" --budget 1200 --model auto --output json
 ```
 
 `knowledge status` reports the corpus layout and Kiro retrieval availability.
@@ -549,26 +591,23 @@ its bundled default agent `default`:
 ```
 
 This swap does not make an imported Power available. Invoke `/pkstack-setup`
-only if it is discovered in that context. Otherwise use the Power-local script
-from a terminal. If the dry run reports `pending_updates`, inspect the exact
-paths and preview the explicit upgrade:
+only if it is discovered in that context. Otherwise use uvx from a terminal, with `PKSTACK_PACKAGE` pointing to the reviewed
+newer wheel or checkout. Preview the explicit upgrade:
 
 ```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PWD" --dry-run --update-managed --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack upgrade --dry-run --output json
 ```
 
 Review the explicit update preview before applying it:
 
 ```sh
-python3 "$PKSTACK_POWER/skills/pkstack-setup/scripts/setup_pkstack.py" \
-  --root "$PWD" --update-managed --output json
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack upgrade --output json
 ```
 
 After setup, return to the same conversation with `/agent swap pkstack`.
 Do not add a cached setup skill to `.kiro/skills/` to force discovery.
 
-`--update-managed` replaces only a path that still matches its prior receipt
+`upgrade` uses the installer's `--update-managed` operation and replaces only a path that still matches its prior receipt
 hash. It never overwrites a user edit. `stale_managed` paths are not deleted
 automatically; preserve or remove each exact path by a separate project
 decision. The cached controller's setup command fails unless an explicit,
@@ -601,7 +640,7 @@ live validation and whether that schedule is enabled.
 In this repository, use `/pkstack-maintain` or inspect the pinned sources with:
 
 ```sh
-.pkstack/bin/projectctl upstream check \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack upstream check \
   --manifest maintenance/upstreams.json \
   --power-root powers/pkstack \
   --output json
@@ -614,7 +653,7 @@ executing upstream content. A proposal may advance one source only. Acceptance
 requires a reviewed exact head and an explicit dry run before applying:
 
 ```sh
-.pkstack/bin/projectctl upstream accept \
+uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack upstream accept \
   --manifest maintenance/upstreams.json \
   --power-root powers/pkstack \
   --proposal .pkstack-maintenance/proposal.json \
