@@ -3,14 +3,53 @@
   "repository": "njs14/pkstack",
   "pr": 69,
   "trusted_base": "3a370aa92d881ea8bab48c4b55c70cad347c49b7",
-  "behavior_commit": "44edfc11f93d70e344ff54256e1d55142c21b018",
-  "behavior_tree": "63f1093134b2160930a8b7ecf2f279edba49217c",
+  "behavior_commit": "07e90c5f4811d8b8f284f32372b67533f40672f4",
+  "behavior_tree": "2acaeb4219d87ae48ddfb59682949226557a2f10",
   "final_binding": "The final commit/tree and exact-candidate CI are recorded in PR #69 and the task-local review packet after this evidence is committed. This file does not self-identify its containing commit.",
   "power_source_equivalence": {
-    "power_tree": "b6ade2ad26bb1b204c745db9d6cda1eab0978bb2",
-    "kiro_tree": "a3b20dd934d56a0319c81076ad0cd2ca3573b674",
-    "controller_tree": "566c0e76843c26bedbc7a5cdc2d4a9652f9739db",
-    "binding": "All three trees are byte-identical at trusted base and behavior commit; final preparation changes only repository controls and Wiki evidence, not Power content."
+    "base": "3a370aa92d881ea8bab48c4b55c70cad347c49b7",
+    "candidate_behavior_commit": "07e90c5f4811d8b8f284f32372b67533f40672f4",
+    "unchanged_files": {
+      "powers/pkstack/skills/impeccable/SKILL.md": "4f3531bbd18046d4743bd82d2cc9b3199f89d0c965c9f1d1a1e67a01f2348d8d",
+      "powers/pkstack/skills/impeccable/references/direction.md": "c372ba09fe4e31cb0efbabc23add4c912ba037f0db0c55df19e53a2f70897cf8",
+      "powers/pkstack/skills/impeccable/references/quality.md": "44e32050736c9e57d43dbfd4b7a30ba4397c5615f33c252a42d74d03d8be88bf",
+      "powers/pkstack/skills/impeccable/references/refinement.md": "91ef3bae617f41f415244b3734f5945d820429df4b319b566380c7a057457dfa",
+      "powers/pkstack/skills/impeccable/references/review.md": "9ee973800ac9962afbd71d9c16d4b6de813017009e38de74f4ce59f457bc5de7",
+      "powers/pkstack/skills/pkstack-setup/SKILL.md": "5e398df70c310d593620203f49dae18198442495c4fe9a65abfb75d1f913bc0b",
+      "powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py": "157c88de7c20515f904f3e9a186bcdaa0de873fe74be161bb650a7dc5d3af921",
+      "powers/pkstack/skills/pkstack-verified-goal/SKILL.md": "91100bd9d9cc5e67dcf949b1cf63c842bc29748791e181d087881c7ff444fc86",
+      "powers/pkstack/src/pkstack/__main__.py": "ea85323688e78bcc4489b8e217c8e6c098e1e37013132074022d4a167cb8f74a",
+      "powers/pkstack/src/pkstack/bootstrap.py": "59cd2025379ddb41ae6b7625eedbbfb6ee89408b8bb99cabdb74c50554c260b2",
+      "powers/pkstack/src/pkstack/branding.py": "65a7a9790b0d70edfd0462a97a7fd7c59022be1474674fbe297b38f14e799a6e",
+      "powers/pkstack/src/pkstack/cli.py": "64ba5b90b34c2ff6aeb1905630845143ad129141d76241239acac511162df22a",
+      "powers/pkstack/src/pkstack/discovery.py": "d7bdf479725c50864029c4a8fa0c8ec0d986aa1fa06869c924437624c9a03a44",
+      "powers/pkstack/src/pkstack/doctor.py": "bb17d7c977a4d34114578e06c3ae18c9477902d1ce4c266d22889d05614abc78",
+      "powers/pkstack/src/pkstack/evidence.py": "ea50f29fa86d0d1fb6b9f278c745f1ef27b33259cfc8fc39e17718dea9e61c39",
+      "powers/pkstack/src/pkstack/features.py": "dbee27a1eedbeec266cf675affe916d81c3cac69962e66865d12caa456bb2b5b",
+      "powers/pkstack/src/pkstack/goal.py": "715be6b583f4725d23744b1b04490ac84b6df57f4cc9c1050b55f08d01ac73a6",
+      "powers/pkstack/src/pkstack/knowledge.py": "90d28fe8798038e71b1bf2a4d9ebb038878ce888eb3085de1092341f0e0c1487",
+      "powers/pkstack/src/pkstack/knowledge_acp.py": "3cb863af8a310b813cb20625de78669d31dd00919eb3d6ec2f55c336504a5f4a",
+      "powers/pkstack/src/pkstack/knowledge_layout.py": "7dd0f8df974177636c17b5e79ba380a179612c242b174d86956e3c3867fda0be",
+      "powers/pkstack/src/pkstack/knowledge_links.py": "a6be89c6f0a2b4485d609e571fc7e73f4f47a066d9221d6b00e750a7f4c7a3ee",
+      "powers/pkstack/src/pkstack/knowledge_payload.py": "65b33053f513805875ee91ba2dd4bac3154f317cf09ccfaa93b14b29709e8cdb",
+      "powers/pkstack/src/pkstack/knowledge_runtime_bridge.py": "24d05fa2a21c5c0b8c400b0d091eeabd362fe5365c3d2d2c244979dd4c47818c",
+      "powers/pkstack/src/pkstack/models.py": "cbea73c95a2a0f28efcc65380286fb7cf936331e1060e6945609621865a41a2e",
+      "powers/pkstack/src/pkstack/paths.py": "6a0418e0cdaf961b9247b1f54ac96599b8175631545b9068beda53345d2ff17c",
+      "powers/pkstack/src/pkstack/runner.py": "420b6882dc38d75e1d230c357a06f2974f41aeb4ea4e6b21340dfa8a5d96e5e5",
+      "powers/pkstack/src/pkstack/upstreams.py": "ba5498c0d550d12e0129095e2693f24ee013667743cdbf9947e1a34df1b9acea",
+      "powers/pkstack/templates/project/.kiro/agents/pkstack-architect.json": "d076391910b55731e646d154b9c9042f89e8c1bb87d4435afbbec6c6fafe35a1",
+      "powers/pkstack/templates/project/.kiro/agents/pkstack-reviewer.json": "a3c51197b25dbcee77056d9f81b19e8fb201f62f60503d4bb728b55fff45b5b6",
+      "powers/pkstack/templates/project/.kiro/agents/pkstack-verifier.json": "da27ce127fa6be93497c2fe9d7d3f04cc93eb3cb1359254af6e2916360168776",
+      "powers/pkstack/templates/project/.kiro/agents/pkstack.json": "00c2db515af653765a91552843d5c03e2a8832764179c4fcde25253a1c9ccb23",
+      "powers/pkstack/templates/project/.kiro/hooks/pkstack-session.json": "5eed2efc431fdf246dd1084268d336f6f57d7ba690f9326145a56dc67630d205",
+      "powers/pkstack/templates/project/.kiro/hooks/pkstack-tripwire.json": "0d4196bca58bfc15d6420686d303a7368da3b1139bddc2131afdf2177419f663"
+    },
+    "changed_files_in_selected_paths": [
+      "powers/pkstack/src/pkstack/__init__.py",
+      "powers/pkstack/templates/projectctl/uv.lock"
+    ],
+    "limit": "Only unchanged listed bytes carry native A/B evidence forward. Version and controller template lock changes require final setup/CI; babysit-pr is separately re-proved.",
+    "power_tree": "7c76dcdf4c355812f8609149984e18a1df699eb3"
   },
   "F1": {
     "status": "repaired awaiting independent review",
@@ -53,7 +92,7 @@
     "limits": "Current initiating cause was not retained. The separately observed local unauthenticated HTTP403 does not identify the CI cause. No live drift selection, proposal, acceptance or rejection proved. No unchanged retry, reset, manufactured drift or control weakening."
   },
   "native_repair": {
-    "source": "unchanged candidate Power, reviewed operator setup",
+    "source": "Original Power tree b6ade2ad26bb1b204c745db9d6cda1eab0978bb2; only explicitly unchanged source files carry this bounded result to 0.5.3.",
     "runtime": "Kiro CLI 2.21.1 normal v3; Node.js 26.7.0",
     "agent": "pkstack",
     "model": "claude-opus-5",
@@ -72,11 +111,11 @@
     ],
     "contract": {
       "sha256": "f0b7ce5c3457e764dc6f634dca06207ba244ae661af0d7f340bb450589058bfd",
-      "content": "normalizeCode accepts only strings; non-strings throw TypeError. Trim first, then require 2..12 ASCII letters, digits or hyphen. Invalid strings throw RangeError. Validate ASCII before uppercasing (ß must not expand into valid SS). Return uppercase. acceptance.mjs is immutable operator-authored acceptance; only normalize.mjs may be repaired. No native Spec claimed.\n"
+      "content": "normalizeCode accepts only strings; non-strings throw TypeError. Trim first, then require 2..12 ASCII letters, digits or hyphen. Invalid strings throw RangeError. Validate ASCII before uppercasing (\u00df must not expand into valid SS). Return uppercase. acceptance.mjs is immutable operator-authored acceptance; only normalize.mjs may be repaired. No native Spec claimed.\n"
     },
     "acceptance": {
       "sha256": "fb4f805e0365eacfc7098b97cc6faf4c9fabddac2a584eed551a7eef9a9db5ad",
-      "content": "import assert from 'node:assert/strict';\nimport {normalizeCode} from './normalize.mjs';\nconst valid = [[' ab-12 ', 'AB-12'], ['a0','A0'], ['Z9-Z','Z9-Z']];\nfor (const [input, expected] of valid) assert.equal(normalizeCode(input), expected);\nfor (const input of ['', ' ', 'a', 'a_b', 'a b', 'éa', 'ßa', 'a–b', 'a'.repeat(13)]) assert.throws(() => normalizeCode(input), RangeError, JSON.stringify(input));\nfor (const input of [null, undefined, 123, {}, ['ab']]) assert.throws(() => normalizeCode(input), TypeError);\nassert.equal(normalizeCode('a'.repeat(12)), 'A'.repeat(12));\nconsole.log('PASS: string-only, trimmed ASCII letters/digits/hyphen, length 2..12, uppercase output; Unicode rejected before casing.');\n"
+      "content": "import assert from 'node:assert/strict';\nimport {normalizeCode} from './normalize.mjs';\nconst valid = [[' ab-12 ', 'AB-12'], ['a0','A0'], ['Z9-Z','Z9-Z']];\nfor (const [input, expected] of valid) assert.equal(normalizeCode(input), expected);\nfor (const input of ['', ' ', 'a', 'a_b', 'a b', '\u00e9a', '\u00dfa', 'a\u2013b', 'a'.repeat(13)]) assert.throws(() => normalizeCode(input), RangeError, JSON.stringify(input));\nfor (const input of [null, undefined, 123, {}, ['ab']]) assert.throws(() => normalizeCode(input), TypeError);\nassert.equal(normalizeCode('a'.repeat(12)), 'A'.repeat(12));\nconsole.log('PASS: string-only, trimmed ASCII letters/digits/hyphen, length 2..12, uppercase output; Unicode rejected before casing.');\n"
     },
     "before_implementation": "export function normalizeCode(value) { return value.trim().toUpperCase(); }\n",
     "after_implementation": {
@@ -146,7 +185,7 @@
     ],
     "index_html": {
       "sha256": "6176c122dc7238b1089b8bf86ab3522c581a765de16c8b77fb2c56ce22e48e70",
-      "content": "<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Harbor reading list</title><link rel=\"stylesheet\" href=\"style.css\">\n<main><header><p class=\"eyebrow\">HARBOR / PERSONAL LIBRARY</p><h1>Reading for a quiet hour</h1><p>Three books, one small shelf. Mark a book when you finish it.</p></header>\n<section aria-label=\"Reading list\"><article><h2>The Secret Garden</h2><p>Frances Hodgson Burnett</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article><article><h2>A Room of One’s Own</h2><p>Virginia Woolf</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article><article><h2>The Wind in the Willows</h2><p>Kenneth Grahame</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article></section>\n<p id=\"progress\" role=\"status\" aria-live=\"polite\">0 of 3 finished</p></main><script src=\"app.js\"></script></html>\n"
+      "content": "<!doctype html>\n<html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Harbor reading list</title><link rel=\"stylesheet\" href=\"style.css\">\n<main><header><p class=\"eyebrow\">HARBOR / PERSONAL LIBRARY</p><h1>Reading for a quiet hour</h1><p>Three books, one small shelf. Mark a book when you finish it.</p></header>\n<section aria-label=\"Reading list\"><article><h2>The Secret Garden</h2><p>Frances Hodgson Burnett</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article><article><h2>A Room of One\u2019s Own</h2><p>Virginia Woolf</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article><article><h2>The Wind in the Willows</h2><p>Kenneth Grahame</p><button type=\"button\" aria-pressed=\"false\">Mark finished</button></article></section>\n<p id=\"progress\" role=\"status\" aria-live=\"polite\">0 of 3 finished</p></main><script src=\"app.js\"></script></html>\n"
     },
     "app_js": {
       "sha256": "29e2070c932f18436baca68cb006f82b0afd8ae2198231b6829311a01f657e00",
@@ -160,7 +199,7 @@
     "html_and_js_unchanged": true,
     "operator_browser_check": {
       "sha256": "31169e9d3fafa3e40cef652de166dc1adfda9fbf93d332f5e30501fed70b9475",
-      "content": "async page => {\n  const results = [];\n  const assert = (condition, label) => { if (!condition) throw new Error(label); };\n  for (const [width, height] of [[390,844],[1280,900]]) {\n    await page.setViewportSize({width,height});\n    await page.goto('http://127.0.0.1:8765');\n    const names = await page.locator('h2').allTextContents();\n    assert(JSON.stringify(names)===JSON.stringify(['The Secret Garden','A Room of One’s Own','The Wind in the Willows']), 'exact book content');\n    const authors = await page.locator('article p').allTextContents();\n    assert(JSON.stringify(authors)===JSON.stringify(['Frances Hodgson Burnett','Virginia Woolf','Kenneth Grahame']), 'exact authors');\n    const buttons=page.getByRole('button');\n    assert(await buttons.count()===3,'three real buttons');\n    for(let i=0;i<3;i++) {\n      await buttons.nth(i).click();\n      assert(await buttons.nth(i).getAttribute('aria-pressed')==='true','click toggles pressed');\n      assert(await page.getByRole('status').textContent()===`${i+1} of 3 finished`,'live progress count');\n    }\n    await page.reload();\n    await page.keyboard.press('Tab');\n    for(let i=0;i<3;i++) {\n      assert(await buttons.nth(i).evaluate(b=>b===document.activeElement),'keyboard order');\n      await page.keyboard.press(i===1?'Space':'Enter');\n      assert(await buttons.nth(i).getAttribute('aria-pressed')==='true','keyboard toggles');\n      if(i<2) await page.keyboard.press('Tab');\n    }\n    assert(await page.getByRole('status').textContent()==='3 of 3 finished','keyboard progress');\n    const layout=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,heights:[...document.querySelectorAll('button')].map(b=>b.getBoundingClientRect().height),focus:{width:getComputedStyle(document.activeElement).outlineWidth,style:getComputedStyle(document.activeElement).outlineStyle},live:document.querySelector('#progress').getAttribute('aria-live'),background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.body).color,font:getComputedStyle(document.body).fontFamily}));\n    assert(layout.scrollWidth<=width,'no horizontal overflow');assert(layout.heights.every(h=>h>=44),'44px comfortable target');assert(layout.focus.width==='3px'&&layout.focus.style==='solid','visible keyboard focus');assert(layout.live==='polite','polite progress announcement');\n    for(let i=0;i<3;i++) await buttons.nth(i).click();\n    assert(await page.getByRole('status').textContent()==='0 of 3 finished','toggle reversal');\n    await page.emulateMedia({reducedMotion:'reduce'});\n    results.push({width,height,passed:true,layout});\n  }\n  return {passed:true,runtime:await page.evaluate(()=>navigator.userAgent),checks:results,limits:'Chromium DOM and keyboard checks, no screen-reader session or cross-browser claim'};\n}\n"
+      "content": "async page => {\n  const results = [];\n  const assert = (condition, label) => { if (!condition) throw new Error(label); };\n  for (const [width, height] of [[390,844],[1280,900]]) {\n    await page.setViewportSize({width,height});\n    await page.goto('http://127.0.0.1:8765');\n    const names = await page.locator('h2').allTextContents();\n    assert(JSON.stringify(names)===JSON.stringify(['The Secret Garden','A Room of One\u2019s Own','The Wind in the Willows']), 'exact book content');\n    const authors = await page.locator('article p').allTextContents();\n    assert(JSON.stringify(authors)===JSON.stringify(['Frances Hodgson Burnett','Virginia Woolf','Kenneth Grahame']), 'exact authors');\n    const buttons=page.getByRole('button');\n    assert(await buttons.count()===3,'three real buttons');\n    for(let i=0;i<3;i++) {\n      await buttons.nth(i).click();\n      assert(await buttons.nth(i).getAttribute('aria-pressed')==='true','click toggles pressed');\n      assert(await page.getByRole('status').textContent()===`${i+1} of 3 finished`,'live progress count');\n    }\n    await page.reload();\n    await page.keyboard.press('Tab');\n    for(let i=0;i<3;i++) {\n      assert(await buttons.nth(i).evaluate(b=>b===document.activeElement),'keyboard order');\n      await page.keyboard.press(i===1?'Space':'Enter');\n      assert(await buttons.nth(i).getAttribute('aria-pressed')==='true','keyboard toggles');\n      if(i<2) await page.keyboard.press('Tab');\n    }\n    assert(await page.getByRole('status').textContent()==='3 of 3 finished','keyboard progress');\n    const layout=await page.evaluate(()=>({width:innerWidth,scrollWidth:document.documentElement.scrollWidth,heights:[...document.querySelectorAll('button')].map(b=>b.getBoundingClientRect().height),focus:{width:getComputedStyle(document.activeElement).outlineWidth,style:getComputedStyle(document.activeElement).outlineStyle},live:document.querySelector('#progress').getAttribute('aria-live'),background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.body).color,font:getComputedStyle(document.body).fontFamily}));\n    assert(layout.scrollWidth<=width,'no horizontal overflow');assert(layout.heights.every(h=>h>=44),'44px comfortable target');assert(layout.focus.width==='3px'&&layout.focus.style==='solid','visible keyboard focus');assert(layout.live==='polite','polite progress announcement');\n    for(let i=0;i<3;i++) await buttons.nth(i).click();\n    assert(await page.getByRole('status').textContent()==='0 of 3 finished','toggle reversal');\n    await page.emulateMedia({reducedMotion:'reduce'});\n    results.push({width,height,passed:true,layout});\n  }\n  return {passed:true,runtime:await page.evaluate(()=>navigator.userAgent),checks:results,limits:'Chromium DOM and keyboard checks, no screen-reader session or cross-browser claim'};\n}\n"
     },
     "operator_browser_result": {
       "passed": true,
@@ -227,26 +266,7 @@
     ]
   },
   "setup": {
-    "repository": "Preview/apply/repeat: 0 created, 0 updated, 0 pending, 0 stale, 0 conflicts; 191 unchanged",
-    "consumer_discovery_refresh": "Operator initialized Git after initial setup. Repeat preview changed only discovery.git false to true; reviewed setup refreshed that metadata, then repeated setup made zero changes. This operator refresh followed verification of model-only diffs.",
-    "consumers": {
-      "native-repair": {
-        "ok": true,
-        "created": [],
-        "updated": [],
-        "pending_updates": [],
-        "stale_managed": [],
-        "conflicts": []
-      },
-      "native-ui": {
-        "ok": true,
-        "created": [],
-        "updated": [],
-        "pending_updates": [],
-        "stale_managed": [],
-        "conflicts": []
-      }
-    },
+    "repository": "Final 0.5.3 preview and repeated apply: zero created, updated, pending, stale or conflicts; 191 unchanged.",
     "doctor": true,
     "feature_validate": true,
     "knowledge_validate": true,
@@ -254,17 +274,69 @@
       "review_worktree": {
         "managed_files": 190,
         "mismatches": [],
-        "receipt_sha256": "a75e18e09774c136b213cbf4d2537668a5dcff7543eccc0238a633976d1538ff"
+        "receipt_sha256": "63d82442ab5f0453ee7270118e8c94127f4e1464bbafe08f75e575ca0570a44f"
       },
-      "native_repair": {
+      "native_pr_regression": {
         "managed_files": 190,
         "mismatches": [],
-        "receipt_sha256": "c5f50d011a00da63ccaedffeedf121d4ab9da60deadca0d9d17cd8a526366286"
+        "receipt_sha256": "1c7707517bf135854f41e544ddcaa679d40779a43256ad83cf7c472429d55d1b"
+      }
+    },
+    "historical_pre_F2": {
+      "repository": "Preview/apply/repeat: 0 created, 0 updated, 0 pending, 0 stale, 0 conflicts; 191 unchanged",
+      "consumers": {
+        "native-repair": {
+          "ok": true,
+          "created": [],
+          "updated": [],
+          "pending_updates": [],
+          "stale_managed": [],
+          "conflicts": []
+        },
+        "native-ui": {
+          "ok": true,
+          "created": [],
+          "updated": [],
+          "pending_updates": [],
+          "stale_managed": [],
+          "conflicts": []
+        }
       },
-      "native_ui": {
-        "managed_files": 190,
-        "mismatches": [],
-        "receipt_sha256": "c5f50d011a00da63ccaedffeedf121d4ab9da60deadca0d9d17cd8a526366286"
+      "consumer_discovery_refresh": "Operator initialized Git after initial setup. Repeat preview changed only discovery.git false to true; reviewed setup refreshed that metadata, then repeated setup made zero changes. This operator refresh followed verification of model-only diffs."
+    },
+    "source_equivalence_limit": "Native A/B receipts identify their original Power installation. Fresh native PR consumer and final repository receipts identify 0.5.3.",
+    "final_consumer": {
+      "rc-final-setup-preview.json": {
+        "ok": true,
+        "created": [],
+        "updated": [],
+        "pending_updates": [],
+        "stale_managed": [],
+        "conflicts": []
+      },
+      "rc-final-setup-repeat.json": {
+        "ok": true,
+        "created": [],
+        "updated": [],
+        "pending_updates": [],
+        "stale_managed": [],
+        "conflicts": []
+      },
+      "F2-consumer-repeat-preview.json": {
+        "ok": true,
+        "created": [],
+        "updated": [],
+        "pending_updates": [],
+        "stale_managed": [],
+        "conflicts": []
+      },
+      "F2-consumer-repeat-apply.json": {
+        "ok": true,
+        "created": [],
+        "updated": [],
+        "pending_updates": [],
+        "stale_managed": [],
+        "conflicts": []
       }
     }
   },
@@ -307,11 +379,68 @@
     "session": "270ac4ba-5584-4c07-a7a9-c0fc59deb6bb",
     "model": "claude-fable-5-1",
     "availability": "One supported Claude Code 2.1.258 safe-mode resume with tools disabled returned AVAILABLE; no candidate verdict requested",
-    "acceptance_requested": "Review the exact final PR head/tree, safe failure diagnostics and regressions, evidence attribution and unresolved prerequisites. Separate rerun checks from coordinator evidence. No historical approval applies. Any correction requires independent review of its changed bytes.",
+    "acceptance_requested": "Accept or request changes on the exact final PR head/tree for F1 safe detector diagnostics, F2 read-only continuation guidance, regression strength, 0.5.3 metadata/generated consistency and evidence attribution. Separate reviewer-rerun checks from coordinator evidence. Leave unproved maintenance and Linux outcomes explicitly unresolved. No historical approval applies.",
     "hold": "Final candidate remains unmerged, untagged and unpublished."
   },
-  "release_implications": "Repository-control and evidence changes only. Power remains 0.5.2 byte-for-byte; no product version bump or product RC label.",
-  "native_pr_supervision": {
+  "release_implications": "Distributable babysit-pr guidance changes require 0.5.3, with matching manifest, Python versions, locks, changelog and reviewed generated mirrors. No tag or publication. Repository-control diagnostic repair is included.",
+  "requirements": {
+    "R1": {
+      "status": "proven",
+      "acceptance": "Refresh authority, checkout/GitHub state and source/evidence bindings"
+    },
+    "R2": {
+      "status": "proven",
+      "acceptance": "Discover external prerequisites early; runtime discovery and availability are separate from working retrieval"
+    },
+    "R3": {
+      "status": "blocked",
+      "acceptance": "Complete live unattended maintenance chain",
+      "next_action": "Independently accept and merge diagnostic repair, then one changed trusted-main run to resolve missing initiating cause; no unchanged retry"
+    },
+    "R3A": {
+      "status": "blocked",
+      "acceptance": "Live accepted source-scoped update with exact authenticated verdict and disposition",
+      "next_action": "Real eligible upstream drift and successful complete gated candidate lifecycle"
+    },
+    "R3R": {
+      "status": "blocked",
+      "acceptance": "Live substantive rejection feedback/budget/cleanup when naturally exercised",
+      "next_action": "Natural rejection with passed candidate tests and validated persisted feedback; deterministic coverage is separate"
+    },
+    "R4A": {
+      "status": "proven",
+      "acceptance": "Native implementation repair with meaningful unchanged stored verifier"
+    },
+    "R4B": {
+      "status": "proven",
+      "acceptance": "Scoped native Impeccable refinement with bounded browser/function/accessibility checks"
+    },
+    "R4C": {
+      "status": "proven",
+      "acceptance": "Native read-only PR check plus same-session continuation, metadata preservation, exact remote identity and review hold; no failure-retry claim"
+    },
+    "R5": {
+      "status": "blocked",
+      "acceptance": "Substantive Linux retrieval with independently verified citations and unchanged corpus",
+      "next_action": "Existing authorized Linux access route with its own supported Kiro authentication; no credentials requested"
+    },
+    "R6": {
+      "status": "running",
+      "acceptance": "Reproduced repairs, regressions and applicable exact-candidate checks",
+      "next_action": "Exact containing-candidate CI must pass after evidence commit; final disposition and immutable bindings are in PR #69 and the external final review packet."
+    },
+    "R7": {
+      "status": "running",
+      "acceptance": "Freeze final PR/head/tree and complete review packet",
+      "next_action": "Containing commit/tree and terminal CI cannot self-identify here. PR #69 and external final review packet are the final freeze authority."
+    },
+    "R8": {
+      "status": "untested",
+      "acceptance": "Independent exact-candidate acceptance and authorized post-review merge/publication",
+      "next_action": "Outside current preparation stopping point; no historical acceptance applies"
+    }
+  },
+  "native_pr_supervision_checkpoint": {
     "runtime": "Kiro CLI 2.21.1 normal v3",
     "agent": "pkstack",
     "model": "claude-opus-5",
@@ -354,64 +483,77 @@
       "Read-only representative scenario; no fabricated failure, reviewer message or accepted disposition",
       "Does not exercise failure repair or retry execution",
       "Initial prose counted 13 checks despite enumerating 12; native structured recount corrected to 12; no shipped-skill defect inferred from that arithmetic error",
-      "Final head re-observation belongs to the final PR binding, not this earlier checkpoint snapshot"
+      "Final head re-observation belongs to the final PR binding, not this earlier checkpoint snapshot",
+      "Superseded as final guidance proof: a later continuation of this session on 0be49d8 ran a fetch, exposing F2."
     ]
   },
-  "requirements": {
-    "R1": {
-      "status": "proven",
-      "acceptance": "Refresh authority, checkout/GitHub state and source/evidence bindings"
+  "F2": {
+    "status": "repaired awaiting independent review",
+    "initial_source": "0be49d8cf8af7f9751cf4b241c926c7feb38a02d",
+    "initial_session": "sess_6a296234-309a-4d91-bcec-c394686ab8c4",
+    "reproduction": "Native continuation in check mode ran git fetch --no-write-fetch-head origin codex/verification-rc-20260907 despite a read-only boundary. No worktree difference observed; Git metadata effect was not measured in that original run.",
+    "repair_commit": "07e90c5f4811d8b8f284f32372b67533f40672f4",
+    "repair": "Prohibit fetch/pull/checkout/switch and metadata writes in check mode, including --no-write-fetch-head. Remote freshness uses forge APIs; local status/diff disables optional locks. Missing local objects are an API-read or evidence-limit case. Count returned arrays.",
+    "regression": "Expanded existing skill-routing native check-mode scenario with stale/absent tracking refs, metadata preservation and retry continuity. Targeted skill/release tests: 9 passed. Shared fast lane: 23 passed. Native reproof is separately recorded.",
+    "limits": "Guidance shapes observed behavior; it is not an operating-system write sandbox and does not establish universal model compliance."
+  },
+  "native_pr_supervision": {
+    "runtime": "Kiro CLI 2.21.1 normal v3",
+    "agent": "pkstack",
+    "model": "claude-opus-5",
+    "effort": "high",
+    "session": "sess_65227065-e2da-45cc-a4bf-02c759705c37",
+    "guidance_source_commit": "07e90c5f4811d8b8f284f32372b67533f40672f4",
+    "guidance_power_tree": "7c76dcdf4c355812f8609149984e18a1df699eb3",
+    "mode": "check",
+    "operator_setup": "Git initialized before reviewed setup in a disposable consumer. Actual origin URL configured without fetch; no tracking refs. Consumer commit 93805bde1b743bfc0d949670ae08af5bd51dc606 is not PR implementation HEAD.",
+    "prompt": "Use installed babysit-pr skill and GitHub reference for one bounded PR #69 check with stale/absent remote refs. Remote freshness via reads; no writes including Git metadata. Prior head 0be49d8 has zero retries; independent Fable acceptance absent. Stop after one snapshot.",
+    "continuation_prompt": "Continue same campaign for one fresh snapshot with absent tracking refs, unchanged worktree/metadata and zero retries; retain Fable hold.",
+    "model_actions": [
+      "Loaded installed babysit-pr skill and read GitHub reference",
+      "Read fresh structured PR/head/base/check arrays through gh",
+      "Read paginated review/comment endpoints and GraphQL threads with no next page",
+      "Read exact-head workflow and structured job counts",
+      "Used git --no-optional-locks status/rev-parse/branch reads; no fetch",
+      "Repeated remote evidence reads in the same native session; retained draft/review hold and zero retries"
+    ],
+    "remote_head": "0be49d8cf8af7f9751cf4b241c926c7feb38a02d",
+    "remote_base": "3a370aa92d881ea8bab48c4b55c70cad347c49b7",
+    "snapshots": 2,
+    "checks": {
+      "count": 12,
+      "success": 12,
+      "run": 34159848716,
+      "attempt": 1
     },
-    "R2": {
-      "status": "proven",
-      "acceptance": "Discover external prerequisites early; runtime discovery and availability are separate from working retrieval"
+    "published_reviews": 0,
+    "comments": 0,
+    "review_threads": 0,
+    "has_next_page": false,
+    "is_draft": true,
+    "mergeable": "MERGEABLE",
+    "merge_state": "CLEAN",
+    "merge_ready": false,
+    "independent_acceptance": false,
+    "retries_used": 0,
+    "retry_allowance_per_head": 1,
+    "metadata_proof": {
+      "file_count_before": 325,
+      "file_count_after_each": 325,
+      "changed_after_first": [],
+      "changed_after_continuation": [],
+      "method": "Operator compares SHA-256 and path sets of every .git file before native execution and after each snapshot. Does not establish that no transient write-and-restore occurred.",
+      "manifest_hashes": {
+        "F2-git-metadata-before.json": "7a6812f55ad33d98edea2db37e94deda069b7cae8c0db7d598913292a757e085",
+        "F2-git-metadata-after-first.json": "7a6812f55ad33d98edea2db37e94deda069b7cae8c0db7d598913292a757e085",
+        "F2-git-metadata-after-continuation.json": "991b390fdf72335713d8659a2d6093ce728c23219630457fd77f590184bf0d9b"
+      }
     },
-    "R3": {
-      "status": "blocked",
-      "acceptance": "Complete live unattended maintenance chain",
-      "next_action": "Independently accept and merge diagnostic repair, then one changed trusted-main run to resolve missing initiating cause; no unchanged retry"
-    },
-    "R3A": {
-      "status": "blocked",
-      "acceptance": "Live accepted source-scoped update with exact authenticated verdict and disposition",
-      "next_action": "Real eligible upstream drift and successful complete gated candidate lifecycle"
-    },
-    "R3R": {
-      "status": "blocked",
-      "acceptance": "Live substantive rejection feedback/budget/cleanup when naturally exercised",
-      "next_action": "Natural rejection with passed candidate tests and validated persisted feedback; deterministic coverage is separate"
-    },
-    "R4A": {
-      "status": "proven",
-      "acceptance": "Native implementation repair with meaningful unchanged stored verifier"
-    },
-    "R4B": {
-      "status": "proven",
-      "acceptance": "Scoped native Impeccable refinement with bounded browser/function/accessibility checks"
-    },
-    "R4C": {
-      "status": "proven",
-      "acceptance": "Native one-shot PR supervision with exact identity and review hold; limited read-only coverage"
-    },
-    "R5": {
-      "status": "blocked",
-      "acceptance": "Substantive Linux retrieval with independently verified citations and unchanged corpus",
-      "next_action": "Existing authorized Linux access route with its own supported Kiro authentication; no credentials requested"
-    },
-    "R6": {
-      "status": "running",
-      "acceptance": "Reproduced repairs, regressions and applicable exact-candidate checks",
-      "next_action": "Final evidence commit CI; successful behavior-checkpoint CI retained separately"
-    },
-    "R7": {
-      "status": "running",
-      "acceptance": "Freeze final PR/head/tree and complete review packet",
-      "next_action": "Commit packet, finish final CI and bind immutable identities in PR description"
-    },
-    "R8": {
-      "status": "untested",
-      "acceptance": "Independent exact-candidate acceptance and authorized post-review merge/publication",
-      "next_action": "Outside current preparation stopping point; no historical acceptance applies"
-    }
+    "limits": [
+      "Two read-only observations, no failure repair/retry execution or substantive review response exercised",
+      "Required-check CLI reported none; native session did not inspect protection. Operator API returned plan-related HTTP403; policies were not changed. Repository CI and independent acceptance remain required.",
+      "Guidance source is final 0.5.3 candidate; observed remote PR was prior 0be49d8 checkpoint. Final remote-head binding is operator verification after push.",
+      "No universal model compliance or OS sandbox claim."
+    ]
   }
 }

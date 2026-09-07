@@ -145,7 +145,7 @@ v3 demonstrations using CLI 2.21.1, the generated `pkstack` agent, and selected
 the original unchanged trusted-main `3a370aa` source for those observations. The later 0.5.3
 correction changes PR-supervision guidance and version metadata. Stored-verifier, Impeccable
 and controller-implementation evidence carries forward only through explicit per-file source
-equivalence; PR-supervision guidance needs new native proof. The final PR binds the containing tree.
+equivalence; corrected PR-supervision guidance has its own new native proof. The final PR binds the containing tree.
 
 For stored verification, the operator predeclared a string-normalization contract and tests,
 installed the reviewed Power, and retained a genuine failing `node acceptance.mjs` result.
@@ -170,7 +170,11 @@ from an acceptance verdict. The initial check miscounted 12 jobs as 13 and corre
 through fresh structured reads. A later continuation ran `git fetch --no-write-fetch-head`:
 no worktree changes were observed, but it was not a strictly read-only operation. The 0.5.3
 guidance addresses that metadata boundary explicitly and retains the failure as regression
-context. A successful read-only check does not prove failure repair, flaky
+context. A fresh 0.5.3 consumer then completed a check and a same-session continuation
+using forge reads and local Git commands with optional locks disabled. The operator compared
+all 325 Git metadata file hashes and path sets after each snapshot: no changes. Both snapshots
+retained zero retries and the independent-review hold. The remote PR was the earlier checkpoint;
+the loaded guidance was the repaired candidate. A successful read-only check does not prove failure repair, flaky
 retry handling, substantive reviewer-response work or merge-ready status.
 
 ## Related knowledge
