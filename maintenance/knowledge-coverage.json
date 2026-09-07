@@ -911,7 +911,7 @@
     },
     {
       "path": "powers/pkstack/docs/first-task.md",
-      "sha256": "3181f0e43ce452b36b88411974cdd1a94eced50da8565738c93060662e014e99",
+      "sha256": "df281102aa8dea32c7846abd4c725d76122835a8a92d1c5e7e6149996e0d2f72",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"

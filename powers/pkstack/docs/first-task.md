@@ -5,47 +5,21 @@ standard library. Work in a disposable copy so the Power’s fixture stays uncha
 
 ## Prepare the project
 
-First follow [Choose the Power source](usage.md#choose-the-power-source) to
-capture `PKSTACK_POWER` and `PKSTACK_PACKAGE` in this terminal. The Power folder
-contains the example; the package source selects the reviewed uvx installer.
-Keep both absolute paths after changing directories:
+Install the Power using the [Kiro installation flow](usage.md#install-the-power).
+Copy `examples/verified-goal-demo/` from the Power folder into a disposable
+project and open that project in Kiro. Invoke `/pkstack-setup`, review its
+preview, and approve the intended workspace changes. Resolve any reported
+conflicts before continuing, then select the workspace `pkstack` agent.
 
-```sh
-: "${PKSTACK_POWER:?Follow the usage guide to capture the Power source first}"
-: "${PKSTACK_PACKAGE:?Select the reviewed package source first}"
-test -f "$PKSTACK_POWER/plugin.json"
-test -d "$PKSTACK_POWER/examples/verified-goal-demo"
-```
-
-Copy the example into a disposable target and preview setup:
-
-```sh
-PKSTACK_DEMO=$(mktemp -d "${TMPDIR:-/tmp}/pkstack-demo.XXXXXX")
-cp -R "$PKSTACK_POWER/examples/verified-goal-demo/." "$PKSTACK_DEMO/"
-cd "$PKSTACK_DEMO"
-git init -q
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack setup --dry-run --output json
-```
-
-Review the target and listed changes. The preview does not write managed target
-files, but runtime preparation can populate caches and download dependencies.
-When the preview is acceptable, apply it and check installation:
-
-```sh
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack setup --output json
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack doctor --output json
-```
-
-Setup preserves conflicting user files. If it reports a conflict, stop and
-inspect the named path; do not force an overwrite.
+The commands below run from that prepared project's root directory.
 
 ## Record the failure
 
 ```sh
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal start "Repair account ID normalization" \
+.pkstack/bin/projectctl goal start "Repair account ID normalization" \
   --command "python3 -m unittest discover -s tests -v" \
   --max-attempts 4 --output json
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal verify --output json
+.pkstack/bin/projectctl goal verify --output json
 ```
 
 The last command should exit **1**, report failed tests, and leave the goal
@@ -83,7 +57,7 @@ is missing.
 Check the result yourself in a terminal at the disposable target root:
 
 ```sh
-uvx --python '>=3.11' --from "$PKSTACK_PACKAGE" pkstack goal status --output json
+.pkstack/bin/projectctl goal status --output json
 python3 -m unittest discover -s tests -v
 ```
 
