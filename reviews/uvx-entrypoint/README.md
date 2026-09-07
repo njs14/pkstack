@@ -29,5 +29,14 @@ CI now checks pull requests targeting branches other than main, allowing this st
 validated. Both release-artifact production and retention remain restricted to main pushes;
 release workflows are unchanged. The uvx acceptance module stays together in the packaging lane.
 
-Full local and independent review results will be recorded against the frozen candidate. Hosted
-CI must pass on the final stacked PR head before delivery.
+The [full local gate](full-gate-summary.json) passed against frozen candidate
+`9e9f3277a1a960870697b15fd0735aa771bf8331`: all 10 lane receipts passed, covering 1,016 Power
+tests, 235 repository tests, actionlint, shellcheck, Ruff, ty, doctor, and knowledge validation.
+
+[Grok 4.6 with xhigh reasoning approved](grok-review.md) the same candidate against base
+`2fe0babf05f753f732312b1187986ca5b0533e70`, with no requested changes. The review inspected
+source and coordinator-provided evidence; it did not execute candidate code. Its final log read
+preceded full-gate aggregation, which subsequently completed successfully. See
+[review metadata](grok-review-metadata.json). The following commit records evidence only;
+implementation, tests, configuration, documentation, and generated assets remain at the reviewed
+candidate. Hosted CI on the final stacked PR head is reported in the PR checks.
