@@ -4,6 +4,24 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.1] — 2026-09-07
+
+PKStack 0.5.1 adds Kiro-native design guidance and consolidates PR monitoring.
+
+- Adds reviewed Impeccable methods for design direction, review, refinement,
+  and quality checks. The upstream binary, detector hooks, font data, and live
+  runtime are excluded; these are agent guidance, not installed UI tooling.
+- Routes PR babysitting through one shared method with merge-ready completion,
+  optional continued monitoring, current-head evidence, and one supported flaky
+  retry per head. GitHub writes still require explicit authorization.
+- Pins both upstream sources with per-file handling decisions, provenance,
+  notices, bundle hashes, and maintenance coverage.
+- Retains the existing skill-authoring methods and Kiro-owned workflow controls.
+
+Deterministic routing and package checks do not establish live Kiro reasoning
+with the new skills or a future unattended maintenance result. Existing native
+acceptance retains its recorded scope. See the [release record](Wiki/knowledge/pkstack/release-record.md).
+
 ## [0.5.0] — 2026-09-07
 
 PKStack 0.5.0 uses Kiro Power installation and the repository-local controller.
