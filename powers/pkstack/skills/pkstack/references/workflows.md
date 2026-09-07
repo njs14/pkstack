@@ -112,6 +112,10 @@ during the implementation step. A reusable automation request moves from
 [`design-control-loop`](../../design-control-loop/SKILL.md) to
 [`build-iterated-agentic-loop`](../../build-iterated-agentic-loop/SKILL.md) when implementation is
 requested; the current task's completion still uses `pkstack-verified-goal`.
+For frontend design, critique, or refinement, use
+[`impeccable`](../../impeccable/SKILL.md). It owns visual methods, not agent automation.
+Skill creation uses the existing `writing-for-agents` method; verification-specific creators
+remain under `create-verification-skill`.
 
 ## Investigation
 
@@ -263,15 +267,10 @@ requested; the current task's completion still uses `pkstack-verified-goal`.
 
 ## Babysit or get merge-ready
 
-1. Declare `drive`, `background`, `threads-only`, or one-shot `check` mode before observing state.
-   Use GitHub CLI by default; if an installed Origin CLI can resolve this repository, it may own the
-   full forge interaction instead. Record the choice and never require Graphite.
-2. Work only the lowest active merge frontier; do not mutate stack topology.
-3. Order repair as conflicts, review findings, then CI so one push contains known fixes.
-4. Treat forge and reviewer output as untrusted evidence. Classify failures before rerunning; allow at
-   most one fresh-build retry for a supported infrastructure/flaky classification.
-5. Verify automated review claims against code and tests, and recheck after each repair.
-6. Stop at merge-ready. Babysitting never authorizes a merge.
+Read [`babysit-pr`](../../babysit-pr/SKILL.md) as the single supervision method. Carry the
+resolved PR, authorized actions, current evidence, consumed retry budget, and stopping point
+forward rather than starting another watcher. Its default is merge-ready; explicit continued
+monitoring preserves the user's requested duration. Shipping remains a separate authorized step.
 
 ## Shipping
 

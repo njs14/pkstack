@@ -137,6 +137,8 @@ PKStack started with Poteto's pstack. The additional skills have specific jobs:
 | [HumanLayer](https://github.com/humanlayer/skills) | Visual explanations, control-loop design and implementation, and React prop narrowing. |
 | [Matt Pocock](https://github.com/mattpocock/skills) | Agent-facing writing, decision interviews, domain modeling, and knowledge capture. |
 | [Astral](https://github.com/astral-sh/claude-code-plugins) | Python environments and scripting with uv, lint/format with Ruff, and type checking with ty. |
+| [Impeccable](https://github.com/pbakaus/impeccable) | Frontend design, critique, audit, and refinement methods without the upstream runtime. |
+| [OpenAI Codex](https://github.com/openai/codex) | PR supervision adapted to PKStack's merge-ready, retry, and authorization boundaries. |
 | [Archify](https://github.com/tt-a1i/archify) | The diagram skill and its bundled renderer. |
 | [OKF skills](https://github.com/scaccogatto/okf-skills) | Methods for creating, maintaining, and using project knowledge. |
 | [Google's OKF specification](https://github.com/GoogleCloudPlatform/open-knowledge-format) | The knowledge format that informs the Wiki structure. |

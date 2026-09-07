@@ -25,6 +25,9 @@ stay in their package locations; only project-specific understanding belongs in 
 | Design or build reusable iterative automation | HumanLayer design/build loop methods. A design-only request remains conversational; it does not authorize schedules or implementation. |
 | Repair a bounded task | The existing verification loop; do not invent a reusable automation product unless requested. |
 | Work on Python | Astral `uv`, `ruff`, and `ty` compose by environment, lint/format, and type responsibilities. |
+| Design or refine a frontend | Impeccable supplies design methods; agent control-loop design remains a separate job. |
+| Supervise a PR | `babysit-pr` owns both standalone supervision and the router's Babysit method. |
+| Create a skill | `writing-for-agents` owns general Kiro skill authoring; `create-verification-skill` owns verification workflows. |
 
 Overlapping vocabulary is acceptable when responsibilities are explicit. Contradictory outputs,
 duplicated mandatory interviews, widened permissions, or weaker proof need correction. Routing
@@ -50,6 +53,20 @@ HumanLayer contributes four portable methods. Claude-specific plugin registratio
 OpenAI-only agent metadata is provenance only. Astral ports preserve existing Poetry/PDM or other
 selected toolchains unless migration is requested, use locked project tools, and retain reviewed
 pre-uv bootstrap exceptions. None of these ports installs a language server as a side effect.
+
+Impeccable is a condensed instruction port: the brief and accessibility requirements outrank
+aesthetic defaults, refinement preserves the incumbent design, and audit/critique remain
+report-only unless repair is requested. Its binary, detector hooks, font index, upstream agents,
+and live variant runtime are excluded. Product/design files are not created as a prerequisite
+to narrow UI work. Browser inspection and projectctl supply separate kinds of evidence.
+
+The OpenAI PR Babysitter port shares one supervision method with Poteto's Babysit route.
+PKStack retains merge-ready completion and one supported fresh-build retry per head SHA;
+explicit continued monitoring can wait until closure or a deadline. Retry state survives
+observer restarts. Checks and published reviews must belong to the observed head; incomplete
+coverage is not review-clean. No watcher script, detached scheduler, automatic merge, or
+automatic review reply is installed. Writes require the user's corresponding authorization.
+Codex's built-in skill creator is available in that host, not shipped as a Kiro dependency.
 
 ## OKF format, methodology, and runtime are distinct
 
@@ -151,3 +168,6 @@ original candidate and scope; they are not fresh verification of this checkout.
 | [reviews/friends-curated-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-curated-validation.md) | Six skills loaded in native smokes, but design/diagram/builder limitations remained; a successful skill load alone does not establish the requested result. |
 | [reviews/release-030-loop-helpers.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-loop-helpers.md) | Builder preservation checks required an explicit pre-edit baseline and end-to-end composition; later bounded native runs supersede only the reproduced earlier failures. |
 | [reviews/release-030-other-helpers.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-other-helpers.md) | show-me, writing-for-agents and narrow-react-prop-types passed bounded native fixtures; inferred diagram links and untested browser rendering stayed disclosed. |
+
+| [Impeccable provenance](../../../powers/pkstack/docs/pbakaus-impeccable-provenance.md) | Exact source and bundle identities; frontend design methods without the executable runtime. |
+| [PR Babysitter provenance](../../../powers/pkstack/docs/openai-babysit-pr-provenance.md) | One shared PR method, explicit stop and retry reconciliation, and no automatic GitHub writes. |

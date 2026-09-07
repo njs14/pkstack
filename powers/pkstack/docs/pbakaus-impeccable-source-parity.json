@@ -1,0 +1,899 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "2ccd89a35a5e46966f92122f637a761f6e1368a3",
+        "size": 6201,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "agents/impeccable-asset-producer.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "2ccd89a35a5e46966f92122f637a761f6e1368a3",
+        "size": 6201,
+        "type": "blob"
+      },
+      "rationale": "Specialized upstream agent prompts and mandatory finish handoffs are excluded; the current Kiro session and its existing review contract retain authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "53817f6d90ded0d9e9d2d71dd8255fc7bd639284",
+        "size": 3295,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "agents/impeccable-documenter.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "53817f6d90ded0d9e9d2d71dd8255fc7bd639284",
+        "size": 3295,
+        "type": "blob"
+      },
+      "rationale": "Specialized upstream agent prompts and mandatory finish handoffs are excluded; the current Kiro session and its existing review contract retain authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "1be3b6dfff4dbfedb5f2d994b22aba36346a27f5",
+        "size": 15347,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "agents/impeccable-finish-reviewer.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "1be3b6dfff4dbfedb5f2d994b22aba36346a27f5",
+        "size": 15347,
+        "type": "blob"
+      },
+      "rationale": "Specialized upstream agent prompts and mandatory finish handoffs are excluded; the current Kiro session and its existing review contract retain authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "81fe9fd8170738e4f66c1831f654285a7582592b",
+        "size": 7099,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "agents/impeccable-manual-edit-applier.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "81fe9fd8170738e4f66c1831f654285a7582592b",
+        "size": 7099,
+        "type": "blob"
+      },
+      "rationale": "Specialized upstream agent prompts and mandatory finish handoffs are excluded; the current Kiro session and its existing review contract retain authority."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "36abc100065f6d70a66d674be4b46145c447893d",
+        "size": 10324,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/adapt.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "36abc100065f6d70a66d674be4b46145c447893d",
+        "size": 10324,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "4307b559f458f01c0ba50da83b7467656b596970",
+        "size": 3927,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/adapt.native.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "4307b559f458f01c0ba50da83b7467656b596970",
+        "size": 3927,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a04ba29b547810d30e5f9d029ae1b39a9872a798",
+        "size": 4895,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "reference/android.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a04ba29b547810d30e5f9d029ae1b39a9872a798",
+        "size": 4895,
+        "type": "blob"
+      },
+      "rationale": "The distilled third-party platform manuals are not redistributed. Native work uses its project platform conventions and current authoritative documentation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "f80ebd154cd0b51ac713f3a535ca9640a30ab966",
+        "size": 5253,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/animate.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "f80ebd154cd0b51ac713f3a535ca9640a30ab966",
+        "size": 5253,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "10e74574deee42cdf947492ab90d467bcb11ab30",
+        "size": 7199,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/audit.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "10e74574deee42cdf947492ab90d467bcb11ab30",
+        "size": 7199,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "9a51dd8a24aaf54e5c75affbf14ae0ba2e07beee",
+        "size": 7690,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/audit.native.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "9a51dd8a24aaf54e5c75affbf14ae0ba2e07beee",
+        "size": 7690,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "e06aa32121b7de5b21c7bd83f3be1ec851ffa7a5",
+        "size": 3457,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/bolder.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "e06aa32121b7de5b21c7bd83f3be1ec851ffa7a5",
+        "size": 3457,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "309a056793ff912ff7b412f797a5ecc643d36cc9",
+        "size": 4607,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/clarify.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "309a056793ff912ff7b412f797a5ecc643d36cc9",
+        "size": 4607,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "ba536574aa86bfb08cd47dc0a80313692800a53d",
+        "size": 4554,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/colorize.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "ba536574aa86bfb08cd47dc0a80313692800a53d",
+        "size": 4554,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "d7a3aecc7d091c260a599b5de83fccb3bdaf29f4",
+        "size": 7334,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/craft-floor.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "d7a3aecc7d091c260a599b5de83fccb3bdaf29f4",
+        "size": 7334,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "dbbc9402c07cdab21f2b6eb69279b8435fecfd7f",
+        "size": 555,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/craft.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "dbbc9402c07cdab21f2b6eb69279b8435fecfd7f",
+        "size": 555,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "ad0831694497d99e455fe02d02ce526867b2eea0",
+        "size": 45216,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/critique.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "ad0831694497d99e455fe02d02ce526867b2eea0",
+        "size": 45216,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "952af09711345b28fb54aa1d335eed6cf38f86a5",
+        "size": 3733,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/delight.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "952af09711345b28fb54aa1d335eed6cf38f86a5",
+        "size": 3733,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "bc0f6e96472be319e27e62e681975d3716e7b43a",
+        "size": 5610,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/distill.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "bc0f6e96472be319e27e62e681975d3716e7b43a",
+        "size": 5610,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "f274cdbb4b5a4a004f432aac2e9269156a83e634",
+        "size": 5447,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "reference/doctor.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "f274cdbb4b5a4a004f432aac2e9269156a83e634",
+        "size": 5447,
+        "type": "blob"
+      },
+      "rationale": "Upstream runtime management, generated decision pages, and live variant machinery are excluded. Unsupported commands are reported explicitly; explanatory diagrams route to the existing visual skills."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "90b963b1a74a1e98848d200eafc1230b8e77e803",
+        "size": 27397,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/document.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "90b963b1a74a1e98848d200eafc1230b8e77e803",
+        "size": 27397,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "0f49cfbaa0f6787b0f3b2e5e89980f88fe06af7c",
+        "size": 3309,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/extract.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "0f49cfbaa0f6787b0f3b2e5e89980f88fe06af7c",
+        "size": 3309,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "0154336fd67b6b08f45ef120ee943a79a9e6f879",
+        "size": 8556,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/harden.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "0154336fd67b6b08f45ef120ee943a79a9e6f879",
+        "size": 8556,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "516c24dccbef0a0f0032c1db757be2c2bce32fa6",
+        "size": 13244,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "reference/hooks.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "516c24dccbef0a0f0032c1db757be2c2bce32fa6",
+        "size": 13244,
+        "type": "blob"
+      },
+      "rationale": "Upstream runtime management, generated decision pages, and live variant machinery are excluded. Unsupported commands are reported explicitly; explanatory diagrams route to the existing visual skills."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "ac3880b862e3dfc5d170a47b27e5ecd9c01e8cff",
+        "size": 11412,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/init.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "ac3880b862e3dfc5d170a47b27e5ecd9c01e8cff",
+        "size": 11412,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "bff06b2a3ccd029930be7df19794bb20aa02be26",
+        "size": 4644,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "reference/ios.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "bff06b2a3ccd029930be7df19794bb20aa02be26",
+        "size": 4644,
+        "type": "blob"
+      },
+      "rationale": "The distilled third-party platform manuals are not redistributed. Native work uses its project platform conventions and current authoritative documentation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "4b9eadcb10bbcf3e4d8de84ebd0d86d90e804d4b",
+        "size": 5161,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/layout.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "4b9eadcb10bbcf3e4d8de84ebd0d86d90e804d4b",
+        "size": 5161,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "274f8c3bd091afcf49fc33aaba70edecc11acfbf",
+        "size": 8169,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "reference/live-setup.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "274f8c3bd091afcf49fc33aaba70edecc11acfbf",
+        "size": 8169,
+        "type": "blob"
+      },
+      "rationale": "Upstream runtime management, generated decision pages, and live variant machinery are excluded. Unsupported commands are reported explicitly; explanatory diagrams route to the existing visual skills."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "5823d3407ebd4679ac3531eaa3008db798d9ed12",
+        "size": 36269,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "reference/live.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "5823d3407ebd4679ac3531eaa3008db798d9ed12",
+        "size": 36269,
+        "type": "blob"
+      },
+      "rationale": "Upstream runtime management, generated decision pages, and live variant machinery are excluded. Unsupported commands are reported explicitly; explanatory diagrams route to the existing visual skills."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "675aa02ec2da67b012642dbf34b525fe2463a4e9",
+        "size": 53924,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/new-work.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "675aa02ec2da67b012642dbf34b525fe2463a4e9",
+        "size": 53924,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "e6f835b46209087e6801f449160f7569c0efe713",
+        "size": 7757,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/onboard.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "e6f835b46209087e6801f449160f7569c0efe713",
+        "size": 7757,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "5e4666de08f63f55c832c7bb2511cc9ad8068744",
+        "size": 5200,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/operate.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "5e4666de08f63f55c832c7bb2511cc9ad8068744",
+        "size": 5200,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "9c7bb144ab0d5fa72f5bbb20785249895b0998ba",
+        "size": 7631,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/optimize.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "9c7bb144ab0d5fa72f5bbb20785249895b0998ba",
+        "size": 7631,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "474100a3043084ac187217edb6ffe9815f8b344f",
+        "size": 9054,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/overdrive.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "474100a3043084ac187217edb6ffe9815f8b344f",
+        "size": 9054,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "f2146990505863574e3c8298613a37d4c31ee73c",
+        "size": 6612,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/polish.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "f2146990505863574e3c8298613a37d4c31ee73c",
+        "size": 6612,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "8483d305d781885f549cb104346f534331d2ba8d",
+        "size": 4845,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/quieter.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "8483d305d781885f549cb104346f534331d2ba8d",
+        "size": 4845,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "7f68c8681e62880af77855eb3d24ae17c447c3e3",
+        "size": 3240,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/routing.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "7f68c8681e62880af77855eb3d24ae17c447c3e3",
+        "size": 3240,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "90a74ae813331cbce8fff6beb498ced77970fadf",
+        "size": 3547,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/shape.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "90a74ae813331cbce8fff6beb498ced77970fadf",
+        "size": 3547,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a315599ca7ec821ba513b3181ad1bf9043b9218e",
+        "size": 5256,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "reference/typeset.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a315599ca7ec821ba513b3181ad1bf9043b9218e",
+        "size": 5256,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a062e0da0e1a061445e5cfd8c3a94cdaaedb97c3",
+        "size": 11277,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "reference/visualize.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a062e0da0e1a061445e5cfd8c3a94cdaaedb97c3",
+        "size": 11277,
+        "type": "blob"
+      },
+      "rationale": "Upstream runtime management, generated decision pages, and live variant machinery are excluded. Unsupported commands are reported explicitly; explanatory diagrams route to the existing visual skills."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "dad8ef2e0ca304f6a0fe48c0c6b90880df93e01b",
+        "size": 7934,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/command-metadata.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "dad8ef2e0ca304f6a0fe48c0c6b90880df93e01b",
+        "size": 7934,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "1aca67220413ef163570c75405b444d7a27a32be",
+        "size": 2437,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/data/font-index-failures.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "1aca67220413ef163570c75405b444d7a27a32be",
+        "size": 2437,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "9d2029971df232a72ff6584d264c104490521742",
+        "size": 1100013,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/data/font-index.json",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "9d2029971df232a72ff6584d264c104490521742",
+        "size": 1100013,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100755",
+        "object_sha": "a25e42302c0ff12d1c78fc50bc0d327bd82040df",
+        "size": 7452,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/impeccable",
+      "pinned": {
+        "mode": "100755",
+        "object_sha": "a25e42302c0ff12d1c78fc50bc0d327bd82040df",
+        "size": 7452,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "9c285c910f86f9115879dcf40ec15909cc9e06bb",
+        "size": 6969,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/impeccable.cmd",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "9c285c910f86f9115879dcf40ec15909cc9e06bb",
+        "size": 6969,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "e85c95c43ead132f04fe61dc3d0bf90b04e22d37",
+        "size": 4917,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/live-browser-dom.js",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "e85c95c43ead132f04fe61dc3d0bf90b04e22d37",
+        "size": 4917,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "1c8514c7bcd8b8d889a1763965326fb6adec24a1",
+        "size": 10346,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/live-browser-ignores.js",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "1c8514c7bcd8b8d889a1763965326fb6adec24a1",
+        "size": 10346,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "1514bf472a5bb6dffdec1c67176713e3fab47af6",
+        "size": 4090,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/live-browser-session.js",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "1514bf472a5bb6dffdec1c67176713e3fab47af6",
+        "size": 4090,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "ac6f185861ed917d88f039a696b0602a1b7ad9f2",
+        "size": 522871,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/live-browser.js",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "ac6f185861ed917d88f039a696b0602a1b7ad9f2",
+        "size": 522871,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a9c5208f6b141d3bafdb8eb843d6fcbdcf23e370",
+        "size": 29290,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/modern-screenshot.umd.js",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a9c5208f6b141d3bafdb8eb843d6fcbdcf23e370",
+        "size": 29290,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "b1e80bb2480a6db3c4b252661ac61ed945409b32",
+        "size": 6,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/VERSION",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "b1e80bb2480a6db3c4b252661ac61ed945409b32",
+        "size": 6,
+        "type": "blob"
+      },
+      "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "0637f4789f727a7fd80ad80c1778b890bb5638f1",
+        "size": 12261,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.src.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "0637f4789f727a7fd80ad80c1778b890bb5638f1",
+        "size": 12261,
+        "type": "blob"
+      },
+      "rationale": "Design judgement and scoped command intent are condensed into the Kiro skill and its direction, review, refinement, and quality references. Preserve product truth, incumbent identity during refinement, read-only reviews, and bounded visual passes; exclude runtime calls, universal approval rounds, model-specific bans, and automatic artifact writes."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9",
+      "subtree_sha": "90d9f3c53a7fb64b44d0411bc0858a111c4aac23"
+    },
+    "id": "pbakaus-impeccable",
+    "path": "skill",
+    "pinned": {
+      "commit": "dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9",
+      "subtree_sha": "90d9f3c53a7fb64b44d0411bc0858a111c4aac23"
+    },
+    "repository": "pbakaus/impeccable",
+    "retrieved_on": "2026-09-07"
+  },
+  "summary": {
+    "A": 29,
+    "B": 22,
+    "C": 0,
+    "current_files": 51,
+    "pinned_files": 51
+  }
+}

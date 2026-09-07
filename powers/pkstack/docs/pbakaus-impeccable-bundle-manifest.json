@@ -1,0 +1,52 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/impeccable",
+  "files": [
+    {
+      "handling": "adapted-kiro-reference",
+      "mode": "100644",
+      "path": "references/direction.md",
+      "sha256": "c372ba09fe4e31cb0efbabc23add4c912ba037f0db0c55df19e53a2f70897cf8",
+      "size": 2778,
+      "source_path": "skill/reference/new-work.md"
+    },
+    {
+      "handling": "adapted-kiro-reference",
+      "mode": "100644",
+      "path": "references/quality.md",
+      "sha256": "44e32050736c9e57d43dbfd4b7a30ba4397c5615f33c252a42d74d03d8be88bf",
+      "size": 2336,
+      "source_path": "skill/reference/craft-floor.md"
+    },
+    {
+      "handling": "adapted-kiro-reference",
+      "mode": "100644",
+      "path": "references/refinement.md",
+      "sha256": "91ef3bae617f41f415244b3734f5945d820429df4b319b566380c7a057457dfa",
+      "size": 3952,
+      "source_path": "skill/reference/polish.md"
+    },
+    {
+      "handling": "adapted-kiro-reference",
+      "mode": "100644",
+      "path": "references/review.md",
+      "sha256": "9ee973800ac9962afbd71d9c16d4b6de813017009e38de74f4ce59f457bc5de7",
+      "size": 1915,
+      "source_path": "skill/reference/audit.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "4f3531bbd18046d4743bd82d2cc9b3199f89d0c965c9f1d1a1e67a01f2348d8d",
+      "size": 4462,
+      "source_path": "skill/SKILL.src.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "impeccable",
+  "summary": {
+    "byte_count": 15443,
+    "file_count": 5
+  }
+}

@@ -107,6 +107,8 @@ Use the curated skills where their output fits the task:
 - visual explanation: [`show-me`](../show-me/SKILL.md); polished interactive diagrams:
   [`archify`](../archify/SKILL.md)
 - agent instructions: [`writing-for-agents`](../writing-for-agents/SKILL.md)
+- frontend design and refinement: [`impeccable`](../impeccable/SKILL.md)
+- PR checks and supervision: [`babysit-pr`](../babysit-pr/SKILL.md), also used by the Babysit workflow
 - React props broader than live callers need:
   [`narrow-react-prop-types`](../narrow-react-prop-types/SKILL.md)
 - a reusable automation contract: [`design-control-loop`](../design-control-loop/SKILL.md);

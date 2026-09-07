@@ -1,0 +1,134 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "e07637b903c2615760ac6260c7c41401e5e4aaee",
+        "size": 1416,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "e07637b903c2615760ac6260c7c41401e5e4aaee",
+        "size": 1416,
+        "type": "blob"
+      },
+      "rationale": "Codex-specific UI metadata is inventoried for provenance, not installed in Kiro."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "645e7453c1c9ae251d5dbdf030d3fe1f703bcd43",
+        "size": 2343,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "references/github-api-notes.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "645e7453c1c9ae251d5dbdf030d3fe1f703bcd43",
+        "size": 2343,
+        "type": "blob"
+      },
+      "rationale": "GitHub metadata, checks, published review endpoints, current-head run discovery, pagination, and early failed-job log inspection are adapted into the local GitHub evidence reference. No upstream watcher or automatic mutation policy is installed."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "ee44c4a194848f00095628bfb04d37c5379b91a2",
+        "size": 3308,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "references/heuristics.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "ee44c4a194848f00095628bfb04d37c5379b91a2",
+        "size": 3308,
+        "type": "blob"
+      },
+      "rationale": "PR evidence, failure classification, published-review handling, and owned supervision are adapted into one Kiro method. PKStack keeps merge-ready completion unless continued watching is requested, one retry per SHA, exact write authorization, and no automatic merge or review replies."
+    },
+    {
+      "current": {
+        "mode": "100755",
+        "object_sha": "1572133c92666def502e60f29cce3d6d18c1c443",
+        "size": 30134,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/gh_pr_watch.py",
+      "pinned": {
+        "mode": "100755",
+        "object_sha": "1572133c92666def502e60f29cce3d6d18c1c443",
+        "size": 30134,
+        "type": "blob"
+      },
+      "rationale": "The Python watcher and its runtime state/retry implementation are not shipped or executed. Existing GitHub CLI observations and current-session waits supply supervision without a second controller."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "76293b56f8293552ad22488a64f800a87eea70b0",
+        "size": 8080,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "scripts/test_gh_pr_watch.py",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "76293b56f8293552ad22488a64f800a87eea70b0",
+        "size": 8080,
+        "type": "blob"
+      },
+      "rationale": "The Python watcher and its runtime state/retry implementation are not shipped or executed. Existing GitHub CLI observations and current-session waits supply supervision without a second controller."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "36c6bd093a11eb6de82815a12cb0a068c98ac2fd",
+        "size": 16861,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "36c6bd093a11eb6de82815a12cb0a068c98ac2fd",
+        "size": 16861,
+        "type": "blob"
+      },
+      "rationale": "PR evidence, failure classification, published-review handling, and owned supervision are adapted into one Kiro method. PKStack keeps merge-ready completion unless continued watching is requested, one retry per SHA, exact write authorization, and no automatic merge or review replies."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "9f70e348e0227980de97e361cce830236fb18317",
+      "subtree_sha": "930db390730c900f644d054e4a322fc865437c34"
+    },
+    "id": "openai-babysit-pr",
+    "path": ".codex/skills/babysit-pr",
+    "pinned": {
+      "commit": "9f70e348e0227980de97e361cce830236fb18317",
+      "subtree_sha": "930db390730c900f644d054e4a322fc865437c34"
+    },
+    "repository": "openai/codex",
+    "retrieved_on": "2026-09-07"
+  },
+  "summary": {
+    "A": 3,
+    "B": 2,
+    "C": 1,
+    "current_files": 6,
+    "pinned_files": 6
+  }
+}

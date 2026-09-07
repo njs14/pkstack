@@ -352,3 +352,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Impeccable design methods
+
+- Project: `pbakaus/impeccable`, `skill/` subtree
+- Pin: `dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9`
+- Copyright 2025 Paul Bakaus
+- License: Apache License 2.0; complete terms in [LICENSE](LICENSE)
+- [Source license](https://github.com/pbakaus/impeccable/blob/dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9/LICENSE)
+- [Adaptations and exclusions](docs/pbakaus-impeccable-provenance.md)
+
+PKStack modified and condensed the design instructions for Kiro. It does not redistribute
+Impeccable's binary, browser tooling, fonts, or its iOS/Android platform references. The upstream
+NOTICE.md attributes those excluded platform references to ehmo's MIT-licensed
+[platform-design-skills](https://github.com/ehmo/platform-design-skills).
+
+## OpenAI Codex PR Babysitter method
+
+- Project: `openai/codex`, `.codex/skills/babysit-pr/` subtree
+- Pin: `9f70e348e0227980de97e361cce830236fb18317`
+- OpenAI Codex, Copyright 2025 OpenAI
+- License: Apache License 2.0; complete terms in [LICENSE](LICENSE)
+- [Source license](https://github.com/openai/codex/blob/9f70e348e0227980de97e361cce830236fb18317/LICENSE)
+- [Adaptations and exclusions](docs/openai-babysit-pr-provenance.md)
+
+PKStack modified the workflow and heuristics for Kiro and its existing authorization and
+completion contract. The Python watcher and Codex profile are not redistributed. The upstream
+root NOTICE also attributes Ratatui to Florian Dehau and the Ratatui Developers; no Ratatui code
+is included in this skill adaptation.
