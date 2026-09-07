@@ -7,11 +7,44 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This is the maintained release-record entrypoint. The records below retain the publication facts
-reported before the root reviews directory was removed; they are not a fresh check of remote
-release state. The Power manifest remains version authority. Future release work updates this
-record and the [changelog](../../../CHANGELOG.md), following the
-[release evidence contract](release-and-review.md).
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.0
+entry records fresh publication verification; earlier entries retain the facts reported before
+the root reviews directory was removed. The Power manifest remains version authority.
+Future release work updates this record and the [changelog](../../../CHANGELOG.md),
+following the [release evidence contract](release-and-review.md).
+
+## Verified publication: 0.5.0
+
+[Version 0.5.0](https://github.com/njs14/pkstack/releases/tag/v0.5.0) was published on
+September 7, 2026 at 12:58:32 UTC from commit
+`e86f3227cf0eb2a91ed117e026c3a797a99893a1`, following
+[PR #61](https://github.com/njs14/pkstack/pull/61).
+[Exact-main CI](https://github.com/njs14/pkstack/actions/runs/34124465137) passed all 12 jobs.
+The [release workflow](https://github.com/njs14/pkstack/actions/runs/34124731962) passed
+verification and publication, promoting artifact `10019556676` from attempt 1.
+The downloaded 4,557,563-byte archive matched the verified CI package byte-for-byte;
+its checksum file and release asset digest also matched.
+
+Archive SHA-256: `926c26ace2f797322c1ff0c83e1de2ff73082eebe99d1b87b2531a9dc17a928c`.
+Artifact ZIP SHA-256: `1e6455153cd2785577a8403d8126e83781c8b62815882034eca71a0347990a3d`.
+
+Independent review approved implementation `2fc3be9c59de7bed0be437c8727e7ae8dbcd64e2`;
+the merged release tree is identical. The fixed-commit local full gate passed 1,046
+package tests, 269 repository Python tests, 17 JavaScript policy tests, and static checks.
+All 183 generated receipt hashes matched; all 258 tracked Markdown documents passed the
+local link/anchor scan. Initial stale test fixtures and a root-wrapper retirement omission
+were corrected before the passing fixed-commit gate.
+
+Fresh native Kiro IDE 1.0.437 acceptance covered Power source selection, preview, setup,
+doctor, local knowledge validation, and a repair by the workspace `pkstack` agent. The
+stored verifier failed before implementation, then passed on attempt 2 with all four
+original tests unchanged. Live bounded Mac knowledge retrieval passed with Kiro CLI
+2.21.1 and validated citations. Canonical OKF network reproof passed. This campaign does
+not refresh native Spec/Quick Spec evidence or establish Linux live retrieval.
+
+The release removes standalone public commands and old receipt/goal compatibility.
+Existing consumers need the reviewed [clean-install process](installation-and-upgrades.md)
+that preserves user content and historical evidence. The upstream workflow remains active.
 
 ## Recorded publication: 0.4.4
 
