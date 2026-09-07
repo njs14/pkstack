@@ -27,7 +27,7 @@ files stayed unchanged, and the older controller did not gain the new launcher m
 
 CI now checks pull requests targeting branches other than main, allowing this stacked PR to be
 validated. Both release-artifact production and retention remain restricted to main pushes;
-release workflows are unchanged. The uvx acceptance module stays together in the packaging lane.
+release workflows are unchanged. The uvx acceptance and documentation walkthrough modules stay together in the packaging lane.
 
 The [full local gate](full-gate-summary.json) passed against frozen candidate
 `9e9f3277a1a960870697b15fd0735aa771bf8331`: all 10 lane receipts passed, covering 1,016 Power
@@ -37,6 +37,26 @@ tests, 235 repository tests, actionlint, shellcheck, Ruff, ty, doctor, and knowl
 `2fe0babf05f753f732312b1187986ca5b0533e70`, with no requested changes. The review inspected
 source and coordinator-provided evidence; it did not execute candidate code. Its final log read
 preceded full-gate aggregation, which subsequently completed successfully. See
-[review metadata](grok-review-metadata.json). The following commit records evidence only;
-implementation, tests, configuration, documentation, and generated assets remain at the reviewed
-candidate. Hosted CI on the final stacked PR head is reported in the PR checks.
+[review metadata](grok-review-metadata.json). The initial follow-up commit recorded evidence only. Hosted CI on the final stacked PR head is reported in the PR checks.
+
+
+## Hosted CI remediation
+
+The first hosted run, [34072770497](https://github.com/njs14/pkstack/actions/runs/34072770497),
+failed the three documentation walkthrough tests. They inherited an offline-only harness from the
+previous direct-bootstrap path. A locked `uv sync` had cached distribution files but not the
+registry metadata required by `uvx --from` resolution. The coordinator's populated local cache
+had masked this prerequisite. Other executable jobs, including the real-wheel packaging tests,
+passed that run.
+
+Commit `f218172` changes only test configuration and lane assignment. Each walkthrough now uses
+empty, isolated uv cache/tool directories and resolves dependencies in the existing packaging
+lane, whose network allowlist already supports those dependencies. Runtime code, documentation,
+workflow permissions, release workflows, and artifact gates are unchanged. All three cold-cache
+walkthroughs passed in 58.01 seconds; all 16 check-plan tests and the complete static gate passed.
+The original full local gate remains bound to `9e9f327`; this test-only correction receives
+independent follow-up review and full hosted checks rather than a second local full run.
+
+[Grok approved the bounded correction](grok-followup.md), preserving its original approval of the
+unchanged launcher implementation. [Follow-up metadata](grok-followup-metadata.json) records the
+review session and candidate. The following commit changes review evidence only.
