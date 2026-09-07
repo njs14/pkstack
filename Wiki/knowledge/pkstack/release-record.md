@@ -7,11 +7,47 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This record retains exact release identities, checksums, and acceptance scope. The 0.5.0
-entry records fresh publication verification; earlier entries retain the facts reported before
-the root reviews directory was removed. The Power manifest remains version authority.
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.1
+and 0.5.0 entries record publication verification; earlier entries retain the facts reported
+before the root reviews directory was removed. The Power manifest remains version authority.
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
+
+## Verified publication: 0.5.1
+
+[Version 0.5.1](https://github.com/njs14/pkstack/releases/tag/v0.5.1) was published on
+September 7, 2026 at 17:13:13 UTC from commit
+`5f18ccf852c50da731ab2b82fa2763038343a189`, following
+[PR #64](https://github.com/njs14/pkstack/pull/64). It includes the Impeccable and
+PR-babysitting integration from [PR #63](https://github.com/njs14/pkstack/pull/63).
+[Exact-main CI](https://github.com/njs14/pkstack/actions/runs/34146428974) passed all 12 jobs.
+The [tag-bound release workflow](https://github.com/njs14/pkstack/actions/runs/34146629760)
+passed verification and publication, promoting artifact `10027844982` from attempt 1.
+The downloaded 4,579,346-byte archive matched that verified CI package byte-for-byte;
+its checksum file and release asset digest also matched.
+
+Archive SHA-256: `438e5db1b3ebc1eec6fa96090948bb229fdac3d50b6cd127bdc5114c1f600b27`.
+Artifact ZIP SHA-256: `6f65432b6c6bc408f7dfeed0ecbff0bff81bda1bdb64d3f995de15860d7bcc32`.
+
+Independent Codex reviewer `release_review` returned Ship for candidate
+`759ce2f6ab667fcdbbab85106821863331c42c98`; the merged release tree is identical.
+The review covered the accumulated diff from published 0.5.0, including provenance,
+permissions, routing, version mirrors, and release notes. It independently checked
+all 190 generated receipt hashes, both new bundles and inventory tree identities,
+42 cached Impeccable and 5 cached babysit-pr source blobs, and all 254 hashed coverage
+entries. Ten excluded or provenance-only source blobs lacked cached content; their
+inventory tree binding was checked without independently hashing their contents.
+
+The frozen candidate's full local gate passed 1,053 package tests, 269 repository
+Python tests, 17 JavaScript policy tests, and static/documentation checks. Doctor
+reported 89 pass, no failures or warnings; setup was idempotent. The reviewer inspected
+these exact-candidate receipts rather than rerunning those suites. Initial stale
+changelog/security coverage hashes were corrected before the passing frozen gate.
+
+This release adds agent guidance and consolidates PR supervision; it does not install
+the Impeccable runtime or upstream PR watcher. Live Kiro reasoning with the new skills
+and a future unattended maintenance run remain unverified. Earlier native acceptance
+retains its recorded scope; this release establishes no new Linux retrieval result.
 
 ## Verified publication: 0.5.0
 
