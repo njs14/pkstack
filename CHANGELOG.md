@@ -4,6 +4,30 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.2] — 2026-09-07
+
+PKStack 0.5.2 repairs controller recovery, setup, and the scheduled-maintenance
+schema mismatch found during independent review.
+
+- Accepts the controller's `preserved` bootstrap-preview field in the maintenance
+  guard, restoring compatibility between detection and its validator.
+- Keeps wrapper synchronization in the cached controller environment while
+  preserving the caller's environment for verifier execution.
+- Returns structured failures for detached verifier output-pipe errors.
+- Serializes forced recovery of corrupt goal state, preserves raw bytes in
+  archives that cannot overwrite earlier recovery evidence, and handles invalid
+  UTF-8. Unsupported goal schemas remain rejected without mutating their evidence.
+- Rejects the named inline-program interpreters and home-relative verifier paths,
+  and documents the command screen's closed lists and non-sandbox limits.
+- Repairs partial runtime ignore blocks without duplicating existing entries,
+  and corrects controller-path, dependency, artwork, and permission documentation.
+
+The code fixes were independently reviewed by Codex and Claude Fable 5.1.
+Publication does not establish a completed unattended maintenance run, new native
+Kiro reasoning evidence, or Linux live retrieval. See the
+[release record](Wiki/knowledge/pkstack/release-record.md) for exact publication
+identity and validation scope.
+
 ## [0.5.1] — 2026-09-07
 
 PKStack 0.5.1 adds Kiro-native design guidance and consolidates PR monitoring.
