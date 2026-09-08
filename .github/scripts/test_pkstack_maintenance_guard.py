@@ -6272,7 +6272,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertLess(
             verifier.index("validate-proposal"),
-            verifier.index("trusted_projectctl_network upstream accept"),
+            verifier.index('trusted_accept_with_feedback "$RUNNER_TEMP/pkstack-accept-preview-'),
         )
         self.assertIn("test ! -e .pkstack-maintenance", verifier)
         self.assertNotIn("test ! -e .pkstack/state/upstream-accept.lock", verifier)
