@@ -225,3 +225,11 @@ process return code, counts from at most 8 MiB of stream data, and terminal-even
 from a bounded tail. Unknown event/tool names are collapsed into fixed categories. This
 summary cannot establish attestation or repair success; validation remains separate and
 the raw evidence is deleted on exit.
+
+Maintenance run `34239973736` completed four Kiro turns within the evidence limit, but
+each verification stopped at `accept-preview` with exit code 2. The acceptance JSON was
+redirected outside the verification log, so subsequent repairs could not read its error.
+The verifier now includes the last 32 KiB of failed preview or acceptance output in private
+feedback and retains only fixed reason codes publicly. Real-shell regressions reproduce
+the missing feedback and verify delivery without leaking arbitrary error text. The old
+run's exact acceptance error was not retained and remains unknown.

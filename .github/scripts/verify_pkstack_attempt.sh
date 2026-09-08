@@ -36,6 +36,20 @@ trusted_projectctl_network() {
     "$trusted_python" -B -X pycache_prefix=/dev/null -m pkstack "$@"
 }
 
+trusted_accept_with_feedback() {
+  local output_path=$1
+  shift
+  if trusted_projectctl_network upstream accept "$@" >"$output_path"; then
+    return 0
+  else
+    local acceptance_rc=$?
+    # This function runs inside the private verification-log redirection. Keep
+    # JSON errors available to the next repair without publishing raw output.
+    tail -c 32768 "$output_path"
+    return "$acceptance_rc"
+  fi
+}
+
 # Git subprocesses launched directly or by immutable controller code inherit
 # the same non-executable configuration boundary. The guard also supplies
 # these settings itself, so this remains defense in depth across processes.
@@ -217,13 +231,13 @@ set +e
       exit 1
     fi
     mark_stage accept-preview
-    trusted_projectctl_network upstream accept \
+    trusted_accept_with_feedback "$RUNNER_TEMP/pkstack-accept-preview-${ATTEMPT_NUMBER}.json" \
       --manifest maintenance/upstreams.json \
       --power-root powers/pkstack \
       --proposal .pkstack-maintenance/proposal.json \
       --expected-head "$expected_head" \
       --dry-run \
-      --output json >"$RUNNER_TEMP/pkstack-accept-preview-${ATTEMPT_NUMBER}.json"
+      --output json
   else
     [[ "$drift_count" == "0" ]]
     test ! -e .pkstack-maintenance/proposal.json
@@ -249,12 +263,12 @@ set +e
   # from BASE_SHA before asking Kiro for a fresh proposal.
   if (( drift_count > 0 )); then
     mark_stage accept
-    trusted_projectctl_network upstream accept \
+    trusted_accept_with_feedback "$RUNNER_TEMP/pkstack-accept-${ATTEMPT_NUMBER}.json" \
       --manifest maintenance/upstreams.json \
       --power-root powers/pkstack \
       --proposal .pkstack-maintenance/proposal.json \
       --expected-head "$expected_head" \
-      --output json >"$RUNNER_TEMP/pkstack-accept-${ATTEMPT_NUMBER}.json"
+      --output json
     jq -e \
       --arg source_id "$selected_source_id" \
       --arg expected_head "$expected_head" \
@@ -342,7 +356,7 @@ fi
 
 # Actions retains this fixed-field stdout; never publish raw verifier output.
 python3 - "$stage_path" "$ATTEMPT_NUMBER" "$verification_rc" "$finalizer_rc" \
-  "$BASE_SHA" "${GITHUB_RUN_ID:?GITHUB_RUN_ID is required}" "$reason_path" <<'PY'
+  "$BASE_SHA" "${GITHUB_RUN_ID:?GITHUB_RUN_ID is required}" "$reason_path" "$RUNNER_TEMP" <<'PY'
 import json
 import re
 import sys
@@ -385,6 +399,32 @@ if stage == "proposal" and exit_code != 0:
         candidate = reason_file.read_text(encoding="utf-8", errors="replace").strip()
         if candidate in proposal_reasons:
             reason = candidate
+if stage in {"accept-preview", "accept"} and exit_code != 0:
+    reason = "acceptance-failed"
+    acceptance_path = Path(sys.argv[8]) / f"pkstack-{stage}-{attempt}.json"
+    acceptance_reasons = {
+        "upstream accept requires a complete source-bound candidate parity artifact": (
+            "acceptance-candidate-parity"
+        ),
+        "upstream accept requires canonical/generated Power parity": "acceptance-generated-parity",
+        "upstream accept requires an exactly re-proved current pin": "acceptance-pin-reproof",
+        "upstream accept requires a complete fast-forward comparison": (
+            "acceptance-comparison-incomplete"
+        ),
+        "current upstream head does not match --expected-head": "acceptance-head-changed",
+        "upstream accept proposal is stale or already applied": "acceptance-stale",
+    }
+    if (
+        acceptance_path.is_file()
+        and not acceptance_path.is_symlink()
+        and acceptance_path.stat().st_size <= 32768
+    ):
+        try:
+            payload = json.loads(acceptance_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, ValueError):
+            payload = None
+        if isinstance(payload, dict) and isinstance(payload.get("error"), str):
+            reason = acceptance_reasons.get(payload["error"], reason)
 if (
     stage not in allowed
     or not 1 <= attempt <= 4

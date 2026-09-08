@@ -28,6 +28,8 @@ class VerifierExecutionTests(unittest.TestCase):
         proposal_reason: str = "",
         wrong_control_head: bool = False,
         coverage_failure: bool = False,
+        acceptance_error: str = "",
+        acceptance_apply_failure: bool = False,
     ):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -58,6 +60,12 @@ class VerifierExecutionTests(unittest.TestCase):
                     "conflicts", "created", "updated", "pending_updates", "stale_managed"
                 )})
             elif args[:2] == ["upstream", "accept"]:
+                if os.environ["TEST_ACCEPTANCE_ERROR"] and (
+                    "--dry-run" not in args
+                    or os.environ["TEST_ACCEPTANCE_APPLY_FAILURE"] != "true"
+                ):
+                    print(json.dumps({"ok": False, "error": os.environ["TEST_ACCEPTANCE_ERROR"]}))
+                    raise SystemExit(2)
                 result.update(source_id="alpha", expected_head="b" * 40, accepted=True)
                 if "--dry-run" not in args:
                     Path(".pkstack-maintenance/proposal.json").unlink()
@@ -147,6 +155,8 @@ class VerifierExecutionTests(unittest.TestCase):
             "TEST_PROPOSAL_REASON": proposal_reason,
             "TEST_SENTINEL": SENTINEL,
             "TEST_COVERAGE_FAILURE": str(coverage_failure).lower(),
+            "TEST_ACCEPTANCE_ERROR": acceptance_error,
+            "TEST_ACCEPTANCE_APPLY_FAILURE": str(acceptance_apply_failure).lower(),
         }
         for key, name in (
             ("KIRO_BIN_DIR", "kiro-bin"),
@@ -254,6 +264,28 @@ class VerifierExecutionTests(unittest.TestCase):
                 self.assertEqual(output.read_text(), "passed=false\nattempt=1\n")
                 self.assertIn(SENTINEL, feedback.read_text())
                 self.assertIn(f"Proposal validation failed: {reason}", feedback.read_text())
+
+    def test_acceptance_errors_reach_private_feedback_without_public_leakage(self):
+        for apply_failure in (False, True):
+            with self.subTest(apply_failure=apply_failure):
+                error = SENTINEL + " candidate acceptance detail"
+                result, report, output, feedback, _ = self.execute(
+                    acceptance_error=error, acceptance_apply_failure=apply_failure
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(report["stage"], "accept" if apply_failure else "accept-preview")
+                self.assertEqual(report["exit_code"], 2)
+                self.assertFalse(report["passed"])
+                self.assertEqual(output.read_text(), "passed=false\nattempt=1\n")
+                self.assertIn(error, feedback.read_text())
+                self.assertEqual(report["reason"], "acceptance-failed")
+
+    def test_acceptance_candidate_parity_error_has_fixed_public_reason(self):
+        error = "upstream accept requires a complete source-bound candidate parity artifact"
+        result, report, _, feedback, _ = self.execute(acceptance_error=error)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(report["reason"], "acceptance-candidate-parity")
+        self.assertIn(error, feedback.read_text())
 
     def test_candidate_controlled_reason_cannot_escape_to_public_diagnostics(self):
         result, report, _, _, _ = self.execute(proposal_reason=SENTINEL + "\n::warning::injection")
