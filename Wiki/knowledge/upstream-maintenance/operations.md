@@ -218,3 +218,10 @@ patch has its own counts and must apply exactly to the pinned blob to produce th
 Git SHA. Commit metadata can retry with one file per page when its response is oversized.
 Review batches remain bounded separately at 8 MiB of encoded JSON, and the complete
 detector retains its 16 MiB transport limit.
+
+The Kiro repair runner emits a content-free private-evidence summary after the process
+ends and before validating its output limits. It reports stream/stderr byte counts, the
+process return code, counts from at most 8 MiB of stream data, and terminal-event presence
+from a bounded tail. Unknown event/tool names are collapsed into fixed categories. This
+summary cannot establish attestation or repair success; validation remains separate and
+the raw evidence is deleted on exit.
