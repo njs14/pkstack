@@ -24,7 +24,7 @@ existing rationale and place the new delta explanation in the new proposal/prove
 ## Read large updates in batches
 
 The detector validates the whole source transition. Review preparation exports an index and
-ordered batches of at most 16 files and 64 KiB of patch text. Each batch carries full patches,
+ordered batches of at most 16 files and 1 MiB of patch text. Each batch carries full patches,
 exact source identities, and the complete inventory digest. The index binds each batch's bytes
 and checksum. It is a reading aid, never a substitute for the complete detector or proposal.
 
@@ -197,8 +197,7 @@ acceptance and goal verification make no such claim.
 
 The detector reuses metadata responses within one check in a bounded 4 MiB cache;
 no network observation survives into another invocation. Blob verification keeps
-its separate 4 MiB bound. If GitHub's first comparison page exceeds the unchanged
-1 MiB response limit, a metadata-only second page binds the exact base/head URL,
+its separate 16 MiB bound. If GitHub's first comparison page exceeds the 2 MiB response limit, a metadata-only second page binds the exact base/head URL,
 merge base, direction and at-most-100-commit distance. That page must contain no
 commits or file records. Complete source-local patches are then reconstructed
 from the independently verified subtree blobs, with the existing line, work and
@@ -207,6 +206,15 @@ fallback.
 
 Aggregate checks run at most four independent source proofs at once. They share
 one 30-second network deadline and four global request slots, including nested
-blob reads. Each active source owns separate 4 MiB metadata and 4 MiB verified-blob
+blob reads. Each active source owns separate 4 MiB metadata and 16 MiB verified-blob
 caches, bounding active caches to 32 MiB. Results remain in manifest order and
 every configured source must pass for an aggregate success.
+
+
+Missing text patches are reconstructed from both exact tree blobs, with a 1 MiB text-blob
+and per-file patch limit. Large files up to 20,000 lines use unique unchanged line anchors
+to split diff work without raising the 25-million-cell aggregate bound. The generated
+patch has its own counts and must apply exactly to the pinned blob to produce the current
+Git SHA. Commit metadata can retry with one file per page when its response is oversized.
+Review batches remain bounded separately at 8 MiB of encoded JSON, and the complete
+detector retains its 16 MiB transport limit.

@@ -3789,7 +3789,7 @@ class DetectorTests(unittest.TestCase):
                 status="added",
                 tree_sha_verified=True,
             )
-            patch = "@@ -0,0 +1 @@\n+" + "read me as data " * 2400
+            patch = "@@ -0,0 +1 @@\n+" + "read me as data " * (60_000 if number == 0 else 6800)
             file.update(patch=patch, patch_bytes=len(patch.encode()))
             files.append(file)
         set_comparison_files(payload, files)
@@ -3873,6 +3873,26 @@ class DetectorTests(unittest.TestCase):
 
     def test_detector_execution_errors_remain_failures_with_safe_diagnostics(self) -> None:
         cases = (
+            (
+                "UpstreamError",
+                "GitHub comparison file patch exceeds the 65536-byte limit",
+                "GitHub comparison file patch exceeds the 65536-byte limit",
+            ),
+            (
+                "UpstreamError",
+                "GitHub API response exceeds the 1048576-byte limit",
+                "GitHub API response exceeds the 1048576-byte limit",
+            ),
+            (
+                "UpstreamError",
+                "GitHub comparison file without a patch must report zero additions and deletions",
+                "GitHub comparison file without a patch must report zero additions and deletions",
+            ),
+            (
+                "UpstreamError",
+                "GitHub comparison file patch exceeds the 1048576-byte limit",
+                "GitHub comparison file patch exceeds the 1048576-byte limit",
+            ),
             ("UpstreamError", "GitHub API returned HTTP 403", "GitHub API returned HTTP 403"),
             (
                 "UpstreamError",

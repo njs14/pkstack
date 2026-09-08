@@ -74,14 +74,14 @@ SKILL_REVIEW_STEERING = "powers/pkstack/dev.kiro/"
 SKILL_REVIEW_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 UPSTREAM_SCHEMA_VERSION = 2
 UPSTREAM_MAX_FILES = 100
-UPSTREAM_FILE_PATCH_MAX_BYTES = 64 * 1024
+UPSTREAM_FILE_PATCH_MAX_BYTES = 1024 * 1024
 UPSTREAM_PATCH_MAX_BYTES = UPSTREAM_MAX_FILES * UPSTREAM_FILE_PATCH_MAX_BYTES
 UPSTREAM_DETECTOR_MAX_BYTES = 16 * 1024 * 1024
-UPSTREAM_REVIEW_BATCH_PATCH_BYTES = 64 * 1024
+UPSTREAM_REVIEW_BATCH_PATCH_BYTES = 1024 * 1024
 UPSTREAM_REVIEW_BATCH_FILES = 16
 # JSON escaping can expand a valid patch. Bound the encoded document as well
 # as its patch bytes, without dropping, shortening, or rewriting any patch.
-UPSTREAM_REVIEW_BATCH_MAX_BYTES = 512 * 1024
+UPSTREAM_REVIEW_BATCH_MAX_BYTES = 8 * 1024 * 1024
 GIT_CONTROL_STATE_SCHEMA = 2
 GIT_CONTROL_STATE_MAX_BYTES = 256 * 1024
 GIT_CONTROL_ENTRY_MAX_BYTES = 1024 * 1024
@@ -2072,6 +2072,14 @@ def validate_detector(path: Path) -> dict[str, Any]:
             or message
             in {
                 "upstream network time budget was exhausted",
+                "GitHub API response exceeds the 1048576-byte limit",
+                "GitHub API response exceeds the 2097152-byte limit",
+                ("GitHub comparison file without a patch must report zero additions and deletions"),
+                "GitHub comparison file patch exceeds the 65536-byte limit",
+                (
+                    "GitHub comparison file patch exceeds the "
+                    f"{UPSTREAM_FILE_PATCH_MAX_BYTES}-byte limit"
+                ),
                 "upstream comparison patches exceed the 262144-byte limit",
             }
         ):

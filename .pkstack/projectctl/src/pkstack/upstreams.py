@@ -14,10 +14,12 @@ import stat
 import tempfile
 import threading
 import time
+from collections import Counter
 from collections.abc import Callable, Iterator, Mapping
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager, suppress
 from dataclasses import dataclass
+from itertools import pairwise
 from pathlib import Path, PurePosixPath
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -50,21 +52,23 @@ GITHUB_API_ORIGIN = "https://api.github.com"
 DEFAULT_TIMEOUT_SECONDS = 30.0
 MAX_TIMEOUT_SECONDS = 30.0
 MAX_MANIFEST_BYTES = 64 * 1024
-MAX_RESPONSE_BYTES = 1024 * 1024
+MAX_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_METADATA_CACHE_BYTES = 4 * 1024 * 1024
 MAX_SOURCES = 16
 MAX_COMPARE_COMMITS = 100
 MAX_COMPARE_FILES = 100
 GITHUB_COMPARE_FILE_CAP = 300
-MAX_FILE_PATCH_BYTES = 64 * 1024
+MAX_FILE_PATCH_BYTES = 1024 * 1024
 # Each file remains bounded and blob-verified. Reviewers consume the complete
 # inventory in batches; aggregate patch size is not a separate review veto.
 MAX_COMPARE_PATCH_BYTES = MAX_COMPARE_FILES * MAX_FILE_PATCH_BYTES
-MAX_TEXT_BLOB_BYTES = 512 * 1024
-MAX_COMPARE_BLOB_BYTES = 4 * 1024 * 1024
+MAX_TEXT_BLOB_BYTES = 1024 * 1024
+MAX_COMPARE_BLOB_BYTES = 16 * 1024 * 1024
 MAX_BLOB_FETCH_WORKERS = 4
 MAX_SOURCE_CHECK_WORKERS = 4
-MAX_DIFF_LINES = 5_000
+MAX_DIFF_LINES = 20_000
+WHOLE_DIFF_LINES = 5_000
+DIFF_WINDOW_LINES = 128
 MAX_COMPARE_DIFF_CELLS = 25_000_000
 MAX_TREE_ENTRIES = 10_000
 MAX_REVIEW_LEDGER_BYTES = 8 * 1024 * 1024
@@ -192,6 +196,10 @@ FetchJSON = Callable[[str, str | None, float], Any]
 
 class UpstreamError(ValueError):
     """Raised when an upstream manifest or remote identity is unsafe or malformed."""
+
+
+class _MissingPatchError(UpstreamError):
+    """A compare record needs a patch reconstructed from exact tree blobs."""
 
 
 class _ResponseTooLargeError(UpstreamError):
@@ -2077,7 +2085,11 @@ def _commit_identity(
     fetch_json: FetchJSON,
 ) -> tuple[str, str]:
     url = _api_url(repository, "commits", revision)
-    document = fetch_json(url, token, timeout_seconds)
+    try:
+        document = fetch_json(url, token, timeout_seconds)
+    except _ResponseTooLargeError:
+        # Commit identity is static across file pages; subtree trees own coverage.
+        document = fetch_json(f"{url}?per_page=1", token, timeout_seconds)
     if not isinstance(document, dict):
         raise UpstreamError("GitHub commit response must be a JSON object")
     commit_sha = _response_sha(document.get("sha"), "GitHub commit sha")
@@ -2302,8 +2314,36 @@ def _compare_inventory(
     files: list[dict[str, Any]] = []
     accounted_paths: set[str] = set()
     patch_bytes = 0
+    diff_work_cells = [0]
     for index, raw_file in enumerate(comparison_values):
-        parsed = _comparison_file(raw_file, source_path=source.path, index=index)
+        try:
+            parsed = _comparison_file(raw_file, source_path=source.path, index=index)
+        except _MissingPatchError:
+            path = _relative_source_path(raw_file["filename"], source.path)
+            previous = raw_file.get("previous_filename")
+            previous_path = _relative_source_path(previous, source.path) if previous else None
+            if path is None or (previous is not None and previous_path is None):
+                raise UpstreamError(
+                    "missing patch crosses the configured source boundary"
+                ) from None
+            reconstructed = _source_tree_comparison_value(
+                source,
+                status=raw_file["status"],
+                path=path,
+                previous_path=previous_path,
+                pinned_files=pinned_files,
+                current_files=current_files,
+                token=token,
+                timeout_seconds=timeout_seconds,
+                fetch_json=fetch_json,
+                blob_cache=blob_cache,
+                diff_work_cells=diff_work_cells,
+            )
+            if reconstructed["sha"] != raw_file["sha"] or reconstructed.get("patch") is None:
+                raise UpstreamError(
+                    "reconstructed patch disagrees with GitHub file metadata"
+                ) from None
+            parsed = _comparison_file(reconstructed, source_path=source.path, index=index)
         if parsed is None:
             continue
         _validate_comparison_file_tree_identity(
@@ -2795,13 +2835,6 @@ def _complete_unified_patch(
     new_lines, new_final_newline = _text_lines(new_text)
     if len(old_lines) > MAX_DIFF_LINES or len(new_lines) > MAX_DIFF_LINES:
         raise UpstreamError(f"source-tree diff exceeds the {MAX_DIFF_LINES}-line limit")
-    comparison_cells = max(1, len(old_lines)) * max(1, len(new_lines))
-    work_cells = [0] if diff_work_cells is None else diff_work_cells
-    if comparison_cells > MAX_COMPARE_DIFF_CELLS - work_cells[0]:
-        raise UpstreamError(
-            f"source-tree diff work exceeds the {MAX_COMPARE_DIFF_CELLS}-cell comparison limit"
-        )
-    work_cells[0] += comparison_cells
     old_tokens = [
         (line, index < len(old_lines) - 1 or old_final_newline)
         for index, line in enumerate(old_lines)
@@ -2810,8 +2843,44 @@ def _complete_unified_patch(
         (line, index < len(new_lines) - 1 or new_final_newline)
         for index, line in enumerate(new_lines)
     ]
-    matcher = difflib.SequenceMatcher(None, old_tokens, new_tokens)
-    groups = list(matcher.get_grouped_opcodes(n=3))
+    # Unique unchanged lines align bounded windows in large generated files.
+    # If no safe anchors exist, the unchanged work budget still rejects the diff.
+    bounds = [(0, 0)]
+    longest = max(len(old_tokens), len(new_tokens))
+    if longest > WHOLE_DIFF_LINES:
+        old_counts = Counter(old_tokens)
+        new_counts = Counter(new_tokens)
+        new_positions = {token: index for index, token in enumerate(new_tokens)}
+        for old_index, token in enumerate(old_tokens):
+            if old_counts[token] != 1 or new_counts[token] != 1:
+                continue
+            new_index = new_positions[token]
+            old_start, new_start = bounds[-1]
+            if (
+                old_index - old_start >= DIFF_WINDOW_LINES
+                and new_index - new_start >= DIFF_WINDOW_LINES
+            ):
+                bounds.append((old_index, new_index))
+    bounds.append((len(old_tokens), len(new_tokens)))
+    work_cells = [0] if diff_work_cells is None else diff_work_cells
+    groups = []
+    for (old_start, new_start), (old_end, new_end) in pairwise(bounds):
+        old_window = old_tokens[old_start:old_end]
+        new_window = new_tokens[new_start:new_end]
+        comparison_cells = max(1, len(old_window)) * max(1, len(new_window))
+        if comparison_cells > MAX_COMPARE_DIFF_CELLS - work_cells[0]:
+            raise UpstreamError(
+                f"source-tree diff work exceeds the {MAX_COMPARE_DIFF_CELLS}-cell comparison limit"
+            )
+        work_cells[0] += comparison_cells
+        matcher = difflib.SequenceMatcher(None, old_window, new_window)
+        for group in matcher.get_grouped_opcodes(n=3):
+            groups.append(
+                [
+                    (op, a + old_start, b + old_start, c + new_start, d + new_start)
+                    for op, a, b, c, d in group
+                ]
+            )
     if not groups:
         raise UpstreamError("source-tree identities changed without a textual difference")
 
@@ -2970,7 +3039,7 @@ def _patch_reviewability(
         )
         return "pending-exact-blob-unified-patch"
     if additions != 0 or deletions != 0 or changes != 0:
-        raise UpstreamError(
+        raise _MissingPatchError(
             "GitHub comparison file without a patch must report zero additions and deletions"
         )
     if status == "renamed" and path is not None and previous_path is not None:

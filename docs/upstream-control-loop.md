@@ -65,17 +65,25 @@ GitHub restriction. See [GitHub's token documentation](https://docs.github.com/e
 ## Reviewer feedback and credit limits
 
 The upstream maintainer reads an index and ordered review batches. Each batch preserves complete
-file records, patch bodies, and their exact source identities, with at most 16 files and 64 KiB of
-patch text. JSON encoding is separately bounded at 512 KiB. The former 256 KiB aggregate patch
-refusal is replaced by the existing 100-file and 64 KiB-per-file limits, so total patch bytes
+file records, patch bodies, and their exact source identities, with at most 16 files and 1 MiB of
+patch text. JSON encoding is separately bounded at 8 MiB. The former 256 KiB aggregate patch
+refusal is replaced by the 100-file and 1 MiB-per-file limits, so total patch bytes
 remain bounded by those inputs. The detector artifact has a 16 MiB transport bound and is not
 loaded wholesale into the model's initial context.
 
-Blob retrieval uses at most four concurrent requests. The 4 MiB verified-blob cache, response
+Blob retrieval uses at most four concurrent requests. The 16 MiB verified-blob cache, 1 MiB text-blob and 2 MiB response
 limits, exhaustive tree/path comparison, exact patch application, and shared 30-second network
 budget remain enforced. Reading aids never replace the original detector or the source's complete
 acceptance proposal. Large reviews still need every changed path classified once before the
 pin advances.
+
+When GitHub omits a text patch, the detector reconstructs it from both SHA-verified blobs.
+The replacement has its own reconciled counts and must reproduce the exact current blob;
+a different valid diff algorithm can produce different counts from GitHub. Files up to
+20,000 lines use unique unchanged lines to align small diff windows. The existing
+25-million-cell aggregate comparison-work bound remains enforced; a large input without
+sufficient anchors still fails closed. Oversized commit metadata requests retry with one
+file per page, while exact subtree trees remain the authority for file coverage.
 
 Skill changes also receive a compatibility review. The versioned review bundle
 contains the exact candidate's skill catalog, affected instructions, relevant
