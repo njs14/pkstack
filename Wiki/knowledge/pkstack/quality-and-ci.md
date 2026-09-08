@@ -27,6 +27,10 @@ tests and benchmarks while the Power configuration covers installed source, exam
 and setup. `.coveragerc` retains branch measurement and the 85 percent threshold.
 Pytest and Ruff caches stay at the repository root. The CI partition IDs remain
 `tests/...`, preserving the complete collection and the installed-Kiro skip sentinel.
+Trusted-controller snapshots retain their own private `.venv`: each trusted `uv sync`
+explicitly overrides the root environment setting before later steps invoke that
+snapshot interpreter. The workflow regression exercises all four synchronization sites
+without candidate code or network access.
 
 ## Python coverage and browser failures
 

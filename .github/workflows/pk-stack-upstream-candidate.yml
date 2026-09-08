@@ -285,7 +285,8 @@ jobs:
             .github/workflows \
             .kiro/agents \
             | tar -x -C "$TRUSTED_ROOT"
-          uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pkstack/projectctl"
+          UV_PROJECT_ENVIRONMENT="$TRUSTED_ROOT/.pkstack/projectctl/.venv" \
+            uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pkstack/projectctl"
           python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
             --root . \
             --policy "$TRUSTED_ROOT/.github/pkstack-maintenance-policy.json" \
@@ -420,7 +421,8 @@ jobs:
             .github/workflows \
             .kiro/agents \
             | tar -x -C "$TRUSTED_ROOT"
-          uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pkstack/projectctl"
+          UV_PROJECT_ENVIRONMENT="$TRUSTED_ROOT/.pkstack/projectctl/.venv" \
+            uv sync --quiet --locked --no-config --project "$TRUSTED_ROOT/.pkstack/projectctl"
           python3 "$TRUSTED_ROOT/.github/scripts/pkstack_maintenance_guard.py" \
             --root . \
             --policy "$TRUSTED_ROOT/.github/pkstack-maintenance-policy.json" \
