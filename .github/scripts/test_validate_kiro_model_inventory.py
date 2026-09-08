@@ -228,6 +228,7 @@ class ModelInventoryTests(unittest.TestCase):
 
             for stream, stderr, reason in (
                 (b"{}\n", "", "maintenance-agent-selection-missing"),
+                (b" " * (16 * 1024 * 1024 + 1), "", "private evidence exceeded"),
                 (
                     stream_bytes(attested_events()),
                     'Agent not found, using "default"\n',
@@ -247,6 +248,7 @@ class ModelInventoryTests(unittest.TestCase):
                     )
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(reason, result.stderr)
+                    self.assertIn('"diagnostic": "maintenance-private-evidence"', result.stdout)
                     self.assertNotIn("test-only-noncredential", result.stderr + result.stdout)
                     self.assertFalse((root / "pkstack-kiro-private-1").exists())
 

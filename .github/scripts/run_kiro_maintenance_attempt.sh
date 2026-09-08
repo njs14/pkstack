@@ -191,6 +191,10 @@ env -u KIRO_API_KEY python3 "$GUARD_PATH" --root "$(pwd -P)" validate-git-state 
   --base "$BASE_SHA" \
   --git-state "$GIT_BOUNDARY_STATE"
 
+env -u KIRO_API_KEY python3 -B "$stream_validator" \
+  --stream "$stream_path" --stderr "$stderr_path" \
+  --agent "$trusted_agent" --return-code "$kiro_rc" --diagnostics-only
+
 validate_private_file "$stream_path" 16777216
 validate_private_file "$stderr_path" 16777216
 if grep -aFq -- "$KIRO_API_KEY" "$stream_path" "$stderr_path"; then

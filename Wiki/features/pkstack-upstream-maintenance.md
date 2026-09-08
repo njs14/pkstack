@@ -49,6 +49,11 @@ blobs, and 20,000 lines per diff. Unique unchanged lines align diff windows whil
 the 25-million-cell comparison-work limit. A rebuilt diff may have different counts from
 GitHub's omitted representation; the resulting bytes must match the current Git blob.
 
+After each Kiro repair process ends, a bounded diagnostic reports only fixed labels, file
+sizes, exit status, sampled event/tool counts, and terminal-event presence. It does not
+establish agent attestation or candidate validity. The private evidence limit, credential
+checks, and deletion on exit still apply; raw model/tool output is never uploaded.
+
 The autonomous acceptance path is limited to the GitHub source entries configured in `maintenance/upstreams.json`. A
 separate weekly or manually dispatched Kiro canary observes product/runtime/documentation drift
 without editing the repository or promoting a new CLI pin.
