@@ -33,6 +33,16 @@ mechanical guarantee that an agent continues working.
 
 ## Permission evidence must use the selected profile
 
+The primary profile retains protected-file and destructive-command denies while
+leaving Git, ordinary writes, and controller authorization to Kiro's defaults and
+the user's permissions. It does not add blanket asks or allows for those operations.
+An explicit `ask` overrides a saved `allow` under Kiro's `deny > ask > allow`
+policy, so it would force repeated approval even for operations the user already
+trusts. Unmatched operations still prompt. Native Plan and Spec switch to their
+own agents; an agent-scoped rule is not a workspace-wide restriction. Shared
+workflow instructions and executable acceptance evidence must survive that handoff
+without relying on the primary profile remaining active.
+
 Generating an agent profile or passing its schema validator does not prove live matching. Record
 which profile was selected, the actual allowed/asked/denied action, runtime version, and fixture
 scope. Read-only delegated profiles must not acquire general shell tools through misleading labels.

@@ -219,7 +219,7 @@ The two settings commands returned `true` and
 | Native subagents | Main agent delegates isolated work through the `subagent` tool; custom agents can be allow-listed | Bounded architecture, review, and verification assistance while the primary session owns edits/evidence |
 | `/spawn` | User-driven command for a fresh parallel session | Not used for internal PKStack fanout or verified-goal iteration |
 | Hooks | Standalone `.kiro/hooks/*.json`, `version: "v1"`, PascalCase triggers, command or agent actions | Static SessionStart orientation plus a disabled advisory Stop probe |
-| Permissions | Capability rules with `allow`, `ask`, and `deny`; the most restrictive result wins | Allow workspace reads, ask for Git/writes/projectctl commands, and deny destructive patterns |
+| Permissions | Capability rules with `allow`, `ask`, and `deny`; the most restrictive result wins | Allow workspace reads, leave Git/ordinary writes/projectctl authorization to ambient Kiro policy, and retain protected-file and destructive-command denies |
 | Steering | `.kiro/steering/*.md` with `always`, `auto`, `fileMatch`, or `manual` inclusion | Three small always-on architecture/safety/prose invariants plus TypeScript guidance selected by `fileMatch` for `**/*.ts` and `**/*.tsx` |
 | Knowledge | `/knowledge` and the `knowledge` tool are experimental; local knowledge is enabled | Keep the source-controlled OKF Wiki authoritative and use the spec-linked feature map first. `projectctl knowledge validate` checks metadata, Markdown links, and feature contracts locally; `knowledge search` retrieves bounded context through an isolated read-only Kiro ACP worker |
 | Goal | Native `/goal` is documented as a self-verifying loop with five iterations by default and configurable `--max` | Keep `/pkstack-verified-goal` separate and projectctl-backed; do not depend on native availability or claim this Mac exposes it without an interactive probe |
@@ -391,28 +391,41 @@ The templates use agent-scoped capability rules instead of broad trust. Kiro's
 current rules combine scopes with `deny > ask > allow`. In the shipped primary
 profile:
 
-- workspace reads are allowed, while every Git shell command asks;
-- filesystem writes ask, while direct writes to bootstrap-managed control-plane
-  paths are denied;
-- every canonical `.pkstack/bin/projectctl` invocation asks;
+- workspace reads are allowed;
+- Git, ordinary writes, and canonical `.pkstack/bin/projectctl` invocations add
+  no agent-scoped ask or allow rules, so Kiro's defaults and the user's configured
+  permissions determine authorization;
+- direct writes to bootstrap-managed control-plane paths are denied;
 - destructive shell patterns are denied; and
 - only the three tool-limited PKStack subagents are allowed/trusted.
 
 Kiro's documented V3 default allows a small set of common read-only Git and
-system-information commands and asks for unmatched shell operations. The
-profile's explicit Git `ask` therefore overrides the ambient Git allow under
-the same `deny > ask > allow` algorithm; other unmatched shell commands still
-prompt rather than running silently.
+system-information commands and asks for unmatched operations. Removing an
+agent-scoped ask does not grant permission. It lets existing user, workspace,
+and session allowances take effect, or leaves the operation to normal approval.
+An explicit ask in any scope overrides an allow in another scope and cannot be
+removed by saving another allow. The profile therefore does not use blanket asks
+as a substitute for first-use consent. Kiro may offer a remembered approval for
+an implicit ask when it can derive a working saved rule; Kiro-owned protected-path
+asks and explicit user/workspace asks still require approval.
 
 Installed Kiro 2.20.2 testing found that delegated child shell permission
 effects did not reliably constrain a shell tool after parent-authorized spawn,
 while omitting `shell` from the child tool set did. PKStack therefore does not
-give any delegated profile a shell. Primary-session `projectctl` commands still
-ask, because the runner screens obvious hazards but is not a sandbox and cannot
-prove an arbitrary project script is read-only.
+give any delegated profile a shell. Review `projectctl` verification commands
+before authorizing them under the user's policy: the runner screens obvious
+hazards but is not a sandbox and cannot prove an arbitrary project script is
+read-only. The profile neither preapproves those scripts nor overrides a user's
+existing shell allowance.
 
 These rules apply only after selecting the `pkstack` profile; plain `--v3` uses
-the ambient default agent and does not inherit them. The installed help still
+the ambient default agent and does not inherit them. Native Plan hands approved
+work to Default; native Spec uses its own planning and task agents. Shared skills,
+steering, and explicit acceptance context carry the PKStack workflow through those
+transitions, not inheritance of the primary profile's prompt or permissions.
+An explicit return to `pkstack` activates its profile again. Restrictions intended
+to apply across all agents belong in user/workspace policy, which PKStack does not
+silently edit. The installed help still
 exposes `--trust-all-tools` and `--trust-tools`
 compatibility switches even though V3 documentation emphasizes capability
 permissions. PKStack does not depend on those broad switches.

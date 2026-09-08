@@ -25,22 +25,6 @@
         "effect": "allow"
       },
       {
-        "capability": "shell",
-        "match": [
-          "git",
-          "git *"
-        ],
-        "effect": "ask"
-      },
-      {
-        "capability": "shell",
-        "match": [
-          ".pkstack/bin/projectctl",
-          ".pkstack/bin/projectctl *"
-        ],
-        "effect": "ask"
-      },
-      {
         "capability": "fs_write",
         "match": [
           ".pkstack/**",
@@ -114,13 +98,6 @@
           ".kiro/skills/babysit-pr/**"
         ],
         "effect": "deny"
-      },
-      {
-        "capability": "fs_write",
-        "match": [
-          "./**"
-        ],
-        "effect": "ask"
       },
       {
         "capability": "shell",

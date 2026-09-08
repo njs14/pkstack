@@ -3,7 +3,7 @@
     ".kiro/agents/pkstack-architect.json": "d076391910b55731e646d154b9c9042f89e8c1bb87d4435afbbec6c6fafe35a1",
     ".kiro/agents/pkstack-reviewer.json": "a3c51197b25dbcee77056d9f81b19e8fb201f62f60503d4bb728b55fff45b5b6",
     ".kiro/agents/pkstack-verifier.json": "da27ce127fa6be93497c2fe9d7d3f04cc93eb3cb1359254af6e2916360168776",
-    ".kiro/agents/pkstack.json": "2f91ea3450412c719dccca2fc4c87a226ea1c12d32df99dd2bb8b0cb27d46f8d",
+    ".kiro/agents/pkstack.json": "6438abbdc0cc7d9841872396eefa45fc8351ca5e778f2c38f124d57380ce0c3f",
     ".kiro/hooks/pkstack-session.json": "5eed2efc431fdf246dd1084268d336f6f57d7ba690f9326145a56dc67630d205",
     ".kiro/hooks/pkstack-tripwire.json": "0d4196bca58bfc15d6420686d303a7368da3b1139bddc2131afdf2177419f663",
     ".kiro/skills/archify/SKILL.md": "ca5934e1a8ca02f1370f76f020bc1a5b71e543ea5eea753028ec8c51482162b6",
