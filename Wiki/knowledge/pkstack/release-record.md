@@ -7,11 +7,60 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This record retains exact release identities, checksums, and acceptance scope. The 0.5.2,
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.3, 0.5.2,
 0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
 before the root reviews directory was removed. The Power manifest remains version authority.
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
+
+## Verified publication: 0.5.3
+
+[Version 0.5.3](https://github.com/njs14/pkstack/releases/tag/v0.5.3) was published in the
+private repository on September 8, 2026 at 00:37:46 UTC from commit
+`b6ce841c178baf8e52cb4ca0d7697feb999abb0e`. It includes the safe maintenance diagnostics,
+read-only PR continuation guidance and native evidence from
+[PR #69](https://github.com/njs14/pkstack/pull/69), plus the bounded diagnostic follow-up in
+[PR #70](https://github.com/njs14/pkstack/pull/70).
+[Exact-main CI](https://github.com/njs14/pkstack/actions/runs/34173728243) passed all 12 jobs
+on attempt 1. The [tag-bound release workflow](https://github.com/njs14/pkstack/actions/runs/34173901812)
+passed verification and publication, promoting artifact `10036568884` from that run.
+The downloaded 4,583,345-byte archive matched the pre-tag verified CI package byte-for-byte;
+its checksum file, both release asset digests, and release notes also matched.
+Release ID: `384377135`; archive asset ID: `549608907`; checksum asset ID: `549608908`.
+
+Archive SHA-256: `da2308b5adb28fdfe7235a8ed719e7f6324b832dabd0472c79ad165b4df1325c`.
+Artifact ZIP SHA-256: `f45619a01ccd6ef5c3e980a937b156b2cb7f12bcd0de00a7b48826bfdf8169ac`.
+
+The original Fable session `270ac4ba-5584-4c07-a7a9-c0fc59deb6bb`, model `claude-fable-5-1`,
+accepted PR #69 head `7deab123de6b4017f1d17f5e5d28adb6014a0a89`, tree
+`94feb6af42bb5f9539752aa44e5695aeb627e87c`, after independently rerunning 107 guard tests
+and 140 passing targeted tests. One Kiro login sentinel failed in its deliberately
+unauthenticated HOME; this was an environment limitation, not a successful test.
+It separately accepted PR #70 head `3d1bf2841cbe28bfccf269ed880c6adc73b785e1`, tree
+`7d7965b0a01fdafb2ac541b6097aab589461ec70`, after another independent 107-test guard run.
+Each merge tree equals its accepted candidate tree; the tagged source is PR #70's merge.
+The initial reviewer attempt hit a session limit before a verdict; acceptance came only
+after resuming that same session after its reported reset. No substitute reviewer was used.
+
+The [native verification record](native-kiro-composition.md#september-7-bounded-native-verification)
+retains the stored-verifier repair, scoped Impeccable refinement and read-only PR continuation.
+The PR continuation regression preserved all 325 Git metadata path/hash entries across two
+same-session snapshots. These observations establish their documented CLI scope, not general
+model compliance, native Spec/IDE acceptance or an OS-enforced read-only sandbox. Full candidate
+CI retained 1,063 product tests, 271 Python policy tests and 17 JavaScript policy tests.
+Setup was unchanged on repeat and all 190 generated receipt entries matched.
+
+Maintenance remains enabled but has not completed an unattended candidate lifecycle.
+The first [changed-main run](https://github.com/njs14/pkstack/actions/runs/34173315294)
+stopped with a generic UpstreamError; its initiating cause remains unproved. After the
+fixed-message follow-up, [run 34173729134](https://github.com/njs14/pkstack/actions/runs/34173729134)
+explicitly reported `upstream comparison patches exceed the 262144-byte limit` and stopped
+before inventory, proposal or substantive review. A separate source-specific read-only check
+identified the same bound for `cursor-pstack`; that source attribution is local evidence.
+No size, schema, credential, retry or review controls were relaxed, and no upstream update
+was accepted or rejected. Resolving that oversized source delta requires a separately reviewed
+bounded transition; repeated identical dispatches do not close the gap. Linux live retrieval
+remains undemonstrated and best effort, outside this release's required acceptance scope.
 
 ## Verified publication: 0.5.2
 
