@@ -7,11 +7,65 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This record retains exact release identities, checksums, and acceptance scope. The 0.5.4, 0.5.3,
-0.5.2, 0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.5, 0.5.4,
+0.5.3, 0.5.2, 0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
 before the root reviews directory was removed. The Power manifest remains version authority.
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
+
+## Verified publication: 0.5.5
+
+[Version 0.5.5](https://github.com/njs14/pkstack/releases/tag/v0.5.5) was published in the
+private repository on September 8, 2026 at 02:57:36 UTC from commit
+`4f4953606bebdbe17767c09c8637c811c3b8587e`, following
+[PR #74](https://github.com/njs14/pkstack/pull/74). It removes exactly three primary-profile
+blanket `ask` rules for Git, ordinary writes, and canonical controller commands. It adds no
+allow rule and preserves every deny, tool selection, and delegated-agent restriction.
+Existing Kiro user, workspace, and session permissions determine routine authorization.
+
+[Exact-main CI](https://github.com/njs14/pkstack/actions/runs/34181644213) passed all 12 jobs
+on attempt 1. The [tag-bound release workflow](https://github.com/njs14/pkstack/actions/runs/34181804549)
+passed verification and publication, promoting artifact `10039130970` from that run.
+The downloaded 4,599,304-byte archive matched the pre-tag verified CI package byte-for-byte;
+its checksum file, both release asset digests, and release notes also matched.
+Release ID: `384418309`; archive asset ID: `549764720`; checksum asset ID: `549764721`.
+
+Archive SHA-256: `cda86771e9cdfbbb98d30b1fc6516a9700a21725cec35dfe7786d696351a4268`.
+Artifact ZIP SHA-256: `dcaca8812a305827da09a77e96898bd01dd28d2fa0b6f9b8e8550c2f2db4311c`.
+
+The frozen candidate `9aefea1635d31315c38659c3b90fecda6a22f4c6` passed the complete local
+release gate: 1,092 product tests, 273 Python policy tests, 17 JavaScript policy tests,
+and all ten validation lanes. [PR CI](https://github.com/njs14/pkstack/actions/runs/34181213752)
+passed all 12 jobs on attempt 1. The merge tree `c00bae46471cde4704990d8175cfef9fff033df6`
+equals the reviewed candidate tree. Independent Codex reviewer `release_055_review` returned
+ACCEPT after inspecting the full diff and independently asserting exact rule removals,
+metadata equality, source/generated profile equality, 192 managed receipt hashes, and
+258 coverage hashes. The reviewer did not rerun the full suite or native runtime.
+Local doctor reported 91 passes, no warnings or failures; setup was unchanged on repeat.
+
+Native Kiro CLI 2.21.1 probes used the unchanged candidate profile bytes with the prior
+0.5.4 controller. Routine Git, write, and controller actions used existing saved permissions
+without repeated approval; protected-write and destructive-Git probes were denied by the
+selected primary profile. No new remembered Git/write/controller allowance was created.
+Kiro separately requested one-shot approval to load the verified-goal skill.
+
+Native Plan session `sess_11e71f8f-cf03-40c3-8933-4c2a85bedafa` handed approved work to
+Default. Native Quick Spec session `sess_dc43fc56-1d1c-4167-adf6-27c5cb2227f2` generated
+requirements, design, and tasks before an explicit same-conversation return to `pkstack`.
+The Spec conversation was resumed after its terminal process ended during planning.
+Both paths recorded a failing `node verify.mjs`, repaired only the fixture implementation,
+and passed the unchanged four-assertion verifier on attempt two of four. The Spec goal
+retained native provenance; verifier, native planning documents, and all 192 managed files
+remained unchanged during execution. Their primary-profile SHA-256 matches the release:
+`6438abbdc0cc7d9841872396eefa45fc8351ca5e778f2c38f124d57380ce0c3f`.
+
+The exact-main 0.5.5 package consumer smoke separately passed fresh/repeated setup, local
+feature and knowledge validation, and failing-then-passing goal verification with its
+verifier unchanged. Its doctor reported 85 passes, no failures, and one warning.
+Native Plan/Spec agents do not inherit primary-profile permissions; these results establish
+the explicit handoff paths and bounded predicates above, not a full 0.5.5 native-runtime
+run, new IDE execution, universal permission matching, or an OS sandbox. No new Linux live
+retrieval or unattended maintenance-candidate lifecycle result is claimed.
 
 ## Verified publication: 0.5.4
 
