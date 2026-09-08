@@ -49,14 +49,27 @@ blobs, and 20,000 lines per diff. Unique unchanged lines align diff windows whil
 the 25-million-cell comparison-work limit. A rebuilt diff may have different counts from
 GitHub's omitted representation; the resulting bytes must match the current Git blob.
 
-After each Kiro repair process ends, a bounded diagnostic reports only fixed labels, file
-sizes, exit status, sampled event/tool counts, and terminal-event presence. It does not
-establish agent attestation or candidate validity. The private evidence limit, credential
-checks, and deletion on exit still apply; raw model/tool output is never uploaded.
+A trusted supervisor drains Kiro stdout and stderr concurrently and validates each JSON event
+before discarding it. The initial budgets are 64 MiB total stdout, 16 MiB per event, 16 MiB
+stderr, 65,536 events, and a 25-minute deadline. Thinking without output has no separate idle
+timeout. A limit, malformed event, credential, or cancellation fails the run and terminates
+the process group, with up to 30 seconds before forced cleanup. Successful attestation still
+requires exact v3 startup, the global maintainer identity before model activity, one session,
+the permitted bootstrap lifecycle, a successful untruncated terminal event, no later events,
+and process exit zero. A stream above the former 16 MiB total limit is not inherently valid.
 
-Failed acceptance previews and commits include at most 32 KiB of their JSON output in
-private repair feedback. Retained verification reports expose only fixed acceptance reason
-codes; unknown errors use `acceptance-failed`. The acceptance exit code still stops the gate.
+No raw repair transcript is retained. After the Git-state check, a report of at most 8 KiB
+publishes fixed event categories, byte and event counters, largest-event size, process exit,
+attestation result, and the exact fixed failure category. Unknown categories become `other`.
+Failure reports identify unclassified or discarded bytes; partial validation cannot pass.
+Process completion, agent attestation, and candidate acceptance are separate results.
+
+Redirected verification output remains available through its stage's command and JSON checks.
+The next repair receives failing-stage details before incidental cleanup logs within a total
+32 KiB private feedback budget. Missing, invalid, or credential-bearing feedback stops delivery.
+Public verification reports contain only fixed stage, exit, cleanup, and reason fields. Arbitrary
+candidate errors never establish success or enter public diagnostics. The four-repair allowance,
+one-source acceptance checks, permissions, and independent review gates remain in force.
 
 The autonomous acceptance path is limited to the GitHub source entries configured in `maintenance/upstreams.json`. A
 separate weekly or manually dispatched Kiro canary observes product/runtime/documentation drift

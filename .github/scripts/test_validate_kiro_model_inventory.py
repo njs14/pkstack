@@ -110,7 +110,7 @@ class ModelInventoryTests(unittest.TestCase):
             runner.index("chat --list-models --format json"),
             runner.index('"$KIRO_BIN_DIR/kiro-cli" chat \\'),
         )
-        self.assertIn("trap cleanup_private_evidence EXIT", runner)
+        self.assertIn('trap "cleanup_private_evidence" EXIT', runner)
         preflight = runner[: runner.index("prompt=$(printf")]
         self.assertIn("env -i \\", preflight)
         self.assertIn('KIRO_API_KEY="$KIRO_API_KEY" \\', preflight)
@@ -224,11 +224,11 @@ class ModelInventoryTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertTrue((root / "kiro-user/.kiro/repair-invoked").is_file())
             self.assertFalse((root / "pkstack-kiro-private-1").exists())
-            self.assertIn('"selected_agent": "pkstack-maintainer"', result.stdout)
+            self.assertIn('"agent_attestation": "passed"', result.stdout)
 
             for stream, stderr, reason in (
-                (b"{}\n", "", "maintenance-agent-selection-missing"),
-                (b" " * (16 * 1024 * 1024 + 1), "", "private evidence exceeded"),
+                (b"{}\n", "", "maintenance-agent-stream-invalid"),
+                (b" " * (16 * 1024 * 1024 + 1), "", "maintenance-agent-event-byte-limit"),
                 (
                     stream_bytes(attested_events()),
                     'Agent not found, using "default"\n',
@@ -247,8 +247,8 @@ class ModelInventoryTests(unittest.TestCase):
                         timeout=10,
                     )
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn(reason, result.stderr)
-                    self.assertIn('"diagnostic": "maintenance-private-evidence"', result.stdout)
+                    self.assertIn(reason, result.stdout)
+                    self.assertIn('"candidate_acceptance": "not-evaluated"', result.stdout)
                     self.assertNotIn("test-only-noncredential", result.stderr + result.stdout)
                     self.assertFalse((root / "pkstack-kiro-private-1").exists())
 

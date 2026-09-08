@@ -25,6 +25,8 @@ from contextlib import contextmanager
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from pkstack_verification_feedback import FeedbackError, validate_delivery
+
 POLICY_KEYS = {
     "schema_version",
     "source_workflows",
@@ -1522,6 +1524,12 @@ def prepare_attempt(
     context.mkdir(mode=0o700)
     for name, body in _upstream_review_documents(detector).items():
         (context / name).write_bytes(body)
+    try:
+        validate_delivery(feedback_path)
+    except (FeedbackError, OSError) as exc:
+        raise GuardError(
+            "verification feedback is missing, invalid, or credential-bearing"
+        ) from exc
     shutil.copyfile(feedback_path, context / "verification-feedback.txt")
     if control_plan_path is not None:
         shutil.copyfile(control_plan_path, context / "control-plan.json")

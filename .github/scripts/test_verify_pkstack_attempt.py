@@ -30,6 +30,9 @@ class VerifierExecutionTests(unittest.TestCase):
         coverage_failure: bool = False,
         acceptance_error: str = "",
         acceptance_apply_failure: bool = False,
+        redirected_failure: str = "",
+        invalid_contract: bool = False,
+        noisy_cleanup: bool = False,
     ):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -54,6 +57,14 @@ class VerifierExecutionTests(unittest.TestCase):
             if args[0] == "setup" and os.environ["TEST_FAILURE"] == "true":
                 print(os.environ["TEST_SENTINEL"])
                 raise SystemExit(17)
+            stage = (
+                "generated-parity" if args[0] == "setup" and "--dry-run" in args
+                else "post-accept" if args[:2] == ["upstream", "check"]
+                else "goal" if args[:2] == ["goal", "status"] else ""
+            )
+            if stage and stage == os.environ["TEST_REDIRECTED_FAILURE"]:
+                print(json.dumps({"ok": False, "error": os.environ["TEST_SENTINEL"]}))
+                raise SystemExit(0 if os.environ["TEST_INVALID_CONTRACT"] == "true" else 23)
             result = {"ok": True}
             if args[0] == "setup":
                 result.update({key: [] for key in (
@@ -84,6 +95,11 @@ class VerifierExecutionTests(unittest.TestCase):
             import sys
 
             args = sys.argv[1:]
+            if "finalize-git-state" in args and os.environ["TEST_NOISY_CLEANUP"] == "true":
+                print("incidental cleanup output " * 5000)
+            if "validate-detector" in args and "post-accept" in args[-1]:
+                if not json.loads(open(args[-1]).read()).get("ok"):
+                    raise SystemExit(24)
             if "finalize-git-state" in args and os.environ["TEST_CLEANUP_FAILURE"] == "true":
                 print(os.environ["TEST_SENTINEL"])
                 raise SystemExit(19)
@@ -157,6 +173,9 @@ class VerifierExecutionTests(unittest.TestCase):
             "TEST_COVERAGE_FAILURE": str(coverage_failure).lower(),
             "TEST_ACCEPTANCE_ERROR": acceptance_error,
             "TEST_ACCEPTANCE_APPLY_FAILURE": str(acceptance_apply_failure).lower(),
+            "TEST_REDIRECTED_FAILURE": redirected_failure,
+            "TEST_INVALID_CONTRACT": str(invalid_contract).lower(),
+            "TEST_NOISY_CLEANUP": str(noisy_cleanup).lower(),
         }
         for key, name in (
             ("KIRO_BIN_DIR", "kiro-bin"),
@@ -279,6 +298,36 @@ class VerifierExecutionTests(unittest.TestCase):
                 self.assertEqual(output.read_text(), "passed=false\nattempt=1\n")
                 self.assertIn(error, feedback.read_text())
                 self.assertEqual(report["reason"], "acceptance-failed")
+
+    def test_redirected_stage_errors_survive_noisy_cleanup(self):
+        for stage in ("generated-parity", "post-accept", "goal"):
+            for invalid_contract in (False, True):
+                with self.subTest(stage=stage, invalid_contract=invalid_contract):
+                    result, report, output, feedback, runner = self.execute(
+                        redirected_failure=stage,
+                        invalid_contract=invalid_contract,
+                        noisy_cleanup=True,
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(report["stage"], stage)
+                    self.assertFalse(report["passed"])
+                    self.assertEqual(report["reason"], "verification-stage-failed")
+                    self.assertIn(SENTINEL, feedback.read_text())
+                    self.assertLessEqual(feedback.stat().st_size, 32768)
+                    self.assertIn("passed=false", output.read_text())
+                    self.assertFalse((runner / "pkstack-stage-detail-1.log").exists())
+                    self.assertFalse((runner / "pkstack-dry-run-1.json").exists())
+
+    def test_credential_feedback_stops_repairs_without_delivery(self):
+        for error in ("noncredential-test-double", "ghp_" + "a" * 36):
+            with self.subTest(error=error):
+                result, report, output, feedback, _ = self.execute(acceptance_error=error)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(report["passed"])
+                self.assertEqual(report["reason"], "verification-feedback-credential")
+                self.assertFalse(feedback.exists())
+                self.assertFalse(output.exists())
+                self.assertNotIn(error, result.stdout + result.stderr)
 
     def test_acceptance_candidate_parity_error_has_fixed_public_reason(self):
         error = "upstream accept requires a complete source-bound candidate parity artifact"
