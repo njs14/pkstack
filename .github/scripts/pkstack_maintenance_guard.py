@@ -1960,7 +1960,11 @@ def validate_detector(path: Path) -> dict[str, Any]:
         message = detector["error"]
         if diagnostic == "UpstreamError" and (
             re.fullmatch(r"GitHub API returned HTTP [1-5][0-9]{2}", message)
-            or message == "upstream network time budget was exhausted"
+            or message
+            in {
+                "upstream network time budget was exhausted",
+                "upstream comparison patches exceed the 262144-byte limit",
+            }
         ):
             diagnostic += f": {message}"
         raise GuardError(

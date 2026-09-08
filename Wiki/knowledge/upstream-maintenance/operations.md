@@ -160,3 +160,17 @@ original candidate and scope; they are not fresh verification of this checkout.
 | [reviews/fable-fbl046-peer-review.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/fable-fbl046-peer-review.md) | FBL-046 review examined hosted reviewer readiness for checkpoint 347d461; source inspection and authenticated preflight are separate from full release acceptance. |
 | [reviews/github-app-council-probe.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/github-app-council-probe.md) | GitHub App acknowledgements/no-response were insufficient deterministic review evidence; the shipped hosted authority uses exact-candidate Kiro review with isolated credentials. |
 | [reviews/kiro-runtime-canary-campaign.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kiro-runtime-canary-campaign.md) | The September 3 canary observed exact runtime/agent/model-inventory identity, without promoting pins, exercising a model task, or proving IDE/Web/maintenance acceptance. |
+
+## Changed-main detector reproof, September 8
+
+After [PR #69](https://github.com/njs14/pkstack/pull/69) merged, trusted-main run
+[34173315294](https://github.com/njs14/pkstack/actions/runs/34173315294) stopped with
+`UpstreamError`; no inventory, proposal or reviewer verdict was produced. A separate
+local run of that exact controller returned `upstream comparison patches exceed the
+262144-byte limit`. This local result is not yet proof of the CI failure cause.
+
+The guard now permits that one fixed message in its diagnostic, with a regression
+for the previously hidden bound and a newline-plus-secret counterexample. It still
+rejects the error envelope and preserves the comparison byte limit, schema and
+maintenance policy. A changed trusted-main run must establish the actual CI cause;
+limits are not relaxed merely to obtain a passing maintenance run.
