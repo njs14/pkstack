@@ -23,6 +23,14 @@ class FeedbackError(ValueError):
     pass
 
 
+def reject_credentials(raw: bytes, secret: bytes) -> None:
+    decoded = re.sub(
+        rb"\\u00([0-9a-fA-F]{2})", lambda match: bytes([int(match[1], 16)]), raw
+    ).replace(b"\\/", b"/")
+    if (secret and (secret in raw or secret in decoded)) or CREDENTIAL.search(decoded):
+        raise FeedbackError("verification-feedback-credential")
+
+
 def inspect(path: Path, secret: bytes) -> None:
     if not stat.S_ISREG(path.lstat().st_mode):
         raise FeedbackError("verification-evidence-invalid")
@@ -30,14 +38,7 @@ def inspect(path: Path, secret: bytes) -> None:
     with path.open("rb") as source:
         while chunk := source.read(65536):
             combined = tail + chunk
-            # Decode JSON escapes too, without interpreting candidate structure.
-            decoded = re.sub(
-                rb"\\u00([0-9a-fA-F]{2})",
-                lambda match: bytes([int(match[1], 16)]),
-                combined,
-            )
-            if (secret and (secret in combined or secret in decoded)) or CREDENTIAL.search(decoded):
-                raise FeedbackError("verification-feedback-credential")
+            reject_credentials(combined, secret)
             tail = combined[-max(4096, len(secret) * 6) :]
 
 
@@ -92,6 +93,7 @@ def build(
     text = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", text)
     text = "".join(c for c in text if c in "\n\t" or ord(c) >= 32)
     encoded = text.encode()[:MAX_FEEDBACK_BYTES].decode("utf-8", errors="ignore").encode()
+    reject_credentials(encoded, secret)
     with target.open("xb") as output:
         output.write(encoded)
 

@@ -38,6 +38,25 @@ class FeedbackTests(unittest.TestCase):
             with self.assertRaises(feedback.FeedbackError):
                 feedback.build(log, detail, target, 1, b"secret-value")
 
+    def test_sanitizing_and_assembling_cannot_reconstruct_credentials(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            log, detail, target = (root / name for name in ("log", "detail", "target"))
+            log.write_text("")
+            for content in ("sentinel-\x1b[31msecret", "sentinel-\x00secret"):
+                detail.write_text(content)
+                with self.assertRaises(feedback.FeedbackError):
+                    feedback.build(log, detail, target, 1, b"sentinel-secret")
+                self.assertFalse(target.exists())
+            raw = root / "raw"
+            raw.write_bytes(
+                b"x" * (12288 - 9) + b"sentinel-" + b"y" * 30000 + b"secret" + b"z" * (12288 - 6)
+            )
+            feedback.retain(raw, detail, b"sentinel-secret")
+            with self.assertRaises(feedback.FeedbackError):
+                feedback.build(log, detail, target, 1, b"sentinel-secret")
+            self.assertFalse(target.exists())
+
     def test_delivery_rechecks_limit_type_and_credentials(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "feedback"

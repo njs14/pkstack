@@ -6174,7 +6174,10 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "diff.external",
         ):
             self.assertIn(hardened_setting, kiro)
-        env_i_blocks = re.findall(r"(?ms)^env -i \\\n(?P<body>.*?)(?=^  timeout )", kiro_runner)
+        env_i_blocks = re.findall(
+            r'(?ms)^env -i \\\n(?P<body>.*?)(?=^  (?:timeout |python3 -B "\$supervisor" ))',
+            kiro_runner,
+        )
         self.assertEqual(len(env_i_blocks), 2)
         for block in env_i_blocks:
             for setting in (
