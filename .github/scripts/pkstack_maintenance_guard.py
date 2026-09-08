@@ -25,7 +25,10 @@ from contextlib import contextmanager
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from pkstack_verification_feedback import FeedbackError, validate_delivery
+# Trusted snapshots are immutable even when callers omit Python's -B flag.
+sys.dont_write_bytecode = True
+
+from pkstack_verification_feedback import FeedbackError, validate_delivery  # noqa: E402
 
 POLICY_KEYS = {
     "schema_version",
