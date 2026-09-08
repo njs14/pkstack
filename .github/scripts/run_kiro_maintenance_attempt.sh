@@ -35,11 +35,13 @@ fi
 
 script_dir=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 model_validator="$script_dir/validate_kiro_model_inventory.py"
-stream_validator="$script_dir/validate_kiro_maintenance_stream.py"
+supervisor="$script_dir/supervise_kiro_maintenance.py"
 trusted_agent="$script_dir/../../.kiro/agents/pkstack-maintainer.json"
 private_root="$RUNNER_TEMP/pkstack-kiro-private-${ATTEMPT_NUMBER}"
 private_created=false
 
+# Invoked by the EXIT trap.
+# shellcheck disable=SC2329
 cleanup_private_evidence() {
   local prior_rc=$?
   trap - EXIT
@@ -56,7 +58,7 @@ cleanup_private_evidence() {
   fi
   exit "$prior_rc"
 }
-trap cleanup_private_evidence EXIT
+trap "cleanup_private_evidence" EXIT
 
 umask 077
 if [[ -e "$private_root" ]]; then
@@ -68,8 +70,7 @@ private_created=true
 
 inventory_path="$private_root/model-inventory.json"
 inventory_stderr_path="$private_root/model-inventory.stderr"
-stream_path="$private_root/repair-stream.jsonl"
-stderr_path="$private_root/repair.stderr"
+result_path="$private_root/result.json"
 runtime_path="$private_root/runtime"
 mkdir -m 0700 "$runtime_path"
 
@@ -171,7 +172,7 @@ env -i \
   GIT_NO_REPLACE_OBJECTS=1 \
   GIT_TERMINAL_PROMPT=0 \
   KIRO_API_KEY="$KIRO_API_KEY" \
-  timeout --signal=TERM --kill-after=30s 25m \
+  python3 -B "$supervisor" --agent "$trusted_agent" --result "$result_path" -- \
   "$KIRO_BIN_DIR/kiro-cli" chat \
     --v3 \
     --agent pkstack-maintainer \
@@ -180,7 +181,7 @@ env -i \
     --no-interactive \
     --trust-tools=fs_read,fs_write,grep \
     --output-format stream-json \
-    "$prompt" >"$stream_path" 2>"$stderr_path"
+    "$prompt"
 kiro_rc=$?
 set -e
 
@@ -191,17 +192,6 @@ env -u KIRO_API_KEY python3 "$GUARD_PATH" --root "$(pwd -P)" validate-git-state 
   --base "$BASE_SHA" \
   --git-state "$GIT_BOUNDARY_STATE"
 
-env -u KIRO_API_KEY python3 -B "$stream_validator" \
-  --stream "$stream_path" --stderr "$stderr_path" \
-  --agent "$trusted_agent" --return-code "$kiro_rc" --diagnostics-only
-
-validate_private_file "$stream_path" 16777216
-validate_private_file "$stderr_path" 16777216
-if grep -aFq -- "$KIRO_API_KEY" "$stream_path" "$stderr_path"; then
-  echo "Kiro output contained the API key; output discarded" >&2
-  exit 1
-fi
-
-python3 -B "$stream_validator" \
-  --stream "$stream_path" --stderr "$stderr_path" \
-  --agent "$trusted_agent" --return-code "$kiro_rc"
+validate_private_file "$result_path" 8192
+cat "$result_path"
+exit "$kiro_rc"

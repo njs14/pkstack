@@ -6129,7 +6129,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("validate-git-state", kiro_runner)
         self.assertLess(
             kiro_runner.index("validate-git-state"),
-            kiro_runner.index('validate_private_file "$stream_path" 16777216'),
+            kiro_runner.index('cat "$result_path"'),
         )
         self.assertIn(
             "printf 'GIT_BOUNDARY_STATE=%s\\n' \"$RUNNER_TEMP/pkstack-git-boundary-state\"",

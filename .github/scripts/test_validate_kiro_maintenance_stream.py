@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import json
-import tempfile
 import unittest
 from pathlib import Path
 from typing import Any
@@ -85,53 +84,39 @@ def stream_bytes(events: list[dict[str, Any]]) -> bytes:
 
 
 class MaintenanceAgentAttestationTests(unittest.TestCase):
-    def test_safe_diagnostics_survive_oversized_evidence_without_disclosing_content(self) -> None:
-        secret = "never-disclose-this-value"
-        event = envelope(
-            {
-                "sessionUpdate": "tool_call",
-                "_meta": {"kiro": {"toolId": "fs_read"}},
-                "content": secret,
-            }
-        )
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            stream = root / "stream"
-            stderr = root / "stderr"
-            line = stream_bytes([event])
-            with stream.open("wb") as handle:
-                handle.write(line * (validator.MAX_OUTPUT_BYTES // len(line) + 1))
-                handle.write(stream_bytes([attested_events()[-1]]))
-            stderr.write_text(secret)
-            result = validator.summarize_private_evidence(stream, stderr, 0)
-            self.assertGreater(result["bytes"]["stream"], validator.MAX_OUTPUT_BYTES)
-            self.assertEqual(result["sampled_stream_bytes"], validator.DIAGNOSTIC_SAMPLE_BYTES)
-            self.assertTrue(result["sample_incomplete"])
-            self.assertTrue(result["terminal_event_present"])
-            self.assertGreater(result["sample_tool_counts"]["fs_read"], 0)
-            self.assertNotIn(secret, json.dumps(result))
+    def test_complete_fixed_category_diagnostics(self) -> None:
+        machine = validator.StreamValidator(PROFILE, "secret-sentinel")
+        events = attested_events()
+        events.insert(-1, envelope({"sessionUpdate": "private-unknown-category"}))
+        raw = stream_bytes(events)
+        for offset in range(0, len(raw), 7):
+            machine.feed(raw[offset : offset + 7])
+        machine.finish(0)
+        report = machine.report(0, None)
+        self.assertEqual(report["bytes"]["stdout"], len(raw))
+        self.assertEqual(sum(report["event_bytes"].values()), len(raw))
+        self.assertEqual(sum(report["event_counts"].values()), len(events))
+        self.assertEqual(report["event_counts"]["other"], 1)
+        self.assertNotIn("private-unknown-category", json.dumps(report))
+        self.assertEqual(report["candidate_acceptance"], "not-evaluated")
+        self.assertLess(len(json.dumps(report).encode()), validator.MAX_REPORT_BYTES)
 
-    def test_diagnostics_do_not_echo_malformed_fields_or_nested_keys(self) -> None:
-        secret = "never-disclose-this-value"
-        with tempfile.TemporaryDirectory() as directory:
-            stream = Path(directory) / "stream"
-            stderr = Path(directory) / "stderr"
-            stream.write_bytes(
-                stream_bytes(
-                    [
-                        {"type": secret},
-                        {"type": "sessionUpdate", "data": {"update": {"sessionUpdate": secret}}},
-                        {"type": "sessionUpdate", "data": [secret]},
-                    ]
-                )
-                + ('{"' + secret + '":0,"' + secret + '":1}\n').encode()
-            )
-            stderr.write_text(secret)
-            result = validator.summarize_private_evidence(stream, stderr, 124)
-            self.assertEqual(result["return_code"], 124)
-            self.assertFalse(result["terminal_event_present"])
-            self.assertGreater(result["sample_event_counts"]["invalid"], 0)
-            self.assertNotIn(secret, json.dumps(result))
+    def test_secret_and_fallback_split_across_chunks(self) -> None:
+        for text, stderr, reason in (
+            (b"secret-sentinel", True, "secret-detected"),
+            (b'not found, using "default"', True, "fallback"),
+            (b"secret-sentinel", False, "secret-detected"),
+        ):
+            for split in range(1, len(text)):
+                machine = validator.StreamValidator(PROFILE, "secret-sentinel")
+                machine.feed(text[:split], stderr=stderr)
+                with self.assertRaisesRegex(validator.AttestationError, reason):
+                    machine.feed(text[split:], stderr=stderr)
+
+    def test_duplicate_terminal_and_events_after_completion_fail(self) -> None:
+        for extra in (attested_events()[-1], attested_events()[3]):
+            with self.assertRaisesRegex(validator.AttestationError, "after-terminal"):
+                self.validate([*attested_events(), extra])
 
     def validate(self, events: list[dict[str, Any]], **kwargs: Any) -> dict[str, Any]:
         return validator.validate_stream_bytes(
