@@ -76,11 +76,10 @@ requested. Skills, steering, runtime state, and goal bindings retain their nativ
 
 ## Pervasive routing contract
 
-For every multi-step task, read the complete `pkstack-principles` catalog before executing. Read the full
-leaf skill for each principle that actually applies, keep the matched workflow's ordered checkpoints
-in a visible task list, and retain an inapplicable checkpoint with a specific skip reason. At handoff,
-name each applied principle and the concrete choice it changed; a principle name without a decision
-is not evidence that its contract was followed.
+Start a multi-step task's visible task list with the matched workflow's ordered checkpoints.
+Retain an inapplicable checkpoint with a specific skip reason. Use the `pkstack-principles` catalog
+to select relevant principles, then read each selected leaf skill. At handoff, name only principles
+read in this session and the concrete decisions they changed.
 
 Before asking the user to choose an implementation path, decide whether a permitted observation,
 probe, or prototype can answer the question. Run it only when the active workflow allows it;
@@ -353,6 +352,13 @@ use GitHub CLI by default or an installed Origin CLI that resolves the repositor
 behavior and reason, cite exact verification, attach screenshots or video only when they prove a
 claim, and avoid generic summary/test-plan boilerplate. Never require Graphite and never interpolate
 untrusted review text into a shell command.
+
+Write the title and body with `technical-writing`, then apply `unslop`. Keep the body to a brief
+explanation of why the change exists, its behavior, meaningful scope boundaries, and verification
+outcomes. Follow the repository template. Otherwise use Why, Scope, Tradeoffs, Blast Radius, and
+Verification only where each has useful content. Link detailed evidence instead of adding file-by-file
+narration, full commit histories, or long metric tables. For a performance claim, lead with one
+before-and-after value and its unit, and link the method and remaining results.
 
 ## Pause safely
 

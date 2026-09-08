@@ -6,6 +6,7 @@ import hashlib
 import json
 import multiprocessing
 import shutil
+import threading
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -1480,6 +1481,102 @@ def test_compare_reconstructs_one_skill_change_at_github_file_response_cap() -> 
 
 
 @pytest.mark.parametrize(
+    "fault",
+    [
+        None,
+        "wrong-range",
+        "missing-commits",
+        "unexpected-files",
+        "wrong-base",
+        "behind",
+        "too-many",
+    ],
+)
+def test_oversized_compare_reconstructs_only_the_exact_source_from_metadata(
+    fault: str | None,
+) -> None:
+    responses, compare_url = _single_tracked_change_responses()
+    content = _new_content("README.md")
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", _git_blob_sha(content))] = (
+        _blob_response(content)
+    )
+    metadata_url = compare_url.replace("&page=1", "&page=2")
+    metadata = {**responses[compare_url], "url": compare_url.split("?")[0], "commits": []}
+    del metadata["files"]
+    if fault == "wrong-range":
+        metadata["url"] = metadata["url"].replace(HEAD, "f" * 40)
+    elif fault == "missing-commits":
+        del metadata["commits"]
+    elif fault == "unexpected-files":
+        metadata["files"] = []
+    elif fault == "wrong-base":
+        metadata["merge_base_commit"] = {"sha": "f" * 40}
+    elif fault == "behind":
+        metadata["behind_by"] = 1
+    elif fault == "too-many":
+        metadata["ahead_by"] = metadata["total_commits"] = 101
+    responses[metadata_url] = metadata
+    calls = []
+
+    def fetch(url: str, token: str | None, timeout: float) -> Any:
+        calls.append(url)
+        if url == compare_url:
+            raise upstreams._ResponseTooLargeError("oversized repository comparison")
+        return responses[url]
+
+    def compare() -> dict[str, Any]:
+        return upstreams._compare_inventory(
+            _compare_source(),
+            base_commit=PIN,
+            base_subtree=PIN_TREE,
+            head_commit=HEAD,
+            head_subtree=HEAD_TREE,
+            token=None,
+            timeout_seconds=3,
+            fetch_json=fetch,
+            blob_cache={},
+        )
+
+    if fault:
+        with pytest.raises(UpstreamError):
+            compare()
+    else:
+        result = compare()
+        assert result["complete"] is True
+        assert result["paths"] == ["README.md"]
+        file = result["files"][0]
+        assert file["reviewability"] == "exact-blob-unified-patch"
+        assert file["new_identity"]["sha"] == _git_blob_sha(content)
+        assert file["patch"].startswith("@@ -1 +1 @@ source-tree-exact\n")
+    assert metadata_url in calls
+
+
+def test_compare_does_not_fallback_after_transport_or_validation_errors() -> None:
+    responses, compare_url = _single_tracked_change_responses()
+    calls = []
+
+    def fetch(url: str, token: str | None, timeout: float) -> Any:
+        calls.append(url)
+        if url == compare_url:
+            raise UpstreamError("network unavailable")
+        return responses[url]
+
+    with pytest.raises(UpstreamError, match="network unavailable"):
+        upstreams._compare_inventory(
+            _compare_source(),
+            base_commit=PIN,
+            base_subtree=PIN_TREE,
+            head_commit=HEAD,
+            head_subtree=HEAD_TREE,
+            token=None,
+            timeout_seconds=3,
+            fetch_json=fetch,
+            blob_cache={},
+        )
+    assert calls[-1] == compare_url
+
+
+@pytest.mark.parametrize(
     ("old_content", "new_content"),
     [
         (b"", b"new\n"),
@@ -1918,7 +2015,11 @@ def test_check_fails_closed_on_truncated_tree_or_patch_bound(tmp_path: Path) -> 
     with pytest.raises(UpstreamError, match="file patch exceeds"):
         check_upstreams(tmp_path, fetch_json=FakeFetch(too_large), environ={})
 
+
+def test_large_complete_comparison_retains_every_verified_patch(tmp_path: Path) -> None:
+    _write_manifest(tmp_path)
     aggregate = _fake_responses()
+    compare_url = next(url for url in aggregate if "/compare/" in url)
     pin_tree_url = next(url for url in aggregate if PIN_TREE in url and "recursive" in url)
     head_tree_url = next(url for url in aggregate if HEAD_TREE in url and "recursive" in url)
     pin_entries = {item["path"]: item for item in aggregate[pin_tree_url]["tree"]}
@@ -1941,8 +2042,119 @@ def test_check_fails_closed_on_truncated_tree_or_patch_bound(tmp_path: Path) -> 
         aggregate[upstreams._api_url("cursor/plugins", "git", "blobs", old_sha)] = _blob_response(
             old_content
         )
-    with pytest.raises(UpstreamError, match="patches exceed"):
+    result = check_upstreams(tmp_path, fetch_json=FakeFetch(aggregate), environ={})
+    comparison = result["sources"][0]["comparison"]
+    assert comparison["complete"] is True
+    assert comparison["paths"] == list(CHANGED_PATHS)
+    assert comparison["patch_bytes"] > 256 * 1024
+    assert comparison["patch_bytes"] == sum(file["patch_bytes"] for file in comparison["files"])
+    assert all(file["tree_sha_verified"] for file in comparison["files"])
+    # A later patch is still validated even after crossing the old aggregate cap.
+    aggregate[compare_url]["files"][-1]["patch"] += "\n+unreported content"
+    with pytest.raises(UpstreamError, match=r"count|hunk"):
         check_upstreams(tmp_path, fetch_json=FakeFetch(aggregate), environ={})
+
+
+def test_check_overlaps_blob_reads_without_changing_verified_inventory(tmp_path: Path) -> None:
+    _write_manifest(tmp_path)
+    responses = _fake_responses()
+    baseline = check_upstreams(tmp_path, fetch_json=FakeFetch(responses), environ={})
+    barrier = threading.Barrier(4, timeout=3)
+    lock = threading.Lock()
+    fetch = FakeFetch(responses)
+    entered = 0
+
+    def concurrent_fetch(url: str, token: str | None, timeout: float) -> Any:
+        nonlocal entered
+        if "/git/blobs/" in url:
+            with lock:
+                index = entered
+                entered += 1
+            if index < 4:
+                barrier.wait()
+        return fetch(url, token, timeout)
+
+    result = check_upstreams(tmp_path, fetch_json=concurrent_fetch, environ={})
+    assert result == baseline
+    assert entered == 26
+
+
+def test_metadata_cache_is_bounded_and_never_reused_between_checks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write_manifest(tmp_path)
+    responses = _fake_responses()
+    initial = check_upstreams(tmp_path, fetch_json=FakeFetch(responses), environ={})
+    _advance_review(tmp_path, initial["sources"][0]["comparison"]["inventory_sha256"])
+    cached = FakeFetch(responses)
+    expected = check_upstreams(tmp_path, fetch_json=cached, environ={})
+    assert len({url for url, _, _ in cached.calls}) == len(cached.calls)
+    fresh = FakeFetch(responses)
+    assert check_upstreams(tmp_path, fetch_json=fresh, environ={}) == expected
+    assert sorted(call[0] for call in fresh.calls) == sorted(call[0] for call in cached.calls)
+    monkeypatch.setattr(upstreams, "MAX_METADATA_CACHE_BYTES", 128)
+    bounded = FakeFetch(responses)
+    assert check_upstreams(tmp_path, fetch_json=bounded, environ={}) == expected
+    assert len(bounded.calls) > len(cached.calls)
+
+
+@pytest.mark.parametrize("mutate_manifest", [False, True])
+def test_aggregate_overlaps_sources_with_one_global_request_limit(
+    tmp_path: Path, mutate_manifest: bool
+) -> None:
+    _write_manifest(tmp_path)
+    for name in ("alpha-source", "beta-source", "gamma-source"):
+        _add_parallel_source(tmp_path, source_id=name)
+    responses = _fake_responses()
+    barrier = threading.Barrier(4, timeout=3)
+    lock = threading.Lock()
+    active = peak = entered = 0
+
+    def fetch(url: str, token: str | None, timeout: float) -> Any:
+        nonlocal active, peak, entered
+        with lock:
+            index = entered
+            entered += 1
+            active += 1
+            peak = max(peak, active)
+        try:
+            if index < 4:
+                barrier.wait()
+            if index == 0 and mutate_manifest:
+                path = tmp_path / "maintenance/upstreams.json"
+                changed = json.loads(path.read_text())
+                changed["sources"][0]["ref"] = "changed-during-check"
+                path.write_text(json.dumps(changed))
+            return responses[url]
+        finally:
+            with lock:
+                active -= 1
+
+    if mutate_manifest:
+        with pytest.raises(UpstreamError, match="configuration changed"):
+            check_upstreams(tmp_path, fetch_json=fetch, environ={})
+        assert active == 0
+        return
+    result = check_upstreams(tmp_path, fetch_json=fetch, environ={})
+    assert [source["id"] for source in result["sources"]] == [
+        "cursor-pstack",
+        "alpha-source",
+        "beta-source",
+        "gamma-source",
+    ]
+    assert all(source["comparison"]["paths"] == list(CHANGED_PATHS) for source in result["sources"])
+    assert peak == 4
+    assert active == 0
+
+
+def test_concurrent_blobs_keep_the_aggregate_cache_limit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write_manifest(tmp_path)
+    responses = _fake_responses()
+    monkeypatch.setattr(upstreams, "MAX_COMPARE_BLOB_BYTES", 128)
+    with pytest.raises(UpstreamError, match="comparison blobs exceed the 128-byte limit"):
+        check_upstreams(tmp_path, fetch_json=FakeFetch(responses), environ={})
 
 
 def test_semantic_skill_requires_complete_count_reconciled_patch() -> None:
@@ -2405,7 +2617,7 @@ def test_reviewed_current_pin_passes_and_reproves_transition(tmp_path: Path) -> 
         "C": 3,
     }
     assert sum("/compare/" in call[0] for call in fetch.calls) == 1
-    assert len(fetch.calls) == 39
+    assert len(fetch.calls) == 34  # Repeated exact metadata is reused within this check.
 
 
 def test_pin_mismatch_is_a_nonzero_verdict_not_current(tmp_path: Path) -> None:
@@ -3252,6 +3464,66 @@ def test_multisource_accept_serializes_one_source_without_mutating_the_other(
     assert remaining["drift"] is True
 
 
+@pytest.mark.parametrize("damaged_sibling_provenance", [False, True])
+def test_accept_scopes_network_but_validates_every_local_provenance(
+    tmp_path: Path, damaged_sibling_provenance: bool
+) -> None:
+    canonical_power = _prepare_accept_root(tmp_path)
+    paths = _add_parallel_source(tmp_path)
+    manifest_path = tmp_path / "maintenance" / "upstreams.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["sources"][1]["ref"] = "unavailable-branch"
+    manifest_path.write_text(json.dumps(manifest))
+    responses = _fake_responses()
+    unavailable = upstreams._api_url("cursor/plugins", "commits", "unavailable-branch")
+
+    def fetch(url: str, token: str | None, timeout: float) -> Any:
+        if url == unavailable:
+            raise UpstreamError("unrelated source is unavailable")
+        return responses[url]
+
+    with pytest.raises(UpstreamError, match="unrelated source is unavailable"):
+        check_upstreams(tmp_path, power_root=canonical_power, fetch_json=fetch, environ={})
+    selected = check_upstreams(
+        tmp_path,
+        power_root=canonical_power,
+        source_id="cursor-pstack",
+        fetch_json=fetch,
+        environ={},
+    )["sources"][0]
+    _write_proposal(tmp_path, _transition(selected["comparison"]["inventory_sha256"]))
+    before_manifest = manifest_path.read_bytes()
+    ledger_path = tmp_path / "maintenance" / "upstream-reviews.json"
+    before_ledger = ledger_path.read_bytes()
+    if damaged_sibling_provenance:
+        paths["provenance"].write_text("# Missing genesis\n")
+        with pytest.raises(UpstreamError, match="required genesis marker"):
+            upstreams.accept_upstream(
+                tmp_path,
+                expected_head=HEAD,
+                power_root=canonical_power,
+                fetch_json=fetch,
+                environ={},
+            )
+        assert manifest_path.read_bytes() == before_manifest
+        assert ledger_path.read_bytes() == before_ledger
+    else:
+        result = upstreams.accept_upstream(
+            tmp_path,
+            expected_head=HEAD,
+            power_root=canonical_power,
+            fetch_json=fetch,
+            environ={},
+        )
+        assert result["accepted"] is True
+        assert result["source_id"] == "cursor-pstack"
+        assert json.loads(manifest_path.read_bytes())["sources"][1] == manifest["sources"][1]
+        assert (
+            json.loads(ledger_path.read_bytes())["sources"][1]
+            == json.loads(before_ledger)["sources"][1]
+        )
+
+
 def test_second_transition_accepts_one_proposal_bound_marker_tail(tmp_path: Path) -> None:
     canonical_power = _prepare_accept_root(tmp_path)
     first_responses = _fake_responses()
@@ -3789,9 +4061,11 @@ def test_accept_recovery_preserves_committed_transition_when_ref_advances(tmp_pa
     assert not (tmp_path / ".pkstack-maintenance").exists()
 
 
+@pytest.mark.parametrize("error_class", [UpstreamError, upstreams._ResponseTooLargeError])
 def test_direct_cli_maps_drift_and_errors_to_structured_nonzero(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
+    error_class: type[UpstreamError],
 ) -> None:
     monkeypatch.setattr(
         cli, "check_upstreams", lambda *args, **kwargs: {"ok": False, "drift": True}
@@ -3801,7 +4075,7 @@ def test_direct_cli_maps_drift_and_errors_to_structured_nonzero(
     assert json.loads(capsys.readouterr().out) == {"drift": True, "ok": False}
 
     def fail(*args: Any, **kwargs: Any) -> Any:
-        raise UpstreamError("bad boundary")
+        raise error_class("bad boundary")
 
     monkeypatch.setattr(cli, "check_upstreams", fail)
     with pytest.raises(SystemExit, match="2"):

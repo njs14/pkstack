@@ -64,6 +64,19 @@ GitHub restriction. See [GitHub's token documentation](https://docs.github.com/e
 
 ## Reviewer feedback and credit limits
 
+The upstream maintainer reads an index and ordered review batches. Each batch preserves complete
+file records, patch bodies, and their exact source identities, with at most 16 files and 64 KiB of
+patch text. JSON encoding is separately bounded at 512 KiB. The former 256 KiB aggregate patch
+refusal is replaced by the existing 100-file and 64 KiB-per-file limits, so total patch bytes
+remain bounded by those inputs. The detector artifact has a 16 MiB transport bound and is not
+loaded wholesale into the model's initial context.
+
+Blob retrieval uses at most four concurrent requests. The 4 MiB verified-blob cache, response
+limits, exhaustive tree/path comparison, exact patch application, and shared 30-second network
+budget remain enforced. Reading aids never replace the original detector or the source's complete
+acceptance proposal. Large reviews still need every changed path classified once before the
+pin advances.
+
 Skill changes also receive a compatibility review. The versioned review bundle
 contains the exact candidate's skill catalog, affected instructions, relevant
 neighbor skills, and shared steering. Realistic prompts and forbidden effects
@@ -162,3 +175,26 @@ These cover controller decisions, content-only drift, serialization, feedback
 budgets, report validation, shell preflight, candidate identity, and release
 metadata. They do not prove live Kiro availability, GitHub App installation,
 repository permissions, artifact transport, or the final GitHub merge API.
+
+Acceptance re-proves the proposal-selected source within the same 30-second network
+budget. It validates every local ledger chain and provenance marker before that
+proof, and changes only the selected pin and ledger entry. Unrelated upstream
+network availability does not block that transaction. The aggregate detector
+remains the authority for claiming all configured sources current; selected-source
+acceptance and goal verification make no such claim.
+
+The detector reuses metadata responses within one check in a bounded 4 MiB cache;
+no network observation survives into another invocation. Blob verification keeps
+its separate 4 MiB bound. If GitHub's first comparison page exceeds the unchanged
+1 MiB response limit, a metadata-only second page binds the exact base/head URL,
+merge base, direction and at-most-100-commit distance. That page must contain no
+commits or file records. Complete source-local patches are then reconstructed
+from the independently verified subtree blobs, with the existing line, work and
+patch bounds. Transport and malformed-response failures do not trigger this
+fallback.
+
+Aggregate checks run at most four independent source proofs at once. They share
+one 30-second network deadline and four global request slots, including nested
+blob reads. Each active source owns separate 4 MiB metadata and 4 MiB verified-blob
+caches, bounding active caches to 32 MiB. Results remain in manifest order and
+every configured source must pass for an aggregate success.

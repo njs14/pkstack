@@ -1,11 +1,14 @@
 ---
 name: reflect
-description: Extract durable lessons from completed work and propose the smallest structural, documentation, or skill improvement that would prevent repetition.
+description: When explicitly asked to reflect, extract durable lessons from completed work and propose the smallest structural, documentation, or skill improvement that would prevent repetition.
 ---
 
 # Reflect on completed work
 
 Treat the request text that activated this skill as the completed work or behavior to examine.
+
+Run only when the user requests reflection. Completing a task, receiving a correction, or
+discovering a reusable technique does not start a reflection pass automatically.
 
 Use [`recall`](../recall/SKILL.md) for retrieval without lesson proposals. If an approved lesson
 belongs in durable project knowledge, use [`okf`](../okf/SKILL.md) to apply that approved subset

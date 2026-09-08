@@ -421,6 +421,10 @@ def test_upstream_skill_parity_inventory_is_complete_and_rendered() -> None:
             assert (ROOT / destination).is_file(), f"{entry['name']}: missing {consolidation}"
         for revision in ("pinned", "current"):
             package = entry[revision]
+            if package is None:
+                other = "current" if revision == "pinned" else "pinned"
+                assert entry[other] is not None, "a skill must exist in at least one revision"
+                continue
             assert set(package) == {"package_tree_sha", "files"}
             assert re.fullmatch(r"[0-9a-f]{40}", package["package_tree_sha"])
             files = package["files"]

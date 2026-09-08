@@ -12,8 +12,10 @@ import os
 import re
 import stat
 import tempfile
+import threading
 import time
 from collections.abc import Callable, Iterator, Mapping
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
@@ -49,14 +51,19 @@ DEFAULT_TIMEOUT_SECONDS = 30.0
 MAX_TIMEOUT_SECONDS = 30.0
 MAX_MANIFEST_BYTES = 64 * 1024
 MAX_RESPONSE_BYTES = 1024 * 1024
+MAX_METADATA_CACHE_BYTES = 4 * 1024 * 1024
 MAX_SOURCES = 16
 MAX_COMPARE_COMMITS = 100
 MAX_COMPARE_FILES = 100
 GITHUB_COMPARE_FILE_CAP = 300
-MAX_COMPARE_PATCH_BYTES = 256 * 1024
 MAX_FILE_PATCH_BYTES = 64 * 1024
+# Each file remains bounded and blob-verified. Reviewers consume the complete
+# inventory in batches; aggregate patch size is not a separate review veto.
+MAX_COMPARE_PATCH_BYTES = MAX_COMPARE_FILES * MAX_FILE_PATCH_BYTES
 MAX_TEXT_BLOB_BYTES = 512 * 1024
 MAX_COMPARE_BLOB_BYTES = 4 * 1024 * 1024
+MAX_BLOB_FETCH_WORKERS = 4
+MAX_SOURCE_CHECK_WORKERS = 4
 MAX_DIFF_LINES = 5_000
 MAX_COMPARE_DIFF_CELLS = 25_000_000
 MAX_TREE_ENTRIES = 10_000
@@ -185,6 +192,10 @@ FetchJSON = Callable[[str, str | None, float], Any]
 
 class UpstreamError(ValueError):
     """Raised when an upstream manifest or remote identity is unsafe or malformed."""
+
+
+class _ResponseTooLargeError(UpstreamError):
+    """A bounded response needs an alternative API representation."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -622,15 +633,78 @@ def _check_upstreams(
         source.source_id for source in selected_sources
     }:
         raise UpstreamError("upstream acceptance preproof source is not selected")
+    if source_id is None and len(selected_sources) > 1:
+        # Source proofs are independent. Share one network deadline and four
+        # request slots, even when a source overlaps its own blob reads.
+        deadline = time.monotonic() + timeout
+        request_slots = threading.BoundedSemaphore(MAX_BLOB_FETCH_WORKERS)
+        raw_fetch = _fetch_json if fetch_json is None else fetch_json
+
+        def bounded_fetch(url: str, request_token: str | None, _: float) -> Any:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not request_slots.acquire(timeout=remaining):
+                raise UpstreamError("upstream network time budget was exhausted")
+            try:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise UpstreamError("upstream network time budget was exhausted")
+                return raw_fetch(url, request_token, remaining)
+            finally:
+                request_slots.release()
+
+        def check_source(source: UpstreamSource) -> dict[str, Any]:
+            tail = (
+                provenance_tail
+                if provenance_tail and provenance_tail[0] == source.source_id
+                else None
+            )
+            return _check_upstreams(
+                project_root,
+                manifest=manifest,
+                power_root=None,
+                source_id=source.source_id,
+                timeout_seconds=timeout,
+                fetch_json=bounded_fetch,
+                environ=environ,
+                provenance_tail=tail,
+            )["sources"][0]
+
+        with ThreadPoolExecutor(max_workers=MAX_SOURCE_CHECK_WORKERS) as executor:
+            results = list(executor.map(check_source, selected_sources))
+        if (
+            load_upstream_manifest(project_root, manifest) != parsed
+            or load_upstream_review_ledger(project_root, parsed) != review_ledger
+        ):
+            raise UpstreamError("upstream source configuration changed during the aggregate check")
+        return _check_payload(
+            project_root, parsed, review_ledger, results, power_root=power_root, source_id=None
+        )
     reviews = {review.source_id: review for review in review_ledger.sources}
     raw_fetch = _fetch_json if fetch_json is None else fetch_json
     deadline = time.monotonic() + timeout
+    metadata_cache: dict[str, tuple[Any, int]] = {}
+    metadata_cache_bytes = 0
 
     def fetch(url: str, request_token: str | None, _: float) -> Any:
+        nonlocal metadata_cache_bytes
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise UpstreamError("upstream network time budget was exhausted")
-        return raw_fetch(url, request_token, remaining)
+        # Blob workers have their own verified cache; metadata is fetched by
+        # the calling thread. Reuse one check's observations, never a prior run.
+        if "/git/blobs/" in url:
+            return raw_fetch(url, request_token, remaining)
+        if url in metadata_cache:
+            return metadata_cache[url][0]
+        document = raw_fetch(url, request_token, remaining)
+        size = len(_canonical_json_bytes(document))
+        if size <= MAX_METADATA_CACHE_BYTES:
+            while metadata_cache and metadata_cache_bytes + size > MAX_METADATA_CACHE_BYTES:
+                _, evicted_size = metadata_cache.pop(next(iter(metadata_cache)))
+                metadata_cache_bytes -= evicted_size
+            metadata_cache[url] = (document, size)
+            metadata_cache_bytes += size
+        return document
 
     results: list[dict[str, Any]] = []
     blob_cache: dict[str, bytes] = {}
@@ -741,6 +815,20 @@ def _check_upstreams(
             }
         )
 
+    return _check_payload(
+        project_root, parsed, review_ledger, results, power_root=power_root, source_id=source_id
+    )
+
+
+def _check_payload(
+    project_root: Path,
+    parsed: UpstreamManifest,
+    review_ledger: UpstreamReviewLedger,
+    results: list[dict[str, Any]],
+    *,
+    power_root: Path | None,
+    source_id: str | None,
+) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "ok": all(result["ok"] for result in results),
         "schema_version": UPSTREAM_SCHEMA_VERSION,
@@ -870,6 +958,23 @@ def accept_upstream(
                 "upstream acceptance proposal prior identity is stale or already applied"
             )
 
+        # Acceptance owns one source. Validate every local history, but spend
+        # the bounded network proof on the source this transaction may change.
+        preflight_ledger = load_upstream_review_ledger(project_root, preflight_manifest)
+        preflight_reviews = {review.source_id: review for review in preflight_ledger.sources}
+        for source in preflight_manifest.sources:
+            review = preflight_reviews[source.source_id]
+            markers = review.transitions
+            if source.source_id == proposal_source_id:
+                markers = (*markers, transition)
+            _require_provenance_review_markers(
+                project_root,
+                source,
+                markers,
+                genesis_commit=review.genesis_commit,
+                genesis_subtree_sha=review.genesis_subtree_sha,
+            )
+
         proof = _check_upstreams(
             project_root,
             manifest=manifest,
@@ -877,7 +982,7 @@ def accept_upstream(
             timeout_seconds=timeout_seconds,
             fetch_json=fetch_json,
             environ=environ,
-            source_id=None,
+            source_id=proposal_source_id,
             provenance_tail=(proposal_source_id, transition),
         )
         if not proof.get("generated_parity", {}).get("ok"):
@@ -2119,16 +2224,24 @@ def _compare_inventory(
             "files": [],
         }
 
-    document = fetch_json(
-        _api_url(
-            source.repository,
-            "compare",
-            f"{base_commit}...{head_commit}",
-            query=(("per_page", str(MAX_COMPARE_COMMITS)), ("page", "1")),
-        ),
-        token,
-        timeout_seconds,
-    )
+    comparison_url = _api_url(source.repository, "compare", f"{base_commit}...{head_commit}")
+    metadata_only = False
+    try:
+        document = fetch_json(
+            f"{comparison_url}?per_page={MAX_COMPARE_COMMITS}&page=1",
+            token,
+            timeout_seconds,
+        )
+    except _ResponseTooLargeError:
+        # GitHub returns file patches only on page one. Page two is empty of
+        # commits for our <=100-commit range, but still proves the exact range's
+        # merge base, direction and size. Exact subtree blobs own file coverage.
+        document = fetch_json(
+            f"{comparison_url}?per_page={MAX_COMPARE_COMMITS}&page=2",
+            token,
+            timeout_seconds,
+        )
+        metadata_only = True
     if not isinstance(document, dict):
         raise UpstreamError("GitHub comparison response must be a JSON object")
     status = document.get("status")
@@ -2150,16 +2263,20 @@ def _compare_inventory(
         raise UpstreamError("upstream comparison base or merge base does not match the pin")
 
     commits = document.get("commits")
-    if not isinstance(commits, list) or len(commits) != total_commits:
-        raise UpstreamError("GitHub comparison commit page is missing or incomplete")
-    commit_shas = [
-        _nested_response_sha(commit, f"comparison commit {index}")
-        for index, commit in enumerate(commits)
-    ]
-    if len(commit_shas) != len(set(commit_shas)) or commit_shas[-1] != head_commit:
-        raise UpstreamError("GitHub comparison commits are duplicate or do not end at head")
+    if metadata_only:
+        if document.get("url") != comparison_url or commits != [] or "files" in document:
+            raise UpstreamError("GitHub comparison metadata page does not bind the exact range")
+    else:
+        if not isinstance(commits, list) or len(commits) != total_commits:
+            raise UpstreamError("GitHub comparison commit page is missing or incomplete")
+        commit_shas = [
+            _nested_response_sha(commit, f"comparison commit {index}")
+            for index, commit in enumerate(commits)
+        ]
+        if len(commit_shas) != len(set(commit_shas)) or commit_shas[-1] != head_commit:
+            raise UpstreamError("GitHub comparison commits are duplicate or do not end at head")
 
-    raw_files = document.get("files")
+    raw_files = [] if metadata_only else document.get("files")
     if not isinstance(raw_files, list):
         raise UpstreamError("GitHub comparison files must be a list")
     # GitHub's compare endpoint returns repository-wide changes but exposes at
@@ -2179,7 +2296,7 @@ def _compare_inventory(
             fetch_json=fetch_json,
             blob_cache=blob_cache,
         )
-        if len(raw_files) == GITHUB_COMPARE_FILE_CAP
+        if metadata_only or len(raw_files) == GITHUB_COMPARE_FILE_CAP
         else raw_files
     )
     files: list[dict[str, Any]] = []
@@ -2193,14 +2310,6 @@ def _compare_inventory(
             parsed,
             pinned_files=pinned_files,
             current_files=current_files,
-        )
-        _bind_comparison_file_to_blobs(
-            parsed,
-            repository=source.repository,
-            token=token,
-            timeout_seconds=timeout_seconds,
-            fetch_json=fetch_json,
-            blob_cache=blob_cache,
         )
         identities = set(parsed.pop("_identities"))
         if identities & accounted_paths:
@@ -2216,6 +2325,23 @@ def _compare_inventory(
     if accounted_paths != set(changed_paths):
         raise UpstreamError(
             "GitHub comparison file page is incomplete or disagrees with exact subtree trees"
+        )
+    _prefetch_comparison_blobs(
+        files,
+        repository=source.repository,
+        token=token,
+        timeout_seconds=timeout_seconds,
+        fetch_json=fetch_json,
+        blob_cache=blob_cache,
+    )
+    for file in files:
+        _bind_comparison_file_to_blobs(
+            file,
+            repository=source.repository,
+            token=token,
+            timeout_seconds=timeout_seconds,
+            fetch_json=fetch_json,
+            blob_cache=blob_cache,
         )
     files.sort(
         key=lambda item: (
@@ -2945,6 +3071,47 @@ def _parse_unified_patch(
     return tuple(hunks)
 
 
+def _prefetch_comparison_blobs(
+    files: list[dict[str, Any]],
+    *,
+    repository: str,
+    token: str | None,
+    timeout_seconds: float,
+    fetch_json: FetchJSON,
+    blob_cache: dict[str, bytes],
+) -> None:
+    """Fetch small windows concurrently; verify and account for every cache insertion."""
+    hashes = list(
+        dict.fromkeys(
+            file["old_identity"]["sha"]
+            for file in files
+            if file["old_identity"] is not None
+            and file["reviewability"] != "unavailable-nonsemantic-image"
+            and file["old_identity"]["sha"] not in blob_cache
+        )
+    )
+    if not hashes:
+        return
+
+    def load(sha: str) -> bytes:
+        # Each worker validates its response in isolation. Only the caller
+        # mutates the shared cache and enforces its aggregate byte bound.
+        return _blob_content(
+            repository,
+            sha,
+            token=token,
+            timeout_seconds=timeout_seconds,
+            fetch_json=fetch_json,
+            blob_cache={},
+        )
+
+    with ThreadPoolExecutor(max_workers=MAX_BLOB_FETCH_WORKERS) as executor:
+        for offset in range(0, len(hashes), MAX_BLOB_FETCH_WORKERS):
+            window = hashes[offset : offset + MAX_BLOB_FETCH_WORKERS]
+            for sha, content in zip(window, executor.map(load, window), strict=True):
+                _cache_blob_content(sha, content, blob_cache)
+
+
 def _bind_comparison_file_to_blobs(
     value: dict[str, Any],
     *,
@@ -3062,12 +3229,16 @@ def _blob_content(
         raise UpstreamError("GitHub blob decoded size does not match its metadata")
     if _git_blob_sha(decoded) != sha:
         raise UpstreamError("GitHub blob content does not match the exact Git blob SHA")
-    if sum(len(item) for item in blob_cache.values()) + len(decoded) > MAX_COMPARE_BLOB_BYTES:
+    _cache_blob_content(sha, decoded, blob_cache)
+    return decoded
+
+
+def _cache_blob_content(sha: str, content: bytes, blob_cache: dict[str, bytes]) -> None:
+    if sum(len(item) for item in blob_cache.values()) + len(content) > MAX_COMPARE_BLOB_BYTES:
         raise UpstreamError(
             f"upstream comparison blobs exceed the {MAX_COMPARE_BLOB_BYTES}-byte limit"
         )
-    blob_cache[sha] = decoded
-    return decoded
+    blob_cache[sha] = content
 
 
 def _git_blob_sha(content: bytes) -> str:
@@ -3399,7 +3570,9 @@ def _fetch_json(url: str, token: str | None, timeout_seconds: float) -> Any:
     except OSError as exc:
         raise UpstreamError("GitHub API response could not be read") from exc
     if len(raw) > MAX_RESPONSE_BYTES:
-        raise UpstreamError(f"GitHub API response exceeds the {MAX_RESPONSE_BYTES}-byte limit")
+        raise _ResponseTooLargeError(
+            f"GitHub API response exceeds the {MAX_RESPONSE_BYTES}-byte limit"
+        )
     return _decode_json(raw, context="GitHub API response")
 
 

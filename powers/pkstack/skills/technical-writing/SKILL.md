@@ -17,6 +17,9 @@ Inspect the implementation and existing documentation before writing. Use the
 real symbol, file, flag, command, and product name; do not invent a synonym for
 something the code already names.
 
+If a new recurring prose problem belongs in `unslop`, propose its wording in the response.
+Editing a document does not authorize changing the editing skill itself.
+
 For project knowledge, use the existing topic and
 [`OKF document lifecycle`](../okf/references/document-lifecycle.md). Drafts belong in
 `Wiki/work/`; durable explanations belong in `Wiki/knowledge/`. Preserve explicit
@@ -91,6 +94,12 @@ Apply [`unslop`](../unslop/SKILL.md) after the four layers. That pass removes
 filler and stock phrasing; it does not replace technical verification.
 
 ## Review checklist
+
+For PR descriptions and commit messages, apply the sentence, reader-load, and ambiguity layers
+without forcing a Diataxis document structure. A PR body should take about a minute to read.
+Explain the problem, the resulting behavior, material tradeoffs, and checks with their outcomes.
+Link detailed logs, full commit identities, and measurement tables instead of pasting them into
+the briefing. Preserve a repository's required template and material evidence caveats.
 
 Before returning the document, check each item:
 

@@ -26,16 +26,16 @@
     {
       "current": {
         "mode": "100755",
-        "object_sha": "034342ea5d2101c44ef3335d8d24e83034d67b54",
-        "size": 72093,
+        "object_sha": "2bb1c20ab6fae26d46b34d27f16d65d77b038885",
+        "size": 75949,
         "type": "blob"
       },
       "disposition": "A",
       "path": "bin/archify.mjs",
       "pinned": {
         "mode": "100755",
-        "object_sha": "2b8cc7a793b42611d8cc8241727deae5947e6bc0",
-        "size": 71546,
+        "object_sha": "034342ea5d2101c44ef3335d8d24e83034d67b54",
+        "size": 72093,
         "type": "blob"
       },
       "rationale": "Incorporate the reviewed render option and positional-arity guards as exact upstream bytes so malformed invocations fail before creating unintended output files."
@@ -68,8 +68,8 @@
       "path": "bin/preview.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "449383f8beb1276f6b0c9e1d7eb20dc86736e23f",
-        "size": 23578,
+        "object_sha": "16ed94ed61d18a92b65394fc0ba5c50d8c26e147",
+        "size": 23722,
         "type": "blob"
       },
       "rationale": "Incorporate exact upstream asynchronous watcher-error handling: close the failed watcher once and retain polling-driven preview publication and shutdown."
@@ -587,8 +587,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "31f2c1dcc5c225cea9c669914b63c8170e5877d1",
-        "size": 8070,
+        "object_sha": "301d7df763eba8dc42006c018133267038d1e60c",
+        "size": 8604,
         "type": "blob"
       },
       "disposition": "A",
@@ -748,8 +748,8 @@
       "path": "renderers/sequence/render-sequence.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "02d778175efc949d1cc0c8d4f6dcb0cda500d6bb",
-        "size": 21146,
+        "object_sha": "1cfc032a12ed72a0d2b0bb09797d337c039218b3",
+        "size": 21734,
         "type": "blob"
       },
       "rationale": "Incorporate the upstream segment-frame width guard with the recorded local adaptation for participant clearance and bounded caption placement above or inside its own band. Retain exact new upstream blob identity; local bytes and inverse patch remain separately recorded."
@@ -944,8 +944,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "ca9119652fea8191d626a617590f7e2b0f93d33a",
-        "size": 10618,
+        "object_sha": "e8e480a22d7b931d1c2e94f0c50daaa0a1794802",
+        "size": 11645,
         "type": "blob"
       },
       "disposition": "A",
@@ -1216,8 +1216,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "704b96503b581493e17e83d8d9001be7418f9295",
-        "size": 32413,
+        "object_sha": "d24ce7f64262cd890fb28818d455b1045515543d",
+        "size": 32498,
         "type": "blob"
       },
       "disposition": "A",
@@ -1403,6 +1403,18 @@
     {
       "current": {
         "mode": "100644",
+        "object_sha": "50ec9465f4799094a8da7b14c7f1eeba256a419b",
+        "size": 5299,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "test/artifact-receipt-flush.test.mjs",
+      "pinned": null,
+      "rationale": "Upstream regression tests remain outside the bundled runtime; independent PKStack tests exercise output preservation and complete piped receipts through the shipped commands."
+    },
+    {
+      "current": {
+        "mode": "100644",
         "object_sha": "6aced775389bf550ebf3fbe5da4e3c9a5c6c4bcf",
         "size": 4486,
         "type": "blob"
@@ -1573,16 +1585,28 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "56d48fb2c4120f70ab958f546b5c0f6d817a9bf1",
-        "size": 36099,
+        "object_sha": "2676c479005c7f937b1a942284a5bcf701468c9a",
+        "size": 8737,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "test/cli-output-types.test.mjs",
+      "pinned": null,
+      "rationale": "Upstream regression tests remain outside the bundled runtime; independent PKStack tests exercise output preservation and complete piped receipts through the shipped commands."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "52a8c15c3f3dbb2b8704c3c55695ad0a36da9e6c",
+        "size": 39992,
         "type": "blob"
       },
       "disposition": "B",
       "path": "test/cli.test.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "8cf6198e5428d5868d762025496e721140251080",
-        "size": 34991,
+        "object_sha": "56d48fb2c4120f70ab958f546b5c0f6d817a9bf1",
+        "size": 36099,
         "type": "blob"
       },
       "rationale": "Keep upstream tests outside the runtime bundle. Local regressions reproduce unknown render options and excess positional arguments and verify rejection without unintended files."
@@ -1598,8 +1622,8 @@
       "path": "test/community-proof-intake.test.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "5557da93646a11963cf776296da64634f5cd5eec",
-        "size": 3400,
+        "object_sha": "3369ceadd76b7181ad60375b4e795c3fd2fc36cb",
+        "size": 4836,
         "type": "blob"
       },
       "rationale": "Keep upstream community-template tests excluded; they inspect contributor and issue templates that are not shipped as the diagram runtime."
@@ -2210,8 +2234,8 @@
       "path": "test/layout-rules.test.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "b432ddab1cf6d8892d93fb84b39a3ef94d22ca7f",
-        "size": 61847,
+        "object_sha": "1182dc9c8d45cac3a21d2e24789dc0cadcc2527d",
+        "size": 64392,
         "type": "blob"
       },
       "rationale": "Keep upstream tests excluded. Local regressions cover exact-fit caption width and a caption that exceeds its frame while still fitting inside the SVG canvas."
@@ -2287,8 +2311,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "296be60f9fb4ba8442e8834e1b8d9fa333356fe6",
-        "size": 23947,
+        "object_sha": "51a545181ee622fc8bd23169fcb9f8877dea34dc",
+        "size": 23923,
         "type": "blob"
       },
       "disposition": "B",
@@ -2363,8 +2387,8 @@
       "path": "test/preview.test.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "fc381fbe9096da2882c44bc4889da5bf2604f3d1",
-        "size": 22454,
+        "object_sha": "6ffd8cde20cb9daf5713bbcec68985926b2c11e5",
+        "size": 24185,
         "type": "blob"
       },
       "rationale": "Keep upstream tests excluded. A focused local test injects a watcher error into the real preview, verifies polling publishes the edited input, and verifies one-time watcher cleanup and server shutdown."
@@ -3274,23 +3298,23 @@
   "schema_version": 1,
   "source": {
     "current": {
-      "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
-      "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
+      "commit": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
+      "subtree_sha": "d28042c2ee940e8dd04c1825c1e2448671c95009"
     },
     "id": "tt-a1i-archify",
     "path": "archify",
     "pinned": {
-      "commit": "06dd052602dd9a369e4d034e24faef0917b5a60c",
-      "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
+      "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
+      "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
     },
     "repository": "tt-a1i/archify",
-    "retrieved_on": "2026-09-05"
+    "retrieved_on": "2026-09-08"
   },
   "summary": {
     "A": 71,
-    "B": 119,
+    "B": 121,
     "C": 2,
-    "current_files": 192,
+    "current_files": 194,
     "pinned_files": 192
   }
 }

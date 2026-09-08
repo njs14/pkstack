@@ -21,6 +21,19 @@ different roles. Do not rewrite historical rationale or genesis markers when add
 baseline. When a proposed change only rephrases an unchanged safety exclusion, preserve the
 existing rationale and place the new delta explanation in the new proposal/provenance entry.
 
+## Read large updates in batches
+
+The detector validates the whole source transition. Review preparation exports an index and
+ordered batches of at most 16 files and 64 KiB of patch text. Each batch carries full patches,
+exact source identities, and the complete inventory digest. The index binds each batch's bytes
+and checksum. It is a reading aid, never a substitute for the complete detector or proposal.
+
+The old 256 KiB aggregate patch refusal no longer determines reviewability. Per-file, path-count,
+response, blob-cache, and network limits still bound execution. Up to four concurrent blob reads
+keep broad updates within the existing shared network deadline. Every path still needs an A/B/C
+decision before acceptance, including removals, renames, and explicitly excluded assets. Candidate
+review and its separate compatibility-context limit remain independent gates.
+
 ## Credential and review boundary
 
 The updater uses Kiro for hosted model work. Candidate code receives neither the Kiro credential
@@ -174,3 +187,26 @@ for the previously hidden bound and a newline-plus-secret counterexample. It sti
 rejects the error envelope and preserves the comparison byte limit, schema and
 maintenance policy. A changed trusted-main run must establish the actual CI cause;
 limits are not relaxed merely to obtain a passing maintenance run.
+
+Acceptance re-proves the proposal-selected source within the same 30-second network
+budget. It validates every local ledger chain and provenance marker before that
+proof, and changes only the selected pin and ledger entry. Unrelated upstream
+network availability does not block that transaction. The aggregate detector
+remains the authority for claiming all configured sources current; selected-source
+acceptance and goal verification make no such claim.
+
+The detector reuses metadata responses within one check in a bounded 4 MiB cache;
+no network observation survives into another invocation. Blob verification keeps
+its separate 4 MiB bound. If GitHub's first comparison page exceeds the unchanged
+1 MiB response limit, a metadata-only second page binds the exact base/head URL,
+merge base, direction and at-most-100-commit distance. That page must contain no
+commits or file records. Complete source-local patches are then reconstructed
+from the independently verified subtree blobs, with the existing line, work and
+patch bounds. Transport and malformed-response failures do not trigger this
+fallback.
+
+Aggregate checks run at most four independent source proofs at once. They share
+one 30-second network deadline and four global request slots, including nested
+blob reads. Each active source owns separate 4 MiB metadata and 4 MiB verified-blob
+caches, bounding active caches to 32 MiB. Results remain in manifest order and
+every configured source must pass for an aggregate success.

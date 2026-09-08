@@ -72,10 +72,10 @@ source inventory. No network access or historical checkout is required.
   "schema_version": 1,
   "source_id": "tt-a1i-archify",
   "upstream": {
-    "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
-    "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
+    "commit": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
+    "subtree_sha": "d28042c2ee940e8dd04c1825c1e2448671c95009"
   },
-  "reviewed_on": "2026-09-05",
+  "reviewed_on": "2026-09-08",
   "patches": [
     {
       "path": "assets/template.html",
@@ -328,3 +328,28 @@ index 8adb154..8572caa 100644
 ```
 
 <!-- pk-stack-upstream-review: {"inventory_sha256":"0d2a2cc66161261b4115b0f36a08cf8d0ec95cd700e84b2dcb03eb1997688871","new":{"commit":"d8e4daf2610d512821365f41b139d874b29efe81","subtree_sha":"a7b9e1634b66a8e13d531cca4d18e8123c21f06a"},"path":"archify","prior":{"commit":"06dd052602dd9a369e4d034e24faef0917b5a60c","subtree_sha":"cff24583cbdc3b7c7313580f3fa0636ade2e5279"},"repository":"tt-a1i/archify","source_id":"tt-a1i-archify"} -->
+
+## September 8 output-path and receipt corrections
+
+The next reviewed transition advances `d8e4daf2610d512821365f41b139d874b29efe81`
+to `2ead014aa8ec91f104cd052f1a6ca82de5e26c31`, subtree
+`d28042c2ee940e8dd04c1825c1e2448671c95009`. All eight changed paths were
+reviewed against exact prior and current Git blob identities. The four shipped
+resources are reconstructed byte-for-byte from those reviewed patches:
+
+- Explicit HTML output and JSON receipt paths require the correct extension
+  before and after symlink resolution, with input/output alias checks retaining
+  priority. Explicit output directories remain user-selected, not sandboxed.
+- Validate and deliver return complete machine-readable argument failures when
+  invoked with `--json`. Layout validation keeps its no-output behavior.
+- The artifact checker lets piped JSON receipts finish writing before exiting.
+- The delivery contract documents the file-type and directory boundary.
+
+The four upstream test paths remain excluded from the runtime bundle. Independent
+PKStack regressions reproduced eight failures before the port, covering preservation
+of existing wrong-type files and symlinks, argument receipts, and large piped
+receipts. Positive cases exercise typed output and read-only layout validation.
+The three existing local runtime adaptations are unchanged; the structured record
+continues to bind their upstream and local bytes to the new source snapshot.
+
+<!-- pk-stack-upstream-review: {"inventory_sha256":"5d67adc17cdd791198f7b9be7fcb98bc227cfc23eea8fb6f0f3f97f169ff1881","new":{"commit":"2ead014aa8ec91f104cd052f1a6ca82de5e26c31","subtree_sha":"d28042c2ee940e8dd04c1825c1e2448671c95009"},"path":"archify","prior":{"commit":"d8e4daf2610d512821365f41b139d874b29efe81","subtree_sha":"a7b9e1634b66a8e13d531cca4d18e8123c21f06a"},"repository":"tt-a1i/archify","source_id":"tt-a1i-archify"} -->

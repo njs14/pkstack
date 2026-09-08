@@ -3,6 +3,18 @@
 This file is the canonical wording behind the individually discoverable `principle-*` skills.
 Apply a principle only when its trigger fits the work.
 
+## Attack the premise
+
+Trigger: two or more fixes built on the same assumption fail the same check.
+
+- State the shared premise before proposing another fix.
+- Measure the imbalance by actor with a rerunnable census.
+- Trace persistent concentration to the rule that assigns work or ownership.
+- Prefer removing a demonstrated asymmetry over repeatedly compensating for it.
+- If the measurements do not support the premise as the cause, investigate elsewhere.
+
+Test: What did the distribution show, and which assumption changed because of it?
+
 ## Boundary discipline
 
 Trigger: data crosses a CLI, configuration, file, network, database, or external API boundary.
@@ -221,6 +233,18 @@ Trigger: an addition, rewrite, or refactor is landing in an already complex area
 - Avoid speculative options and validators with no observed requirement.
 
 Test: What can disappear before the new behavior is introduced?
+
+## Test behavior, not implementation
+
+Trigger: writing, changing, or reviewing a test.
+
+- Invoke the real subject through its supported interface with a concrete input.
+- Assert an independently specified result or observable effect.
+- Pair an expected absence with the contrasting positive case when practical.
+- Test configuration enforcement rather than merely repeating a constant.
+- Preserve meaningful type, registry, permission, and packaging checks.
+
+Test: Would a no-op or the original defect fail this test for the expected reason?
 
 ## Type-system discipline
 
