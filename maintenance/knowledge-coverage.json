@@ -143,14 +143,14 @@
     },
     {
       "path": ".kiro/skills/babysit-pr/SKILL.md",
-      "sha256": "66cb1c7e69694bf0ace4f2692d30f25607b5efeeca3059c2f4a7c72be16d832e",
+      "sha256": "d2c0393660076e926a276764e14177faa1f8b935972362834bc0bbaefc881b9f",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned mirror of the reviewed canonical Power skill; byte parity owns this generated asset."
     },
     {
       "path": ".kiro/skills/babysit-pr/references/github.md",
-      "sha256": "89c74908ac157e6e4f086d68d06777f5e17c7db426d3cfdf8181fc8e0b1004e7",
+      "sha256": "941ec033ded21e990c36226b7e7cae3081f3ca0a29b9da3d43651a08071b98c8",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned mirror of the reviewed canonical Power skill; byte parity owns this generated asset."
@@ -738,7 +738,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "a734cc16b018029b15ff77d0a26e02b7b6262fb7363c0cc8fbe4638af5d2bc6f",
+      "sha256": "d09b13aea9bc19c871589330b345b921b46a79810e873a75e198033c3112dadb",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -1082,7 +1082,7 @@
     },
     {
       "path": "powers/pkstack/docs/openai-babysit-pr-provenance.md",
-      "sha256": "1260235ebe94bbe7539c9fb3433d25b4ffd859259338e87188e5279eecce9b1a",
+      "sha256": "5ab098c9eb8c3761b3e569dc2efe71651b5c3222d5070879fab9fabc50343bb9",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1401,14 +1401,14 @@
     },
     {
       "path": "powers/pkstack/skills/babysit-pr/SKILL.md",
-      "sha256": "66cb1c7e69694bf0ace4f2692d30f25607b5efeeca3059c2f4a7c72be16d832e",
+      "sha256": "d2c0393660076e926a276764e14177faa1f8b935972362834bc0bbaefc881b9f",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill method and reference; composition and source provenance retain decisions while Kiro owns discovery."
     },
     {
       "path": "powers/pkstack/skills/babysit-pr/references/github.md",
-      "sha256": "89c74908ac157e6e4f086d68d06777f5e17c7db426d3cfdf8181fc8e0b1004e7",
+      "sha256": "941ec033ded21e990c36226b7e7cae3081f3ca0a29b9da3d43651a08071b98c8",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill method and reference; composition and source provenance retain decisions while Kiro owns discovery."

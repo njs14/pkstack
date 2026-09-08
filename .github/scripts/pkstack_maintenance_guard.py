@@ -1949,6 +1949,23 @@ def _validate_review_reproof(value: Any, *, source_id: str, pinned: dict[str, An
 
 def validate_detector(path: Path) -> dict[str, Any]:
     _, detector = _load_json(path, maximum=1_048_576, label="upstream detector output")
+    if (
+        set(detector) == {"ok", "error", "error_type"}
+        and detector["ok"] is False
+        and isinstance(detector["error"], str)
+        and isinstance(detector["error_type"], str)
+        and detector["error_type"] in {"UpstreamError", "OSError", "ValueError"}
+    ):
+        diagnostic = detector["error_type"]
+        message = detector["error"]
+        if diagnostic == "UpstreamError" and (
+            re.fullmatch(r"GitHub API returned HTTP [1-5][0-9]{2}", message)
+            or message == "upstream network time budget was exhausted"
+        ):
+            diagnostic += f": {message}"
+        raise GuardError(
+            f"upstream detector execution failed ({diagnostic}); no inventory produced"
+        )
     _exact_keys(
         detector,
         {

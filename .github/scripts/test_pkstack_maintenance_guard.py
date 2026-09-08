@@ -3778,6 +3778,43 @@ class DetectorTests(unittest.TestCase):
             path.write_text(json.dumps(payload), encoding="utf-8")
             return guard.validate_detector(path)
 
+    def test_detector_execution_errors_remain_failures_with_safe_diagnostics(self) -> None:
+        cases = (
+            ("UpstreamError", "GitHub API returned HTTP 403", "GitHub API returned HTTP 403"),
+            (
+                "UpstreamError",
+                "upstream network time budget was exhausted",
+                "upstream network time budget was exhausted",
+            ),
+            ("OSError", "private path or credential sentinel", "OSError"),
+            ("ValueError", "private path or credential sentinel", "ValueError"),
+        )
+        for error_type, message, expected in cases:
+            with self.subTest(error_type=error_type, message=message):
+                with self.assertRaises(guard.GuardError) as caught:
+                    self.validate({"ok": False, "error": message, "error_type": error_type})
+                self.assertIn("detector execution failed", str(caught.exception))
+                self.assertIn(expected, str(caught.exception))
+                self.assertNotIn("sentinel", str(caught.exception))
+
+    def test_detector_error_diagnostics_do_not_echo_untrusted_values(self) -> None:
+        for payload in (
+            {"ok": False, "error": "secret", "error_type": "secret"},
+            {
+                "ok": False,
+                "error": "GitHub API returned HTTP 403\nsecret",
+                "error_type": "UpstreamError",
+            },
+            {"ok": False, "error": ["secret"], "error_type": "UpstreamError"},
+            {"ok": 0, "error": "secret", "error_type": "UpstreamError"},
+            {"ok": False, "error": "secret", "error_type": ["secret"]},
+            {"ok": False, "error": "secret", "error_type": "UpstreamError", "extra": "secret"},
+        ):
+            with self.subTest(payload=payload):
+                with self.assertRaises(guard.GuardError) as caught:
+                    self.validate(payload)
+                self.assertNotIn("secret", str(caught.exception))
+
     def validate_proposal(
         self,
         detector: dict[str, Any],

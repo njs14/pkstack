@@ -106,6 +106,23 @@ what happened in the original run. Validate session, agent and final report bind
 interpreting prose, retain safe structural diagnostics, and keep rejected/unvalidated content
 out of durable acceptance history.
 
+## Detector execution errors are not source inventories
+
+The September 7 verification campaign observed trusted-main maintenance run
+[34158581533](https://github.com/njs14/pkstack/actions/runs/34158581533) fail in detection
+at `3a370aa92d881ea8bab48c4b55c70cad347c49b7`. The log retained only a top-level schema
+error; no detector artifact survived, so its initiating cause remains unknown. This differs
+from historical run 34127637886's bootstrap-preview field mismatch, repaired before v0.5.2.
+
+A separate local unauthenticated detector returned an HTTP 403 execution-error envelope.
+The guard reproduced the same misleading top-level schema diagnostic for that envelope.
+The bounded repair identifies known execution-error categories, exact HTTP status messages,
+and the fixed network-budget exhaustion message. Arbitrary error text remains private;
+malformed envelopes still fail validation. Neither form is a source inventory, no-change
+result, proposal, or substantive review verdict. The local 403 does not establish the CI
+failure's cause. Reproof through trusted-main maintenance requires independent acceptance
+and merge of the repair first; the final review candidate itself remains held for review.
+
 ## Retry from preserved authority, not an edited history
 
 The readiness review found provenance changes that rewrote unchanged safety rationale and guessed
