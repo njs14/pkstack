@@ -39,7 +39,15 @@ Every semantic patch is complete, count-reconciled, and applied from an exact Gi
 blob to the exact current blob; old/new regular-blob modes are explicit; every unavailable raster
 asset is excluded with disposition B; and the canonical Power still matches every
 bootstrap-managed workspace copy. Drift and any network, schema, identity, ledger, pagination,
-size, or parity failure return nonzero.
+size, or parity failure return nonzero. Each complete file patch is limited to 1 MiB;
+review batches retain at most 1 MiB of patches and 16 files, with a separate encoded-size
+bound. Larger patches fail closed with a safe limit diagnostic. Oversized commit responses
+retry with one file per page for commit/tree metadata; exact subtree trees still own coverage.
+Missing text patches are rebuilt from both exact Git blobs and count-reconciled before exact
+application. Inputs remain bounded at 1 MiB per text blob, 2 MiB per response, 16 MiB of cached
+blobs, and 20,000 lines per diff. Unique unchanged lines align diff windows while preserving
+the 25-million-cell comparison-work limit. A rebuilt diff may have different counts from
+GitHub's omitted representation; the resulting bytes must match the current Git blob.
 
 The autonomous acceptance path is limited to the GitHub source entries configured in `maintenance/upstreams.json`. A
 separate weekly or manually dispatched Kiro canary observes product/runtime/documentation drift

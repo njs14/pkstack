@@ -1424,17 +1424,21 @@ def test_compare_fails_when_large_repository_page_omits_source_delta() -> None:
         )
 
 
-def test_compare_fails_when_large_repository_page_omits_source_patch() -> None:
+@pytest.mark.parametrize("bad_sha", [False, True])
+def test_compare_reconstructs_omitted_patch_and_rejects_forged_identity(bad_sha: bool) -> None:
     responses, compare_url = _single_tracked_change_responses()
     tracked_file = responses[compare_url]["files"][0]
     tracked_file.pop("patch")
-    responses[compare_url]["files"] = [
-        *_external_comparison_files(101),
-        tracked_file,
-    ]
+    new_content = _new_content("README.md")
+    responses[upstreams._api_url("cursor/plugins", "git", "blobs", _git_blob_sha(new_content))] = (
+        _blob_response(new_content)
+    )
+    if bad_sha:
+        tracked_file["sha"] = "f" * 40
+    responses[compare_url]["files"] = [*_external_comparison_files(101), tracked_file]
 
-    with pytest.raises(UpstreamError, match="without a patch"):
-        upstreams._compare_inventory(
+    def compare() -> dict[str, Any]:
+        return upstreams._compare_inventory(
             _compare_source(),
             base_commit=PIN,
             base_subtree=PIN_TREE,
@@ -1445,6 +1449,14 @@ def test_compare_fails_when_large_repository_page_omits_source_patch() -> None:
             fetch_json=FakeFetch(responses),
             blob_cache={},
         )
+
+    if bad_sha:
+        with pytest.raises(UpstreamError, match="disagrees with GitHub file metadata"):
+            compare()
+    else:
+        result = compare()
+        assert result["paths"] == ["README.md"]
+        assert result["files"][0]["reviewability"] == "exact-blob-unified-patch"
 
 
 def test_compare_reconstructs_one_skill_change_at_github_file_response_cap() -> None:
@@ -1614,7 +1626,7 @@ def test_capped_compare_uses_compact_patch_for_tiny_change_in_large_blob() -> No
     pin_tree_url = next(url for url in responses if PIN_TREE in url and "recursive" in url)
     head_tree_url = next(url for url in responses if HEAD_TREE in url and "recursive" in url)
     path = "skills/large/SKILL.md"
-    old_lines = [f"stable line {index:05}\n" for index in range(5_000)]
+    old_lines = [f"stable line with more unchanged content {index:05}\n" for index in range(5_000)]
     new_lines = list(old_lines)
     new_lines[2_500] = "one reviewed change\n"
     old_content = "".join(old_lines).encode()
@@ -1643,7 +1655,7 @@ def test_capped_compare_uses_compact_patch_for_tiny_change_in_large_blob() -> No
         blob_cache={},
     )
 
-    assert len(old_content) > upstreams.MAX_FILE_PATCH_BYTES
+    assert len(old_content) > 64 * 1024
     assert comparison["path_count"] == comparison["file_count"] == 1
     assert comparison["patch_bytes"] < 1024
     assert comparison["files"][0]["reviewability"] == "exact-blob-unified-patch"
@@ -1669,7 +1681,7 @@ def test_capped_compare_rejects_adversarial_text_above_line_budget() -> None:
     )
     responses[compare_url]["files"] = _external_comparison_files(upstreams.GITHUB_COMPARE_FILE_CAP)
 
-    with pytest.raises(UpstreamError, match=r"exceeds the 5000-line limit"):
+    with pytest.raises(UpstreamError, match=rf"exceeds the {upstreams.MAX_DIFF_LINES}-line limit"):
         upstreams._compare_inventory(
             _compare_source(),
             base_commit=PIN,
@@ -2016,7 +2028,10 @@ def test_check_fails_closed_on_truncated_tree_or_patch_bound(tmp_path: Path) -> 
         check_upstreams(tmp_path, fetch_json=FakeFetch(too_large), environ={})
 
 
-def test_large_complete_comparison_retains_every_verified_patch(tmp_path: Path) -> None:
+@pytest.mark.parametrize("line_bytes", [6000, 50_000, 400_000])
+def test_large_complete_comparison_retains_every_verified_patch(
+    tmp_path: Path, line_bytes: int
+) -> None:
     _write_manifest(tmp_path)
     aggregate = _fake_responses()
     compare_url = next(url for url in aggregate if "/compare/" in url)
@@ -2028,8 +2043,8 @@ def test_large_complete_comparison_retains_every_verified_patch(tmp_path: Path) 
         if "patch" not in item:
             continue
         path = item["filename"].removeprefix("pstack/")
-        old_content = ("old " + path + "x" * 6000 + "\n").encode()
-        new_content = ("new " + path + "y" * 6000 + "\n").encode()
+        old_content = ("old " + path + "x" * line_bytes + "\n").encode()
+        new_content = ("new " + path + "y" * line_bytes + "\n").encode()
         old_sha = _git_blob_sha(old_content)
         new_sha = _git_blob_sha(new_content)
         item["patch"] = (
@@ -4400,3 +4415,61 @@ def test_root_scope_rename_paths_are_repository_relative() -> None:
     assert item["path"] == "docs/new.md"
     assert item["previous_path"] == "old.md"
     assert upstreams._source_filename(".", "docs/new.md") == "docs/new.md"
+
+
+@pytest.mark.parametrize("oversized_fallback", [False, True])
+def test_commit_identity_bounds_large_file_listing(oversized_fallback: bool) -> None:
+    url = upstreams._api_url("cursor/plugins", "commits", "main")
+    calls = []
+
+    def fetch(request_url: str, token: str | None, timeout: float) -> Any:
+        calls.append(request_url)
+        if request_url == url or oversized_fallback:
+            raise upstreams._ResponseTooLargeError("oversized commit file listing")
+        assert request_url == f"{url}?per_page=1"
+        return {"sha": HEAD, "commit": {"tree": {"sha": HEAD_ROOT_TREE}}}
+
+    if oversized_fallback:
+        with pytest.raises(upstreams._ResponseTooLargeError):
+            upstreams._commit_identity(
+                "cursor/plugins", "main", token=None, timeout_seconds=3, fetch_json=fetch
+            )
+    else:
+        assert upstreams._commit_identity(
+            "cursor/plugins", "main", token=None, timeout_seconds=3, fetch_json=fetch
+        ) == (HEAD, HEAD_ROOT_TREE)
+    assert calls == [url, f"{url}?per_page=1"]
+
+
+@pytest.mark.parametrize("change", ["insert", "remove", "replace", "append", "newline"])
+def test_large_windowed_diff_round_trips_with_bounded_work(change: str) -> None:
+    old_lines = [f"line-{index}\n" for index in range(15_000)]
+    new_lines = list(old_lines)
+    if change == "insert":
+        new_lines[127:127] = ["inserted\n"] * 130
+    elif change == "remove":
+        del new_lines[127:257]
+    elif change == "replace":
+        new_lines[127:257] = ["changed\n"] * 130
+    elif change == "append":
+        new_lines.extend(["appended\n"] * 130)
+    else:
+        new_lines[-1] = new_lines[-1].rstrip("\n")
+    old_content = "".join(old_lines).encode()
+    new_content = "".join(new_lines).encode()
+    work = [0]
+    patch, additions, deletions = upstreams._complete_unified_patch(
+        old_content, new_content, diff_work_cells=work
+    )
+    assert work[0] < upstreams.MAX_COMPARE_DIFF_CELLS
+    assert (
+        upstreams._apply_patch_to_exact_blob(
+            old_content.decode(), patch, additions=additions, deletions=deletions
+        )
+        == new_content
+    )
+
+
+def test_large_unanchored_diff_still_rejects_excessive_work() -> None:
+    with pytest.raises(UpstreamError, match="25000000-cell comparison limit"):
+        upstreams._complete_unified_patch(b"old\n" * 15_000, b"new\n" * 15_000)
