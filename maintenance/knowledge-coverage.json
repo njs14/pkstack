@@ -66,7 +66,7 @@
     },
     {
       "path": ".kiro/skills/archify/upstream/references/delivery-contract.md",
-      "sha256": "c0af94e227c5617c7c290065a0404d0fc769b7e4ef26f187f51a19e3640fa176",
+      "sha256": "a614c31f41d270995a5aee99036532470a43722f8208fdc8ef922805914d1d01",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/archify/upstream/references/delivery-contract.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -269,17 +269,17 @@
     },
     {
       "path": ".kiro/skills/how/SKILL.md",
-      "sha256": "6c734a71365381429b91adf5dc806647f1ad291042ebfe8df6b5ca7a8a8bbae7",
+      "sha256": "2479805c01f797d22961e0fd201c1105a2f9d09dae0c1fde735caaff49b1bb73",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/how/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
-      "path": ".kiro/skills/how/references/roles-and-critique.md",
-      "sha256": "3438b695e98ecd88109cd825b42172ba126f17edfef76854e553160913f111df",
+      "path": ".kiro/skills/how/references/roles.md",
+      "sha256": "d3d62deb4968a623b05672ebca633ca9c1ab16550805d6b989b1aeb2629612d7",
       "classification": "excluded",
       "category": "generated",
-      "reason": "Setup-owned native mirror .kiro/skills/how/references/roles-and-critique.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
+      "reason": "Setup-owned native mirror .kiro/skills/how/references/roles.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
       "path": ".kiro/skills/impeccable/SKILL.md",
@@ -367,7 +367,7 @@
     },
     {
       "path": ".kiro/skills/pkstack-maintain/SKILL.md",
-      "sha256": "47b3bda21afc0852113831f81c0e1bc94697b436db57bd060969884c097a7a46",
+      "sha256": "3088dfa55f8d48e7b55b7329bbfd8950a98db40d37a29802b2ebe50993e4aa3b",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/pkstack-maintain/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -388,7 +388,7 @@
     },
     {
       "path": ".kiro/skills/pkstack-principles/references/catalog.md",
-      "sha256": "5672492350c9b83bcd2275bc1168c7b7fa383a0dcc3cda11459fb00442c52fc8",
+      "sha256": "48d3775b5b8a58e91836370b420d79eb8b51e275de80e28e33a06499998e29de",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/pkstack-principles/references/catalog.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -409,10 +409,17 @@
     },
     {
       "path": ".kiro/skills/pkstack/references/workflows.md",
-      "sha256": "5dfbab06cc121c4f87937b5651525272fa3682f6cbea4c4612d2252ced5ab7a8",
+      "sha256": "9ac51fff801010a5d46e87a59924b30b024254b110ede7896bf012aa3b49d256",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/pkstack/references/workflows.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
+    },
+    {
+      "path": ".kiro/skills/principle-attack-the-premise/SKILL.md",
+      "sha256": "bad1f31b4df994a51f9d1be7d46dfa90d5a85a6538cacc5aeb1f9790ff4d5503",
+      "classification": "excluded",
+      "category": "generated",
+      "reason": "Setup-owned native mirror .kiro/skills/principle-attack-the-premise/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
       "path": ".kiro/skills/principle-boundary-discipline/SKILL.md",
@@ -555,6 +562,13 @@
       "reason": "Setup-owned native mirror .kiro/skills/principle-subtract-before-you-add/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
+      "path": ".kiro/skills/principle-test-behavior-not-implementation/SKILL.md",
+      "sha256": "0c41c535bb2ce4f367780ac3647f8ae2bb0a8b1f53b32c661ce017b29b8b3530",
+      "classification": "excluded",
+      "category": "generated",
+      "reason": "Setup-owned native mirror .kiro/skills/principle-test-behavior-not-implementation/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
+    },
+    {
       "path": ".kiro/skills/principle-type-system-discipline/SKILL.md",
       "sha256": "18bb586e9dd33a68a1d1cf01fbd7642a613e008ef7ee2034dc8defd971edc69e",
       "classification": "excluded",
@@ -570,7 +584,7 @@
     },
     {
       "path": ".kiro/skills/reflect/SKILL.md",
-      "sha256": "d257a8dca1269346347cda1f5d6abc42e5cdd806672a96d495837f5619541e68",
+      "sha256": "f935969d5d288c3811d21841a193474839fb5b36d858a4359faf40d3db2ecb48",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/reflect/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -626,7 +640,7 @@
     },
     {
       "path": ".kiro/skills/technical-writing/SKILL.md",
-      "sha256": "5cb9b5eea42622d0c308481e7eccd10fa6fb3f9f09540e3117045ec6b4d3f085",
+      "sha256": "280a58e4780f972570f86390b487267d396aa37617291889131e2c2de5e2fa6a",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/technical-writing/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -647,7 +661,7 @@
     },
     {
       "path": ".kiro/skills/unslop/SKILL.md",
-      "sha256": "734723ddc583e83e5eb342179660322b7b799b67cdeb758040194fef26e042dd",
+      "sha256": "9cd2d04fb29cd32ae10605b42b99bb6203d9b01c1a9f037c656be7f4648d0634",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/unslop/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -717,7 +731,7 @@
     },
     {
       "path": ".kiro/steering/pkstack-unslop.md",
-      "sha256": "c159bb18bffc98ceab65982eaa69337338fcb8a94a9a318ce8eb3282b8453cd5",
+      "sha256": "f675e2e90f9bd7431b6cf15100dcb9c87933e647f8512440d75b502d1a0e98b8",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/steering/pkstack-unslop.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -738,7 +752,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "d09b13aea9bc19c871589330b345b921b46a79810e873a75e198033c3112dadb",
+      "sha256": "e0e706848e085abc2babd12a30051c1fc89cf4c0723ffb0fec1d1e4c8a7a8331",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -877,7 +891,7 @@
     },
     {
       "path": "powers/pkstack/THIRD_PARTY_NOTICES.md",
-      "sha256": "ec222316947c74eb9f19b84ec93f4956dc5ae912d3ca331da7d32e8350f217af",
+      "sha256": "90df2b2f24568c0c7856a4caff2a2c227bdf2967bd0fa092a9e7f956794a80c4",
       "classification": "excluded",
       "category": "policy",
       "reason": "Complete legal notices remain canonical in the package; source ownership and adaptation decisions are retained from linked provenance guides."
@@ -921,7 +935,7 @@
     },
     {
       "path": "powers/pkstack/dev.kiro/steering/pkstack-unslop.md",
-      "sha256": "c159bb18bffc98ceab65982eaa69337338fcb8a94a9a318ce8eb3282b8453cd5",
+      "sha256": "f675e2e90f9bd7431b6cf15100dcb9c87933e647f8512440d75b502d1a0e98b8",
       "classification": "excluded",
       "category": "native",
       "reason": "Canonical native steering powers/pkstack/dev.kiro/steering/pkstack-unslop.md; generated mirrors must come from setup. Its workflow/tool ownership is explained by the composition and quality guides."
@@ -955,7 +969,7 @@
     },
     {
       "path": "powers/pkstack/docs/curated-skills.md",
-      "sha256": "85532ffc1fea652d0dfe14ab02219ab2553c1c01261e13b9e4d1d17ebd4c4198",
+      "sha256": "23e63d068755a63303be284af6a66534fc0904071ca7412071b3b20bde9e78c4",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1109,7 +1123,7 @@
     },
     {
       "path": "powers/pkstack/docs/provenance.md",
-      "sha256": "10448a5c87d0950f47a87e5112d92dd10cca7180544541e1170d1d233d06c784",
+      "sha256": "4dff8af2752c2e73c670a3a985edb3ec4713bfb9579857f85548f74a95d88977",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1118,7 +1132,7 @@
     },
     {
       "path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
-      "sha256": "b572e1895d0083b2ac4989c1e986ccddd3172a604638fd9a2085d2f3257fd0a4",
+      "sha256": "509830b98378282c79824facca2d8c080a59d92346d2692afaaf262aabd93b2a",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
@@ -1127,7 +1141,7 @@
     },
     {
       "path": "powers/pkstack/docs/upstream-control-loop.md",
-      "sha256": "51516eb637a0136a4318344506b605ce227d40485bbb7a0ace7047f0a71fcca8",
+      "sha256": "70d74d76b9ba8b8f2a09ca25119d14d17b8b486bc322edbbeaf33f4cad5c77df",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/upstream-maintenance/operations.md"
@@ -1136,7 +1150,7 @@
     },
     {
       "path": "powers/pkstack/docs/upstream-skill-parity.md",
-      "sha256": "ad8ce21bb3413597206b20a3551ebe0ef973824d0bc6ed3742023c8cec13505b",
+      "sha256": "b1277e8e5a5dee1d84be79e973744c6be7796efba236b915d59076582ef0f2e4",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1324,7 +1338,7 @@
     },
     {
       "path": "powers/pkstack/skills/archify/upstream/references/delivery-contract.md",
-      "sha256": "c0af94e227c5617c7c290065a0404d0fc769b7e4ef26f187f51a19e3640fa176",
+      "sha256": "a614c31f41d270995a5aee99036532470a43722f8208fdc8ef922805914d1d01",
       "classification": "excluded",
       "category": "vendor",
       "reason": "Bundled upstream resource powers/pkstack/skills/archify/upstream/references/delivery-contract.md; original/adapted byte identities and reusable design rationale are retained by the Archify provenance guide, while the resource remains part of the executable skill package."
@@ -1527,17 +1541,17 @@
     },
     {
       "path": "powers/pkstack/skills/how/SKILL.md",
-      "sha256": "6c734a71365381429b91adf5dc806647f1ad291042ebfe8df6b5ca7a8a8bbae7",
+      "sha256": "2479805c01f797d22961e0fd201c1105a2f9d09dae0c1fde735caaff49b1bb73",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/how/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
-      "path": "powers/pkstack/skills/how/references/roles-and-critique.md",
-      "sha256": "3438b695e98ecd88109cd825b42172ba126f17edfef76854e553160913f111df",
+      "path": "powers/pkstack/skills/how/references/roles.md",
+      "sha256": "d3d62deb4968a623b05672ebca633ca9c1ab16550805d6b989b1aeb2629612d7",
       "classification": "excluded",
       "category": "native",
-      "reason": "Native skill definition or bundled reference powers/pkstack/skills/how/references/roles-and-critique.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
+      "reason": "Native skill definition or bundled reference powers/pkstack/skills/how/references/roles.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
       "path": "powers/pkstack/skills/impeccable/SKILL.md",
@@ -1625,7 +1639,7 @@
     },
     {
       "path": "powers/pkstack/skills/pkstack-maintain/SKILL.md",
-      "sha256": "47b3bda21afc0852113831f81c0e1bc94697b436db57bd060969884c097a7a46",
+      "sha256": "3088dfa55f8d48e7b55b7329bbfd8950a98db40d37a29802b2ebe50993e4aa3b",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack-maintain/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1646,7 +1660,7 @@
     },
     {
       "path": "powers/pkstack/skills/pkstack-principles/references/catalog.md",
-      "sha256": "5672492350c9b83bcd2275bc1168c7b7fa383a0dcc3cda11459fb00442c52fc8",
+      "sha256": "48d3775b5b8a58e91836370b420d79eb8b51e275de80e28e33a06499998e29de",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack-principles/references/catalog.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1674,10 +1688,17 @@
     },
     {
       "path": "powers/pkstack/skills/pkstack/references/workflows.md",
-      "sha256": "5dfbab06cc121c4f87937b5651525272fa3682f6cbea4c4612d2252ced5ab7a8",
+      "sha256": "9ac51fff801010a5d46e87a59924b30b024254b110ede7896bf012aa3b49d256",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack/references/workflows.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
+    },
+    {
+      "path": "powers/pkstack/skills/principle-attack-the-premise/SKILL.md",
+      "sha256": "bad1f31b4df994a51f9d1be7d46dfa90d5a85a6538cacc5aeb1f9790ff4d5503",
+      "classification": "excluded",
+      "category": "native",
+      "reason": "Native skill definition or bundled reference powers/pkstack/skills/principle-attack-the-premise/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
       "path": "powers/pkstack/skills/principle-boundary-discipline/SKILL.md",
@@ -1820,6 +1841,13 @@
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/principle-subtract-before-you-add/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
+      "path": "powers/pkstack/skills/principle-test-behavior-not-implementation/SKILL.md",
+      "sha256": "0c41c535bb2ce4f367780ac3647f8ae2bb0a8b1f53b32c661ce017b29b8b3530",
+      "classification": "excluded",
+      "category": "native",
+      "reason": "Native skill definition or bundled reference powers/pkstack/skills/principle-test-behavior-not-implementation/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
+    },
+    {
       "path": "powers/pkstack/skills/principle-type-system-discipline/SKILL.md",
       "sha256": "18bb586e9dd33a68a1d1cf01fbd7642a613e008ef7ee2034dc8defd971edc69e",
       "classification": "excluded",
@@ -1835,7 +1863,7 @@
     },
     {
       "path": "powers/pkstack/skills/reflect/SKILL.md",
-      "sha256": "d257a8dca1269346347cda1f5d6abc42e5cdd806672a96d495837f5619541e68",
+      "sha256": "f935969d5d288c3811d21841a193474839fb5b36d858a4359faf40d3db2ecb48",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/reflect/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1891,7 +1919,7 @@
     },
     {
       "path": "powers/pkstack/skills/technical-writing/SKILL.md",
-      "sha256": "5cb9b5eea42622d0c308481e7eccd10fa6fb3f9f09540e3117045ec6b4d3f085",
+      "sha256": "280a58e4780f972570f86390b487267d396aa37617291889131e2c2de5e2fa6a",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/technical-writing/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1912,7 +1940,7 @@
     },
     {
       "path": "powers/pkstack/skills/unslop/SKILL.md",
-      "sha256": "734723ddc583e83e5eb342179660322b7b799b67cdeb758040194fef26e042dd",
+      "sha256": "9cd2d04fb29cd32ae10605b42b99bb6203d9b01c1a9f037c656be7f4648d0634",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/unslop/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."

@@ -2,7 +2,7 @@
 
 This is the human-readable view of [the bounded machine inventory](upstream-skill-parity.json).
 It accounts for the complete package beneath every top-level `pstack/skills/*/SKILL.md` in the
-immutable pinned and current `cursor/plugins` trees retrieved on 2026-09-03. The inventory contains
+immutable pinned and current `cursor/plugins` trees retrieved on 2026-09-08. The inventory contains
 122 files at each revision, including referenced playbooks, templates, data, and helpers. Per-package
 tree hashes and every resource path, blob identity, size, and handling decision live in the JSON
 file. The matrix records semantic adaptation, not copied upstream implementation.
@@ -10,19 +10,19 @@ file. The matrix records semantic adaptation, not copied upstream implementation
 | Disposition | Count |
 |---|---:|
 | Direct Kiro-native port | 17 |
-| Discoverable alias or consolidation | 23 |
+| Discoverable alias or consolidation | 25 |
 | Native Kiro replacement | 4 |
 | Explicit exclusion | 1 |
-| **Upstream total** | **45** |
+| **Upstream total** | **47** |
 
-Forty-four upstream workflows have runnable routes. The entry workflow is
+Forty-six upstream workflows have runnable routes. The entry workflow is
 `/pkstack` (upstream `poteto-mode`), and setup is `/pkstack-setup` (upstream
 `setup-pstack`). The remaining imported skills retain their names.
 
 PKStack also ships `/pkstack-principles`, `/pkstack-maintain`,
-`/pkstack-model-council`, `/pkstack-verified-goal`, and `/okf`, for 49 routes
+`/pkstack-model-council`, `/pkstack-verified-goal`, and `/okf`, for 51 routes
 in this catalog. The thirteen [curated additions](curated-skills.md) bring the
-Power total to 62. Setup stays Power-local; the other 61 install into the
+Power total to 64. Setup stays Power-local; the other 63 install into the
 workspace. `/okf` is the explicit knowledge-integration naming exception,
 with independently adapted methodology recorded in its separate provenance.
 
@@ -62,6 +62,11 @@ idempotent Kiro bootstrap and the current session's selected model and effort.
 
 ## Complete mapping
 
+The current catalog adds `principle-attack-the-premise` and
+`principle-test-behavior-not-implementation`. Their pinned package entries are null because they
+did not exist at the previous accepted revision. The two removed `how` critique references remain
+accounted for in the pinned packages, so the total file count stays at 122 at each revision.
+
 | Upstream skill | Disposition | Runnable route | Rationale |
 |---|---|---|---|
 | `architect` | Direct port | [`architect`](../skills/architect/SKILL.md) | Grounded architecture alternatives and verification are portable; execution uses native Kiro context and optional projectctl evidence. |
@@ -77,6 +82,7 @@ idempotent Kiro bootstrap and the current session's selected model and effort.
 | `make-bot-ui` | Excluded | [Safe manual architecture path](#make-bot-ui-safety-exclusion) | No runnable skill ships: the source is a Cursor/Grok Bot routine coupled to secret-card APIs, a cursor.sh webhook endpoint, and automatic sudo/Tailscale installation. Use architect to design a reviewed, least-privilege manual bot UI for the target environment. |
 | `no-comments` | Direct port | [`no-comments`](../skills/no-comments/SKILL.md) | Portable cleanup distinguishes redundant narration from external contracts, safety rationale, and narrow suppressions. |
 | `poteto-mode` | Alias / consolidation | [`pkstack`](../skills/pkstack/SKILL.md) | Renames the existing entry workflow while preserving Poteto's playbooks, checkpoints, explicit skip decisions, and native Kiro planning handoffs. Its consolidation disposition is unchanged; no old-name alias or second router ships. |
+| `principle-attack-the-premise` | Alias / consolidation | [`principle-attack-the-premise`](../skills/principle-attack-the-premise/SKILL.md) | Uses a per-actor census to challenge the premise shared by repeated failed fixes, within the existing authority and evidence boundaries. |
 | `principle-boundary-discipline` | Alias / consolidation | [`principle-boundary-discipline`](../skills/principle-boundary-discipline/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
 | `principle-build-the-lever` | Alias / consolidation | [`principle-build-the-lever`](../skills/principle-build-the-lever/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
 | `principle-encode-lessons-in-structure` | Alias / consolidation | [`principle-encode-lessons-in-structure`](../skills/principle-encode-lessons-in-structure/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
@@ -97,6 +103,7 @@ idempotent Kiro bootstrap and the current session's selected model and effort.
 | `principle-separate-before-serializing-shared-state` | Alias / consolidation | [`principle-separate-before-serializing-shared-state`](../skills/principle-separate-before-serializing-shared-state/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
 | `principle-sequence-verifiable-units` | Alias / consolidation | [`principle-sequence-verifiable-units`](../skills/principle-sequence-verifiable-units/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
 | `principle-subtract-before-you-add` | Alias / consolidation | [`principle-subtract-before-you-add`](../skills/principle-subtract-before-you-add/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
+| `principle-test-behavior-not-implementation` | Alias / consolidation | [`principle-test-behavior-not-implementation`](../skills/principle-test-behavior-not-implementation/SKILL.md) | Tests supported interfaces against independent results while retaining meaningful absence, permission, packaging, and type contracts. |
 | `principle-type-system-discipline` | Alias / consolidation | [`principle-type-system-discipline`](../skills/principle-type-system-discipline/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
 | `recall` | Native Kiro replacement | [`recall`](../skills/recall/SKILL.md) | Uses current-session context, Kiro steering, projectctl knowledge, git, and explicitly authorized task history instead of private Cursor transcript stores. |
 | `reflect` | Native Kiro replacement | [`reflect`](../skills/reflect/SKILL.md) | Reflects on current Kiro work and proposes structural learning; broad durable instruction changes require explicit approval. |

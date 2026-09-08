@@ -48,6 +48,18 @@ endpoints, secrets, and privileged networking installation. A real bot request r
 architecture and authorization. Feature-map authoring accepts one to five useful records; the
 preference for three to five is not a reason to invent features or duplicate mandatory proof runs.
 
+The September pstack update adds two principle routes. `principle-attack-the-premise` compares a
+rerunnable per-actor census with the assumption shared by failed fixes. An even census weakens
+that explanation rather than proving every possible cause absent. `principle-test-behavior-not-implementation`
+exercises supported interfaces against independently expected results. Legitimate absence,
+permission, packaging, and type contracts stay meaningful when tested through their mechanisms.
+
+`how` now explains mechanics without a critique mode. A requested architecture assessment uses
+`architect` or `interrogate` with the same evidence. Reflection starts only on an explicit request.
+The workflow begins with its own checkpoints and selects relevant principle leaves. Prose editing
+preserves the author's voice without adding a separate personality pass. PR bodies give a short
+briefing and link detailed evidence. Literal sentences replace figurative or over-compressed prose.
+
 HumanLayer contributes four portable methods. Claude-specific plugin registration and
 `improve-claude-md` are not activated. Pocock ports preserve interview/domain/writing methods;
 OpenAI-only agent metadata is provenance only. Astral ports preserve existing Poetry/PDM or other
@@ -173,3 +185,8 @@ original candidate and scope; they are not fresh verification of this checkout.
 
 | [Impeccable provenance](../../../powers/pkstack/docs/pbakaus-impeccable-provenance.md) | Exact source and bundle identities; frontend design methods without the executable runtime. |
 | [PR Babysitter provenance](../../../powers/pkstack/docs/openai-babysit-pr-provenance.md) | One shared PR method, explicit stop and retry reconciliation, and no automatic GitHub writes. |
+
+The September 8 Archify port adds typed output and receipt-path checks, structured
+argument failures for JSON callers, and complete flushing of piped artifact receipts.
+Its four shipped resources retain exact upstream bytes. The existing viewer, sequence
+layout and CDP lifecycle adaptations remain separately recorded and tested.

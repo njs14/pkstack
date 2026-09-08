@@ -3778,6 +3778,99 @@ class DetectorTests(unittest.TestCase):
             path.write_text(json.dumps(payload), encoding="utf-8")
             return guard.validate_detector(path)
 
+    def test_large_detector_is_reviewed_in_complete_bounded_batches(self) -> None:
+        payload = drift_detector_fixture()
+        files = []
+        # Exceeds both the old 256 KiB patch cap and 1 MiB detector cap.
+        for number in range(40):
+            file = comparison_file_fixture(
+                path=f"skills/example-{number:03d}/SKILL.md",
+                previous_path=None,
+                status="added",
+                tree_sha_verified=True,
+            )
+            patch = "@@ -0,0 +1 @@\n+" + "read me as data " * 2400
+            file.update(patch=patch, patch_bytes=len(patch.encode()))
+            files.append(file)
+        set_comparison_files(payload, files)
+        self.assertGreater(len(json.dumps(payload).encode()), 1024 * 1024)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            detector = root / "detector.json"
+            detector.write_text(json.dumps(payload), encoding="utf-8")
+            before = detector.read_bytes()
+            output = root / "review"
+            result = guard.prepare_upstream_review(detector, output)
+            index = json.loads((output / "upstream-delta.json").read_bytes())
+            self.assertEqual(index["artifact_type"], "upstream-review-index")
+            comparison = index["sources"][0]["comparison"]
+            self.assertNotIn("files", comparison)
+            self.assertLess((output / "upstream-delta.json").stat().st_size, 64 * 1024)
+            reconstructed = []
+            for entry in comparison["review_batches"]:
+                raw = (output / entry["file"]).read_bytes()
+                self.assertEqual(entry["sha256"], hashlib.sha256(raw).hexdigest())
+                self.assertEqual(entry["bytes"], len(raw))
+                self.assertLessEqual(len(raw), guard.UPSTREAM_REVIEW_BATCH_MAX_BYTES)
+                batch = json.loads(raw)
+                self.assertTrue(batch["untrusted"])
+                self.assertEqual(batch["inventory_sha256"], comparison["inventory_sha256"])
+                self.assertEqual(batch["prior"], payload["sources"][0]["pinned"])
+                self.assertEqual(batch["new"], payload["sources"][0]["current"])
+                self.assertLessEqual(len(batch["files"]), guard.UPSTREAM_REVIEW_BATCH_FILES)
+                self.assertLessEqual(
+                    sum(item["patch_bytes"] for item in batch["files"]),
+                    guard.UPSTREAM_REVIEW_BATCH_PATCH_BYTES,
+                )
+                reconstructed.extend(batch["files"])
+            self.assertEqual(reconstructed, files)
+            self.assertEqual(result["batch_count"], len(comparison["review_batches"]))
+            self.assertEqual(detector.read_bytes(), before)
+            # A review index cannot be submitted as detector/acceptance proof.
+            with self.assertRaises(guard.GuardError):
+                guard.validate_detector(output / "upstream-delta.json")
+            with self.assertRaises(FileExistsError):
+                guard.prepare_upstream_review(detector, output)
+            bad = json.loads(before)
+            bad["sources"][0]["comparison"]["files"][-1]["patch"] += "\n+unreported"
+            detector.write_text(json.dumps(bad), encoding="utf-8")
+            with self.assertRaises(guard.GuardError):
+                guard.prepare_upstream_review(detector, root / "invalid")
+            self.assertFalse((root / "invalid").exists())
+
+    def test_review_batches_preserve_no_patch_records_and_source_separation(self) -> None:
+        payload = drift_detector_fixture()
+        mode_change = comparison_file_fixture(
+            path="script.md", previous_path=None, status="modified", tree_sha_verified=True
+        )
+        mode_change.update(
+            additions=0,
+            deletions=0,
+            changes=0,
+            patch=None,
+            patch_bytes=0,
+            no_patch=True,
+            content_class="exact-blob-identity",
+            reviewability="exact-blob-mode-change",
+            old_identity=tree_identity("e" * 40, mode="100644"),
+            new_identity=tree_identity("e" * 40, mode="100755"),
+        )
+        set_comparison_files(payload, [mode_change])
+        add_detector_source(payload, source_id="okf-skills", drift=True)
+        add_detector_source(payload, source_id="current-source", drift=False)
+        validated = self.validate(payload)
+        documents = guard._upstream_review_documents(validated)
+        index = json.loads(documents["upstream-delta.json"])
+        for source, original in zip(index["sources"], payload["sources"], strict=True):
+            files = []
+            for entry in source["comparison"]["review_batches"]:
+                batch = json.loads(documents[entry["file"]])
+                self.assertEqual(batch["source_id"], original["id"])
+                self.assertEqual(batch["repository"], original["repository"])
+                files.extend(batch["files"])
+            self.assertEqual(files, original["comparison"]["files"])
+        self.assertEqual(documents, guard._upstream_review_documents(validated))
+
     def test_detector_execution_errors_remain_failures_with_safe_diagnostics(self) -> None:
         cases = (
             ("UpstreamError", "GitHub API returned HTTP 403", "GitHub API returned HTTP 403"),

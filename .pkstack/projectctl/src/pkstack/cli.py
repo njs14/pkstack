@@ -89,7 +89,8 @@ def _emit(payload: Any, output: Output) -> None:
 
 
 def _fail(exc: Exception, output: Output, *, code: int = 2) -> None:
-    payload = {"ok": False, "error": str(exc), "error_type": type(exc).__name__}
+    error_type = "UpstreamError" if isinstance(exc, UpstreamError) else type(exc).__name__
+    payload = {"ok": False, "error": str(exc), "error_type": error_type}
     if output == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:

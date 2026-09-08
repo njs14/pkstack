@@ -4,6 +4,20 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.4] — 2026-09-08
+
+- Ports the reviewed pstack principles, explanation-only `how`, explicit `reflect`,
+  task-first principle selection, and concise writing guidance while preserving
+  Kiro-owned models, effort, permissions and workflow controls.
+- Reviews large upstream deltas in complete bounded batches. Overlaps independent
+  source checks within one deadline and four network request slots, reuses bounded
+  metadata, and reconstructs source-local diffs when repository-wide patches exceed
+  GitHub response limits. Exact identities and exhaustive source coverage remain required.
+- Keeps acceptance source-scoped while validating every local provenance chain.
+- Incorporates Archify output-type and symlink checks, structured JSON argument
+  errors, and complete flushing of large piped receipts; preserves the existing
+  documented local runtime adaptations.
+
 ## [0.5.3] — 2026-09-07
 
 - Keeps PR-supervision checks within their read-only boundary on continuation: remote

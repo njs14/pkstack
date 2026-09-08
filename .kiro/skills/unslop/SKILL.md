@@ -12,17 +12,13 @@ For a document's structure, compose this pass with
 [`writing-for-agents`](../writing-for-agents/SKILL.md) for agents. Preserve their technical
 claims, triggers, checkpoints, and authority boundaries while editing sentences.
 
-Use four passes:
+Use three passes:
 
 1. **Scan.** Mark the concrete patterns below without changing meaning.
 2. **Rewrite.** Preserve facts, commitments, caveats, intended audience, and the
    writer's recognizable voice. Flag an unclear factual claim instead of
    smoothing it into an invention.
-3. **Add human voice.** Vary rhythm, use first person when it fits, acknowledge
-   real complexity, and state specific reactions only when the source or
-   author's established view supports them. Do not manufacture opinions,
-   informality, quotations, or certainty.
-4. **Self-audit.** Ask what still makes the result sound generated. Remove the
+3. **Self-audit.** Ask what still makes the result sound generated. Remove the
    remaining tell, then confirm that the edit did not erase useful nuance.
 
 ## Pattern catalog
@@ -48,7 +44,15 @@ Check for:
   hides a relevant actor, and dense sentences the reader must backtrack to
   parse; and
 - claims about how something feels when the text should name a mechanism,
-  command, boundary, number, or observable result.
+  command, boundary, number, or observable result;
+- mannered prose, including aphorisms, personified code, figurative verbs, and
+  rhetorical fragments where a literal sentence would work; and
+- over-compression that drops articles or verbs, uses unexplained abbreviations,
+  or replaces a readable sentence with arrows and symbol notation.
+
+Use periods or commas to separate thoughts. Reserve colons for labels, lists, and examples.
+Write complete sentences and preserve the author's existing voice without adding opinions,
+informality, or reactions to make the prose sound human.
 
 Prefer plain verbs and specific nouns. Keep technical terms the audience needs
 and give each concept one stable name. A sentence that could appear unchanged

@@ -7,16 +7,15 @@ description: Explain how a subsystem works from evidence, connecting entrypoints
 
 Treat the request text that activated this skill as the subsystem or behavior to explain.
 
-Use **Explain** mode by default. Use **Critique** mode only when the request
-asks whether the design is sound or how it should improve. `how` explains
-mechanics; use `why` to investigate motivation.
+Explain mechanics and ownership from the inspected code. Use `why` to investigate
+motivation. A separate request to evaluate or redesign the architecture belongs to
+`architect` or `interrogate`, using the same evidence packet.
 
 Use [`teach`](../teach/SKILL.md) when the requested outcome combines mechanics and rationale
 into a lesson. Use [`show-me`](../show-me/SKILL.md) to present inspected findings visually;
 pass the same evidence packet forward and keep inferred rationale labeled.
 
-Read [`references/roles-and-critique.md`](references/roles-and-critique.md)
-before delegating or critiquing.
+Read [`references/roles.md`](references/roles.md) before delegating.
 
 Start with the matching feature record and follow its explicit related links. If those do not
 explain the runtime boundary, record the missing question and issue one bounded, targeted
@@ -30,6 +29,8 @@ Record the selected depth and escalation reason; never inject the whole Wiki.
    directly.
 3. For a cross-cutting subsystem, assign two to four independent **explorers**
    to distinct slices, then give their evidence to one **explainer**.
+
+When uncertain, start with the narrow path. Expand only when the evidence reveals a gap.
 
 Use native Kiro sub-agents as read-only investigators. Do not pin a model or
 start a separate agent runtime. The current session owns the question,
@@ -77,26 +78,3 @@ Use this output shape when the question warrants each section:
 Separate observed behavior from inferred rationale. Verify project knowledge
 and feature records against current code. End with the shortest practical
 check that could falsify the explanation.
-
-## Critique mode
-
-Explain first. Then give the neutral explanation and relevant file map to at
-least two independent read-only **critics**. Each critic must inspect the code
-and apply the same rubric:
-
-- abstraction fit;
-- data-model fit;
-- boundary discipline and isolation;
-- readiness for likely evolution;
-- complexity compared with user value; and
-- consistency with established repository patterns.
-
-Each finding names `structural`, `concern`, or `observation` severity, the
-specific components, code evidence, and practical impact. A preference without
-a demonstrated cost is not a finding.
-
-The current session acts as lead. Categorize each result as **Act on**,
-**Consider**, **Noted**, or **Dismissed**. Trace at least one failure path,
-compare one credible alternative, separate defects from taste, and give every
-accepted recommendation an executable improvement check. Present this verdict
-after the standalone explanation so a reader can stop before the critique.

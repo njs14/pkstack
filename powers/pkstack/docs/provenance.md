@@ -33,7 +33,7 @@ version `0.14.8`.
 <!-- pk-stack-upstream-review: {"inventory_sha256":"cb3f7506f1af19f3cc2a06518e8524f54d414dc769b353edef30807ff1d79638","new":{"commit":"7314f723a487ec406b6369fe5865ba034cfed166","subtree_sha":"ae6fff5803260f38f075feb8c3b008ed68153fa0"},"path":"pstack","prior":{"commit":"efa2a531985e0a8084d36ff3cf87233be8a9f34b","subtree_sha":"1c625329e71538629f087374daa71293a498089f"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->
 
 The machine-readable maintenance pin in `maintenance/upstreams.json` now records the latest
-accepted commit and subtree tree `ae6fff5803260f38f075feb8c3b008ed68153fa0`.
+accepted commit and subtree tree `e72ebb36069aef2d95af69504ada1a7253b4ad06`.
 After clean-room adaptation and all pre-pin gates pass, the trusted acceptance
 command advances the commit, subtree SHA, review ledger, and already-staged
 machine provenance marker together. The subsequent immutable-goal verification
@@ -43,7 +43,7 @@ tail marker before the next repair attempt, preserving the accepted marker prefi
 and surrounding provenance prose. An accepted pin alone is never a passing
 maintenance result.
 The companion `maintenance/upstream-reviews.json` ledger retains the original `b9ddc83c...`
-commit and `950b9023...` subtree as genesis, followed by both accepted transitions to the current
+commit and `950b9023...` subtree as genesis, followed by the accepted transitions to the current
 manifest pin. The one canonical `pk-stack-upstream-genesis` comment above binds the source id,
 repository, path, commit, and subtree to that ledger genesis. Future pins require an append-only
 transition bound to the exact remote inventory digest and one reviewed A/B/C disposition with
@@ -111,9 +111,10 @@ Every link below is pinned to the source commit. The descriptions state why a
 file was consulted; they do not imply that its expression was copied.
 
 The selected examples below are not the inventory boundary. The
-[machine-readable skill parity catalog](upstream-skill-parity.json) binds all 45
-top-level packages and all 122 package files at both the reviewed genesis and
-live head `7314f723a487ec406b6369fe5865ba034cfed166`, including package trees,
+[machine-readable skill parity catalog](upstream-skill-parity.json) binds 45 previous and 47 current
+top-level packages and all 122 package files at each reviewed revision: previous
+`7314f723a487ec406b6369fe5865ba034cfed166` and current
+`d7cde2b84eadbcd6fd890302c876f4436ccb6d82`, including package trees,
 blob SHAs, modes, sizes, and per-resource handling. That live-head record is
 clean-room review input; the inventory alone does not advance the accepted pin
 or append a transition to the review ledger.
@@ -318,3 +319,25 @@ applicable notice, and update both this document and
 [`pk-stack-floci-lab`](https://github.com/njs14/pk-stack-floci-lab) repository
 owns the Floci application and live campaigns; Floci is not a source or review
 input for this Power release.
+
+## September 2026 density and prose update
+
+The review retrieved on 2026-09-08 covers all 92 changed paths from
+`7314f723a487ec406b6369fe5865ba034cfed166` to
+[`d7cde2b84eadbcd6fd890302c876f4436ccb6d82`](https://github.com/cursor/plugins/commit/d7cde2b84eadbcd6fd890302c876f4436ccb6d82),
+including [PR 329](https://github.com/cursor/plugins/pull/329) and
+[PR 331](https://github.com/cursor/plugins/pull/331). The complete 402,002-byte patch
+inventory is reviewed in eight bounded batches. Every original patch remains
+bound to exact old and new Git blob identities; batching does not change the
+acceptance digest or permit partial review.
+
+The independent Kiro adaptation adds Attack the Premise and Test Behavior Not
+Implementation, removes critique dispatch from `how`, makes `reflect` explicit,
+and updates task-first principle selection, PR briefings, and prose guidance.
+Existing permission, packaging, type and registry tests remain valid contract
+checks. The other density and punctuation changes need no mechanical rewriting
+of independently authored Kiro text. Cursor-specific model selection, runtime
+commands and destructive cleanup remain excluded. The review ledger records
+each changed path's adaptation, exclusion or provenance-only rationale.
+
+<!-- pk-stack-upstream-review: {"inventory_sha256":"1106e569f39992df3b572e037e2b0013daf73f78c4c386c84a87341b18245987","new":{"commit":"d7cde2b84eadbcd6fd890302c876f4436ccb6d82","subtree_sha":"e72ebb36069aef2d95af69504ada1a7253b4ad06"},"path":"pstack","prior":{"commit":"7314f723a487ec406b6369fe5865ba034cfed166","subtree_sha":"ae6fff5803260f38f075feb8c3b008ed68153fa0"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->

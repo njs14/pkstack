@@ -182,6 +182,479 @@
             "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
             "subtree_sha": "1c625329e71538629f087374daa71293a498089f"
           }
+        },
+        {
+          "dispositions": [
+            {
+              "disposition": "A",
+              "path": "README.md",
+              "rationale": "Reflect the new principle routes and explanation-only how behavior in the Kiro skill catalog and workflow documentation; retain Kiro packaging."
+            },
+            {
+              "disposition": "A",
+              "path": "docs/guide/01-setup.md",
+              "rationale": "Adapt task-first relevant-principle selection in pkstack workflows while keeping setup local and Kiro-owned."
+            },
+            {
+              "disposition": "A",
+              "path": "docs/guide/03-understand.md",
+              "rationale": "Remove the retired how critique mode; keep grounded explanations and explicitly requested architecture or interrogation routes."
+            },
+            {
+              "disposition": "A",
+              "path": "docs/guide/08-principles.md",
+              "rationale": "Add both new principle routes and consolidated Kiro guidance; retain approval boundaries for durable edits."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/architect/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/architect/references/rationale-template.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/architect/references/runner-prompt.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/arena/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/automate-me/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/blast-radius/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/figure-it-out/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/how/SKILL.md",
+              "rationale": "Remove critique-mode dispatch and critic aggregation; keep narrow-path exploration and grounded explanation."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/how/references/critic-prompt.md",
+              "rationale": "Honor removal of the critic role by removing the combined Kiro critique reference and retaining explanation roles only."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/how/references/critique-rubric.md",
+              "rationale": "Honor removal of the critique rubric from how; architecture and interrogation remain explicit separate workflows."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/how/references/explainer-prompt.md",
+              "rationale": "Keep explanation-only synthesis in the renamed Kiro roles reference, with evidence and unresolved details."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/how/references/explorer-prompt.md",
+              "rationale": "Retain bounded exploration in the Kiro roles reference after removing the critique branch."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/interrogate/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/interrogate/references/code-quality-review.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/interrogate/references/lead-judgment.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/interrogate/references/rubric.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/no-comments/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/SKILL.md",
+              "rationale": "Adapt relevant-principle selection in Kiro workflow guidance without mandatory whole-catalog loading or Cursor runtime assumptions."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/authoring-a-skill.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/autonomous-run.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/babysit.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/bug-fix.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/eval.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/feature.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/hillclimb.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/investigation.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+              "rationale": "Adapt short PR briefings with linked detail; retain GitHub-default forge checks, authorization and executable evidence."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/orchestrate.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/pause-safely.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/perf-issue.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/prototype.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/refactoring.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/runtime-forensics.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/session-pickup.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/shipping.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/trace-forensics.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/poteto-mode/playbooks/visual-parity.md",
+              "rationale": "Reviewed density and punctuation edits; the corresponding Kiro workflow already preserves the portable sequence and evidence contract. Cursor tools, model labels and publication assumptions remain excluded."
+            },
+            {
+              "disposition": "B",
+              "path": "skills/poteto-mode/playbooks/worktree-cleanup.md",
+              "rationale": "Exclude upstream destructive cleanup defaults and Cursor worktree assumptions; existing Kiro cleanup requires exact ownership and authorization."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/principle-attack-the-premise/SKILL.md",
+              "rationale": "Add an independent Kiro principle for testing shared assumptions against per-actor persistent state and observed distributions."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-boundary-discipline/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-build-the-lever/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-encode-lessons-in-structure/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-experience-first/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-fix-root-causes/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-foundational-thinking/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-guard-the-context-window/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-laziness-protocol/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-minimize-reader-load/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-model-the-domain/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-never-block-on-the-human/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-prove-it-works/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-redesign-from-first-principles/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-separate-before-serializing-shared-state/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-sequence-verifiable-units/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-subtract-before-you-add/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/principle-test-behavior-not-implementation/SKILL.md",
+              "rationale": "Add independent Kiro guidance for observable behavior and independent expected results; preserve legitimate security and packaging contract tests."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/principle-type-system-discipline/SKILL.md",
+              "rationale": "Reviewed wording and punctuation changes; the existing independently written Kiro principle and consolidated catalog already preserve the decision rule. Record exact resource identity without mechanical prose copying."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/recall/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/reflect/SKILL.md",
+              "rationale": "Make reflect explicit-invocation only; preserve approval before durable skill or steering changes."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/reflect/references/divergent-reviewer.md",
+              "rationale": "Reviewed reviewer-prompt density and punctuation changes; Kiro retains evidence-based reflection with explicit invocation and approval for durable edits. No additional reviewer runtime is introduced."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/reflect/references/judgment-reviewer.md",
+              "rationale": "Reviewed reviewer-prompt density and punctuation changes; Kiro retains evidence-based reflection with explicit invocation and approval for durable edits. No additional reviewer runtime is introduced."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/reflect/references/synthesizer.md",
+              "rationale": "Reviewed reviewer-prompt density and punctuation changes; Kiro retains evidence-based reflection with explicit invocation and approval for durable edits. No additional reviewer runtime is introduced."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/reflect/references/tooling-reviewer.md",
+              "rationale": "Reviewed reviewer-prompt density and punctuation changes; Kiro retains evidence-based reflection with explicit invocation and approval for durable edits. No additional reviewer runtime is introduced."
+            },
+            {
+              "disposition": "B",
+              "path": "skills/setup-pstack/SKILL.md",
+              "rationale": "Exclude Cursor model-slug and rule-location changes; Kiro owns model choice, effort, permissions and setup. Existing portable setup semantics remain."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/show-me-your-work/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/swarm/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/tdd/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/teach/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/technical-writing/SKILL.md",
+              "rationale": "Adapt concise PR briefings and layered explanation, exempt Diataxis structures, and propose style-rule changes for review."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/typescript-best-practices/SKILL.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/typescript-best-practices/references/patterns.md",
+              "rationale": "Reviewed density, plain-word and punctuation edits; existing independent Kiro guidance already expresses the portable behavior. Preserve its current runtime boundaries and record the exact updated resource identity."
+            },
+            {
+              "disposition": "A",
+              "path": "skills/unslop/SKILL.md",
+              "rationale": "Adapt literal prose and ordinary punctuation, remove the invented human-voice pass, and preserve author voice and meaning."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/SKILL.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/epistemics.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/investigator-prompt.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/source-playbook.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/sources/databricks.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/sources/datadog.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/sources/incident-postmortem.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/sources/linear.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/sources/notion.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/sources/sentry.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/sources/slack.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            },
+            {
+              "disposition": "C",
+              "path": "skills/why/references/synthesizer-prompt.md",
+              "rationale": "Reviewed density and punctuation edits; existing Kiro why keeps evidence-led investigation and bounded source use. Epistemic detail remains upstream reference material, not a new runtime dependency."
+            }
+          ],
+          "inventory_sha256": "1106e569f39992df3b572e037e2b0013daf73f78c4c386c84a87341b18245987",
+          "new": {
+            "commit": "d7cde2b84eadbcd6fd890302c876f4436ccb6d82",
+            "subtree_sha": "e72ebb36069aef2d95af69504ada1a7253b4ad06"
+          },
+          "prior": {
+            "commit": "7314f723a487ec406b6369fe5865ba034cfed166",
+            "subtree_sha": "ae6fff5803260f38f075feb8c3b008ed68153fa0"
+          }
         }
       ]
     },
@@ -332,6 +805,59 @@
           "prior": {
             "commit": "06dd052602dd9a369e4d034e24faef0917b5a60c",
             "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
+          }
+        },
+        {
+          "dispositions": [
+            {
+              "disposition": "A",
+              "path": "bin/archify.mjs",
+              "rationale": "Incorporate exact reviewed CLI corrections for structured JSON argument errors, output/receipt alias checks and read-only layout targets; existing command approval boundaries remain."
+            },
+            {
+              "disposition": "A",
+              "path": "references/delivery-contract.md",
+              "rationale": "Incorporate the output-extension and symlink-resolution contract, including the explicit statement that CLI-selected directories are not sandboxed."
+            },
+            {
+              "disposition": "A",
+              "path": "renderers/shared/output-path.mjs",
+              "rationale": "Incorporate typed HTML output and JSON receipt checks before and after symlink resolution without changing input/target alias precedence."
+            },
+            {
+              "disposition": "A",
+              "path": "scripts/check-render-output.mjs",
+              "rationale": "Set the eventual exit code while allowing complete piped JSON receipt output to drain; independent tests compare large pipe and regular-file outputs."
+            },
+            {
+              "disposition": "B",
+              "path": "test/artifact-receipt-flush.test.mjs",
+              "rationale": "Keep upstream tests outside the curated runtime. Independent PKStack regressions exercise wrong-type target and symlink preservation, JSON argument failures, typed output, layout validation and large piped receipts."
+            },
+            {
+              "disposition": "B",
+              "path": "test/cli-output-types.test.mjs",
+              "rationale": "Keep upstream tests outside the curated runtime. Independent PKStack regressions exercise wrong-type target and symlink preservation, JSON argument failures, typed output, layout validation and large piped receipts."
+            },
+            {
+              "disposition": "B",
+              "path": "test/cli.test.mjs",
+              "rationale": "Keep upstream tests outside the curated runtime. Independent PKStack regressions exercise wrong-type target and symlink preservation, JSON argument failures, typed output, layout validation and large piped receipts."
+            },
+            {
+              "disposition": "B",
+              "path": "test/output-path.test.mjs",
+              "rationale": "Keep upstream tests outside the curated runtime. Independent PKStack regressions exercise wrong-type target and symlink preservation, JSON argument failures, typed output, layout validation and large piped receipts."
+            }
+          ],
+          "inventory_sha256": "5d67adc17cdd791198f7b9be7fcb98bc227cfc23eea8fb6f0f3f97f169ff1881",
+          "new": {
+            "commit": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
+            "subtree_sha": "d28042c2ee940e8dd04c1825c1e2448671c95009"
+          },
+          "prior": {
+            "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
+            "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
           }
         }
       ]
