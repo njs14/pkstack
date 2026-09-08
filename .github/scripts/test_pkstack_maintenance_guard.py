@@ -5021,6 +5021,20 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 "sys.argv=[sys.argv[1]]; sys.path.insert(0,str(Path(sys.argv[0]).parent)); "
                 "runpy.run_path(sys.argv[0], run_name='__main__')"
             )
+            guard_result = subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    runner.replace("sys.argv=[sys.argv[1]]", "sys.argv=[sys.argv[1], '--help']"),
+                    str(snapshot / ".github/scripts/pkstack_maintenance_guard.py"),
+                ],
+                env=environment,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            self.assertEqual(guard_result.returncode, 0, guard_result.stderr)
+            self.assertEqual(inventory(), before)
             for command in commands:
                 arguments = shlex.split(command)
                 result = subprocess.run(
