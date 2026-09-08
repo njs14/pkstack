@@ -7,11 +7,56 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This record retains exact release identities, checksums, and acceptance scope. The 0.5.3, 0.5.2,
-0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.4, 0.5.3,
+0.5.2, 0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
 before the root reviews directory was removed. The Power manifest remains version authority.
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
+
+## Verified publication: 0.5.4
+
+[Version 0.5.4](https://github.com/njs14/pkstack/releases/tag/v0.5.4) was published in the
+private repository on September 8, 2026 at 02:19:34 UTC from commit
+`499b0d090bcafabbba0fcf8ae6ce245d66606352`, following
+[PR #72](https://github.com/njs14/pkstack/pull/72). It ports the reviewed pstack and
+Archify updates and repairs bounded upstream review batching, oversized repository-wide
+comparisons, and aggregate-check latency. Per-file/blob/response limits, exact source
+identities, one-source acceptance, and the shared network deadline remain enforced.
+[Exact-main CI](https://github.com/njs14/pkstack/actions/runs/34179391369) passed all 12 jobs
+on attempt 1. The [tag-bound release workflow](https://github.com/njs14/pkstack/actions/runs/34179618647)
+passed verification and publication, promoting artifact `10038385441` from that run.
+The downloaded 4,598,487-byte archive matched the pre-tag verified CI package byte-for-byte;
+its checksum file, both release asset digests, and release notes also matched.
+Release ID: `384406555`; archive asset ID: `549721834`; checksum asset ID: `549721837`.
+
+Archive SHA-256: `51bc68bbd2570de3bb4f3341c8edf35f9e25def54907bc0c37bd60d4ab0a95bc`.
+Artifact ZIP SHA-256: `c8c9de5b7859d25633981a27a3bf66079a7d3d32deabffa6aa617ad06ff640d8`.
+
+The frozen candidate `3ffed89e8518f16285e87a18c0686ddddc00a810` passed the complete local
+release gate: 1,091 product tests, 273 Python policy tests, 17 JavaScript policy tests,
+and all ten validation lanes. [PR CI](https://github.com/njs14/pkstack/actions/runs/34178991264)
+passed all 12 jobs. The merge tree `450ecd02033d8a216f24b01134f30a2481f1fc10` equals the
+reviewed candidate tree. Independent native Kiro CLI v3 review session
+`sess_bc439634-f3b4-4cdd-ac32-c824661c8803` returned correctness PASS and code-quality PASS
+with no blockers. Kiro selected Auto; no effort value was reported. The reviewer inspected
+the frozen diff and source using read-only tools, and did not execute tests or independently
+fetch upstream bytes. All 620 snapshot entries retained their original hashes or symlink
+targets after review. Its low-severity suggestion to assert temporary-directory cleanliness
+for Archify layout validation was a testing preference, not an observed runtime defect.
+
+The exact-main package consumer smoke passed fresh setup, repeated setup, feature and
+local knowledge validation, and a failing-then-passing goal with its verifier unchanged.
+Doctor reported 85 passes, no failures, and one warning. The Archify port's focused
+regressions reproduced eight failures before the update and passed afterward.
+
+The fresh [changed-main maintenance run](https://github.com/njs14/pkstack/actions/runs/34179404860)
+completed successfully. Its detector validated all 13 configured sources with zero drift;
+the controller returned `action: current`, so candidate generation and publication were
+correctly skipped. Maintenance remains enabled. This closes the observed oversized-delta
+and detector-latency failures described in the earlier record; a no-op does not establish
+an unattended candidate-generation, substantive-review, or merge lifecycle. No new native
+Kiro reasoning or Linux live retrieval result is claimed. Linux retrieval remains
+undemonstrated and best effort, outside this release's required acceptance scope.
 
 ## Verified publication: 0.5.3
 
