@@ -4940,6 +4940,32 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                     paths = shlex.split(archive.replace("\\\n", " "))
                     self.assertCountEqual(paths, guard.TRUSTED_SNAPSHOT_PREFIXES)
 
+    def test_detector_snapshot_executes_its_controller_entrypoints(self) -> None:
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        step = workflow.split("      - name: Snapshot immutable sensor and controller\n", 1)[1]
+        archive = step.split('git archive "$BASE_SHA"', 1)[1].split(
+            '| tar -x -C "$TRUSTED_ROOT"', 1
+        )[0]
+        paths = shlex.split(archive.replace("\\\n", " "))
+        packed = subprocess.run(
+            ["git", "archive", "HEAD", *paths], cwd=ROOT, capture_output=True, check=True
+        ).stdout
+        with tempfile.TemporaryDirectory() as temporary:
+            snapshot = Path(temporary)
+            subprocess.run(["tar", "-x", "-C", temporary], input=packed, check=True)
+            environment = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
+            for name in ("pkstack_maintenance_guard.py", "pkstack_update_controller.py"):
+                result = subprocess.run(
+                    [sys.executable, "-B", str(snapshot / ".github/scripts" / name), "--help"],
+                    cwd=snapshot,
+                    env=environment,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("usage:", result.stdout)
+
     def test_trusted_inventory_preflight_leaves_snapshot_unchanged(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         commands = [

@@ -178,6 +178,7 @@ jobs:
             .github/scripts/pkstack_maintenance_guard.py \
             .github/scripts/pkstack_update_controller.py \
             .github/scripts/pkstack_review_feedback.py \
+            .github/scripts/pkstack_verification_feedback.py \
             | tar -x -C "$TRUSTED_ROOT"
           UV_PROJECT_ENVIRONMENT="$TRUSTED_ROOT/.pkstack/projectctl/.venv" \
             uv sync --quiet --locked --no-config \
