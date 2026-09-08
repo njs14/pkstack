@@ -25,7 +25,7 @@ Existing Kiro user, workspace, and session permissions determine routine authori
 
 [Exact-main CI](https://github.com/njs14/pkstack/actions/runs/34181644213) passed all 12 jobs
 on attempt 1. The [tag-bound release workflow](https://github.com/njs14/pkstack/actions/runs/34181804549)
-passed verification and publication, promoting artifact `10039130970` from that run.
+passed verification and publication, promoting exact-main CI artifact `10039130970`.
 The downloaded 4,599,304-byte archive matched the pre-tag verified CI package byte-for-byte;
 its checksum file, both release asset digests, and release notes also matched.
 Release ID: `384418309`; archive asset ID: `549764720`; checksum asset ID: `549764721`.
