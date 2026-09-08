@@ -4,6 +4,15 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.5] — 2026-09-08
+
+- Removes the primary profile's blanket approval rules for Git, ordinary writes,
+  and controller commands so existing Kiro user, workspace, and session permissions
+  can take effect. Adds no blanket allowance and preserves all deny rules.
+- Clarifies that native Plan and Spec agents do not inherit the primary profile's
+  permissions; shared workflow context and an explicit return to `pkstack` preserve
+  the verified-goal handoff. Other Kiro approval categories still apply.
+
 ## [0.5.4] — 2026-09-08
 
 - Ports the reviewed pstack principles, explanation-only `how`, explicit `reflect`,

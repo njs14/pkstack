@@ -752,7 +752,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "e0e706848e085abc2babd12a30051c1fc89cf4c0723ffb0fec1d1e4c8a7a8331",
+      "sha256": "b55a7fea113965dc8a3a0de8843630cf125b4982063c303961ed0a247c3efcbc",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -784,7 +784,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "bc345714ffe2748de0bd76c2f395c0df9df9a8e1f13ce359c296e44b67b068fb",
+      "sha256": "365d2e76517675d9a33c71fdca3867aeb0f8abe2336fbdb07815032ecceeb7c7",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -882,7 +882,7 @@
     },
     {
       "path": "powers/pkstack/README.md",
-      "sha256": "8b8098325b9ec91e5a0ca3b5d72a5098c9e52ad6f09f1363287da9d486888077",
+      "sha256": "70965e272632ef0cfbf5d97315be978b53e7a781b1c26385732059b40013296d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1006,7 +1006,7 @@
     },
     {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "df814ea5a416c9b142d81d0594bdb1f22b2949d9a0447c015b1c9e98555dd909",
+      "sha256": "4fa230ae4993c69de27509491f2fb889c437566f7955ba1ecbd938517512e007",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -1159,7 +1159,7 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "00f850eb6ddd80d9968ab2633bf015e6df77eabfdf2c43289442b0063c8462b3",
+      "sha256": "ea43a65c6c8b46c0d11aeea06fc83450fa0f70542b408c3e8975334d5ae6103a",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
