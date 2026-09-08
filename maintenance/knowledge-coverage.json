@@ -1150,12 +1150,12 @@
     },
     {
       "path": "powers/pkstack/docs/provenance.md",
-      "sha256": "2f57e8f3f0bd97f0ff4fccc9ca1f8058847ae01a106bfca0fdf46a7a1c508f56",
+      "sha256": "30809f2f93c85da2145f70025634eee7b01038908e04dc0e59aa573d633a604b",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
       ],
-      "summary": "Selected upstream methods are adapted into native Kiro semantics; attribution, source inventories and package boundaries stay separate from runtime acceptance."
+      "summary": "Selected upstream methods are adapted into native Kiro semantics; the docs-only follow-up adds no skill bytes, keeps PR creation separately authorized and leaves Cursor release metadata excluded."
     },
     {
       "path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
@@ -1168,12 +1168,12 @@
     },
     {
       "path": "powers/pkstack/docs/upstream-skill-parity.md",
-      "sha256": "b1277e8e5a5dee1d84be79e973744c6be7796efba236b915d59076582ef0f2e4",
+      "sha256": "1652562d45e2eb28be5c04282bd409c57ae0c982a711644cf6537b72ba6a2ad7",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
       ],
-      "summary": "Poteto catalog distinguishes direct ports, native replacements and consolidated aliases; make-bot-ui stays excluded and feature batches need not invent a minimum of three records."
+      "summary": "Poteto catalog distinguishes direct ports, native replacements and consolidated aliases; the latest source transition leaves the bounded 122-file skills catalog byte-identical."
     },
     {
       "path": "powers/pkstack/docs/usage.md",

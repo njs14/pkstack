@@ -3,9 +3,11 @@
 This is the human-readable view of [the bounded machine inventory](upstream-skill-parity.json).
 It accounts for the complete package beneath every top-level `pstack/skills/*/SKILL.md` in the
 immutable pinned and current `cursor/plugins` trees retrieved on 2026-09-08. The inventory contains
-122 files at each revision, including referenced playbooks, templates, data, and helpers. Per-package
-tree hashes and every resource path, blob identity, size, and handling decision live in the JSON
-file. The matrix records semantic adaptation, not copied upstream implementation.
+122 files at each revision, including referenced playbooks, templates, data, and helpers. The later
+five-path source transition changes only package and guide documentation outside `skills/`, so the
+bounded catalog is byte-identical at both identities. Per-package tree hashes and every resource
+path, blob identity, size, and handling decision live in the JSON file. The matrix records semantic
+adaptation, not copied upstream implementation.
 
 | Disposition | Count |
 |---|---:|

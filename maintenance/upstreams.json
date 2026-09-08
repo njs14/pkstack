@@ -3,14 +3,14 @@
   "schema_version": 2,
   "sources": [
     {
-      "commit": "d7cde2b84eadbcd6fd890302c876f4436ccb6d82",
+      "commit": "2b8ae2ee306f823d54879d3da7f8496b73c31d5d",
       "id": "cursor-pstack",
       "parity_path": "powers/pkstack/docs/upstream-skill-parity.json",
       "path": "pstack",
       "provenance_path": "powers/pkstack/docs/provenance.md",
       "ref": "main",
       "repository": "cursor/plugins",
-      "subtree_sha": "e72ebb36069aef2d95af69504ada1a7253b4ad06"
+      "subtree_sha": "cf6f79b65a0608c77ab77ac8d4f22d440e96971a"
     },
     {
       "commit": "3c2629142c5d437428269b1b722b08c0b87f574d",

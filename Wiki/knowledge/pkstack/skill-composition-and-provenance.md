@@ -60,6 +60,12 @@ The workflow begins with its own checkpoints and selects relevant principle leav
 preserves the author's voice without adding a separate personality pass. PR bodies give a short
 briefing and link detailed evidence. Literal sentences replace figurative or over-compressed prose.
 
+The [catalog-documentation follow-up](../../../powers/pkstack/docs/provenance.md) adds no new skill
+bytes. Upstream's twenty-third-playbook listing makes `opening-a-pr` discoverable after its resource
+and Kiro adaptation were already reviewed; PKStack keeps pull-request creation separately authorized,
+forge-resolved, and evidence-bound. The corrected 23-playbook and 23-principle labels match the
+existing catalog, while Cursor's `0.15.0` package version remains outside Kiro-owned release metadata.
+
 HumanLayer contributes four portable methods. Claude-specific plugin registration and
 `improve-claude-md` are not activated. Pocock ports preserve interview/domain/writing methods;
 OpenAI-only agent metadata is provenance only. Astral ports preserve existing Poetry/PDM or other
