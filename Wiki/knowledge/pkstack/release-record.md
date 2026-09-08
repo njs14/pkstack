@@ -7,11 +7,66 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This record retains exact release identities, checksums, and acceptance scope. The 0.5.6, 0.5.5, 0.5.4,
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.7, 0.5.6, 0.5.5, 0.5.4,
 0.5.3, 0.5.2, 0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
 before the root reviews directory was removed. The Power manifest remains version authority.
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
+
+## Verified manual publication: 0.5.7
+
+[Version 0.5.7](https://github.com/njs14/pkstack/releases/tag/v0.5.7) was published in the
+private repository on September 8, 2026 at 18:07:38 UTC from commit
+`1741b595edd027b3caf3b8a82c42fa571be2216a`. The owner explicitly approved a one-time
+manual promotion of the verified CI archive, deferring the blocked maintenance
+candidate review, tag-bound hosted publication, and final hosted documentation checks.
+Those deferred gates are not recorded as passing.
+
+This release adds supervised incremental maintenance-stream validation, bounded sanitized
+diagnostics, complete verification-stage repair feedback, and exact-blob reconstruction
+for omitted upstream patches. [PR #81](https://github.com/njs14/pkstack/pull/81) contains
+the reliability implementation; [PR #82](https://github.com/njs14/pkstack/pull/82) prepares
+version 0.5.7. Live startup findings were repaired in
+[PR #83](https://github.com/njs14/pkstack/pull/83) (missing detector archive dependency) and
+[PR #84](https://github.com/njs14/pkstack/pull/84) (bytecode generation in the immutable snapshot).
+Both findings were reproduced locally and covered by regression tests.
+
+The final frozen candidate `ebc2f8854228ef5b10463fcf18d10adea4e42312` passed all ten local
+validation lanes, 1,103 product tests, and 295 Python policy tests. Independent reviewer
+`frozen_review` approved it; the merged source tree is identical. Its
+[PR CI](https://github.com/njs14/pkstack/actions/runs/34254316980) and
+[exact-main CI](https://github.com/njs14/pkstack/actions/runs/34254995824) passed all 12 jobs
+on attempt 1. Pre-tag verification was repeated immediately before publication and bound
+artifact `10067541880` to the exact main commit and CI attempt. Earlier receipt/plan
+artifact HTTP 403 failures remain failed evidence, not test passes or a claimed outage.
+
+The published 2,281,162-byte archive was downloaded and compared byte-for-byte with that
+approved CI package. Its checksum file, both GitHub asset digests, and the approved release
+notes matched. Tag `v0.5.7` resolves directly to the source commit above.
+Release ID: `384955102`; archive asset ID: `551022876`; checksum asset ID: `551022877`.
+
+Archive SHA-256: `7e8296542473720861c3dd5ddd23aec207ed8a2ae4cca690b29acfdd3a1a9b5f`.
+Artifact ZIP SHA-256: `eecea51479944bb38ccdc699684f0489b6a5940fffb7c636be0b168c25d05b50`.
+
+[Live maintenance run](https://github.com/njs14/pkstack/actions/runs/34254835687) passed
+stream attestation on all four attempts and candidate verification on the fourth.
+Attempt two validated 26,724,734 stdout bytes, exceeding the old 16 MiB total limit.
+Retained fixed diagnostics identified the first failure as `accept-preview`, the next two
+as `post-accept`, and the fourth as `complete` with acceptance passing; cleanup returned
+zero for each. Process and attestation success remained distinct from candidate acceptance.
+
+The resulting [upstream PR #85](https://github.com/njs14/pkstack/pull/85) is excluded from
+this release and remained unmerged at publication. Its
+[candidate gate](https://github.com/njs14/pkstack/actions/runs/34259834116) passed base tests,
+but GitHub did not start candidate tests or independent semantic review, reporting failed
+account payments or a spending limit. Cleanup also failed; rejection recording and merge
+were skipped. No passing semantic-review or completed candidate lifecycle is claimed.
+
+The exact-main package smoke passed setup, idempotence, feature and local knowledge
+validation, and a stored goal failing then passing with its verifier unchanged. Its doctor
+reported 85 passes, one warning, and no failures. Native IDE behavior and full Linux live
+knowledge retrieval were not newly verified. Publication notes disclose the owner-approved
+exceptions; the regular updater and release controls remain unchanged.
 
 ## Verified publication: 0.5.6
 
