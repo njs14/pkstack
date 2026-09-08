@@ -47,6 +47,12 @@ def zipped(contents: dict[str, bytes]) -> bytes:
     return stream.getvalue()
 
 
+class ConsumerContentTests(unittest.TestCase):
+    def test_repository_power_has_exactly_the_reviewed_consumer_files(self):
+        root = Path(__file__).resolve().parents[2]
+        package.validate_source(root / "powers/pkstack", package.load_contract(root))
+
+
 class FakeGitHub:
     def __init__(self, commit: str, raw: bytes):
         self.raw = raw
@@ -167,6 +173,16 @@ class PackageFixture(unittest.TestCase):
                 "# Changes\n\n## [0.3.0]\n\nCurrent [guide](guide.md).\n\n## [0.2.0]\nOld text.\n"
             ),
         }
+        files["maintenance/package-content.json"] = json.dumps(
+            {
+                "schema_version": 1,
+                "files": sorted(
+                    name.removeprefix("powers/pkstack/")
+                    for name in files
+                    if name.startswith("powers/pkstack/")
+                ),
+            }
+        )
         for relative, text in files.items():
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -242,12 +258,76 @@ class PackageFixture(unittest.TestCase):
             package.archive_for(self.root, self.commit), self.contents["package.tar.gz"]
         )
         extracted = package.extract_archive(
-            self.contents["package.tar.gz"], Path(self.temporary.name) / "extract"
+            self.contents["package.tar.gz"],
+            Path(self.temporary.name) / "extract",
+            allowed=package.load_contract(self.root),
         )
         self.assertEqual(
             (extracted / "plugin.json").read_bytes(),
             (self.root / "powers/pkstack/plugin.json").read_bytes(),
         )
+
+    def test_source_rejects_untracked_maintainer_content_and_local_clutter(self):
+        for name in (
+            "tests/local.py",
+            "reviews/report.md",
+            "benchmarks/local.py",
+            "docs/artifacts/preview.html",
+            ".venv/pyvenv.cfg",
+            "src/pkstack/__pycache__/a.pyc",
+            ".pytest_cache/state",
+            ".ruff_cache/state",
+            "dist/package.whl",
+            "assets/banner.png",
+        ):
+            with self.subTest(name=name):
+                target = self.root / "powers/pkstack" / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("untracked clutter")
+                with self.assertRaisesRegex(package.PackageError, "unexpected"):
+                    package.archive_for(self.root, self.commit)
+                target.unlink()
+                # Empty unexpected directories must fail as well.
+                with self.assertRaisesRegex(package.PackageError, "unexpected"):
+                    package.archive_for(self.root, self.commit)
+                parent = target.parent
+                while parent != self.root / "powers/pkstack" and not list(parent.iterdir()):
+                    parent.rmdir()
+                    parent = parent.parent
+
+    def test_source_rejects_a_missing_required_consumer_file(self):
+        path = self.root / "powers/pkstack/src/pkstack/__init__.py"
+        path.unlink()
+        with self.assertRaisesRegex(package.PackageError, "missing=.*src/pkstack/__init__.py"):
+            package.archive_for(self.root, self.commit)
+
+    def test_archive_rejects_maintainer_files_and_missing_required_assets(self):
+        allowed = package.load_contract(self.root)
+        for extra, missing in (
+            ("tests/local.py", None),
+            ("assets/banner.png", None),
+            ("docs/artifacts", None),
+            (None, "plugin.json"),
+            (None, "src/pkstack/__init__.py"),
+        ):
+            with self.subTest(extra=extra, missing=missing), tempfile.TemporaryDirectory() as temp:
+                raw = io.BytesIO()
+                with tarfile.open(fileobj=raw, mode="w:gz") as archive:
+                    for name in sorted(allowed):
+                        if name != missing:
+                            archive.add(
+                                self.root / "powers/pkstack" / name,
+                                arcname=f"pkstack/{name}",
+                                recursive=False,
+                            )
+                    if extra:
+                        entry = tarfile.TarInfo(f"pkstack/{extra}")
+                        entry.type = (
+                            tarfile.DIRTYPE if extra == "docs/artifacts" else tarfile.REGTYPE
+                        )
+                        archive.addfile(entry)
+                with self.assertRaises(package.PackageError):
+                    package.extract_archive(raw.getvalue(), Path(temp) / "extract", allowed=allowed)
 
     def test_changed_working_source_cannot_produce_or_promote(self):
         (self.root / "powers/pkstack/plugin.json").write_text('{"version":"9.9.9"}\n')

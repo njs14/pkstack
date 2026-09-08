@@ -65,7 +65,7 @@ archive; the independent Google OKF and OKF skills sources remain active.
 
 Package documentation stays with the code and assets it explains. The
 [usage guide](../../../powers/pkstack/docs/usage.md),
-[package architecture](../../../powers/pkstack/docs/architecture.md), and
+[package architecture](../../../docs/architecture.md), and
 [source provenance](../../../powers/pkstack/docs/provenance.md) remain linked native package
 references, outside the ordinary project-knowledge search root. No copied versions are introduced.
 

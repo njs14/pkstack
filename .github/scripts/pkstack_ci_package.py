@@ -28,6 +28,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
+from pkstack_package_content import ContentError as PackageError
+from pkstack_package_content import load_contract, validate_paths, validate_source
 from pkstack_release_notes import bind_repository_links, release_notes
 
 CI_WORKFLOW = ".github/workflows/pk-stack-ci.yml"
@@ -58,10 +60,6 @@ SMOKE_FLAGS = {
     "verifier_unchanged",
 }
 TAG_RE = r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
-
-
-class PackageError(RuntimeError):
-    pass
 
 
 class ResourceNotFound(PackageError):
@@ -193,6 +191,8 @@ def notes_for(root: Path, repository: str, commit: str, version: str) -> bytes:
 
 
 def archive_for(root: Path, commit: str) -> bytes:
+    allowed = load_contract(root)
+    validate_source(root / "powers/pkstack", allowed)
     timestamp = git(root, "show", "-s", "--format=%ct", commit).decode().strip()
     require(re.fullmatch(r"[0-9]+", timestamp) is not None, "invalid commit timestamp")
     raw = git(
@@ -209,11 +209,17 @@ def archive_for(root: Path, commit: str) -> bytes:
     )
     require(compressed.returncode == 0, "deterministic gzip failed")
     require(0 < len(compressed.stdout) <= LIMITS["package.tar.gz"], "invalid archive size")
+    with tempfile.TemporaryDirectory(prefix="pkstack-content-check-") as temporary:
+        extract_archive(compressed.stdout, Path(temporary) / "power", allowed=allowed)
     return compressed.stdout
 
 
-def extract_archive(raw: bytes, destination: Path) -> Path:
+def extract_archive(raw: bytes, destination: Path, *, allowed: set[str] | None = None) -> Path:
     """Extract only regular package files/directories, without trusting tar paths or links."""
+    if allowed is None:
+        allowed = load_contract()
+    files: set[str] = set()
+    directories: set[str] = set()
     destination.mkdir(mode=0o700)
     seen: set[str] = set()
     total = 0
@@ -236,6 +242,9 @@ def extract_archive(raw: bytes, destination: Path) -> Path:
                 )
                 require(not member.mode & 0o7000, "package archive contains privileged file modes")
                 seen.add(name)
+                relative = "/".join(pieces[1:])
+                if relative:
+                    (directories if member.isdir() else files).add(relative)
                 total += member.size
                 require(
                     len(seen) <= 4096 and total <= 64 * 1024 * 1024,
@@ -256,6 +265,7 @@ def extract_archive(raw: bytes, destination: Path) -> Path:
     except (tarfile.TarError, OSError, EOFError) as exc:
         raise PackageError("invalid package archive") from exc
     require("pkstack/plugin.json" in seen, "package root is missing")
+    validate_paths(files, directories, allowed)
     return destination / "pkstack"
 
 
@@ -275,8 +285,10 @@ def run_json(
     return value
 
 
-def consumer_smoke(raw: bytes, version: str, workspace: Path) -> dict[str, Any]:
-    power = extract_archive(raw, workspace / "extracted")
+def consumer_smoke(
+    raw: bytes, version: str, workspace: Path, *, allowed: set[str] | None = None
+) -> dict[str, Any]:
+    power = extract_archive(raw, workspace / "extracted", allowed=allowed)
     consumer = workspace / "consumer"
     consumer.mkdir()
     (consumer / "user-note.txt").write_text("Preserve this consumer-owned note.\n")
@@ -399,7 +411,9 @@ def build_package(
     first = archive_for(root, commit)
     require(first == archive_for(root, commit), "independent archive builds differ")
     with tempfile.TemporaryDirectory(prefix="pkstack-package-smoke-") as temporary:
-        smoke = consumer_smoke(first, expected["version"], Path(temporary))
+        smoke = consumer_smoke(
+            first, expected["version"], Path(temporary), allowed=load_contract(root)
+        )
     contents = {
         "package.tar.gz": first,
         "package.tar.gz.sha256": f"{sha256(first)}  package.tar.gz\n".encode(),

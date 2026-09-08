@@ -9,3 +9,8 @@ __pycache__/
 .pkstack/projectctl/.venv/
 .pkstack-maintenance/
 /Wiki/work/
+
+# Repository-level development outputs
+/.coverage
+/.coverage.*
+/htmlcov/

@@ -95,15 +95,14 @@
           "CLAUDE.local.md",
           "CLAUDE.md",
           "GEMINI.md",
-          "powers/pkstack/docs/validation-report.md",
+          "docs/validation-report.md",
           "powers/pkstack/examples/**",
           "powers/pkstack/pyproject.toml",
-          "powers/pkstack/reviews/**",
+          "reviews/**",
           "powers/pkstack/src/pkstack/**",
-          "powers/pkstack/tests/**",
+          "tests/**",
           "powers/pkstack/uv.lock",
           "projectctl",
-          "reviews/**",
           "Wiki/index.md",
           "Wiki/features/**",
           "Wiki/work/**",
@@ -111,7 +110,10 @@
           "Wiki/knowledge/pkstack/corpus-inventory.json",
           "maintenance/upstreams.json",
           "maintenance/upstream-reviews.json",
-          "maintenance/upstream-feedback.json"
+          "maintenance/upstream-feedback.json",
+          "benchmarks/**",
+          "docs/artifacts/**",
+          "maintenance/package-content.json"
         ],
         "effect": "deny"
       }

@@ -68,7 +68,7 @@ CANDIDATE_PACKAGE_MAX_BYTES = 33_554_432
 REVIEW_LEDGER_MAX_BYTES = 8 * 1024 * 1024
 REVIEW_TRANSITION_MAX = 512
 SKILL_REVIEW_CONTEXT_MAX_BYTES = 64 * 1024
-SKILL_REVIEW_FIXTURE = "powers/pkstack/tests/fixtures/skill-routing.json"
+SKILL_REVIEW_FIXTURE = "tests/fixtures/skill-routing.json"
 SKILL_REVIEW_PREFIX = "powers/pkstack/skills/"
 SKILL_REVIEW_STEERING = "powers/pkstack/dev.kiro/"
 SKILL_REVIEW_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -1052,9 +1052,7 @@ def load_policy(path: Path) -> tuple[bytes, dict[str, Any]]:
         raise GuardError("review proposal must be ephemeral and agent-only")
     if not {ledger, manifest} <= final_exact or {ledger, manifest} & agent_exact:
         raise GuardError("upstream pin and review ledger must be finalizer-only")
-    if not {"powers/pkstack/src/pkstack/", "powers/pkstack/tests/"} <= set(
-        policy["protected_prefixes"]
-    ):
+    if not {"powers/pkstack/src/pkstack/", "tests/"} <= set(policy["protected_prefixes"]):
         raise GuardError("controller and canonical Power tests must be protected")
     review = policy.get("candidate_review")
     if not isinstance(review, dict) or set(review) != {

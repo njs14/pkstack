@@ -17,6 +17,9 @@ concurrency:
   group: pkstack-upstream-maintenance-${{ github.repository }}
   cancel-in-progress: false
 
+env:
+  UV_PROJECT_ENVIRONMENT: ${{ github.workspace }}/.venv
+
 jobs:
   plan:
     runs-on: ubuntu-24.04
@@ -176,7 +179,8 @@ jobs:
             .github/scripts/pkstack_update_controller.py \
             .github/scripts/pkstack_review_feedback.py \
             | tar -x -C "$TRUSTED_ROOT"
-          uv sync --quiet --locked --no-config \
+          UV_PROJECT_ENVIRONMENT="$TRUSTED_ROOT/.pkstack/projectctl/.venv" \
+            uv sync --quiet --locked --no-config \
             --project "$TRUSTED_ROOT/.pkstack/projectctl"
       - name: Re-prove pinned upstream identity and drift
         id: detect
@@ -369,7 +373,8 @@ jobs:
             .kiro/agents \
             | tar -x -C "$TRUSTED_ROOT"
           uv sync --quiet --locked --all-groups --project powers/pkstack
-          uv sync --quiet --locked --no-config --project "$TRUSTED_PROJECTCTL_ROOT"
+          UV_PROJECT_ENVIRONMENT="$TRUSTED_PROJECTCTL_ROOT/.venv" \
+            uv sync --quiet --locked --no-config --project "$TRUSTED_PROJECTCTL_ROOT"
           python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH"
           python3 "$GUARD_PATH" validate-ci-agent \
             --agent .kiro/agents/pkstack-maintainer.json

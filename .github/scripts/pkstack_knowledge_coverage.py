@@ -192,11 +192,7 @@ def validate(root, base=None):
         raise ValueError("coverage entries must be a nonempty list")
     documents = inventory(root)
     seen = {}
-    issues = [
-        f"retired root review archive; synthesize into Wiki knowledge: {name}"
-        for name in sorted(documents)
-        if name.startswith("reviews/")
-    ]
+    issues = []  # Review contracts/evidence still require explicit knowledge mappings.
     counts = Counter()
     for entry in entries:
         try:

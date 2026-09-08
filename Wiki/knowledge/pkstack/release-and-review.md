@@ -21,6 +21,25 @@ A base commit does not identify uncommitted candidate bytes. Separate operator-a
 from native model actions and command execution from documentation or menu recognition. A
 reviewer who only reads code has not rerun coordinator-provided tests.
 
+## Consumer Power and maintainer material
+
+The v0.5.6 cleanup keeps `powers/pkstack/` as the sole installable source. Tests and
+fixtures live in root `tests/`, benchmarks in `benchmarks/`, review contracts and
+preserved reports in `reviews/`, and maintainer explanations, diagrams, and historical
+artwork in `docs/`. This relocates the former Power review harness; it does not restore
+the older root archive retired during the knowledge migration. Existing historical
+reports keep their bytes and scope, even where their original relative paths describe
+the former package layout. Their Wiki summaries link to the relocated evidence.
+
+The repository-owned [package-content contract](../../../maintenance/package-content.json)
+lists every consumer file. Packaging checks all source files and directories, including
+ignored clutter, and checks the archive against the same list. Missing skills, notices,
+logo, or required runtime resources fail just as unexpected tests, reports, virtual
+environments, and caches do. The approved archive still passes deterministic byte
+comparison and the extracted-consumer setup, idempotence, doctor, feature/knowledge,
+and stored fail-repair-pass checks. Consumer guides link repository-only material by
+GitHub URL so release-local links stay within the extracted Power.
+
 ## Review and release procedure
 
 Run applicable deterministic checks, review the frozen candidate, reproduce material findings,
@@ -98,7 +117,7 @@ untagged and unpublished pending that acceptance; preparation is not overall rel
 release line, with no commitment to backport fixes to older lines. Knowledge
 validation is local; bounded Kiro ACP retrieval is a separate capability.
 Historical acceptance ledgers retain their original versions and paths.
-The [artwork guide](../../../powers/pkstack/assets/README.md) identifies the current
+The [artwork guide](../../../docs/assets/creation-history.md) identifies the current
 four-ghost logo and separates the earlier banner and mascot history.
 
 ## Carry acceptance across changes only with an explicit binding
@@ -152,9 +171,9 @@ original candidate and scope; they are not fresh verification of this checkout.
 | [reviews/cleanup-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/cleanup-validation.md) | Cleanup removed obsolete schema/cache machinery and corrected cancellation/environment/retry handling based on observed failures; unfinished native gates remained failures or limits. |
 | [reviews/fable-review-prompt.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/fable-review-prompt.md) | Retains the method of read-only exact-candidate review with stable findings and acceptance tests; old paths, okn and product-contract wording need reconciliation before reuse. |
 | [reviews/grok-sweep-prompt.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/grok-sweep-prompt.md) | Adversarial sweep checks containment, evidence identity and unsupported claims independently; historical command/backend names are not current instructions. |
-| [powers/pkstack/docs/validation-report.md](../../../powers/pkstack/docs/validation-report.md) | Release procedure requires candidate-bound metadata, checks, generated parity, native evidence where required, independent review and separate publication gates. |
-| [powers/pkstack/reviews/README.md](../../../powers/pkstack/reviews/README.md) | The package review harness separates source inspection from executable checks and recommends immutable evidence packets with bounded reviewer tools. |
-| [powers/pkstack/reviews/fable-review-prompt.md](../../../powers/pkstack/reviews/fable-review-prompt.md) | The historical acceptance prompt supplies reproducible finding and trust-boundary methods, but its old brand/namespace assumptions are not current Power interfaces. |
-| [powers/pkstack/reviews/grok-review-prompt.md](../../../powers/pkstack/reviews/grok-review-prompt.md) | Independent advisory review preserves dissent and exact findings without implementation or inherited verdicts; historical compatibility names must not override current code. |
-| [powers/pkstack/reviews/fable-final.md](../../../powers/pkstack/reviews/fable-final.md) | The ACCEPT applies to snapshot 1a145d4 and records residual receipt/cache and non-sandbox limits; a reader-only review did not execute the claimed tests. |
-| [powers/pkstack/reviews/historical/pre-v0.2/README.md](../../../powers/pkstack/reviews/historical/pre-v0.2/README.md) | Archived package review records retain original candidate/runtime scope and cannot stand in for a fresh review. |
+| [docs/validation-report.md](../../../docs/validation-report.md) | Release procedure requires candidate-bound metadata, checks, generated parity, native evidence where required, independent review and separate publication gates. |
+| [reviews/README.md](../../../reviews/README.md) | The repository review harness separates source inspection from executable checks and recommends immutable evidence packets with bounded reviewer tools. |
+| [reviews/fable-review-prompt.md](../../../reviews/fable-review-prompt.md) | The historical acceptance prompt supplies reproducible finding and trust-boundary methods, but its old brand/namespace assumptions are not current Power interfaces. |
+| [reviews/grok-review-prompt.md](../../../reviews/grok-review-prompt.md) | Independent advisory review preserves dissent and exact findings without implementation or inherited verdicts; historical compatibility names must not override current code. |
+| [reviews/fable-final.md](../../../reviews/fable-final.md) | The ACCEPT applies to snapshot 1a145d4 and records residual receipt/cache and non-sandbox limits; a reader-only review did not execute the claimed tests. |
+| [reviews/historical/pre-v0.2/README.md](../../../reviews/historical/pre-v0.2/README.md) | Archived package review records retain original candidate/runtime scope and cannot stand in for a fresh review. |

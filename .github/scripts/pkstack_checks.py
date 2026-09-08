@@ -58,6 +58,9 @@ def config_digest(root):
     paths += [
         root / "powers/pkstack/pyproject.toml",
         root / "powers/pkstack/uv.lock",
+        root / ".coveragerc",
+        root / "pytest.ini",
+        root / "maintenance/package-content.json",
         root / "ruff.toml",
         root / "ty.toml",
         root / "maintenance/knowledge-coverage.json",
@@ -74,7 +77,7 @@ def git(root, *args):
 def report_path(path):
     reports = {"Wiki/knowledge/pkstack/release-record.md"}
     reports.update(
-        f"powers/pkstack/reviews/{name}.md"
+        f"reviews/{name}.md"
         for name in (
             "kiro-final-campaign",
             "kiro-selected-profile-campaign",
@@ -396,6 +399,8 @@ def run_lane(root, plan, lane, receipt):
                 "uv",
                 "run",
                 "--frozen",
+                "--project",
+                "powers/pkstack",
                 "pytest",
                 "tests",
                 "-o",
@@ -408,7 +413,7 @@ def run_lane(root, plan, lane, receipt):
                 "--basetemp",
                 str(diagnostics),
             ],
-            cwd=root / "powers/pkstack",
+            cwd=root,
             env=env,
         ).returncode
     started = time.monotonic()
@@ -513,6 +518,7 @@ def verify_receipts(plan, receipts, needs=None):
 
 
 def main():
+    os.environ.setdefault("PYTHONDONTWRITEBYTECODE", "1")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -538,6 +544,7 @@ def main():
     local.add_argument("--output", type=Path)
     args = parser.parse_args()
     root = args.repo_root.resolve()
+    os.environ.setdefault("UV_PROJECT_ENVIRONMENT", str(root / ".venv"))
     if args.command == "classify":
         plan = make_plan(root, args.event, args.base, args.head)
         write_json(args.output, plan)

@@ -198,7 +198,7 @@ SOFTWARE.
 ## Archify reviewed offline runtime
 
 PKStack redistributes a reviewed, byte-addressed subset of the Archify runtime
-under [`skills/archify/upstream/`](skills/archify/upstream/). The Kiro wrapper
+under [`skills/archify/upstream/`](skills/archify/upstream). The Kiro wrapper
 and curated bundle manifest are separate from the pinned upstream source.
 The runtime preserves upstream bytes except for the documented PKStack layout
 patches in [Archify provenance](docs/tt-a1i-archify-provenance.md), which records
@@ -334,7 +334,7 @@ The repository's artwork references Kiro's ghost mascot. The historical `assets/
 mascot is an AI-generated transformation made at the project owner's request with the
 installed Kiro application icon as a visual reference; the source `.icns` file is not included.
 The current `assets/logo.png` "Knowledge crest" depicts four ghost characters with a book and
-knowledge tree and was selected on September 6, 2026. See [`assets/README.md`](assets/README.md)
+knowledge tree and was selected on September 6, 2026. See [artwork creation history](https://github.com/njs14/pkstack/blob/main/docs/assets/creation-history.md)
 for the generation provenance of both images.
 
 Kiro and its original artwork remain the property of their respective owner. This attribution

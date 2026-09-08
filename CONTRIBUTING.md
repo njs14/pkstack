@@ -6,7 +6,7 @@ to review and safest to merge.
 ## Before you change code
 
 1. Read [the root README](README.md) and the relevant [usage](powers/pkstack/docs/usage.md)
-   or [architecture](powers/pkstack/docs/architecture.md) section.
+   or [architecture](docs/architecture.md) section.
 2. Keep `powers/pkstack/` as the only Power source. Treat `.kiro/` and
    `.pkstack/` at the repository root as generated workspace material.
 3. Do not copy credentials, private transcripts, or generated local paths into
@@ -30,6 +30,7 @@ or generated runtime:
 git fetch origin
 git worktree add -b my-change ../pkstack-my-change origin/main
 cd ../pkstack-my-change
+export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
 uv sync --locked --all-groups --project powers/pkstack
 ```
 
@@ -56,6 +57,7 @@ Run focused regressions for the behavior you changed, then the fast contract lan
 before pushing a reviewed checkpoint. From the repository root:
 
 ```sh
+export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
 uv sync --locked --all-groups --project powers/pkstack
 uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local fast
 ```
@@ -96,7 +98,7 @@ previous successful commit as validation of a changed candidate.
 ### Measuring local link validation
 
 ```sh
-uv run --frozen --project powers/pkstack python powers/pkstack/benchmarks/knowledge_links.py
+uv run --frozen --project powers/pkstack python benchmarks/knowledge_links.py
 ```
 
 This secretless benchmark measures the repository Wiki and a temporary fixture
@@ -128,8 +130,11 @@ bulk hash-refresh mode. CI enforces coverage, freshness, metadata and links; rev
 must still assess semantic completeness and whether exclusions are justified.
 Adding a coverage-manifest or general Wiki change selects normal CI under the existing
 conservative classification. The exact Wiki release record retains the report-only route.
-Root `reviews/` is retired: synthesize findings into Wiki topics and cite immutable Git history
-for original evidence. Keep executable test inputs in their fixture directories.
+Root `reviews/` holds maintainer review contracts and preserved historical evidence.
+Synthesize findings into Wiki topics and retain source mappings. Keep executable test
+inputs in root `tests/fixtures/`. The reviewed consumer file allowlist lives in
+`maintenance/package-content.json`; source and archive checks reject every unlisted
+file or directory, including ignored caches and development environments.
 
 - Explain the user-visible outcome and the files that own it.
 - Include tests or a documented reason a test is not useful.

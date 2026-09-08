@@ -12,6 +12,7 @@ heredocs is left exactly as it is.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -23,8 +24,6 @@ ROOT = Path(__file__).resolve().parents[2]
 POWER = "powers/pkstack"
 POWER_PATHS = (
     "src",
-    "tests",
-    "benchmarks",
     "examples",
     "skills/pkstack-setup/scripts/setup_pkstack.py",
 )
@@ -207,14 +206,15 @@ def static_commands(root: Path) -> list[tuple[Path, list[str]]]:
         # Workflow scripts live outside the Power project, so they are checked from
         # the repository root against `ruff.toml`/`ty.toml` while still running the
         # locked analyzers from the Power environment.
-        (Path(root), [*LOCKED, "ruff", "check", ".github"]),
-        (Path(root), [*LOCKED, "ruff", "format", "--check", ".github"]),
+        (Path(root), [*LOCKED, "ruff", "check", ".github", "tests", "benchmarks"]),
+        (Path(root), [*LOCKED, "ruff", "format", "--check", ".github", "tests", "benchmarks"]),
         (Path(root), [*LOCKED, "ty", "check"]),
     ]
 
 
 def run_static_checks(root: Path) -> None:
     root = Path(root)
+    os.environ.setdefault("UV_PROJECT_ENVIRONMENT", str(root / ".venv"))
     for cwd, command in static_commands(root):
         run(command, cwd)
     check_bodies(root, embedded_bodies(root))

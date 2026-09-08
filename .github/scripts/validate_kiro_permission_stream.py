@@ -30,9 +30,9 @@ DENIED_RESOURCES = (
     ".github/protected.txt",
     ".kiro/protected.txt",
     "powers/pkstack/src/pkstack/protected.py",
-    "powers/pkstack/tests/protected.py",
+    "tests/protected.py",
     "maintenance/upstream-reviews.json",
-    "powers/pkstack/docs/validation-report.md",
+    "docs/validation-report.md",
 )
 ALLOWED_WRITES = (
     (".pkstack-maintenance/proposal.json", '{"permission_smoke":true}\n'),

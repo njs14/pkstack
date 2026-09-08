@@ -82,7 +82,7 @@ Plan defers capture, and an explicit no-write request takes precedence. See
 
 ## How it works
 
-![Kiro plans and executes; PKStack guides the work; projectctl checks the result.](docs/artifacts/pkstack-architecture.png)
+![Kiro plans and executes; PKStack guides the work; projectctl checks the result.](https://github.com/njs14/pkstack/blob/main/docs/artifacts/pkstack-architecture.png)
 
 Kiro runs the agent session. PKStack's skills tell it how to approach a task,
 when to seek independent review, and what evidence to collect. The local
@@ -106,7 +106,7 @@ Wiki/knowledge/    Project topics, definitions, decisions, and references
 Native Specs stay in Kiro's own files. Knowledge searches use a bounded,
 read-only Kiro worker to retrieve relevant source material; local knowledge
 validation checks metadata and links without a model. The
-[architecture guide](docs/architecture.md) explains the process and ownership
+[architecture guide](https://github.com/njs14/pkstack/blob/main/docs/architecture.md) explains the process and ownership
 boundaries.
 
 Saved prompts can hold recurring requests you choose to submit. Keep them
@@ -147,7 +147,7 @@ PKStack started with Poteto's pstack. The additional skills have specific jobs:
 These are reviewed adaptations for Kiro. The
 [port inventory](docs/upstream-skill-parity.md) records the original workflows,
 Kiro replacements, and exclusions; the [third-party notices](THIRD_PARTY_NOTICES.md) retain
-attribution. [Upstream maintenance](docs/upstream-control-loop.md) has its own
+attribution. [Upstream maintenance](https://github.com/njs14/pkstack/blob/main/docs/upstream-control-loop.md) has its own
 review and acceptance process.
 
 ## Docs and contributing
@@ -155,7 +155,7 @@ review and acceptance process.
 | Read this | For |
 | --- | --- |
 | [First task](docs/first-task.md) | A disposable failure, Kiro repair, and passing check. |
-| [Architecture](docs/architecture.md) | Runtime components, native planning, and file ownership. |
+| [Architecture](https://github.com/njs14/pkstack/blob/main/docs/architecture.md) | Runtime components, native planning, and file ownership. |
 | [Knowledge guide](docs/usage.md#use-project-knowledge) | Wiki authoring, retrieval, and local validation. |
 | [Changelog](https://github.com/njs14/pkstack/blob/main/CHANGELOG.md) | Changes in each release. |
 | [Contributing](https://github.com/njs14/pkstack/blob/main/CONTRIBUTING.md) | Development setup, focused checks, and pull requests. |

@@ -90,8 +90,8 @@ class ProfileTests(unittest.TestCase):
     def test_only_enumerated_reports_take_fast_path(self):
         for path in (
             "Wiki/knowledge/pkstack/release-record.md",
-            "powers/pkstack/reviews/fable-final.md",
-            "powers/pkstack/reviews/kiro-final-campaign.md",
+            "reviews/fable-final.md",
+            "reviews/kiro-final-campaign.md",
         ):
             with self.subTest(path=path):
                 self.assertEqual(
@@ -99,9 +99,9 @@ class ProfileTests(unittest.TestCase):
                     ("reports", "none"),
                 )
         for path in (
-            "powers/pkstack/reviews/fable-review-prompt.md",
-            "powers/pkstack/reviews/acceptance-criteria.md",
-            "powers/pkstack/reviews/new-report.md",
+            "reviews/fable-review-prompt.md",
+            "reviews/acceptance-criteria.md",
+            "reviews/new-report.md",
             "reviews/release-030-future.md",
             "reviews/release-status.md",
             "reviews/release-030-composition.md",
@@ -140,8 +140,8 @@ class ProfileTests(unittest.TestCase):
         for path in (
             "powers/pkstack/skills/archify/upstream/viewer.js",
             ".kiro/skills/archify/viewer.js",
-            "powers/pkstack/tests/test_archify_reader_layout.py",
-            "powers/pkstack/tests/fixtures/archify.json",
+            "tests/test_archify_reader_layout.py",
+            "tests/fixtures/archify.json",
             "powers/pkstack/uv.lock",
             "pyproject.toml",
             ".github/scripts/pkstack_checks.py",
@@ -367,6 +367,9 @@ class GitPlanTests(unittest.TestCase):
             ".github/scripts/check.py",
             "powers/pkstack/pyproject.toml",
             "powers/pkstack/uv.lock",
+            ".coveragerc",
+            "pytest.ini",
+            "maintenance/package-content.json",
             "ruff.toml",
             "ty.toml",
             "maintenance/knowledge-coverage.json",

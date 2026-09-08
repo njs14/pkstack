@@ -14,11 +14,11 @@ ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_BODIES = {
     (".github/scripts/run_kiro_maintenance_attempt.sh", 15),
     (".github/scripts/verify_pkstack_attempt.sh", 109),
-    (".github/scripts/verify_pkstack_attempt.sh", 349),
-    (".github/scripts/verify_pkstack_attempt.sh", 437),
-    (".github/workflows/pk-stack-kiro-permission-smoke.yml", 98),
-    (".github/workflows/pk-stack-kiro-permission-smoke.yml", 239),
-    (".github/workflows/pk-stack-upstream-maintenance-kiro.yml", 216),
+    (".github/scripts/verify_pkstack_attempt.sh", 345),
+    (".github/scripts/verify_pkstack_attempt.sh", 433),
+    (".github/workflows/pk-stack-kiro-permission-smoke.yml", 99),
+    (".github/workflows/pk-stack-kiro-permission-smoke.yml", 240),
+    (".github/workflows/pk-stack-upstream-maintenance-kiro.yml", 220),
 }
 
 

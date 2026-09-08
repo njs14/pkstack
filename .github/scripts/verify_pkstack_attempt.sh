@@ -240,12 +240,8 @@ set +e
     unset GIT_EXTERNAL_DIFF GIT_CONFIG_COUNT
     unset GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0 GIT_CONFIG_KEY_1 GIT_CONFIG_VALUE_1
     unset GIT_CONFIG_KEY_2 GIT_CONFIG_VALUE_2 GIT_CONFIG_KEY_3 GIT_CONFIG_VALUE_3
-    cd powers/pkstack
-    uv lock --check
-    uv run --frozen ruff check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-    uv run --frozen ruff format --check src tests skills/pkstack-setup/scripts/setup_pkstack.py
-    uv run --frozen ty check
-    uv run --frozen pytest -q
+    uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_python_static.py
+    uv run --frozen --project powers/pkstack pytest -q
   )
 
   # Commit the reviewed transition only after every pre-pin gate passes. A later

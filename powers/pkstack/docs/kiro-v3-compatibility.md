@@ -35,7 +35,7 @@ official [Kiro Crew product contract](https://kiro.dev/crew/).
 Historical records retain the names and commands actually tested. The
 [friends validation](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/friends-validation.md)
 records the September 5 candidate and exact campaign scope; the
-[release status](../../../Wiki/knowledge/pkstack/release-record.md) distinguishes tested
+[release status](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/release-record.md) distinguishes tested
 behavior from a published release.
 
 Kiro CLI 2.21.0 has one observed discovery compatibility quirk: a valid
@@ -733,7 +733,7 @@ the portable completion predicate on every supported path.
 
 ## Compatibility validation commands
 
-Run the [shared deterministic gate](validation-report.md#deterministic-local-checks)
+Run the [shared deterministic gate](https://github.com/njs14/pkstack/blob/main/docs/validation-report.md#deterministic-local-checks)
 from the repository root. It includes Kiro asset tests and static checks.
 
 Separately validate custom-agent templates against the actual installed CLI:
@@ -746,4 +746,4 @@ done
 
 Schema validation does not establish discovery, selection, permissions, or native
 workflow execution. Record those observations with their exact candidate, client
-build, commands, and limits using the [release evidence contract](validation-report.md#release-gate-record).
+build, commands, and limits using the [release evidence contract](https://github.com/njs14/pkstack/blob/main/docs/validation-report.md#release-gate-record).

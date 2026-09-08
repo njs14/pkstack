@@ -4842,7 +4842,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 self.policy["agent_allowed_prefixes"],
             )
         )
-        self.assertTrue(guard._is_protected("powers/pkstack/tests/test_upstreams.py", self.policy))
+        self.assertTrue(guard._is_protected("tests/test_upstreams.py", self.policy))
 
     def test_candidate_package_has_one_exact_bounded_size_contract(self) -> None:
         self.assertEqual(
@@ -6117,7 +6117,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         )
         self.assertEqual(kiro.count('--git-state "$GIT_BOUNDARY_STATE"'), 5)
         self.assertEqual(verifier.count('--git-state "$GIT_BOUNDARY_STATE"'), 2)
-        self.assertLess(verifier.index("close-attempt"), verifier.index("uv lock --check"))
+        self.assertLess(verifier.index("close-attempt"), verifier.index("pkstack_python_static.py"))
         hardened_settings = (
             "GIT_CONFIG_NOSYSTEM=1",
             "GIT_CONFIG_GLOBAL=/dev/null",
@@ -6241,7 +6241,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         self.assertIn("TESTED_BASE_SHA", candidate)
         self.assertLess(
             verifier.index("unset READONLY_GITHUB_TOKEN"),
-            verifier.index("uv lock --check"),
+            verifier.index("pkstack_python_static.py"),
         )
         self.assertIn("validate-proposal", verifier)
         self.assertIn("validate-serialized-acceptance", verifier)
