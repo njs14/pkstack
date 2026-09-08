@@ -54,6 +54,10 @@ sizes, exit status, sampled event/tool counts, and terminal-event presence. It d
 establish agent attestation or candidate validity. The private evidence limit, credential
 checks, and deletion on exit still apply; raw model/tool output is never uploaded.
 
+Failed acceptance previews and commits include at most 32 KiB of their JSON output in
+private repair feedback. Retained verification reports expose only fixed acceptance reason
+codes; unknown errors use `acceptance-failed`. The acceptance exit code still stops the gate.
+
 The autonomous acceptance path is limited to the GitHub source entries configured in `maintenance/upstreams.json`. A
 separate weekly or manually dispatched Kiro canary observes product/runtime/documentation drift
 without editing the repository or promoting a new CLI pin.
