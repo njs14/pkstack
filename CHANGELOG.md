@@ -4,6 +4,15 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.8]
+
+- Reconciles pinned Cursor/pstack provenance with the reviewed catalog-documentation
+  transition to `2b8ae2e`, while keeping the bounded 122-file skills catalog
+  byte-identical.
+- Records the reviewed `opening-a-pr` catalog entry and corrected upstream playbook
+  and principle counts; preserves separate authorization for pull-request creation
+  and excludes Cursor package metadata from PKStack release metadata.
+
 ## [0.5.7]
 
 - Reconstruct large omitted upstream text patches from exact Git blobs, using
