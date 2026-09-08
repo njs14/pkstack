@@ -106,11 +106,11 @@ class CoverageTests(unittest.TestCase):
             ["git", "-C", str(self.root), "rev-parse", "HEAD"], text=True
         ).strip()
 
-    def test_root_review_archive_cannot_be_reintroduced_even_with_mapping(self):
+    def test_review_evidence_is_allowed_with_knowledge_mapping(self):
         self.write("reviews/new.md", "# A new report\n")
         self.entries.append(self.mapping("reviews/new.md"))
         self.topic("[Guide](../../docs/guide.md) [Report](../../reviews/new.md)")
-        self.run_gate("retired root review archive")
+        self.run_gate()
 
     def test_updater_can_update_changed_source_and_related_topic(self):
         base = self.commit_base()

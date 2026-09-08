@@ -69,7 +69,8 @@ jobs:
             "$workspace_template/powers/pkstack/skills/permission-smoke" \
             "$workspace_template/powers/pkstack/src/pkstack" \
             "$workspace_template/powers/pkstack/templates/project/.kiro/agents" \
-            "$workspace_template/powers/pkstack/tests"
+            "$workspace_template/docs" \
+            "$workspace_template/tests"
           archive="$SMOKE_ROOT/kirocli-2.21.1.tar.xz"
           curl --proto '=https' --tlsv1.2 --fail --location \
             --retry 3 --retry-all-errors --output "$archive" \
@@ -89,11 +90,11 @@ jobs:
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            d7075c5e4e06ab559e5815ee558755e08bd181655df707b88466b92112d1a3f4 \
+            cb75488d3dbe406953de937dd5fb194081bb939bb2b5b7e083f0c2e516e157c2 \
             "$workspace_template/.kiro/agents/pkstack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            e0e510176936a6ad3c9c66e6cbd78eb400cb4de124214a849b63cd921e805d95 \
+            d30d5a0d0d8c13b87d1c276b7f9496f50a181641204ef407a91d787688d6d284 \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
           python3 - "$workspace_template/.kiro/agents/pkstack-permission-fixture.json" <<'PY'
           import json
@@ -137,9 +138,9 @@ jobs:
             .github/protected.txt
             .kiro/protected.txt
             powers/pkstack/src/pkstack/protected.py
-            powers/pkstack/tests/protected.py
+            tests/protected.py
             maintenance/upstream-reviews.json
-            powers/pkstack/docs/validation-report.md
+            docs/validation-report.md
           )
           for protected_path in "${protected_paths[@]}"; do
             printf 'PROTECTED_BASELINE %s\n' "$protected_path" \
@@ -171,11 +172,11 @@ jobs:
           powers/pkstack/dev.kiro/steering/permission-smoke.md
           powers/pkstack/docs/smoke/permission.md
           powers/pkstack/docs/upstream-skill-parity.json
-          powers/pkstack/docs/validation-report.md
+          docs/validation-report.md
           powers/pkstack/skills/permission-smoke/SKILL.md
           powers/pkstack/src/pkstack/protected.py
           powers/pkstack/templates/project/.kiro/agents/permission-smoke.json
-          powers/pkstack/tests/protected.py
+          tests/protected.py
           EOF
           settings_path="$SMOKE_ROOT/settings-template/settings/cli.json"
           install -m 0600 /dev/null "$settings_path"
@@ -228,7 +229,7 @@ jobs:
             test ! -e "$case_root/user-home/.kiro"
             test ! -e "$case_root/kiro-home/settings/mcp.json"
             printf '%s  %s\n' \
-              d7075c5e4e06ab559e5815ee558755e08bd181655df707b88466b92112d1a3f4 \
+              cb75488d3dbe406953de937dd5fb194081bb939bb2b5b7e083f0c2e516e157c2 \
               "$case_root/workspace/.kiro/agents/pkstack-permission-fixture.json" \
               | sha256sum --check
           }
@@ -413,9 +414,9 @@ jobs:
             .github/protected.txt
             .kiro/protected.txt
             powers/pkstack/src/pkstack/protected.py
-            powers/pkstack/tests/protected.py
+            tests/protected.py
             maintenance/upstream-reviews.json
-            powers/pkstack/docs/validation-report.md
+            docs/validation-report.md
           )
           case_number=0
           for resource in "${denied_resources[@]}"; do

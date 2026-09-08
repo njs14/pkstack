@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pkstack"
-version = "0.5.5"
+version = "0.5.6"
 description = "PKStack Kiro-native verified development Power and project control CLI"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -29,24 +29,11 @@ dev = [
 [tool.hatch.build.targets.wheel]
 packages = ["src/pkstack"]
 
-[tool.pytest.ini_options]
-addopts = "-ra --strict-config --strict-markers --cov-branch"
-testpaths = ["tests"]
-
-[tool.coverage.run]
-branch = true
-source = ["pkstack"]
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
-fail_under = 85
-
 [tool.ruff]
 target-version = "py311"
 line-length = 100
 # Generated snapshots are compared byte for byte by the packaging tests.
-extend-exclude = ["tests/fixtures/generated"]
+cache-dir = "../../.ruff_cache"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
@@ -61,9 +48,8 @@ quote-style = "double"
 
 [tool.ty.environment]
 python-version = "3.11"
-# `benchmarks/` and the demo example are standalone entrypoints rather than
-# importable packages, so they need explicit first-party search paths.
-root = ["src", "tests", "benchmarks", "examples/verified-goal-demo"]
+# The demo example is a standalone entrypoint with its own import root.
+root = ["src", "examples/verified-goal-demo"]
 
 [tool.ty.src]
-include = ["src", "tests", "benchmarks", "examples", "skills/pkstack-setup/scripts"]
+include = ["src", "examples", "skills/pkstack-setup/scripts"]

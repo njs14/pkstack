@@ -752,7 +752,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "b55a7fea113965dc8a3a0de8843630cf125b4982063c303961ed0a247c3efcbc",
+      "sha256": "9679ead5e040e22b60f130b8ddbb3beaae2958fcd404eb7200f1ae2fcb53a66d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -775,7 +775,7 @@
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "057102eaa0418c95f44402dbfc1ce4e87437a517f1e5b3dfaee86e78ee22cb1d",
+      "sha256": "443bf2d59196c018fb4b9d98b6a0720099b8dc28115a27b8cdb2e4a4fa83c466",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/quality-and-ci.md"
@@ -784,7 +784,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "365d2e76517675d9a33c71fdca3867aeb0f8abe2336fbdb07815032ecceeb7c7",
+      "sha256": "bbabc2c1b5f42cebaa552aeb7faddb4bc6e8e321a6e2bd0770d107175fed0164",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -881,8 +881,53 @@
       "classification": "canonical"
     },
     {
+      "path": "docs/architecture.md",
+      "sha256": "a064339b7502943e174442fd4f914b24d4e4ed765afbbfde0f0884d7bfd4c7a9",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "Kiro owns execution while projectctl owns commands and proof; shell-free verification and unsigned ownership receipts do not constitute a sandbox or semantic truth."
+    },
+    {
+      "path": "docs/artifacts/README.md",
+      "sha256": "aa56d04ea80a2be4e7b3fdc4f3136063641e6b64af9f46e753fac1d9c3912b4f",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/visual-artifacts.md"
+      ],
+      "summary": "Editable JSON, interactive HTML and static previews explain component/planning/updater boundaries at a recorded source snapshot; diagrams are not executable proof."
+    },
+    {
+      "path": "docs/assets/creation-history.md",
+      "sha256": "e2e909a0bc67242e6e8a0efcc2c000b1c13da9dbdc3197e861d7522eef680ad4",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/visual-artifacts.md"
+      ],
+      "summary": "Retains the selected Knowledge crest and historical banner/mascot creation history and attribution outside the consumer Power."
+    },
+    {
+      "path": "docs/upstream-control-loop.md",
+      "sha256": "43cbc2eedff32bf49703095ae5beb4f53522b3bb52416a743f0e0770a65759e6",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/upstream-maintenance/operations.md"
+      ],
+      "summary": "One-source proposals, isolated no-tool review, secretless tests, 64 KiB context and three-rejection budgets govern automation; stale candidates and failed feedback persistence stop safely."
+    },
+    {
+      "path": "docs/validation-report.md",
+      "sha256": "43b46ee546a1ea42ff6bf4a61d265ce1215d9c4f9ce9ccb2e29357daf4fcf333",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/release-and-review.md"
+      ],
+      "summary": "Release procedure requires candidate-bound metadata, checks, generated parity, native evidence where required, independent review and separate publication gates."
+    },
+    {
       "path": "powers/pkstack/README.md",
-      "sha256": "70965e272632ef0cfbf5d97315be978b53e7a781b1c26385732059b40013296d",
+      "sha256": "cfd6f6da1d6ff77ad653d8d43a1b8492e76a6af8bc29bca62738d101d491f739",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -891,19 +936,19 @@
     },
     {
       "path": "powers/pkstack/THIRD_PARTY_NOTICES.md",
-      "sha256": "90df2b2f24568c0c7856a4caff2a2c227bdf2967bd0fa092a9e7f956794a80c4",
+      "sha256": "749479baa86fef6c33f6b0088db39668f1840e054d0293d838cec9d2dd2a234d",
       "classification": "excluded",
       "category": "policy",
       "reason": "Complete legal notices remain canonical in the package; source ownership and adaptation decisions are retained from linked provenance guides."
     },
     {
       "path": "powers/pkstack/assets/README.md",
-      "sha256": "3675680219416138ef6d382f5155f2c0da1a0f653f909a4ed57c6f4165fe7c5d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
       ],
-      "summary": "Retains earlier mascot/banner provenance; its current-banner wording predates the later selected four-ghost logo and should not override that selection."
+      "summary": "Consumer logo description identifies the bundled Knowledge crest and links repository artwork attribution.",
+      "sha256": "8ab9cf396bfa85ae0279d8d8f08259a1af821913795e5f08bbd54f61c849acea"
     },
     {
       "path": "powers/pkstack/dev.kiro/steering/pkstack-core.md",
@@ -941,24 +986,6 @@
       "reason": "Canonical native steering powers/pkstack/dev.kiro/steering/pkstack-unslop.md; generated mirrors must come from setup. Its workflow/tool ownership is explained by the composition and quality guides."
     },
     {
-      "path": "powers/pkstack/docs/architecture.md",
-      "sha256": "5100a5e9d10429696b028e38119427809e0934785a9ddca5e1a66e9875519a5b",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "Kiro owns execution while projectctl owns commands and proof; shell-free verification and unsigned ownership receipts do not constitute a sandbox or semantic truth."
-    },
-    {
-      "path": "powers/pkstack/docs/artifacts/README.md",
-      "sha256": "755caaccb761109710b498193587f663b1efd26fa393b8570e833864ead92d7c",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/visual-artifacts.md"
-      ],
-      "summary": "Editable JSON, interactive HTML and static previews explain component/planning/updater boundaries at a recorded source snapshot; diagrams are not executable proof."
-    },
-    {
       "path": "powers/pkstack/docs/astral-python-provenance.md",
       "sha256": "948c06eb7f8e1c3cc5be2b84e6bf05f78a0030ea0a98fd304550a478840cdedb",
       "classification": "mapped",
@@ -987,7 +1014,7 @@
     },
     {
       "path": "powers/pkstack/docs/google-open-knowledge-format-provenance.md",
-      "sha256": "e1a156788e71f156162a3ee704edae23523c88092537b80c0d22c35ec755c65b",
+      "sha256": "54347075c52e82abe6a33357c88b0d6dac3fd8abd40dfeca393cd475e0fa8f06",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/knowledge-lifecycle.md",
@@ -1006,7 +1033,7 @@
     },
     {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "4fa230ae4993c69de27509491f2fb889c437566f7955ba1ecbd938517512e007",
+      "sha256": "16f55566e15d3c23f80ebfb4c18df11bea234adcffe5d30f52975ac1cee350fc",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -1123,7 +1150,7 @@
     },
     {
       "path": "powers/pkstack/docs/provenance.md",
-      "sha256": "4dff8af2752c2e73c670a3a985edb3ec4713bfb9579857f85548f74a95d88977",
+      "sha256": "2f57e8f3f0bd97f0ff4fccc9ca1f8058847ae01a106bfca0fdf46a7a1c508f56",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1140,15 +1167,6 @@
       "summary": "Original upstream bytes and adapted runtime bytes remain separately bound, including local caption/viewport/transport patches and reviewed upstream parser/watcher corrections."
     },
     {
-      "path": "powers/pkstack/docs/upstream-control-loop.md",
-      "sha256": "70d74d76b9ba8b8f2a09ca25119d14d17b8b486bc322edbbeaf33f4cad5c77df",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/upstream-maintenance/operations.md"
-      ],
-      "summary": "One-source proposals, isolated no-tool review, secretless tests, 64 KiB context and three-rejection budgets govern automation; stale candidates and failed feedback persistence stop safely."
-    },
-    {
       "path": "powers/pkstack/docs/upstream-skill-parity.md",
       "sha256": "b1277e8e5a5dee1d84be79e973744c6be7796efba236b915d59076582ef0f2e4",
       "classification": "mapped",
@@ -1159,21 +1177,12 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "ea43a65c6c8b46c0d11aeea06fc83450fa0f70542b408c3e8975334d5ae6103a",
+      "sha256": "44278182128d929d9a1a0f9d67b55e9f7da5d5559604eeeadd7f3ff48d42182d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
       "summary": "Install through Kiro, initialize the workspace with the installed setup skill, use the project-local controller, and review receipt-aware managed updates."
-    },
-    {
-      "path": "powers/pkstack/docs/validation-report.md",
-      "sha256": "b10e389508047391f337bca7756fb30d19b2280b0d54e02c05fe55a5a20b406c",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Release procedure requires candidate-bound metadata, checks, generated parity, native evidence where required, independent review and separate publication gates."
     },
     {
       "path": "powers/pkstack/examples/verified-goal-demo/README.md",
@@ -1183,123 +1192,6 @@
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
       "summary": "The account-ID example is intentionally broken and its narrow verifier is a demonstration predicate, not general application acceptance."
-    },
-    {
-      "path": "powers/pkstack/reviews/README.md",
-      "sha256": "a7e9b5690915a6836903e55a595d2fadd863ce6d0ebacbee30e20f51f1d522c4",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "The package review harness separates source inspection from executable checks and recommends immutable evidence packets with bounded reviewer tools."
-    },
-    {
-      "path": "powers/pkstack/reviews/acceptance-criteria.md",
-      "sha256": "8247a70116a20bd63ce23533f6969d948b24e51fc0b131f4cfeabaff29a29c60",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "Historical disposition ledger ties environment isolation, JSON parsing, path checks, profile attachment, and proof-policy corrections to reproducible acceptance tests."
-    },
-    {
-      "path": "powers/pkstack/reviews/fable-final.md",
-      "sha256": "b650a60933a6d014e1176ff8c2d1b59823b00f04797ecb91a760b8220ab979db",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "The ACCEPT applies to snapshot 1a145d4 and records residual receipt/cache and non-sandbox limits; a reader-only review did not execute the claimed tests."
-    },
-    {
-      "path": "powers/pkstack/reviews/fable-review-prompt.md",
-      "sha256": "305dc52f09c5a5213a0bee04a695cead563dccc1087623526c278a7c4e81dccd",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "The historical acceptance prompt supplies reproducible finding and trust-boundary methods, but its old brand/namespace assumptions are not current Power interfaces."
-    },
-    {
-      "path": "powers/pkstack/reviews/fable-round-1.md",
-      "sha256": "a3ae6e63128e6c27ab1123e4a49d69a0fe816067584c34a4f78ad71cfa20e8c4",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "FBL-001 through FBL-004 motivate rejecting placeholder/self proof, complete controller permission coverage, loadable resume state, and external setup authority; older snapshot was rejected."
-    },
-    {
-      "path": "powers/pkstack/reviews/fable-round-2.md",
-      "sha256": "fb1e7a30bec40daf8d35a65e6cdeae96f092ebac10f7e12f575af883a98cec5f",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "FBL-012/013 show why open-ended Git allow globs and an unselected primary profile invalidate permission claims; read-only source review was not live matcher proof."
-    },
-    {
-      "path": "powers/pkstack/reviews/grok-review-prompt.md",
-      "sha256": "a99a4f16d11225080c97d1ad0d96c8747691632503410f05a7bd8ab2a6947557",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Independent advisory review preserves dissent and exact findings without implementation or inherited verdicts; historical compatibility names must not override current code."
-    },
-    {
-      "path": "powers/pkstack/reviews/grok-round-1.md",
-      "sha256": "aa3ec281726cd47078c7a4a76cd3358ce5ed8c0891dbba84dc33119b1cea80a4",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "GRK-001 through GRK-004 exposed wrapper environment leakage, malformed feature JSON output, operand containment gaps, and missing active-profile attachment."
-    },
-    {
-      "path": "powers/pkstack/reviews/grok-round-2.md",
-      "sha256": "ec36ffcfb91d577f3f59443f2e1e002bc4eb4c1bce0e4c82eb45e71c8c7147a1",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "GRK-011 through GRK-017 extend review to absolute executables, shell-capable read-only profiles, cached setup, reserved readme names, and joined interpreter flags; findings require disposition rather than blind acceptance."
-    },
-    {
-      "path": "powers/pkstack/reviews/grok-round-3.md",
-      "sha256": "975f6f4d8901a2831bec7490c90db398a8b6c4ff0b347fd1206bb381983a8f3a",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "GRK-021 demonstrates generator/loader YAML round-trip failures; bridge argv typing, setup fallback errors, and parent-exit/descendant cleanup limits remain distinct from semantic proof."
-    },
-    {
-      "path": "powers/pkstack/reviews/historical/pre-v0.2/README.md",
-      "sha256": "7e2fe3c09aa6cccdc955e65a525e059f32431e018a61adbfacf02aaed69a12b6",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/release-and-review.md"
-      ],
-      "summary": "Archived package review records retain original candidate/runtime scope and cannot stand in for a fresh review."
-    },
-    {
-      "path": "powers/pkstack/reviews/kiro-final-campaign.md",
-      "sha256": "9da79b74845bd08965309ed947f664586543ecd7e7d755d5961e2ca99d652810",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "The b39c20a post-CDX-004 campaign supersedes the earlier run for its original acceptance scope; it records selected-profile fail-repair-pass and preservation, not current release proof."
-    },
-    {
-      "path": "powers/pkstack/reviews/kiro-selected-profile-campaign.md",
-      "sha256": "44f17387271f5a5c1f156304f86a21fb0053d3952a8a1dc9cf44371583a26d2a",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
-      ],
-      "summary": "The bc6e79a-era selected pstack-profile run records concrete permission observations and a 2-of-4 fixture pass, preceding the later bytecode-boundary campaign."
     },
     {
       "path": "powers/pkstack/skills/archify/SKILL.md",
@@ -1979,6 +1871,123 @@
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/writing-for-agents/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
+    },
+    {
+      "path": "reviews/README.md",
+      "sha256": "2f564af52e8e1951c9b4af69fe06ab5a025ba2b68802fef8e6d71d8911c589bd",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/release-and-review.md"
+      ],
+      "summary": "The repository review harness separates source inspection from executable checks and recommends immutable evidence packets with bounded reviewer tools."
+    },
+    {
+      "path": "reviews/acceptance-criteria.md",
+      "sha256": "8247a70116a20bd63ce23533f6969d948b24e51fc0b131f4cfeabaff29a29c60",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "Historical disposition ledger ties environment isolation, JSON parsing, path checks, profile attachment, and proof-policy corrections to reproducible acceptance tests."
+    },
+    {
+      "path": "reviews/fable-final.md",
+      "sha256": "b650a60933a6d014e1176ff8c2d1b59823b00f04797ecb91a760b8220ab979db",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/release-and-review.md"
+      ],
+      "summary": "The ACCEPT applies to snapshot 1a145d4 and records residual receipt/cache and non-sandbox limits; a reader-only review did not execute the claimed tests."
+    },
+    {
+      "path": "reviews/fable-review-prompt.md",
+      "sha256": "305dc52f09c5a5213a0bee04a695cead563dccc1087623526c278a7c4e81dccd",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/release-and-review.md"
+      ],
+      "summary": "The historical acceptance prompt supplies reproducible finding and trust-boundary methods, but its old brand/namespace assumptions are not current Power interfaces."
+    },
+    {
+      "path": "reviews/fable-round-1.md",
+      "sha256": "a3ae6e63128e6c27ab1123e4a49d69a0fe816067584c34a4f78ad71cfa20e8c4",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "FBL-001 through FBL-004 motivate rejecting placeholder/self proof, complete controller permission coverage, loadable resume state, and external setup authority; older snapshot was rejected."
+    },
+    {
+      "path": "reviews/fable-round-2.md",
+      "sha256": "fb1e7a30bec40daf8d35a65e6cdeae96f092ebac10f7e12f575af883a98cec5f",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "FBL-012/013 show why open-ended Git allow globs and an unselected primary profile invalidate permission claims; read-only source review was not live matcher proof."
+    },
+    {
+      "path": "reviews/grok-review-prompt.md",
+      "sha256": "a99a4f16d11225080c97d1ad0d96c8747691632503410f05a7bd8ab2a6947557",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/release-and-review.md"
+      ],
+      "summary": "Independent advisory review preserves dissent and exact findings without implementation or inherited verdicts; historical compatibility names must not override current code."
+    },
+    {
+      "path": "reviews/grok-round-1.md",
+      "sha256": "aa3ec281726cd47078c7a4a76cd3358ce5ed8c0891dbba84dc33119b1cea80a4",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "GRK-001 through GRK-004 exposed wrapper environment leakage, malformed feature JSON output, operand containment gaps, and missing active-profile attachment."
+    },
+    {
+      "path": "reviews/grok-round-2.md",
+      "sha256": "ec36ffcfb91d577f3f59443f2e1e002bc4eb4c1bce0e4c82eb45e71c8c7147a1",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "GRK-011 through GRK-017 extend review to absolute executables, shell-capable read-only profiles, cached setup, reserved readme names, and joined interpreter flags; findings require disposition rather than blind acceptance."
+    },
+    {
+      "path": "reviews/grok-round-3.md",
+      "sha256": "975f6f4d8901a2831bec7490c90db398a8b6c4ff0b347fd1206bb381983a8f3a",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "GRK-021 demonstrates generator/loader YAML round-trip failures; bridge argv typing, setup fallback errors, and parent-exit/descendant cleanup limits remain distinct from semantic proof."
+    },
+    {
+      "path": "reviews/historical/pre-v0.2/README.md",
+      "sha256": "7e2fe3c09aa6cccdc955e65a525e059f32431e018a61adbfacf02aaed69a12b6",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/release-and-review.md"
+      ],
+      "summary": "Archived package review records retain original candidate/runtime scope and cannot stand in for a fresh review."
+    },
+    {
+      "path": "reviews/kiro-final-campaign.md",
+      "sha256": "9da79b74845bd08965309ed947f664586543ecd7e7d755d5961e2ca99d652810",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "The b39c20a post-CDX-004 campaign supersedes the earlier run for its original acceptance scope; it records selected-profile fail-repair-pass and preservation, not current release proof."
+    },
+    {
+      "path": "reviews/kiro-selected-profile-campaign.md",
+      "sha256": "44f17387271f5a5c1f156304f86a21fb0053d3952a8a1dc9cf44371583a26d2a",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "The bc6e79a-era selected pstack-profile run records concrete permission observations and a 2-of-4 fixture pass, preceding the later bytecode-boundary campaign."
     }
   ]
 }

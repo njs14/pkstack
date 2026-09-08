@@ -3,7 +3,7 @@
 PKStack release metadata is owned by [`plugin.json`](../plugin.json).
 This document records external source identities and the independent Kiro
 adaptation; it is not a release verdict. Current acceptance belongs to the
-root [release status](../../../Wiki/knowledge/pkstack/release-record.md), while older review
+root [release status](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/release-record.md), while older review
 and runtime records remain historical evidence.
 
 PKStack adapts Poteto's pstack workflows for Kiro. This document describes the

@@ -11,6 +11,6 @@ The [pinned specification](https://github.com/GoogleCloudPlatform/open-knowledge
 
 The canonical `SPEC.md` blob is `c06e3eede0c910d0ecf12524c34204156f8795ac` (37,748 bytes), identical to the accepted frozen specification. This migration changes tracking identity and scope; it introduces no normative specification delta requiring a runtime change.
 
-The separate [retired source record](../../../maintenance/retired-upstreams/google-okf-spec.json) preserves the former manifest entry and paired ledger unchanged. Its [historical provenance](okf-spec-provenance.md) and inventory remain evidence of the frozen `knowledge-catalog/okf` baseline. This source starts a fresh genesis: no cross-repository transition is asserted.
+The separate [retired source record](https://github.com/njs14/pkstack/blob/main/maintenance/retired-upstreams/google-okf-spec.json) preserves the former manifest entry and paired ledger unchanged. Its [historical provenance](okf-spec-provenance.md) and inventory remain evidence of the frozen `knowledge-catalog/okf` baseline. This source starts a fresh genesis: no cross-repository transition is asserted.
 
 The source is Apache License 2.0. PKStack records identities and links to the specification without redistributing the upstream work.

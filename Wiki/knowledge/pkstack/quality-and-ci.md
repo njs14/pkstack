@@ -9,7 +9,7 @@ tags: [pkstack, ci, testing, python, knowledge]
 
 ## Use the candidate's checked environment
 
-Use a clean checkout/worktree of current PKStack, the locked Power environment, and reviewed setup
+Use a clean checkout/worktree of current PKStack, the locked Power dependencies, and reviewed setup
 previews. Do not copy another worktree's virtual environment or generated controller. After
 canonical asset changes, refresh only expected managed updates and confirm a second preview is
 clean. A stale generated controller cannot validate a changed Power.
@@ -20,6 +20,13 @@ commit, configuration digest, collection and individual test phases. Aggregation
 duplicate, cancelled, incomplete, or unexpected skipped results. PR browser coverage is selected
 by the change; main retains the complete suite, expanded browser coverage, and reproducible
 packaging plus extracted-package installation checks. A local fast pass is not a full-suite pass.
+
+Maintainer commands set `UV_PROJECT_ENVIRONMENT` to the repository's ignored `.venv`.
+Root `pytest.ini` collects `tests/`; root Ruff/ty configurations cover the relocated
+tests and benchmarks while the Power configuration covers installed source, examples,
+and setup. `.coveragerc` retains branch measurement and the 85 percent threshold.
+Pytest and Ruff caches stay at the repository root. The CI partition IDs remain
+`tests/...`, preserving the complete collection and the installed-Kiro skip sentinel.
 
 ## Python coverage and browser failures
 

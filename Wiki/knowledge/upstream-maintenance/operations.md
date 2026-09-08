@@ -166,7 +166,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 
 | Source | Retained guidance or bounded observation |
 | --- | --- |
-| [powers/pkstack/docs/upstream-control-loop.md](../../../powers/pkstack/docs/upstream-control-loop.md) | One-source proposals, isolated no-tool review, secretless tests, 64 KiB context and three-rejection budgets govern automation; stale candidates and failed feedback persistence stop safely. |
+| [docs/upstream-control-loop.md](../../../docs/upstream-control-loop.md) | One-source proposals, isolated no-tool review, secretless tests, 64 KiB context and three-rejection budgets govern automation; stale candidates and failed feedback persistence stop safely. |
 | [reviews/pk-stack-maintenance-campaign.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pk-stack-maintenance-campaign.md) | A source-scoped goal recorded real drift then accepted-baseline pass with unchanged other sources; the two-path Cursor-only transition does not prove today's updater health. |
 | [reviews/pipeline-readiness-validation.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/pipeline-readiness-validation.md) | Proposal diagnostics fixed a wrong drift_count prompt assumption without claiming the missing original cause; the canary pin mismatch correctly stopped authenticated work pending review. |
 | [reviews/release-030-pipeline.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-pipeline.md) | The 0.3 audit repaired digest/context limits, trusted cleanup and retry accounting, and retained failed live campaigns before a bounded accepted source update. |

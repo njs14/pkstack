@@ -139,9 +139,9 @@ local saved-prompt behavior in Kiro IDE is also unverified.
 
 ## The short version
 
-![Return from native Kiro planning to PKStack, run the stored verifier, and repair while attempts remain.](artifacts/pkstack-task-workflow.png)
+![Return from native Kiro planning to PKStack, run the stored verifier, and repair while attempts remain.](https://github.com/njs14/pkstack/blob/main/docs/artifacts/pkstack-task-workflow.png)
 
-[Open the interactive workflow](artifacts/pkstack-task-workflow.html).
+[Open the interactive workflow](https://github.com/njs14/pkstack/blob/main/docs/artifacts/pkstack-task-workflow.html).
 
 Kiro CLI v3 and the Kiro IDE agent panel are the primary surfaces. Kiro Crew is
 optional. Kiro Web can consume committed workspace assets, but its end-to-end
@@ -429,7 +429,7 @@ separate from the returned-context budget.
 Use `/okf` to produce, maintain, or consume durable knowledge. Native Kiro
 `/knowledge` may index the same files; project files remain authoritative.
 The earlier optional `okn` backend and `--require-okn` flag have been removed.
-See the [knowledge runtime decision](../../../Wiki/knowledge/pkstack/native-spec-and-okn.md).
+See the [knowledge runtime decision](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/native-spec-and-okn.md).
 
 ## Refresh managed files
 
@@ -479,8 +479,8 @@ migrate workspace files.
 ## Upstream maintenance
 
 Use the commands below for explicit, reviewed maintenance. The
-[updater guide](upstream-control-loop.md) describes the hosted schedule and
-its limits; the [release status](../../../Wiki/knowledge/pkstack/release-record.md) records
+[updater guide](https://github.com/njs14/pkstack/blob/main/docs/upstream-control-loop.md) describes the hosted schedule and
+its limits; the [release status](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/release-record.md) records
 live validation and whether that schedule is enabled.
 
 In this repository, use `/pkstack-maintain` or inspect the pinned sources with:
@@ -508,7 +508,7 @@ requires a reviewed exact head and an explicit dry run before applying:
 ```
 
 Do not treat a drift result, historical campaign, or reviewer report as a
-current release pass. See the [upstream feature contract](../../../Wiki/features/pkstack-upstream-maintenance.md)
+current release pass. See the [upstream feature contract](https://github.com/njs14/pkstack/blob/main/Wiki/features/pkstack-upstream-maintenance.md)
 for the scope and [provenance](provenance.md) for source identities.
 
 ## Recovery
@@ -532,10 +532,10 @@ workspace or rewrite user-owned Wiki material as a cleanup shortcut.
 
 ## Related documentation
 
-- [Architecture and trust boundaries](architecture.md)
+- [Architecture and trust boundaries](https://github.com/njs14/pkstack/blob/main/docs/architecture.md)
 - [Kiro surface compatibility](kiro-v3-compatibility.md)
 - [Upstream skill parity](upstream-skill-parity.md)
 - [Provenance and porting boundary](provenance.md)
-- [Validation report](validation-report.md)
-- [Review harness](../reviews/README.md)
-- [Release status and validation evidence](../../../Wiki/knowledge/pkstack/release-record.md)
+- [Validation report](https://github.com/njs14/pkstack/blob/main/docs/validation-report.md)
+- [Review harness](https://github.com/njs14/pkstack/blob/main/reviews/README.md)
+- [Release status and validation evidence](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/release-record.md)

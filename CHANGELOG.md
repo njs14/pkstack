@@ -4,6 +4,16 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.6]
+
+- Keep the installed Power consumer-only: relocate tests, fixtures, benchmarks,
+  review evidence, maintainer documentation, diagrams, and historical artwork
+  into repository directories without removing installed skills or runtime APIs.
+- Enforce an explicit consumer package-content contract on source and release
+  archives, preserving deterministic packaging and artifact identity checks.
+- Move maintainer test discovery, static coverage, environments, and caches
+  outside the Power; retain extracted-consumer setup and verification gates.
+
 ## [0.5.5] — 2026-09-08
 
 - Removes the primary profile's blanket approval rules for Git, ordinary writes,

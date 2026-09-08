@@ -194,7 +194,10 @@
   },
   "languages": {},
   "root": ".",
-  "tests": [],
+  "tests": [
+    "pytest.ini",
+    "tests"
+  ],
   "verification_surfaces": [
     ".github/workflows",
     "Wiki/features"
