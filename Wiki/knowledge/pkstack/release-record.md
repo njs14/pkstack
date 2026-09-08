@@ -7,11 +7,56 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This record retains exact release identities, checksums, and acceptance scope. The 0.5.5, 0.5.4,
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.6, 0.5.5, 0.5.4,
 0.5.3, 0.5.2, 0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
 before the root reviews directory was removed. The Power manifest remains version authority.
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
+
+## Verified publication: 0.5.6
+
+[Version 0.5.6](https://github.com/njs14/pkstack/releases/tag/v0.5.6) was published in the
+private repository on September 8, 2026 at 03:53:54 UTC from commit
+`718a00be4b76d7dc273c4a8c9a100d28777f6e3e`, following
+[PR #76](https://github.com/njs14/pkstack/pull/76). It relocates tests, benchmarks,
+review material, maintainer guides, diagrams, and historical artwork outside the Power.
+The package-content contract retains 255 consumer files and rejects missing assets,
+maintainer material, and local build clutter in both the source and archive. All skills,
+steering, installed capabilities, and primary-profile permissions are preserved.
+The Power's `docs/` retains four user guides plus the provenance, catalogs, parity
+records, and bundle metadata specified by the cleanup contract; several metadata
+files are directly required by setup, but not every retained document is runtime-essential.
+
+[Exact-main CI](https://github.com/njs14/pkstack/actions/runs/34184862094) passed all 12 jobs
+on attempt 1. The [tag-bound release workflow](https://github.com/njs14/pkstack/actions/runs/34185055776)
+passed verification and publication, promoting pre-tag verified artifact `10040172805`.
+The downloaded 2,280,417-byte archive matched that approved CI package byte-for-byte;
+its checksum file, both release asset digests, and release notes also matched.
+Release ID: `384436028`; archive asset ID: `549821679`; checksum asset ID: `549821683`.
+
+Archive SHA-256: `77f8120108ff64e09862ef23fa974324a7f3c1d01115dd9f6326230db62ecc7f`.
+Artifact ZIP SHA-256: `b319d824b66dfe9584dc4afd08d6da0732fec6e18782627a0c6af04e9c5b369c`.
+
+The frozen candidate `2dd9922a915052ece44040c73e0d79823c3ad2a3` passed the complete local
+release gate: 1,092 product tests, 278 Python policy tests, 17 JavaScript policy tests,
+and all ten validation lanes. [PR CI](https://github.com/njs14/pkstack/actions/runs/34184706656)
+passed all 12 jobs on attempt 1. The merged source tree equals the reviewed candidate tree.
+Independent Codex reviewer `release_056_review` initially returned REQUEST CHANGES:
+the repository-level development environment setting redirected four trusted-controller
+sync commands away from their private environments. The unchanged offline disposable
+regression failed at all four sites before correction and passed after each command
+explicitly selected its private environment. The reviewer then returned ACCEPT on the
+final frozen candidate, checking the correction, package contents and rejection behavior,
+preservation of historical bytes, relocated test/static coverage, and 192 managed receipt
+hashes. The reviewer did not duplicate the full suite or run live Kiro or network operations.
+
+Local doctor reported 91 passes, no warnings or failures; setup was unchanged on repeat.
+The exact-main extracted package consumer smoke passed fresh and repeated setup, feature
+validation, local knowledge validation, and a failing-then-passing stored goal with its
+verifier unchanged. Its doctor reported 85 passes, one warning, and no failures.
+These checks establish the relocated package's deterministic consumer behavior. No new
+native Kiro CLI/IDE execution, Linux live retrieval, or unattended maintenance-candidate
+lifecycle result is claimed.
 
 ## Verified publication: 0.5.5
 
@@ -310,11 +355,12 @@ workload-specific; 0.4.0's live retrieval evidence is macOS-only. See
 ## Review-directory retirement
 
 Reusable findings are synthesized into the [Wiki topics](../index.md#lessons-synthesized-from-reviews).
-The root `reviews/` directory is deleted, rather than copied to another report archive. Original
+The older root `reviews/` archive was deleted in 0.5.2, rather than copied to another report archive. Original
 reports, transcripts, images, and fixture snapshots remain accessible through immutable Git links
 at commit `9bb1cbbb52552f95f7ccc61e14c44283e526c80d`. Only four JSON records still consumed by tests or the runtime canary are
-retained locally under `.github/fixtures/`; their bytes are unchanged. The separate shipped
-`powers/pkstack/reviews/` review harness remains part of the Power.
+retained locally under `.github/fixtures/`; their bytes are unchanged. In 0.5.6, the separate
+`powers/pkstack/reviews/` review harness and its preserved reports moved to root `reviews/`.
+This relocation does not restore the older retired archive or ship it in the Power.
 
 New project understanding belongs in the Wiki. Keep release evidence identities here, executable
 regressions in their test fixtures, and original historical source material in Git history.
