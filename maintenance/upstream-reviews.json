@@ -655,6 +655,44 @@
             "commit": "7314f723a487ec406b6369fe5865ba034cfed166",
             "subtree_sha": "ae6fff5803260f38f075feb8c3b008ed68153fa0"
           }
+        },
+        {
+          "dispositions": [
+            {
+              "disposition": "B",
+              "path": ".cursor-plugin/plugin.json",
+              "rationale": "The version-only change is Cursor package metadata; PKStack retains its independently versioned Kiro Power manifest."
+            },
+            {
+              "disposition": "C",
+              "path": "README.md",
+              "rationale": "The twenty-third-playbook listing documents opening-a-pr, whose resource and separately authorized Kiro workflow were already reviewed."
+            },
+            {
+              "disposition": "C",
+              "path": "docs/guide/02-poteto-mode.md",
+              "rationale": "The 23-playbook count corrects guide prose; the bounded skills catalog and Kiro-native router are unchanged."
+            },
+            {
+              "disposition": "C",
+              "path": "docs/guide/08-principles.md",
+              "rationale": "The 23-principle heading now matches the already-accounted catalog; no principle route or runtime behavior changed."
+            },
+            {
+              "disposition": "C",
+              "path": "docs/guide/README.md",
+              "rationale": "The guide index count now matches the existing 23-principle catalog and requires no Kiro workflow change."
+            }
+          ],
+          "inventory_sha256": "86878b71b7d2491bad202df83c1eff2164484356b5dd302dc4792b7418a3f0a5",
+          "new": {
+            "commit": "2b8ae2ee306f823d54879d3da7f8496b73c31d5d",
+            "subtree_sha": "cf6f79b65a0608c77ab77ac8d4f22d440e96971a"
+          },
+          "prior": {
+            "commit": "d7cde2b84eadbcd6fd890302c876f4436ccb6d82",
+            "subtree_sha": "e72ebb36069aef2d95af69504ada1a7253b4ad06"
+          }
         }
       ]
     },

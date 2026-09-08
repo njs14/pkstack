@@ -6,12 +6,12 @@
     "path": "pstack",
     "catalog_path": "skills",
     "pinned": {
-      "commit": "7314f723a487ec406b6369fe5865ba034cfed166",
-      "pstack_subtree_sha": "ae6fff5803260f38f075feb8c3b008ed68153fa0"
-    },
-    "current": {
       "commit": "d7cde2b84eadbcd6fd890302c876f4436ccb6d82",
       "pstack_subtree_sha": "e72ebb36069aef2d95af69504ada1a7253b4ad06"
+    },
+    "current": {
+      "commit": "2b8ae2ee306f823d54879d3da7f8496b73c31d5d",
+      "pstack_subtree_sha": "cf6f79b65a0608c77ab77ac8d4f22d440e96971a"
     },
     "retrieved_on": "2026-09-08"
   },
@@ -46,7 +46,7 @@
     {
       "name": "architect",
       "pinned": {
-        "package_tree_sha": "d5f618581193285e79f6c9c99cd35db2292ec4e5",
+        "package_tree_sha": "16b2abb97bcafd3343c1b46f1d033609ebbfbd33",
         "files": [
           {
             "path": "references/design-red-flags.md",
@@ -57,22 +57,22 @@
           },
           {
             "path": "references/rationale-template.md",
-            "blob_sha": "1ddd50545c977264ac387ab805afbef257df03b9",
+            "blob_sha": "a10f77f59510c532cd909faaf3bfeee5ffbfd588",
             "size": 3050,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/runner-prompt.md",
-            "blob_sha": "d2daeee48c50f31825fdb0645e0df05c08e37bb6",
-            "size": 3091,
+            "blob_sha": "580ec47a5df4259a6a9ace5c452e33092053bb90",
+            "size": 3087,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "7bda4347cbd78059bc8a39a23eede4f657f95adc",
-            "size": 6063,
+            "blob_sha": "923ffc55e8f3f760c80b7ff8a9992fd848c56614",
+            "size": 5383,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -118,12 +118,12 @@
     {
       "name": "arena",
       "pinned": {
-        "package_tree_sha": "0b36a6459bd338af4514a129c0aea90f48f4034b",
+        "package_tree_sha": "b486289bc677bf473f5b51b9bec31fe1e33fde45",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "a38fea089bf47d2eb76613b1c599063def84c733",
-            "size": 5371,
+            "blob_sha": "d1aec509a2b3aeee58b88c25eb6933db57d4a029",
+            "size": 4591,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -148,12 +148,12 @@
     {
       "name": "automate-me",
       "pinned": {
-        "package_tree_sha": "de1dcb3edaa5646124fcd244f8a8cce23bc45c1d",
+        "package_tree_sha": "b301b39506b378d699e1becedf1af73ff5d9f3d5",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "56829250c1fdce1ad72456d5421e1f1e5142373f",
-            "size": 7809,
+            "blob_sha": "cd3636e9a53c7c782cf15254204dccfc854086b5",
+            "size": 7164,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -178,12 +178,12 @@
     {
       "name": "blast-radius",
       "pinned": {
-        "package_tree_sha": "b7e78173d1cee739737fa2371017a211ebe3fc8c",
+        "package_tree_sha": "f29ef2afd47676964c01bf73a9c5f31df29dd0b2",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "4b24c77e102955af19ae60aa10af642f69eaa8ba",
-            "size": 4112,
+            "blob_sha": "298d030cb606b051ca57e89c7b39a12f7fad75a0",
+            "size": 4016,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -310,12 +310,12 @@
     {
       "name": "figure-it-out",
       "pinned": {
-        "package_tree_sha": "ab4f59a6cf0bed04794b713e40b605963e975071",
+        "package_tree_sha": "4a96f2cde65cb2bdcfa06d73e2ab5dfb005e1eba",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "6ffc04db212737584aac966c69c53836757fa545",
-            "size": 5161,
+            "blob_sha": "aa6967aa4bba8a51ada469310e356df02d47916e",
+            "size": 4384,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -340,40 +340,26 @@
     {
       "name": "how",
       "pinned": {
-        "package_tree_sha": "6b3b08d82cd8d8a00ff0a677bc8145ccd64e579d",
+        "package_tree_sha": "ec7ec1c4ce1a4194695b6759a54e8a218b0f3936",
         "files": [
           {
-            "path": "references/critic-prompt.md",
-            "blob_sha": "e17298e8499d919d7700d06334d0c3d1744c4bfb",
-            "size": 2286,
-            "handling": "semantic-source",
-            "mode": "100644"
-          },
-          {
-            "path": "references/critique-rubric.md",
-            "blob_sha": "b4d452f536de805107d3b96fc0772e9bbc1c1209",
-            "size": 2877,
-            "handling": "semantic-source",
-            "mode": "100644"
-          },
-          {
             "path": "references/explainer-prompt.md",
-            "blob_sha": "868c737894352bc4f9a401eb0c3ab2051f2be37f",
-            "size": 3121,
+            "blob_sha": "3a36fb6736c5b74ac2774350841e332a019dec94",
+            "size": 3085,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/explorer-prompt.md",
-            "blob_sha": "80228270978dcd403bae34ed22b0f517fd38a6fc",
-            "size": 2693,
+            "blob_sha": "8b898d9e729e5d5fa41e95720e44f23a4204de43",
+            "size": 2684,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "7da56ddda31197fe6c9c54800f579c57e503ccc6",
-            "size": 7322,
+            "blob_sha": "7d4627c3bec8a6a994a3cf9bb5686ab33c39ac8f",
+            "size": 2738,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -412,18 +398,18 @@
     {
       "name": "interrogate",
       "pinned": {
-        "package_tree_sha": "c3ebe624be696d6589b1c21ccd77dd174304374d",
+        "package_tree_sha": "8f7d63e8e8a0091c47ded52a534ab65e03e3f47d",
         "files": [
           {
             "path": "references/code-quality-review.md",
-            "blob_sha": "569c9a4915dbbca8f02ede9359e1bad733fd7959",
+            "blob_sha": "50230358f9b6138caf66065b1084be595d453d81",
             "size": 5372,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/lead-judgment.md",
-            "blob_sha": "ea6262ebe540a156e7b12f6b353f92ad621114a6",
+            "blob_sha": "5ce526097fdd3dfeaf4cd3b126a3f486c3ee36ae",
             "size": 3465,
             "handling": "semantic-source",
             "mode": "100644"
@@ -437,15 +423,15 @@
           },
           {
             "path": "references/rubric.md",
-            "blob_sha": "0f63289b7138bd300ed302ebfb919f67c7f9cb83",
+            "blob_sha": "04bd4ca6d31a17694071c415c349128a3b404006",
             "size": 5096,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "4e23d35ee2af0188b52654e7467e508261789c42",
-            "size": 5631,
+            "blob_sha": "b59dff74c3f665cf82fabd9d197d814df8115531",
+            "size": 4943,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -560,12 +546,12 @@
     {
       "name": "no-comments",
       "pinned": {
-        "package_tree_sha": "db5caac72d02599dbfee5f44b08b34e46c373bc3",
+        "package_tree_sha": "198804132d8306db10cae6c3db62a1498dda7e1c",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "a14bdda050e71788638733d3b7c342be7f7a2523",
-            "size": 2655,
+            "blob_sha": "3b3e76295a7ad66806dcc683e4de92fb25690f8b",
+            "size": 2560,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -590,165 +576,165 @@
     {
       "name": "poteto-mode",
       "pinned": {
-        "package_tree_sha": "8ad9381998863b41aea7fc492b55e5b53dace42c",
+        "package_tree_sha": "50f9ac10d4be30ce3b896e669f78876502485e0b",
         "files": [
           {
             "path": "playbooks/authoring-a-skill.md",
-            "blob_sha": "0fc01383d072ceaf72b697076953d7376f162256",
-            "size": 956,
+            "blob_sha": "8c5a55a44f5e95bba92f652da0ac87e941c49538",
+            "size": 831,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/autonomous-run.md",
-            "blob_sha": "bc68ad73435547747876a84d0283b62f8e51cdb9",
-            "size": 2032,
+            "blob_sha": "12c3a7d84effcacf3550cb893be67498d7b28a4a",
+            "size": 1878,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/autopilot-full.md",
-            "blob_sha": "56f3a6581f432ff9752de1cc27ce02bf866b76a7",
-            "size": 6021,
+            "blob_sha": "4aa1bb858181100204e16b33c7505b9cc3a294bd",
+            "size": 5854,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/autopilot-stack.md",
-            "blob_sha": "8599a482a7537d8e4fe6ce6cdb74f69bab719f7f",
-            "size": 5600,
+            "blob_sha": "b65afb587a8281cd5029ee08787b86deae4fec58",
+            "size": 5287,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/babysit.md",
-            "blob_sha": "5b162dd3145963138c25d30ba68b02d20250872c",
-            "size": 9564,
+            "blob_sha": "73eddb732ad9d4a4c27c16e3cc6c41f78becc3e1",
+            "size": 8010,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/bug-fix.md",
-            "blob_sha": "d0d05e4beef994deb65b5063a9255329b7f8b5e5",
-            "size": 2683,
+            "blob_sha": "88307807e72f7c1087c3a8215b32418c87fd6dc3",
+            "size": 2422,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/eval.md",
-            "blob_sha": "fe18dd589045fe7400e1af3385f3e6dbe0d6e63a",
-            "size": 3114,
+            "blob_sha": "3dae34e2ef0cbdd9bafa5ab372da5ea143d48452",
+            "size": 2524,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/feature.md",
-            "blob_sha": "77dd564f1f7f4c9969a823449d4848434beaf92f",
-            "size": 3001,
+            "blob_sha": "6cab21817e0f97e1c707d7c47ef82aa4f3ea99cd",
+            "size": 3022,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/hillclimb.md",
-            "blob_sha": "c6adf1f3261849f0511a8796613536b4ce20fc0d",
-            "size": 4547,
+            "blob_sha": "bbbf05a67daa18aa9f7ad810cd3987b2a49e8b68",
+            "size": 4091,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/investigation.md",
-            "blob_sha": "2f1e9ec991597c1263a842517754e75d4f09f671",
-            "size": 1124,
+            "blob_sha": "cd119f04f23e0b7acb3f8cc5ba13ce4ab7aa6c7d",
+            "size": 928,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/multi-phase-plan.md",
-            "blob_sha": "fb1d8b03f63b7c55d696780d96547bfeaae6332c",
-            "size": 12551,
+            "blob_sha": "b7b19769f4b3913252b81b40bba1d1bb9c719d21",
+            "size": 12242,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/opening-a-pr.md",
-            "blob_sha": "10ab011f6e391178f5844df387907ae044a27154",
-            "size": 4229,
+            "blob_sha": "a5c65a0959d0c37ebd12d5636710c4e0f91fba88",
+            "size": 4923,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/orchestrate.md",
-            "blob_sha": "fcd5a3e15b6cf5d0a88197119a82b09c52ca0984",
-            "size": 17496,
+            "blob_sha": "d5b6d008026ff0177f52e22a6fb4b2edae5c87e2",
+            "size": 16779,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/pause-safely.md",
-            "blob_sha": "b125efb8072e35d34639835d5bffddfc823cbd0a",
-            "size": 1509,
+            "blob_sha": "ad61122202763e96b59af9aae48afe3e242a751e",
+            "size": 1180,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/perf-issue.md",
-            "blob_sha": "62f81bb2844f6211c07156143a27b590b69f414a",
-            "size": 3544,
+            "blob_sha": "59246262ae562b15bd31b70a40559caae0f6371a",
+            "size": 3084,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/prototype.md",
-            "blob_sha": "0f0a888396f2ff1da11a56bb694ee65eb51529f8",
-            "size": 2532,
+            "blob_sha": "18bedc7e9249d180f9198d5b4b13e3817d41d281",
+            "size": 2161,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/refactoring.md",
-            "blob_sha": "70d74ac869d6a71bdbccfb0cfcbcfb086d9ed9e3",
-            "size": 4006,
+            "blob_sha": "dfc5d480f450f1b28d70099650f0d12822ac4b6e",
+            "size": 3316,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/runtime-forensics.md",
-            "blob_sha": "76ebfb3a8c661fea4ab619968a1ac566797344d7",
-            "size": 1414,
+            "blob_sha": "ba659bfe1c4c2f956f3285974bfdc941120f9948",
+            "size": 1210,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/session-pickup.md",
-            "blob_sha": "b75ce11a1fba2f5deff43c272e1d40303524bb09",
-            "size": 2121,
+            "blob_sha": "9b2ed06e0ff8b01bf03b7a0d6a4cbb8ba3a46720",
+            "size": 1678,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/shipping.md",
-            "blob_sha": "ac3fb6d0e11275319453af68ea19aafb6532145f",
-            "size": 5403,
+            "blob_sha": "4c83fa3ef3b3457d55ce4b9b3bfd0dd6c12745cd",
+            "size": 4849,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/trace-forensics.md",
-            "blob_sha": "10f8209e3d9c0e6b50056c92a28d89d56f5a31e6",
-            "size": 2080,
+            "blob_sha": "48ed6b2f690215027eda96a1897ed98212bbd07a",
+            "size": 1865,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/visual-parity.md",
-            "blob_sha": "ec4a449efdf4f1a3d4b81dc19797d7866545db95",
-            "size": 1345,
+            "blob_sha": "248830ec74a593fc22143a842026388f92f1b9f4",
+            "size": 1197,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "playbooks/worktree-cleanup.md",
-            "blob_sha": "9f6be47290b138c30ed8bb7338cf15173899147a",
+            "blob_sha": "39c9ef9f368ac63b0e4245503302a4c174e846d6",
             "size": 2932,
             "handling": "semantic-source",
             "mode": "100644"
@@ -902,8 +888,8 @@
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "930bea154f48180ce5c112a180e6e9d823474df3",
-            "size": 18918,
+            "blob_sha": "22d8b0509c01b3bbbd2de90cae5765f970940726",
+            "size": 18529,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1236,7 +1222,18 @@
     },
     {
       "name": "principle-attack-the-premise",
-      "pinned": null,
+      "pinned": {
+        "package_tree_sha": "ea77149f38bdfa5002591fa35af87ed45dd5574c",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "f9785ff9fdcf37d1c689e4468da7d611f3b76d4b",
+            "size": 1941,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
       "current": {
         "package_tree_sha": "ea77149f38bdfa5002591fa35af87ed45dd5574c",
         "files": [
@@ -1257,12 +1254,12 @@
     {
       "name": "principle-boundary-discipline",
       "pinned": {
-        "package_tree_sha": "022c087a63e8410dc99ad2d3415fb5bc1f9e0cc1",
+        "package_tree_sha": "743b098e6874a93b11e9f4d5843c79a243580ae2",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "84d526ce7ea45d207587e80015912d5a01714e21",
-            "size": 1919,
+            "blob_sha": "dfe9a6fb0e5acd6ae43a41437ee0951adfe839cb",
+            "size": 1883,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1288,12 +1285,12 @@
     {
       "name": "principle-build-the-lever",
       "pinned": {
-        "package_tree_sha": "ab52bdaccf67ef351d62ba6a08e37257a5aab0cb",
+        "package_tree_sha": "3fb3e945049f52b6a721e329901995fa6289221e",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "8ba6740bd3bd9b2e582080bce0917cc4a7293d2f",
-            "size": 2655,
+            "blob_sha": "277189a10b00fddc7cbb63fcf2323c7341abb0df",
+            "size": 2458,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1319,12 +1316,12 @@
     {
       "name": "principle-encode-lessons-in-structure",
       "pinned": {
-        "package_tree_sha": "22f227027a83520ba9122bd8624a07ec9702f3ae",
+        "package_tree_sha": "8875632be32ca6cff494def2810e5e71fceba65d",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "86a22f21146d358fc18afb2a0186da61470c3241",
-            "size": 2243,
+            "blob_sha": "df9cd5ff2fb3c18267349cc6aecd8121848ef834",
+            "size": 2211,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1381,12 +1378,12 @@
     {
       "name": "principle-experience-first",
       "pinned": {
-        "package_tree_sha": "daf94f1bbf9a5182ded9d8c5141cab98e6a1652d",
+        "package_tree_sha": "2dbcf0d0d4473ca3a93d17e2167b587cfec7f6da",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "be15f055d536721bbda859be3e3d202e78a2e001",
-            "size": 1308,
+            "blob_sha": "5ea51741302cf3af4cc0b90ec70815bd3208dbf2",
+            "size": 1184,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1412,12 +1409,12 @@
     {
       "name": "principle-fix-root-causes",
       "pinned": {
-        "package_tree_sha": "476bdf66ce21dc9b2d4c4679815dc647b3f540b3",
+        "package_tree_sha": "0ec22d21fffd180573f49ea239ee76083d6a6f40",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "5b3b7916c961c231e7ce1430cd93541204ec0ec0",
-            "size": 1366,
+            "blob_sha": "7e5a419aeec97b4076fa517865013677428a9fa3",
+            "size": 1246,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1443,12 +1440,12 @@
     {
       "name": "principle-foundational-thinking",
       "pinned": {
-        "package_tree_sha": "75d8010f2ebe173b9ad72035f1790a5e5005d198",
+        "package_tree_sha": "5880f6577956b14ee4ee89cb72c03fd8bd82a5ac",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "3fcc57b3a54dea965e245dad966cab423f768b11",
-            "size": 1780,
+            "blob_sha": "19cc6c0eaa6fcbc2863fb73d1d25ca196c6a46e0",
+            "size": 1530,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1474,12 +1471,12 @@
     {
       "name": "principle-guard-the-context-window",
       "pinned": {
-        "package_tree_sha": "160097c93ba42dd955907f5c02ac38a5975f1518",
+        "package_tree_sha": "e301f9b96fd9b42899159beb919538eacb18e3a0",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "0862757bbb63e314f13f18528c25db85d0901078",
-            "size": 1152,
+            "blob_sha": "eb2cecc40f9d830dc077009f93a467be69f195a2",
+            "size": 1067,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1505,12 +1502,12 @@
     {
       "name": "principle-laziness-protocol",
       "pinned": {
-        "package_tree_sha": "b3f5ad47409de89611d80802e3fc3e9ea2702aaf",
+        "package_tree_sha": "69c23647b389130012f04971c6912598e3f3b913",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "16bbb97426d1bbcbf957c032f0629a96a4709753",
-            "size": 1520,
+            "blob_sha": "e5bc77e62aa96ae13e482a84df61b3c711c5d828",
+            "size": 1371,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1567,12 +1564,12 @@
     {
       "name": "principle-migrate-callers-then-delete-legacy-apis",
       "pinned": {
-        "package_tree_sha": "2604f87c7ebe4dd2ff8eb9093eb4da938526b13d",
+        "package_tree_sha": "7b49b9000c86ea1ae142af47d0ff5f9f95199c34",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "a0c6e65e1eaf58278fa6bac1a01c23f998759f5c",
-            "size": 1152,
+            "blob_sha": "06c7cfd87becc62d614d0af075b792f8ec6eb21d",
+            "size": 1146,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1598,12 +1595,12 @@
     {
       "name": "principle-minimize-reader-load",
       "pinned": {
-        "package_tree_sha": "11ec7245004020e7fc5e0097cc012cdb715d3c3b",
+        "package_tree_sha": "aec92309f89c6e7a4a3cad94e8b7929c1a371643",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "1c5e18c332438ccd5e47f108ec28872e85e82501",
-            "size": 2099,
+            "blob_sha": "64541d963123e344078d82fd3977e857e76129df",
+            "size": 2095,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1629,12 +1626,12 @@
     {
       "name": "principle-model-the-domain",
       "pinned": {
-        "package_tree_sha": "b4384796bd31ee727b9bafafccc9e84904f92db6",
+        "package_tree_sha": "d584d474eb590208584188e6932d2ccdafe9d52b",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "b2f6449498505a866592493ff3f3a10cfdd8ce5c",
-            "size": 2127,
+            "blob_sha": "e1d664a19243c90a84e5e7a816e9e05146c88720",
+            "size": 2082,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1660,12 +1657,12 @@
     {
       "name": "principle-never-block-on-the-human",
       "pinned": {
-        "package_tree_sha": "2940c8641e3e7729ce8d66f5dcca995e1dd6f495",
+        "package_tree_sha": "bca187615a8acdea2696fe4fdc52711652c49387",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "0c55555f85d6636cc26429cc18016ffdafaff576",
-            "size": 1596,
+            "blob_sha": "46d410715c0f36cc43f6774dac9f89b3404e9aa4",
+            "size": 1343,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1722,12 +1719,12 @@
     {
       "name": "principle-prove-it-works",
       "pinned": {
-        "package_tree_sha": "809a6925dac5be32419d4b08a459f92466db11a7",
+        "package_tree_sha": "3c257874214e034fdb5cfb96598bf2a882ab8bd2",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "088c412cc38eb37442914a71d9e05bc6ee430a1b",
-            "size": 2068,
+            "blob_sha": "4563023d4d9f22e10e33cbf0ae94da156be30618",
+            "size": 1879,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1753,12 +1750,12 @@
     {
       "name": "principle-redesign-from-first-principles",
       "pinned": {
-        "package_tree_sha": "2f9ce6649070033606242178ce56903bab0fe643",
+        "package_tree_sha": "7d6b29659ee81f3e4ce5475b868bf891a8041e7c",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "6a8cf256d69d0d5f2ce4b57795f2794c41c8e5a0",
-            "size": 943,
+            "blob_sha": "090a4325f43a96080cce3895f0e932b62c39146a",
+            "size": 844,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1784,12 +1781,12 @@
     {
       "name": "principle-separate-before-serializing-shared-state",
       "pinned": {
-        "package_tree_sha": "c9f8649ad53ebc84344b1037c1383ccca3b7c86c",
+        "package_tree_sha": "89505c32f2d472da415e7696a6893ad28e108c5f",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "523591e0a1bda493598292358bd2142277fdbd19",
-            "size": 1631,
+            "blob_sha": "ff93b4a2032c08e2232992a9a24f2891ee14e58f",
+            "size": 1565,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1815,12 +1812,12 @@
     {
       "name": "principle-sequence-verifiable-units",
       "pinned": {
-        "package_tree_sha": "a8d7d3d438b73f86b483a074f426ca64a7777cf1",
+        "package_tree_sha": "3384d2416b2f6eabe8ddaa510ed3099375cd8f9d",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "737480800564d634347afdcef25dd48851e9f2eb",
-            "size": 2290,
+            "blob_sha": "dd008c371ee803decaa1964b72081a646d95d9b9",
+            "size": 2029,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1846,12 +1843,12 @@
     {
       "name": "principle-subtract-before-you-add",
       "pinned": {
-        "package_tree_sha": "dcd8d09a19fc6c4795d5a4799c50db4108ae59ab",
+        "package_tree_sha": "ea107acd74b874b27ec52983384d2ec7d4b8088a",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "1666d2617dbc9cf107ecb52aac30b6ffbcc1159b",
-            "size": 1337,
+            "blob_sha": "d28770cf47a5798d0250a25ad494aedfecad154e",
+            "size": 1094,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1876,7 +1873,18 @@
     },
     {
       "name": "principle-test-behavior-not-implementation",
-      "pinned": null,
+      "pinned": {
+        "package_tree_sha": "4c5cb15166bd6bcc5023e3180ed0105ea4a6e06a",
+        "files": [
+          {
+            "path": "SKILL.md",
+            "blob_sha": "42de6f8f7cab01b9f67aa28bd59b128f7574fbab",
+            "size": 2575,
+            "handling": "semantic-source",
+            "mode": "100644"
+          }
+        ]
+      },
       "current": {
         "package_tree_sha": "4c5cb15166bd6bcc5023e3180ed0105ea4a6e06a",
         "files": [
@@ -1897,12 +1905,12 @@
     {
       "name": "principle-type-system-discipline",
       "pinned": {
-        "package_tree_sha": "7b04ed645018056af8396b93e2f31cd2efbcd358",
+        "package_tree_sha": "88836c25807833f4f8bc79b8c8542fc1c8c558b3",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "192a1255709e105cd055543b058b9e1bf66d84e1",
-            "size": 5097,
+            "blob_sha": "6030f171bee0d1902cf7ca91f06225e09f0f5433",
+            "size": 4922,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1928,12 +1936,12 @@
     {
       "name": "recall",
       "pinned": {
-        "package_tree_sha": "b1a0bf2803b93af37e68cc267e00325c20f0f5c2",
+        "package_tree_sha": "9082e3a1eab382254f607c8962b9e7f61909dc25",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "7e3f26595160dac08bfc3287cef48d7e75b74dfa",
-            "size": 5696,
+            "blob_sha": "a70062a3f89a8d68b3391bc71fc4c6cc2dfcf6a4",
+            "size": 5212,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -1958,40 +1966,40 @@
     {
       "name": "reflect",
       "pinned": {
-        "package_tree_sha": "c204f03fb08faa9cd521ae8a6c1ea5a1b087bf4f",
+        "package_tree_sha": "de96e27f6355c3c70663ac8c62a286b79ec75e0d",
         "files": [
           {
             "path": "references/divergent-reviewer.md",
-            "blob_sha": "70cfdff377e793208f7daa581caf8a7fbdfb2dd1",
-            "size": 3956,
+            "blob_sha": "73969d847dd97f2d714df20d27359ce98ad0f7cc",
+            "size": 3883,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/judgment-reviewer.md",
-            "blob_sha": "76261f1690adc8b8f845113466dd9e80c40f7103",
-            "size": 3322,
+            "blob_sha": "830213aedff81c5b27462988201663e1f0229a72",
+            "size": 3249,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/synthesizer.md",
-            "blob_sha": "11040b0f4dc639517b569b55460f4a128f503e2a",
+            "blob_sha": "d0e78195186c0dd6cfdc87ba19402ea8cd2aa385",
             "size": 4164,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/tooling-reviewer.md",
-            "blob_sha": "19f4aa48775da3409116cc05a2162dc3d361c839",
-            "size": 4795,
+            "blob_sha": "e7fcd9e669c5a10664f4a14d8856af6978f9e535",
+            "size": 4603,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "3e056e97eb55103db24b2d5f99e5f1edef9d38ef",
-            "size": 5051,
+            "blob_sha": "d004951789602ea16430f9de5a542bf80b419cdb",
+            "size": 4588,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -2044,12 +2052,12 @@
     {
       "name": "setup-pstack",
       "pinned": {
-        "package_tree_sha": "3b89c0e122c102f92b16335bcec4d411ee4f52f4",
+        "package_tree_sha": "48803c2d2601c194e3323263d668e03e27a9bb8f",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "6dcaef578f2075558a8da57a21f97a62590d07f1",
-            "size": 4710,
+            "blob_sha": "a1f79c0ccdf9e77ecae24bd73c6c68100bbe2be1",
+            "size": 4367,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -2074,7 +2082,7 @@
     {
       "name": "show-me-your-work",
       "pinned": {
-        "package_tree_sha": "bc5101de50dfb902248e7983751947706f6cdf49",
+        "package_tree_sha": "e1f90145ade0129913297a187566435d535f33a8",
         "files": [
           {
             "path": "references/decision-log-template.tsv",
@@ -2092,8 +2100,8 @@
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "8a9c731acf5bb7ad789e10ec7c5af6970dce1176",
-            "size": 6762,
+            "blob_sha": "6e98dd24e619a9097ddd51b2a58ffb8f92b62cbf",
+            "size": 5459,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -2132,12 +2140,12 @@
     {
       "name": "swarm",
       "pinned": {
-        "package_tree_sha": "78b490b8c095ede6d7bea1f5fbdaca0f89019c46",
+        "package_tree_sha": "37ae496a2cf2a290555158bba3da48517a048534",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "b7e61ec7bc46629930582a50f12a6b9f1f28a368",
-            "size": 2232,
+            "blob_sha": "5b465d3ba542703707871165b369406bbd90c7e9",
+            "size": 2172,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -2162,11 +2170,11 @@
     {
       "name": "tdd",
       "pinned": {
-        "package_tree_sha": "3a761ae539f19c61c7ae73eddbec54951d44e752",
+        "package_tree_sha": "29dae88022641063ca2f568ec5be46c108210848",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "7d923bd705e4727b0bc9a378ca0928cc825035de",
+            "blob_sha": "887a98b7f4ead1ec0d147ce6e5ad6844ef16ca5f",
             "size": 3536,
             "handling": "semantic-source",
             "mode": "100644"
@@ -2192,12 +2200,12 @@
     {
       "name": "teach",
       "pinned": {
-        "package_tree_sha": "11a2a58a0bb7e303a289195bdff6f14722a29d48",
+        "package_tree_sha": "3ee517292dae0476dc516f9f3805c08fb943c6ff",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "beea0ffaa916e8fcf93f2bf13c632f2a9259d1e2",
-            "size": 6253,
+            "blob_sha": "25369f3f554ed6b5826340ae3eee688fac0bda80",
+            "size": 5623,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -2222,12 +2230,12 @@
     {
       "name": "technical-writing",
       "pinned": {
-        "package_tree_sha": "08b040cf2ec3e053b51d08ea0a56138483b87697",
+        "package_tree_sha": "e91d48c91a740d16d25ea5f2fbbad14bcf5d5332",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "d13baf98426a72764f94d18ab45d1549151a6c38",
-            "size": 11522,
+            "blob_sha": "70a477e42fc5f37c35bf602d86ff89c0f5258ecf",
+            "size": 10982,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -2252,19 +2260,19 @@
     {
       "name": "typescript-best-practices",
       "pinned": {
-        "package_tree_sha": "b50554bb7119f369f17273c9654c3619ef3e3b4d",
+        "package_tree_sha": "924cb1d5fee20dc4028a10bf98b26dec8cbdfd83",
         "files": [
           {
             "path": "references/patterns.md",
-            "blob_sha": "15c3e1118055ca2f2d353b968004fc4a46491248",
-            "size": 9537,
+            "blob_sha": "f44d22ffe9130c5340d55a2fa57028c6959479cb",
+            "size": 8860,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "2912734bdb985ac217849e8581c7a7e0aa7383a5",
-            "size": 2780,
+            "blob_sha": "2c0279d9a5f800192605e47b55cae4e75a17ec27",
+            "size": 2684,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -2296,12 +2304,12 @@
     {
       "name": "unslop",
       "pinned": {
-        "package_tree_sha": "35153230eaaf0aa02437e7004bc319b33c5fbe1f",
+        "package_tree_sha": "e19dcc9c531f4609df38bc86c62cf0e8b6d8f444",
         "files": [
           {
             "path": "SKILL.md",
-            "blob_sha": "ccb0c5563ff0fe7a04e2f95f27bf681df86240a9",
-            "size": 6626,
+            "blob_sha": "a3a7dc7baf0bed5fed4fe0f12ea7fcfe48d94c89",
+            "size": 6093,
             "handling": "semantic-source",
             "mode": "100644"
           }
@@ -2326,25 +2334,25 @@
     {
       "name": "why",
       "pinned": {
-        "package_tree_sha": "661a335f8efe4f7fa15f4838b8d9025170454ad4",
+        "package_tree_sha": "7cae2f31c55827495b38ba185c5bd901b3a85fa2",
         "files": [
           {
             "path": "references/epistemics.md",
-            "blob_sha": "aca563ef9fe4ce27797a73027c6fb38b6d93e6f7",
+            "blob_sha": "3732bf6881b60d1337fa3498574452a85d33ba30",
             "size": 7749,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/investigator-prompt.md",
-            "blob_sha": "1886b46deb20ef1f13d409a0ad7f6c3fb885eb6a",
+            "blob_sha": "3b56af44c589833508f4605cfdd4432b39a16739",
             "size": 6985,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/source-playbook.md",
-            "blob_sha": "bcf11e1315e7774651649dbf91b67213463c8073",
+            "blob_sha": "aa3d877cd539763ff05e266ae0a02dd811441e2b",
             "size": 1363,
             "handling": "semantic-source",
             "mode": "100644"
@@ -2358,64 +2366,64 @@
           },
           {
             "path": "references/sources/databricks.md",
-            "blob_sha": "5e82b90536b81f395c74aa5f98c387bc0d5d5d79",
+            "blob_sha": "2770763ff5d0d1ad004abcc9a0138c9537ad1978",
             "size": 6994,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/sources/datadog.md",
-            "blob_sha": "039330e8491430a34167005c55a0baa29f7eeb67",
+            "blob_sha": "d8363b1c1d1c7eadb15d47abd83bf70537c39620",
             "size": 5323,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/sources/incident-postmortem.md",
-            "blob_sha": "e5afc3204ba7e2b15b01e5abc538d26d8b1b3b53",
+            "blob_sha": "450d6e52f25b1b41f741cb3e9c93e1c74ef858b4",
             "size": 1973,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/sources/linear.md",
-            "blob_sha": "c000efd5aad749a4483e2563a63d460903eae124",
+            "blob_sha": "899c643c078f322afe6ae0ef78a007f8ffd356c1",
             "size": 2996,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/sources/notion.md",
-            "blob_sha": "ea6ab335c40834ba79e0085ae2d7a94950502f49",
+            "blob_sha": "d16230a4105fd1dacf870da0950a38faeb9381e6",
             "size": 2853,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/sources/sentry.md",
-            "blob_sha": "fe09d17254e7653a7c75f855cecc779d5512a02e",
+            "blob_sha": "2b7cf6f3098ee868547dc4e69efacfe9c255246b",
             "size": 4947,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/sources/slack.md",
-            "blob_sha": "d4a5f23646053516bb1235f06dcf697b49acda23",
+            "blob_sha": "863a527d60e4e055e680834ef8098ea04273a1ae",
             "size": 3105,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "references/synthesizer-prompt.md",
-            "blob_sha": "dae7efc580f5bc8e63b2fd28a1462fe2b8445d07",
+            "blob_sha": "9707dfcc2fc57ea126484a433c5cd9ee4d400ef3",
             "size": 7984,
             "handling": "semantic-source",
             "mode": "100644"
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "3aea3f7d3f51421f7860c00e775f00acc45a58cc",
-            "size": 21376,
+            "blob_sha": "53045ddba6f52fa0eec44101fd8e363d47141832",
+            "size": 9999,
             "handling": "semantic-source",
             "mode": "100644"
           }

@@ -341,3 +341,19 @@ commands and destructive cleanup remain excluded. The review ledger records
 each changed path's adaptation, exclusion or provenance-only rationale.
 
 <!-- pk-stack-upstream-review: {"inventory_sha256":"1106e569f39992df3b572e037e2b0013daf73f78c4c386c84a87341b18245987","new":{"commit":"d7cde2b84eadbcd6fd890302c876f4436ccb6d82","subtree_sha":"e72ebb36069aef2d95af69504ada1a7253b4ad06"},"path":"pstack","prior":{"commit":"7314f723a487ec406b6369fe5865ba034cfed166","subtree_sha":"ae6fff5803260f38f075feb8c3b008ed68153fa0"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->
+
+
+## September 2026 catalog-documentation follow-up
+
+The inventory retrieved on 2026-09-08 covers the five-path fast-forward from
+`d7cde2b84eadbcd6fd890302c876f4436ccb6d82` to
+[`2b8ae2ee306f823d54879d3da7f8496b73c31d5d`](https://github.com/cursor/plugins/commit/2b8ae2ee306f823d54879d3da7f8496b73c31d5d).
+The bounded `skills/` catalog is byte-identical across this transition. Upstream's README now lists
+`opening-a-pr` as the twenty-third Poteto playbook, but that playbook was already hash-accounted in
+the prior review and its reusable outcome is already expressed by PKStack's separately authorized,
+forge-resolved Kiro-native **Open a pull request** workflow. The guide's playbook and principle count
+corrections likewise align with the existing 23-entry upstream principle catalog and require no
+runtime or route change. The `0.15.0` value is Cursor package metadata; PKStack retains its own
+Kiro-owned release manifest and does not copy that version.
+
+<!-- pk-stack-upstream-review: {"inventory_sha256":"86878b71b7d2491bad202df83c1eff2164484356b5dd302dc4792b7418a3f0a5","new":{"commit":"2b8ae2ee306f823d54879d3da7f8496b73c31d5d","subtree_sha":"cf6f79b65a0608c77ab77ac8d4f22d440e96971a"},"path":"pstack","prior":{"commit":"d7cde2b84eadbcd6fd890302c876f4436ccb6d82","subtree_sha":"e72ebb36069aef2d95af69504ada1a7253b4ad06"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->
