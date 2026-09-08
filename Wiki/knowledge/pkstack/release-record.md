@@ -7,11 +7,79 @@ tags: [pkstack, release, evidence]
 
 # Published releases and acceptance evidence
 
-This record retains exact release identities, checksums, and acceptance scope. The 0.5.7, 0.5.6, 0.5.5, 0.5.4,
+This record retains exact release identities, checksums, and acceptance scope. The 0.5.8, 0.5.7, 0.5.6, 0.5.5, 0.5.4,
 0.5.3, 0.5.2, 0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
 before the root reviews directory was removed. The Power manifest remains version authority.
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
+
+## Verified local manual publication: 0.5.8
+
+[Version 0.5.8](https://github.com/njs14/pkstack/releases/tag/v0.5.8) was published in the
+private repository on September 8, 2026 at 19:47:58 UTC from commit
+`3bc000acbd4c14f027d45073389ae615ea115edf`. Tag `v0.5.8` resolves directly to that commit;
+its repository tree is `585e22023ab14a7f1dfb7fad5f278ccd5514b6d9`.
+The owner approved native macOS local execution, independent GPT-5.6 Luna review at
+max effort, and manual publication while the seven PKStack Actions workflows remain
+paused. Hosted candidate jobs were blocked before startup by GitHub billing/spending-limit
+errors; hosted release and final documentation jobs are deferred. These are exceptions,
+not passing hosted gates; the hosted verifier and its CI identity requirements are unchanged.
+
+[PR #85](https://github.com/njs14/pkstack/pull/85) updates Cursor/pstack provenance and
+catalog documentation to pinned upstream commit `2b8ae2e`, preserving the bounded
+122-file skills catalog byte-for-byte. Its approved head was
+`192989f892ee0c66f1482e7bf41f2a87d888f902`; it merged as
+`194a836c8edf133d3f53e0953cc0afff85b08ade`. The exact-base hosted test evidence and
+source/control-plan/review-bundle identities were retained and verified. The complete
+local gate, plain pytest, original candidate workflow commands, and trusted-base source
+acceptance passed. Independent Luna review covered provenance, documentation accuracy,
+knowledge coverage, and instruction compatibility.
+
+[PR #87](https://github.com/njs14/pkstack/pull/87) prepares the manifest, package/runtime
+versions, locks, generated receipt, and changelog for 0.5.8. Its frozen head
+`64fbf3e0935cfee26b142d9690259dcee426a773` and merged release source have identical trees.
+The candidate, frozen release branch, and exact merged source each passed all ten local
+validation lanes, 1,103 product tests, and zero skips. The gates include expanded browser,
+package, policy, and static checks; setup idempotence and all 192 managed-file hashes
+were verified. Fresh Luna release review approved the exact tree and session script after
+catching optimization-sensitive assertions in that temporary script. Explicit failure
+checks now preserve all nine proofs at Python optimization levels 0, 1, and 2. The
+initial rejection and successful re-review are retained; no repository source fix was needed.
+
+Two archive builds from the exact source produced identical bytes. Extracted-consumer
+setup, idempotence, feature/local knowledge validation, and the stored fail-repair-pass
+test passed with its verifier unchanged. Consumer doctor reported 91 passes, zero warnings, and zero failures.
+The draft assets were downloaded and compared byte-for-byte before publication; published
+assets, SHA-256 digests, notes, and tag were checked again afterward.
+
+Release ID: `385017290`; archive asset ID: `551186684`; checksum asset ID: `551186688`;
+local receipt asset ID: `551186693`. Archive size: 2,275,431 bytes.
+Archive SHA-256: `bb99468fc04808feae6095d651f3cba14ec3b7d19cdd59abb6319ab06e97958c`.
+The attached `local-release-receipt.json` is explicitly local provenance and binds the
+source, full gate, review, packaging controls, tool versions, archive, and smoke results.
+
+All seven workflows remain `disabled_manually`, with no active PKStack runs at the final
+check. Their YAML definitions are unchanged. Run these commands only when resuming them:
+
+```sh
+gh workflow enable 349771255 --repo njs14/pkstack
+gh workflow enable 349041523 --repo njs14/pkstack
+gh workflow enable 349041524 --repo njs14/pkstack
+gh workflow enable 349221427 --repo njs14/pkstack
+gh workflow enable 349777078 --repo njs14/pkstack
+gh workflow enable 349041526 --repo njs14/pkstack
+gh workflow enable 349041529 --repo njs14/pkstack
+```
+
+The local checks do not reproduce Ubuntu runner isolation or fresh live Kiro behavior.
+An earlier macOS Chrome teardown timeout remains retained as an environment limitation;
+accepted runs use direct installed Chrome, Node 26.8.1, and unchanged test assertions and
+timeouts. Chrome updated from 152.0.7977.77 on the release branch to 152.0.7977.83 on the
+exact-main gate; each run records its actual version. No Node causality or source repair
+is claimed. The external session script passes default Ruff checks; repository-config
+style diagnostics remain recorded as non-blocking review observations. Full local logs,
+receipts, reviews, original failures, and download comparisons are retained in the private
+release evidence packet at `/Users/noahsutter/Documents/Codex/releases/pkstack-0.5.8-local`.
 
 ## Verified manual publication: 0.5.7
 
