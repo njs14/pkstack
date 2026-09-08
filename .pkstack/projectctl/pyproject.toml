@@ -1,6 +1,6 @@
 [project]
 name = "pkstack"
-version = "0.5.6"
+version = "0.5.7"
 description = "Repo-local PKStack project control surface"
 requires-python = ">=3.11"
 dependencies = [

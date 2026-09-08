@@ -752,7 +752,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "9679ead5e040e22b60f130b8ddbb3beaae2958fcd404eb7200f1ae2fcb53a66d",
+      "sha256": "7d8bab9d91bd6951eb85291e4a83b04dc87ef7a0ae5eab88934c890c139e1b76",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
