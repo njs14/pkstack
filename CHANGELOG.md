@@ -4,6 +4,16 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.7]
+
+- Reconstruct large omitted upstream text patches from exact Git blobs, using
+  bounded diff work and complete source-path coverage before acceptance.
+- Supervise maintenance Kiro output during execution, validating every event
+  within explicit byte, event-count, and time budgets without retaining raw
+  transcripts. Keep process completion, agent attestation, and acceptance distinct.
+- Preserve failing verification-stage details in bounded private repair feedback,
+  reject credentials before delivery, and retain fixed public failure diagnostics.
+
 ## [0.5.6]
 
 - Keep the installed Power consumer-only: relocate tests, fixtures, benchmarks,
