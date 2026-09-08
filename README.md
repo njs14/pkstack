@@ -116,7 +116,8 @@ observed CLI syntax limits and what remains unverified.
 
 ## Control and compatibility
 
-The workspace profile asks before ordinary writes and controller commands.
+The workspace profile respects your Kiro permissions for Git, ordinary writes,
+and controller commands, while retaining its protected-file and destructive-command denies.
 Setup records the files it manages and reports conflicts during upgrades.
 The command runner limits execution time and captured output; review the
 verification command before approving it because it runs with your local access.

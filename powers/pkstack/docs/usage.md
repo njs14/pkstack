@@ -75,11 +75,23 @@ kiro-cli chat --v3 --agent pkstack
 ```
 
 Prefer the same-conversation handoff. A managed refresh uses `/agent swap default`
-before setup and `/agent swap pkstack` afterward. The primary profile
-asks before ordinary writes and canonical controller commands. Delegated
+before setup and `/agent swap pkstack` afterward. The primary profile leaves
+Git, ordinary writes, and canonical controller commands to Kiro's defaults and
+your user, workspace, and session permissions. It adds no blanket asks or allows
+for those operations; unmatched operations still require approval. Its protected-file
+and destructive-command denies remain active while `pkstack` is selected. Delegated
 architect, reviewer, and verifier profiles omit `write` and `shell`; they
 inspect and report to the primary session. These Kiro permissions complement
 the controller's checks but are not an operating-system sandbox.
+
+Kiro combines permission scopes with `deny > ask > allow`. An explicit `ask`
+cannot be overridden by a saved `allow`, so the profile does not force repeated
+approval for routine work you already trust. Review the executable verifier
+before authorizing it: a controller command can run project code with your local
+access. Kiro's own protected-path prompts and your other explicit asks still apply.
+Native Plan and Spec select their own agents; the PKStack profile's rules do not
+become a workspace-wide policy through a handoff. See the
+[permission contract](kiro-v3-compatibility.md#permissions) for scope and limits.
 
 ## Commands
 

@@ -895,12 +895,12 @@ def test_agent_templates_are_json_least_privilege_profiles() -> None:
         assert not any(rule["capability"] == "shell" for rule in profile["permissions"]["rules"])
 
 
-def test_primary_profile_asks_for_every_canonical_controller_route() -> None:
+def test_primary_profile_leaves_controller_authorization_to_ambient_policy() -> None:
     primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
-    ask_patterns = [
+    profile_patterns = [
         pattern
         for rule in primary["permissions"]["rules"]
-        if rule["capability"] == "shell" and rule["effect"] == "ask"
+        if rule["capability"] == "shell"
         for pattern in rule["match"]
     ]
     commands = (
@@ -926,12 +926,25 @@ def test_primary_profile_asks_for_every_canonical_controller_route() -> None:
         ".pkstack/bin/projectctl future-command --future-option",
     )
 
-    assert set(ask_patterns) >= {
-        ".pkstack/bin/projectctl",
-        ".pkstack/bin/projectctl *",
-    }
     for command in commands:
-        assert any(fnmatchcase(command, pattern) for pattern in ask_patterns), command
+        assert not any(fnmatchcase(command, pattern) for pattern in profile_patterns), command
+
+
+def test_primary_profile_leaves_ordinary_writes_to_ambient_policy() -> None:
+    primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
+    write_patterns = [
+        pattern
+        for rule in primary["permissions"]["rules"]
+        if rule["capability"] == "fs_write"
+        for pattern in rule["match"]
+    ]
+    for path in (
+        "./src/app.py",
+        "./tests/test_app.py",
+        "./README.md",
+        "./.kiro/skills/user-verifier/SKILL.md",
+    ):
+        assert not any(fnmatchcase(path, pattern) for pattern in write_patterns), path
 
 
 def test_primary_profile_denies_direct_control_plane_writes_and_common_clobbers() -> None:
@@ -962,14 +975,7 @@ def test_primary_profile_denies_direct_control_plane_writes_and_common_clobbers(
         pattern for pattern in denied_writes if pattern.startswith(".kiro/skills/")
     }
     assert managed_skill_denies == {f".kiro/skills/{name}/**" for name in managed_live_skills}
-    ask_writes = {
-        pattern
-        for rule in rules
-        if rule["capability"] == "fs_write" and rule["effect"] == "ask"
-        for pattern in rule["match"]
-    }
-    foreign_skill = "./.kiro/skills/user-verifier/SKILL.md"
-    assert any(fnmatchcase(foreign_skill, pattern) for pattern in ask_writes)
+    foreign_skill = ".kiro/skills/user-verifier/SKILL.md"
     assert not any(fnmatchcase(foreign_skill, pattern) for pattern in denied_writes)
     assert denied_shell >= {
         "rm -r*",
@@ -1010,13 +1016,13 @@ def test_primary_profile_denies_reordered_destructive_switch_flags() -> None:
         rule for rule in primary["permissions"]["rules"] if rule["capability"] == "shell"
     ]
 
-    def effect(command: str) -> str:
+    def effect(command: str) -> str | None:
         matches = {
             rule["effect"]
             for rule in shell_rules
             if any(fnmatchcase(command, pattern) for pattern in rule["match"])
         }
-        return next(value for value in ("deny", "ask", "allow") if value in matches)
+        return next((value for value in ("deny", "ask", "allow") if value in matches), None)
 
     destructive_options = (
         "-f main",
@@ -1054,7 +1060,7 @@ def test_primary_profile_denies_reordered_destructive_switch_flags() -> None:
             "-q Case-sensitive-topic",
         ):
             command = f"{git_prefix} switch {benign_options}"
-            assert effect(command) == "ask", command
+            assert effect(command) is None, command
 
 
 def test_skill_authoring_respects_bootstrap_owned_routes() -> None:
@@ -1064,7 +1070,7 @@ def test_skill_authoring_respects_bootstrap_owned_routes() -> None:
         assert "receipt-managed" in text
 
 
-def test_primary_profile_never_allows_git_forms_that_execute_read_or_write() -> None:
+def test_primary_profile_does_not_preapprove_or_force_approval_for_ambient_git() -> None:
     primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
     shell_allow = [
         pattern
@@ -1092,7 +1098,7 @@ def test_primary_profile_never_allows_git_forms_that_execute_read_or_write() -> 
 
     for command in commands:
         assert not any(fnmatchcase(command, pattern) for pattern in shell_allow), command
-        assert any(fnmatchcase(command, pattern) for pattern in shell_ask), command
+        assert not any(fnmatchcase(command, pattern) for pattern in shell_ask), command
 
 
 def test_post_swap_setup_refresh_uses_power_local_authority() -> None:
