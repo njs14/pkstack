@@ -3786,6 +3786,11 @@ class DetectorTests(unittest.TestCase):
                 "upstream network time budget was exhausted",
                 "upstream network time budget was exhausted",
             ),
+            (
+                "UpstreamError",
+                "upstream comparison patches exceed the 262144-byte limit",
+                "upstream comparison patches exceed the 262144-byte limit",
+            ),
             ("OSError", "private path or credential sentinel", "OSError"),
             ("ValueError", "private path or credential sentinel", "ValueError"),
         )
@@ -3803,6 +3808,11 @@ class DetectorTests(unittest.TestCase):
             {
                 "ok": False,
                 "error": "GitHub API returned HTTP 403\nsecret",
+                "error_type": "UpstreamError",
+            },
+            {
+                "ok": False,
+                "error": "upstream comparison patches exceed the 262144-byte limit\nsecret",
                 "error_type": "UpstreamError",
             },
             {"ok": False, "error": ["secret"], "error_type": "UpstreamError"},
