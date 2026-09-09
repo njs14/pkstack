@@ -4,6 +4,17 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.12]
+
+- Document the full GitHub Power-directory URL and recovery from Kiro's empty
+  repository-root import, with a native IDE installation check.
+- Supply a `POWER.md` display compatibility file for Kiro IDE 1.0.437 while
+  retaining `plugin.json` as the Agent Plugins manifest. Keep description,
+  author, and keywords consistent with the manifest, and embed only the compact
+  JPG through the details view's permitted inline-image path.
+- Add an executable metadata and installation-guide contract, and retain the
+  distinction between package checks, native display evidence, and task execution.
+
 ## [0.5.11]
 
 - Separate the consumer Power into user guides, machine-readable setup metadata,

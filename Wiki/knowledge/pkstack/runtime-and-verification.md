@@ -31,6 +31,16 @@ successfully can satisfy its predicate even when descendants require cleanup. Ap
 still run with the user's privileges. A disabled advisory Stop hook is not a scheduler or a
 mechanical guarantee that an agent continues working.
 
+## Installation evidence must use the real package path
+
+Installation and display are separate runtime boundaries. The September 9
+[remote-install observation](../../../docs/kiro-v3-compatibility.md#september-9-remote-power-installation-and-display)
+found that IDE 1.0.437 reports success for a repository-root URL even when no
+manifest or skills are installed. Its details view reads `POWER.md` display
+metadata while the agent reads `plugin.json`. The corrected Power-directory
+import and bounded display preview establish installation and presentation
+behavior only; they do not refresh native planning or task-verification evidence.
+
 ## Permission evidence must use the selected profile
 
 The primary profile retains protected-file and destructive-command denies while

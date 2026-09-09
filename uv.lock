@@ -225,7 +225,7 @@ wheels = [
 
 [[package]]
 name = "pkstack"
-version = "0.5.11"
+version = "0.5.12"
 source = { editable = "powers/pkstack" }
 dependencies = [
     { name = "agent-client-protocol" },

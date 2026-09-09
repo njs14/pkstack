@@ -752,7 +752,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "a6321b4a4fdf92c5995f8b98ab3046fc05ecd97506aa27b1fae4cb72a917e18a",
+      "sha256": "1480ad5ce1d5e70051936cdb5e307473719ee08b5f8099c2d889bd5c694719e2",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -785,12 +785,12 @@
     },
     {
       "path": "README.md",
-      "sha256": "bcc1cb95bda914f565f280c2b59e1fff2b9cb23e697aa0dbe8f783dd196c04c6",
+      "sha256": "90827fd2041254bed6ffad51ed226ad4e9bf35555386083b20230c782586f6f6",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Current product entrypoint follows official local-folder Power installation and links workspace initialization and first-task guidance."
+      "summary": "Product entrypoint uses the canonical GitHub Power-directory URL, explains empty repository-root import recovery, and retains reviewed folder installation and workspace setup."
     },
     {
       "path": "SECURITY.md",
@@ -803,6 +803,10 @@
     },
     {
       "path": "Wiki/features/README.md",
+      "classification": "canonical"
+    },
+    {
+      "path": "Wiki/features/pkstack-power-installation.md",
       "classification": "canonical"
     },
     {
@@ -905,12 +909,12 @@
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
       ],
-      "summary": "Repository artwork guide separates the preserved README crest from the compact Power JPG and excludes both from the consumer package.",
-      "sha256": "19eaade08516b2ae7101f2a1a58f930f3c7400c5aacc9ce854a9c9130d392ba1"
+      "summary": "Repository artwork ownership and a compact JPG embedded as a permitted data URI in POWER.md; decoded image bytes and display metadata remain checked against their sources.",
+      "sha256": "0a0599f993bd2da763b85c4a7263b352dde3b4266d6751ddef5c593d1ae88533"
     },
     {
       "path": "docs/assets/creation-history.md",
-      "sha256": "0b06bb8408dfbc4e2907fb0b93684d9b34812b045b9ab73405ecdf5e81b67031",
+      "sha256": "57f902df444a86998b79526e35261e5d1fbdea35a5be0515424b7fd2fcd18fa7",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
@@ -919,12 +923,13 @@
     },
     {
       "path": "docs/kiro-v3-compatibility.md",
-      "sha256": "d72f321572f8f32412c143f4d293e3b3ab3536e4949865a91e27e6667c69cf05",
+      "sha256": "fe6492b311d728549a67c83c340af07283038dc5be6f502b8cebfef4baec9b03",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+        "Wiki/knowledge/pkstack/runtime-and-verification.md",
+        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Separate documentation, command recognition, native execution, and client-specific evidence; selected Auto does not reveal its underlying model and Crew/Web have narrower evidence."
+      "summary": "Keep dated native workflow evidence separate from the September 9 remote-install and display observation: repository-root imports can be empty, details read POWER.md, and image hosts are restricted."
     },
     {
       "path": "docs/upstream-control-loop.md",
@@ -945,13 +950,20 @@
       "summary": "Release procedure requires candidate-bound metadata, checks, generated parity, native evidence where required, independent review and separate publication gates."
     },
     {
+      "path": "powers/pkstack/POWER.md",
+      "sha256": "a21ec9a77f5987a34d3a29295ba8bedb09432cbaf8bc676fb3d81e77eb6c045f",
+      "classification": "excluded",
+      "category": "native",
+      "reason": "IDE 1.0.437 display metadata must remain at the Power root; package tests bind manifest fields and inline JPG bytes, while the installation topic retains the compatibility and remote-path contract."
+    },
+    {
       "path": "powers/pkstack/README.md",
-      "sha256": "f746ea48ad961eca2fc024582077a21835dda9cadab3f1569c35e7e291622202",
+      "sha256": "35bb207cb36b016709057e3cf49ff285814f1cd041eae361c1a38af4c087e9a0",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Power-local entrypoint uses the same official folder installation flow with package-relative documentation links."
+      "summary": "Power-local entrypoint documents the canonical remote Power URL, empty-import recovery, display metadata compatibility, and package-relative setup and usage guides."
     },
     {
       "path": "powers/pkstack/THIRD_PARTY_NOTICES.md",
@@ -1015,12 +1027,12 @@
     },
     {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "3f67d5703d3e903b0e09f30e1a95d73d6c51e3a9c9e6674ddba19123ac6a7df4",
+      "sha256": "72b55fe51cdd885e3b6dc1519c9a53bf0d9bc6abfbb4a734b8211480cab2f460",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Current plugin.json format, reverse-domain Kiro steering namespace, dated surface limits and required runtime; legacy POWER.md is an alternative and artwork is separate."
+      "summary": "Agent Plugins loading stays authoritative while a POWER.md display compatibility file provides an inline icon; the full Power-directory URL avoids empty IDE imports."
     },
     {
       "path": "powers/pkstack/docs/usage.md",

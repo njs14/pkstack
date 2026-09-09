@@ -1160,10 +1160,13 @@ def test_shipped_repository_features_are_complete_schema_two_contracts() -> None
 
     assert result["ok"] is True, result["errors"]
     assert result["warnings"] == []
-    assert result["feature_count"] == 1
+    assert result["feature_count"] == 2
     features = {item["slug"]: item for item in result["features"]}
-    assert set(features) == {"pkstack-upstream-maintenance"}
+    assert set(features) == {"pkstack-upstream-maintenance", "pkstack-power-installation"}
     assert all(item["schema_version"] == 2 for item in features.values())
+    assert {
+        item["identifier"] for item in features["pkstack-power-installation"]["entrypoints"]
+    } == {"cli"}
     assert {
         item["identifier"] for item in features["pkstack-upstream-maintenance"]["entrypoints"]
     } == {"local-check", "current-session-maintenance", "scheduled-cadence", "manual-dispatch"}
