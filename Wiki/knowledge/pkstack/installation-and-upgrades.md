@@ -9,7 +9,7 @@ tags: [pkstack, installation, upgrades, ownership]
 
 ## Install through Kiro
 
-For the private PKStack repository, clone locally and use Kiro's **Powers → Add
+Clone the public PKStack repository locally over HTTPS without a GitHub account and use Kiro's **Powers → Add
 Custom Power → Import power from a folder** flow. Select `powers/pkstack/`, review
 it, and click **Install**. This follows the [official installation guide](https://kiro.dev/docs/powers/installation/).
 CLI v3 [detects IDE-installed Powers](https://kiro.dev/docs/cli/v3/new-features/#powers-auto-pickup).
@@ -95,7 +95,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 
 | Source | Retained guidance or bounded observation |
 | --- | --- |
-| [README.md](../../../README.md) | Current product entrypoint follows official private Power folder installation and links workspace initialization and first-task guidance. |
+| [README.md](../../../README.md) | Current product entrypoint follows official local-folder Power installation and links workspace initialization and first-task guidance. |
 | [powers/pkstack/README.md](../../../powers/pkstack/README.md) | Power-local entrypoint uses the same official folder installation flow with package-relative documentation links. |
 | [powers/pkstack/docs/usage.md](../../../powers/pkstack/docs/usage.md) | Install through Kiro, initialize the workspace with the installed setup skill, use the project-local controller, and review receipt-aware managed updates. |
 | [powers/pkstack/docs/first-task.md](../../../powers/pkstack/docs/first-task.md) | Use a disposable intentionally failing account fixture, record the failure, preserve tests, and let native Kiro repair the implementation before stored verification. |

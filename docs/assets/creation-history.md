@@ -45,6 +45,6 @@ prompt required a compact 1:1 composition, 32-pixel legibility, transparent oute
 and no unrelated symbols. The built-in image tool created the mascot and hat; a lossless alpha-mask
 merge preserved the previously generated transparent outer corners in the final PNG.
 
-Kiro and its ghost artwork are associated with Amazon Web Services. This private project mascot is
+Kiro and its ghost artwork are associated with Amazon Web Services. This project mascot is
 a playful reference for compatibility identification; it does not claim ownership
 of Kiro's mark, endorsement, or affiliation.

@@ -72,7 +72,7 @@ and supporting command/output or artifact for each acceptance row below:
 6. exact-candidate Kiro evidence where the release contract requires it;
 7. independent review of the exact candidate, naming the reviewer and any
    unavailable requested reviewer; and
-8. a private PR and a version tag matching `plugin.json`, bound to the
+8. a PR and a version tag matching `plugin.json`, bound to the
    reviewed commit after merge.
 
 Every material change after review returns the candidate to the affected

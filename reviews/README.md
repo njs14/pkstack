@@ -36,7 +36,7 @@ credentials. Keep any reviewer session metadata outside the repository.
    supported high/medium findings as fix tasks, not automatic edits.
 5. Repeat affected checks and obtain final acceptance for the exact candidate.
 6. Create `v<version>` using the version in [`plugin.json`](../powers/pkstack/plugin.json)
-   only when the release-status gates and private PR agree on the same commit.
+   only when the release-status gates and PR agree on the same commit.
 
 The root `reviews/` directory holds the current status and historical evidence;
 this directory also holds the relocated Power review contracts and their historical

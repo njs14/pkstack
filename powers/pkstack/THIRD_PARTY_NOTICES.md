@@ -338,8 +338,8 @@ knowledge tree and was selected on September 6, 2026. See [artwork creation hist
 for the generation provenance of both images.
 
 Kiro and its original artwork remain the property of their respective owner. This attribution
-does not claim a license, endorsement, or affiliation. Review or replace the mascot before any
-distribution whose trademark or artwork policy differs from this private-project use.
+does not claim a license, endorsement, or affiliation. Review or replace the mascot as needed to meet the trademark and artwork policies
+applicable to its distribution.
 
 ## Referenced but not redistributed
 

@@ -13,6 +13,9 @@ before the root reviews directory was removed. The Power manifest remains versio
 Future release work updates this record and the [changelog](../../../CHANGELOG.md),
 following the [release evidence contract](release-and-review.md).
 
+PKStack is now public. References below to a private repository describe its
+visibility at the time of those releases.
+
 ## Verified local manual publication: 0.5.8
 
 [Version 0.5.8](https://github.com/njs14/pkstack/releases/tag/v0.5.8) was published in the
