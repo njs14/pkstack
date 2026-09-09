@@ -13,8 +13,9 @@ retains the selection and source attribution.
 
 `pkstack-power.jpg` was generated on September 9, 2026 with the built-in image
 generator, using the Knowledge crest as its reference. The image is a compact
-512 × 512 JPEG for repository or catalog presentation; it is not a Kiro manifest
-setting and is excluded from the Power. The generated PNG was resized and
+512 × 512 JPEG. The standalone file stays in repository assets; its bytes are
+embedded in `POWER.md` for the Kiro IDE 1.0.437 details view, whose image policy
+permits data URIs. `plugin.json` has no icon field. The generated PNG was resized and
 encoded as JPEG with macOS `sips` at quality 82.
 
 Prompt: a compact square PKStack Power icon on midnight navy, with one pale

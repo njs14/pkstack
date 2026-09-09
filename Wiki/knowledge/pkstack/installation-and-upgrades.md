@@ -9,11 +9,28 @@ tags: [pkstack, installation, upgrades, ownership]
 
 ## Install through Kiro
 
-Clone the public PKStack repository locally over HTTPS without a GitHub account and use Kiro's **Powers → Add
-Custom Power → Import power from a folder** flow. Select `powers/pkstack/`, review
-it, and click **Install**. This follows the [official installation guide](https://kiro.dev/docs/powers/installation/).
+Use **Powers → Add Custom Power → Import power from GitHub** with
+`https://github.com/njs14/pkstack/tree/main/powers/pkstack`. The directory component
+is required: the repository root contains maintainer material, while the Power
+manifest and skills live in `powers/pkstack/`.
+
+For local import, clone the public repository over HTTPS without a GitHub account,
+review `powers/pkstack/`, and select that directory through **Import power from a
+folder**. Both paths follow the [official installation guide](https://kiro.dev/docs/powers/installation/).
 CLI v3 [detects IDE-installed Powers](https://kiro.dev/docs/cli/v3/new-features/#powers-auto-pickup).
 Install from the reviewed Power folder or extracted release archive.
+
+IDE 1.0.437 can accept the repository-root URL, install no Power files, and still
+report success. If the details show **No description available** and no skills,
+uninstall the empty entry and import the full directory URL. Updating an entry
+retains its source path. Check the installed content and visible skills instead
+of relying on the success notification.
+
+The [installation metadata contract](../../features/pkstack-power-installation.md)
+checks the actual package fields, compact inline image, and README URLs. The
+[September 9 native observation](../../../docs/kiro-v3-compatibility.md#september-9-remote-power-installation-and-display)
+records the incorrect import, corrected remote package, and bounded display
+preview separately from that executable package check.
 
 After installation, invoke `/pkstack-setup` where Kiro exposes the Power's skill
 to initialize the application workspace. Review its preview before applying
@@ -27,8 +44,12 @@ application environment for verification.
 
 ## Consumer package boundary
 
-The current Power uses `plugin.json`; Kiro still accepts legacy `POWER.md` as an
-alternative, and does not document `POWERS.md`. `dev.kiro` is Kiro's reverse-domain
+The current Power uses `plugin.json`. Its [POWER.md compatibility file](../../../powers/pkstack/POWER.md)
+supplies display fields because IDE 1.0.437 still reads that file for its details
+page, even when the agent uses Agent Plugins loading. The metadata matches the
+manifest; a compact inline JPG renders under the details view's content security
+policy. Kiro also accepts a standalone legacy `POWER.md`, and does not document
+`POWERS.md`. `dev.kiro` is Kiro's reverse-domain
 extension namespace. It is required by this package's steering layout, not a
 place for development-only files. The [Power compatibility guide](../../../powers/pkstack/docs/kiro-v3-compatibility.md)
 explains the format and dated support limits.

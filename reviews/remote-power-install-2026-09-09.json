@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "kind": "pkstack-remote-install-display-observation",
+  "observed_on": "2026-09-09",
+  "client": {
+    "name": "Kiro IDE",
+    "version": "1.0.437",
+    "build": "5349479558af37fecbfcdb58c199ee59d86d4dd3",
+    "extension_sha256": "e2e23f07242d0963c065a653a8ddc0fd5335bf4424f0c0f4f23aaece7190d2e1",
+    "details_ui_sha256": "37011bbc1f2fe6168a0d332d7e7cecb44ea1175077a983b1f6ff735336e797d2"
+  },
+  "root_import": {
+    "url": "https://github.com/njs14/pkstack",
+    "path_in_repo": "",
+    "reported_success": true,
+    "installed_files": 0,
+    "empty_directory": "steering",
+    "description": "No description available"
+  },
+  "correct_remote_import": {
+    "url": "https://github.com/njs14/pkstack/tree/main/powers/pkstack",
+    "path_in_repo": "powers/pkstack",
+    "release_commit": "460c0b58a29a1d6eb70830ba342d10458c137b27",
+    "version": "0.5.11",
+    "installed_files": 255,
+    "skills_displayed": 66,
+    "all_files_match_reviewed_release": true,
+    "agent_plugin_loader_selected": true,
+    "description_displayed": true,
+    "author_and_icon_absent": true
+  },
+  "display_preview": {
+    "mode": "One local POWER.md overlay on the exact v0.5.11 remote install; not a remote compatibility release",
+    "power_md_sha256": "a21ec9a77f5987a34d3a29295ba8bedb09432cbaf8bc676fb3d81e77eb6c045f",
+    "native_details_observed": {
+      "display_name": "PKStack",
+      "author": "PKStack contributors",
+      "description_matches_manifest": true,
+      "keywords_match_manifest": true,
+      "skills_displayed": 66,
+      "custom_jpg_rendered": true
+    },
+    "image": {
+      "source": "docs/assets/pkstack-power.jpg",
+      "sha256": "9da4b7f3e9240d534d0286e4c969149a03737882100d0271de0b3eb03867b36f",
+      "bytes": 49096,
+      "rejected_transport": "HTTPS raw.githubusercontent.com; HTTP200 but blocked by details-view CSP",
+      "working_transport": "data:image/jpeg;base64",
+      "security_policy_modified": false
+    },
+    "manifest_or_skill_files_modified": false
+  },
+  "client_code_paths_inspected": [
+    "parseGitHubUrl",
+    "installPowerFromRepository",
+    "getInstalledPowerDetails",
+    "getPowerDetails",
+    "getCsp"
+  ],
+  "update_check": {
+    "result": "failed before comparison",
+    "message": "No name was provided for author in the argument or in the .git/config file.",
+    "recovery": "Fresh Power installation through its full directory URL",
+    "global_git_identity_changed": false
+  },
+  "limits": [
+    "Native display and installation observations for the named client only.",
+    "Local overlay does not establish a remote compatibility release installation.",
+    "No new setup, native Spec, verified task, hosted CI, or Linux runner evidence.",
+    "The stored metadata verifier checks package data and URL guidance; it does not automate Kiro."
+  ]
+}

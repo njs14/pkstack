@@ -171,8 +171,8 @@
     ".pkstack/bin/projectctl": "f28d0f04299185461062ce63b69eef0d6e8bc9869fe945262dccb7a645f17fc9",
     ".pkstack/discovery.json": "3e7c51c868ef47a451492e76933cef0f2dd4e8166bb8af1f73a7e71faa76c6ab",
     ".pkstack/projectctl/README.md": "c048783da4b2f5c0d1f9c1238d546dea389beb29885b5d560f942fd2609fa7fb",
-    ".pkstack/projectctl/pyproject.toml": "88a6f190149ba339e0c9bb20b5865a4338c22ec95aa2ee277e1cdd11961c426e",
-    ".pkstack/projectctl/src/pkstack/__init__.py": "316ad199f477f1851f7dfac5819f8262ef2367aa802e3c2b3ef0bd9571c21295",
+    ".pkstack/projectctl/pyproject.toml": "7d520550f2811e2cc5bd6664ecf6e24c25bbda5f3db4f2182a90e0cdce4a127e",
+    ".pkstack/projectctl/src/pkstack/__init__.py": "ebfff5909a62da8a0e23bbf031e14ef28f7fb9cb16a7e018b623c98935ff03f3",
     ".pkstack/projectctl/src/pkstack/__main__.py": "ea85323688e78bcc4489b8e217c8e6c098e1e37013132074022d4a167cb8f74a",
     ".pkstack/projectctl/src/pkstack/bootstrap.py": "9d4acb2c470479650f29ab7ba31760f366e207011a6cf246c93f190c91e6fb2f",
     ".pkstack/projectctl/src/pkstack/branding.py": "65a7a9790b0d70edfd0462a97a7fd7c59022be1474674fbe297b38f14e799a6e",
@@ -192,8 +192,8 @@
     ".pkstack/projectctl/src/pkstack/paths.py": "6a0418e0cdaf961b9247b1f54ac96599b8175631545b9068beda53345d2ff17c",
     ".pkstack/projectctl/src/pkstack/runner.py": "420b6882dc38d75e1d230c357a06f2974f41aeb4ea4e6b21340dfa8a5d96e5e5",
     ".pkstack/projectctl/src/pkstack/upstreams.py": "098987f6588587130e3547d80ae0d0a17a6b5ba7ae7563ba4b1a264fabca04fb",
-    ".pkstack/projectctl/uv.lock": "50ec5b903b50bc5a9374b015b9c6ff4df48841fdd7863383f9d5ab1d6deeb31e",
-    "Wiki/features/README.md": "aac76bcc9465afe43375eb0b1d986f9508cac6ada7b1f012aee3e3a00c448bed"
+    ".pkstack/projectctl/uv.lock": "d164b7978ca99b017223c8f132f45df153260d463aec74606cd970a086b3f2ba",
+    "Wiki/features/README.md": "9745441f270d65395ffa685164c18cd8b571888fc8af8cfe3a8dd9d67be4a2b2"
   },
   "manager": "pkstack",
   "schema_version": 2

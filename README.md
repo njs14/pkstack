@@ -21,12 +21,22 @@ PKStack adds the workflows, verification records, and repository Wiki.
 
 ## Quick start
 
-Install PKStack through Kiro's **Powers** panel using Kiro's documented [local-folder installation](https://kiro.dev/docs/powers/installation/#from-local-path):
+Install from the public GitHub repository using the **Power directory URL**:
 
-1. Clone `https://github.com/njs14/pkstack.git` locally. The repository is public; cloning over HTTPS requires no GitHub account.
-2. Review `powers/pkstack/` inside the local checkout, which contains `plugin.json`, before importing it.
-3. In Kiro, open **Powers → Add Custom Power → Import power from a folder**.
-4. Choose the reviewed folder and click **Select Folder**. In the installed Power details, verify that `pkstack` points to that exact source folder. If an older import is still selected, uninstall that Power entry and install the reviewed folder again.
+1. In Kiro, open **Powers → Add Custom Power → Import power from GitHub**.
+2. Paste `https://github.com/njs14/pkstack/tree/main/powers/pkstack` and confirm.
+3. Open the installed `PKStack` Power and verify its description and skills appear.
+
+The repository root is a maintainer checkout; the Power is in `powers/pkstack/`.
+Kiro IDE 1.0.437 can report success when given the repository-root URL but install
+an empty Power. If the page says **No description available**, uninstall that
+entry and import the full directory URL above. Checking for updates keeps the
+configured source path and does not correct a repository-root import.
+
+For a local installation, clone `https://github.com/njs14/pkstack.git`, review
+`powers/pkstack/` inside the checkout (containing `plugin.json`), then choose
+**Import power from a folder** and select that directory. See Kiro's
+[installation guide](https://kiro.dev/docs/powers/installation/).
 
 That completes Power installation. Kiro CLI v3 [automatically detects Powers
 installed through the IDE](https://kiro.dev/docs/cli/v3/new-features/#powers-auto-pickup).

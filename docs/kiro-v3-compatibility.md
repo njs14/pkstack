@@ -5,6 +5,10 @@ evidence was refreshed on **2026-09-05**. This records the Kiro contract PKStack
 targets and the observed behavior on the target Mac, not a guarantee for every
 account or later release. Re-run the checks at the end after a Kiro update.
 
+The September 9 remote-install investigation below adds a separate IDE 1.0.437
+installation and display observation; it does not refresh the September 5 agent
+workflow campaigns.
+
 PKStack supports Kiro CLI v3 and the Kiro IDE 1.x chat panel as primary surfaces;
 the IDE's Agent Focus Mode is a supported agent-first view but remains listed
 by Kiro as experimental. Neither client is an exclusive runtime dependency.
@@ -56,6 +60,45 @@ authenticated use. It derives the expected set from safe
 output, timeout, and nonzero exit are failures. The existing per-profile
 `agent validate` checks remain separate because schema validity is not loader
 discovery evidence.
+
+## September 9 remote Power installation and display
+
+The local Kiro IDE was **1.0.437**, build
+`5349479558af37fecbfcdb58c199ee59d86d4dd3`. The
+[sanitized observation record](../reviews/remote-power-install-2026-09-09.json)
+binds the client bundles and preview metadata. The observed remote-root import of
+`https://github.com/njs14/pkstack` reported success but produced an installed
+directory containing only an empty `steering/` directory. The custom registry
+entry had an empty `pathInRepo`. The installer checks for `plugin.json` at that
+exact path, falls back to copying legacy files when it is absent, and does not
+require either manifest before reporting success.
+
+Importing `https://github.com/njs14/pkstack/tree/main/powers/pkstack` selects the
+correct package. A fresh native remote install of v0.5.11 matched all 255 files
+in the reviewed package and displayed its description and all 66 skills.
+
+The bundled details implementation still reads `POWER.md` in
+`getInstalledPowerDetails`, even for Agent Plugins. The agent list supplies a
+missing description and skills, but not author or icon. A local preview adding
+only PKStack's compatibility `POWER.md` to that exact installed package showed
+the display name, author, keywords, and skills in the native details page.
+An HTTPS GitHub image returned HTTP 200 but was blocked by the webview's image
+policy. Embedding the same 49,096-byte JPG as a `data:image/jpeg;base64` value
+then rendered the custom image. No application or security-policy change was
+needed. The manifest and all skill files stayed unchanged during that preview.
+
+The preview proves the display path for this Kiro build. It is separate from a
+fresh remote install of the subsequent compatibility release, and from running
+setup, a native Spec, or a verified repair. Package metadata checks retain the
+same authority and small-image constraints; they do not substitute for native
+rendering evidence. The [consumer guide](../powers/pkstack/docs/kiro-v3-compatibility.md)
+contains the concise installation and format contract.
+
+The IDE update check also failed locally before comparison with
+`No name was provided for author in the argument or in the .git/config file.`
+That is a separate Kiro repository-pull failure. Reinstalling the Power through
+its corrected URL completed without changing global Git identity. Do not treat
+a failed update check as proof that an installed Power is current.
 
 ## Automated product-drift canary
 

@@ -125,6 +125,9 @@ def test_readmes_link_to_documentation_and_public_entrypoints() -> None:
         for detail in ("curated-skills.md", "first-task.md", "usage.md", "release-record.md"):
             assert detail in content
         assert "/pkstack-setup" in content and "/pkstack <task>" in content
+        assert "Import power from GitHub" in content
+        assert "https://github.com/njs14/pkstack/tree/main/powers/pkstack" in content
+        assert "No description available" in content
         for target in re.findall(r"!?\[[^]]*\]\(([^)#]+)(?:#[^)]*)?\)", content):
             if not target.startswith(("https://", "http://")):
                 assert (path.parent / target).is_file(), f"broken README link: {target}"

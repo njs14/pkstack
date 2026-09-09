@@ -13,11 +13,27 @@ reverse-domain namespace, not a development-only folder. Setup copies those
 steering files into the project's `.kiro/steering/` directory.
 
 Kiro also supports the legacy `POWER.md` format (singular), as described in its
-[installation guide](https://kiro.dev/docs/powers/installation/). It is an
-alternative to `plugin.json`; PKStack does not require a second manifest.
-`POWERS.md` is not a documented manifest filename. Neither the current manifest
-schema nor Kiro's creation guide defines a custom JPG field. Repository artwork
-is separate from the installable Power.
+[installation guide](https://kiro.dev/docs/powers/installation/). In IDE 1.0.437,
+the agent loads `plugin.json`, but the Power details view still reads display
+metadata from `POWER.md`. PKStack includes that small compatibility file for its
+title, description, author, keywords, and icon. `plugin.json` remains authoritative;
+the presence of `POWER.md` does not select legacy loading when `plugin.json` exists.
+`POWERS.md` is not a documented manifest filename.
+
+The details view blocks arbitrary remote image URLs through its content security
+policy. The compact JPG is embedded as an allowed `data:image/jpeg;base64` value
+in `POWER.md`; the full README crest remains outside the Power. The standard
+`plugin.json` schema has no custom icon field.
+
+## Remote installation
+
+Use **Import power from GitHub** with
+`https://github.com/njs14/pkstack/tree/main/powers/pkstack`. The Power is nested
+inside the maintainer repository. IDE 1.0.437 accepts the repository-root URL
+without a manifest, reports success, and creates an empty legacy installation.
+Its details then show **No description available** and no skills. Uninstall that
+entry and import the full Power directory URL; update checks retain the original
+source path. Verify that the description and skills appear after installation.
 
 ## Surfaces and limits
 

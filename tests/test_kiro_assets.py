@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
@@ -126,6 +127,34 @@ def test_power_manifest_uses_agent_plugins_format() -> None:
     assert manifest["description"]
     assert isinstance(manifest["keywords"], list) and manifest["keywords"]
     assert {"Kiro CLI", "Kiro IDE", "Kiro Crew", "Kiro Web"} <= set(manifest["keywords"])
+
+
+def test_power_details_metadata_matches_manifest_and_embeds_small_jpg() -> None:
+    """Kiro 1.0.437 reads these display fields from POWER.md even for agent plugins."""
+    manifest = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
+    metadata, body = _frontmatter(ROOT / "POWER.md")
+
+    assert set(metadata) == {
+        "name",
+        "displayName",
+        "description",
+        "author",
+        "iconUrl",
+        "repositoryUrl",
+        "keywords",
+    }
+    for key in ("name", "description", "keywords"):
+        assert metadata[key] == manifest[key]
+    assert metadata["displayName"] == DISPLAY_NAME
+    assert metadata["author"] == manifest["author"]["name"]
+    assert metadata["repositoryUrl"] == manifest["repository"]
+    icon = metadata["iconUrl"]
+    assert isinstance(icon, str) and icon.startswith("data:image/jpeg;base64,")
+    image = base64.b64decode(icon.removeprefix("data:image/jpeg;base64,"), validate=True)
+    assert 0 < len(image) <= 64 * 1024
+    assert image == (REPO_ROOT / "docs/assets/pkstack-power.jpg").read_bytes()
+    assert "/pkstack-setup" in body and "/pkstack <task>" in body
+    assert not (ROOT / "POWERS.md").exists()
 
 
 @pytest.mark.parametrize("skill_name", sorted(EXPECTED_SKILLS))
