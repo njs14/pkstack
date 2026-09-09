@@ -784,12 +784,12 @@
     },
     {
       "path": "README.md",
-      "sha256": "bbabc2c1b5f42cebaa552aeb7faddb4bc6e8e321a6e2bd0770d107175fed0164",
+      "sha256": "19653c0537c72ca0d7e5a7cae5075eba4c02731f74ccfb25bb7e9252ca3508d7",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Current product entrypoint follows official private Power folder installation and links workspace initialization and first-task guidance."
+      "summary": "Current product entrypoint follows official local-folder Power installation and links workspace initialization and first-task guidance."
     },
     {
       "path": "SECURITY.md",
@@ -900,7 +900,7 @@
     },
     {
       "path": "docs/assets/creation-history.md",
-      "sha256": "e2e909a0bc67242e6e8a0efcc2c000b1c13da9dbdc3197e861d7522eef680ad4",
+      "sha256": "fb28ca313d28fe211258bffcc2445b6731e236908b951a06e570602fc99f3027",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
@@ -918,7 +918,7 @@
     },
     {
       "path": "docs/validation-report.md",
-      "sha256": "43b46ee546a1ea42ff6bf4a61d265ce1215d9c4f9ce9ccb2e29357daf4fcf333",
+      "sha256": "6d238fb52af50e1e03f306188ff1d0195493dff195753ad228123582549e4072",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -927,7 +927,7 @@
     },
     {
       "path": "powers/pkstack/README.md",
-      "sha256": "cfd6f6da1d6ff77ad653d8d43a1b8492e76a6af8bc29bca62738d101d491f739",
+      "sha256": "57c4e946e4a155a191aec3e00579322d18d9a881937fdae1f4523910487b1c82",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -936,7 +936,7 @@
     },
     {
       "path": "powers/pkstack/THIRD_PARTY_NOTICES.md",
-      "sha256": "749479baa86fef6c33f6b0088db39668f1840e054d0293d838cec9d2dd2a234d",
+      "sha256": "04c7ac6f2ff5ad817958510758117d57f1f9c918c4e90f855a67e5da199c4106",
       "classification": "excluded",
       "category": "policy",
       "reason": "Complete legal notices remain canonical in the package; source ownership and adaptation decisions are retained from linked provenance guides."
@@ -1150,7 +1150,7 @@
     },
     {
       "path": "powers/pkstack/docs/provenance.md",
-      "sha256": "30809f2f93c85da2145f70025634eee7b01038908e04dc0e59aa573d633a604b",
+      "sha256": "cf34422af55e0cb043113a9d0772119962f2bf1a26546ea1a9aaec121d15760d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1177,7 +1177,7 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "44278182128d929d9a1a0f9d67b55e9f7da5d5559604eeeadd7f3ff48d42182d",
+      "sha256": "3f7e1c9479c70c3e1224049dd85f5b8c16e9e7ff3abe5f08b284e54dd008e9bf",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1874,7 +1874,7 @@
     },
     {
       "path": "reviews/README.md",
-      "sha256": "2f564af52e8e1951c9b4af69fe06ab5a025ba2b68802fef8e6d71d8911c589bd",
+      "sha256": "6cfab1121577c5e4e8958e73749d6ecfd9a747a893127b25527e7b63751baa55",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
