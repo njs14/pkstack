@@ -1,7 +1,8 @@
-"""Behavioral coverage for CI selection and fail-closed aggregate evidence."""
+"""Behavioral coverage for CI selection and complete shared execution evidence."""
 
 import copy
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -10,15 +11,15 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import pkstack_checks as checks
-import pkstack_pytest_partition as plugin
+import pkstack_pytest_evidence as plugin
 
 
 def change(path, status="M", other=None):
     return {"status": status, "paths": [path] + ([other] if other else [])}
 
 
-def plan_and_receipts():
-    plan = {
+def context_and_evidence():
+    context = {
         "schema": checks.SCHEMA,
         "commit": "a" * 40,
         "config_digest": "b" * 64,
@@ -26,45 +27,35 @@ def plan_and_receipts():
         "browser_profile": "full",
         "run_id": "42",
         "run_attempt": "1",
-        "scheduled": list(checks.LANES),
-        "unscheduled": [],
     }
     ids = [
         "tests/test_branding.py::test_contract",
         "tests/test_archify_reader_layout.py::test_browser",
         "tests/test_packaging.py::test_install",
         checks.KIRO_SENTINEL,
+        *[f"tests/test_core.py::test_behavior_{i}" for i in range(60)],
     ]
-    ids.extend(f"tests/test_core.py::test_behavior_{i}" for i in range(60))
-    receipts = []
-    for lane in checks.LANES:
-        receipt = checks.receipt_base(plan, lane)
-        receipt.update(outcome="passed", duration_seconds=1)
-        if lane != "policy":
-            results = []
-            for nodeid in ids:
-                if checks.lane_for(nodeid) != lane:
-                    continue
-                skipped = nodeid == checks.KIRO_SENTINEL
-                result = {
-                    "nodeid": nodeid,
-                    "outcome": "skipped" if skipped else "passed",
-                    "phases": {"setup": "skipped", "teardown": "passed"}
-                    if skipped
-                    else {"setup": "passed", "call": "passed", "teardown": "passed"},
-                }
-                if skipped:
-                    result["skip_reason"] = checks.KIRO_SKIP_REASON
-                results.append(result)
-            receipt.update(
-                collection=ids,
-                collection_digest=checks.digest(ids),
-                results=results,
-                issues=[],
-                exit_status=0,
-            )
-        receipts.append(receipt)
-    return plan, receipts
+    results = []
+    for nodeid in ids:
+        skipped = nodeid == checks.KIRO_SENTINEL
+        result = {
+            "nodeid": nodeid,
+            "outcome": "skipped" if skipped else "passed",
+            "phases": {"setup": "skipped", "teardown": "passed"}
+            if skipped
+            else {"setup": "passed", "call": "passed", "teardown": "passed"},
+        }
+        if skipped:
+            result["skip_reason"] = checks.KIRO_SKIP_REASON
+        results.append(result)
+    return context, {
+        "collection": ids,
+        "collection_digest": checks.digest(ids),
+        "results": results,
+        "issues": [],
+        "exit_status": 0,
+        "outcome": "passed",
+    }
 
 
 class ProfileTests(unittest.TestCase):
@@ -72,20 +63,26 @@ class ProfileTests(unittest.TestCase):
         workflow = (Path(__file__).resolve().parents[1] / "workflows/pk-stack-ci.yml").read_text()
         triggers = workflow.split("permissions:", 1)[0]
         self.assertIn("  push:\n    branches: [main]", triggers)
-        self.assertIn("  pull_request:\n\n", triggers)
+        self.assertIn("  pull_request:\n", triggers)
+        self.assertNotIn("branches:", triggers.split("  pull_request:\n", 1)[1])
         self.assertNotIn("pull_request_target", workflow)
-        for step in (
-            "Build and validate reproducible main artifact",
-            "Retain immutable release package",
-        ):
-            section = workflow.split("- name: " + step, 1)[1].split("- name:", 1)[0]
-            self.assertIn(
-                "if: github.event_name == 'push' && github.ref == 'refs/heads/main'", section
-            )
-        self.assertEqual(
-            workflow.count("if: github.event_name == 'push' && github.ref == 'refs/heads/main'"),
-            2,
+        jobs = [
+            line[2:-1]
+            for line in workflow.split("\njobs:\n", 1)[1].splitlines()
+            if line.startswith("  ") and not line.startswith("   ") and line.endswith(":")
+        ]
+        self.assertEqual(jobs, ["deterministic", "package"])
+        package = workflow.split("\n  package:\n", 1)[1]
+        self.assertIn("needs: deterministic", package)
+        self.assertIn(
+            "(github.event_name == 'push' || github.event_name == 'workflow_dispatch') "
+            "&& github.ref == 'refs/heads/main'",
+            package,
         )
+        self.assertIn("needs.deterministic.result == 'success'", package)
+        self.assertNotIn("matrix:", workflow)
+        self.assertNotIn("download-artifact", workflow)
+        self.assertNotIn("aggregate", workflow)
 
     def test_only_enumerated_reports_take_fast_path(self):
         for path in (
@@ -171,86 +168,59 @@ class ProfileTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 checks.parse_changes(raw)
 
-    def test_partition_is_stable_and_module_overrides_preserve_categories(self):
-        self.assertEqual(checks.lane_for("tests/test_packaging.py::test_install"), "package")
-        self.assertEqual(checks.lane_for("tests/test_power_acceptance.py::test_install"), "package")
-        self.assertEqual(
-            checks.lane_for("tests/test_readme_walkthrough.py::test_install"), "package"
-        )
-        self.assertEqual(checks.lane_for("tests/test_branding.py::new_test"), "fast")
-        self.assertEqual(
-            checks.lane_for("tests/test_archify_reader_layout.py::test_startup"),
-            "browser",
-        )
-        # A known hash gives a stable allocation across Python hash randomization
-        # and test additions.
-        self.assertEqual(checks.lane_for("tests/test_core.py::test_behavior_0"), "core-4")
+    def test_full_scope_includes_every_product_test_and_fast_is_explicit(self):
+        _, evidence = context_and_evidence()
+        for nodeid in evidence["collection"]:
+            self.assertTrue(checks.selected_test(nodeid, "full"))
+        self.assertTrue(checks.selected_test("tests/test_branding.py::new_test", "fast"))
+        self.assertFalse(checks.selected_test("tests/test_core.py::new_test", "fast"))
 
 
-class ReceiptTests(unittest.TestCase):
-    def test_complete_disjoint_execution_and_documented_sentinel_pass(self):
-        plan, receipts = plan_and_receipts()
-        summary = checks.verify_receipts(plan, receipts)
-        self.assertEqual(summary["tests"], 64)
-        self.assertEqual(len(summary["lane_seconds"]), 10)
+class EvidenceTests(unittest.TestCase):
+    def test_complete_execution_and_documented_sentinel_pass(self):
+        _, evidence = context_and_evidence()
+        self.assertEqual(checks.verify_tests(evidence, "full"), 64)
 
-    def test_missing_duplicate_failed_or_foreign_lane_fail(self):
+    def test_missing_duplicate_failed_cancelled_or_partial_results_fail(self):
         for mode in (
             "missing",
             "duplicate",
             "failure",
-            "identity",
-            "config",
-            "attempt",
+            "collection",
+            "phases",
+            "exit",
+            "issue",
+            "empty",
         ):
             with self.subTest(mode=mode):
-                plan, receipts = plan_and_receipts()
+                _, evidence = context_and_evidence()
                 if mode == "missing":
-                    receipts.pop()
+                    evidence["results"].pop()
                 elif mode == "duplicate":
-                    receipts.append(copy.deepcopy(receipts[0]))
+                    evidence["results"].append(copy.deepcopy(evidence["results"][0]))
                 elif mode == "failure":
-                    receipts[0]["outcome"] = "failed"
-                elif mode == "identity":
-                    receipts[0]["commit"] = "c" * 40
-                elif mode == "config":
-                    receipts[0]["config_digest"] = "c" * 64
-                else:
-                    receipts[0]["run_attempt"] = "2"
-                with self.assertRaises(ValueError):
-                    checks.verify_receipts(plan, receipts)
-
-    def test_missing_overlap_collection_mismatch_and_incomplete_phases_fail(self):
-        for mode in ("missing", "overlap", "collection", "phases", "exit", "issue"):
-            with self.subTest(mode=mode):
-                plan, receipts = plan_and_receipts()
-                if mode == "missing":
-                    receipts[0]["results"] = []
-                elif mode == "overlap":
-                    receipts[1]["results"].append(receipts[0]["results"][0])
+                    evidence["outcome"] = "failed"
                 elif mode == "collection":
-                    receipts[0]["collection"] = list(reversed(receipts[0]["collection"]))
-                    receipts[0]["collection_digest"] = checks.digest(receipts[0]["collection"])
+                    evidence["collection"] = list(reversed(evidence["collection"]))
+                    evidence["collection_digest"] = checks.digest(evidence["collection"])
                 elif mode == "phases":
-                    receipts[0]["results"][0]["phases"].pop("teardown")
+                    evidence["results"][0]["phases"].pop("teardown")
                 elif mode == "exit":
-                    receipts[0]["exit_status"] = 2
+                    evidence["exit_status"] = 2
+                elif mode == "empty":
+                    evidence["collection"] = []
+                    evidence["collection_digest"] = checks.digest([])
                 else:
-                    receipts[0]["issues"] = ["duplicate phase"]
+                    evidence["issues"] = ["duplicate phase"]
                 with self.assertRaises(ValueError):
-                    checks.verify_receipts(plan, receipts)
+                    checks.verify_tests(evidence, "full")
 
     def test_any_skip_other_than_exact_kiro_sentinel_fails(self):
         for mode in ("test", "reason", "teardown"):
-            plan, receipts = plan_and_receipts()
-            result = next(
-                r
-                for rec in receipts
-                for r in rec.get("results", [])
-                if r["nodeid"] == checks.KIRO_SENTINEL
-            )
+            _, evidence = context_and_evidence()
+            result = next(r for r in evidence["results"] if r["nodeid"] == checks.KIRO_SENTINEL)
             if mode == "test":
-                result = receipts[0]["results"][0]
+                result = evidence["results"][0]
                 result.update(
                     outcome="skipped",
                     skip_reason=checks.KIRO_SKIP_REASON,
@@ -261,61 +231,21 @@ class ReceiptTests(unittest.TestCase):
             else:
                 result["phases"].pop("teardown")
             with self.subTest(mode=mode), self.assertRaises(ValueError):
-                checks.verify_receipts(plan, receipts)
-
-    def test_cancelled_or_skipped_required_job_fails(self):
-        plan, receipts = plan_and_receipts()
-        needs = {
-            job: {"result": "success"}
-            for job in ("classify", "fast", "browser", "package", "core", "policy")
-        }
-        checks.verify_receipts(plan, receipts, needs)
-        for result in ("cancelled", "skipped", "failure"):
-            needs["core"]["result"] = result
-            with self.subTest(result=result), self.assertRaises(ValueError):
-                checks.verify_receipts(plan, receipts, needs)
-
-    def test_report_profile_accounts_for_unscheduled_lanes(self):
-        plan, _ = plan_and_receipts()
-        plan.update(
-            profile="reports",
-            browser_profile="none",
-            scheduled=["fast"],
-            unscheduled=list(checks.LANES[1:]),
-        )
-        receipt = checks.receipt_base(plan, "fast")
-        receipt["outcome"] = "passed"
-        needs = {
-            job: {"result": "success" if job in {"classify", "fast"} else "skipped"}
-            for job in ("classify", "fast", "browser", "package", "core", "policy")
-        }
-        self.assertEqual(checks.verify_receipts(plan, [receipt], needs)["tests"], 0)
-        needs["browser"]["result"] = "success"
-        with self.assertRaises(ValueError):
-            checks.verify_receipts(plan, [receipt], needs)
+                checks.verify_tests(evidence, "full")
 
 
 class PluginTests(unittest.TestCase):
     def test_collection_and_phase_reports_detect_incomplete_or_repeated_execution(self):
-        for mode in ("passed", "missing-teardown", "duplicate-call", "failed-setup"):
+        for mode in ("passed", "missing-teardown", "duplicate-call", "failed-setup", "cancelled"):
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as folder:
-                plan, _ = plan_and_receipts()
-                receipt_path = Path(folder) / "receipt.json"
-                env = {
-                    "PKSTACK_CHECK_PLAN": json.dumps(plan),
-                    "PKSTACK_CHECK_LANE": "fast",
-                    "PKSTACK_CHECK_RECEIPT": str(receipt_path),
-                }
+                path = Path(folder) / "product.json"
+                env = {"PKSTACK_CHECK_SCOPE": "full", "PKSTACK_CHECK_EVIDENCE": str(path)}
                 with patch.dict(checks.os.environ, env):
                     deselected = []
                     config = SimpleNamespace(
                         hook=SimpleNamespace(
-                            pytest_deselected=lambda items, sink=deselected: sink.extend(items)
+                            pytest_deselected=lambda sink=deselected, **kw: sink.extend(kw["items"])
                         )
-                    )
-                    # Match pytest's keyword name while retaining the observed callback items.
-                    config.hook.pytest_deselected = lambda sink=deselected, **kwargs: sink.extend(
-                        kwargs["items"]
                     )
                     plugin.pytest_configure(config)
                     session = SimpleNamespace(config=config)
@@ -325,37 +255,83 @@ class PluginTests(unittest.TestCase):
                     ]
                     items = [SimpleNamespace(nodeid=nodeid) for nodeid in ids]
                     plugin.pytest_collection_modifyitems(session, config, items)
-                    self.assertEqual(config._pkstack_collection, ids)
-                    self.assertEqual([item.nodeid for item in items], ids[:1])
-                    self.assertEqual([item.nodeid for item in deselected], ids[1:])
-                    phases = ["setup", "call", "teardown"]
-                    if mode == "missing-teardown":
-                        phases.pop()
-                    if mode == "duplicate-call":
-                        phases.insert(2, "call")
-                    if mode == "failed-setup":
-                        phases = ["setup", "teardown"]
-                    for phase in phases:
-                        outcome = (
-                            "failed" if mode == "failed-setup" and phase == "setup" else "passed"
-                        )
-                        report = SimpleNamespace(
-                            nodeid=ids[0],
-                            when=phase,
-                            outcome=outcome,
-                            skipped=False,
-                            duration=0.25,
-                        )
-                        plugin.pytest_runtest_logreport(report)
-                    plugin.pytest_sessionfinish(session, 0 if mode != "failed-setup" else 1)
-                    receipt = json.loads(receipt_path.read_text())
-                    result = receipt["results"][0]
-                    self.assertEqual(result["duration_seconds"], 0.25 * len(phases))
-                    self.assertEqual(
-                        result["outcome"],
-                        "failed" if mode in {"missing-teardown", "failed-setup"} else "passed",
-                    )
-                    self.assertEqual(bool(receipt["issues"]), mode == "duplicate-call")
+                    self.assertEqual([item.nodeid for item in items], ids)
+                    self.assertEqual(deselected, [])
+                    for nodeid in ids:
+                        phases = ["setup", "call", "teardown"]
+                        if mode == "missing-teardown":
+                            phases.pop()
+                        if mode == "duplicate-call":
+                            phases.insert(2, "call")
+                        if mode == "failed-setup":
+                            phases = ["setup", "teardown"]
+                        for phase in phases:
+                            plugin.pytest_runtest_logreport(
+                                SimpleNamespace(
+                                    nodeid=nodeid,
+                                    when=phase,
+                                    skipped=False,
+                                    duration=0.25,
+                                    outcome="failed"
+                                    if mode == "failed-setup" and phase == "setup"
+                                    else "passed",
+                                )
+                            )
+                    plugin.pytest_sessionfinish(session, 2 if mode == "cancelled" else 0)
+                    evidence = json.loads(path.read_text())
+                    if mode == "passed":
+                        self.assertEqual(checks.verify_tests(evidence, "full"), 2)
+                    else:
+                        with self.assertRaises(ValueError):
+                            checks.verify_tests(evidence, "full")
+
+
+class PytestProcessTests(unittest.TestCase):
+    def test_real_runner_rejects_skips_failures_interruptions_and_early_exit(self):
+        repository = Path(__file__).resolve().parents[2]
+        cases = {
+            "passed": "assert True",
+            "failed": "assert False",
+            "skip": "pytest.skip('Chrome is unavailable')",
+            "cancelled": "raise KeyboardInterrupt()",
+            "early-exit": "pytest.exit('incomplete', returncode=0)",
+        }
+        real_run = subprocess.run
+        for mode, body in cases.items():
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                tests = root / "tests"
+                tests.mkdir()
+                # Only the test collection is replaced; exercise the actual shared
+                # runner, locked tooling, evidence plugin and basetemp creation.
+                (root / ".github").symlink_to(repository / ".github", target_is_directory=True)
+                (root / "powers").mkdir()
+                (root / "powers/pkstack").symlink_to(
+                    repository / "powers/pkstack", target_is_directory=True
+                )
+                (tests / "test_probe.py").write_text(
+                    f"import pytest\ndef test_first(tmp_path):\n    {body}\n"
+                    "def test_second(tmp_path):\n    assert tmp_path.is_dir()\n"
+                )
+                output = root / "checks"
+                output.mkdir()
+
+                def capture(command, **kwargs):
+                    return real_run(command, capture_output=True, text=True, timeout=30, **kwargs)
+
+                with (
+                    patch.dict(os.environ, {"UV_PROJECT_ENVIRONMENT": str(repository / ".venv")}),
+                    patch.object(checks.subprocess, "run", side_effect=capture),
+                ):
+                    if mode == "passed":
+                        data = checks.run_product(root, {"browser_profile": "full"}, "full", output)
+                        self.assertEqual(checks.verify_tests(data, "full"), 2)
+                    else:
+                        with self.assertRaises(subprocess.CalledProcessError):
+                            checks.run_product(root, {"browser_profile": "full"}, "full", output)
+                        data = json.loads((output / "diagnostics/product.json").read_text())
+                        with self.assertRaises(ValueError):
+                            checks.verify_tests(data, "full")
 
 
 class GitPlanTests(unittest.TestCase):
@@ -397,18 +373,61 @@ class GitPlanTests(unittest.TestCase):
         self.git("add", ".")
         self.git("commit", "-qm", message)
 
+    def test_local_candidate_checks_bind_checkout_under_workflow_run(self):
+        with patch.dict(
+            checks.os.environ, {"GITHUB_EVENT_NAME": "workflow_run", "GITHUB_SHA": "f" * 40}
+        ):
+            context = checks.make_context(self.root, "local")
+            checks.validate_context(context, self.root)
+            (self.root / "new.py").write_text("changed\n")
+            self.commit("moved candidate")
+            with self.assertRaises(ValueError):
+                checks.validate_context(context, self.root)
+
+    def test_dispatched_ci_requires_its_exact_main_commit_and_complete_coverage(self):
+        event = self.root / "event.json"
+        event.write_text(json.dumps({"inputs": {"expected_sha": self.base}}))
+        with patch.dict(
+            checks.os.environ,
+            {
+                "GITHUB_EVENT_NAME": "workflow_dispatch",
+                "GITHUB_EVENT_PATH": str(event),
+                "GITHUB_SHA": self.base,
+                "GITHUB_REF": "refs/heads/main",
+            },
+        ):
+            context = checks.make_context(self.root, "workflow_dispatch")
+            self.assertEqual((context["profile"], context["browser_profile"]), ("normal", "full"))
+            checks.validate_context(context, self.root)
+            for expected in ("f" * 40, "", None):
+                event.write_text(json.dumps({"inputs": {"expected_sha": expected}}))
+                with self.assertRaisesRegex(ValueError, "expected main commit"):
+                    checks.validate_context(context, self.root)
+            event.write_text(json.dumps({"inputs": {"expected_sha": self.base}}))
+            checks.os.environ["GITHUB_REF"] = "refs/heads/other"
+            with self.assertRaisesRegex(ValueError, "expected main commit"):
+                checks.validate_context(context, self.root)
+
+    def test_hosted_identity_still_rejects_the_wrong_github_sha(self):
+        context = checks.make_context(self.root, "push")
+        with (
+            patch.dict(checks.os.environ, {"GITHUB_EVENT_NAME": "push", "GITHUB_SHA": "f" * 40}),
+            self.assertRaises(ValueError),
+        ):
+            checks.validate_context(context, self.root)
+
     def test_plan_rejects_forged_changes_and_changed_configuration(self):
         (self.root / "Wiki/knowledge/pkstack/release-record.md").write_text("updated\n")
         self.commit("report")
-        plan = checks.make_plan(self.root, "pull_request", self.base)
-        checks.validate_plan(plan, self.root)
+        plan = checks.make_context(self.root, "pull_request", self.base)
+        checks.validate_context(plan, self.root)
         altered = copy.deepcopy(plan)
         altered["changes"] = []
         with self.assertRaises(ValueError):
-            checks.validate_plan(altered, self.root)
+            checks.validate_context(altered, self.root)
         (self.root / ".github/scripts/check.py").write_text("changed\n")
         with self.assertRaises(ValueError):
-            checks.validate_plan(plan, self.root)
+            checks.validate_context(plan, self.root)
 
     def test_report_check_sees_whitespace_in_earlier_pr_commit(self):
         path = self.root / "Wiki/knowledge/pkstack/release-record.md"
@@ -416,15 +435,15 @@ class GitPlanTests(unittest.TestCase):
         self.commit("earlier whitespace")
         (self.root / "Wiki/knowledge/pkstack/later.md").write_text("later valid report\n")
         self.commit("later clean")
-        plan = checks.make_plan(self.root, "pull_request", self.base)
+        plan = checks.make_context(self.root, "pull_request", self.base)
         with self.assertRaises(subprocess.CalledProcessError):
             checks.check_reports(self.root, plan["changes"], plan["base"])
 
     def test_changed_coverage_manifest_invalidates_the_plan(self):
-        plan = checks.make_plan(self.root, "local")
+        plan = checks.make_context(self.root, "local")
         (self.root / "maintenance/knowledge-coverage.json").write_text("changed\n")
         with self.assertRaises(ValueError):
-            checks.validate_plan(plan, self.root)
+            checks.validate_context(plan, self.root)
 
     def test_reports_validate_relative_links_and_allow_machine_evidence(self):
         path = self.root / "Wiki/knowledge/pkstack/release-record.md"
@@ -446,53 +465,135 @@ class GitPlanTests(unittest.TestCase):
             checks.check_reports(self.root, changes, self.base)
 
 
-class KnowledgeGateTests(unittest.TestCase):
-    def test_coverage_failure_stops_both_profiles_and_records_failure(self):
-        for profile in ("normal", "reports"):
-            with self.subTest(profile=profile), tempfile.TemporaryDirectory() as folder:
-                root = Path(folder)
-                plan, _ = plan_and_receipts()
-                plan.update(profile=profile, base="a" * 40, changes=[])
-                receipt = root / "receipt.json"
-                with (
-                    patch.object(checks, "validate_plan"),
-                    patch.object(
-                        checks,
-                        "run_commands",
-                        side_effect=subprocess.CalledProcessError(1, ["coverage"]),
-                    ) as gate,
-                    patch.object(checks, "check_reports") as reports,
-                    patch.object(checks.subprocess, "run") as product_tests,
-                ):
-                    self.assertEqual(checks.run_lane(root, plan, "fast", receipt), 1)
-                self.assertIn("pkstack_knowledge_coverage.py", str(gate.call_args))
-                reports.assert_not_called()
-                product_tests.assert_not_called()
-                self.assertEqual(json.loads(receipt.read_text())["outcome"], "failed")
+class SharedGateTests(unittest.TestCase):
+    def test_shared_policy_retains_static_workflow_shell_and_knowledge_gates(self):
+        root = Path(__file__).resolve().parents[2]
+        with (
+            patch.object(checks, "run_commands") as commands,
+            patch.object(checks.static, "run_static_checks") as static,
+        ):
+            checks.run_policy(root)
+        static.assert_called_once_with(root)
+        argv = [command for call in commands.call_args_list for command in call.args[0]]
+        self.assertEqual(argv[0][0], "actionlint")
+        self.assertEqual(argv[1][0], "shellcheck")
+        self.assertIn("unittest", argv[2])
+        self.assertEqual(argv[3], ["node", "--test", ".github/scripts/test_pkstack_pr_policy.js"])
+        self.assertEqual([command[1] for command in argv[4:]], ["version", "feature", "knowledge"])
 
-    def test_report_profile_runs_coverage_before_report_checks(self):
+    def test_absent_tools_cannot_silently_skip_policy_coverage(self):
+        for missing in ("uv", "bash", "jq", "node", "actionlint", "shellcheck"):
+            with (
+                self.subTest(missing=missing),
+                patch.object(
+                    checks.shutil,
+                    "which",
+                    side_effect=lambda name, absent=missing: None if name == absent else "/fixture",
+                ),
+                self.assertRaisesRegex(FileNotFoundError, missing),
+            ):
+                checks.run_policy(Path("/unused"))
+
+    def test_full_runs_product_collection_once_and_all_other_gates(self):
+        context, evidence = context_and_evidence()
         with tempfile.TemporaryDirectory() as folder:
-            plan, _ = plan_and_receipts()
-            plan.update(profile="reports", base="a" * 40, changes=[])
+            output = Path(folder) / "checks"
+            with (
+                patch.object(checks, "validate_context") as validate,
+                patch.object(checks, "run_commands") as coverage,
+                patch.object(checks, "run_product", return_value=evidence) as product,
+                patch.object(checks, "run_policy") as policy,
+            ):
+                self.assertEqual(checks.run_checks(Path(folder), context, "full", output), 0)
+            product.assert_called_once()
+            coverage.assert_called_once()
+            policy.assert_called_once()
+            self.assertEqual(validate.call_count, 2)
+            summary = json.loads((output / "summary.json").read_text())
+            self.assertEqual(summary["outcome"], "passed")
+            self.assertEqual(summary["tests"], 64)
+            self.assertEqual(
+                summary["checks"],
+                ["knowledge_coverage", "product", "policy_static_metadata_knowledge"],
+            )
+
+    def test_failures_missing_tooling_and_cancellation_cannot_succeed(self):
+        for failure in (
+            FileNotFoundError("uv"),
+            subprocess.CalledProcessError(1, ["pytest"]),
+            KeyboardInterrupt(),
+            InterruptedError("SIGTERM"),
+        ):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as folder:
+                context, _ = context_and_evidence()
+                output = Path(folder) / "checks"
+                with (
+                    patch.object(checks, "validate_context"),
+                    patch.object(checks, "run_commands"),
+                    patch.object(checks, "run_product", side_effect=failure),
+                    patch.object(checks, "run_policy") as policy,
+                ):
+                    self.assertNotEqual(checks.run_checks(Path(folder), context, "full", output), 0)
+                policy.assert_not_called()
+                self.assertNotEqual(
+                    json.loads((output / "summary.json").read_text())["outcome"], "passed"
+                )
+
+    def test_missing_static_tooling_invalidates_successful_product_results(self):
+        context, evidence = context_and_evidence()
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / "checks"
+            with (
+                patch.object(checks, "validate_context"),
+                patch.object(checks, "run_commands"),
+                patch.object(checks, "run_product", return_value=evidence),
+                patch.object(checks, "run_policy", side_effect=FileNotFoundError("actionlint")),
+            ):
+                self.assertEqual(checks.run_checks(Path(folder), context, "full", output), 1)
+            self.assertEqual(json.loads((output / "summary.json").read_text())["outcome"], "failed")
+
+    def test_reports_run_coverage_before_report_checks(self):
+        with tempfile.TemporaryDirectory() as folder:
+            context, _ = context_and_evidence()
+            context.update(profile="reports", base="a" * 40, changes=[])
             order = []
             with (
-                patch.object(checks, "validate_plan"),
+                patch.object(checks, "validate_context"),
                 patch.object(
                     checks, "run_commands", side_effect=lambda *_: order.append("coverage")
                 ),
                 patch.object(
                     checks, "check_reports", side_effect=lambda *_: order.append("reports")
                 ),
+                patch.object(checks, "run_product") as product,
             ):
-                code = checks.run_lane(Path(folder), plan, "fast", Path(folder) / "receipt.json")
+                code = checks.run_checks(Path(folder), context, "full", Path(folder) / "checks")
             self.assertEqual(code, 0)
             self.assertEqual(order, ["coverage", "reports"])
+            product.assert_not_called()
+
+    def test_coverage_failure_stops_both_profiles(self):
+        for profile in ("normal", "reports"):
+            with self.subTest(profile=profile), tempfile.TemporaryDirectory() as folder:
+                context, _ = context_and_evidence()
+                context.update(profile=profile, base="a" * 40, changes=[])
+                with (
+                    patch.object(checks, "validate_context"),
+                    patch.object(checks, "run_commands", side_effect=FileNotFoundError("coverage")),
+                    patch.object(checks, "run_product") as product,
+                    patch.object(checks, "check_reports") as reports,
+                ):
+                    self.assertEqual(
+                        checks.run_checks(Path(folder), context, "full", Path(folder) / "checks"), 1
+                    )
+                reports.assert_not_called()
+                product.assert_not_called()
 
     def test_report_profile_has_the_locked_validation_environment(self):
         workflow = (Path(__file__).resolve().parents[1] / "workflows/pk-stack-ci.yml").read_text()
-        fast = workflow.split("\n  fast:\n", 1)[1].split("\n  browser:\n", 1)[0]
+        deterministic = workflow.split("\n  deterministic:\n", 1)[1].split("\n  package:\n", 1)[0]
         for name in ("Install uv", "Materialize the locked Power environment"):
-            step = fast.split("- name: " + name, 1)[1].split("- name:", 1)[0]
+            step = deterministic.split("- name: " + name, 1)[1].split("- name:", 1)[0]
             self.assertNotIn("if:", step)
 
 

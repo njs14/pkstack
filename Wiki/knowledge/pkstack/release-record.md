@@ -10,8 +10,9 @@ tags: [pkstack, release, evidence]
 This record retains exact release identities, checksums, and acceptance scope. The 0.5.8, 0.5.7, 0.5.6, 0.5.5, 0.5.4,
 0.5.3, 0.5.2, 0.5.1, and 0.5.0 entries record publication verification; earlier entries retain the facts reported
 before the root reviews directory was removed. The Power manifest remains version authority.
-Future release work updates this record and the [changelog](../../../CHANGELOG.md),
-following the [release evidence contract](release-and-review.md).
+New releases use GitHub Releases and their attached receipts as the publication record,
+alongside the [changelog](../../../CHANGELOG.md) and the
+[release evidence contract](release-and-review.md). The entries below retain historical evidence.
 
 PKStack is now public. References below to a private repository describe its
 visibility at the time of those releases.

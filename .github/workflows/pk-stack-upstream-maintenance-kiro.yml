@@ -268,7 +268,7 @@ jobs:
     needs: [plan, detect]
     if: needs.detect.outputs.needs_maintenance == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    timeout-minutes: 30
     permissions:
       actions: read
       contents: read
@@ -422,7 +422,7 @@ jobs:
           goal_value=$(jq -er '.goal.value' "$CONTROL_PLAN_PATH")
           max_attempts=$(jq -er '.max_attempts' "$CONTROL_PLAN_PATH")
           test "$action" = "reconcile-source"
-          test "$max_attempts" = "5"
+          test "$max_attempts" = "3"
           test "$(jq -er '.max_open_candidates' "$CONTROL_PLAN_PATH")" = "1"
           test "$goal_kind" = "command"
           trusted_projectctl goal start \
@@ -438,7 +438,7 @@ jobs:
           set -e
           test "$initial_rc" -ne 0
           trusted_projectctl goal status --output json \
-            | jq -e '.ok == true and .goal.status == "active" and .goal.attempt_count == 1 and .goal.max_attempts == 5'
+            | jq -e '.ok == true and .goal.status == "active" and .goal.attempt_count == 1 and .goal.max_attempts == 3'
           printf '%s\n' \
             "The immutable pre-edit goal verification failed as required because upstream, source parity, or generated parity still drifts." \
             >"$FEEDBACK_PATH"
@@ -453,12 +453,12 @@ jobs:
             --memory "$TRUSTED_ROOT/.github/agent-memory/pkstack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
-      - name: Kiro repair 1 of 4
+      - name: Kiro repair 1 of 2
         env:
           ATTEMPT_NUMBER: "1"
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
         run: bash "$KIRO_RUNNER_PATH"
-      - name: Secretless verification 1 of 4
+      - name: Secretless verification 1 of 2
         id: verify1
         env:
           ATTEMPT_NUMBER: "1"
@@ -476,13 +476,13 @@ jobs:
             --memory "$TRUSTED_ROOT/.github/agent-memory/pkstack-upstream.md" \
             --git-state "$GIT_BOUNDARY_STATE"
           bash "$KIRO_SETUP_PATH"
-      - name: Kiro repair 2 of 4
+      - name: Kiro repair 2 of 2
         if: steps.verify1.outputs.passed != 'true'
         env:
           ATTEMPT_NUMBER: "2"
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
         run: bash "$KIRO_RUNNER_PATH"
-      - name: Secretless verification 2 of 4
+      - name: Secretless verification 2 of 2
         id: verify2
         if: steps.verify1.outputs.passed != 'true'
         env:
@@ -490,65 +490,13 @@ jobs:
           READONLY_GITHUB_TOKEN: ${{ github.token }}
         run: bash "$VERIFY_PATH"
 
-      - name: Prepare repair 3 without workspace hooks
-        if: steps.verify1.outputs.passed != 'true' && steps.verify2.outputs.passed != 'true'
-        run: |
-          python3 "$GUARD_PATH" prepare-attempt \
-            --base "$BASE_SHA" \
-            --detector "$DETECTOR_PATH" \
-            --feedback "$FEEDBACK_PATH" \
-            --control-plan "$CONTROL_PLAN_PATH" \
-            --memory "$TRUSTED_ROOT/.github/agent-memory/pkstack-upstream.md" \
-            --git-state "$GIT_BOUNDARY_STATE"
-          bash "$KIRO_SETUP_PATH"
-      - name: Kiro repair 3 of 4
-        if: steps.verify1.outputs.passed != 'true' && steps.verify2.outputs.passed != 'true'
-        env:
-          ATTEMPT_NUMBER: "3"
-          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
-        run: bash "$KIRO_RUNNER_PATH"
-      - name: Secretless verification 3 of 4
-        id: verify3
-        if: steps.verify1.outputs.passed != 'true' && steps.verify2.outputs.passed != 'true'
-        env:
-          ATTEMPT_NUMBER: "3"
-          READONLY_GITHUB_TOKEN: ${{ github.token }}
-        run: bash "$VERIFY_PATH"
-
-      - name: Prepare repair 4 without workspace hooks
-        if: steps.verify1.outputs.passed != 'true' && steps.verify2.outputs.passed != 'true' && steps.verify3.outputs.passed != 'true'
-        run: |
-          python3 "$GUARD_PATH" prepare-attempt \
-            --base "$BASE_SHA" \
-            --detector "$DETECTOR_PATH" \
-            --feedback "$FEEDBACK_PATH" \
-            --control-plan "$CONTROL_PLAN_PATH" \
-            --memory "$TRUSTED_ROOT/.github/agent-memory/pkstack-upstream.md" \
-            --git-state "$GIT_BOUNDARY_STATE"
-          bash "$KIRO_SETUP_PATH"
-      - name: Kiro repair 4 of 4
-        if: steps.verify1.outputs.passed != 'true' && steps.verify2.outputs.passed != 'true' && steps.verify3.outputs.passed != 'true'
-        env:
-          ATTEMPT_NUMBER: "4"
-          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
-        run: bash "$KIRO_RUNNER_PATH"
-      - name: Secretless verification 4 of 4
-        id: verify4
-        if: steps.verify1.outputs.passed != 'true' && steps.verify2.outputs.passed != 'true' && steps.verify3.outputs.passed != 'true'
-        env:
-          ATTEMPT_NUMBER: "4"
-          READONLY_GITHUB_TOKEN: ${{ github.token }}
-        run: bash "$VERIFY_PATH"
-
       - name: Require a terminal verified candidate
         env:
           PASS1: ${{ steps.verify1.outputs.passed }}
           PASS2: ${{ steps.verify2.outputs.passed }}
-          PASS3: ${{ steps.verify3.outputs.passed }}
-          PASS4: ${{ steps.verify4.outputs.passed }}
         run: |
           set -euo pipefail
-          [[ "$PASS1" == "true" || "$PASS2" == "true" || "$PASS3" == "true" || "$PASS4" == "true" ]]
+          [[ "$PASS1" == "true" || "$PASS2" == "true" ]]
       - name: Package the immutable candidate
         id: package
         env:
@@ -593,9 +541,7 @@ jobs:
         if: >-
           ${{ always() &&
               (steps.verify1.outputs.passed == 'true' ||
-               steps.verify2.outputs.passed == 'true' ||
-               steps.verify3.outputs.passed == 'true' ||
-               steps.verify4.outputs.passed == 'true') }}
+               steps.verify2.outputs.passed == 'true') }}
         run: |
           set -euo pipefail
           python3 "$GUARD_PATH" finalize-git-state \

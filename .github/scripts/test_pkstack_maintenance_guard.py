@@ -93,7 +93,7 @@ MAINTENANCE_JOB_CONTROL_FLOW = {
         "if": "needs.maintain.outputs.has_changes == 'true'",
     },
 }
-EXPECTED_SECRET_CONTEXT_EXPRESSIONS = (*("${{ secrets.KIRO_API_KEY }}",) * 4,)
+EXPECTED_SECRET_CONTEXT_EXPRESSIONS = (*("${{ secrets.KIRO_API_KEY }}",) * 2,)
 CANDIDATE_SECRET_CONTEXT_EXPRESSIONS = (*("${{ secrets.KIRO_API_KEY }}",) * 2,)
 CANDIDATE_REVIEW_ENV_BLOCKS = {
     "Independent Kiro-hosted Claude Opus 5 review": (
@@ -132,17 +132,11 @@ MAINTENANCE_MAINTAIN_STEPS = (
     ("Verify checksum-pinned Kiro CLI 2.21.1 archive", ("run",)),
     ("Start immutable goal and record the required pre-edit failure", ("env", "run")),
     ("Prepare repair 1 without workspace hooks", ("run",)),
-    ("Kiro repair 1 of 4", ("env", "run")),
-    ("Secretless verification 1 of 4", ("id", "env", "run")),
+    ("Kiro repair 1 of 2", ("env", "run")),
+    ("Secretless verification 1 of 2", ("id", "env", "run")),
     ("Prepare repair 2 without workspace hooks", ("if", "run")),
-    ("Kiro repair 2 of 4", ("if", "env", "run")),
-    ("Secretless verification 2 of 4", ("id", "if", "env", "run")),
-    ("Prepare repair 3 without workspace hooks", ("if", "run")),
-    ("Kiro repair 3 of 4", ("if", "env", "run")),
-    ("Secretless verification 3 of 4", ("id", "if", "env", "run")),
-    ("Prepare repair 4 without workspace hooks", ("if", "run")),
-    ("Kiro repair 4 of 4", ("if", "env", "run")),
-    ("Secretless verification 4 of 4", ("id", "if", "env", "run")),
+    ("Kiro repair 2 of 2", ("if", "env", "run")),
+    ("Secretless verification 2 of 2", ("id", "if", "env", "run")),
     ("Require a terminal verified candidate", ("env", "run")),
     ("Package the immutable candidate", ("id", "env", "run")),
     ("Close the trusted Git finalizer boundary", ("if", "run")),
@@ -731,7 +725,7 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
     secret_expressions = _secret_context_expressions(lines)
     if secret_expressions != EXPECTED_SECRET_CONTEXT_EXPRESSIONS:
         raise WorkflowContractError(
-            "secret context expressions must be exactly the four approved Kiro bindings"
+            "secret context expressions must be exactly the two approved Kiro bindings"
         )
     job_ranges = _maintenance_job_ranges(lines)
     step_ranges_by_job: dict[str, list[tuple[str, int, int]]] = {}
@@ -782,11 +776,11 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
     repair_steps = {
         name: (start, end)
         for name, start, end in step_ranges_by_job["maintain"]
-        if re.fullmatch(r"Kiro repair [1-4] of 4", name)
+        if re.fullmatch(r"Kiro repair [1-2] of 2", name)
     }
-    expected_repair_names = tuple(f"Kiro repair {attempt} of 4" for attempt in range(1, 5))
+    expected_repair_names = tuple(f"Kiro repair {attempt} of 2" for attempt in range(1, 3))
     if tuple(repair_steps) != expected_repair_names:
-        raise WorkflowContractError("exactly four ordered Kiro repair steps are required")
+        raise WorkflowContractError("exactly two ordered Kiro repair steps are required")
     secret_line_numbers: set[int] = set()
     for attempt, name in enumerate(expected_repair_names, start=1):
         start, end = repair_steps[name]
@@ -813,9 +807,9 @@ def validate_maintenance_workflow_security_contract(source: str) -> None:
     all_secret_lines = {
         line.number for line in lines if re.search(r"KIRO_API_KEY", line.raw, flags=re.IGNORECASE)
     }
-    if all_secret_lines != secret_line_numbers or len(all_secret_lines) != 4:
+    if all_secret_lines != secret_line_numbers or len(all_secret_lines) != 2:
         raise WorkflowContractError(
-            "only the four enumerated Kiro repair env mappings may hold KIRO_API_KEY"
+            "only the two enumerated Kiro repair env mappings may hold KIRO_API_KEY"
         )
 
 
@@ -4901,7 +4895,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             )
             for required in (
                 "candidate_prepare",
-                "base_tests",
+                "base_ci",
                 "candidate_tests",
                 "kiro_peer_review",
             ):
@@ -4986,9 +4980,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             following = workflow.split(command, 1)[1].split('chmod -R a-w "$TRUSTED_ROOT"', 1)[0]
             self.assertIn("validate-trusted-snapshot", following)
         candidate = (ROOT / ".github/workflows/pk-stack-upstream-candidate.yml").read_text()
-        self.assertIn(
-            "python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'", candidate
-        )
+        self.assertIn('python3 -B "$TRUSTED_ROOT/.github/scripts/pkstack_checks.py"', candidate)
+        self.assertIn('local full --output "$RUNNER_TEMP/pkstack-candidate-checks"', candidate)
 
         with tempfile.TemporaryDirectory() as directory:
             snapshot = Path(directory) / "trusted"
@@ -5360,7 +5353,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                             "goal_id": "goal",
                             "status": "passed",
                             "attempt_count": 2,
-                            "max_attempts": 5,
+                            "max_attempts": 3,
                         },
                     }
                 ),
@@ -5572,14 +5565,61 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 for directory in roots.values():
                     self.assertEqual(directory.exists(), case != "valid")
 
-    def test_maintenance_uses_only_four_scoped_kiro_credentials(self) -> None:
+    def test_two_attempt_budget_and_terminal_gate_cover_success_exhaustion_and_cancellation(self):
+        workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
+        self.assertIn("timeout-minutes: 30", workflow)
+        self.assertIn('test "$max_attempts" = "3"', workflow)
+        self.assertNotIn("steps.verify3", workflow)
+        for prefix in (
+            "Prepare repair 2 without workspace hooks",
+            "Kiro repair 2 of 2",
+            "Secretless verification 2 of 2",
+        ):
+            step = workflow.split("      - name: " + prefix, 1)[1].split("      - name:", 1)[0]
+            self.assertIn("if: steps.verify1.outputs.passed != 'true'", step)
+        terminal = workflow.split("      - name: Require a terminal verified candidate", 1)[1]
+        shell = terminal.split("        run: |\n", 1)[1].split("      - name:", 1)[0]
+        shell = textwrap.dedent(shell)
+        for first, second, passed in (
+            ("true", "", True),
+            ("false", "true", True),
+            ("false", "false", False),
+            ("", "", False),
+        ):
+            with self.subTest(first=first, second=second):
+                result = subprocess.run(
+                    ["bash", "-c", shell],
+                    env={**os.environ, "PASS1": first, "PASS2": second},
+                    capture_output=True,
+                    timeout=5,
+                )
+                self.assertEqual(result.returncode == 0, passed)
+        # Goal evidence from a third/fourth repair must also fail after packaging.
+        with tempfile.TemporaryDirectory() as folder:
+            goal_path = Path(folder) / "goal.json"
+            for count in (1, 2, 3, 4, 5):
+                goal_path.write_text(
+                    json.dumps(
+                        {
+                            "ok": True,
+                            "goal": {"status": "passed", "max_attempts": 3, "attempt_count": count},
+                        }
+                    )
+                )
+                if count in {2, 3}:
+                    self.assertEqual(guard._goal_status(goal_path)["attempt_count"], count)
+                else:
+                    with self.assertRaises(guard.GuardError):
+                        guard._goal_status(goal_path)
+
+    def test_maintenance_uses_only_two_scoped_kiro_credentials(self) -> None:
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         validate_maintenance_workflow_security_contract(workflow)
         self.assertNotIn("reviewer_readiness:", workflow)
         self.assertIn("needs: [plan, detect]", workflow)
         self.assertIn("if: needs.detect.outputs.needs_maintenance == 'true'", workflow)
         key_binding = "KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"
-        self.assertEqual(workflow.count(key_binding), 4)
+        self.assertEqual(workflow.count(key_binding), 2)
         self.assertNotRegex(
             workflow,
             r"(ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|OPENAI_API_KEY|XAI_API_KEY|copilot)",
@@ -5698,8 +5738,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
         validate_maintenance_workflow_security_contract(workflow)
 
         anchored_repair = workflow.replace(
-            "      - name: Kiro repair 1 of 4\n        env:\n",
-            "      - name: Kiro repair 1 of 4\n        env: &kiro_env\n",
+            "      - name: Kiro repair 1 of 2\n        env:\n",
+            "      - name: Kiro repair 1 of 2\n        env: &kiro_env\n",
             1,
         )
         exact_bypass = anchored_repair.replace(
@@ -5711,8 +5751,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             1,
         )
         anchored_step = workflow.replace(
-            "      - name: Kiro repair 1 of 4\n",
-            "      - &kiro_repair_step\n        name: Kiro repair 1 of 4\n",
+            "      - name: Kiro repair 1 of 2\n",
+            "      - &kiro_repair_step\n        name: Kiro repair 1 of 2\n",
             1,
         )
         whole_step_bypass = anchored_step.replace(
@@ -5721,13 +5761,13 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             1,
         )
         for bypass in (exact_bypass, whole_step_bypass):
-            # Both are valid YAML graphs with five effective Kiro-secret scopes,
-            # yet retain the legacy guard's four literal bindings/eight names.
+            # Both are valid YAML graphs with an extra effective Kiro-secret scope,
+            # yet retain the two literal bindings.
             self.assertEqual(
                 bypass.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"),
-                4,
+                2,
             )
-            self.assertEqual(bypass.count("KIRO_API_KEY"), 8)
+            self.assertEqual(bypass.count("KIRO_API_KEY"), 4)
             with self.assertRaisesRegex(WorkflowContractError, "YAML anchor"):
                 validate_maintenance_workflow_security_contract(bypass)
 
@@ -5773,8 +5813,8 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 1,
             ),
             "quoted-protected-env": workflow.replace(
-                "      - name: Kiro repair 1 of 4\n        env:\n",
-                '      - name: Kiro repair 1 of 4\n        "env":\n',
+                "      - name: Kiro repair 1 of 2\n        env:\n",
+                '      - name: Kiro repair 1 of 2\n        "env":\n',
                 1,
             ),
             "fifth-secret-scope": workflow.replace(
@@ -6175,7 +6215,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             "printf 'GIT_BOUNDARY_STATE=%s\\n' \"$RUNNER_TEMP/pkstack-git-boundary-state\"",
             kiro,
         )
-        self.assertEqual(kiro.count('--git-state "$GIT_BOUNDARY_STATE"'), 5)
+        self.assertEqual(kiro.count('--git-state "$GIT_BOUNDARY_STATE"'), 3)
         self.assertEqual(verifier.count('--git-state "$GIT_BOUNDARY_STATE"'), 2)
         self.assertLess(verifier.index("close-attempt"), verifier.index("pkstack_python_static.py"))
         hardened_settings = (
@@ -6239,7 +6279,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             self.policy["ci_authority"]["runtime_trust_tools"],
             ["fs_read", "fs_write", "grep"],
         )
-        for attempt in range(1, 5):
+        for attempt in range(1, 3):
             preparation = re.search(
                 rf"(?ms)^      - name: Prepare repair {attempt} without workspace hooks\n"
                 r".*?(?=^      - name: |\Z)",
@@ -6252,7 +6292,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 preparation_step.index('bash "$KIRO_SETUP_PATH"'),
             )
             verification = re.search(
-                rf"(?ms)^      - name: Secretless verification {attempt} of 4\n"
+                rf"(?ms)^      - name: Secretless verification {attempt} of 2\n"
                 r".*?(?=^      - name: |\Z)",
                 kiro,
             )
@@ -6262,7 +6302,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 verification.group(0),
             )
             repair = re.search(
-                rf"(?ms)^      - name: Kiro repair {attempt} of 4\n"
+                rf"(?ms)^      - name: Kiro repair {attempt} of 2\n"
                 r".*?(?=^      - name: |\Z)",
                 kiro,
             )
@@ -6270,7 +6310,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             repair_step = repair.group(0)
             self.assertIn("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}", repair_step)
             self.assertNotIn("READONLY_GITHUB_TOKEN", repair_step)
-        self.assertIn("needs.base_tests.result == 'success'", candidate)
+        self.assertIn("needs.base_ci.result == 'success'", candidate)
         self.assertIn("needs.kiro_peer_review.result == 'success'", candidate)
         self.assertIn(
             "run-name: PKStack candidate gate for source run ${{ github.event.workflow_run.id }}",

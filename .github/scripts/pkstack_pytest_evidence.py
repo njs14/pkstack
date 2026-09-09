@@ -1,6 +1,5 @@
-"""Pytest hooks for complete collection, partition execution and evidence receipts."""
+"""Pytest hooks for complete collection, execution and failure diagnostics."""
 
-import json
 import os
 import time
 from typing import Any
@@ -9,8 +8,7 @@ from pkstack_checks import (
     KIRO_SENTINEL,
     KIRO_SKIP_REASON,
     digest,
-    lane_for,
-    receipt_base,
+    selected_test,
     write_json,
 )
 
@@ -19,8 +17,7 @@ SESSION: Any = None
 
 
 def pytest_configure(config):
-    config._pkstack_plan = json.loads(os.environ["PKSTACK_CHECK_PLAN"])
-    config._pkstack_lane = os.environ["PKSTACK_CHECK_LANE"]
+    config._pkstack_scope = os.environ["PKSTACK_CHECK_SCOPE"]
     config._pkstack_started = time.monotonic()
     config._pkstack_collection = []
     config._pkstack_results = {}
@@ -36,8 +33,8 @@ def pytest_collection_modifyitems(session, config, items):
     config._pkstack_collection = ids
     if len(ids) != len(set(ids)):
         config._pkstack_issues.append("duplicate collected test IDs")
-    selected = [item for item in items if lane_for(item.nodeid) == config._pkstack_lane]
-    deselected = [item for item in items if lane_for(item.nodeid) != config._pkstack_lane]
+    selected = [item for item in items if selected_test(item.nodeid, config._pkstack_scope)]
+    deselected = [item for item in items if not selected_test(item.nodeid, config._pkstack_scope)]
     config._pkstack_selected = [item.nodeid for item in selected]
     config.hook.pytest_deselected(items=deselected)
     items[:] = selected
@@ -87,8 +84,7 @@ def pytest_sessionfinish(session, exitstatus):
     ):
         final_status = 1
         session.exitstatus = final_status
-    receipt = receipt_base(config._pkstack_plan, config._pkstack_lane)
-    receipt.update(
+    receipt = dict(
         collection=config._pkstack_collection,
         collection_digest=digest(config._pkstack_collection),
         results=results,
@@ -97,4 +93,4 @@ def pytest_sessionfinish(session, exitstatus):
         issues=config._pkstack_issues,
         duration_seconds=time.monotonic() - config._pkstack_started,
     )
-    write_json(os.environ["PKSTACK_CHECK_RECEIPT"], receipt)
+    write_json(os.environ["PKSTACK_CHECK_EVIDENCE"], receipt)

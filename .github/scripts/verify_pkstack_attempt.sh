@@ -16,8 +16,8 @@ umask 077
 : "${KIRO_USER_HOME:?KIRO_USER_HOME is required}"
 : "${GIT_BOUNDARY_STATE:?GIT_BOUNDARY_STATE is required}"
 : "${CONTROL_PLAN_PATH:?CONTROL_PLAN_PATH is required}"
-if [[ ! "$ATTEMPT_NUMBER" =~ ^[1-4]$ ]]; then
-  echo "ATTEMPT_NUMBER must be an integer from 1 through 4" >&2
+if [[ ! "$ATTEMPT_NUMBER" =~ ^[1-2]$ ]]; then
+  echo "ATTEMPT_NUMBER must be an integer from 1 through 2" >&2
   exit 2
 fi
 
@@ -354,8 +354,8 @@ set +e
   jq -e '
     .ok == true
     and .goal.status == "passed"
-    and .goal.max_attempts == 5
-    and (.goal.attempt_count >= 2 and .goal.attempt_count <= 5)
+    and .goal.max_attempts == 3
+    and (.goal.attempt_count >= 2 and .goal.attempt_count <= 3)
   ' "$GOAL_STATUS_PATH"
 
   mark_stage final-boundary

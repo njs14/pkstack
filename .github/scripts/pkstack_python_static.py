@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One reusable static gate for every maintained first-party Python surface.
 
-Shared by the CI policy lane and both upstream-candidate static sections so a
+Shared by local, hosted CI and isolated upstream-candidate verification so a
 surface cannot be covered in one place and omitted in another. Python embedded
 in maintained shell scripts and workflow `run:` steps is materialized into a
 temporary directory for static analysis only; the extracted text is never

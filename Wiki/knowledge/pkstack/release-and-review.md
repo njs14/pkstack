@@ -10,8 +10,9 @@ tags: [pkstack, release, review, evidence, provenance]
 ## Evidence has an identity and a scope
 
 The Power manifest supplies release version authority. Package metadata, source version, lockfiles,
-and generated mirrors must agree with it. [the Wiki release record](release-record.md) is the maintained release-record
-entrypoint; older reports remain historical even if their original prose says “current,” “blocked,”
+and generated mirrors must agree with it. GitHub Releases and their attached publication receipts
+are the publication record. The [Wiki release record](release-record.md) preserves historical
+entries; older reports remain historical even if their original prose says “current,” “blocked,”
 or “accepted.” Neither this Wiki nor a manifest hash is a release verdict. The coverage manifest
 proves which source bytes were considered, not that the source's claims are true.
 
@@ -46,7 +47,7 @@ Run applicable deterministic checks, review the frozen candidate, reproduce mate
 make scoped corrections, and return the changed scope to checks and review. Preserve failed runs
 and concrete diagnostics. Do not retry until green without explaining what changed. Missing,
 cancelled, stale, or unexpectedly skipped checks are not passes. The
-[quality and CI guide](quality-and-ci.md) explains the shared lane and receipt system.
+[quality and CI guide](quality-and-ci.md) explains the shared verification job and execution summary.
 
 Reviewer output is untrusted analysis. Use tight source references, a failure mode, and an
 acceptance test; investigate disagreements instead of treating model agreement as authority.
@@ -55,13 +56,49 @@ still name pre-0.3 paths, retired `okn`, or old product identities. Reuse the me
 reconciling the contract with the current Power and caller's request. Do not load an old prompt as
 current operational policy merely because it is linked here.
 
-Publication requires its own exact-source gates. Main CI builds the reproducible release archive;
-tag-bound verification checks the manifest version, source commit/run/artifact, and publication
-eligibility. Compare downloaded release bytes/checksum with the approved CI artifact. A green PR,
-merge, or local fixture is not this publication proof. The retained
-[0.4.0 publication receipt](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-040-publication.json), for example, binds
-commit `12ecc1abe6a59c57bb91260d9f4a8cb06651291a`, its main artifact, tag workflow, and byte
-comparison. It proves only that recorded publication; this curation does not refresh remote state.
+Put version changes and release notes in the change PR when a release is intended. Use focused
+local checks during development. Successful hosted PR and main checks satisfy their corresponding
+release requirements; do not rerun complete local gates on the candidate, release branch and
+merged source. When hosting is unavailable, one complete local gate validates the finished scope,
+but it does not create main-CI artifact evidence.
+
+Obtain one independent review of the final changed scope. Carry that review across a squash merge
+only after verifying identical complete Git source trees. Compare `git rev-parse <candidate>^{tree}`
+and `git rev-parse <merged>^{tree}`; a Power-only comparison misses repository controls. Substantive
+changes need review of the delta and appropriate checks. The
+[contributor procedure](../../../CONTRIBUTING.md#releases) keeps these boundaries explicit.
+
+Main CI builds the reproducible release archive after `deterministic` succeeds. Tag-bound
+verification requires both jobs, the exact source/workflow/run attempt/artifact, matching version
+authorities and a current tag/main identity. Publication promotes the verified artifact without
+rebuilding it. `pkstack_ci_package.py verify-published` downloads the published archive and checksum,
+compares bytes and SHA-256 to the approved CI package, rechecks the CI attempt, release, assets,
+tag and main, then writes a successful publication receipt. The workflow attaches that receipt
+to the release. Altered, absent or replaced assets cannot receive a successful receipt.
+
+Release verification accepts the expected public or private repository, with consistent
+visibility metadata. Repository ID, full name, default branch, and every source/run/tag/artifact
+identity remain mandatory; public access does not make another repository a trusted producer.
+
+For an explicitly owner-authorized manual release while Actions is unavailable, retain the
+hosted gates as unavailable and attach a separately labeled `local-release-receipt.json`.
+Bind the complete local gate and independent review to the frozen candidate, prove complete
+tree equality with merged main, build identical archive bytes twice, and run the extracted
+consumer checks. Compare the draft and published assets with those exact local bytes and
+record the publication identities. This local provenance does not replace hosted main-CI
+artifact evidence or allow the hosted verifier to accept a missing run. Usage limits and
+fresh live Kiro behavior remain outside that local proof.
+
+A GitHub Release without its successful attached receipt is incomplete publication evidence.
+GitHub Releases and receipts replace the separate publication-record PR and extra CI cycle;
+preserve historical Wiki entries. For example, the retained
+[0.4.0 publication receipt](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-040-publication.json)
+proves only that recorded publication. These instructions do not refresh its remote state.
+
+Live Kiro diagnostics remain separate: new live evidence is required when a change affects the
+behavior being claimed, rather than repeating the entire diagnostic campaign for every release.
+Routine release work must not dispatch extra maintenance attempts after the two-repair budget is
+exhausted. Daily scheduling and source-bound rejection feedback remain responsible for recovery.
 
 ## September 7 verification review candidate
 

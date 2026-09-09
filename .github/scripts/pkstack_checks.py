@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared PKStack CI profiles, deterministic partitions and fail-closed receipts."""
+"""Shared local and hosted PKStack checks with complete execution evidence."""
 
 from __future__ import annotations
 
@@ -8,6 +8,8 @@ import hashlib
 import json
 import os
 import re
+import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -17,15 +19,7 @@ from urllib.parse import unquote, urlsplit
 
 import pkstack_python_static as static
 
-SCHEMA = 1
-CORE_SHARDS = 6
-LANES = (
-    "fast",
-    "browser",
-    "package",
-    *(f"core-{i}" for i in range(CORE_SHARDS)),
-    "policy",
-)
+SCHEMA = 2
 FAST_FILES = {
     "test_branding.py",
     "test_release_metadata.py",
@@ -144,7 +138,7 @@ def browser_sensitive(path):
     )
 
 
-def make_plan(root, event, base=None, head=None):
+def make_context(root, event, base=None, head=None):
     commit = git(root, "rev-parse", "HEAD")
     if head and head != commit:
         raise ValueError("checkout does not match expected head")
@@ -168,7 +162,6 @@ def make_plan(root, event, base=None, head=None):
         except (subprocess.CalledProcessError, ValueError):
             changes = []  # Uncertain change sets get complete coverage.
     profile, browser = execution_profile(event, changes)
-    selected = ["fast"] if profile == "reports" else list(LANES)
     return {
         "schema": SCHEMA,
         "commit": commit,
@@ -178,72 +171,51 @@ def make_plan(root, event, base=None, head=None):
         "browser_profile": browser,
         "changes": changes,
         "base": base,
-        "scheduled": selected,
-        "unscheduled": [x for x in LANES if x not in selected],
         "run_id": os.environ.get("GITHUB_RUN_ID", "local"),
         "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
     }
 
 
-def validate_plan(plan, root):
+def validate_context(context, root):
     if (
-        plan.get("schema") != SCHEMA
-        or plan.get("commit") != git(root, "rev-parse", "HEAD")
-        or plan.get("config_digest") != config_digest(root)
+        context.get("schema") != SCHEMA
+        or context.get("commit") != git(root, "rev-parse", "HEAD")
+        or context.get("config_digest") != config_digest(root)
     ):
-        raise ValueError("plan identity does not match checkout/configuration")
-    event = os.environ.get("GITHUB_EVENT_NAME", plan["event"])
-    base = plan.get("base")
+        raise ValueError("check identity does not match checkout/configuration")
+    # A local caller (including secretless candidate verification) chooses its
+    # checkout. workflow_run's GITHUB_SHA identifies the controller, not that candidate.
+    hosted = context["event"] != "local"
+    event = os.environ.get("GITHUB_EVENT_NAME", context["event"]) if hosted else "local"
+    base = context.get("base")
+    if event == "workflow_dispatch":
+        payload = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+        if (
+            os.environ.get("GITHUB_REF") != "refs/heads/main"
+            or payload.get("inputs", {}).get("expected_sha") != context["commit"]
+        ):
+            raise ValueError("dispatched CI is not bound to its expected main commit")
     if os.environ.get("GITHUB_EVENT_PATH") and event == "pull_request":
         payload = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
         base = payload["pull_request"]["base"]["sha"]
-    actual = make_plan(root, event, base, os.environ.get("GITHUB_SHA"))
-    if any(plan.get(key) != actual.get(key) for key in ("event", "base", "changes")):
-        raise ValueError("plan change set does not match the workflow event and Git history")
-    profile, browser = execution_profile(plan["event"], plan["changes"])
-    scheduled = ["fast"] if profile == "reports" else list(LANES)
-    if (
-        plan["profile"],
-        plan["browser_profile"],
-        plan["scheduled"],
-        plan["unscheduled"],
-    ) != (profile, browser, scheduled, [x for x in LANES if x not in scheduled]):
-        raise ValueError("plan profile or scheduling is inconsistent")
+    actual = make_context(
+        root, event, base, os.environ.get("GITHUB_SHA") if hosted else context["commit"]
+    )
+    if any(context.get(key) != actual.get(key) for key in ("event", "base", "changes")):
+        raise ValueError("check change set does not match the workflow event and Git history")
+    profile, browser = execution_profile(context["event"], context["changes"])
+    if (context["profile"], context["browser_profile"]) != (profile, browser):
+        raise ValueError("check profile is inconsistent")
     for key, env in (
         ("run_id", "GITHUB_RUN_ID"),
         ("run_attempt", "GITHUB_RUN_ATTEMPT"),
     ):
-        if os.environ.get(env) and plan[key] != os.environ[env]:
-            raise ValueError("plan run identity mismatch")
+        if os.environ.get(env) and context[key] != os.environ[env]:
+            raise ValueError("check run identity mismatch")
 
 
-def lane_for(nodeid):
-    filename = nodeid.split("::", 1)[0].rsplit("/", 1)[-1]
-    if filename in FAST_FILES:
-        return "fast"
-    if filename == "test_archify_reader_layout.py":
-        return "browser"
-    if filename in {
-        "test_packaging.py",
-        "test_power_acceptance.py",
-        "test_readme_walkthrough.py",
-    }:
-        return "package"
-    return f"core-{int(hashlib.sha256(nodeid.encode()).hexdigest(), 16) % CORE_SHARDS}"
-
-
-def receipt_base(plan, lane):
-    return {
-        "schema": SCHEMA,
-        "plan_digest": digest(plan),
-        "commit": plan["commit"],
-        "config_digest": plan["config_digest"],
-        "run_id": plan["run_id"],
-        "run_attempt": plan["run_attempt"],
-        "profile": plan["profile"],
-        "browser_profile": plan["browser_profile"],
-        "lane": lane,
-    }
+def selected_test(nodeid, scope):
+    return scope == "full" or nodeid.split("::", 1)[0].rsplit("/", 1)[-1] in FAST_FILES
 
 
 def write_json(path, value):
@@ -293,6 +265,11 @@ def run_commands(commands, root):
 
 
 def run_policy(root):
+    # The unittest fixtures deliberately skip without these executables when run
+    # alone. Complete verification must fail instead of accepting that reduced suite.
+    for tool in ("uv", "bash", "jq", "node", "actionlint", "shellcheck"):
+        if shutil.which(tool) is None:
+            raise FileNotFoundError(f"complete verification requires {tool}")
     run_commands(
         [
             [
@@ -326,8 +303,8 @@ def run_policy(root):
         ],
         root,
     )
-    # One entrypoint owns every maintained Python surface, so the policy lane and
-    # both upstream-candidate static sections cannot drift apart.
+    # One entrypoint owns every maintained Python surface across local, hosted
+    # and isolated candidate verification.
     static.run_static_checks(root)
     knowledge = [
         "./.pkstack/bin/projectctl",
@@ -346,175 +323,141 @@ def run_policy(root):
     )
 
 
-def run_lane(root, plan, lane, receipt):
-    validate_plan(plan, root)
-    if lane not in plan["scheduled"]:
-        raise ValueError("lane not scheduled by this profile")
-    if lane == "fast":
-        try:
-            run_commands(
-                [
-                    [
-                        "uv",
-                        "run",
-                        "--frozen",
-                        "--project",
-                        "powers/pkstack",
-                        "python",
-                        "-B",
-                        ".github/scripts/pkstack_knowledge_coverage.py",
-                        "--repo-root",
-                        ".",
-                    ]
-                ],
-                root,
-            )
-        except (OSError, subprocess.CalledProcessError) as error:
-            result = receipt_base(plan, lane)
-            result.update(outcome="failed", error=f"knowledge coverage failed: {error}")
-            write_json(receipt, result)
-            return 1
-    if lane != "policy" and plan["profile"] != "reports":
-        env = dict(
-            os.environ,
-            PKSTACK_CHECK_PLAN=json.dumps(plan),
-            PKSTACK_CHECK_LANE=lane,
-            PKSTACK_CHECK_RECEIPT=str(Path(receipt).resolve()),
-            PKSTACK_BROWSER_PROFILE=plan["browser_profile"],
-        )
-        # Shared checks own collection; local selection flags or import paths
-        # must not turn a narrowed run into apparently complete evidence.
-        env.pop("PYTEST_ADDOPTS", None)
-        env.pop("PYTEST_PLUGINS", None)
-        env["PYTHONPATH"] = str(root / ".github/scripts")
-        diagnostics_root = env.get("PKSTACK_DIAGNOSTICS")
-        if diagnostics_root is None:
-            diagnostics_root = tempfile.mkdtemp(prefix="pkstack-diagnostics-")
-        diagnostics = Path(diagnostics_root) / lane
-        if diagnostics.exists() or diagnostics.is_symlink():
-            raise ValueError("diagnostics directory already exists; use fresh evidence")
-        diagnostics.parent.mkdir(parents=True, exist_ok=True)
-        return subprocess.run(
-            [
-                "uv",
-                "run",
-                "--frozen",
-                "--project",
-                "powers/pkstack",
-                "pytest",
-                "tests",
-                "-o",
-                "addopts=",
-                "--strict-config",
-                "--strict-markers",
-                "-q",
-                "-p",
-                "pkstack_pytest_partition",
-                "--basetemp",
-                str(diagnostics),
-            ],
-            cwd=root,
-            env=env,
-        ).returncode
-    started = time.monotonic()
-    result = receipt_base(plan, lane)
-    code = 0
-    try:
-        if plan["profile"] == "reports":
-            result["reports"] = check_reports(root, plan["changes"], plan["base"])
-        else:
-            run_policy(root)
-        result["outcome"] = "passed"
-    except (ValueError, OSError, subprocess.CalledProcessError) as error:
-        code = 1
-        result.update(outcome="failed", error=str(error))
-    result["duration_seconds"] = time.monotonic() - started
-    write_json(receipt, result)
-    return code
-
-
-def verify_receipts(plan, receipts, needs=None):
-    by_lane = {}
-    for receipt in receipts:
-        lane = receipt.get("lane")
-        if lane not in plan["scheduled"] or lane in by_lane:
-            raise ValueError("unexpected or duplicate lane receipt")
-        if any(receipt.get(k) != v for k, v in receipt_base(plan, lane).items()):
-            raise ValueError("receipt identity mismatch")
-        if receipt.get("outcome") != "passed":
-            raise ValueError(f"lane did not pass: {lane}")
-        by_lane[lane] = receipt
-    if set(by_lane) != set(plan["scheduled"]):
-        raise ValueError("missing lane receipts")
-    if needs is not None:
-        expected = {"classify", "fast", "browser", "package", "core", "policy"}
-        if set(needs) != expected:
-            raise ValueError("incomplete workflow dependency results")
-        for job, state in needs.items():
-            required = job in {"classify", "fast"} or plan["profile"] == "normal"
-            if state.get("result") != ("success" if required else "skipped"):
-                raise ValueError(f"unexpected job result: {job}")
-    if plan["profile"] == "reports":
-        return {"tests": 0, "profile": "reports"}
-    collection = None
-    completed = []
-    for lane, receipt in by_lane.items():
-        if lane == "policy":
-            continue
-        ids = receipt.get("collection")
-        if (
-            not isinstance(ids, list)
-            or not ids
-            or len(set(ids)) != len(ids)
-            or receipt.get("collection_digest") != digest(ids)
-        ):
-            raise ValueError("invalid collection")
-        if collection is None:
-            collection = ids
-        elif collection != ids:
-            raise ValueError("collection differs across lanes")
-        expected = [n for n in ids if lane_for(n) == lane]
-        results = receipt.get("results", [])
-        if (
-            [r["nodeid"] for r in results] != expected
-            or receipt.get("issues")
-            or receipt.get("exit_status") != 0
-        ):
-            raise ValueError("missing, duplicate, unordered or incomplete test results")
-        for result in results:
-            phases = result.get("phases", {})
-            if result["outcome"] == "passed" and phases != {
-                "setup": "passed",
-                "call": "passed",
-                "teardown": "passed",
-            }:
+def verify_tests(evidence, scope):
+    collection = evidence.get("collection")
+    if (
+        not isinstance(collection, list)
+        or not collection
+        or len(set(collection)) != len(collection)
+        or evidence.get("collection_digest") != digest(collection)
+    ):
+        raise ValueError("invalid product collection")
+    expected = [nodeid for nodeid in collection if selected_test(nodeid, scope)]
+    results = evidence.get("results", [])
+    if (
+        not expected
+        or [r["nodeid"] for r in results] != expected
+        or evidence.get("issues")
+        or evidence.get("exit_status") != 0
+        or evidence.get("outcome") != "passed"
+    ):
+        raise ValueError("missing, duplicate, unordered or incomplete test results")
+    for result in results:
+        phases = result.get("phases", {})
+        if result["outcome"] == "passed":
+            if phases != {"setup": "passed", "call": "passed", "teardown": "passed"}:
                 raise ValueError("test phases are incomplete")
-            if result["outcome"] == "skipped":
-                if phases not in (
+        elif result["outcome"] == "skipped":
+            if (
+                phases
+                not in (
                     {"setup": "skipped", "teardown": "passed"},
                     {"setup": "passed", "call": "skipped", "teardown": "passed"},
-                ):
-                    raise ValueError("skipped test phases are incomplete")
-                if (
-                    result["nodeid"] != KIRO_SENTINEL
-                    or result.get("skip_reason") != KIRO_SKIP_REASON
-                ):
-                    raise ValueError("unexpected skipped test")
-            elif result["outcome"] != "passed":
-                raise ValueError("test did not pass")
-            completed.append(result["nodeid"])
-    if (
-        collection is None
-        or len(completed) != len(set(completed))
-        or set(completed) != set(collection)
-    ):
-        raise ValueError("test partitions are incomplete or overlapping")
-    return {
-        "tests": len(completed),
-        "profile": "normal",
-        "collection_digest": digest(collection),
-        "lane_seconds": {k: v.get("duration_seconds") for k, v in by_lane.items()},
-    }
+                )
+                or result["nodeid"] != KIRO_SENTINEL
+                or result.get("skip_reason") != KIRO_SKIP_REASON
+            ):
+                raise ValueError("unexpected skipped test or incomplete skip phases")
+        else:
+            raise ValueError("test did not pass")
+    return len(results)
+
+
+def run_product(root, context, scope, output):
+    evidence_path = output / "diagnostics/product.json"
+    evidence_path.parent.mkdir(parents=True, exist_ok=False)
+    env = dict(
+        os.environ,
+        PKSTACK_CHECK_SCOPE=scope,
+        PKSTACK_CHECK_EVIDENCE=str(evidence_path),
+        PKSTACK_BROWSER_PROFILE=context["browser_profile"],
+        PKSTACK_DIAGNOSTICS=str(output / "diagnostics"),
+    )
+    # Local pytest flags and plugin injection cannot narrow complete evidence.
+    env.pop("PYTEST_ADDOPTS", None)
+    env.pop("PYTEST_PLUGINS", None)
+    env["PYTHONPATH"] = str(root / ".github/scripts")
+    command = [
+        "uv",
+        "run",
+        "--frozen",
+        "--project",
+        "powers/pkstack",
+        "pytest",
+        "tests",
+        "-o",
+        "addopts=",
+        "--strict-config",
+        "--strict-markers",
+        "-q",
+        "-p",
+        "pkstack_pytest_evidence",
+        "--basetemp",
+        str(output / "diagnostics/tests"),
+    ]
+    subprocess.run(command, cwd=root, env=env, check=True)
+    evidence = json.loads(evidence_path.read_text())
+    verify_tests(evidence, scope)
+    evidence_path.unlink()  # The successful evidence is included in the single summary.
+    return evidence
+
+
+def run_checks(root, context, scope, output):
+    output = output.resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    started = time.monotonic()
+    summary = {**context, "scope": scope, "outcome": "incomplete", "checks": []}
+    write_json(output / "summary.json", summary)
+    code = 1
+    try:
+        validate_context(context, root)
+        run_commands(
+            [
+                [
+                    "uv",
+                    "run",
+                    "--frozen",
+                    "--project",
+                    "powers/pkstack",
+                    "python",
+                    "-B",
+                    ".github/scripts/pkstack_knowledge_coverage.py",
+                    "--repo-root",
+                    ".",
+                ]
+            ],
+            root,
+        )
+        summary["checks"].append("knowledge_coverage")
+        if context["profile"] == "reports":
+            summary["reports"] = check_reports(root, context["changes"], context["base"])
+            summary["checks"].append("reports")
+        else:
+            summary["product"] = run_product(root, context, scope, output)
+            summary["tests"] = verify_tests(summary["product"], scope)
+            summary["checks"].append("product")
+            if scope == "full":
+                run_policy(root)
+                summary["checks"].append("policy_static_metadata_knowledge")
+        validate_context(context, root)
+        summary["outcome"] = "passed"
+        code = 0
+    except (KeyboardInterrupt, InterruptedError) as error:
+        summary.update(outcome="cancelled", error=str(error) or "verification interrupted")
+        code = 130
+    except (
+        ValueError,
+        KeyError,
+        OSError,
+        subprocess.SubprocessError,
+        static.StaticCheckError,
+    ) as error:
+        summary.update(outcome="failed", error=str(error))
+    finally:
+        summary["duration_seconds"] = time.monotonic() - started
+        write_json(output / "summary.json", summary)
+    print(f"Checks {summary['outcome']}; evidence: {output / 'summary.json'}", flush=True)
+    return code
 
 
 def main():
@@ -522,66 +465,45 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     commands = parser.add_subparsers(dest="command", required=True)
-    classify = commands.add_parser("classify")
-    classify.add_argument("--event", choices=["pull_request", "push", "local"], required=True)
-    classify.add_argument("--base")
-    classify.add_argument("--head")
-    classify.add_argument("--output", type=Path, required=True)
-    run = commands.add_parser("run")
-    run.add_argument("--plan", type=Path, required=True)
-    run.add_argument("--lane", choices=LANES, required=True)
-    run.add_argument("--receipt", type=Path, required=True)
-    aggregate = commands.add_parser("aggregate")
-    aggregate.add_argument("--plan", type=Path, required=True)
-    aggregate.add_argument("--receipts", type=Path, required=True)
-    aggregate.add_argument("--needs", help="GitHub needs object as JSON")
-    aggregate.add_argument("--output", type=Path)
-    local = commands.add_parser(
-        "local",
-        help="Run fast contracts or the complete partitioned suite with shared CI commands",
-    )
+    for name in ("classify", "hosted"):
+        command = commands.add_parser(name)
+        command.add_argument(
+            "--event", choices=["pull_request", "push", "workflow_dispatch"], required=True
+        )
+        command.add_argument("--base")
+        command.add_argument("--head", required=True)
+    commands.choices["hosted"].add_argument("--output", type=Path, required=True)
+    local = commands.add_parser("local", help="Run focused contracts or all shared checks")
     local.add_argument("profile", choices=["fast", "full"])
     local.add_argument("--output", type=Path)
     args = parser.parse_args()
     root = args.repo_root.resolve()
     os.environ.setdefault("UV_PROJECT_ENVIRONMENT", str(root / ".venv"))
+    if args.command == "local":
+        context = make_context(root, "local")
+        scope = args.profile
+    else:
+        context = make_context(root, args.event, args.base, args.head)
+        scope = "full"
     if args.command == "classify":
-        plan = make_plan(root, args.event, args.base, args.head)
-        write_json(args.output, plan)
+        validate_context(context, root)
         if os.environ.get("GITHUB_OUTPUT"):
             with open(os.environ["GITHUB_OUTPUT"], "a") as stream:
                 stream.write(
-                    f"profile={plan['profile']}\nbrowser_profile={plan['browser_profile']}\n"
+                    f"profile={context['profile']}\nbrowser_profile={context['browser_profile']}\n"
                 )
-        print(json.dumps(plan))
+        print(json.dumps(context))
         return 0
-    if args.command == "local":
-        plan = make_plan(root, "local")
-        # Refuse to mix this execution with stale receipts or overwrite another run.
-        if args.output is None:
-            args.output = Path(tempfile.mkdtemp(prefix="pkstack-local-checks-"))
-        else:
-            args.output.mkdir(parents=True, exist_ok=False)
-        print(f"Check evidence: {args.output}", flush=True)
-        write_json(args.output / "plan.json", plan)
-        os.environ["PKSTACK_DIAGNOSTICS"] = str(args.output.resolve() / "diagnostics")
-        lanes = ["fast"] if args.profile == "fast" else list(LANES)
-        receipt_dir = args.output / "receipts"
-        code = max(run_lane(root, plan, lane, receipt_dir / f"{lane}.json") for lane in lanes)
-        if code == 0 and args.profile == "full":
-            receipts = [json.loads((receipt_dir / f"{lane}.json").read_text()) for lane in lanes]
-            write_json(args.output / "summary.json", verify_receipts(plan, receipts))
-        return code
-    plan = json.loads(args.plan.read_text())
-    validate_plan(plan, root)
-    if args.command == "run":
-        return run_lane(root, plan, args.lane, args.receipt)
-    receipts = [json.loads(p.read_text()) for p in sorted(args.receipts.rglob("*.json"))]
-    summary = verify_receipts(plan, receipts, json.loads(args.needs) if args.needs else None)
-    if args.output:
-        write_json(args.output, summary)
-    print(json.dumps(summary, indent=2))
-    return 0
+    output = args.output or Path(tempfile.mkdtemp(prefix="pkstack-local-checks-")) / "checks"
+
+    def cancelled(signum, frame):
+        raise InterruptedError(f"verification received signal {signum}")
+
+    previous = signal.signal(signal.SIGTERM, cancelled)
+    try:
+        return run_checks(root, context, scope, output)
+    finally:
+        signal.signal(signal.SIGTERM, previous)
 
 
 if __name__ == "__main__":
