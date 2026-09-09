@@ -897,6 +897,159 @@
             "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
             "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
           }
+        },
+        {
+          "dispositions": [
+            {
+              "disposition": "A",
+              "path": "THIRD_PARTY_NOTICES.md",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "assets/JetBrainsMono-OFL.txt",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "assets/template.html",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "bin/archify.mjs",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "delta/architecture-delta.mjs",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "examples/agent-run.lifecycle.json",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "examples/cache-miss-request.sequence.json",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "B",
+              "path": "examples/dataflow-product-analytics.html",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "B",
+              "path": "examples/lifecycle-agent-run.html",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "A",
+              "path": "examples/product-analytics.dataflow.json",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "B",
+              "path": "examples/sequence-cache-miss-request.html",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "B",
+              "path": "examples/web-app-rendered.html",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "B",
+              "path": "examples/workflow-agent-tool-call-rendered.html",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "A",
+              "path": "references/authoring-contract.md",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "renderers/shared/generated-validators.mjs",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "renderers/shared/i18n.mjs",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "renderers/shared/repository-evidence.mjs",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "renderers/shared/repository-location.mjs",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "A",
+              "path": "schemas/architecture.schema.json",
+              "rationale": "Incorporate the reviewed offline-font and repository-evidence update; retain documented local runtime adaptations where present."
+            },
+            {
+              "disposition": "B",
+              "path": "test/architecture-delta.test.mjs",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "B",
+              "path": "test/brand-marks.test.mjs",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "B",
+              "path": "test/clean-skill-staging.test.mjs",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "B",
+              "path": "test/desktop-reader-browser.test.mjs",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            },
+            {
+              "disposition": "B",
+              "path": "test/helpers/offline-fonts.mjs",
+              "rationale": "Excluded upstream test tooling; validate the shipped runtime with PKStack tests."
+            },
+            {
+              "disposition": "B",
+              "path": "test/layout-rules.test.mjs",
+              "rationale": "Keep upstream tests excluded. Local regressions cover exact-fit caption width and a caption that exceeds its frame while still fitting inside the SVG canvas."
+            },
+            {
+              "disposition": "B",
+              "path": "test/offline-font-browser.test.mjs",
+              "rationale": "Excluded upstream test tooling; validate the shipped runtime with PKStack tests."
+            },
+            {
+              "disposition": "B",
+              "path": "test/offline-self-containment.test.mjs",
+              "rationale": "Excluded upstream test tooling; validate the shipped runtime with PKStack tests."
+            },
+            {
+              "disposition": "B",
+              "path": "test/repository-evidence.test.mjs",
+              "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
+            }
+          ],
+          "inventory_sha256": "20f62f857de79eb63ce9c8f8663cd5fe4e8b328fdbf125b69f0b71648e0d79f1",
+          "new": {
+            "commit": "10722002bb8777ecb639d93c49586fae4adf3ae4",
+            "subtree_sha": "8aa4cadc3cde102db4009f23f951cb4cf1e28d61"
+          },
+          "prior": {
+            "commit": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
+            "subtree_sha": "d28042c2ee940e8dd04c1825c1e2448671c95009"
+          }
         }
       ]
     },
@@ -970,7 +1123,61 @@
       "path": "skill",
       "provenance_path": "powers/pkstack/docs/pbakaus-impeccable-provenance.md",
       "repository": "pbakaus/impeccable",
-      "transitions": []
+      "transitions": [
+        {
+          "dispositions": [
+            {
+              "disposition": "A",
+              "path": "SKILL.src.md",
+              "rationale": "Adapt context fallback, transparent-asset validation, and incumbent-system preservation into the Kiro wrapper; exclude forced confirmations, automatic documentation, and unavailable runtime commands."
+            },
+            {
+              "disposition": "B",
+              "path": "agents/impeccable-asset-producer.md",
+              "rationale": "Specialized upstream agent prompts and mandatory finish handoffs are excluded; the current Kiro session and its existing review contract retain authority."
+            },
+            {
+              "disposition": "B",
+              "path": "agents/impeccable-documenter.md",
+              "rationale": "Specialized upstream agent prompts and mandatory finish handoffs are excluded; the current Kiro session and its existing review contract retain authority."
+            },
+            {
+              "disposition": "A",
+              "path": "reference/new-work.md",
+              "rationale": "Adapt context fallback, transparent-asset validation, and incumbent-system preservation into the Kiro wrapper; exclude forced confirmations, automatic documentation, and unavailable runtime commands."
+            },
+            {
+              "disposition": "B",
+              "path": "reference/visualize.md",
+              "rationale": "Upstream runtime management, generated decision pages, and live variant machinery are excluded. Unsupported commands are reported explicitly; explanatory diagrams route to the existing visual skills."
+            },
+            {
+              "disposition": "B",
+              "path": "scripts/VERSION",
+              "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+            },
+            {
+              "disposition": "B",
+              "path": "scripts/impeccable",
+              "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+            },
+            {
+              "disposition": "B",
+              "path": "scripts/impeccable.cmd",
+              "rationale": "Runtime, detector, browser injection, font data, and launcher assets are excluded. The Kiro port uses existing permitted project tools and performs no binary download, hook activation, or live-runtime installation."
+            }
+          ],
+          "inventory_sha256": "5c319d2ad252ae96c9365a9e8472ebb41b09a90d74dad08677d1dffd61cb9b99",
+          "new": {
+            "commit": "cd12f8660e2dde57b9615c8a6b8ea674101f9cfc",
+            "subtree_sha": "8616bb77f6f9544fc23e26c9e8cf2cc8b0ce7fb6"
+          },
+          "prior": {
+            "commit": "dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9",
+            "subtree_sha": "90d9f3c53a7fb64b44d0411bc0858a111c4aac23"
+          }
+        }
+      ]
     },
     {
       "genesis": {

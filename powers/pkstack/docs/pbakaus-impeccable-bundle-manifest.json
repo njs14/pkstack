@@ -6,8 +6,8 @@
       "handling": "adapted-kiro-reference",
       "mode": "100644",
       "path": "references/direction.md",
-      "sha256": "c372ba09fe4e31cb0efbabc23add4c912ba037f0db0c55df19e53a2f70897cf8",
-      "size": 2778,
+      "sha256": "7b77458b4d2f895bcab6248c1d74b4c4c23f9f18e41770231d2860fda9fd4539",
+      "size": 3605,
       "source_path": "skill/reference/new-work.md"
     },
     {
@@ -46,7 +46,7 @@
   "schema_version": 1,
   "skill": "impeccable",
   "summary": {
-    "byte_count": 15443,
+    "byte_count": 16270,
     "file_count": 5
   }
 }

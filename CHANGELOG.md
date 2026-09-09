@@ -4,6 +4,18 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.10]
+
+- Update Archify to reviewed upstream `1072200`, embedding licensed offline fonts
+  and adding Gitee source links and locally verified evidence without hyperlinks
+  for other forges. Preserve PKStack's viewport, caption, and transport patches.
+- Update Impeccable to reviewed upstream `cd12f86`, adapting transparent-asset
+  checks and preservation of existing design records without adding its runtime,
+  mandatory confirmations, or automatic documentation writes.
+- Refresh exact source inventories, consumer package contents, generated Kiro
+  files, and provenance. Keep GitHub Actions disabled; local release receipts
+  disclose unavailable hosted gates.
+
 ## [0.5.9]
 
 - Consolidates CI into shared complete verification and a dependent main-only

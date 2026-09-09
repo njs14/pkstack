@@ -11,19 +11,27 @@
       "source_path": "archify/SKILL.md"
     },
     {
+      "handling": "byte-exact-runtime",
+      "mode": "100644",
+      "path": "upstream/assets/JetBrainsMono-OFL.txt",
+      "sha256": "c1ab7c666206842a02b35b30770dac0d7a10156ed401c9defc3f02a754d89e90",
+      "size": 4398,
+      "source_path": "archify/assets/JetBrainsMono-OFL.txt"
+    },
+    {
       "handling": "adapted-runtime",
       "mode": "100644",
       "path": "upstream/assets/template.html",
-      "sha256": "c22d8c5e4bf2182f42bce68a87ac1f1f19421df64966988cbcf5140552b5697a",
-      "size": 678727,
+      "sha256": "8d70667927aa6b1ad4f1bf4e4407104dac11a6ffd7a8f28082254737f4309176",
+      "size": 773461,
       "source_path": "archify/assets/template.html"
     },
     {
       "handling": "byte-exact-runtime",
       "mode": "100755",
       "path": "upstream/bin/archify.mjs",
-      "sha256": "e7f545b9d31b133804e2cde41d3e2e35d479497ad97b05f3072b4ab2ef2d789a",
-      "size": 75949,
+      "sha256": "cb00a6a60cff395f1728722ce6c41b7721b484c5349ae82111ee16719a672721",
+      "size": 76056,
       "source_path": "archify/bin/archify.mjs"
     },
     {
@@ -70,16 +78,16 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/delta/architecture-delta.mjs",
-      "sha256": "f75aa96a22cdd640762f6f2cebdd1b89188d7d2f2cf354a764de1063c95b78ae",
-      "size": 72328,
+      "sha256": "ccff0af2cf5dbaaca90fe761fc28fd885fd4e4b2811d6314c74a6e0960f79046",
+      "size": 72823,
       "source_path": "archify/delta/architecture-delta.mjs"
     },
     {
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/examples/agent-run.lifecycle.json",
-      "sha256": "af939579dcafc8b4c49f09594591577994398aee57a57369d4c791dfc0d85a42",
-      "size": 4417,
+      "sha256": "7c0ad72ee7affbd6c6e4758b7520d61ddd4508c917acf36beabcad3ee7ca3ba7",
+      "size": 4044,
       "source_path": "archify/examples/agent-run.lifecycle.json"
     },
     {
@@ -110,8 +118,8 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/examples/cache-miss-request.sequence.json",
-      "sha256": "4bbaa6ca3cd4036002fd5d0f3a332eb922cec69d09bac3d7925f95beb4308389",
-      "size": 4345,
+      "sha256": "9a799a3661c16cd6ab4f6373ff6a04da95a9ab70d93b0a349b668466f4912fd7",
+      "size": 4374,
       "source_path": "archify/examples/cache-miss-request.sequence.json"
     },
     {
@@ -158,8 +166,8 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/examples/product-analytics.dataflow.json",
-      "sha256": "6fa38a7ccedf96da592d60b392783b846188eaa3ec9136c6dc06ca020e43a110",
-      "size": 5627,
+      "sha256": "91411404fb4828a3b7ea358f3a7b9877781c9e9dc9c04b42b6eb4a757281b59f",
+      "size": 5618,
       "source_path": "archify/examples/product-analytics.dataflow.json"
     },
     {
@@ -222,8 +230,8 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/references/authoring-contract.md",
-      "sha256": "8f2b583d0d84fb315e4c4dfa685bbcb93343bf7673b92ea0e70d361f8ffca4d7",
-      "size": 11309,
+      "sha256": "873494557cf9be91d9eed8ecce37072886c0e98b851ad59ab8938f405c6fbc5e",
+      "size": 13962,
       "source_path": "archify/references/authoring-contract.md"
     },
     {
@@ -366,8 +374,8 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/renderers/shared/generated-validators.mjs",
-      "sha256": "b32d852053a2159477393c38df55f4759633bd3d36d829bd307b9389611e06b8",
-      "size": 430844,
+      "sha256": "a1843e5612916e7ff71511d8577cdbea9a1355eee0ed1379de0ffd668992387f",
+      "size": 431711,
       "source_path": "archify/renderers/shared/generated-validators.mjs"
     },
     {
@@ -382,8 +390,8 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/renderers/shared/i18n.mjs",
-      "sha256": "da0320ac6c002f421c516cb4921e9b806a4ba5b3e9a4f6cbcdef0b16e2917d47",
-      "size": 48260,
+      "sha256": "0d9e839c3e5346160b0028d07fcf78c86671189e0714ea069dc99913e859fcdb",
+      "size": 48475,
       "source_path": "archify/renderers/shared/i18n.mjs"
     },
     {
@@ -414,9 +422,17 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/renderers/shared/repository-evidence.mjs",
-      "sha256": "e36c109c84b338ea77d2ae74e9fa9ffe4317e7780a2be8d4d78e588ddb387677",
-      "size": 11445,
+      "sha256": "ce3c358093aee12790d5567de6c887ce7b9ce7961bfc742d2cf9f36eab2d4dd5",
+      "size": 12411,
       "source_path": "archify/renderers/shared/repository-evidence.mjs"
+    },
+    {
+      "handling": "byte-exact-runtime",
+      "mode": "100644",
+      "path": "upstream/renderers/shared/repository-location.mjs",
+      "sha256": "e82fa68ab46e71566eb7aefdb48f6df67b34fd27ce36489e7787410dbfba05ce",
+      "size": 3453,
+      "source_path": "archify/renderers/shared/repository-location.mjs"
     },
     {
       "handling": "byte-exact-runtime",
@@ -478,8 +494,8 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/schemas/architecture.schema.json",
-      "sha256": "8c96140b6af8d93fb825a3c63e46b74176c9485185c978074ffe89e0f614576c",
-      "size": 6702,
+      "sha256": "94568c7ca72c07ac0ee02ee76bd39392874b3a13bb796a127962be68d0f5bc90",
+      "size": 6753,
       "source_path": "archify/schemas/architecture.schema.json"
     },
     {
@@ -566,15 +582,15 @@
       "handling": "byte-exact-runtime",
       "mode": "100644",
       "path": "upstream/THIRD_PARTY_NOTICES.md",
-      "sha256": "f8dec2a3a8c977069f07a370b5580757191202a805c19d3cad2c5bcaf9e3a8b3",
-      "size": 4543,
+      "sha256": "0b7fb59365dc21c93b0f62526d74ee913aeec9ae532c112bc76afa7edcd56e14",
+      "size": 5248,
       "source_path": "archify/THIRD_PARTY_NOTICES.md"
     }
   ],
   "schema_version": 1,
   "skill": "archify",
   "summary": {
-    "byte_count": 2247616,
-    "file_count": 71
+    "byte_count": 2355907,
+    "file_count": 73
   }
 }

@@ -38,7 +38,7 @@
     },
     {
       "path": ".kiro/skills/archify/upstream/THIRD_PARTY_NOTICES.md",
-      "sha256": "f8dec2a3a8c977069f07a370b5580757191202a805c19d3cad2c5bcaf9e3a8b3",
+      "sha256": "0b7fb59365dc21c93b0f62526d74ee913aeec9ae532c112bc76afa7edcd56e14",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/archify/upstream/THIRD_PARTY_NOTICES.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -52,7 +52,7 @@
     },
     {
       "path": ".kiro/skills/archify/upstream/references/authoring-contract.md",
-      "sha256": "8f2b583d0d84fb315e4c4dfa685bbcb93343bf7673b92ea0e70d361f8ffca4d7",
+      "sha256": "873494557cf9be91d9eed8ecce37072886c0e98b851ad59ab8938f405c6fbc5e",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/archify/upstream/references/authoring-contract.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -290,7 +290,7 @@
     },
     {
       "path": ".kiro/skills/impeccable/references/direction.md",
-      "sha256": "c372ba09fe4e31cb0efbabc23add4c912ba037f0db0c55df19e53a2f70897cf8",
+      "sha256": "7b77458b4d2f895bcab6248c1d74b4c4c23f9f18e41770231d2860fda9fd4539",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned mirror of the reviewed canonical Power skill; byte parity owns this generated asset."
@@ -752,7 +752,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "787ac4e82ed5b67b72f52851a2f8deeeeda4965309aa15408324b92a36779069",
+      "sha256": "0e719c29b3c076df40b0b5f186c880afb487833c04a7b3c35defa6819a62def0",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -1142,7 +1142,7 @@
     },
     {
       "path": "powers/pkstack/docs/pbakaus-impeccable-provenance.md",
-      "sha256": "382d3611ac0030b50b6d04ab2b818801a09235221b7b1eb22d4654176c350c65",
+      "sha256": "c80ed5f321e8373a9a2d3913373bc7153eb706b7bab7b2db359e3b4d04e06345",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1160,7 +1160,7 @@
     },
     {
       "path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
-      "sha256": "509830b98378282c79824facca2d8c080a59d92346d2692afaaf262aabd93b2a",
+      "sha256": "765475c746a7274d3462fab30dd937c48afde041059930056d0da445a909c3ab",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
@@ -1203,7 +1203,7 @@
     },
     {
       "path": "powers/pkstack/skills/archify/upstream/THIRD_PARTY_NOTICES.md",
-      "sha256": "f8dec2a3a8c977069f07a370b5580757191202a805c19d3cad2c5bcaf9e3a8b3",
+      "sha256": "0b7fb59365dc21c93b0f62526d74ee913aeec9ae532c112bc76afa7edcd56e14",
       "classification": "excluded",
       "category": "vendor",
       "reason": "Bundled upstream resource powers/pkstack/skills/archify/upstream/THIRD_PARTY_NOTICES.md; original/adapted byte identities and reusable design rationale are retained by the Archify provenance guide, while the resource remains part of the executable skill package."
@@ -1217,7 +1217,7 @@
     },
     {
       "path": "powers/pkstack/skills/archify/upstream/references/authoring-contract.md",
-      "sha256": "8f2b583d0d84fb315e4c4dfa685bbcb93343bf7673b92ea0e70d361f8ffca4d7",
+      "sha256": "873494557cf9be91d9eed8ecce37072886c0e98b851ad59ab8938f405c6fbc5e",
       "classification": "excluded",
       "category": "vendor",
       "reason": "Bundled upstream resource powers/pkstack/skills/archify/upstream/references/authoring-contract.md; original/adapted byte identities and reusable design rationale are retained by the Archify provenance guide, while the resource remains part of the executable skill package."
@@ -1455,7 +1455,7 @@
     },
     {
       "path": "powers/pkstack/skills/impeccable/references/direction.md",
-      "sha256": "c372ba09fe4e31cb0efbabc23add4c912ba037f0db0c55df19e53a2f70897cf8",
+      "sha256": "7b77458b4d2f895bcab6248c1d74b4c4c23f9f18e41770231d2860fda9fd4539",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill method and reference; composition and source provenance retain decisions while Kiro owns discovery."
