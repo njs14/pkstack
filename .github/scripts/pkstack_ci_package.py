@@ -564,9 +564,13 @@ def live_release_identity(
     require(
         repo.get("id") == repository_id
         and repo.get("full_name", "").lower() == repository.lower()
-        and repo.get("private") is True
         and repo.get("default_branch") == "main",
-        "release repository is not the expected private main repository",
+        "release repository is not the expected main repository",
+    )
+    require(
+        type(repo.get("private")) is bool
+        and repo.get("visibility") == ("private" if repo["private"] else "public"),
+        "release repository visibility is malformed or inconsistent",
     )
     branch = api.get(f"{prefix}/branches/main")
     require(

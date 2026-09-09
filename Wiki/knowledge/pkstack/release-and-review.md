@@ -76,6 +76,19 @@ compares bytes and SHA-256 to the approved CI package, rechecks the CI attempt, 
 tag and main, then writes a successful publication receipt. The workflow attaches that receipt
 to the release. Altered, absent or replaced assets cannot receive a successful receipt.
 
+Release verification accepts the expected public or private repository, with consistent
+visibility metadata. Repository ID, full name, default branch, and every source/run/tag/artifact
+identity remain mandatory; public access does not make another repository a trusted producer.
+
+For an explicitly owner-authorized manual release while Actions is unavailable, retain the
+hosted gates as unavailable and attach a separately labeled `local-release-receipt.json`.
+Bind the complete local gate and independent review to the frozen candidate, prove complete
+tree equality with merged main, build identical archive bytes twice, and run the extracted
+consumer checks. Compare the draft and published assets with those exact local bytes and
+record the publication identities. This local provenance does not replace hosted main-CI
+artifact evidence or allow the hosted verifier to accept a missing run. Usage limits and
+fresh live Kiro behavior remain outside that local proof.
+
 A GitHub Release without its successful attached receipt is incomplete publication evidence.
 GitHub Releases and receipts replace the separate publication-record PR and extra CI cycle;
 preserve historical Wiki entries. For example, the retained

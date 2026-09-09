@@ -4,6 +4,20 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.9]
+
+- Consolidates CI into shared complete verification and a dependent main-only
+  package job, preserving browser coverage, policy checks, and complete test evidence.
+- Bounds autonomous maintenance to two repairs and three goal verifications;
+  reuses exact successful main-CI evidence and dispatches commit-bound CI after
+  automated merges while retaining independent review and secretless verification.
+- Verifies downloaded release bytes against the approved package and supports
+  the expected public or private repository without relaxing source, run, tag,
+  or artifact identity checks.
+- Updates public-repository installation guidance and uses attached release
+  receipts as the publication record. GitHub Actions remain disabled because
+  of usage limits; this release does not establish a hosted rollout.
+
 ## [0.5.8]
 
 - Reconciles pinned Cursor/pstack provenance with the reviewed catalog-documentation

@@ -49,8 +49,8 @@ without candidate code or network access.
 
 ## Hosted rollout and measurement
 
-All seven PKStack workflows remain manually paused during implementation and local validation.
-GitHub's payment/spending block is an independent account issue; this change does not resolve it.
+All seven PKStack workflows remain manually paused because of GitHub Actions usage limits.
+Local implementation and validation do not resolve those limits or establish hosted execution.
 Do not enable workflows, alter billing, change repository visibility or move credentials as part
 of this rollout. After explicit resumption authorization, validate one PR/main cycle and one
 updater lifecycle, including its candidate's terminal result. The first main cycle must create

@@ -47,7 +47,7 @@ base or release evidence; the next admission remains closed until exact-main CI 
 
 The [CI rollout record](../pkstack/quality-and-ci.md#hosted-rollout-and-measurement) retains baseline
 elapsed and runner time. All seven workflows remain paused until explicitly authorized to resume;
-the billing/spending block and new hosted lifecycle measurements remain outside local proof.
+the usage-limit block and new hosted lifecycle measurements remain outside local proof.
 
 ## Read large updates in batches
 

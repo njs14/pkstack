@@ -56,10 +56,11 @@ class ConsumerContentTests(unittest.TestCase):
 class FakeGitHub:
     def __init__(self, commit: str, raw: bytes):
         self.raw = raw
-        self.repo = {
+        self.repo: dict[str, object] = {
             "id": REPOSITORY_ID,
             "full_name": REPOSITORY,
             "private": True,
+            "visibility": "private",
             "default_branch": "main",
         }
         self.branch = {"commit": {"sha": commit}}
@@ -354,7 +355,7 @@ class PackageFixture(unittest.TestCase):
 
     def test_base_ci_admission_uses_same_complete_main_contract_without_downloads(self):
         # Candidate admission has never depended on repository visibility.
-        self.api.repo["private"] = False
+        self.api.repo.update(private=False, visibility="public")
         result = package.verify_base_ci(
             self.root, cast(package.GitHub, self.api), REPOSITORY, REPOSITORY_ID, self.commit
         )
@@ -621,10 +622,51 @@ class PackageFixture(unittest.TestCase):
                 with self.assertRaisesRegex(package.PackageError, "mandatory"):
                     self.verify()
 
-    def test_private_current_main_tag_and_version_are_required(self):
+    def test_public_and_private_repositories_can_promote_and_verify_published_bytes(self):
+        for private, visibility in ((False, "public"), (True, "private")):
+            with self.subTest(visibility=visibility):
+                self.api.repo.update(private=private, visibility=visibility)
+                self.assertTrue(self.verify()["publication_eligible"])
+                self.assertTrue(self.verify_published()["ok"])
+                for output in ("verified", "published"):
+                    (Path(self.temporary.name) / output).rename(
+                        Path(self.temporary.name) / f"{output}-{visibility}"
+                    )
+
+    def test_release_repository_visibility_must_be_well_formed_and_consistent(self):
+        for private, visibility in (
+            (None, "private"),
+            (1, "private"),
+            ("false", "public"),
+            (True, None),
+            (True, []),
+            (True, "internal"),
+            (True, "public"),
+            (False, "private"),
+        ):
+            with self.subTest(private=private, visibility=visibility):
+                self.api.repo.update(private=private, visibility=visibility)
+                with self.assertRaisesRegex(package.PackageError, "visibility"):
+                    self.verify()
+        self.api.repo.update(private=True, visibility="private")
+        del self.api.repo["visibility"]
+        with self.assertRaisesRegex(package.PackageError, "visibility"):
+            self.verify()
+        self.assertEqual(self.api.downloads, 0)
+
+    def test_public_repository_still_requires_active_hosted_ci_evidence(self):
+        self.api.repo.update(private=False, visibility="public")
+        self.api.workflow["state"] = "disabled_manually"
+        with self.assertRaisesRegex(package.PackageError, "CI workflow is unavailable"):
+            self.verify_published()
+        self.assertEqual(self.api.downloads, 0)
+        self.assertFalse((Path(self.temporary.name) / "published/receipt").exists())
+
+    def test_exact_repository_current_main_tag_and_version_are_required(self):
         original = copy.deepcopy((self.api.repo, self.api.branch, self.api.tag))
         mutations = [
-            lambda: self.api.repo.update(private=False),
+            lambda: self.api.repo.update(id=999),
+            lambda: self.api.repo.update(full_name="other/pkstack"),
             lambda: self.api.repo.update(default_branch="development"),
             lambda: self.api.branch["commit"].update(sha="a" * 40),
             lambda: self.api.present_tag()["object"].update(sha="b" * 40),
