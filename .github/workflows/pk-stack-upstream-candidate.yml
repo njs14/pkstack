@@ -237,7 +237,7 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: powers/pkstack/uv.lock
+          cache-dependency-glob: uv.lock
       - name: Download immutable source detector and controller selection
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -380,7 +380,7 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: powers/pkstack/uv.lock
+          cache-dependency-glob: uv.lock
       - name: Snapshot immutable base controller and review guards
         env:
           BASE_SHA: ${{ needs.resolve.outputs.base_sha }}
@@ -447,7 +447,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          uv sync --quiet --locked --all-groups --project powers/pkstack
+          uv sync --quiet --locked --all-groups --project .
           trusted_projectctl() {
             PYTHONPATH="$TRUSTED_ROOT/.pkstack/projectctl/src" \
               "$TRUSTED_ROOT/.pkstack/projectctl/.venv/bin/python" \

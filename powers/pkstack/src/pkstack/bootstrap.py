@@ -29,13 +29,13 @@ except ImportError:  # pragma: no cover - project targets macOS/Linux
 BOOTSTRAP_SCHEMA = 2
 RECEIPT = Path(".pkstack/bootstrap.json")
 DISCOVERY = Path(".pkstack/discovery.json")
-SKILL_PARITY_ASSET = Path("docs/upstream-skill-parity.json")
-CURATED_SKILLS_ASSET = Path("docs/curated-skills.json")
-CURATED_HUMANLAYER_PARITY_ASSET = Path("docs/humanlayer-skills-source-parity.json")
-CURATED_HUMANLAYER_PROVENANCE_ASSET = Path("docs/humanlayer-skills-provenance.md")
-CURATED_ARCHIFY_PARITY_ASSET = Path("docs/tt-a1i-archify-source-parity.json")
-CURATED_ARCHIFY_PROVENANCE_ASSET = Path("docs/tt-a1i-archify-provenance.md")
-CURATED_ARCHIFY_BUNDLE_ASSET = Path("docs/tt-a1i-archify-bundle-manifest.json")
+SKILL_PARITY_ASSET = Path("metadata/upstream-skill-parity.json")
+CURATED_SKILLS_ASSET = Path("metadata/curated-skills.json")
+CURATED_HUMANLAYER_PARITY_ASSET = Path("metadata/humanlayer-skills-source-parity.json")
+CURATED_HUMANLAYER_PROVENANCE_ASSET = Path("provenance/humanlayer-skills-provenance.md")
+CURATED_ARCHIFY_PARITY_ASSET = Path("metadata/tt-a1i-archify-source-parity.json")
+CURATED_ARCHIFY_PROVENANCE_ASSET = Path("provenance/tt-a1i-archify-provenance.md")
+CURATED_ARCHIFY_BUNDLE_ASSET = Path("metadata/tt-a1i-archify-bundle-manifest.json")
 MAX_SKILL_PARITY_BYTES = 512 * 1024
 MAX_CURATED_REGISTRY_BYTES = 512 * 1024
 MAX_CURATED_BUNDLE_BYTES = 512 * 1024
@@ -752,6 +752,8 @@ def _validate_power_assets(asset_root: Path, source_package: Path) -> None:
     for relative in (
         "skills",
         "docs",
+        "metadata",
+        "provenance",
         "dev.kiro/steering",
         "templates/project",
         "templates/projectctl",

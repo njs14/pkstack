@@ -12,7 +12,7 @@ Google's current OKF documentation lives in
 The former `knowledge-catalog/okf` copy is frozen and its accepted source record
 remains historical provenance. Active maintenance now tracks the canonical
 repository from a fresh genesis at `ad30107c31c06aec8a7d5636e0d1058118604e6f`.
-The [canonical source record](../../../powers/pkstack/docs/google-open-knowledge-format-provenance.md)
+The [canonical source record](../../../powers/pkstack/provenance/google-open-knowledge-format-provenance.md)
 accounts for 132 regular blobs. Its normative `SPEC.md` blob is identical to the
 accepted frozen copy; the migration changes source identity and scope without
 introducing a specification change.

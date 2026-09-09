@@ -19,7 +19,15 @@ POWER_ROOT = Path(__file__).resolve().parents[1] / "powers" / "pkstack"
 
 
 def _copy_power_fixture(destination: Path) -> None:
-    for relative in ("src/pkstack", "skills", "dev.kiro", "templates", "docs"):
+    for relative in (
+        "src/pkstack",
+        "skills",
+        "dev.kiro",
+        "templates",
+        "docs",
+        "metadata",
+        "provenance",
+    ):
         shutil.copytree(POWER_ROOT / relative, destination / relative)
 
 
@@ -110,9 +118,11 @@ def test_bootstrap_is_idempotent_and_records_owned_files(tmp_path: Path) -> None
     for directory in ("skills", "dev.kiro", "templates"):
         assert not (tmp_path / ".pkstack" / "projectctl" / directory).exists()
     parity = json.loads(
-        (POWER_ROOT / "docs" / "upstream-skill-parity.json").read_text(encoding="utf-8")
+        (POWER_ROOT / "metadata" / "upstream-skill-parity.json").read_text(encoding="utf-8")
     )
-    curated = json.loads((POWER_ROOT / "docs" / "curated-skills.json").read_text(encoding="utf-8"))
+    curated = json.loads(
+        (POWER_ROOT / "metadata" / "curated-skills.json").read_text(encoding="utf-8")
+    )
     canonical_skills = (
         {
             Path(entry["target"]).parent.name
@@ -581,7 +591,7 @@ def test_bootstrap_rejects_noncanonical_skill_parity_catalogs(
 ) -> None:
     power = tmp_path / f"power-{case}"
     _copy_power_fixture(power)
-    parity_path = power / "docs" / "upstream-skill-parity.json"
+    parity_path = power / "metadata" / "upstream-skill-parity.json"
     if case == "concatenated":
         parity_path.write_bytes(parity_path.read_bytes() + b"{}\n")
     else:

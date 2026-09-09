@@ -1,6 +1,6 @@
 # Upstream skill parity
 
-This is the human-readable view of [the bounded machine inventory](upstream-skill-parity.json).
+This is the human-readable view of [the bounded machine inventory](../metadata/upstream-skill-parity.json).
 It accounts for the complete package beneath every top-level `pstack/skills/*/SKILL.md` in the
 immutable pinned and current `cursor/plugins` trees retrieved on 2026-09-08. The inventory contains
 122 files at each revision, including referenced playbooks, templates, data, and helpers. The later
@@ -23,7 +23,7 @@ Forty-six upstream workflows have runnable routes. The entry workflow is
 
 PKStack also ships `/pkstack-principles`, `/pkstack-maintain`,
 `/pkstack-model-council`, `/pkstack-verified-goal`, and `/okf`, for 51 routes
-in this catalog. The thirteen [curated additions](curated-skills.md) bring the
+in this catalog. The thirteen [curated additions](../docs/curated-skills.md) bring the
 Power total to 64. Setup stays Power-local; the other 63 install into the
 workspace. `/okf` is the explicit knowledge-integration naming exception,
 with independently adapted methodology recorded in its separate provenance.

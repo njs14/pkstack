@@ -4,10 +4,24 @@
 
 `logo.png` is the owner-selected Option 2, “Knowledge crest,” recorded on
 September 6, 2026. It depicts four distinct ghosts with a book and linked knowledge
-tree. The TypeScript figure is an archetype, not a portrait. Both READMEs use this
-logo at their respective relative paths. The
+tree. The TypeScript figure is an archetype, not a portrait. The repository README uses this
+logo from `docs/assets/`; the distributed Power carries no README artwork. The
 [visual artifact record](../../Wiki/knowledge/pkstack/visual-artifacts.md#current-naming-and-historical-artwork)
 retains the selection and source attribution.
+
+## Compact Power JPG
+
+`pkstack-power.jpg` was generated on September 9, 2026 with the built-in image
+generator, using the Knowledge crest as its reference. The image is a compact
+512 × 512 JPEG for repository or catalog presentation; it is not a Kiro manifest
+setting and is excluded from the Power. The generated PNG was resized and
+encoded as JPEG with macOS `sips` at quality 82.
+
+Prompt: a compact square PKStack Power icon on midnight navy, with one pale
+lavender scholarly ghost, navy mortarboard, cyan tassel, open purple book, and
+two cyan knowledge-tree branches; preserve the crest palette and illustration
+style, use generous margins and clear thumbnail shapes, omit text and companion
+figures, and use no border, watermark, or transparency.
 
 ## Historical README banner
 

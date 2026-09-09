@@ -1,6 +1,4 @@
-# Type checking for maintained first-party Python outside the Power project.
-# `powers/pkstack/pyproject.toml` keeps its own `[tool.ty]` settings and is
-# checked separately from that directory, so it is excluded here.
+# Repository development configuration for all maintained first-party Python.
 
 [environment]
 python-version = "3.11"
@@ -9,7 +7,7 @@ python-version = "3.11"
 root = [".github/scripts", "tests", "benchmarks", "powers/pkstack/src", "powers/pkstack/examples/verified-goal-demo"]
 
 [src]
-include = [".github/scripts", "tests", "benchmarks"]
+include = [".github/scripts", "tests", "benchmarks", "powers/pkstack/src", "powers/pkstack/examples", "powers/pkstack/skills/pkstack-setup/scripts"]
 
 [terminal]
 error-on-warning = true

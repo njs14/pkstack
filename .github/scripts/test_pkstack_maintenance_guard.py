@@ -991,8 +991,8 @@ def detector_fixture(*, transition_count: int = 0) -> dict[str, Any]:
                 "repository": "cursor/plugins",
                 "path": "pstack",
                 "ref": "main",
-                "provenance_path": "powers/pkstack/docs/provenance.md",
-                "parity_path": "powers/pkstack/docs/upstream-skill-parity.json",
+                "provenance_path": "powers/pkstack/provenance/provenance.md",
+                "parity_path": "powers/pkstack/metadata/upstream-skill-parity.json",
                 "pinned": pinned,
                 "pinned_reproof": {"ok": True, **pinned},
                 "current": pinned,
@@ -1017,7 +1017,7 @@ def detector_fixture(*, transition_count: int = 0) -> dict[str, Any]:
                     "candidate_ready": False,
                     "artifact_type": "skill-catalog",
                     "status": "accepted-baseline",
-                    "path": "powers/pkstack/docs/upstream-skill-parity.json",
+                    "path": "powers/pkstack/metadata/upstream-skill-parity.json",
                     "errors": [],
                     "pinned_resource_count": 1,
                     "current_resource_count": 1,
@@ -4369,7 +4369,7 @@ class DetectorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             ledger = root / "maintenance/upstream-reviews.json"
-            provenance = root / "powers/pkstack/docs/provenance.md"
+            provenance = root / "powers/pkstack/provenance/provenance.md"
             detector_path = root / "detector.json"
             ledger.parent.mkdir(parents=True)
             provenance.parent.mkdir(parents=True)
@@ -4468,7 +4468,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
             "powers/pkstack/dev.kiro/steering/pkstack-core.md",
             "Use the current session.\n",
         )
-        self.put("powers/pkstack/docs/provenance.md", "Base provenance.\n")
+        self.put("powers/pkstack/provenance/provenance.md", "Base provenance.\n")
         subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
         self.base = self.commit("base")
 
@@ -4557,7 +4557,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
         self.validate_bundle(bundle, digest=result["content_sha256"])
 
     def inventory_bundle(self) -> tuple[dict, dict]:
-        path = "powers/pkstack/docs/okf-skills-parity.json"
+        path = "powers/pkstack/metadata/okf-skills-parity.json"
         source = {
             "pinned": {"commit": "a" * 40},
             "current": {"commit": "b" * 40},
@@ -4690,7 +4690,7 @@ class SkillCompatibilityReviewTests(unittest.TestCase):
                 )
 
     def test_unaffected_metadata_has_empty_context(self) -> None:
-        bundle, _ = self.build("powers/pkstack/docs/provenance.md")
+        bundle, _ = self.build("powers/pkstack/provenance/provenance.md")
         self.assertEqual(bundle["skill_compatibility"], {})
         self.validate_bundle(bundle)
 
@@ -6703,7 +6703,7 @@ class PolicyAndWorkflowTests(unittest.TestCase):
                 root = sandbox / "repo"
                 manifest = root / "maintenance/upstreams.json"
                 ledger = root / "maintenance/upstream-reviews.json"
-                provenance = root / "powers/pkstack/docs/provenance.md"
+                provenance = root / "powers/pkstack/provenance/provenance.md"
                 manifest.parent.mkdir(parents=True)
                 provenance.parent.mkdir(parents=True)
                 drift = drift_detector_fixture(transition_count=1)
@@ -6782,11 +6782,11 @@ class PolicyAndWorkflowTests(unittest.TestCase):
             root = sandbox / "repo"
             root.mkdir()
             (root / "maintenance").mkdir()
-            (root / "powers/pkstack/docs").mkdir(parents=True)
+            (root / "powers/pkstack/provenance").mkdir(parents=True)
             (root / ".kiro/agents").mkdir(parents=True)
             manifest = root / "maintenance/upstreams.json"
             ledger = root / "maintenance/upstream-reviews.json"
-            provenance = root / "powers/pkstack/docs/provenance.md"
+            provenance = root / "powers/pkstack/provenance/provenance.md"
             drift = drift_detector_fixture()
             base_ledger = (
                 json.dumps(

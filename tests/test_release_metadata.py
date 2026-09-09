@@ -45,6 +45,7 @@ def test_public_version_mirrors_plugin_authority() -> None:
     assert project["project"]["version"] == manifest["version"]
     assert _source_version() == manifest["version"]
     assert _lock_version(POWER_ROOT / "uv.lock") == manifest["version"]
+    assert _lock_version(REPOSITORY_ROOT / "uv.lock") == manifest["version"]
     assert _lock_version(POWER_ROOT / "templates/projectctl/uv.lock") == manifest["version"]
 
 

@@ -752,7 +752,7 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "0e719c29b3c076df40b0b5f186c880afb487833c04a7b3c35defa6819a62def0",
+      "sha256": "a6321b4a4fdf92c5995f8b98ab3046fc05ecd97506aa27b1fae4cb72a917e18a",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -775,17 +775,17 @@
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "c31fe8d0cdaf4d1d719a211d1bb918957676006b6118efce9ee9190df13d8492",
+      "sha256": "1121bdd7f3a02e3a522d8426de5eff4f1a2c0ab371b0265254dbe9b6fe56e18b",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/quality-and-ci.md",
         "Wiki/knowledge/pkstack/release-and-review.md"
       ],
-      "summary": "Locked worktrees use shared fast/full checks and explicit knowledge mappings. Two CI jobs retain complete checks; release review and attached receipts avoid repeated local gates and publication-record PRs."
+      "summary": "Repository development manifest and lock own pytest/Ruff/ty, with the Power as an editable dependency; the consumer runtime lock stays independent. Reviewed setup, complete checks and exact-candidate release rules remain."
     },
     {
       "path": "README.md",
-      "sha256": "19653c0537c72ca0d7e5a7cae5075eba4c02731f74ccfb25bb7e9252ca3508d7",
+      "sha256": "bcc1cb95bda914f565f280c2b59e1fff2b9cb23e697aa0dbe8f783dd196c04c6",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -883,7 +883,7 @@
     },
     {
       "path": "docs/architecture.md",
-      "sha256": "a064339b7502943e174442fd4f914b24d4e4ed765afbbfde0f0884d7bfd4c7a9",
+      "sha256": "d4d7b7d9515523db09ae655890f1592d07b9576b04364935fdd84966c4262711",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
@@ -900,17 +900,35 @@
       "summary": "Editable JSON, interactive HTML and static previews explain component/planning/updater boundaries at a recorded source snapshot; diagrams are not executable proof."
     },
     {
-      "path": "docs/assets/creation-history.md",
-      "sha256": "fb28ca313d28fe211258bffcc2445b6731e236908b951a06e570602fc99f3027",
+      "path": "docs/assets/README.md",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/visual-artifacts.md"
       ],
-      "summary": "Retains the selected Knowledge crest and historical banner/mascot creation history and attribution outside the consumer Power."
+      "summary": "Repository artwork guide separates the preserved README crest from the compact Power JPG and excludes both from the consumer package.",
+      "sha256": "19eaade08516b2ae7101f2a1a58f930f3c7400c5aacc9ce854a9c9130d392ba1"
+    },
+    {
+      "path": "docs/assets/creation-history.md",
+      "sha256": "0b06bb8408dfbc4e2907fb0b93684d9b34812b045b9ab73405ecdf5e81b67031",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/visual-artifacts.md"
+      ],
+      "summary": "Preserves the owner-selected Knowledge crest and adds the compact 512 by 512 JPG generation prompt; repository artwork is excluded from the Power."
+    },
+    {
+      "path": "docs/kiro-v3-compatibility.md",
+      "sha256": "d72f321572f8f32412c143f4d293e3b3ab3536e4949865a91e27e6667c69cf05",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "Separate documentation, command recognition, native execution, and client-specific evidence; selected Auto does not reveal its underlying model and Crew/Web have narrower evidence."
     },
     {
       "path": "docs/upstream-control-loop.md",
-      "sha256": "4a86678ca442f5b6d3e033c7a2819a45d5d64840b938514ea235cdfa78104de0",
+      "sha256": "d2c7bca6719878175b52a3038041942f470efe29d5a9c6b5cca88a556812dc64",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/upstream-maintenance/operations.md"
@@ -919,7 +937,7 @@
     },
     {
       "path": "docs/validation-report.md",
-      "sha256": "6d238fb52af50e1e03f306188ff1d0195493dff195753ad228123582549e4072",
+      "sha256": "9225597d8788a42032c31d54c703d26af52109fed0208cab63d6f0c8be724e7d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
@@ -928,7 +946,7 @@
     },
     {
       "path": "powers/pkstack/README.md",
-      "sha256": "57c4e946e4a155a191aec3e00579322d18d9a881937fdae1f4523910487b1c82",
+      "sha256": "f746ea48ad961eca2fc024582077a21835dda9cadab3f1569c35e7e291622202",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -937,19 +955,10 @@
     },
     {
       "path": "powers/pkstack/THIRD_PARTY_NOTICES.md",
-      "sha256": "04c7ac6f2ff5ad817958510758117d57f1f9c918c4e90f855a67e5da199c4106",
+      "sha256": "6d46c33e29036b002f8fbb3ff204cd0bd78629bd58bce8f03941db38b5868de5",
       "classification": "excluded",
       "category": "policy",
       "reason": "Complete legal notices remain canonical in the package; source ownership and adaptation decisions are retained from linked provenance guides."
-    },
-    {
-      "path": "powers/pkstack/assets/README.md",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/visual-artifacts.md"
-      ],
-      "summary": "Consumer logo description identifies the bundled Knowledge crest and links repository artwork attribution.",
-      "sha256": "8ab9cf396bfa85ae0279d8d8f08259a1af821913795e5f08bbd54f61c849acea"
     },
     {
       "path": "powers/pkstack/dev.kiro/steering/pkstack-core.md",
@@ -987,17 +996,8 @@
       "reason": "Canonical native steering powers/pkstack/dev.kiro/steering/pkstack-unslop.md; generated mirrors must come from setup. Its workflow/tool ownership is explained by the composition and quality guides."
     },
     {
-      "path": "powers/pkstack/docs/astral-python-provenance.md",
-      "sha256": "948c06eb7f8e1c3cc5be2b84e6bf05f78a0030ea0a98fd304550a478840cdedb",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Astral uv/Ruff/ty wrappers compose locked environments, lint/format and type checks, respecting existing toolchains and reviewed pre-uv bootstrap exceptions."
-    },
-    {
       "path": "powers/pkstack/docs/curated-skills.md",
-      "sha256": "23e63d068755a63303be284af6a66534fc0904071ca7412071b3b20bde9e78c4",
+      "sha256": "3a80d41bf0ef22fc4ee97254648f86b3a77717ab3942194cd07619e92f594bb6",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1014,171 +1014,17 @@
       "summary": "Use a disposable intentionally failing account fixture, record the failure, preserve tests, and let native Kiro repair the implementation before stored verification."
     },
     {
-      "path": "powers/pkstack/docs/google-open-knowledge-format-provenance.md",
-      "sha256": "54347075c52e82abe6a33357c88b0d6dac3fd8abd40dfeca393cd475e0fa8f06",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/knowledge-lifecycle.md",
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Active canonical OKF source uses a fresh root-scoped genesis with complete blob inventory; frozen source identities stay historical and identical SPEC bytes require no normative runtime change."
-    },
-    {
-      "path": "powers/pkstack/docs/humanlayer-skills-provenance.md",
-      "sha256": "0f88b9ab03d2d6db457e924d58dac1ae2bbbf1630ba935165e3d880e96d84658",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Four portable HumanLayer methods retain bounded outputs and native planning; Claude-specific registration and improve-claude-md stay provenance-only."
-    },
-    {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "16f55566e15d3c23f80ebfb4c18df11bea234adcffe5d30f52975ac1cee350fc",
+      "sha256": "3f67d5703d3e903b0e09f30e1a95d73d6c51e3a9c9e6674ddba19123ac6a7df4",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+        "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Separate documentation, command recognition, native execution, and client-specific evidence; selected Auto does not reveal its underlying model and Crew/Web have narrower evidence."
-    },
-    {
-      "path": "powers/pkstack/docs/mattpocock-domain-modeling-provenance.md",
-      "sha256": "cf4ac4576015baa9f201ed171b4fda3ed24c430e6184efd680c1219a7236bfec",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Domain modeling preserves precise vocabulary, scenarios and selective ADRs; project knowledge is captured idempotently without moving native assets."
-    },
-    {
-      "path": "powers/pkstack/docs/mattpocock-grill-me-provenance.md",
-      "sha256": "e295e244cb324f8242cbd935d87966e85760f60bff367053112ff806ab03c16b",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "The focused interview entrypoint reuses grilling rather than duplicating its method; standalone conversation does not automatically authorize file capture."
-    },
-    {
-      "path": "powers/pkstack/docs/mattpocock-grill-with-docs-provenance.md",
-      "sha256": "134e3b74b92af17bdd54c6f7480369eefb33f0eec60379f15a616ea5e45fe421",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Grilling owns questions and domain-modeling owns capture within active permissions; native Plan keeps pending understanding conversational."
-    },
-    {
-      "path": "powers/pkstack/docs/mattpocock-grilling-provenance.md",
-      "sha256": "3e9558d7a7261c85e8b1aa3b654f6b03f38dc3d86ef4b281f6d5e8fd253fed02",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "One shared fact-first interview method carries settled constraints into native planning, stops within scope, and defers capture until approval and permitted execution."
-    },
-    {
-      "path": "powers/pkstack/docs/mattpocock-writing-for-agents-provenance.md",
-      "sha256": "b5644b568f784f55622de5599eeb7ba086a39d8bcf57961630d52c01743fc77c",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Agent writing method and skill mechanics are retained; OpenAI-only UI metadata is not shipped as Kiro configuration."
-    },
-    {
-      "path": "powers/pkstack/docs/okf-skills-parity.md",
-      "sha256": "f9c80581dabfa060bbe4bbf7fb83c8d5676c230182436b82391c46d587c27c78",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "OKF methodology is adapted locally; upstream backfill, validator and visualizer are excluded and Google remains the independent format authority."
-    },
-    {
-      "path": "powers/pkstack/docs/okf-skills-provenance.md",
-      "sha256": "c4a6e00dd400a90db912d145068d7b491a06453d31a2eb3874a088177e90be33",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Whole-subtree inventories preserve original source identities; later backfill-only changes remain excluded and do not authorize a runnable transcript import."
-    },
-    {
-      "path": "powers/pkstack/docs/okf-spec-provenance.md",
-      "sha256": "8da86633cf186741ba42cd8371bfdf372ec8b4d36c2e81462c9c3de96db84154",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "The whole Google OKF subtree is tracked for drift, with SPEC.md normative; provenance and samples do not expand local validator conformance claims."
-    },
-    {
-      "path": "powers/pkstack/docs/okf-spec-source-parity.md",
-      "sha256": "ec9ba9747da8d680d170e2bd99d19ef5bc951e327960bb52463f75e71e5e7b91",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "The 129-blob source accounting adopts the normative specification while excluding upstream implementations and retaining notices as provenance."
-    },
-    {
-      "path": "powers/pkstack/docs/openai-babysit-pr-provenance.md",
-      "sha256": "5ab098c9eb8c3761b3e569dc2efe71651b5c3222d5070879fab9fabc50343bb9",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "PR supervision uses one shared method, merge-ready completion, one retry per SHA, and user-authorized GitHub actions."
-    },
-    {
-      "path": "powers/pkstack/docs/openknowledge-cli-contract-provenance.md",
-      "sha256": "d70084549913b98ffbf052b132779e7722c3842e3f36fc04f3a7e7e2a294ad55",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "The OpenKnowledge CLI schema inventory is a retired runtime reference; preserved accepted identities do not make okn an active dependency or fallback."
-    },
-    {
-      "path": "powers/pkstack/docs/pbakaus-impeccable-provenance.md",
-      "sha256": "c80ed5f321e8373a9a2d3913373bc7153eb706b7bab7b2db359e3b4d04e06345",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Frontend design methods are adapted for Kiro with explicit runtime exclusions and current visual evidence boundaries."
-    },
-    {
-      "path": "powers/pkstack/docs/provenance.md",
-      "sha256": "cf34422af55e0cb043113a9d0772119962f2bf1a26546ea1a9aaec121d15760d",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Selected upstream methods are adapted into native Kiro semantics; the docs-only follow-up adds no skill bytes, keeps PR creation separately authorized and leaves Cursor release metadata excluded."
-    },
-    {
-      "path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
-      "sha256": "765475c746a7274d3462fab30dd937c48afde041059930056d0da445a909c3ab",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/visual-artifacts.md"
-      ],
-      "summary": "Original upstream bytes and adapted runtime bytes remain separately bound, including local caption/viewport/transport patches and reviewed upstream parser/watcher corrections."
-    },
-    {
-      "path": "powers/pkstack/docs/upstream-skill-parity.md",
-      "sha256": "1652562d45e2eb28be5c04282bd409c57ae0c982a711644cf6537b72ba6a2ad7",
-      "classification": "mapped",
-      "topics": [
-        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
-      ],
-      "summary": "Poteto catalog distinguishes direct ports, native replacements and consolidated aliases; the latest source transition leaves the bounded 122-file skills catalog byte-identical."
+      "summary": "Current plugin.json format, reverse-domain Kiro steering namespace, dated surface limits and required runtime; legacy POWER.md is an alternative and artwork is separate."
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "3f7e1c9479c70c3e1224049dd85f5b8c16e9e7ff3abe5f08b284e54dd008e9bf",
+      "sha256": "46c4c4458dd7bd1fe22b57fe4f5a9238ee9c78394ca70aed86bd5b1867286f73",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1193,6 +1039,169 @@
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
       "summary": "The account-ID example is intentionally broken and its narrow verifier is a demonstration predicate, not general application acceptance."
+    },
+    {
+      "path": "powers/pkstack/provenance/astral-python-provenance.md",
+      "sha256": "42b5a834bdc78e7c0955f72d4fa5db329241b966555eddcf654708463e2c4ed0",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Astral uv/Ruff/ty wrappers compose locked environments, lint/format and type checks, respecting existing toolchains and reviewed pre-uv bootstrap exceptions."
+    },
+    {
+      "path": "powers/pkstack/provenance/google-open-knowledge-format-provenance.md",
+      "sha256": "bd7f4ac24400f34a2515a33c93a35a417f706a842b175654f4169a8cd6ef7f5c",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/knowledge-lifecycle.md",
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Active canonical OKF source uses a fresh root-scoped genesis with complete blob inventory; frozen source identities stay historical and identical SPEC bytes require no normative runtime change."
+    },
+    {
+      "path": "powers/pkstack/provenance/humanlayer-skills-provenance.md",
+      "sha256": "0f88b9ab03d2d6db457e924d58dac1ae2bbbf1630ba935165e3d880e96d84658",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Four portable HumanLayer methods retain bounded outputs and native planning; Claude-specific registration and improve-claude-md stay provenance-only."
+    },
+    {
+      "path": "powers/pkstack/provenance/mattpocock-domain-modeling-provenance.md",
+      "sha256": "3adcd55c3c3c3f21062ea69b30d4bb7a75f7d191a8244b332eb7819041b94728",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Domain modeling preserves precise vocabulary, scenarios and selective ADRs; project knowledge is captured idempotently without moving native assets."
+    },
+    {
+      "path": "powers/pkstack/provenance/mattpocock-grill-me-provenance.md",
+      "sha256": "856b695306c388b05927dc7d860f80b080555738ee7cd6c19848f0c857156f9b",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "The focused interview entrypoint reuses grilling rather than duplicating its method; standalone conversation does not automatically authorize file capture."
+    },
+    {
+      "path": "powers/pkstack/provenance/mattpocock-grill-with-docs-provenance.md",
+      "sha256": "b5fd7b7cb67f79a6f8517a440b3c2e2cad00814257511d6ba0f2d2b5a65c49bb",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Grilling owns questions and domain-modeling owns capture within active permissions; native Plan keeps pending understanding conversational."
+    },
+    {
+      "path": "powers/pkstack/provenance/mattpocock-grilling-provenance.md",
+      "sha256": "4c6a2aa38809b836100d383e98e1f69d465073b9727c87e98a4e1dd76c6a25b7",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "One shared fact-first interview method carries settled constraints into native planning, stops within scope, and defers capture until approval and permitted execution."
+    },
+    {
+      "path": "powers/pkstack/provenance/mattpocock-writing-for-agents-provenance.md",
+      "sha256": "b5644b568f784f55622de5599eeb7ba086a39d8bcf57961630d52c01743fc77c",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Agent writing method and skill mechanics are retained; OpenAI-only UI metadata is not shipped as Kiro configuration."
+    },
+    {
+      "path": "powers/pkstack/provenance/okf-skills-parity.md",
+      "sha256": "03800a6239c45ae5404a498c10ae2fb61a4f589ecb6b82c94812ebb3d69e0152",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "OKF methodology is adapted locally; upstream backfill, validator and visualizer are excluded and Google remains the independent format authority."
+    },
+    {
+      "path": "powers/pkstack/provenance/okf-skills-provenance.md",
+      "sha256": "00b6fed61991861691391dcb057a0d922ae38c9696b513289de24db4efe973ee",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Whole-subtree inventories preserve original source identities; later backfill-only changes remain excluded and do not authorize a runnable transcript import."
+    },
+    {
+      "path": "powers/pkstack/provenance/okf-spec-provenance.md",
+      "sha256": "928dcb880a30ad5d5f8b06ee2fe9e8ba0c3235db482890b87dfb461ec393a713",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "The whole Google OKF subtree is tracked for drift, with SPEC.md normative; provenance and samples do not expand local validator conformance claims."
+    },
+    {
+      "path": "powers/pkstack/provenance/okf-spec-source-parity.md",
+      "sha256": "1bc75fb75dccd19f8de3817f729655f4a655abc236bf81995285b65722c7bcde",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "The 129-blob source accounting adopts the normative specification while excluding upstream implementations and retaining notices as provenance."
+    },
+    {
+      "path": "powers/pkstack/provenance/openai-babysit-pr-provenance.md",
+      "sha256": "a80c6317818ff94e4d62d22b80cae7665f1e2e32d9d32d5e254a48697d648274",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "PR supervision uses one shared method, merge-ready completion, one retry per SHA, and user-authorized GitHub actions."
+    },
+    {
+      "path": "powers/pkstack/provenance/openknowledge-cli-contract-provenance.md",
+      "sha256": "c02dd855c580d1ec22a01f5d89596055bc44552fe8886448c425261a007bf1b8",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "The OpenKnowledge CLI schema inventory is a retired runtime reference; preserved accepted identities do not make okn an active dependency or fallback."
+    },
+    {
+      "path": "powers/pkstack/provenance/pbakaus-impeccable-provenance.md",
+      "sha256": "4ebec7662b4768ab34a6474ea95ef75e09c5824f4cd934537c1d8daaac88c938",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Frontend design methods are adapted for Kiro with explicit runtime exclusions and current visual evidence boundaries."
+    },
+    {
+      "path": "powers/pkstack/provenance/provenance.md",
+      "sha256": "7a2c0c25188944a98727cb4afffd42f32dd881d30ba5eadc5085ab7f9c2df6ad",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Selected upstream methods are adapted into native Kiro semantics; the docs-only follow-up adds no skill bytes, keeps PR creation separately authorized and leaves Cursor release metadata excluded."
+    },
+    {
+      "path": "powers/pkstack/provenance/tt-a1i-archify-provenance.md",
+      "sha256": "765475c746a7274d3462fab30dd937c48afde041059930056d0da445a909c3ab",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/visual-artifacts.md"
+      ],
+      "summary": "Original upstream bytes and adapted runtime bytes remain separately bound, including local caption/viewport/transport patches and reviewed upstream parser/watcher corrections."
+    },
+    {
+      "path": "powers/pkstack/provenance/upstream-skill-parity.md",
+      "sha256": "bc8913e10e13a3b3081e23806c15da48d00d2886777e4355aacd397768a6c420",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
+      ],
+      "summary": "Poteto catalog distinguishes direct ports, native replacements and consolidated aliases; the latest source transition leaves the bounded 122-file skills catalog byte-identical."
     },
     {
       "path": "powers/pkstack/skills/archify/SKILL.md",

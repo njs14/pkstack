@@ -64,7 +64,7 @@ def test_pocock_sources_bind_original_git_trees_and_genesis() -> None:
     # This loader checks every source's manifest, genesis, and provenance markers together.
     load_upstream_review_ledger(ROOT, manifest)
     sources = {source.source_id: source for source in manifest.sources}
-    registry = json.loads((POWER / "docs/curated-skills.json").read_text())
+    registry = json.loads((POWER / "metadata/curated-skills.json").read_text())
     curated = {entry["name"]: entry for entry in registry["skills"]}
     assert set(SOURCES) <= set(_validate_curated_registry(POWER, forbidden=set()))
     for name, (path, tree_sha) in SOURCES.items():
@@ -137,7 +137,7 @@ def test_curated_skill_modification_requires_updated_bundle_identity(
     # Build a minimal independent registry fixture and alter its actual native entrypoint.
     entry = next(
         entry
-        for entry in json.loads((POWER / "docs/curated-skills.json").read_text())["skills"]
+        for entry in json.loads((POWER / "metadata/curated-skills.json").read_text())["skills"]
         if entry["name"] == name
     )
     shutil.copytree(POWER / entry["bundle_root"], tmp_path / entry["bundle_root"])
@@ -145,7 +145,7 @@ def test_curated_skill_modification_requires_updated_bundle_identity(
     for field in ("bundle_manifest", "source_parity", "provenance"):
         shutil.copyfile(POWER / entry[field], tmp_path / entry[field])
     count = json.loads((POWER / entry["bundle_manifest"]).read_text())["summary"]["file_count"]
-    (tmp_path / "docs/curated-skills.json").write_text(
+    (tmp_path / "metadata/curated-skills.json").write_text(
         json.dumps(
             {
                 "schema_version": 1,

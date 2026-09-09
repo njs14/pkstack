@@ -194,7 +194,11 @@
     ],
     "wiki": true
   },
-  "languages": {},
+  "languages": {
+    "python": [
+      "pyproject.toml"
+    ]
+  },
   "root": ".",
   "tests": [
     "pytest.ini",

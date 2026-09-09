@@ -174,7 +174,7 @@ python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
 node --test .github/scripts/test_pkstack_pr_policy.js
 actionlint .github/workflows/*.yml
 shellcheck .github/scripts/*.sh
-uv run --project powers/pkstack --frozen pytest \
+uv run --project . --frozen pytest \
   tests/test_upstreams.py \
   tests/test_release_metadata.py -q
 ```

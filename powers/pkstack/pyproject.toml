@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pkstack"
-version = "0.5.10"
+version = "0.5.11"
 description = "PKStack Kiro-native verified development Power and project control CLI"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -18,38 +18,5 @@ dependencies = [
   "agent-client-protocol==0.12.1",
 ]
 
-[dependency-groups]
-dev = [
-  "pytest>=8.4,<9",
-  "pytest-cov>=6.2,<7",
-  "ruff>=0.12,<0.14",
-  "ty>=0.0.1a20,<1",
-]
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/pkstack"]
-
-[tool.ruff]
-target-version = "py311"
-line-length = 100
-# Generated snapshots are compared byte for byte by the packaging tests.
-cache-dir = "../../.ruff_cache"
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-
-[tool.ruff.lint.per-file-ignores]
-# The setup entrypoint runs on the interpreter that is already present, before
-# uv provides one, so it must keep its own pre-3.11 version guard.
-"skills/pkstack-setup/scripts/setup_pkstack.py" = ["UP036"]
-
-[tool.ruff.format]
-quote-style = "double"
-
-[tool.ty.environment]
-python-version = "3.11"
-# The demo example is a standalone entrypoint with its own import root.
-root = ["src", "examples/verified-goal-demo"]
-
-[tool.ty.src]
-include = ["src", "examples", "skills/pkstack-setup/scripts"]

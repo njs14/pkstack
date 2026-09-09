@@ -5,9 +5,9 @@
     {
       "commit": "2b8ae2ee306f823d54879d3da7f8496b73c31d5d",
       "id": "cursor-pstack",
-      "parity_path": "powers/pkstack/docs/upstream-skill-parity.json",
+      "parity_path": "powers/pkstack/metadata/upstream-skill-parity.json",
       "path": "pstack",
-      "provenance_path": "powers/pkstack/docs/provenance.md",
+      "provenance_path": "powers/pkstack/provenance/provenance.md",
       "ref": "main",
       "repository": "cursor/plugins",
       "subtree_sha": "cf6f79b65a0608c77ab77ac8d4f22d440e96971a"
@@ -15,9 +15,9 @@
     {
       "commit": "3c2629142c5d437428269b1b722b08c0b87f574d",
       "id": "humanlayer-skills",
-      "parity_path": "powers/pkstack/docs/humanlayer-skills-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/humanlayer-skills-source-parity.json",
       "path": "plugins",
-      "provenance_path": "powers/pkstack/docs/humanlayer-skills-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/humanlayer-skills-provenance.md",
       "ref": "main",
       "repository": "humanlayer/skills",
       "subtree_sha": "1dd095000af2d0bb29986a9f11f97e3742feb2b3"
@@ -25,9 +25,9 @@
     {
       "commit": "ad30107c31c06aec8a7d5636e0d1058118604e6f",
       "id": "google-open-knowledge-format",
-      "parity_path": "powers/pkstack/docs/google-open-knowledge-format-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/google-open-knowledge-format-source-parity.json",
       "path": ".",
-      "provenance_path": "powers/pkstack/docs/google-open-knowledge-format-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/google-open-knowledge-format-provenance.md",
       "ref": "main",
       "repository": "GoogleCloudPlatform/open-knowledge-format",
       "subtree_sha": "d8b7583265ead834e3e7a3146ff7ce9a3533ddfe"
@@ -35,9 +35,9 @@
     {
       "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76",
       "id": "mattpocock-writing-for-agents",
-      "parity_path": "powers/pkstack/docs/mattpocock-writing-for-agents-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-writing-for-agents-source-parity.json",
       "path": "skills/productivity/writing-for-agents",
-      "provenance_path": "powers/pkstack/docs/mattpocock-writing-for-agents-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-writing-for-agents-provenance.md",
       "ref": "main",
       "repository": "mattpocock/skills",
       "subtree_sha": "ad2925850efb8973a72d2e666f7a975f9a2d4a9b"
@@ -45,9 +45,9 @@
     {
       "commit": "d8393f329c97836980566c1cf4e4aa4fe47dc111",
       "id": "okf-skills",
-      "parity_path": "powers/pkstack/docs/okf-skills-parity.json",
+      "parity_path": "powers/pkstack/metadata/okf-skills-parity.json",
       "path": "skills",
-      "provenance_path": "powers/pkstack/docs/okf-skills-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/okf-skills-provenance.md",
       "ref": "main",
       "repository": "scaccogatto/okf-skills",
       "subtree_sha": "21eb933ac68df2d2a81aedad6778970d71e99e8d"
@@ -55,9 +55,9 @@
     {
       "commit": "10722002bb8777ecb639d93c49586fae4adf3ae4",
       "id": "tt-a1i-archify",
-      "parity_path": "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/tt-a1i-archify-source-parity.json",
       "path": "archify",
-      "provenance_path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/tt-a1i-archify-provenance.md",
       "ref": "main",
       "repository": "tt-a1i/archify",
       "subtree_sha": "8aa4cadc3cde102db4009f23f951cb4cf1e28d61"
@@ -65,9 +65,9 @@
     {
       "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
       "id": "mattpocock-grilling",
-      "parity_path": "powers/pkstack/docs/mattpocock-grilling-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-grilling-source-parity.json",
       "path": "skills/productivity/grilling",
-      "provenance_path": "powers/pkstack/docs/mattpocock-grilling-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-grilling-provenance.md",
       "ref": "main",
       "repository": "mattpocock/skills",
       "subtree_sha": "f0732035b8b1b60ae39454e4191caef32fa91903"
@@ -75,9 +75,9 @@
     {
       "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
       "id": "mattpocock-grill-me",
-      "parity_path": "powers/pkstack/docs/mattpocock-grill-me-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-grill-me-source-parity.json",
       "path": "skills/productivity/grill-me",
-      "provenance_path": "powers/pkstack/docs/mattpocock-grill-me-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-grill-me-provenance.md",
       "ref": "main",
       "repository": "mattpocock/skills",
       "subtree_sha": "3df14e2d3a89459bf300614be9247e3ce74798f8"
@@ -85,9 +85,9 @@
     {
       "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
       "id": "mattpocock-domain-modeling",
-      "parity_path": "powers/pkstack/docs/mattpocock-domain-modeling-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-domain-modeling-source-parity.json",
       "path": "skills/engineering/domain-modeling",
-      "provenance_path": "powers/pkstack/docs/mattpocock-domain-modeling-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-domain-modeling-provenance.md",
       "ref": "main",
       "repository": "mattpocock/skills",
       "subtree_sha": "388c9822641805ca2dcd5038e68a1d5282437ee5"
@@ -95,9 +95,9 @@
     {
       "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
       "id": "mattpocock-grill-with-docs",
-      "parity_path": "powers/pkstack/docs/mattpocock-grill-with-docs-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-grill-with-docs-source-parity.json",
       "path": "skills/engineering/grill-with-docs",
-      "provenance_path": "powers/pkstack/docs/mattpocock-grill-with-docs-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-grill-with-docs-provenance.md",
       "ref": "main",
       "repository": "mattpocock/skills",
       "subtree_sha": "eedaf2562c83155115e9c649fa3ecaac2e10e81d"
@@ -105,9 +105,9 @@
     {
       "commit": "f3ce88a7ba830f53afd6d944c1d0278ed318e142",
       "id": "astral-python",
-      "parity_path": "powers/pkstack/docs/astral-python-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/astral-python-source-parity.json",
       "path": "plugins/astral",
-      "provenance_path": "powers/pkstack/docs/astral-python-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/astral-python-provenance.md",
       "ref": "main",
       "repository": "astral-sh/claude-code-plugins",
       "subtree_sha": "8cc1cb9f539f90fd98efa4be3857c6d74fd8d839"
@@ -115,9 +115,9 @@
     {
       "commit": "cd12f8660e2dde57b9615c8a6b8ea674101f9cfc",
       "id": "pbakaus-impeccable",
-      "parity_path": "powers/pkstack/docs/pbakaus-impeccable-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/pbakaus-impeccable-source-parity.json",
       "path": "skill",
-      "provenance_path": "powers/pkstack/docs/pbakaus-impeccable-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/pbakaus-impeccable-provenance.md",
       "ref": "main",
       "repository": "pbakaus/impeccable",
       "subtree_sha": "8616bb77f6f9544fc23e26c9e8cf2cc8b0ce7fb6"
@@ -125,9 +125,9 @@
     {
       "commit": "9f70e348e0227980de97e361cce830236fb18317",
       "id": "openai-babysit-pr",
-      "parity_path": "powers/pkstack/docs/openai-babysit-pr-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/openai-babysit-pr-source-parity.json",
       "path": ".codex/skills/babysit-pr",
-      "provenance_path": "powers/pkstack/docs/openai-babysit-pr-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/openai-babysit-pr-provenance.md",
       "ref": "main",
       "repository": "openai/codex",
       "subtree_sha": "930db390730c900f644d054e4a322fc865437c34"

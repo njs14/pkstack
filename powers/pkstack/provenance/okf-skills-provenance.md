@@ -8,7 +8,7 @@ methodology input. The accepted baseline is commit
 
 <!-- pk-stack-upstream-genesis: {"commit":"bf2448f03686a8348324e4741106697d30a867f9","path":"skills","repository":"scaccogatto/okf-skills","source_id":"okf-skills","subtree_sha":"8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"} -->
 
-The [machine-readable source parity](okf-skills-parity.json) binds every file in that tree to its
+The [machine-readable source parity](../metadata/okf-skills-parity.json) binds every file in that tree to its
 Git object identity and one A/B/C disposition. The readable companion explains the package-level
 decision. PKStack adapts only the durable knowledge-working methodology into native Kiro workflow
 semantics. It does not vendor or execute the upstream validator, backfill, visualizer, MCP server,

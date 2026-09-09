@@ -52,10 +52,12 @@ must repair links without rewriting historical source ledgers.
 
 The September 6 branding record says the owner selected Option 2, “Knowledge crest”: four
 distinct ghost figures, a book and linked knowledge tree. The TypeScript figure is an archetype,
-not a portrait, and HumanLayer's layered shape is a visual interpretation. Both inspected READMEs
-reference `assets/logo.png` at their respective relative paths. The consumer assets README identifies the current logo. Root `docs/assets/` retains
-the previous banner and mascot creation history, while root `docs/artifacts/` holds the
-unchanged diagram sources and previews. A design selection is not evidence of package behavior or endorsement
+not a portrait, and HumanLayer's layered shape is a visual interpretation. The repository README now
+references `docs/assets/logo.png`. The Power README ships no artwork. A compact
+512 by 512 JPG uses the scholarly ghost, book and knowledge branches for catalog
+or documentation presentation; it configures no Kiro manifest field. Root
+`docs/assets/` retains both images and their creation history, while root
+`docs/artifacts/` holds the unchanged diagram sources and previews. A design selection is not evidence of package behavior or endorsement
 by the depicted projects.
 
 
@@ -94,9 +96,9 @@ original candidate and scope; they are not fresh verification of this checkout.
 | --- | --- |
 | [docs/assets/creation-history.md](../../../docs/assets/creation-history.md) | Identifies the current four-ghost Knowledge crest and retains the earlier mascot/banner provenance as history. |
 | [docs/artifacts/README.md](../../../docs/artifacts/README.md) | Editable JSON, interactive HTML and static previews explain component/planning/updater boundaries at a recorded source snapshot; diagrams are not executable proof. |
-| [powers/pkstack/docs/tt-a1i-archify-provenance.md](../../../powers/pkstack/docs/tt-a1i-archify-provenance.md) | Original upstream bytes and adapted runtime bytes remain separately bound, including local caption/viewport/transport patches and reviewed upstream parser/watcher corrections. |
+| [powers/pkstack/provenance/tt-a1i-archify-provenance.md](../../../powers/pkstack/provenance/tt-a1i-archify-provenance.md) | Original upstream bytes and adapted runtime bytes remain separately bound, including local caption/viewport/transport patches and reviewed upstream parser/watcher corrections. |
 | [reviews/branding-ghost-options/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/branding-ghost-options/README.md) | The owner selected Option 2 Knowledge crest on September 6; four separate ghosts and a linked book/tree explain the theme without implying portraits or endorsement. |
 | [reviews/release-030-archify.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-archify.md) | Unchanged-input reproductions exposed caption collisions and mobile toolbar overflow; render and validation geometry must agree and visual checks remain separate from provenance. |
 
-The [consumer logo description](../../../powers/pkstack/assets/README.md) is bundled
-with the current image and links back to repository attribution.
+The [repository artwork guide](../../../docs/assets/README.md) distinguishes the
+README crest from the compact JPG and records why neither belongs in the Power.

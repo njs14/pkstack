@@ -81,7 +81,7 @@ def test_extracted_power_assets_and_offline_bootstrap_runtime(tmp_path: Path) ->
         extracted / "README.md",
         extracted / "THIRD_PARTY_NOTICES.md",
         *extracted.glob("docs/*.md"),
-        *extracted.glob("assets/*.md"),
+        *extracted.glob("provenance/*.md"),
     ):
         tokens = list(MarkdownIt("commonmark").parse(document.read_text()))
         while tokens:

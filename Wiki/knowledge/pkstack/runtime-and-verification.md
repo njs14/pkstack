@@ -137,7 +137,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 | Source | Retained guidance or bounded observation |
 | --- | --- |
 | [docs/architecture.md](../../../docs/architecture.md) | Kiro owns execution while projectctl owns commands and proof; shell-free verification and unsigned ownership receipts do not constitute a sandbox or semantic truth. |
-| [powers/pkstack/docs/kiro-v3-compatibility.md](../../../powers/pkstack/docs/kiro-v3-compatibility.md) | Separate documentation, command recognition, native execution, and client-specific evidence; selected Auto does not reveal its underlying model and Crew/Web have narrower evidence. |
+| [docs/kiro-v3-compatibility.md](../../../docs/kiro-v3-compatibility.md) | Separate documentation, command recognition, native execution, and client-specific evidence; selected Auto does not reveal its underlying model and Crew/Web have narrower evidence. |
 | [reviews/acceptance-criteria.md](../../../reviews/acceptance-criteria.md) | Historical disposition ledger ties environment isolation, JSON parsing, path checks, profile attachment, and proof-policy corrections to reproducible acceptance tests. |
 | [reviews/fable-round-1.md](../../../reviews/fable-round-1.md) | FBL-001 through FBL-004 motivate rejecting placeholder/self proof, complete controller permission coverage, loadable resume state, and external setup authority; older snapshot was rejected. |
 | [reviews/fable-round-2.md](../../../reviews/fable-round-2.md) | FBL-012/013 show why open-ended Git allow globs and an unselected primary profile invalidate permission claims; read-only source review was not live matcher proof. |

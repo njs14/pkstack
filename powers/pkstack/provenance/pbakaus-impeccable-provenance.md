@@ -29,9 +29,9 @@ built-in skill creator is a host capability and is not a bundled Kiro dependency
 
 ## Exact inventories
 
-The [source inventory](pbakaus-impeccable-source-parity.json) binds all 51 regular blobs to the exact
+The [source inventory](../metadata/pbakaus-impeccable-source-parity.json) binds all 51 regular blobs to the exact
 Git subtree `90d9f3c53a7fb64b44d0411bc0858a111c4aac23` and records A (adapt), B (exclude), or C (provenance) for each.
-The [bundle manifest](pbakaus-impeccable-bundle-manifest.json) binds every shipped local file by path, mode,
+The [bundle manifest](../metadata/pbakaus-impeccable-bundle-manifest.json) binds every shipped local file by path, mode,
 size, and SHA-256. This is a new source genesis, not a transition of an existing source.
 Existing upstream pins and accepted histories remain unchanged.
 

@@ -170,12 +170,12 @@ def test_retired_openknowledge_contract_keeps_historical_evidence_outside_active
         (REPOSITORY_ROOT / "maintenance" / "upstream-reviews.json").read_text(encoding="utf-8")
     )
     parity = json.loads(
-        (REPOSITORY_ROOT / "powers/pkstack/docs/openknowledge-cli-contract-parity.json").read_text(
-            encoding="utf-8"
-        )
+        (
+            REPOSITORY_ROOT / "powers/pkstack/metadata/openknowledge-cli-contract-parity.json"
+        ).read_text(encoding="utf-8")
     )
     provenance = (
-        REPOSITORY_ROOT / "powers/pkstack/docs/openknowledge-cli-contract-provenance.md"
+        REPOSITORY_ROOT / "powers/pkstack/provenance/openknowledge-cli-contract-provenance.md"
     ).read_text(encoding="utf-8")
     source_id = "openknowledge-cli-contract"
     assert all(source["id"] != source_id for source in manifest["sources"])
@@ -206,9 +206,9 @@ def _assert_openknowledge_contract_scope(
     assert manifest_source == {
         **active,
         "id": source_id,
-        "parity_path": "powers/pkstack/docs/openknowledge-cli-contract-parity.json",
+        "parity_path": "powers/pkstack/metadata/openknowledge-cli-contract-parity.json",
         "path": "packages/cli/schemas/v1",
-        "provenance_path": "powers/pkstack/docs/openknowledge-cli-contract-provenance.md",
+        "provenance_path": "powers/pkstack/provenance/openknowledge-cli-contract-provenance.md",
         "ref": "main",
         "repository": "openknowledge-sh/openknowledge",
     }
@@ -289,8 +289,8 @@ def test_openknowledge_contract_scope_allows_revision_and_inventory_changes(acce
         "ref": "main",
         "commit": PIN,
         "subtree_sha": PIN_TREE,
-        "parity_path": "powers/pkstack/docs/openknowledge-cli-contract-parity.json",
-        "provenance_path": "powers/pkstack/docs/openknowledge-cli-contract-provenance.md",
+        "parity_path": "powers/pkstack/metadata/openknowledge-cli-contract-parity.json",
+        "provenance_path": "powers/pkstack/provenance/openknowledge-cli-contract-provenance.md",
     }
     prior = {"commit": PIN, "subtree_sha": PIN_TREE}
     new = {"commit": HEAD, "subtree_sha": HEAD_TREE}
@@ -361,8 +361,8 @@ def _manifest() -> dict[str, Any]:
                 "ref": "main",
                 "commit": PIN,
                 "subtree_sha": PIN_TREE,
-                "provenance_path": "powers/pkstack/docs/provenance.md",
-                "parity_path": "powers/pkstack/docs/upstream-skill-parity.json",
+                "provenance_path": "powers/pkstack/provenance/provenance.md",
+                "parity_path": "powers/pkstack/metadata/upstream-skill-parity.json",
             }
         ],
     }
@@ -376,8 +376,8 @@ def _ledger() -> dict[str, Any]:
                 "id": "cursor-pstack",
                 "repository": "cursor/plugins",
                 "path": "pstack",
-                "provenance_path": "powers/pkstack/docs/provenance.md",
-                "parity_path": "powers/pkstack/docs/upstream-skill-parity.json",
+                "provenance_path": "powers/pkstack/provenance/provenance.md",
+                "parity_path": "powers/pkstack/metadata/upstream-skill-parity.json",
                 "genesis": {"commit": PIN, "subtree_sha": PIN_TREE},
                 "transitions": [],
             }
@@ -393,7 +393,7 @@ def _write_ledger(root: Path, document: Any | None = None) -> None:
 
 def _write_manifest(root: Path, document: Any | None = None) -> None:
     manifest = _manifest() if document is None else document
-    provenance = root / "powers" / "pkstack" / "docs" / "provenance.md"
+    provenance = root / "powers" / "pkstack" / "provenance" / "provenance.md"
     provenance.parent.mkdir(parents=True, exist_ok=True)
     sources = manifest.get("sources") if isinstance(manifest, dict) else None
     source = sources[0] if isinstance(sources, list) and sources else _manifest()["sources"][0]
@@ -495,7 +495,7 @@ def _marker_line(kind: str, marker: dict[str, Any]) -> str:
 
 
 def _write_provenance_marker(root: Path, transition: dict[str, Any]) -> None:
-    provenance = root / "powers" / "pkstack" / "docs" / "provenance.md"
+    provenance = root / "powers" / "pkstack" / "provenance" / "provenance.md"
     with provenance.open("a", encoding="utf-8") as handle:
         handle.write(_marker_line("review", _provenance_marker(transition)) + "\n")
 
@@ -506,7 +506,7 @@ def _rewrite_provenance_markers(
     *,
     genesis: dict[str, Any] | None = None,
 ) -> None:
-    provenance = root / "powers" / "pkstack" / "docs" / "provenance.md"
+    provenance = root / "powers" / "pkstack" / "provenance" / "provenance.md"
     identity = {"commit": PIN, "subtree_sha": PIN_TREE} if genesis is None else genesis
     lines = [
         "# Provenance",
@@ -538,7 +538,7 @@ def _write_proposal(root: Path, document: Any, *, bind_provenance: bool = True) 
 
 
 def _provenance_marker_lines(root: Path) -> list[str]:
-    provenance = root / "powers" / "pkstack" / "docs" / "provenance.md"
+    provenance = root / "powers" / "pkstack" / "provenance" / "provenance.md"
     return [
         line
         for line in provenance.read_text(encoding="utf-8").splitlines()
@@ -679,7 +679,7 @@ def _skill_parity_document() -> dict[str, Any]:
 
 
 def _write_skill_parity(root: Path, document: Any | None = None) -> Path:
-    path = root / "powers" / "pkstack" / "docs" / "upstream-skill-parity.json"
+    path = root / "powers" / "pkstack" / "metadata" / "upstream-skill-parity.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = _skill_parity_document() if document is None else document
     if document is None:
@@ -700,7 +700,7 @@ def _write_skill_parity(root: Path, document: Any | None = None) -> Path:
             for entry in payload["skills"]
             if entry["target"] is not None
         }
-        curated_path = root / "powers" / "pkstack" / "docs" / "curated-skills.json"
+        curated_path = root / "powers" / "pkstack" / "metadata" / "curated-skills.json"
         curated_names: set[str] = set()
         if curated_path.is_file():
             curated = json.loads(curated_path.read_text(encoding="utf-8"))
@@ -963,8 +963,8 @@ def _compare_source() -> upstreams.UpstreamSource:
         ref="main",
         commit=PIN,
         subtree_sha=PIN_TREE,
-        provenance_path="powers/pkstack/docs/provenance.md",
-        parity_path="powers/pkstack/docs/upstream-skill-parity.json",
+        provenance_path="powers/pkstack/provenance/provenance.md",
+        parity_path="powers/pkstack/metadata/upstream-skill-parity.json",
     )
 
 
@@ -2764,7 +2764,7 @@ def test_check_rejects_tampered_provenance_after_review_acceptance(tmp_path: Pat
     responses = _fake_responses()
     baseline = check_upstreams(tmp_path, fetch_json=FakeFetch(responses), environ={})
     _advance_review(tmp_path, baseline["sources"][0]["comparison"]["inventory_sha256"])
-    provenance = tmp_path / "powers" / "pkstack" / "docs" / "provenance.md"
+    provenance = tmp_path / "powers" / "pkstack" / "provenance" / "provenance.md"
     provenance.write_text("# Stale provenance\n", encoding="utf-8")
 
     with pytest.raises(UpstreamError, match="provenance review markers"):
@@ -2845,7 +2845,7 @@ def test_genesis_ledger_rejects_unaccepted_provenance_marker(tmp_path: Path) -> 
 
 def test_genesis_ledger_rejects_malformed_provenance_marker(tmp_path: Path) -> None:
     _write_manifest(tmp_path)
-    provenance = tmp_path / "powers" / "pkstack" / "docs" / "provenance.md"
+    provenance = tmp_path / "powers" / "pkstack" / "provenance" / "provenance.md"
     provenance.write_text(
         "# Provenance\n<!-- pk-stack-upstream-review: not-json -->\n",
         encoding="utf-8",
@@ -2877,8 +2877,8 @@ def test_provenance_markers_bind_full_ordered_transition_history(tmp_path: Path)
         ref="main",
         commit="c" * 40,
         subtree_sha="d" * 40,
-        provenance_path="powers/pkstack/docs/provenance.md",
-        parity_path="powers/pkstack/docs/upstream-skill-parity.json",
+        provenance_path="powers/pkstack/provenance/provenance.md",
+        parity_path="powers/pkstack/metadata/upstream-skill-parity.json",
     )
     provenance = tmp_path / source.provenance_path
 
@@ -3010,8 +3010,8 @@ def test_remote_review_reproof_cost_is_constant_at_maximum_history() -> None:
             ref="main",
             commit=commits[-1],
             subtree_sha=subtrees[-1],
-            provenance_path="powers/pkstack/docs/provenance.md",
-            parity_path="powers/pkstack/docs/upstream-skill-parity.json",
+            provenance_path="powers/pkstack/provenance/provenance.md",
+            parity_path="powers/pkstack/metadata/upstream-skill-parity.json",
         )
         review = upstreams.UpstreamReview(
             source_id=source.source_id,
@@ -3192,7 +3192,7 @@ def test_manifest_rejects_duplicate_keys_ids_and_symlinked_provenance(tmp_path: 
 
     outside = tmp_path.parent / f"{tmp_path.name}-outside.md"
     outside.write_text("outside\n", encoding="utf-8")
-    provenance = tmp_path / "powers" / "pkstack" / "docs" / "provenance.md"
+    provenance = tmp_path / "powers" / "pkstack" / "provenance" / "provenance.md"
     provenance.unlink()
     provenance.symlink_to(outside)
     _write_manifest(tmp_path)
@@ -3312,7 +3312,7 @@ def test_accept_dry_run_then_atomic_accept_leaves_no_ephemeral_residue(tmp_path:
     assert final["ok"] is True
     assert len(json.dumps(final, sort_keys=True).encode("utf-8")) <= 32 * 1024
 
-    parity_path = tmp_path / "powers" / "pkstack" / "docs" / "upstream-skill-parity.json"
+    parity_path = tmp_path / "powers" / "pkstack" / "metadata" / "upstream-skill-parity.json"
     parity_before = parity_path.read_bytes()
     parity = json.loads(parity_before)
     parity["source"]["pinned"] = {"commit": HEAD, "pstack_subtree_sha": HEAD_TREE}
@@ -3579,7 +3579,7 @@ def test_second_transition_accepts_one_proposal_bound_marker_tail(tmp_path: Path
             environ={},
         )
 
-    parity_path = tmp_path / "powers" / "pkstack" / "docs" / "upstream-skill-parity.json"
+    parity_path = tmp_path / "powers" / "pkstack" / "metadata" / "upstream-skill-parity.json"
     parity = json.loads(parity_path.read_text(encoding="utf-8"))
     parity["source"]["pinned"] = {"commit": HEAD, "pstack_subtree_sha": HEAD_TREE}
     parity["source"]["current"] = {"commit": FUTURE, "pstack_subtree_sha": FUTURE_TREE}

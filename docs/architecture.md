@@ -317,7 +317,7 @@ of this repository.
 
 - [Usage and recovery](../powers/pkstack/docs/usage.md)
 - [Kiro surface compatibility](../powers/pkstack/docs/kiro-v3-compatibility.md)
-- [Upstream skill parity](../powers/pkstack/docs/upstream-skill-parity.md)
-- [Porting provenance](../powers/pkstack/docs/provenance.md)
+- [Upstream skill parity](../powers/pkstack/provenance/upstream-skill-parity.md)
+- [Porting provenance](../powers/pkstack/provenance/provenance.md)
 - [Validation report](validation-report.md)
 - [Current release status](../Wiki/knowledge/pkstack/release-record.md)

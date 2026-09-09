@@ -64,7 +64,7 @@ class CoverageTests(unittest.TestCase):
                 "run",
                 "--frozen",
                 "--project",
-                str(ROOT / "powers/pkstack"),
+                str(ROOT),
                 "python",
                 "-B",
                 str(ROOT / ".github/scripts/pkstack_knowledge_coverage.py"),

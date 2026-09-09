@@ -247,7 +247,7 @@
     "source_id": "cursor-pstack",
     "repository": "cursor/plugins",
     "path": "pstack",
-    "provenance_path": "powers/pk-stack/docs/provenance.md",
+    "provenance_path": "powers/pk-stack/provenance/provenance.md",
     "prior": {
       "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
       "subtree_sha": "1c625329e71538629f087374daa71293a498089f"
@@ -282,7 +282,7 @@
     "limitation": "The acceptance dry-run and apply completed before attempt 2, but their raw command outputs were not retained in this bounded artifact. This record therefore relies on the canonical transition and post-accept reproof and does not invent call ids, output hashes, or a command spelling."
   },
   "parity": {
-    "path": "powers/pk-stack/docs/upstream-skill-parity.json",
+    "path": "powers/pk-stack/metadata/upstream-skill-parity.json",
     "source_pinned": {
       "commit": "efa2a531985e0a8084d36ff3cf87233be8a9f34b",
       "pstack_subtree_sha": "1c625329e71538629f087374daa71293a498089f"

@@ -509,7 +509,7 @@ requires a reviewed exact head and an explicit dry run before applying:
 
 Do not treat a drift result, historical campaign, or reviewer report as a
 current release pass. See the [upstream feature contract](https://github.com/njs14/pkstack/blob/main/Wiki/features/pkstack-upstream-maintenance.md)
-for the scope and [provenance](provenance.md) for source identities.
+for the scope and [provenance](../provenance/provenance.md) for source identities.
 
 ## Recovery
 
@@ -534,8 +534,8 @@ workspace or rewrite user-owned Wiki material as a cleanup shortcut.
 
 - [Architecture and trust boundaries](https://github.com/njs14/pkstack/blob/main/docs/architecture.md)
 - [Kiro surface compatibility](kiro-v3-compatibility.md)
-- [Upstream skill parity](upstream-skill-parity.md)
-- [Provenance and porting boundary](provenance.md)
+- [Upstream skill parity](../provenance/upstream-skill-parity.md)
+- [Provenance and porting boundary](../provenance/provenance.md)
 - [Validation report](https://github.com/njs14/pkstack/blob/main/docs/validation-report.md)
 - [Review harness](https://github.com/njs14/pkstack/blob/main/reviews/README.md)
 - [Release status and validation evidence](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/release-record.md)

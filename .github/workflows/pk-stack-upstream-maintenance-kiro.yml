@@ -358,7 +358,7 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-          cache-dependency-glob: powers/pkstack/uv.lock
+          cache-dependency-glob: uv.lock
       - name: Materialize locked environments and trusted scripts
         run: |
           set -euo pipefail
@@ -373,7 +373,7 @@ jobs:
             .github/workflows \
             .kiro/agents \
             | tar -x -C "$TRUSTED_ROOT"
-          uv sync --quiet --locked --all-groups --project powers/pkstack
+          uv sync --quiet --locked --all-groups --project .
           UV_PROJECT_ENVIRONMENT="$TRUSTED_PROJECTCTL_ROOT/.venv" \
             uv sync --quiet --locked --no-config --project "$TRUSTED_PROJECTCTL_ROOT"
           python3 "$GUARD_PATH" validate-detector --detector "$DETECTOR_PATH"

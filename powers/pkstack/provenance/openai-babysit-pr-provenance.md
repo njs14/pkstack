@@ -34,9 +34,9 @@ are unchanged. Native observations and their limits are retained in the reposito
 
 ## Exact inventories
 
-The [source inventory](openai-babysit-pr-source-parity.json) binds all 6 regular blobs to the exact
+The [source inventory](../metadata/openai-babysit-pr-source-parity.json) binds all 6 regular blobs to the exact
 Git subtree `930db390730c900f644d054e4a322fc865437c34` and records A (adapt), B (exclude), or C (provenance) for each.
-The [bundle manifest](openai-babysit-pr-bundle-manifest.json) binds every shipped local file by path, mode,
+The [bundle manifest](../metadata/openai-babysit-pr-bundle-manifest.json) binds every shipped local file by path, mode,
 size, and SHA-256. This is a new source genesis, not a transition of an existing source.
 Existing upstream pins and accepted histories remain unchanged.
 

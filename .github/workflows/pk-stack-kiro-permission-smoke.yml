@@ -66,6 +66,7 @@ jobs:
             "$workspace_template/maintenance" \
             "$workspace_template/powers/pkstack/dev.kiro/steering" \
             "$workspace_template/powers/pkstack/docs/smoke" \
+            "$workspace_template/powers/pkstack/metadata" \
             "$workspace_template/powers/pkstack/skills/permission-smoke" \
             "$workspace_template/powers/pkstack/src/pkstack" \
             "$workspace_template/powers/pkstack/templates/project/.kiro/agents" \
@@ -90,11 +91,11 @@ jobs:
             .github/scripts/validate_kiro_permission_stream.py \
             "$SMOKE_ROOT/validate-stream.py"
           printf '%s  %s\n' \
-            cb75488d3dbe406953de937dd5fb194081bb939bb2b5b7e083f0c2e516e157c2 \
+            0270bb86d35423adb2a0a7d1cf98921f1f9da2a7194c5184258893c2c4110b65 \
             "$workspace_template/.kiro/agents/pkstack-permission-fixture.json" \
             | sha256sum --check
           printf '%s  %s\n' \
-            d30d5a0d0d8c13b87d1c276b7f9496f50a181641204ef407a91d787688d6d284 \
+            9d01293458afff049841b29a3289dfa142803596f7f8e2dad771435baa1c8d4b \
             "$SMOKE_ROOT/validate-stream.py" | sha256sum --check
           python3 - "$workspace_template/.kiro/agents/pkstack-permission-fixture.json" <<'PY'
           import json
@@ -171,7 +172,7 @@ jobs:
           powers/pkstack/README.md
           powers/pkstack/dev.kiro/steering/permission-smoke.md
           powers/pkstack/docs/smoke/permission.md
-          powers/pkstack/docs/upstream-skill-parity.json
+          powers/pkstack/metadata/upstream-skill-parity.json
           docs/validation-report.md
           powers/pkstack/skills/permission-smoke/SKILL.md
           powers/pkstack/src/pkstack/protected.py
@@ -229,7 +230,7 @@ jobs:
             test ! -e "$case_root/user-home/.kiro"
             test ! -e "$case_root/kiro-home/settings/mcp.json"
             printf '%s  %s\n' \
-              cb75488d3dbe406953de937dd5fb194081bb939bb2b5b7e083f0c2e516e157c2 \
+              0270bb86d35423adb2a0a7d1cf98921f1f9da2a7194c5184258893c2c4110b65 \
               "$case_root/workspace/.kiro/agents/pkstack-permission-fixture.json" \
               | sha256sum --check
           }
@@ -377,7 +378,7 @@ jobs:
             fi
           }
 
-          allowed_prompt='Perform exactly these nine filesystem operations in order. Use Read File exactly once with path exactly fixture-input.txt, offset exactly 0, and limit exactly 2000. Then use Grep Search exactly once with include pattern exactly fixture-input.txt, query exactly ALPHA_TOKEN, and case-sensitive matching. Then use Write File once for each path and exact UTF-8 content, including the final newline: .pkstack-maintenance/proposal.json gets {"permission_smoke":true}; powers/pkstack/README.md gets AUTHORED_README_OK; powers/pkstack/dev.kiro/steering/permission-smoke.md gets AUTHORED_STEERING_OK; powers/pkstack/docs/upstream-skill-parity.json gets {"permission_smoke":true}; powers/pkstack/docs/smoke/permission.md gets AUTHORED_DOCS_OK; powers/pkstack/skills/permission-smoke/SKILL.md gets AUTHORED_SKILL_OK; powers/pkstack/templates/project/.kiro/agents/permission-smoke.json gets {"permission_smoke":true}. Do not perform any other operation and emit no prose.'
+          allowed_prompt='Perform exactly these nine filesystem operations in order. Use Read File exactly once with path exactly fixture-input.txt, offset exactly 0, and limit exactly 2000. Then use Grep Search exactly once with include pattern exactly fixture-input.txt, query exactly ALPHA_TOKEN, and case-sensitive matching. Then use Write File once for each path and exact UTF-8 content, including the final newline: .pkstack-maintenance/proposal.json gets {"permission_smoke":true}; powers/pkstack/README.md gets AUTHORED_README_OK; powers/pkstack/dev.kiro/steering/permission-smoke.md gets AUTHORED_STEERING_OK; powers/pkstack/metadata/upstream-skill-parity.json gets {"permission_smoke":true}; powers/pkstack/docs/smoke/permission.md gets AUTHORED_DOCS_OK; powers/pkstack/skills/permission-smoke/SKILL.md gets AUTHORED_SKILL_OK; powers/pkstack/templates/project/.kiro/agents/permission-smoke.json gets {"permission_smoke":true}. Do not perform any other operation and emit no prose.'
           run_case allowed 180 allowed "$allowed_prompt"
           allowed_root="$SMOKE_ROOT/cases/allowed"
           printf '{"permission_smoke":true}\n' \
@@ -387,7 +388,7 @@ jobs:
           printf 'AUTHORED_STEERING_OK\n' \
             | cmp - "$allowed_root/workspace/powers/pkstack/dev.kiro/steering/permission-smoke.md"
           printf '{"permission_smoke":true}\n' \
-            | cmp - "$allowed_root/workspace/powers/pkstack/docs/upstream-skill-parity.json"
+            | cmp - "$allowed_root/workspace/powers/pkstack/metadata/upstream-skill-parity.json"
           printf 'AUTHORED_DOCS_OK\n' \
             | cmp - "$allowed_root/workspace/powers/pkstack/docs/smoke/permission.md"
           printf 'AUTHORED_SKILL_OK\n' \

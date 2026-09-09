@@ -15,8 +15,8 @@ EXPECTED_BODIES = {
     (".github/scripts/run_kiro_maintenance_attempt.sh", 15),
     (".github/scripts/verify_pkstack_attempt.sh", 128),
     (".github/scripts/verify_pkstack_attempt.sh", 399),
-    (".github/workflows/pk-stack-kiro-permission-smoke.yml", 99),
-    (".github/workflows/pk-stack-kiro-permission-smoke.yml", 240),
+    (".github/workflows/pk-stack-kiro-permission-smoke.yml", 100),
+    (".github/workflows/pk-stack-kiro-permission-smoke.yml", 241),
     (".github/workflows/pk-stack-upstream-maintenance-kiro.yml", 221),
 }
 

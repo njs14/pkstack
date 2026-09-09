@@ -42,7 +42,15 @@ POWER_ROOT = Path(__file__).resolve().parents[1] / "powers" / "pkstack"
 
 
 def _copy_power_fixture(destination: Path) -> None:
-    for relative in ("src/pkstack", "skills", "dev.kiro", "templates", "docs"):
+    for relative in (
+        "src/pkstack",
+        "skills",
+        "dev.kiro",
+        "templates",
+        "docs",
+        "metadata",
+        "provenance",
+    ):
         shutil.copytree(POWER_ROOT / relative, destination / relative)
 
 
@@ -305,7 +313,7 @@ def test_retired_managed_asset_is_reported_until_explicitly_removed(tmp_path: Pa
     retired = power_v1 / "skills" / "retired" / "SKILL.md"
     retired.parent.mkdir()
     retired.write_text("---\nname: retired\ndescription: Retired.\n---\n", encoding="utf-8")
-    parity_path = power_v1 / "docs" / "upstream-skill-parity.json"
+    parity_path = power_v1 / "metadata" / "upstream-skill-parity.json"
     parity = json.loads(parity_path.read_text(encoding="utf-8"))
     parity["pk_only_skills"] = sorted([*parity["pk_only_skills"], "retired"])
     parity["summary"]["shipped_skill_directories"] += 1

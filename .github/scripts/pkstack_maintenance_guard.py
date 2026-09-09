@@ -3368,7 +3368,7 @@ def _review_affected_paths(paths: list[str]) -> list[str]:
         or path
         in {
             "powers/pkstack/docs/curated-skills.md",
-            "powers/pkstack/docs/curated-skills.json",
+            "powers/pkstack/metadata/curated-skills.json",
         }
     ]
 
@@ -3782,7 +3782,7 @@ def _build_source_inventory_context(
     """Keep complete changed records: a short diff can omit their upstream path."""
     context = []
     for path in paths:
-        if not path.startswith("powers/pkstack/docs/") or not path.endswith("parity.json"):
+        if not path.startswith("powers/pkstack/metadata/") or not path.endswith("parity.json"):
             continue
         inventories = []
         for commit in (base_sha, head_sha):

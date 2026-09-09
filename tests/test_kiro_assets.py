@@ -25,11 +25,11 @@ SKILLS = ROOT / "skills"
 AGENTS = ROOT / "templates" / "project" / ".kiro" / "agents"
 HOOKS = ROOT / "templates" / "project" / ".kiro" / "hooks"
 STEERING = ROOT / "dev.kiro" / "steering"
-PARITY_PATH = ROOT / "docs" / "upstream-skill-parity.json"
+PARITY_PATH = ROOT / "metadata" / "upstream-skill-parity.json"
 PARITY = json.loads(PARITY_PATH.read_text(encoding="utf-8"))
 PARITY_SKILLS = PARITY["skills"]
 PK_ONLY_SKILLS = set(PARITY["pk_only_skills"])
-CURATED_REGISTRY_PATH = ROOT / "docs" / "curated-skills.json"
+CURATED_REGISTRY_PATH = ROOT / "metadata" / "curated-skills.json"
 CURATED_REGISTRY = json.loads(CURATED_REGISTRY_PATH.read_text(encoding="utf-8"))
 CURATED_SKILLS = {entry["name"] for entry in CURATED_REGISTRY["skills"]}
 ROUTING_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "skill-routing.json"
@@ -457,7 +457,7 @@ def test_upstream_skill_parity_inventory_is_complete_and_rendered() -> None:
     )
     assert len(EXPECTED_SKILLS - CURATED_SKILLS) == PARITY["summary"]["shipped_skill_directories"]
 
-    rendered = (ROOT / "docs" / "upstream-skill-parity.md").read_text(encoding="utf-8")
+    rendered = (ROOT / "provenance" / "upstream-skill-parity.md").read_text(encoding="utf-8")
     assert r"\n|" not in rendered
     rows = [line for line in rendered.splitlines() if line.startswith("| `")]
     assert len(rows) == len(PARITY_SKILLS)

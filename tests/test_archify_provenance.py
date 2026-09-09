@@ -21,10 +21,10 @@ ADAPTED_PATHS = {
 
 
 def _artifacts() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
-    docs = POWER / "docs"
+    docs = POWER / "metadata"
     bundle = json.loads((docs / "tt-a1i-archify-bundle-manifest.json").read_text())
     inventory = json.loads((docs / "tt-a1i-archify-source-parity.json").read_text())
-    provenance = (docs / "tt-a1i-archify-provenance.md").read_text()
+    provenance = (POWER / "provenance/tt-a1i-archify-provenance.md").read_text()
     records = re.findall(r"^```json\n(.*?)^```$", provenance, re.MULTILINE | re.DOTALL)
     patches = re.findall(r"^```diff\n(.*?)^```$", provenance, re.MULTILINE | re.DOTALL)
     assert len(records) == len(patches) == 1

@@ -29,13 +29,13 @@ the Power. Keep this environment setting for `uv sync`, lint, and test commands:
 
 ```sh
 export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
-uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local full
+uv run --frozen --project . python -B .github/scripts/pkstack_checks.py local full
 ```
 
-The command prints a fresh evidence directory containing its plan, lane receipts,
-logs, and aggregate summary. Retain that packet with the candidate commit, exit
-status, test counts, and limitations. This is the same partitioned command contract
-used by CI; avoid maintaining a second checklist of individual test commands here.
+The command prints a fresh evidence directory containing one summary and failure
+diagnostics. Retain that packet with the candidate commit, exit status, test counts,
+and limitations. Local and hosted checks use the same execution functions; avoid
+maintaining a second checklist of individual test commands here.
 The full profile covers package and repository tests, metadata/lock consistency,
 static checks, policy checks, and generated/distribution contracts.
 

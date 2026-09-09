@@ -13,7 +13,7 @@ baseline is commit `fbbc7975388288244dfc62aea0066600b25b7c47`, whose `okf/` tree
 
 <!-- pk-stack-upstream-genesis: {"commit":"fbbc7975388288244dfc62aea0066600b25b7c47","path":"okf","repository":"GoogleCloudPlatform/knowledge-catalog","source_id":"google-okf-spec","subtree_sha":"a8cc7ed0f4ec6bb6019da9b8ace51e3e6dafd06f"} -->
 
-The [machine-readable source parity](okf-spec-source-parity.json) accounts for every file in the
+The [machine-readable source parity](../metadata/okf-spec-source-parity.json) accounts for every file in the
 tree. Only `SPEC.md` is classified as the normative semantic source. `README.md` and `LICENSE.md`
 are retained as provenance, while implementations, fixtures, generated results, and examples are
 explicitly excluded from PKStack's runtime. Nothing from the tracked tree is executed or vendored.
