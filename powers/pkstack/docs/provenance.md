@@ -297,7 +297,7 @@ Names such as Cursor, Kiro, pstack, Cyclopts, PyYAML, Fable, Grok, and OKF are
 used only to identify compatibility, provenance, or optional integrations. No
 trademark license, endorsement, or affiliation is claimed.
 
-The private repository's generated potato-ghost mascot is the one deliberate visual exception to
+The repository's generated potato-ghost mascot is the one deliberate visual exception to
 the otherwise independent implementation boundary: it uses the installed Kiro app icon as an
 image-generation reference at the project owner's request. The source icon is not shipped, but the
 result intentionally echoes its silhouette and purple rounded-square presentation. Generation
