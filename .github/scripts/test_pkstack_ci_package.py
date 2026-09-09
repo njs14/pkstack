@@ -81,6 +81,7 @@ class FakeGitHub:
             "repository": {"id": REPOSITORY_ID},
             "head_repository": {"id": REPOSITORY_ID},
         }
+        self.commit = commit
         self.runs = [{"id": RUN}]
         self.jobs = [
             {
@@ -109,6 +110,34 @@ class FakeGitHub:
         self.artifacts = [self.artifact]
         self.downloads = 0
         self.after_download = lambda: None
+        self.after_asset_download = lambda: None
+        self.release = {
+            "id": 321,
+            "tag_name": "v0.3.0",
+            "draft": False,
+            "prerelease": False,
+            "html_url": f"https://github.com/{REPOSITORY}/releases/tag/v0.3.0",
+        }
+        contents = package.unpack_zip(raw)
+        archive = contents["package.tar.gz"]
+        self.asset_bytes = {
+            1001: archive,
+            1002: f"{package.sha256(archive)}  pkstack-v0.3.0.tar.gz\n".encode(),
+        }
+        self.assets = [
+            {
+                "id": asset_id,
+                "name": name,
+                "state": "uploaded",
+                "size": len(self.asset_bytes[asset_id]),
+                "digest": f"sha256:{package.sha256(self.asset_bytes[asset_id])}",
+                "download_count": 0,
+            }
+            for asset_id, name in [
+                (1001, "pkstack-v0.3.0.tar.gz"),
+                (1002, "pkstack-v0.3.0.tar.gz.sha256"),
+            ]
+        ]
 
     def present_tag(self) -> dict[str, Any]:
         """The tag fixture, for cases that mutate a tag they keep present."""
@@ -129,13 +158,17 @@ class FakeGitHub:
             result = self.tag
         elif relative.startswith("/git/tags/"):
             result = {"object": {"type": "commit", "sha": self.run["head_sha"]}}
+        elif relative == "/releases/tags/v0.3.0":
+            result = self.release
+        elif relative == "/releases/321/assets":
+            result = self.assets
         elif relative == "/actions/workflows/pk-stack-ci.yml":
             result = self.workflow
         elif relative == f"/actions/runs/{RUN}":
             result = self.run
         elif relative == "/actions/workflows/99/runs":
             query = parse_qs(parsed.query)
-            assert query["head_sha"] == [self.run["head_sha"]]
+            assert query["head_sha"] == [self.commit]
             assert query["event"] == ["push"] and query["branch"] == ["main"]
             result = {"total_count": len(self.runs), "workflow_runs": self.runs}
         elif relative.startswith(f"/actions/runs/{RUN}/attempts/"):
@@ -153,6 +186,15 @@ class FakeGitHub:
         self.downloads += 1
         self.after_download()
         return self.raw
+
+    def download_asset(self, path: str, maximum: int) -> bytes:
+        asset_id = int(path.rsplit("/", 1)[-1])
+        value = self.asset_bytes[asset_id]
+        for asset in self.assets:
+            if asset["id"] == asset_id:
+                asset["download_count"] = 1
+        self.after_asset_download()
+        return value
 
 
 class PackageFixture(unittest.TestCase):
@@ -218,6 +260,158 @@ class PackageFixture(unittest.TestCase):
             "v0.3.0",
             **kwargs,
         )
+
+    def verify_published(self):
+        return package.verify_published(
+            self.root,
+            Path(self.temporary.name) / "published",
+            cast(package.GitHub, self.api),
+            REPOSITORY,
+            REPOSITORY_ID,
+            self.commit,
+            "v0.3.0",
+            RUN,
+            ATTEMPT,
+            ARTIFACT,
+            package.sha256(self.api.raw),
+        )
+
+    def test_publication_receipt_binds_downloaded_bytes_to_exact_approved_artifact(self):
+        with patch.object(package, "archive_for", side_effect=AssertionError("rebuilt")):
+            receipt = self.verify_published()
+        self.assertTrue(receipt["ok"])
+        self.assertEqual(receipt["archive_sha256"], self.built["archive_sha256"])
+        self.assertEqual(receipt["source_run_id"], RUN)
+        self.assertEqual(receipt["source_run_attempt"], ATTEMPT)
+        self.assertEqual(receipt["artifact_id"], ARTIFACT)
+        self.assertEqual(receipt["package_manifest"], json.loads(self.contents["manifest.json"]))
+        saved = json.loads(Path(receipt["receipt_path"]).read_text())
+        self.assertEqual(
+            saved["assets"]["pkstack-v0.3.0.tar.gz"]["sha256"], self.built["archive_sha256"]
+        )
+        self.assertEqual(
+            (Path(self.temporary.name) / "published/downloaded/pkstack-v0.3.0.tar.gz").read_bytes(),
+            self.contents["package.tar.gz"],
+        )
+
+    def test_changed_published_bytes_never_emit_a_success_receipt(self):
+        for asset_id in (1001, 1002):
+            with self.subTest(asset_id=asset_id):
+                original = dict(self.api.asset_bytes)
+                self.api.asset_bytes[asset_id] += b"altered"
+                with self.assertRaisesRegex(package.PackageError, "bytes differ"):
+                    self.verify_published()
+                self.assertFalse((Path(self.temporary.name) / "published/receipt").exists())
+                self.api.asset_bytes = original
+                # Preserve the failed evidence and use a new output on the next fixture.
+                (Path(self.temporary.name) / "published").rename(
+                    Path(self.temporary.name) / f"failed-{asset_id}"
+                )
+
+    def test_missing_or_replaced_release_assets_and_release_changes_fail(self):
+        original = copy.deepcopy((self.api.release, self.api.assets))
+        for mode in (
+            "missing",
+            "duplicate",
+            "digest",
+            "draft",
+            "tag",
+            "replaced",
+            "attempt",
+            "base",
+        ):
+            with self.subTest(mode=mode):
+                self.api.release, self.api.assets = copy.deepcopy(original)
+                self.api.after_asset_download = lambda: None
+                if mode == "missing":
+                    self.api.assets.pop()
+                elif mode == "duplicate":
+                    self.api.assets.append(copy.deepcopy(self.api.assets[0]))
+                elif mode == "digest":
+                    self.api.assets[0]["digest"] = "sha256:" + "0" * 64
+                elif mode == "draft":
+                    self.api.release["draft"] = True
+                elif mode == "tag":
+                    self.api.release["tag_name"] = "v0.2.0"
+                elif mode == "replaced":
+                    self.api.after_asset_download = lambda: self.api.assets[0].update(
+                        updated_at="changed"
+                    )
+                elif mode == "attempt":
+                    self.api.after_asset_download = lambda: self.api.run.update(run_attempt=2)
+                else:
+                    self.api.after_asset_download = lambda: self.api.branch["commit"].update(
+                        sha="0" * 40
+                    )
+                with self.assertRaises(package.PackageError):
+                    self.verify_published()
+                self.assertFalse((Path(self.temporary.name) / "published/receipt").exists())
+                (Path(self.temporary.name) / "published").rename(
+                    Path(self.temporary.name) / f"failed-{mode}"
+                )
+                self.api.run["run_attempt"] = ATTEMPT
+                self.api.branch["commit"]["sha"] = self.commit
+
+    def test_base_ci_admission_uses_same_complete_main_contract_without_downloads(self):
+        # Candidate admission has never depended on repository visibility.
+        self.api.repo["private"] = False
+        result = package.verify_base_ci(
+            self.root, cast(package.GitHub, self.api), REPOSITORY, REPOSITORY_ID, self.commit
+        )
+        self.assertEqual(result["tested_sha"], self.commit)
+        self.assertEqual(result["source_run_id"], RUN)
+        self.assertEqual(self.api.downloads, 0)
+        original = copy.deepcopy((self.api.branch, self.api.run, self.api.runs, self.api.jobs))
+        for mode in (
+            "moved",
+            "missing",
+            "failed",
+            "superseded",
+            "attempt",
+            "incompatible",
+            "wrong-sha",
+        ):
+            with self.subTest(mode=mode):
+                self.api.branch, self.api.run, self.api.runs, self.api.jobs = copy.deepcopy(
+                    original
+                )
+                if mode == "moved":
+                    self.api.branch["commit"]["sha"] = "0" * 40
+                elif mode == "missing":
+                    self.api.runs = []
+                elif mode == "failed":
+                    self.api.run["conclusion"] = "failure"
+                elif mode == "superseded":
+                    self.api.runs.append({"id": RUN + 1})
+                elif mode == "attempt":
+                    self.api.run["run_attempt"] = 2
+                elif mode == "wrong-sha":
+                    self.api.run["head_sha"] = "0" * 40
+                else:
+                    self.api.jobs[0]["name"] = "old-aggregate"
+                with self.assertRaises(package.PackageError):
+                    package.verify_base_ci(
+                        self.root,
+                        cast(package.GitHub, self.api),
+                        REPOSITORY,
+                        REPOSITORY_ID,
+                        self.commit,
+                        RUN,
+                        ATTEMPT,
+                    )
+
+    def test_wrong_commit_or_tag_version_cannot_be_promoted(self):
+        for commit, tag in (("0" * 40, "v0.3.0"), (self.commit, "v0.3.1")):
+            with self.subTest(commit=commit, tag=tag), self.assertRaises(package.PackageError):
+                package.verify_package(
+                    self.root,
+                    Path(self.temporary.name) / "invalid",
+                    cast(package.GitHub, self.api),
+                    REPOSITORY,
+                    REPOSITORY_ID,
+                    commit,
+                    tag,
+                )
 
     def replace_manifest(self, mutate):
         manifest = json.loads(self.contents["manifest.json"])
@@ -564,6 +758,32 @@ class ArchiveBoundaryTests(unittest.TestCase):
         )
         self.assertEqual(requests[0].get_header("Authorization"), "Bearer fixture-secret")
         self.assertIsNone(requests[1].get_header("Authorization"))
+
+    def test_release_download_supports_stream_and_redirect_without_forwarding_token(self):
+        for redirect in (False, True):
+            with self.subTest(redirect=redirect):
+                client = package.GitHub("fixture-secret")
+                requests = []
+
+                class Opener:
+                    def open(self, request, timeout, recorded=requests, redirects=redirect):
+                        recorded.append(request)
+                        if redirects and len(recorded) == 1:
+                            headers = Message()
+                            headers["Location"] = (
+                                "https://release-assets.githubusercontent.com/asset"
+                            )
+                            raise HTTPError(request.full_url, 302, "redirect", headers, None)
+                        return io.BytesIO(b"asset")
+
+                client.opener = cast(OpenerDirector, Opener())
+                self.assertEqual(
+                    client.download_asset("repos/example/pkstack/releases/assets/1", 5), b"asset"
+                )
+                self.assertEqual(requests[0].get_header("Accept"), "application/octet-stream")
+                self.assertEqual(requests[0].get_header("Authorization"), "Bearer fixture-secret")
+                if redirect:
+                    self.assertIsNone(requests[1].get_header("Authorization"))
 
     def test_only_http_404_means_absent_tag_not_denied_or_failed_api(self):
         client = package.GitHub("fixture-secret")

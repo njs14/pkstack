@@ -3044,9 +3044,9 @@ def _goal_status(path: Path) -> dict[str, Any]:
     goal = status_payload.get("goal")
     if status_payload.get("ok") is not True or not isinstance(goal, dict):
         raise GuardError("goal status is not successful")
-    if goal.get("status") != "passed" or goal.get("attempt_count") not in {2, 3, 4, 5}:
-        raise GuardError("goal did not reach passed within the five-attempt budget")
-    if goal.get("max_attempts") != 5:
+    if goal.get("status") != "passed" or goal.get("attempt_count") not in {2, 3}:
+        raise GuardError("goal did not reach passed within the three-verification budget")
+    if goal.get("max_attempts") != 3:
         raise GuardError("goal max_attempts changed from the immutable budget")
     return goal
 
@@ -3203,8 +3203,8 @@ def validate_package(
         not isinstance(goal["goal_id"], str)
         or not goal["goal_id"]
         or goal["status"] != "passed"
-        or goal["attempt_count"] not in {2, 3, 4, 5}
-        or goal["max_attempts"] != 5
+        or goal["attempt_count"] not in {2, 3}
+        or goal["max_attempts"] != 3
     ):
         raise GuardError("candidate package goal is not a bounded verified goal")
     upstreams = package["upstreams"]

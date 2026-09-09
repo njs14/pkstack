@@ -157,68 +157,46 @@ jobs:
             core.setOutput("base_sha", process.env.SOURCE_SHA);
             core.setOutput("default_branch", repository.default_branch);
 
-  base_tests:
+  base_ci:
     needs: resolve
     if: needs.resolve.outputs.has_candidate == 'true'
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     permissions:
+      actions: read
       contents: read
     outputs:
       tested_sha: ${{ steps.immutable.outputs.tested_sha }}
+      source_run_id: ${{ steps.immutable.outputs.source_run_id }}
+      source_run_attempt: ${{ steps.immutable.outputs.source_run_attempt }}
     steps:
-      - name: Harden read-only base test runner networking
+      - name: Harden read-only base evidence networking
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: block
           disable-sudo: true
           allowed-endpoints: |
-            files.pythonhosted.org:443
+            api.github.com:443
             github.com:443
-            objects.githubusercontent.com:443
-            pypi.org:443
-            release-assets.githubusercontent.com:443
-            results-receiver.actions.githubusercontent.com:443
-            *.blob.core.windows.net:443
       - name: Check out exact trusted base without persisted credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.resolve.outputs.base_sha }}
           persist-credentials: false
           fetch-depth: 1
-      - name: Install uv
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
-        with:
-          enable-cache: true
-          cache-dependency-glob: powers/pkstack/uv.lock
-      - name: Run exact-base static regression gates with no secrets
-        env:
-          EXPECTED_SHA: ${{ needs.resolve.outputs.base_sha }}
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          uv sync --quiet --locked --all-groups --project powers/pkstack
-          .pkstack/bin/projectctl feature validate --output json
-          .pkstack/bin/projectctl version --output json
-          .pkstack/bin/projectctl knowledge validate --output json
-          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
-          node --test .github/scripts/test_pkstack_pr_policy.js
-          # One shared entrypoint covers every maintained Power, root and embedded
-          # Python surface, including `uv lock --check`.
-          python3 -B .github/scripts/pkstack_python_static.py --repo-root .
-          uv run --frozen --project powers/pkstack pytest -q
-          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          test -z "$(git status --porcelain=v1 --untracked-files=all)"
-      - name: Bind successful base gates to base SHA
+      - name: Verify successful main CI for the exact base
         id: immutable
         env:
+          GH_TOKEN: ${{ github.token }}
           EXPECTED_SHA: ${{ needs.resolve.outputs.base_sha }}
         run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
-          printf 'tested_sha=%s\n' "$EXPECTED_SHA" >>"$GITHUB_OUTPUT"
+          python3 -B .github/scripts/pkstack_ci_package.py verify-base \
+            --repo-root . --repository "$GITHUB_REPOSITORY" \
+            --repository-id "$GITHUB_REPOSITORY_ID" --sha "$EXPECTED_SHA" \
+            --github-output "$GITHUB_OUTPUT"
 
   candidate_prepare:
-    needs: resolve
+    needs: [resolve, base_ci]
     if: needs.resolve.outputs.has_candidate == 'true'
     runs-on: ubuntu-24.04
     permissions:
@@ -430,6 +408,36 @@ jobs:
             --base "$BASE_SHA" \
             --trusted-root "$TRUSTED_ROOT"
           chmod -R a-w "$TRUSTED_ROOT"
+      - name: Install checksum-pinned static analyzers
+        env:
+          ACTIONLINT_VERSION: 1.7.7
+          ACTIONLINT_SHA256: 023070a287cd8cccd71515fedc843f1985bf96c436b7effaecce67290e7e0757
+          SHELLCHECK_VERSION: 0.11.0
+          SHELLCHECK_SHA256: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+          STATIC_TOOLS: ${{ runner.temp }}/pkstack-static-tools
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$STATIC_TOOLS/bin"
+          actionlint_archive="$STATIC_TOOLS/actionlint.tar.gz"
+          shellcheck_archive="$STATIC_TOOLS/shellcheck.tar.xz"
+          curl --proto '=https' --tlsv1.2 --fail --location \
+            --retry 3 --retry-all-errors --output "$actionlint_archive" \
+            "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          printf '%s  %s\n' "$ACTIONLINT_SHA256" "$actionlint_archive" | sha256sum --check
+          tar --extract --gzip --file "$actionlint_archive" --directory "$STATIC_TOOLS/bin" \
+            actionlint
+          curl --proto '=https' --tlsv1.2 --fail --location \
+            --retry 3 --retry-all-errors --output "$shellcheck_archive" \
+            "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"
+          printf '%s  %s\n' "$SHELLCHECK_SHA256" "$shellcheck_archive" | sha256sum --check
+          tar --extract --xz --file "$shellcheck_archive" --directory "$STATIC_TOOLS/bin" \
+            --strip-components=1 "shellcheck-v${SHELLCHECK_VERSION}/shellcheck"
+          chmod 0555 "$STATIC_TOOLS/bin/actionlint" "$STATIC_TOOLS/bin/shellcheck"
+          printf '%s\n' "$STATIC_TOOLS/bin" >>"$GITHUB_PATH"
+          export PATH="$STATIC_TOOLS/bin:$PATH"
+          actionlint -version
+          shellcheck --version | sed -n '1,4p'
       - name: Run candidate gates without credentials
         env:
           EXPECTED_SHA: ${{ needs.resolve.outputs.head_sha }}
@@ -452,14 +460,10 @@ jobs:
             "$TRUSTED_ROOT/.pkstack/projectctl/.venv/bin/python" -B \
             "$TRUSTED_ROOT/.github/scripts/pkstack_knowledge_coverage.py" \
             --repo-root . --base "$COVERAGE_BASE_SHA"
-          # Protected controls match the base; discovery also includes the
-          # maintenance guard and stream regressions, once each.
-          python3 -B -m unittest discover -s .github/scripts -p 'test_*.py'
-          node --test .github/scripts/test_pkstack_pr_policy.js
-          # One shared entrypoint covers every maintained Power, root and embedded
-          # Python surface, including `uv lock --check`.
-          python3 -B .github/scripts/pkstack_python_static.py --repo-root .
-          uv run --frozen --project powers/pkstack pytest -q
+          # Protected controls match the base. Shared verification owns the complete
+          # product collection, unexpected-skip checks and static/policy gates.
+          python3 -B "$TRUSTED_ROOT/.github/scripts/pkstack_checks.py" \
+            --repo-root . local full --output "$RUNNER_TEMP/pkstack-candidate-checks"
           test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
           test -z "$(git status --porcelain=v1 --untracked-files=all)"
       - name: Bind successful gates to candidate SHA
@@ -699,10 +703,10 @@ jobs:
           done
 
   merge:
-    needs: [resolve, candidate_prepare, base_tests, candidate_tests, kiro_peer_review]
+    needs: [resolve, candidate_prepare, base_ci, candidate_tests, kiro_peer_review]
     if: >-
       needs.resolve.outputs.has_candidate == 'true'
-      && needs.base_tests.result == 'success'
+      && needs.base_ci.result == 'success'
       && needs.candidate_tests.result == 'success'
       && needs.kiro_peer_review.result == 'success'
       && needs.kiro_peer_review.outputs.review_verdict == 'approved'
@@ -726,12 +730,23 @@ jobs:
           ref: ${{ needs.resolve.outputs.base_sha }}
           persist-credentials: false
           fetch-depth: 1
+      - name: Recheck the same main CI attempt before merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ needs.resolve.outputs.base_sha }}
+          BASE_RUN_ID: ${{ needs.base_ci.outputs.source_run_id }}
+          BASE_RUN_ATTEMPT: ${{ needs.base_ci.outputs.source_run_attempt }}
+        run: |
+          python3 -B .github/scripts/pkstack_ci_package.py verify-base \
+            --repo-root . --repository "$GITHUB_REPOSITORY" \
+            --repository-id "$GITHUB_REPOSITORY_ID" --sha "$EXPECTED_SHA" \
+            --run-id "$BASE_RUN_ID" --run-attempt "$BASE_RUN_ATTEMPT"
       - name: Revalidate and merge only the tested SHA without candidate checkout
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_NUMBER: ${{ needs.resolve.outputs.pr_number }}
           TESTED_SHA: ${{ needs.candidate_tests.outputs.tested_sha }}
-          TESTED_BASE_SHA: ${{ needs.base_tests.outputs.tested_sha }}
+          TESTED_BASE_SHA: ${{ needs.base_ci.outputs.tested_sha }}
           REVIEWED_BASE_SHA: ${{ needs.kiro_peer_review.outputs.reviewed_base_sha }}
           REVIEWED_HEAD_SHA: ${{ needs.kiro_peer_review.outputs.reviewed_head_sha }}
           REVIEWED_CONTENT_SHA256: ${{ needs.kiro_peer_review.outputs.reviewed_content_sha256 }}
@@ -764,7 +779,7 @@ jobs:
             );
             const { owner, repo } = context.repo;
             if (process.env.TESTED_BASE_SHA !== process.env.BASE_SHA) {
-              core.setFailed("base regression result is not bound to the exact candidate base");
+              core.setFailed("base CI evidence is not bound to the exact candidate base");
               return;
             }
             if (process.env.REVIEWED_BASE_SHA !== process.env.BASE_SHA
@@ -932,7 +947,7 @@ jobs:
             core.notice(`merged PR #${pull.number} from exact tested SHA ${process.env.TESTED_SHA}`);
 
   record_rejection:
-    needs: [resolve, candidate_prepare, base_tests, candidate_tests, kiro_peer_review]
+    needs: [resolve, candidate_prepare, base_ci, candidate_tests, kiro_peer_review]
     if: always() && needs.candidate_tests.result == 'success' && needs.kiro_peer_review.outputs.review_verdict == 'rejected'
     runs-on: ubuntu-24.04
     permissions:
@@ -1016,7 +1031,7 @@ jobs:
               sha: commit.sha, force: false});
 
   cleanup_failed_candidate:
-    needs: [resolve, candidate_prepare, base_tests, candidate_tests, kiro_peer_review, merge, record_rejection]
+    needs: [resolve, candidate_prepare, base_ci, candidate_tests, kiro_peer_review, merge, record_rejection]
     if: >-
       always()
       && github.event.workflow_run.conclusion == 'success'

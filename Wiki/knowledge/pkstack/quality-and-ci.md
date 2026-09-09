@@ -1,11 +1,11 @@
 ---
 type: Guide
-title: Local checks, CI lanes, and evidence limits
+title: Local checks, CI jobs, and evidence limits
 description: Fast versus complete checks, static Python coverage, browser diagnostics, and knowledge coverage enforcement.
 tags: [pkstack, ci, testing, python, knowledge]
 ---
 
-# Local checks, CI lanes, and evidence limits
+# Local checks, CI jobs, and evidence limits
 
 ## Use the candidate's checked environment
 
@@ -14,23 +14,56 @@ previews. Do not copy another worktree's virtual environment or generated contro
 canonical asset changes, refresh only expected managed updates and confirm a second preview is
 clean. A stale generated controller cannot validate a changed Power.
 
-The shared `.github/scripts/pkstack_checks.py` driver runs fast or full local checks. Normal CI
-uses the same deterministic partitions on separate runners. Receipts bind the execution plan,
-commit, configuration digest, collection and individual test phases. Aggregation rejects missing,
-duplicate, cancelled, incomplete, or unexpected skipped results. PR browser coverage is selected
-by the change; main retains the complete suite, expanded browser coverage, and reproducible
-packaging plus extracted-package installation checks. A local fast pass is not a full-suite pass.
+The shared `.github/scripts/pkstack_checks.py` driver retains `local fast` and `local full`.
+Hosted verification calls the same execution functions. The `deterministic` job owns product
+collection once, including applicable browser and package tests, static analysis, workflow/shell
+policy tests, metadata, generated parity, and knowledge validation. One summary binds the source
+commit, configuration digest, profile, collection and individual test phases. Missing tooling,
+duplicate or incomplete execution, cancellation, and unexpected skips prevent success. Only the
+exact installed-Kiro sentinel with its documented missing-CLI reason is allowed to skip.
+
+The narrow reports-only PR path still validates knowledge coverage, links and diff integrity.
+Normal PRs use browser smoke unless Archify, dependency or CI/browser changes require full
+coverage. Main always uses full browser coverage. The only other CI job is `package`: it waits
+for successful main `deterministic` verification, builds reproducible bytes and runs the
+extracted-package consumer smoke. PRs do not produce release packages. Distributed shards,
+execution-plan transfers, per-job receipts and aggregation have been removed. A local fast pass
+covers only the explicitly selected contracts and is not a full-suite pass.
 
 Maintainer commands set `UV_PROJECT_ENVIRONMENT` to the repository's ignored `.venv`.
 Root `pytest.ini` collects `tests/`; root Ruff/ty configurations cover the relocated
 tests and benchmarks while the Power configuration covers installed source, examples,
 and setup. `.coveragerc` retains branch measurement and the 85 percent threshold.
-Pytest and Ruff caches stay at the repository root. The CI partition IDs remain
+Pytest and Ruff caches stay at the repository root. The collected test IDs remain
 `tests/...`, preserving the complete collection and the installed-Kiro skip sentinel.
 Trusted-controller snapshots retain their own private `.venv`: each trusted `uv sync`
 explicitly overrides the root environment setting before later steps invoke that
 snapshot interpreter. The workflow regression exercises all four synchronization sites
 without candidate code or network access.
+
+## Hosted rollout and measurement
+
+All seven PKStack workflows remain manually paused during implementation and local validation.
+GitHub's payment/spending block is an independent account issue; this change does not resolve it.
+Do not enable workflows, alter billing, change repository visibility or move credentials as part
+of this rollout. After explicit resumption authorization, validate one PR/main cycle and one
+updater lifecycle, including its candidate's terminal result. The first main cycle must create
+compatible two-job CI evidence before a candidate can be admitted.
+
+The baseline below was retrieved from GitHub run and job timestamps. Runner time is the sum of
+job execution durations, excluding queue time; it is not an invoice or per-job billing rounding.
+The CI baseline is a main push from the prior layout; measure the new PR and main runs separately.
+
+| Reference execution | Elapsed | Runner time | Job count |
+| --- | --- | --- | --- |
+| [Prior CI](https://github.com/njs14/pkstack/actions/runs/34254995824) | 2m26s | 8m56s (8.93 minutes) | 12 |
+| [Prior updater](https://github.com/njs14/pkstack/actions/runs/34254835687) | 49m52s | 49m32s (49.53 minutes) | 4 |
+| Consolidated PR/main cycle | Pending authorized resumption | Pending | 1 verification job on PR; 2 jobs on main |
+| Bounded updater lifecycle | Pending authorized resumption | Pending | Existing isolated stages retained |
+
+The target is less repeated work and lower runner consumption. Fewer concurrent CI jobs can make
+one run take longer. Local timing and isolated API fixtures do not predict hosted duration or
+establish a live update/merge/publication result.
 
 ## Python coverage and browser failures
 
@@ -81,7 +114,7 @@ changes, then refresh only that source's manifest entry. Do not mass-accept new 
 has no write or refresh mode. Hash freshness and valid links cannot prove semantic completeness;
 human or agent review must still check that the retained explanation is adequate and honest.
 
-Both normal and report-only fast CI run the gate using the locked environment. The exact Wiki release record retains lightweight report checks; adding a manifest or other
+Both normal and reports-only CI run the gate using the locked environment. The exact Wiki release record retains lightweight report checks; adding a manifest or other
 Wiki change selects normal CI
 under the existing conservative classifier. Main also runs the gate. Consumer-project setup and
 the public `projectctl` interface do not acquire this repository-specific policy.
@@ -147,7 +180,7 @@ original candidate and scope; they are not fresh verification of this checkout.
 
 | Source | Retained guidance or bounded observation |
 | --- | --- |
-| [CONTRIBUTING.md](../../../CONTRIBUTING.md) | Fresh worktrees use locked environments and reviewed setup; fast/full checks and explicit knowledge mappings preserve evidence scope and fail rather than hide missing coverage. |
+| [CONTRIBUTING.md](../../../CONTRIBUTING.md) | Locked worktrees use shared fast/full checks and explicit knowledge mappings. Two CI jobs retain complete checks; release review and attached receipts avoid repeated local gates and publication-record PRs. |
 | [reviews/astral-python-auto/python-coverage.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/python-coverage.md) | The shared static gate covers maintained Python and quoted heredocs without executing extracted bodies; malformed-input behavior needs regressions alongside type narrowing. |
 | [reviews/astral-python-auto/independent-review.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/independent-review.md) | Read-only d36bb88 source review checked provenance, routing and maintained Python coverage; coordinator test results and native observations remain separately identified evidence. |
 | [reviews/evidence-led-improvements/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/evidence-led-improvements/README.md) | Content-keyed per-validation heading caching preserves fresh bounded reads and path validation; performance observations and clean-worktree guidance do not justify speculative cleanup. |

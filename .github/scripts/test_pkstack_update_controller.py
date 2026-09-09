@@ -41,6 +41,8 @@ class ControllerTests(unittest.TestCase):
             }
         )
         self.assertEqual(result["action"], "reconcile-source")
+        self.assertEqual(result["max_attempts"], 3)
+        self.assertEqual(result["max_open_candidates"], 1)
         self.assertEqual(result["selected_source_id"], "alpha")
         self.assertEqual(result["goal"]["kind"], "command")
         self.assertIn("--source-id alpha", result["goal"]["value"])

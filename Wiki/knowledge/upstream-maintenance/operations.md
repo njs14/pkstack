@@ -21,6 +21,28 @@ different roles. Do not rewrite historical rationale or genesis markers when add
 baseline. When a proposed change only rephrases an unchanged safety exclusion, preserve the
 existing rationale and place the new delta explanation in the new proposal/provenance entry.
 
+## Bounded maintenance and trusted base evidence
+
+The daily updater keeps one open candidate and at most two Kiro repair attempts per run. The
+`maintain` job has a 30-minute ceiling covering its preparation, model turns and verification.
+Each model process has an eight-minute deadline with bounded process-group cleanup. The immutable
+goal budget is three verifications: the initial expected failure and up to two repair verifications.
+Exhaustion or cancellation ends the run without a candidate eligible for merge. Routine release
+work does not dispatch another attempt; existing source-bound rejection feedback remains intact.
+
+Credential-bearing model steps and secretless verification steps remain separate. The candidate
+gate admits work only when the shared release verifier confirms successful main CI for the exact
+base commit with the compatible `deterministic` and `package` job contract. Missing, failed,
+superseded or incompatible evidence stops admission. This replaces the full base-test rerun.
+Isolated candidate tests use shared full verification while trusted-base source acceptance and
+knowledge coverage checks remain in place. One independent semantic review is still mandatory.
+Before merging, recheck that same main run/attempt, the current base/head/PR, review identity,
+allowed files and one-commit relationship. No failed or unverified result may merge.
+
+The [CI rollout record](../pkstack/quality-and-ci.md#hosted-rollout-and-measurement) retains baseline
+elapsed and runner time. All seven workflows remain paused until explicitly authorized to resume;
+the billing/spending block and new hosted lifecycle measurements remain outside local proof.
+
 ## Read large updates in batches
 
 The detector validates the whole source transition. Review preparation exports an index and

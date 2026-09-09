@@ -53,7 +53,7 @@ must match the candidate source before using its results as proof.
 
 ### Focused and complete verification
 
-Run focused regressions for the behavior you changed, then the fast contract lane
+Run focused regressions for the behavior you changed, then the fast contract checks
 before pushing a reviewed checkpoint. From the repository root:
 
 ```sh
@@ -69,11 +69,15 @@ GitHub CI is unavailable:
 uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local full
 ```
 
-The complete driver needs Node.js, Chrome, uv, actionlint, and shellcheck on PATH.
-Each local invocation writes receipts to a fresh temporary directory and prints
-its path. Local lanes run sequentially; CI runs the same checks on separate
-runners and reconciles their receipts. The installed-Kiro discovery probe may be unavailable
-on machines without Kiro; browser dependencies are required for complete proof.
+The complete driver needs Node.js, Chrome, uv, bash, jq, actionlint, and shellcheck.
+Chrome must be discoverable by the browser harness; other tools must be on PATH.
+Each invocation writes one summary plus failure diagnostics to a fresh temporary
+directory and prints its path. Local and hosted verification use the same execution
+functions. Full verification collects and executes the entire product suite once,
+including browser and package tests, then runs static, policy, metadata, and knowledge
+checks. Missing tooling, incomplete execution, cancellation, and unexpected skips fail.
+Only the exact installed-Kiro discovery probe with the documented missing-CLI reason
+may skip; browser dependencies are required for complete proof.
 
 PR CI uses a narrow allowlist for release-report-only changes. It checks local
 links, referenced files, diff integrity, and repository knowledge coverage using
@@ -81,8 +85,9 @@ the locked Power environment without starting the product suite.
 Mixed changes, reviewer prompts, policy, dependencies, and unknown paths use normal
 CI. Normal CI retains the core suite and a small browser smoke; Archify, dependency,
 and CI/browser changes select expanded browser coverage. Main always runs the
-complete retained suite, expanded browser coverage, and reproducible archive build
-plus an extracted-package installation check.
+complete retained suite and expanded browser coverage in `deterministic`. The second
+job, `package`, runs only after successful main verification and builds the reproducible
+archive with an extracted-package consumer smoke. PRs do not build a release artifact.
 
 Batch related corrections rather than pushing each line separately. Keep one
 owner for shared/generated files when working in parallel; refresh generated
@@ -94,6 +99,32 @@ or after a successful CI run unless new evidence warrants it.
 Report failed checks and their exact commands. Capture diagnostics once per
 failure and retain the commit/run identity; do not retry until green or treat a
 previous successful commit as validation of a changed candidate.
+
+### Releases
+
+When a change is intended for release, put its version changes and release notes in
+the change PR. Run focused checks during development and obtain one independent review
+of the final changed scope. Successful hosted PR and main checks satisfy the corresponding
+release checks; do not repeat full local gates on a release branch and merged source.
+Run one complete local gate when hosted execution is unavailable. Substantive corrections
+need checks and review of their changed scope.
+
+Carry a review across a squash merge only after comparing the reviewed candidate and
+merged commit's complete Git trees (`git rev-parse <commit>^{tree}`). Equal Power subtrees
+alone do not establish equality of repository controls. If the full trees differ, inspect
+and review the changed scope before claiming review coverage.
+
+The tag workflow verifies the exact successful main run/attempt and its package, then
+promotes those archive bytes. Its `verify-published` operation downloads the published
+archive and checksum, compares them to that approved artifact, rechecks mutable GitHub
+identities, and attaches `publication-receipt.json` only after success. GitHub Releases and
+their attached receipts are the publication record. Preserve historical Wiki records;
+a separate publication-record PR and additional CI cycle are unnecessary.
+
+Live Kiro diagnostics are separate from routine releases. Obtain new live evidence when
+a change affects the behavior being claimed; preserve the scope and limits of prior evidence.
+Routine release work does not dispatch additional updater attempts after budget exhaustion.
+Workflow resumption requires explicit authorization and is outside a code-only change.
 
 ### Measuring local link validation
 

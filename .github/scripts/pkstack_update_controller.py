@@ -103,7 +103,7 @@ def decide(
         "sensor_sha256": sensor_sha256,
         "objective": objective,
         "goal": goal,
-        "max_attempts": 5,
+        "max_attempts": 3,
         "max_open_candidates": 1,
     }
 

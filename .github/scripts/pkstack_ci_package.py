@@ -9,6 +9,7 @@ if sys.version_info < (3, 11):
     raise SystemExit("pkstack CI package requires Python 3.11 or newer")
 
 import argparse
+import datetime
 import hashlib
 import importlib.util
 import io
@@ -33,15 +34,7 @@ from pkstack_package_content import load_contract, validate_paths, validate_sour
 from pkstack_release_notes import bind_repository_links, release_notes
 
 CI_WORKFLOW = ".github/workflows/pk-stack-ci.yml"
-REQUIRED_JOBS = [
-    "classify",
-    "fast",
-    "browser",
-    "package",
-    "policy",
-    "deterministic",
-    *[f"core ({index})" for index in range(6)],
-]
+REQUIRED_JOBS = ["deterministic", "package"]
 FILES = {"package.tar.gz", "package.tar.gz.sha256", "notes.md", "manifest.json"}
 LIMITS = {
     "package.tar.gz": 16 * 1024 * 1024,
@@ -385,11 +378,17 @@ def consumer_smoke(
     }
 
 
-def write_files(output: Path, contents: dict[str, bytes]) -> None:
+def write_files(
+    output: Path, contents: dict[str, bytes], *, limits: dict[str, int] | None = None
+) -> None:
+    limits = LIMITS if limits is None else limits
     require(not output.exists() and not output.is_symlink(), "output directory already exists")
     output.mkdir(mode=0o700, parents=True)
     for name, raw in contents.items():
-        require(name in FILES and 0 < len(raw) <= LIMITS[name], "invalid package output")
+        require(
+            Path(name).name == name and name in limits and 0 < len(raw) <= limits[name],
+            "invalid package output",
+        )
         target = output / name
         with target.open("xb") as stream:
             stream.write(raw)
@@ -493,31 +492,42 @@ class GitHub:
             raise PackageError("GitHub metadata request failed") from exc
 
     def download(self, path: str) -> bytes:
+        return self.download_binary(path, MAX_ZIP)
+
+    def download_asset(self, path: str, maximum: int) -> bytes:
+        return self.download_binary(path, maximum, asset=True)
+
+    def download_binary(self, path: str, maximum: int, *, asset: bool = False) -> bytes:
         try:
+            request = self.request(path)
+            if asset:
+                request.add_header("Accept", "application/octet-stream")
             try:
-                with self.opener.open(self.request(path), timeout=30):
-                    raise PackageError("artifact API did not return its expected redirect")
+                with self.opener.open(request, timeout=30) as response:
+                    require(asset, "artifact API did not return its expected redirect")
+                    raw = response.read(maximum + 1)
             except HTTPError as response:
                 try:
-                    require(response.code == 302, "artifact download is unavailable")
+                    require(response.code == 302, "binary download is unavailable")
                     location = response.headers.get("Location", "")
                 finally:
                     response.close()
-            target = urlsplit(location)
-            require(
-                target.scheme == "https"
-                and bool(target.hostname)
-                and target.username is None
-                and target.password is None,
-                "unsafe artifact download location",
-            )
-            anonymous = Request(location, headers={"User-Agent": "pkstack-ci-package"})
-            with self.opener.open(anonymous, timeout=60) as response:
-                raw = response.read(MAX_ZIP + 1)
-            require(0 < len(raw) <= MAX_ZIP, "artifact ZIP exceeds its bound")
+                target = urlsplit(location)
+                require(
+                    target.scheme == "https"
+                    and bool(target.hostname)
+                    and target.username is None
+                    and target.password is None
+                    and target.port in {None, 443},
+                    "unsafe binary download location",
+                )
+                anonymous = Request(location, headers={"User-Agent": "pkstack-ci-package"})
+                with self.opener.open(anonymous, timeout=60) as response:
+                    raw = response.read(maximum + 1)
+            require(0 < len(raw) <= maximum, "binary download exceeds its bound")
             return raw
         except (HTTPError, URLError, TimeoutError) as exc:
-            raise PackageError("artifact download failed") from exc
+            raise PackageError("binary download failed") from exc
 
 
 def paginate(api: GitHub, path: str, key: str) -> list[dict[str, Any]]:
@@ -633,6 +643,36 @@ def successful_run(
         "a mandatory current-attempt CI job is incomplete, skipped, failed, or misbound",
     )
     return run
+
+
+def verify_base_ci(
+    root: Path,
+    api: GitHub,
+    repository: str,
+    repository_id: int,
+    commit: str,
+    run_id: int | None = None,
+    attempt: int | None = None,
+) -> dict[str, Any]:
+    # This entrypoint runs only trusted base controls with a read-only token.
+    identity(root, repository, repository_id, commit)
+    repo = api.get(f"repos/{repository}")
+    require(
+        repo.get("id") == repository_id
+        and repo.get("full_name", "").lower() == repository.lower()
+        and repo.get("default_branch") == "main",
+        "base repository identity changed",
+    )
+    branch = api.get(f"repos/{repository}/branches/main")
+    require(branch.get("commit", {}).get("sha") == commit, "candidate base is no longer main")
+    run = successful_run(api, repository, repository_id, commit, run_id, attempt)
+    return {
+        "ok": True,
+        "mode": "verify-base",
+        "tested_sha": commit,
+        "source_run_id": run["id"],
+        "source_run_attempt": run["run_attempt"],
+    }
 
 
 def unpack_zip(raw: bytes) -> dict[str, bytes]:
@@ -794,31 +834,179 @@ def verify_package(
     }
 
 
+def published_assets(api: GitHub, repository: str, release_id: int) -> list[dict[str, Any]]:
+    assets = []
+    for page in range(1, 11):
+        batch = api.get(f"repos/{repository}/releases/{release_id}/assets?per_page=100&page={page}")
+        require(
+            isinstance(batch, list) and all(isinstance(item, dict) for item in batch),
+            "invalid release asset inventory",
+        )
+        assets.extend(batch)
+        if len(batch) < 100:
+            return assets
+    raise PackageError("release asset inventory exceeds its bound")
+
+
+def verify_published(
+    root: Path,
+    output: Path,
+    api: GitHub,
+    repository: str,
+    repository_id: int,
+    commit: str,
+    tag: str,
+    run_id: int,
+    attempt: int,
+    artifact_id: int,
+    artifact_digest: str,
+) -> dict[str, Any]:
+    require(
+        not output.exists() and not output.is_symlink(),
+        "use a fresh publication evidence directory",
+    )
+    approved = verify_package(
+        root,
+        output / "approved",
+        api,
+        repository,
+        repository_id,
+        commit,
+        tag,
+        run_id,
+        attempt,
+        artifact_id,
+        artifact_digest,
+    )
+    prefix = f"repos/{repository}"
+    release_path = f"{prefix}/releases/tags/{quote(tag, safe='')}"
+    release = api.get(release_path)
+    release_id = positive(release.get("id"), "release ID")
+    require(
+        release.get("tag_name") == tag
+        and release.get("draft") is False
+        and release.get("prerelease") is False
+        and release.get("html_url") == f"https://github.com/{repository}/releases/tag/{tag}",
+        "published release identity is invalid",
+    )
+    archive_name = f"pkstack-{tag}.tar.gz"
+    archive = (output / "approved/package.tar.gz").read_bytes()
+    expected = {
+        archive_name: archive,
+        f"{archive_name}.sha256": f"{sha256(archive)}  {archive_name}\n".encode(),
+    }
+    assets = published_assets(api, repository, release_id)
+    evidence = {}
+    selected = {}
+    downloads = {}
+    for name, raw in expected.items():
+        matches = [item for item in assets if item.get("name") == name]
+        require(len(matches) == 1, "published asset is absent or ambiguous")
+        asset = matches[0]
+        asset_id = positive(asset.get("id"), "release asset ID")
+        require(
+            asset.get("state") == "uploaded"
+            and asset.get("size") == len(raw)
+            and asset.get("digest") == f"sha256:{sha256(raw)}",
+            "published asset metadata does not match approved bytes",
+        )
+        downloaded = api.download_asset(f"{prefix}/releases/assets/{asset_id}", len(raw))
+        require(downloaded == raw, "published asset bytes differ from approved CI package")
+        selected[name] = asset
+        evidence[name] = {"id": asset_id, "size": len(downloaded), "sha256": sha256(downloaded)}
+        downloads[name] = downloaded
+    # Asset replacement, a moved tag/main or a rerun during download invalidates the receipt.
+    current = api.get(release_path)
+    require(
+        all(
+            current.get(key) == release.get(key)
+            for key in ("id", "tag_name", "draft", "prerelease", "html_url", "published_at", "body")
+        ),
+        "release changed during publication verification",
+    )
+    current_assets = published_assets(api, repository, release_id)
+    for name, asset in selected.items():
+        matches = [item for item in current_assets if item.get("name") == name]
+        require(
+            len(matches) == 1
+            and all(
+                matches[0].get(key) == asset.get(key)
+                for key in (
+                    "id",
+                    "name",
+                    "state",
+                    "size",
+                    "digest",
+                    "created_at",
+                    "updated_at",
+                    "content_type",
+                )
+            ),
+            "published asset changed during verification",
+        )
+    successful_run(api, repository, repository_id, commit, run_id, attempt)
+    live_release_identity(api, repository, repository_id, commit, tag)
+    receipt = {
+        "schema_version": 1,
+        "kind": "pkstack-publication-receipt",
+        "ok": True,
+        "repository": repository,
+        "repository_id": repository_id,
+        "commit": commit,
+        "tag": tag,
+        "release_id": release_id,
+        "release_url": release["html_url"],
+        "source_run_id": run_id,
+        "source_run_attempt": attempt,
+        "artifact_id": artifact_id,
+        "artifact_digest": artifact_digest,
+        "archive_sha256": approved["archive_sha256"],
+        # CI artifacts expire. Retain the already validated source/workflow/check
+        # contract and consumer-smoke evidence in the durable release record.
+        "package_manifest": parse_json(
+            (output / "approved/manifest.json").read_bytes(), "approved manifest"
+        ),
+        "assets": evidence,
+        "verified_at": datetime.datetime.now(datetime.UTC).isoformat(),
+    }
+    write_files(
+        output / "downloaded", downloads, limits={name: len(raw) for name, raw in downloads.items()}
+    )
+    write_files(
+        output / "receipt",
+        {"publication-receipt.json": json_bytes(receipt)},
+        limits={"publication-receipt.json": 128 * 1024},
+    )
+    return {**receipt, "receipt_path": str(output / "receipt/publication-receipt.json")}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    for name in ("build", "verify"):
+    for name in ("build", "verify", "verify-base", "verify-published"):
         command = commands.add_parser(name)
         command.add_argument("--repo-root", type=Path, default=Path.cwd())
-        command.add_argument("--output-dir", type=Path, required=True)
+        if name != "verify-base":
+            command.add_argument("--output-dir", type=Path, required=True)
         command.add_argument("--repository", required=True)
         command.add_argument("--repository-id", required=True, type=int)
         command.add_argument("--sha", required=True)
         command.add_argument("--github-output", type=Path)
     commands.choices["build"].add_argument("--run-id", required=True, type=int)
     commands.choices["build"].add_argument("--run-attempt", required=True, type=int)
-    verify = commands.choices["verify"]
-    verify.add_argument("--tag", required=True)
-    verify.add_argument("--run-id", type=int)
-    verify.add_argument("--run-attempt", type=int)
-    verify.add_argument("--artifact-id", type=int)
-    verify.add_argument("--artifact-digest")
-    verify.add_argument(
+    for name in ("verify", "verify-base", "verify-published"):
+        command = commands.choices[name]
+        required = name == "verify-published"
+        command.add_argument("--run-id", type=int, required=required)
+        command.add_argument("--run-attempt", type=int, required=required)
+        if name != "verify-base":
+            command.add_argument("--tag", required=True)
+            command.add_argument("--artifact-id", type=int, required=required)
+            command.add_argument("--artifact-digest", required=required)
+    commands.choices["verify"].add_argument(
         "--pre-tag",
         action="store_true",
-        help=(
-            "read-only preflight: require the proposed tag to be absent; never publication eligible"
-        ),
+        help="require an absent proposed tag; read-only and never publication eligible",
     )
     args = parser.parse_args()
     try:
@@ -845,6 +1033,30 @@ def main() -> None:
                 args.sha,
                 args.run_id,
                 args.run_attempt,
+            )
+        elif args.command == "verify-base":
+            result = verify_base_ci(
+                args.repo_root.resolve(),
+                GitHub(os.environ.get("GH_TOKEN", "")),
+                args.repository,
+                args.repository_id,
+                args.sha,
+                args.run_id,
+                args.run_attempt,
+            )
+        elif args.command == "verify-published":
+            result = verify_published(
+                args.repo_root.resolve(),
+                args.output_dir,
+                GitHub(os.environ.get("GH_TOKEN", "")),
+                args.repository,
+                args.repository_id,
+                args.sha,
+                args.tag,
+                args.run_id,
+                args.run_attempt,
+                args.artifact_id,
+                args.artifact_digest,
             )
         else:
             result = verify_package(

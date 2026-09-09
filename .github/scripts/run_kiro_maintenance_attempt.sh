@@ -28,8 +28,8 @@ then
   exit 2
 fi
 
-if [[ ! "$ATTEMPT_NUMBER" =~ ^[1-4]$ ]]; then
-  echo "ATTEMPT_NUMBER must be an integer from 1 through 4" >&2
+if [[ ! "$ATTEMPT_NUMBER" =~ ^[1-2]$ ]]; then
+  echo "ATTEMPT_NUMBER must be an integer from 1 through 2" >&2
   exit 2
 fi
 
@@ -46,7 +46,7 @@ cleanup_private_evidence() {
   local prior_rc=$?
   trap - EXIT
   case "$private_root" in
-    "$RUNNER_TEMP"/pkstack-kiro-private-[1-4]) ;;
+    "$RUNNER_TEMP"/pkstack-kiro-private-[1-2]) ;;
     *)
       echo "refusing unsafe Kiro private-evidence cleanup target" >&2
       exit 1
@@ -133,7 +133,7 @@ unlink "$inventory_path"
 unlink "$inventory_stderr_path"
 
 prompt=$(printf '%s\n' \
-  "This is bounded PKStack upstream repair ${ATTEMPT_NUMBER} of 4." \
+  "This is bounded PKStack upstream repair ${ATTEMPT_NUMBER} of 2." \
   "Trusted upstream inventory retrieval date: inventory_retrieved_on=$PKSTACK_UPSTREAM_RETRIEVED_ON. Use this value for the selected parity artifact's source.retrieved_on; do not infer a date from candidate content or your clock." \
   "Read AGENTS.md, .pkstack-ci/control-plan.json, .pkstack-ci/loop-memory.md, .pkstack-ci/upstream-delta.json, and .pkstack-ci/verification-feedback.txt." \
   "upstream-delta.json is a review index, not the full detector. Read every comparison.review_batches file for the selected source, in order, relative to .pkstack-ci. Each batch preserves complete patches and exact identities. Keep a path-classification record between batches; never infer unread changes from a summary. The original detector remains the acceptance authority." \

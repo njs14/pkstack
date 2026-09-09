@@ -24,6 +24,7 @@ class VerifierExecutionTests(unittest.TestCase):
         self,
         *,
         failure: bool = False,
+        attempt: int = 1,
         cleanup_failure: bool = False,
         proposal_reason: str = "",
         wrong_control_head: bool = False,
@@ -82,7 +83,8 @@ class VerifierExecutionTests(unittest.TestCase):
                     Path(".pkstack-maintenance/proposal.json").unlink()
                     Path(".pkstack-maintenance").rmdir()
             elif args[:2] == ["goal", "status"]:
-                result["goal"] = {"status": "passed", "max_attempts": 5, "attempt_count": 2}
+                result["goal"] = {"status": "passed", "max_attempts": 3,
+                                  "attempt_count": int(os.environ["ATTEMPT_NUMBER"]) + 1}
             print(json.dumps(result))
         """),
             encoding="utf-8",
@@ -161,7 +163,7 @@ class VerifierExecutionTests(unittest.TestCase):
             "GUARD_PATH": str(guard),
             "TRUSTED_PROJECTCTL_ROOT": str(trusted),
             "TRUSTED_ROOT": str(trusted),
-            "ATTEMPT_NUMBER": "1",
+            "ATTEMPT_NUMBER": str(attempt),
             "GITHUB_RUN_ID": "9876",
             "GITHUB_OUTPUT": str(output),
             "READONLY_GITHUB_TOKEN": "noncredential-test-double",
@@ -208,6 +210,14 @@ class VerifierExecutionTests(unittest.TestCase):
         self.assertEqual(list(diagnostic_root.glob("*.stage")), [])
         self.assertEqual(list(diagnostic_root.glob("*.reason")), [])
         return result, json.loads(raw), output, feedback, runner
+
+    def test_second_repair_can_pass_or_exhaust_without_a_third_attempt(self):
+        for failure in (False, True):
+            result, report, output, _, _ = self.execute(attempt=2, failure=failure)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(report["attempt"], 2)
+            self.assertEqual(report["passed"], not failure)
+            self.assertIn(f"passed={str(not failure).lower()}", output.read_text())
 
     def test_real_shell_success_reaches_complete_and_emits_only_fixed_metadata(self):
         result, report, output, feedback, runner = self.execute()

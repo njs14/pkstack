@@ -101,7 +101,7 @@ class ModelInventoryTests(unittest.TestCase):
         with self.assertRaisesRegex(validator.InventoryError, "root contract"):
             validator.validate_inventory_bytes(encoded(inventory))
 
-    def test_runner_preflights_before_chat_and_preserves_four_secret_steps(self) -> None:
+    def test_runner_preflights_before_chat_and_preserves_two_secret_steps(self) -> None:
         runner = (ROOT / ".github/scripts/run_kiro_maintenance_attempt.sh").read_text()
         workflow = (ROOT / ".github/workflows/pk-stack-upstream-maintenance-kiro.yml").read_text()
         self.assertIn("validate_kiro_model_inventory.py", runner)
@@ -118,8 +118,8 @@ class ModelInventoryTests(unittest.TestCase):
         self.assertNotIn("--model auto", runner)
         self.assertNotIn("--model gpt-5.6-terra", runner)
         self.assertNotIn("--model gpt-5.6-luna", runner)
-        self.assertEqual(workflow.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 4)
-        self.assertEqual(workflow.count('run: bash "$KIRO_RUNNER_PATH"'), 4)
+        self.assertEqual(workflow.count("KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}"), 2)
+        self.assertEqual(workflow.count('run: bash "$KIRO_RUNNER_PATH"'), 2)
         self.assertIn(
             'python3 -B "$TRUSTED_ROOT/.github/scripts/test_validate_kiro_model_inventory.py"',
             workflow,

@@ -775,12 +775,13 @@
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "443bf2d59196c018fb4b9d98b6a0720099b8dc28115a27b8cdb2e4a4fa83c466",
+      "sha256": "c31fe8d0cdaf4d1d719a211d1bb918957676006b6118efce9ee9190df13d8492",
       "classification": "mapped",
       "topics": [
-        "Wiki/knowledge/pkstack/quality-and-ci.md"
+        "Wiki/knowledge/pkstack/quality-and-ci.md",
+        "Wiki/knowledge/pkstack/release-and-review.md"
       ],
-      "summary": "Fresh worktrees use locked environments and reviewed setup; fast/full checks and explicit knowledge mappings preserve evidence scope and fail rather than hide missing coverage."
+      "summary": "Locked worktrees use shared fast/full checks and explicit knowledge mappings. Two CI jobs retain complete checks; release review and attached receipts avoid repeated local gates and publication-record PRs."
     },
     {
       "path": "README.md",
