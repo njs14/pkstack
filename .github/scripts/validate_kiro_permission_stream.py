@@ -42,7 +42,7 @@ ALLOWED_WRITES = (
         "AUTHORED_STEERING_OK\n",
     ),
     (
-        "powers/pkstack/docs/upstream-skill-parity.json",
+        "powers/pkstack/metadata/upstream-skill-parity.json",
         '{"permission_smoke":true}\n',
     ),
     ("powers/pkstack/docs/smoke/permission.md", "AUTHORED_DOCS_OK\n"),

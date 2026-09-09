@@ -19,6 +19,13 @@ current-session verification loop.
 
 ## Local checks
 
+The root `pyproject.toml` and `uv.lock` own the development environment, including
+pytest, Ruff, and ty. They install the canonical Power as an editable local dependency.
+The Power keeps an independent runtime-only manifest and lockfile so an extracted
+Power can bootstrap without this repository. Root `ruff.toml` and `ty.toml` cover
+all maintained Python surfaces. Run repository checks with `--project .`; use the
+Power-local setup shim for consumer installation.
+
 ### Fresh checkout or worktree
 
 Start from current `main` in this repository (`njs14/pkstack`). Keep earlier
@@ -31,15 +38,15 @@ git fetch origin
 git worktree add -b my-change ../pkstack-my-change origin/main
 cd ../pkstack-my-change
 export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
-uv sync --locked --all-groups --project powers/pkstack
+uv sync --locked --all-groups --project .
 ```
 
 Read the Power-local setup script before running it. Preview setup from the
 repository root, then apply only a conflict-free preview:
 
 ```sh
-uv run --frozen --project powers/pkstack python powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py --root . --dry-run
-uv run --frozen --project powers/pkstack python powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py --root .
+uv run --frozen --project . python powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py --root . --dry-run
+uv run --frozen --project . python powers/pkstack/skills/pkstack-setup/scripts/setup_pkstack.py --root .
 .pkstack/bin/projectctl doctor --output json
 .pkstack/bin/projectctl feature validate --output json
 .pkstack/bin/projectctl knowledge validate --output json
@@ -58,15 +65,15 @@ before pushing a reviewed checkpoint. From the repository root:
 
 ```sh
 export UV_PROJECT_ENVIRONMENT="$PWD/.venv"
-uv sync --locked --all-groups --project powers/pkstack
-uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local fast
+uv sync --locked --all-groups --project .
+uv run --frozen --project . python -B .github/scripts/pkstack_checks.py local fast
 ```
 
 Use the shared complete check driver when investigating a broad failure or when
 GitHub CI is unavailable:
 
 ```sh
-uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_checks.py local full
+uv run --frozen --project . python -B .github/scripts/pkstack_checks.py local full
 ```
 
 The complete driver needs Node.js, Chrome, uv, bash, jq, actionlint, and shellcheck.
@@ -81,7 +88,7 @@ may skip; browser dependencies are required for complete proof.
 
 PR CI uses a narrow allowlist for release-report-only changes. It checks local
 links, referenced files, diff integrity, and repository knowledge coverage using
-the locked Power environment without starting the product suite.
+the locked repository development environment without starting the product suite.
 Mixed changes, reviewer prompts, policy, dependencies, and unknown paths use normal
 CI. Normal CI retains the core suite and a small browser smoke; Archify, dependency,
 and CI/browser changes select expanded browser coverage. Main always runs the
@@ -129,7 +136,7 @@ Workflow resumption requires explicit authorization and is outside a code-only c
 ### Measuring local link validation
 
 ```sh
-uv run --frozen --project powers/pkstack python benchmarks/knowledge_links.py
+uv run --frozen --project . python benchmarks/knowledge_links.py
 ```
 
 This secretless benchmark measures the repository Wiki and a temporary fixture
@@ -154,7 +161,7 @@ destination topic. New Markdown needs an explicit mapping or a specific exclusio
 being under `docs/`, `reviews/`, or beside an excluded native resource is not an exemption.
 Preserve original historical evidence and distinguish it from current guidance.
 
-Run `uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_knowledge_coverage.py`
+Run `uv run --frozen --project . python -B .github/scripts/pkstack_knowledge_coverage.py`
 from the repository root, or run the shared fast checks, which include it. The checker
 also inventories nonignored untracked Markdown locally. It is read-only and has no
 bulk hash-refresh mode. CI enforces coverage, freshness, metadata and links; reviewers

@@ -5,7 +5,7 @@ The accepted commit is `ad30107c31c06aec8a7d5636e0d1058118604e6f` and its root t
 
 <!-- pk-stack-upstream-genesis: {"commit":"ad30107c31c06aec8a7d5636e0d1058118604e6f","path":".","repository":"GoogleCloudPlatform/open-knowledge-format","source_id":"google-open-knowledge-format","subtree_sha":"d8b7583265ead834e3e7a3146ff7ce9a3533ddfe"} -->
 
-The [exact source inventory](google-open-knowledge-format-source-parity.json) accounts for all 132 regular blobs. `SPEC.md` is the normative semantic reference (A); README, license, code of conduct, and contribution context are provenance (C). Reference-agent code, connectors, examples, generated output, tests, and development files are excluded (B). No upstream code is executed or vendored.
+The [exact source inventory](../metadata/google-open-knowledge-format-source-parity.json) accounts for all 132 regular blobs. `SPEC.md` is the normative semantic reference (A); README, license, code of conduct, and contribution context are provenance (C). Reference-agent code, connectors, examples, generated output, tests, and development files are excluded (B). No upstream code is executed or vendored.
 
 The [pinned specification](https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/ad30107c31c06aec8a7d5636e0d1058118604e6f/SPEC.md) describes Markdown concepts with open type values, YAML frontmatter, optional provenance/trust/lifecycle families, Markdown links, index files, and logs. PKStack uses these document conventions while enforcing its own bounded workspace, metadata, and link checks. It does not implement the reference agent, computation execution, or a general OKF consumer; OKF's tolerant-consumer guidance does not relax PKStack's project validation.
 

@@ -15,12 +15,12 @@ Modeling consumes settled interview context and supports reusable definitions an
 The upstream `agents/openai.yaml` is recorded but not shipped. No upstream installer,
 agent configuration, hooks, or runtime is activated. Local skills remain native assets;
 only their project-specific knowledge output belongs in Wiki. The exact shipped bytes
-are bound by [`mattpocock-domain-modeling-bundle-manifest.json`](mattpocock-domain-modeling-bundle-manifest.json).
+are bound by [`mattpocock-domain-modeling-bundle-manifest.json`](../metadata/mattpocock-domain-modeling-bundle-manifest.json).
 
 ## Source identities
 
 These are the original upstream bytes, not hashes of the adapted local files. The
-exhaustive subtree inventory is [`mattpocock-domain-modeling-source-parity.json`](mattpocock-domain-modeling-source-parity.json).
+exhaustive subtree inventory is [`mattpocock-domain-modeling-source-parity.json`](../metadata/mattpocock-domain-modeling-source-parity.json).
 
 | Source-relative path | Git blob SHA-1 | SHA-256 | Bytes |
 | --- | --- | --- | --- |

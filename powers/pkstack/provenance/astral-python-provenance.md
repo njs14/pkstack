@@ -18,7 +18,7 @@ Claude invocation and automatic ty LSP claims are replaced with local skill refe
 explicit separate LSP task. No plugin metadata, hooks, installers, or global settings are activated.
 
 The complete plugin subtree, including excluded Claude plugin metadata, is inventoried in
-[astral-python-source-parity.json](astral-python-source-parity.json). Each skill's exact local
+[astral-python-source-parity.json](../metadata/astral-python-source-parity.json). Each skill's exact local
 bytes are bound by its `astral-<name>-bundle-manifest.json` in this directory.
 
 ## Original source identities

@@ -111,7 +111,7 @@ Every link below is pinned to the source commit. The descriptions state why a
 file was consulted; they do not imply that its expression was copied.
 
 The selected examples below are not the inventory boundary. The
-[machine-readable skill parity catalog](upstream-skill-parity.json) binds 45 previous and 47 current
+[machine-readable skill parity catalog](../metadata/upstream-skill-parity.json) binds 45 previous and 47 current
 top-level packages and all 122 package files at each reviewed revision: previous
 `7314f723a487ec406b6369fe5865ba034cfed166` and current
 `d7cde2b84eadbcd6fd890302c876f4436ccb6d82`, including package trees,

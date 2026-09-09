@@ -44,7 +44,7 @@ def test_astral_source_inventory_binds_actual_upstream_tree() -> None:
     load_upstream_review_ledger(ROOT, manifest)
     source = next(item for item in manifest.sources if item.source_id == "astral-python")
     assert (source.commit, source.subtree_sha) == (PIN, TREE)
-    inventory = json.loads((POWER / "docs/astral-python-source-parity.json").read_text())
+    inventory = json.loads((POWER / "metadata/astral-python-source-parity.json").read_text())
     for revision in ("pinned", "current"):
         assert inventory["source"][revision] == {"commit": PIN, "subtree_sha": TREE}
         assert _tree_sha(inventory["files"], revision) == TREE

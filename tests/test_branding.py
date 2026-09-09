@@ -96,20 +96,20 @@ def test_human_facing_surfaces_use_the_pkstack_brand() -> None:
 
 
 def test_repository_logo_is_a_png_asset() -> None:
-    _png_dimensions((ROOT / "assets/logo.png").read_bytes())
+    _png_dimensions((REPOSITORY_ROOT / "docs/assets/logo.png").read_bytes())
 
 
-def test_readmes_reference_the_bundled_logo() -> None:
-    _png_dimensions((ROOT / "assets/logo.png").read_bytes())
-    for readme, source in (
-        (REPOSITORY_ROOT / "README.md", "powers/pkstack/assets/logo.png"),
-        (ROOT / "README.md", "assets/logo.png"),
-    ):
-        image = re.search(rf'<img\b[^>]*src="{re.escape(source)}"[^>]*>', readme.read_text())
-        assert image is not None, readme
-        assert (readme.parent / source).is_file()
-        alt = re.search(r'\balt="([^"]+)"', image.group())
-        assert alt is not None and DISPLAY_NAME in alt.group(1)
+def test_repository_artwork_stays_outside_the_power() -> None:
+    readme = REPOSITORY_ROOT / "README.md"
+    source = "docs/assets/logo.png"
+    image = re.search(rf'<img\b[^>]*src="{re.escape(source)}"[^>]*>', readme.read_text())
+    assert image is not None
+    assert (readme.parent / source).is_file()
+    assert DISPLAY_NAME in image.group()
+    assert not (ROOT / "assets").exists()
+    assert "<img" not in (ROOT / "README.md").read_text()
+    jpg = (REPOSITORY_ROOT / "docs/assets/pkstack-power.jpg").read_bytes()
+    assert jpg.startswith(b"\xff\xd8") and jpg.endswith(b"\xff\xd9")
 
 
 def test_usage_does_not_present_the_distribution_as_a_checkout() -> None:

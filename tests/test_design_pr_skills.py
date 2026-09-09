@@ -75,6 +75,8 @@ def test_candidate_bundle_rejects_changed_reference_before_install(
     name, _, _ = SOURCES[source_id]
     candidate = tmp_path / "power"
     shutil.copytree(POWER / "docs", candidate / "docs")
+    shutil.copytree(POWER / "metadata", candidate / "metadata")
+    shutil.copytree(POWER / "provenance", candidate / "provenance")
     shutil.copytree(POWER / "skills", candidate / "skills")
     reference = next((candidate / "skills" / name / "references").glob("*.md"))
     reference.write_text(reference.read_text() + "\nUnreviewed change.\n")

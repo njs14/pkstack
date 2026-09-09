@@ -7,9 +7,9 @@
         "subtree_sha": "950b90234c17babd00c43e32b19ae50abb4720f5"
       },
       "id": "cursor-pstack",
-      "parity_path": "powers/pkstack/docs/upstream-skill-parity.json",
+      "parity_path": "powers/pkstack/metadata/upstream-skill-parity.json",
       "path": "pstack",
-      "provenance_path": "powers/pkstack/docs/provenance.md",
+      "provenance_path": "powers/pkstack/provenance/provenance.md",
       "repository": "cursor/plugins",
       "transitions": [
         {
@@ -702,9 +702,9 @@
         "subtree_sha": "1dd095000af2d0bb29986a9f11f97e3742feb2b3"
       },
       "id": "humanlayer-skills",
-      "parity_path": "powers/pkstack/docs/humanlayer-skills-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/humanlayer-skills-source-parity.json",
       "path": "plugins",
-      "provenance_path": "powers/pkstack/docs/humanlayer-skills-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/humanlayer-skills-provenance.md",
       "repository": "humanlayer/skills",
       "transitions": []
     },
@@ -714,9 +714,9 @@
         "subtree_sha": "d8b7583265ead834e3e7a3146ff7ce9a3533ddfe"
       },
       "id": "google-open-knowledge-format",
-      "parity_path": "powers/pkstack/docs/google-open-knowledge-format-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/google-open-knowledge-format-source-parity.json",
       "path": ".",
-      "provenance_path": "powers/pkstack/docs/google-open-knowledge-format-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/google-open-knowledge-format-provenance.md",
       "repository": "GoogleCloudPlatform/open-knowledge-format",
       "transitions": []
     },
@@ -726,9 +726,9 @@
         "subtree_sha": "ad2925850efb8973a72d2e666f7a975f9a2d4a9b"
       },
       "id": "mattpocock-writing-for-agents",
-      "parity_path": "powers/pkstack/docs/mattpocock-writing-for-agents-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-writing-for-agents-source-parity.json",
       "path": "skills/productivity/writing-for-agents",
-      "provenance_path": "powers/pkstack/docs/mattpocock-writing-for-agents-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-writing-for-agents-provenance.md",
       "repository": "mattpocock/skills",
       "transitions": []
     },
@@ -738,9 +738,9 @@
         "subtree_sha": "8cc9ed3986cf6c942f718439e1ee8249eb17a2ad"
       },
       "id": "okf-skills",
-      "parity_path": "powers/pkstack/docs/okf-skills-parity.json",
+      "parity_path": "powers/pkstack/metadata/okf-skills-parity.json",
       "path": "skills",
-      "provenance_path": "powers/pkstack/docs/okf-skills-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/okf-skills-provenance.md",
       "repository": "scaccogatto/okf-skills",
       "transitions": [
         {
@@ -792,9 +792,9 @@
         "subtree_sha": "cff24583cbdc3b7c7313580f3fa0636ade2e5279"
       },
       "id": "tt-a1i-archify",
-      "parity_path": "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/tt-a1i-archify-source-parity.json",
       "path": "archify",
-      "provenance_path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/tt-a1i-archify-provenance.md",
       "repository": "tt-a1i/archify",
       "transitions": [
         {
@@ -1059,9 +1059,9 @@
         "subtree_sha": "f0732035b8b1b60ae39454e4191caef32fa91903"
       },
       "id": "mattpocock-grilling",
-      "parity_path": "powers/pkstack/docs/mattpocock-grilling-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-grilling-source-parity.json",
       "path": "skills/productivity/grilling",
-      "provenance_path": "powers/pkstack/docs/mattpocock-grilling-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-grilling-provenance.md",
       "repository": "mattpocock/skills",
       "transitions": []
     },
@@ -1071,9 +1071,9 @@
         "subtree_sha": "3df14e2d3a89459bf300614be9247e3ce74798f8"
       },
       "id": "mattpocock-grill-me",
-      "parity_path": "powers/pkstack/docs/mattpocock-grill-me-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-grill-me-source-parity.json",
       "path": "skills/productivity/grill-me",
-      "provenance_path": "powers/pkstack/docs/mattpocock-grill-me-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-grill-me-provenance.md",
       "repository": "mattpocock/skills",
       "transitions": []
     },
@@ -1083,9 +1083,9 @@
         "subtree_sha": "388c9822641805ca2dcd5038e68a1d5282437ee5"
       },
       "id": "mattpocock-domain-modeling",
-      "parity_path": "powers/pkstack/docs/mattpocock-domain-modeling-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-domain-modeling-source-parity.json",
       "path": "skills/engineering/domain-modeling",
-      "provenance_path": "powers/pkstack/docs/mattpocock-domain-modeling-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-domain-modeling-provenance.md",
       "repository": "mattpocock/skills",
       "transitions": []
     },
@@ -1095,9 +1095,9 @@
         "subtree_sha": "eedaf2562c83155115e9c649fa3ecaac2e10e81d"
       },
       "id": "mattpocock-grill-with-docs",
-      "parity_path": "powers/pkstack/docs/mattpocock-grill-with-docs-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/mattpocock-grill-with-docs-source-parity.json",
       "path": "skills/engineering/grill-with-docs",
-      "provenance_path": "powers/pkstack/docs/mattpocock-grill-with-docs-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-grill-with-docs-provenance.md",
       "repository": "mattpocock/skills",
       "transitions": []
     },
@@ -1107,9 +1107,9 @@
         "subtree_sha": "8cc1cb9f539f90fd98efa4be3857c6d74fd8d839"
       },
       "id": "astral-python",
-      "parity_path": "powers/pkstack/docs/astral-python-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/astral-python-source-parity.json",
       "path": "plugins/astral",
-      "provenance_path": "powers/pkstack/docs/astral-python-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/astral-python-provenance.md",
       "repository": "astral-sh/claude-code-plugins",
       "transitions": []
     },
@@ -1119,9 +1119,9 @@
         "subtree_sha": "90d9f3c53a7fb64b44d0411bc0858a111c4aac23"
       },
       "id": "pbakaus-impeccable",
-      "parity_path": "powers/pkstack/docs/pbakaus-impeccable-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/pbakaus-impeccable-source-parity.json",
       "path": "skill",
-      "provenance_path": "powers/pkstack/docs/pbakaus-impeccable-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/pbakaus-impeccable-provenance.md",
       "repository": "pbakaus/impeccable",
       "transitions": [
         {
@@ -1185,9 +1185,9 @@
         "subtree_sha": "930db390730c900f644d054e4a322fc865437c34"
       },
       "id": "openai-babysit-pr",
-      "parity_path": "powers/pkstack/docs/openai-babysit-pr-source-parity.json",
+      "parity_path": "powers/pkstack/metadata/openai-babysit-pr-source-parity.json",
       "path": ".codex/skills/babysit-pr",
-      "provenance_path": "powers/pkstack/docs/openai-babysit-pr-provenance.md",
+      "provenance_path": "powers/pkstack/provenance/openai-babysit-pr-provenance.md",
       "repository": "openai/codex",
       "transitions": []
     }

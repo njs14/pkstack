@@ -4,6 +4,19 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.5.11]
+
+- Separate the consumer Power into user guides, machine-readable setup metadata,
+  and source provenance. Keep runtime code, templates, and locked bootstrap
+  dependencies self-contained; preserve every skill and upstream review transition.
+- Move pytest, Ruff, ty, and their configuration to the repository development
+  project. Keep the Power's independent lock runtime-only and update local/CI
+  checks without enabling hosted workflows.
+- Move README artwork outside the distributed Power and add a compact custom JPG.
+  Document the current `plugin.json` format, the legacy `POWER.md` alternative,
+  and Kiro's `dev.kiro` namespace. Keep detailed compatibility campaigns in the
+  repository and concise support guidance in the package.
+
 ## [0.5.10]
 
 - Update Archify to reviewed upstream `1072200`, embedding licensed offline fonts

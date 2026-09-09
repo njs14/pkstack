@@ -1,0 +1,146 @@
+{
+  "registry_type": "curated-skills",
+  "schema_version": 1,
+  "skills": [
+    {
+      "bundle_manifest": "metadata/tt-a1i-archify-bundle-manifest.json",
+      "bundle_root": "skills/archify",
+      "name": "archify",
+      "provenance": "provenance/tt-a1i-archify-provenance.md",
+      "source_id": "tt-a1i-archify",
+      "source_parity": "metadata/tt-a1i-archify-source-parity.json",
+      "target": "skills/archify/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/openai-babysit-pr-bundle-manifest.json",
+      "bundle_root": "skills/babysit-pr",
+      "name": "babysit-pr",
+      "provenance": "provenance/openai-babysit-pr-provenance.md",
+      "source_id": "openai-babysit-pr",
+      "source_parity": "metadata/openai-babysit-pr-source-parity.json",
+      "target": "skills/babysit-pr/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/humanlayer-build-iterated-agentic-loop-bundle-manifest.json",
+      "bundle_root": "skills/build-iterated-agentic-loop",
+      "name": "build-iterated-agentic-loop",
+      "provenance": "provenance/humanlayer-skills-provenance.md",
+      "source_id": "humanlayer-skills",
+      "source_parity": "metadata/humanlayer-skills-source-parity.json",
+      "target": "skills/build-iterated-agentic-loop/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/humanlayer-design-control-loop-bundle-manifest.json",
+      "bundle_root": "skills/design-control-loop",
+      "name": "design-control-loop",
+      "provenance": "provenance/humanlayer-skills-provenance.md",
+      "source_id": "humanlayer-skills",
+      "source_parity": "metadata/humanlayer-skills-source-parity.json",
+      "target": "skills/design-control-loop/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-domain-modeling-bundle-manifest.json",
+      "bundle_root": "skills/domain-modeling",
+      "name": "domain-modeling",
+      "provenance": "provenance/mattpocock-domain-modeling-provenance.md",
+      "source_id": "mattpocock-domain-modeling",
+      "source_parity": "metadata/mattpocock-domain-modeling-source-parity.json",
+      "target": "skills/domain-modeling/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-grill-me-bundle-manifest.json",
+      "bundle_root": "skills/grill-me",
+      "name": "grill-me",
+      "provenance": "provenance/mattpocock-grill-me-provenance.md",
+      "source_id": "mattpocock-grill-me",
+      "source_parity": "metadata/mattpocock-grill-me-source-parity.json",
+      "target": "skills/grill-me/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-grill-with-docs-bundle-manifest.json",
+      "bundle_root": "skills/grill-with-docs",
+      "name": "grill-with-docs",
+      "provenance": "provenance/mattpocock-grill-with-docs-provenance.md",
+      "source_id": "mattpocock-grill-with-docs",
+      "source_parity": "metadata/mattpocock-grill-with-docs-source-parity.json",
+      "target": "skills/grill-with-docs/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-grilling-bundle-manifest.json",
+      "bundle_root": "skills/grilling",
+      "name": "grilling",
+      "provenance": "provenance/mattpocock-grilling-provenance.md",
+      "source_id": "mattpocock-grilling",
+      "source_parity": "metadata/mattpocock-grilling-source-parity.json",
+      "target": "skills/grilling/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/pbakaus-impeccable-bundle-manifest.json",
+      "bundle_root": "skills/impeccable",
+      "name": "impeccable",
+      "provenance": "provenance/pbakaus-impeccable-provenance.md",
+      "source_id": "pbakaus-impeccable",
+      "source_parity": "metadata/pbakaus-impeccable-source-parity.json",
+      "target": "skills/impeccable/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/humanlayer-narrow-react-prop-types-bundle-manifest.json",
+      "bundle_root": "skills/narrow-react-prop-types",
+      "name": "narrow-react-prop-types",
+      "provenance": "provenance/humanlayer-skills-provenance.md",
+      "source_id": "humanlayer-skills",
+      "source_parity": "metadata/humanlayer-skills-source-parity.json",
+      "target": "skills/narrow-react-prop-types/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/astral-ruff-bundle-manifest.json",
+      "bundle_root": "skills/ruff",
+      "name": "ruff",
+      "provenance": "provenance/astral-python-provenance.md",
+      "source_id": "astral-python",
+      "source_parity": "metadata/astral-python-source-parity.json",
+      "target": "skills/ruff/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/humanlayer-show-me-bundle-manifest.json",
+      "bundle_root": "skills/show-me",
+      "name": "show-me",
+      "provenance": "provenance/humanlayer-skills-provenance.md",
+      "source_id": "humanlayer-skills",
+      "source_parity": "metadata/humanlayer-skills-source-parity.json",
+      "target": "skills/show-me/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/astral-ty-bundle-manifest.json",
+      "bundle_root": "skills/ty",
+      "name": "ty",
+      "provenance": "provenance/astral-python-provenance.md",
+      "source_id": "astral-python",
+      "source_parity": "metadata/astral-python-source-parity.json",
+      "target": "skills/ty/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/astral-uv-bundle-manifest.json",
+      "bundle_root": "skills/uv",
+      "name": "uv",
+      "provenance": "provenance/astral-python-provenance.md",
+      "source_id": "astral-python",
+      "source_parity": "metadata/astral-python-source-parity.json",
+      "target": "skills/uv/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-writing-for-agents-bundle-manifest.json",
+      "bundle_root": "skills/writing-for-agents",
+      "name": "writing-for-agents",
+      "provenance": "provenance/mattpocock-writing-for-agents-provenance.md",
+      "source_id": "mattpocock-writing-for-agents",
+      "source_parity": "metadata/mattpocock-writing-for-agents-source-parity.json",
+      "target": "skills/writing-for-agents/SKILL.md"
+    }
+  ],
+  "summary": {
+    "bundle_file_count": 99,
+    "curated_skill_count": 15,
+    "shipped_skill_directories": 15
+  }
+}

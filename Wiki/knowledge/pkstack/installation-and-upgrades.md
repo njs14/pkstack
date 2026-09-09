@@ -25,6 +25,23 @@ The public launcher and asset-bearing wheel path have been retired. Setup runs
 from the loaded Power, while the installed controller preserves the caller's
 application environment for verification.
 
+## Consumer package boundary
+
+The current Power uses `plugin.json`; Kiro still accepts legacy `POWER.md` as an
+alternative, and does not document `POWERS.md`. `dev.kiro` is Kiro's reverse-domain
+extension namespace. It is required by this package's steering layout, not a
+place for development-only files. The [Power compatibility guide](../../../powers/pkstack/docs/kiro-v3-compatibility.md)
+explains the format and dated support limits.
+
+User guides live in `powers/pkstack/docs/`. Setup catalogs and integrity manifests
+live in `metadata/`, while upstream attribution and adaptation records live in
+`provenance/`. These remain packaged because bootstrap validates the complete
+skill bundle and consumers need its attribution. Runtime source, templates, and
+locks remain self-contained. The root development project adds test and static
+analysis tools without shipping them in the Power's dependency graph. README
+artwork and detailed compatibility campaigns live in repository `docs/`.
+
+
 ## Retained launcher evidence
 
 Historical launcher reviews below describe the versions they tested. The

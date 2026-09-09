@@ -1,7 +1,7 @@
 # PKStack & friends
 
 <p align="center">
-  <img src="powers/pkstack/assets/logo.png" alt="PKStack: Kiro and three ghost friends above an open book, framed by an OKF knowledge tree. Kiro wears a graduation cap." width="360">
+  <img src="docs/assets/logo.png" alt="PKStack: Kiro and three ghost friends above an open book, framed by an OKF knowledge tree. Kiro wears a graduation cap." width="360">
 </p>
 
 Engineering workflows, repeatable checks, and project knowledge for Kiro.
@@ -17,7 +17,7 @@ PKStack adds the workflows, verification records, and repository Wiki.
 
 [Quick start](#quick-start) · [Why PKStack](#why-pkstack) ·
 [Capabilities](#what-pkstack-does) · [How it works](#how-it-works) ·
-[Sources](#sources-and-friends) · [Docs](#docs-and-contributing)
+[Sources](#sources-and-friends) · [Docs](#docs-and-contributing) · [Power artwork](docs/assets/pkstack-power.jpg)
 
 ## Quick start
 
@@ -144,7 +144,7 @@ PKStack started with Poteto's pstack. The additional skills have specific jobs:
 | [Google's OKF specification](https://github.com/GoogleCloudPlatform/open-knowledge-format) | The knowledge format that informs the Wiki structure. |
 
 These are reviewed adaptations for Kiro. The
-[port inventory](powers/pkstack/docs/upstream-skill-parity.md) records the original workflows,
+[port inventory](powers/pkstack/provenance/upstream-skill-parity.md) records the original workflows,
 Kiro replacements, and exclusions; the [third-party notices](powers/pkstack/THIRD_PARTY_NOTICES.md) retain
 attribution. [Upstream maintenance](docs/upstream-control-loop.md) has its own
 review and acceptance process.

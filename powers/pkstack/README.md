@@ -1,9 +1,5 @@
 # PKStack & friends
 
-<p align="center">
-  <img src="assets/logo.png" alt="PKStack: Kiro and three ghost friends above an open book, framed by an OKF knowledge tree. Kiro wears a graduation cap." width="360">
-</p>
-
 Engineering workflows, repeatable checks, and project knowledge for Kiro.
 
 PKStack brings Poteto's pstack workflows and a curated set of development skills
@@ -115,6 +111,13 @@ observed CLI syntax limits and what remains unverified.
 
 ## Control and compatibility
 
+This Power uses `plugin.json`, the current Kiro format. The legacy manifest is
+`POWER.md` (singular). See [Power format and supported surfaces](docs/kiro-v3-compatibility.md).
+The package contains user guides in `docs/`, setup catalogs in `metadata/`, and
+source attribution in `provenance/`. Runtime code, locked dependencies, templates,
+and the optional first-task example remain self-contained. Repository artwork
+and development tooling are maintained outside this folder.
+
 The workspace profile respects your Kiro permissions for Git, ordinary writes,
 and controller commands, while retaining its protected-file and destructive-command denies.
 Setup records the files it manages and reports conflicts during upgrades.
@@ -144,7 +147,7 @@ PKStack started with Poteto's pstack. The additional skills have specific jobs:
 | [Google's OKF specification](https://github.com/GoogleCloudPlatform/open-knowledge-format) | The knowledge format that informs the Wiki structure. |
 
 These are reviewed adaptations for Kiro. The
-[port inventory](docs/upstream-skill-parity.md) records the original workflows,
+[port inventory](provenance/upstream-skill-parity.md) records the original workflows,
 Kiro replacements, and exclusions; the [third-party notices](THIRD_PARTY_NOTICES.md) retain
 attribution. [Upstream maintenance](https://github.com/njs14/pkstack/blob/main/docs/upstream-control-loop.md) has its own
 review and acceptance process.

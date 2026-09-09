@@ -15,12 +15,12 @@ The focused entrypoint reuses the shared method. Standalone decision interviews 
 The upstream `agents/openai.yaml` is recorded but not shipped. No upstream installer,
 agent configuration, hooks, or runtime is activated. Local skills remain native assets;
 only their project-specific knowledge output belongs in Wiki. The exact shipped bytes
-are bound by [`mattpocock-grill-me-bundle-manifest.json`](mattpocock-grill-me-bundle-manifest.json).
+are bound by [`mattpocock-grill-me-bundle-manifest.json`](../metadata/mattpocock-grill-me-bundle-manifest.json).
 
 ## Source identities
 
 These are the original upstream bytes, not hashes of the adapted local files. The
-exhaustive subtree inventory is [`mattpocock-grill-me-source-parity.json`](mattpocock-grill-me-source-parity.json).
+exhaustive subtree inventory is [`mattpocock-grill-me-source-parity.json`](../metadata/mattpocock-grill-me-source-parity.json).
 
 | Source-relative path | Git blob SHA-1 | SHA-256 | Bytes |
 | --- | --- | --- | --- |

@@ -3,6 +3,7 @@
 import copy
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -309,6 +310,8 @@ class PytestProcessTests(unittest.TestCase):
                 (root / "powers/pkstack").symlink_to(
                     repository / "powers/pkstack", target_is_directory=True
                 )
+                for name in ("pyproject.toml", "uv.lock"):
+                    shutil.copyfile(repository / name, root / name)
                 (tests / "test_probe.py").write_text(
                     f"import pytest\ndef test_first(tmp_path):\n    {body}\n"
                     "def test_second(tmp_path):\n    assert tmp_path.is_dir()\n"
@@ -341,6 +344,8 @@ class GitPlanTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         for path in (
             ".github/scripts/check.py",
+            "pyproject.toml",
+            "uv.lock",
             "powers/pkstack/pyproject.toml",
             "powers/pkstack/uv.lock",
             ".coveragerc",

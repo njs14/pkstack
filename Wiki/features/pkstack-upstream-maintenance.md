@@ -21,9 +21,9 @@ related:
   - ../knowledge/pkstack/context-depth.md
   - ../../maintenance/upstreams.json
   - ../../maintenance/upstream-reviews.json
-  - ../../powers/pkstack/docs/provenance.md
-  - ../../powers/pkstack/docs/okf-skills-provenance.md
-  - ../../powers/pkstack/docs/okf-spec-provenance.md
+  - ../../powers/pkstack/provenance/provenance.md
+  - ../../powers/pkstack/provenance/okf-skills-provenance.md
+  - ../../powers/pkstack/provenance/okf-spec-provenance.md
 ---
 
 # PKStack upstream maintenance

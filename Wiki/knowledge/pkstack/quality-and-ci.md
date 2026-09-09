@@ -9,7 +9,7 @@ tags: [pkstack, ci, testing, python, knowledge]
 
 ## Use the candidate's checked environment
 
-Use a clean checkout/worktree of current PKStack, the locked Power dependencies, and reviewed setup
+Use a clean checkout/worktree of current PKStack, the locked root development environment, and reviewed setup
 previews. Do not copy another worktree's virtual environment or generated controller. After
 canonical asset changes, refresh only expected managed updates and confirm a second preview is
 clean. A stale generated controller cannot validate a changed Power.
@@ -38,8 +38,10 @@ The verifier considers the newest main run across push and dispatch events witho
 
 Maintainer commands set `UV_PROJECT_ENVIRONMENT` to the repository's ignored `.venv`.
 Root `pytest.ini` collects `tests/`; root Ruff/ty configurations cover the relocated
-tests and benchmarks while the Power configuration covers installed source, examples,
-and setup. `.coveragerc` retains branch measurement and the 85 percent threshold.
+tests, benchmarks, installed source, examples, and setup. The root `pyproject.toml`
+and `uv.lock` install the Power as an editable dependency and own pytest/Ruff/ty.
+The independent Power lock contains runtime dependencies only; static verification
+checks both locks, and the CI configuration digest includes both manifests/locks. `.coveragerc` retains branch measurement and the 85 percent threshold.
 Pytest and Ruff caches stay at the repository root. The collected test IDs remain
 `tests/...`, preserving the complete collection and the installed-Kiro skip sentinel.
 Trusted-controller snapshots retain their own private `.venv`: each trusted `uv sync`
@@ -107,7 +109,7 @@ also participates so a new document cannot produce a misleading green pre-commit
 Run the read-only gate from the repository root:
 
 ```sh
-uv run --frozen --project powers/pkstack python -B .github/scripts/pkstack_knowledge_coverage.py
+uv run --frozen --project . python -B .github/scripts/pkstack_knowledge_coverage.py
 ```
 
 It rejects stale hashes, unclassified/obsolete/unsafe paths, invalid mappings, missing backlinks,

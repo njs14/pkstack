@@ -27,7 +27,7 @@ POWER_PATHS = (
     "examples",
     "skills/pkstack-setup/scripts/setup_pkstack.py",
 )
-LOCKED = ("uv", "run", "--frozen", "--project", POWER)
+LOCKED = ("uv", "run", "--frozen", "--project", ".")
 # Embedded bodies target the same minimum interpreter as the rest of the repository.
 EMBEDDED_PYTHON_VERSION = "3.11"
 # `<<<` is a here-string, not a here-document; a here-document delimiter is a word.
@@ -186,7 +186,7 @@ def check_bodies(root: Path, bodies: list[EmbeddedBody]) -> None:
         config = str(root / "ruff.toml")
         # The staged directory carries no configuration of its own, so the repository
         # rule set is passed explicitly and ty is pinned to the supported version.
-        locked = ["uv", "run", "--frozen", "--project", str(root / POWER)]
+        locked = ["uv", "run", "--frozen", "--project", str(root)]
         run([*locked, "ruff", "check", "--config", config, "--no-cache", str(stage)], root)
         run(
             [*locked, "ruff", "format", "--check", "--config", config, "--no-cache", str(stage)],
@@ -197,18 +197,15 @@ def check_bodies(root: Path, bodies: list[EmbeddedBody]) -> None:
 
 def static_commands(root: Path) -> list[tuple[Path, list[str]]]:
     """Every locked lint, format and type command for checked-in Python files."""
-    power = Path(root) / POWER
+    root = Path(root)
+    paths = [f"{POWER}/{path}" for path in POWER_PATHS]
+    paths += [".github", "tests", "benchmarks"]
     return [
-        (power, ["uv", "lock", "--check"]),
-        (power, ["uv", "run", "--frozen", "ruff", "check", *POWER_PATHS]),
-        (power, ["uv", "run", "--frozen", "ruff", "format", "--check", *POWER_PATHS]),
-        (power, ["uv", "run", "--frozen", "ty", "check"]),
-        # Workflow scripts live outside the Power project, so they are checked from
-        # the repository root against `ruff.toml`/`ty.toml` while still running the
-        # locked analyzers from the Power environment.
-        (Path(root), [*LOCKED, "ruff", "check", ".github", "tests", "benchmarks"]),
-        (Path(root), [*LOCKED, "ruff", "format", "--check", ".github", "tests", "benchmarks"]),
-        (Path(root), [*LOCKED, "ty", "check"]),
+        (root, ["uv", "lock", "--check"]),
+        (root / POWER, ["uv", "lock", "--check"]),
+        (root, [*LOCKED, "ruff", "check", *paths]),
+        (root, [*LOCKED, "ruff", "format", "--check", *paths]),
+        (root, [*LOCKED, "ty", "check"]),
     ]
 
 

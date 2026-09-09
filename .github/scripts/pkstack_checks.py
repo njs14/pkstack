@@ -50,6 +50,8 @@ def config_digest(root):
         and "__pycache__" not in p.parts
     )
     paths += [
+        root / "pyproject.toml",
+        root / "uv.lock",
         root / "powers/pkstack/pyproject.toml",
         root / "powers/pkstack/uv.lock",
         root / ".coveragerc",
@@ -382,7 +384,7 @@ def run_product(root, context, scope, output):
         "run",
         "--frozen",
         "--project",
-        "powers/pkstack",
+        ".",
         "pytest",
         "tests",
         "-o",
@@ -418,7 +420,7 @@ def run_checks(root, context, scope, output):
                     "run",
                     "--frozen",
                     "--project",
-                    "powers/pkstack",
+                    ".",
                     "python",
                     "-B",
                     ".github/scripts/pkstack_knowledge_coverage.py",

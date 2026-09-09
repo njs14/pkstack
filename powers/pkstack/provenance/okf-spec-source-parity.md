@@ -1,7 +1,7 @@
 # Google OKF source parity
 
 This is the human-readable view of the
-[source-scoped machine inventory](okf-spec-source-parity.json) for
+[source-scoped machine inventory](../metadata/okf-spec-source-parity.json) for
 `GoogleCloudPlatform/knowledge-catalog` at commit
 `fbbc7975388288244dfc62aea0066600b25b7c47` and `okf/` tree
 `a8cc7ed0f4ec6bb6019da9b8ace51e3e6dafd06f`. The JSON accounts for all 129

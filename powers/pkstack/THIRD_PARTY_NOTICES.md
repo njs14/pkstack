@@ -15,7 +15,7 @@ workflow contracts in Cursor's public pstack plugin.
 - Accepted pin: `7314f723a487ec406b6369fe5865ba034cfed166`
 - Copyright: Copyright (c) 2026 Lauren Tan
 - License: MIT
-- Detailed file-level provenance: [`docs/provenance.md`](docs/provenance.md)
+- Detailed file-level provenance: [`provenance/provenance.md`](provenance/provenance.md)
 
 The upstream MIT notice follows verbatim.
 
@@ -56,7 +56,7 @@ redistributed or executed.
 - Pinned commit: `bf2448f03686a8348324e4741106697d30a867f9`
 - Copyright: Copyright (c) 2026 Marco Boffo
 - License: MIT
-- Detailed provenance: [`docs/okf-skills-provenance.md`](docs/okf-skills-provenance.md)
+- Detailed provenance: [`provenance/okf-skills-provenance.md`](provenance/okf-skills-provenance.md)
 
 The upstream MIT notice follows verbatim.
 
@@ -94,7 +94,7 @@ records preserve prior attribution; PKStack does not vendor or execute the schem
 - Source: <https://github.com/openknowledge-sh/openknowledge/tree/6e8bbe026448fd890ace9293bcfe89b53363cd1f/packages/cli/schemas/v1>
 - Pinned commit: `6e8bbe026448fd890ace9293bcfe89b53363cd1f`
 - License: Apache License 2.0
-- Detailed provenance: [`docs/openknowledge-cli-contract-provenance.md`](docs/openknowledge-cli-contract-provenance.md)
+- Detailed provenance: [`provenance/openknowledge-cli-contract-provenance.md`](provenance/openknowledge-cli-contract-provenance.md)
 
 The schemas are not redistributed. The root `LICENSE` contains the Apache License 2.0 text but
 licenses PKStack rather than transferring ownership of OpenKnowledge.
@@ -150,7 +150,7 @@ from `mattpocock/skills` while excluding OpenAI-only UI metadata.
 - Pinned commit: `6654f6b60cd9d5be8b54c6fafe44346dabeb3b76`
 - Copyright: Copyright (c) 2026 Matt Pocock
 - License: MIT
-- Detailed provenance: [`docs/mattpocock-writing-for-agents-provenance.md`](docs/mattpocock-writing-for-agents-provenance.md)
+- Detailed provenance: [`provenance/mattpocock-writing-for-agents-provenance.md`](provenance/mattpocock-writing-for-agents-provenance.md)
 
 The Matt Pocock MIT notice in the following section also applies to this source.
 The `LICENSE` bytes at both recorded source revisions are identical.
@@ -201,7 +201,7 @@ PKStack redistributes a reviewed, byte-addressed subset of the Archify runtime
 under [`skills/archify/upstream/`](skills/archify/upstream). The Kiro wrapper
 and curated bundle manifest are separate from the pinned upstream source.
 The runtime preserves upstream bytes except for the documented PKStack layout
-patches in [Archify provenance](docs/tt-a1i-archify-provenance.md), which records
+patches in [Archify provenance](provenance/tt-a1i-archify-provenance.md), which records
 original and local hashes. Tests, rendered demo HTML, `node_modules`, build/gallery tooling, the
 network update checker, and npm lock/install workflow are intentionally not
 included.
@@ -211,8 +211,8 @@ included.
 - Pinned commit: `2ead014aa8ec91f104cd052f1a6ca82de5e26c31`
 - Copyright: Copyright (c) 2026 tt-a1i (Archify); Copyright (c) 2025 Cocoon AI
 - License: MIT
-- Detailed file-level provenance: [`docs/tt-a1i-archify-provenance.md`](docs/tt-a1i-archify-provenance.md)
-- Exact shipped bundle: [`docs/tt-a1i-archify-bundle-manifest.json`](docs/tt-a1i-archify-bundle-manifest.json)
+- Detailed file-level provenance: [`provenance/tt-a1i-archify-provenance.md`](provenance/tt-a1i-archify-provenance.md)
+- Exact shipped bundle: [`metadata/tt-a1i-archify-bundle-manifest.json`](metadata/tt-a1i-archify-bundle-manifest.json)
 
 The vendored runtime includes the upstream MIT license and its separate
 third-party brand-mark notice at [`skills/archify/upstream/LICENSE`](skills/archify/upstream/LICENSE)
@@ -385,7 +385,7 @@ SOFTWARE.
 - Copyright 2025 Paul Bakaus
 - License: Apache License 2.0; complete terms in [LICENSE](LICENSE)
 - [Source license](https://github.com/pbakaus/impeccable/blob/dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9/LICENSE)
-- [Adaptations and exclusions](docs/pbakaus-impeccable-provenance.md)
+- [Adaptations and exclusions](provenance/pbakaus-impeccable-provenance.md)
 
 PKStack modified and condensed the design instructions for Kiro. It does not redistribute
 Impeccable's binary, browser tooling, fonts, or its iOS/Android platform references. The upstream
@@ -399,7 +399,7 @@ NOTICE.md attributes those excluded platform references to ehmo's MIT-licensed
 - OpenAI Codex, Copyright 2025 OpenAI
 - License: Apache License 2.0; complete terms in [LICENSE](LICENSE)
 - [Source license](https://github.com/openai/codex/blob/9f70e348e0227980de97e361cce830236fb18317/LICENSE)
-- [Adaptations and exclusions](docs/openai-babysit-pr-provenance.md)
+- [Adaptations and exclusions](provenance/openai-babysit-pr-provenance.md)
 
 PKStack modified the workflow and heuristics for Kiro and its existing authorization and
 completion contract. The Python watcher and Codex profile are not redistributed. The upstream
