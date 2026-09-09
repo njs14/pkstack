@@ -358,6 +358,7 @@ def verify_tests(evidence, scope):
 
 def run_product(root, context, scope, output):
     evidence_path = output / "diagnostics/product.json"
+    evidence_path.parent.mkdir(parents=True, exist_ok=False)
     env = dict(
         os.environ,
         PKSTACK_CHECK_SCOPE=scope,

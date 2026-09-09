@@ -282,7 +282,7 @@ class PluginTests(unittest.TestCase):
 
 
 class PytestProcessTests(unittest.TestCase):
-    def test_real_pytest_rejects_skips_failures_interruptions_and_early_exit(self):
+    def test_real_runner_rejects_skips_failures_interruptions_and_early_exit(self):
         repository = Path(__file__).resolve().parents[2]
         cases = {
             "passed": "assert True",
@@ -291,54 +291,42 @@ class PytestProcessTests(unittest.TestCase):
             "cancelled": "raise KeyboardInterrupt()",
             "early-exit": "pytest.exit('incomplete', returncode=0)",
         }
+        real_run = subprocess.run
         for mode, body in cases.items():
             with self.subTest(mode=mode), tempfile.TemporaryDirectory() as folder:
                 root = Path(folder)
                 tests = root / "tests"
                 tests.mkdir()
+                # Only the test collection is replaced; exercise the actual shared
+                # runner, locked tooling, evidence plugin and basetemp creation.
+                (root / ".github").symlink_to(repository / ".github", target_is_directory=True)
+                (root / "powers").mkdir()
+                (root / "powers/pkstack").symlink_to(
+                    repository / "powers/pkstack", target_is_directory=True
+                )
                 (tests / "test_probe.py").write_text(
-                    f"import pytest\ndef test_first():\n    {body}\n"
-                    "def test_second():\n    assert True\n"
+                    f"import pytest\ndef test_first(tmp_path):\n    {body}\n"
+                    "def test_second(tmp_path):\n    assert tmp_path.is_dir()\n"
                 )
-                evidence = root / "product.json"
-                environment = dict(
-                    os.environ,
-                    PYTHONPATH=str(repository / ".github/scripts"),
-                    PKSTACK_CHECK_SCOPE="full",
-                    PKSTACK_CHECK_EVIDENCE=str(evidence),
-                    UV_PROJECT_ENVIRONMENT=str(repository / ".venv"),
-                )
-                environment.pop("PYTEST_ADDOPTS", None)
-                environment.pop("PYTEST_PLUGINS", None)
-                result = subprocess.run(
-                    [
-                        "uv",
-                        "run",
-                        "--frozen",
-                        "--project",
-                        str(repository / "powers/pkstack"),
-                        "pytest",
-                        "tests",
-                        "-o",
-                        "addopts=",
-                        "-q",
-                        "-p",
-                        "pkstack_pytest_evidence",
-                    ],
-                    cwd=root,
-                    env=environment,
-                    text=True,
-                    capture_output=True,
-                    timeout=30,
-                )
-                data = json.loads(evidence.read_text())
-                if mode == "passed":
-                    self.assertEqual(result.returncode, 0, result.stderr)
-                    self.assertEqual(checks.verify_tests(data, "full"), 2)
-                else:
-                    self.assertNotEqual(result.returncode, 0)
-                    with self.assertRaises(ValueError):
-                        checks.verify_tests(data, "full")
+                output = root / "checks"
+                output.mkdir()
+
+                def capture(command, **kwargs):
+                    return real_run(command, capture_output=True, text=True, timeout=30, **kwargs)
+
+                with (
+                    patch.dict(os.environ, {"UV_PROJECT_ENVIRONMENT": str(repository / ".venv")}),
+                    patch.object(checks.subprocess, "run", side_effect=capture),
+                ):
+                    if mode == "passed":
+                        data = checks.run_product(root, {"browser_profile": "full"}, "full", output)
+                        self.assertEqual(checks.verify_tests(data, "full"), 2)
+                    else:
+                        with self.assertRaises(subprocess.CalledProcessError):
+                            checks.run_product(root, {"browser_profile": "full"}, "full", output)
+                        data = json.loads((output / "diagnostics/product.json").read_text())
+                        with self.assertRaises(ValueError):
+                            checks.verify_tests(data, "full")
 
 
 class GitPlanTests(unittest.TestCase):
