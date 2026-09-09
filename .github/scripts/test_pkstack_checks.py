@@ -63,17 +63,22 @@ class ProfileTests(unittest.TestCase):
         workflow = (Path(__file__).resolve().parents[1] / "workflows/pk-stack-ci.yml").read_text()
         triggers = workflow.split("permissions:", 1)[0]
         self.assertIn("  push:\n    branches: [main]", triggers)
-        self.assertIn("  pull_request:\n\n", triggers)
+        self.assertIn("  pull_request:\n", triggers)
+        self.assertNotIn("branches:", triggers.split("  pull_request:\n", 1)[1])
         self.assertNotIn("pull_request_target", workflow)
         jobs = [
             line[2:-1]
-            for line in workflow.splitlines()
+            for line in workflow.split("\njobs:\n", 1)[1].splitlines()
             if line.startswith("  ") and not line.startswith("   ") and line.endswith(":")
-        ][2:]
+        ]
         self.assertEqual(jobs, ["deterministic", "package"])
         package = workflow.split("\n  package:\n", 1)[1]
         self.assertIn("needs: deterministic", package)
-        self.assertIn("github.event_name == 'push' && github.ref == 'refs/heads/main'", package)
+        self.assertIn(
+            "(github.event_name == 'push' || github.event_name == 'workflow_dispatch') "
+            "&& github.ref == 'refs/heads/main'",
+            package,
+        )
         self.assertIn("needs.deterministic.result == 'success'", package)
         self.assertNotIn("matrix:", workflow)
         self.assertNotIn("download-artifact", workflow)
@@ -377,6 +382,30 @@ class GitPlanTests(unittest.TestCase):
             (self.root / "new.py").write_text("changed\n")
             self.commit("moved candidate")
             with self.assertRaises(ValueError):
+                checks.validate_context(context, self.root)
+
+    def test_dispatched_ci_requires_its_exact_main_commit_and_complete_coverage(self):
+        event = self.root / "event.json"
+        event.write_text(json.dumps({"inputs": {"expected_sha": self.base}}))
+        with patch.dict(
+            checks.os.environ,
+            {
+                "GITHUB_EVENT_NAME": "workflow_dispatch",
+                "GITHUB_EVENT_PATH": str(event),
+                "GITHUB_SHA": self.base,
+                "GITHUB_REF": "refs/heads/main",
+            },
+        ):
+            context = checks.make_context(self.root, "workflow_dispatch")
+            self.assertEqual((context["profile"], context["browser_profile"]), ("normal", "full"))
+            checks.validate_context(context, self.root)
+            for expected in ("f" * 40, "", None):
+                event.write_text(json.dumps({"inputs": {"expected_sha": expected}}))
+                with self.assertRaisesRegex(ValueError, "expected main commit"):
+                    checks.validate_context(context, self.root)
+            event.write_text(json.dumps({"inputs": {"expected_sha": self.base}}))
+            checks.os.environ["GITHUB_REF"] = "refs/heads/other"
+            with self.assertRaisesRegex(ValueError, "expected main commit"):
                 checks.validate_context(context, self.root)
 
     def test_hosted_identity_still_rejects_the_wrong_github_sha(self):

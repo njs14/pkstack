@@ -169,7 +169,7 @@ class FakeGitHub:
         elif relative == "/actions/workflows/99/runs":
             query = parse_qs(parsed.query)
             assert query["head_sha"] == [self.commit]
-            assert query["event"] == ["push"] and query["branch"] == ["main"]
+            assert "event" not in query and query["branch"] == ["main"]
             result = {"total_count": len(self.runs), "workflow_runs": self.runs}
         elif relative.startswith(f"/actions/runs/{RUN}/attempts/"):
             result = {"total_count": len(self.jobs), "jobs": self.jobs}
@@ -400,6 +400,46 @@ class PackageFixture(unittest.TestCase):
                         ATTEMPT,
                     )
 
+    def test_dispatched_main_produces_admissible_base_and_promotable_package(self):
+        output = Path(self.temporary.name) / "dispatched"
+        with patch.object(package, "consumer_smoke", return_value=fixture_smoke()):
+            package.build_package(
+                self.root,
+                output,
+                REPOSITORY,
+                REPOSITORY_ID,
+                self.commit,
+                RUN,
+                ATTEMPT,
+                event="workflow_dispatch",
+            )
+        self.contents = {path.name: path.read_bytes() for path in output.iterdir()}
+        self.api = FakeGitHub(self.commit, zipped(self.contents))
+        self.api.run["event"] = "workflow_dispatch"
+        result = package.verify_base_ci(
+            self.root, cast(package.GitHub, self.api), REPOSITORY, REPOSITORY_ID, self.commit
+        )
+        self.assertEqual(result["tested_sha"], self.commit)
+        self.assertEqual(self.api.downloads, 0)
+        self.assertTrue(self.verify_published()["ok"])
+        # A newer run or attempt supersedes this proof regardless of trigger type.
+        self.api.runs.append({"id": RUN + 1})
+        with self.assertRaisesRegex(package.PackageError, "superseded"):
+            package.verify_base_ci(
+                self.root,
+                cast(package.GitHub, self.api),
+                REPOSITORY,
+                REPOSITORY_ID,
+                self.commit,
+                RUN,
+                ATTEMPT,
+            )
+
+    def test_package_manifest_event_must_match_the_actual_main_run(self):
+        self.api.run["event"] = "workflow_dispatch"
+        with self.assertRaisesRegex(package.PackageError, "manifest"):
+            self.verify()
+
     def test_wrong_commit_or_tag_version_cannot_be_promoted(self):
         for commit, tag in (("0" * 40, "v0.3.0"), (self.commit, "v0.3.1")):
             with self.subTest(commit=commit, tag=tag), self.assertRaises(package.PackageError):
@@ -534,7 +574,7 @@ class PackageFixture(unittest.TestCase):
             lambda r: r.update(conclusion="failure"),
             lambda r: r.update(conclusion="cancelled"),
             lambda r: r.update(event="pull_request"),
-            lambda r: r.update(event="workflow_dispatch"),
+            lambda r: r.update(event="repository_dispatch"),
             lambda r: r.update(head_branch="other"),
             lambda r: r.update(head_repository={"id": 999}),
             lambda r: r.update(repository={"id": 999}),
@@ -553,7 +593,7 @@ class PackageFixture(unittest.TestCase):
 
     def test_never_falls_back_to_old_success_or_absent_package(self):
         self.api.runs = []
-        with self.assertRaisesRegex(package.PackageError, "no exact push-main"):
+        with self.assertRaisesRegex(package.PackageError, "no exact main"):
             self.verify()
         self.api.runs = [{"id": RUN}, {"id": RUN + 1}]
         with self.assertRaisesRegex(package.PackageError, "superseded"):
@@ -832,7 +872,7 @@ class ArchiveBoundaryTests(unittest.TestCase):
             timeout=10,
         )
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("main push package job", result.stderr)
+        self.assertIn("main CI package job", result.stderr)
 
 
 if __name__ == "__main__":

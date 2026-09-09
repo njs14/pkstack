@@ -39,6 +39,12 @@ knowledge coverage checks remain in place. One independent semantic review is st
 Before merging, recheck that same main run/attempt, the current base/head/PR, review identity,
 allowed files and one-commit relationship. No failed or unverified result may merge.
 
+The trusted merge job uses its existing `GITHUB_TOKEN` with job-scoped `actions: write` to dispatch
+ordinary CI for the exact returned merge SHA. The receiving workflow requires main and checks its
+actual source against that SHA before running the complete gate. This explicit dispatch is needed
+because token-created merges do not trigger push CI. A failed dispatch or moved main cannot supply
+base or release evidence; the next admission remains closed until exact-main CI succeeds.
+
 The [CI rollout record](../pkstack/quality-and-ci.md#hosted-rollout-and-measurement) retains baseline
 elapsed and runner time. All seven workflows remain paused until explicitly authorized to resume;
 the billing/spending block and new hosted lifecycle measurements remain outside local proof.

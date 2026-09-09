@@ -30,6 +30,12 @@ extracted-package consumer smoke. PRs do not produce release packages. Distribut
 execution-plan transfers, per-job receipts and aggregation have been removed. A local fast pass
 covers only the explicitly selected contracts and is not a full-suite pass.
 
+After an autonomous maintenance merge, the trusted merge job explicitly dispatches this same
+two-job CI with the merged SHA. [GitHub suppresses push triggers caused by `GITHUB_TOKEN`](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow); the
+dispatch supplies the next candidate's exact-base evidence and the release artifact. Dispatched
+CI requires main and rejects a SHA mismatch before verification, including a branch-move race.
+The verifier considers the newest main run across push and dispatch events without fallback.
+
 Maintainer commands set `UV_PROJECT_ENVIRONMENT` to the repository's ignored `.venv`.
 Root `pytest.ini` collects `tests/`; root Ruff/ty configurations cover the relocated
 tests and benchmarks while the Power configuration covers installed source, examples,

@@ -188,6 +188,13 @@ def validate_context(context, root):
     hosted = context["event"] != "local"
     event = os.environ.get("GITHUB_EVENT_NAME", context["event"]) if hosted else "local"
     base = context.get("base")
+    if event == "workflow_dispatch":
+        payload = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+        if (
+            os.environ.get("GITHUB_REF") != "refs/heads/main"
+            or payload.get("inputs", {}).get("expected_sha") != context["commit"]
+        ):
+            raise ValueError("dispatched CI is not bound to its expected main commit")
     if os.environ.get("GITHUB_EVENT_PATH") and event == "pull_request":
         payload = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
         base = payload["pull_request"]["base"]["sha"]
@@ -460,7 +467,9 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("classify", "hosted"):
         command = commands.add_parser(name)
-        command.add_argument("--event", choices=["pull_request", "push"], required=True)
+        command.add_argument(
+            "--event", choices=["pull_request", "push", "workflow_dispatch"], required=True
+        )
         command.add_argument("--base")
         command.add_argument("--head", required=True)
     commands.choices["hosted"].add_argument("--output", type=Path, required=True)
@@ -477,6 +486,7 @@ def main():
         context = make_context(root, args.event, args.base, args.head)
         scope = "full"
     if args.command == "classify":
+        validate_context(context, root)
         if os.environ.get("GITHUB_OUTPUT"):
             with open(os.environ["GITHUB_OUTPUT"], "a") as stream:
                 stream.write(

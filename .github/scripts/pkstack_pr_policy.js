@@ -342,10 +342,29 @@ async function authorizeTerminalCandidateClose({
   };
 }
 
+/** Produce main CI after a GITHUB_TOKEN merge, which cannot trigger push CI. */
+async function dispatchMergedMainCI({ github, owner, repo, defaultBranch, merged }) {
+  assert(defaultBranch === "main", "post-merge CI requires the main branch");
+  assert(merged?.merged === true && /^[0-9a-f]{40}$/.test(merged.sha),
+    "post-merge CI requires a successful merge with an exact commit");
+  const branch = (await github.rest.repos.getBranch({ owner, repo, branch: "main" })).data;
+  assert(branch.commit?.sha === merged.sha, "main moved before post-merge CI dispatch");
+  // The receiving workflow verifies expected_sha against its actual GITHUB_SHA,
+  // closing the race between this branch check and dispatch resolution.
+  await github.rest.actions.createWorkflowDispatch({
+    owner,
+    repo,
+    workflow_id: "pk-stack-ci.yml",
+    ref: "main",
+    inputs: { expected_sha: merged.sha },
+  });
+}
+
 module.exports = {
   authorizeTerminalCandidateClose,
   candidateRunTitle,
   classifyOpenCandidate,
+  dispatchMergedMainCI,
   lifecycleDecision,
   resolveCandidateForSource,
 };

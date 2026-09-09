@@ -712,7 +712,7 @@ jobs:
       && needs.kiro_peer_review.outputs.review_verdict == 'approved'
     runs-on: ubuntu-24.04
     permissions:
-      actions: read
+      actions: write # Dispatch exact-main CI after the GITHUB_TOKEN merge.
       contents: write
       pull-requests: write
     steps:
@@ -774,7 +774,7 @@ jobs:
           CANDIDATE_BRANCH: ${{ needs.resolve.outputs.candidate_branch }}
         with:
           script: |
-            const { resolveCandidateForSource } = require(
+            const { resolveCandidateForSource, dispatchMergedMainCI } = require(
               `${process.env.GITHUB_WORKSPACE}/.github/scripts/pkstack_pr_policy.js`
             );
             const { owner, repo } = context.repo;
@@ -944,6 +944,9 @@ jobs:
               core.setFailed(`GitHub refused exact-SHA merge: ${merged.data.message}`);
               return;
             }
+            await dispatchMergedMainCI({
+              github, owner, repo, defaultBranch: process.env.DEFAULT_BRANCH, merged: merged.data,
+            });
             core.notice(`merged PR #${pull.number} from exact tested SHA ${process.env.TESTED_SHA}`);
 
   record_rejection:

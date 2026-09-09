@@ -403,7 +403,9 @@ def build_package(
     commit: str,
     run_id: int,
     run_attempt: int,
+    event: str = "push",
 ) -> dict[str, Any]:
+    require(event in {"push", "workflow_dispatch"}, "unsupported main CI producer event")
     expected = identity(root, repository, repository_id, commit)
     positive(run_id, "CI run ID")
     positive(run_attempt, "CI run attempt")
@@ -422,7 +424,7 @@ def build_package(
         "schema_version": 1,
         "kind": "pkstack-main-ci-package",
         **expected,
-        "event": "push",
+        "event": event,
         "ref": "refs/heads/main",
         "producer_job": "package",
         "run_id": run_id,
@@ -603,9 +605,12 @@ def successful_run(
         workflow.get("path") == CI_WORKFLOW and workflow.get("state") == "active",
         "expected CI workflow is unavailable",
     )
-    query = urlencode({"head_sha": commit, "event": "push", "branch": "main"})
+    # Include both ordinary pushes and the explicit post-maintenance-merge dispatch.
+    # Select the latest run across both, so a failed newer dispatch cannot be hidden
+    # by falling back to an older successful push (or the reverse).
+    query = urlencode({"head_sha": commit, "branch": "main"})
     runs = paginate(api, f"{prefix}/actions/workflows/{workflow_id}/runs?{query}", "workflow_runs")
-    require(bool(runs), "no exact push-main CI run is available; no fallback is permitted")
+    require(bool(runs), "no exact main CI run is available; no fallback is permitted")
     latest_id = max(positive(item.get("id"), "CI run ID") for item in runs)
     require(run_id is None or run_id == latest_id, "selected CI run has been superseded")
     run = api.get(f"{prefix}/actions/runs/{latest_id}")
@@ -617,7 +622,7 @@ def successful_run(
         and run.get("path") == CI_WORKFLOW
         and run.get("head_sha") == commit
         and run.get("head_branch") == "main"
-        and run.get("event") == "push"
+        and run.get("event") in {"push", "workflow_dispatch"}
         and run.get("repository", {}).get("id") == repository_id
         and run.get("head_repository", {}).get("id") == repository_id
         and run.get("status") == "completed"
@@ -777,7 +782,7 @@ def verify_package(
         all(manifest.get(key) == value for key, value in expected.items())
         and manifest.get("schema_version") == 1
         and manifest.get("kind") == "pkstack-main-ci-package"
-        and manifest.get("event") == "push"
+        and manifest.get("event") == run["event"]
         and manifest.get("ref") == "refs/heads/main"
         and manifest.get("producer_job") == "package"
         and manifest.get("run_id") == run_id
@@ -1012,10 +1017,10 @@ def main() -> None:
     try:
         if args.command == "build":
             require(
-                os.environ.get("GITHUB_EVENT_NAME") == "push"
+                os.environ.get("GITHUB_EVENT_NAME") in {"push", "workflow_dispatch"}
                 and os.environ.get("GITHUB_REF") == "refs/heads/main"
                 and os.environ.get("GITHUB_JOB") == "package",
-                "package producer requires the main push package job",
+                "package producer requires the main CI package job",
             )
             require(
                 os.environ.get("GITHUB_SHA") == args.sha
@@ -1023,8 +1028,14 @@ def main() -> None:
                 and os.environ.get("GITHUB_REPOSITORY_ID") == str(args.repository_id)
                 and os.environ.get("GITHUB_RUN_ID") == str(args.run_id)
                 and os.environ.get("GITHUB_RUN_ATTEMPT") == str(args.run_attempt),
-                "producer arguments do not match GitHub's main push identity",
+                "producer arguments do not match GitHub's main CI identity",
             )
+            if os.environ["GITHUB_EVENT_NAME"] == "workflow_dispatch":
+                payload = parse_json(Path(os.environ["GITHUB_EVENT_PATH"]).read_bytes(), "event")
+                require(
+                    payload.get("inputs", {}).get("expected_sha") == args.sha,
+                    "dispatched package does not match its expected main commit",
+                )
             result = build_package(
                 args.repo_root.resolve(),
                 args.output_dir,
@@ -1033,6 +1044,7 @@ def main() -> None:
                 args.sha,
                 args.run_id,
                 args.run_attempt,
+                os.environ["GITHUB_EVENT_NAME"],
             )
         elif args.command == "verify-base":
             result = verify_base_ci(

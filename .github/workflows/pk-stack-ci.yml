@@ -5,6 +5,13 @@ on:
     branches: [main]
   # Stacked pull requests need the same read-only checks as main-targeted PRs.
   pull_request:
+  # GITHUB_TOKEN merges do not trigger push CI; the trusted merge job dispatches it.
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact current main commit to verify
+        required: true
+        type: string
 
 permissions: {}
 
@@ -115,7 +122,7 @@ jobs:
           retention-days: 14
   package:
     needs: deterministic
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.deterministic.result == 'success'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && needs.deterministic.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:

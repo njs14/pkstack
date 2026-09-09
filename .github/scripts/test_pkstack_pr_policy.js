@@ -8,6 +8,7 @@ const test = require("node:test");
 const {
   authorizeTerminalCandidateClose,
   classifyOpenCandidate,
+  dispatchMergedMainCI,
   resolveCandidateForSource,
 } = require("./pkstack_pr_policy.js");
 
@@ -21,6 +22,43 @@ const candidateWorkflow = fs.readFileSync(
   path.join(__dirname, "../workflows/pk-stack-upstream-candidate.yml"),
   "utf8",
 );
+
+test("an autonomous merge dispatches exact-main CI, which gates the next candidate", async () => {
+  const calls = [];
+  const merged = { merged: true, sha: HEAD };
+  const github = { rest: {
+    repos: { getBranch: async () => ({ data: { commit: { sha: HEAD } } }) },
+    actions: { createWorkflowDispatch: async (input) => { calls.push(input); } },
+  } };
+  await dispatchMergedMainCI({ github, owner: "example", repo: "pkstack", defaultBranch: "main", merged });
+  assert.deepEqual(calls, [{
+    owner: "example", repo: "pkstack", workflow_id: "pk-stack-ci.yml", ref: "main",
+    inputs: { expected_sha: HEAD },
+  }]);
+  const mergeJob = candidateWorkflow.split("\n  merge:\n")[1].split("\n  record_rejection:")[0];
+  assert.match(mergeJob, /actions: write/);
+  assert.ok(mergeJob.indexOf("await dispatchMergedMainCI({") > mergeJob.indexOf("if (!merged.data.merged)"));
+  assert.match(mergeJob, /merged: merged\.data/);
+  assert.match(mergeJob, /needs\.base_ci\.result == 'success'/);
+  const ci = fs.readFileSync(path.join(__dirname, "../workflows/pk-stack-ci.yml"), "utf8");
+  assert.match(ci, /workflow_dispatch:\n    inputs:\n      expected_sha:/);
+  assert.match(ci, /github\.event_name == 'workflow_dispatch'.*needs\.deterministic\.result == 'success'/);
+  for (const invalid of [{ merged: false, sha: HEAD }, { merged: true, sha: "" }]) {
+    await assert.rejects(dispatchMergedMainCI({
+      github, owner: "example", repo: "pkstack", defaultBranch: "main", merged: invalid,
+    }));
+  }
+  github.rest.repos.getBranch = async () => ({ data: { commit: { sha: OLD_BASE } } });
+  await assert.rejects(dispatchMergedMainCI({
+    github, owner: "example", repo: "pkstack", defaultBranch: "main", merged,
+  }), /main moved/);
+  assert.equal(calls.length, 1);
+  github.rest.repos.getBranch = async () => ({ data: { commit: { sha: HEAD } } });
+  github.rest.actions.createWorkflowDispatch = async () => { throw new Error("dispatch failed"); };
+  await assert.rejects(dispatchMergedMainCI({
+    github, owner: "example", repo: "pkstack", defaultBranch: "main", merged,
+  }), /dispatch failed/);
+});
 const sourceRunFixture = JSON.parse(fs.readFileSync(
   path.join(__dirname, "../fixtures/github-actions-run-33761288363.json"),
   "utf8",
