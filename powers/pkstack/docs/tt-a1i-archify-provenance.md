@@ -72,25 +72,25 @@ source inventory. No network access or historical checkout is required.
   "schema_version": 1,
   "source_id": "tt-a1i-archify",
   "upstream": {
-    "commit": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
-    "subtree_sha": "d28042c2ee940e8dd04c1825c1e2448671c95009"
+    "commit": "10722002bb8777ecb639d93c49586fae4adf3ae4",
+    "subtree_sha": "8aa4cadc3cde102db4009f23f951cb4cf1e28d61"
   },
-  "reviewed_on": "2026-09-08",
+  "reviewed_on": "2026-09-09",
   "patches": [
     {
       "path": "assets/template.html",
       "reason": "Apply desktop viewport adaptation to compact diagrams without desktop-width inflation, and contain narrow toolbar controls by resetting desktop offsets and allowing wrapping.",
       "upstream": {
         "mode": "100644",
-        "object_sha": "28c151c19384e86b1678a088183b914d7a5f5167",
-        "size": 678398,
-        "sha256": "35b2210b120c56a6c58d953ffe0cf815c2e67d0a5ff3e8b9518c45b737dd3fc3"
+        "object_sha": "587415f288a01eba6f7a6dd1da4e1fb2872992b5",
+        "size": 773132,
+        "sha256": "b3583470b9ec789418207963405252141c710b1b8a5c08a6cfd03156712f3f7d"
       },
       "local": {
         "mode": "100644",
-        "object_sha": "3e6e223e60ab251358469a07f0660cd98bef8b9f",
-        "size": 678727,
-        "sha256": "c22d8c5e4bf2182f42bce68a87ac1f1f19421df64966988cbcf5140552b5697a"
+        "object_sha": "c455d18d11e841e4452d812c010a0a80c0d3bd3d",
+        "size": 773461,
+        "sha256": "8d70667927aa6b1ad4f1bf4e4407104dac11a6ffd7a8f28082254737f4309176"
       }
     },
     {
@@ -133,10 +133,9 @@ source inventory. No network access or historical checkout is required.
 
 ```diff
 diff --git a/assets/template.html b/assets/template.html
-index 28c151c..3e6e223 100644
 --- a/assets/template.html
 +++ b/assets/template.html
-@@ -601,7 +601,7 @@
+@@ -727,7 +727,7 @@
        color: var(--frontend-stroke);
      }
 
@@ -145,7 +144,7 @@ index 28c151c..3e6e223 100644
         SVG/viewBox while the runtime chooses a desktop width from the actual
         vertical budget. This avoids device-specific files and breakpoint
         jumps between a laptop and a tall monitor. */
-@@ -3581,6 +3581,9 @@
+@@ -3707,6 +3707,9 @@
        }
        .toolbar {
          position: relative;
@@ -155,7 +154,7 @@ index 28c151c..3e6e223 100644
          justify-content: flex-end;
          width: max-content;
          max-width: 100%;
-@@ -10775,9 +10778,9 @@
+@@ -10899,9 +10902,9 @@
      /* ============================================================
         Adaptive Reader Shell — one diagram across laptop and monitor.
         The canonical SVG and viewBox never change. On ordinary desktop pages,
@@ -167,7 +166,7 @@ index 28c151c..3e6e223 100644
         established layout contracts.
         ============================================================ */
      Archify.waitForStableLayout = function (options) {
-@@ -10859,7 +10862,7 @@
+@@ -10983,7 +10986,7 @@
        }
        function eligible() {
          return Boolean(
@@ -176,7 +175,7 @@ index 28c151c..3e6e223 100644
            window.innerWidth >= MIN_DESKTOP_WIDTH &&
            html.getAttribute('data-embed') !== 'true' &&
            html.getAttribute('data-present') !== 'true' &&
-@@ -10919,7 +10922,12 @@
+@@ -11043,7 +11046,12 @@
          }
          var chrome = chromeMetrics();
          var viewportCap = Math.max(0, window.innerWidth - chrome.bodyX);
@@ -191,7 +190,6 @@ index 28c151c..3e6e223 100644
          var fixedHeight = chrome.bodyY + chrome.diagramY + SAFE_BOTTOM_GAP +
            outerHeight(header) + outerHeight(guided) + outerHeight(cards);
 diff --git a/renderers/sequence/render-sequence.mjs b/renderers/sequence/render-sequence.mjs
-index 1cfc032..681227d 100644
 --- a/renderers/sequence/render-sequence.mjs
 +++ b/renderers/sequence/render-sequence.mjs
 @@ -113,17 +113,40 @@
@@ -257,7 +255,6 @@ index 1cfc032..681227d 100644
    }
 
 diff --git a/bin/visual-check.mjs b/bin/visual-check.mjs
-index 8adb154..8572caa 100644
 --- a/bin/visual-check.mjs
 +++ b/bin/visual-check.mjs
 @@ -146,13 +146,20 @@
@@ -353,3 +350,11 @@ The three existing local runtime adaptations are unchanged; the structured recor
 continues to bind their upstream and local bytes to the new source snapshot.
 
 <!-- pk-stack-upstream-review: {"inventory_sha256":"5d67adc17cdd791198f7b9be7fcb98bc227cfc23eea8fb6f0f3f97f169ff1881","new":{"commit":"2ead014aa8ec91f104cd052f1a6ca82de5e26c31","subtree_sha":"d28042c2ee940e8dd04c1825c1e2448671c95009"},"path":"archify","prior":{"commit":"d8e4daf2610d512821365f41b139d874b29efe81","subtree_sha":"a7b9e1634b66a8e13d531cca4d18e8123c21f06a"},"repository":"tt-a1i/archify","source_id":"tt-a1i-archify"} -->
+
+## Local upstream review, 2026-09-09
+
+Incorporates bundled JetBrains Mono font subsets and license, Gitee web links and locally verified source evidence without hyperlinks for other forges, credential-redacted origin diagnostics, revised examples and matching schema validators. All three PKStack runtime patches are retained and rebound to the new upstream bytes. Upstream tests and rendered demo outputs remain excluded.
+
+Reviewed transition from `2ead014aa8ec91f104cd052f1a6ca82de5e26c31` to `10722002bb8777ecb639d93c49586fae4adf3ae4`; all 28 changed paths are classified in the acceptance ledger.
+
+<!-- pk-stack-upstream-review: {"inventory_sha256":"20f62f857de79eb63ce9c8f8663cd5fe4e8b328fdbf125b69f0b71648e0d79f1","new":{"commit":"10722002bb8777ecb639d93c49586fae4adf3ae4","subtree_sha":"8aa4cadc3cde102db4009f23f951cb4cf1e28d61"},"path":"archify","prior":{"commit":"2ead014aa8ec91f104cd052f1a6ca82de5e26c31","subtree_sha":"d28042c2ee940e8dd04c1825c1e2448671c95009"},"repository":"tt-a1i/archify","source_id":"tt-a1i-archify"} -->

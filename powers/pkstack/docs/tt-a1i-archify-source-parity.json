@@ -9,8 +9,20 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "28c151c19384e86b1678a088183b914d7a5f5167",
-        "size": 678398,
+        "object_sha": "675d198b74b6f10b5ca149e6a21cf06dcc46b676",
+        "size": 4398,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "assets/JetBrainsMono-OFL.txt",
+      "pinned": null,
+      "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "587415f288a01eba6f7a6dd1da4e1fb2872992b5",
+        "size": 773132,
         "type": "blob"
       },
       "disposition": "A",
@@ -26,16 +38,16 @@
     {
       "current": {
         "mode": "100755",
-        "object_sha": "2bb1c20ab6fae26d46b34d27f16d65d77b038885",
-        "size": 75949,
+        "object_sha": "cb6c40f5fd896d322976946ecf0f3f97181e8102",
+        "size": 76056,
         "type": "blob"
       },
       "disposition": "A",
       "path": "bin/archify.mjs",
       "pinned": {
         "mode": "100755",
-        "object_sha": "034342ea5d2101c44ef3335d8d24e83034d67b54",
-        "size": 72093,
+        "object_sha": "2bb1c20ab6fae26d46b34d27f16d65d77b038885",
+        "size": 75949,
         "type": "blob"
       },
       "rationale": "Incorporate the reviewed render option and positional-arity guards as exact upstream bytes so malformed invocations fail before creating unintended output files."
@@ -128,8 +140,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "0c49ae7661a9b6fdcd5d040a025548ec85893db0",
-        "size": 72328,
+        "object_sha": "dddf3cc85b9db9d7790be936f4253190e13a45d7",
+        "size": 72823,
         "type": "blob"
       },
       "disposition": "A",
@@ -145,8 +157,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "329208b45946c04607770a6a74d83968121ad757",
-        "size": 4417,
+        "object_sha": "fc1deb87fbed22b817efa943b029868c97205d7f",
+        "size": 4044,
         "type": "blob"
       },
       "disposition": "A",
@@ -213,8 +225,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "3a5d502f985a9bc9934e8caaf03e2edc6f504b5d",
-        "size": 4345,
+        "object_sha": "f3247780e3f337e2179a4cabee22f4794eaa94ca",
+        "size": 4374,
         "type": "blob"
       },
       "disposition": "A",
@@ -264,8 +276,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "e56dd1bbb69c65513def32a76d973d0036f5d7e0",
-        "size": 720496,
+        "object_sha": "eefc319d7b546f4a2608a822883839b471423801",
+        "size": 815337,
         "type": "blob"
       },
       "disposition": "B",
@@ -332,8 +344,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "141719b5072c4c439439ab1216c76dfe6bb15c8e",
-        "size": 714131,
+        "object_sha": "be708309c933ec66d1b032e848f7b744b32be22d",
+        "size": 808440,
         "type": "blob"
       },
       "disposition": "B",
@@ -349,8 +361,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "57270cf1bbf70c7f125d53c87105b5ac5dbdb1b5",
-        "size": 5627,
+        "object_sha": "62a50d914ec19a1830a5bc845cc50fbbdeb68d98",
+        "size": 5618,
         "type": "blob"
       },
       "disposition": "A",
@@ -400,8 +412,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "d3e2c1e39b0c8d90698bbe3924c7bb17b8425ba3",
-        "size": 716842,
+        "object_sha": "47a66b5f800450551f827518e8ef020172446c34",
+        "size": 813020,
         "type": "blob"
       },
       "disposition": "B",
@@ -417,8 +429,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "d6d45a50cf0ddb8ba92afc3a43333fe1770ea5ef",
-        "size": 715216,
+        "object_sha": "b53fdac07ab45fd7f64000f83dfc244d166e997f",
+        "size": 810075,
         "type": "blob"
       },
       "disposition": "B",
@@ -451,8 +463,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "0fb6bb9aaa4ae21b8a4592671315611fbbac1d9a",
-        "size": 723038,
+        "object_sha": "d2a6d6e617ec6592f3f8fc87be7b7e4833feab0a",
+        "size": 817897,
         "type": "blob"
       },
       "disposition": "B",
@@ -553,8 +565,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "890d5c6e33d6caa2f49a12acff8224ae050a5598",
-        "size": 11309,
+        "object_sha": "70fb158477520c28b3c9189d497aadb3568f3503",
+        "size": 13962,
         "type": "blob"
       },
       "disposition": "A",
@@ -595,8 +607,8 @@
       "path": "references/delivery-contract.md",
       "pinned": {
         "mode": "100644",
-        "object_sha": "31f2c1dcc5c225cea9c669914b63c8170e5877d1",
-        "size": 8070,
+        "object_sha": "301d7df763eba8dc42006c018133267038d1e60c",
+        "size": 8604,
         "type": "blob"
       },
       "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
@@ -859,8 +871,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "3a525ccd46bf95074e2f5c67e869efa8c9615ae2",
-        "size": 430844,
+        "object_sha": "7e2558ca96c632df2cf50f3df180ea0c81272276",
+        "size": 431711,
         "type": "blob"
       },
       "disposition": "A",
@@ -893,8 +905,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "dc69c720d676da70c3785c354adc243ebbc07fff",
-        "size": 48260,
+        "object_sha": "28e9d02f2465184070b45a8c52571398063e66e2",
+        "size": 48475,
         "type": "blob"
       },
       "disposition": "A",
@@ -952,8 +964,8 @@
       "path": "renderers/shared/output-path.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "ca9119652fea8191d626a617590f7e2b0f93d33a",
-        "size": 10618,
+        "object_sha": "e8e480a22d7b931d1c2e94f0c50daaa0a1794802",
+        "size": 11645,
         "type": "blob"
       },
       "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
@@ -961,8 +973,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "23cb6383fac2f1b3887760ff0ea44e8f2d522a1e",
-        "size": 11445,
+        "object_sha": "fdfa5311e2d27571e80ea56e3da2a20e46ab1f38",
+        "size": 12411,
         "type": "blob"
       },
       "disposition": "A",
@@ -973,6 +985,18 @@
         "size": 11445,
         "type": "blob"
       },
+      "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "32257d62d9ccab438b321ce4ed94e4cd3c5a1e1a",
+        "size": 3453,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "renderers/shared/repository-location.mjs",
+      "pinned": null,
       "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
     },
     {
@@ -1097,8 +1121,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "b4cc68cd48a6f720ad84cd364bf68b86f7a0a660",
-        "size": 6702,
+        "object_sha": "6943b27d93ca8732afe0048928dfca393ef9b5c0",
+        "size": 6753,
         "type": "blob"
       },
       "disposition": "A",
@@ -1224,8 +1248,8 @@
       "path": "scripts/check-render-output.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "704b96503b581493e17e83d8d9001be7418f9295",
-        "size": 32413,
+        "object_sha": "d24ce7f64262cd890fb28818d455b1045515543d",
+        "size": 32498,
         "type": "blob"
       },
       "rationale": "Reviewed runtime asset is preserved in the curated bundle with its upstream bytes and mode."
@@ -1386,8 +1410,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "71d28fbab213690b3082abe40806fd28ef17e4e3",
-        "size": 26618,
+        "object_sha": "5c6a333b6cbdeab44ce9e54907de7493413418ce",
+        "size": 28886,
         "type": "blob"
       },
       "disposition": "B",
@@ -1409,7 +1433,12 @@
       },
       "disposition": "B",
       "path": "test/artifact-receipt-flush.test.mjs",
-      "pinned": null,
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "50ec9465f4799094a8da7b14c7f1eeba256a419b",
+        "size": 5299,
+        "type": "blob"
+      },
       "rationale": "Upstream regression tests remain outside the bundled runtime; independent PKStack tests exercise output preservation and complete piped receipts through the shipped commands."
     },
     {
@@ -1483,8 +1512,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "4cf4bf4f65173b6fb27ef7502328ff8372db7694",
-        "size": 30693,
+        "object_sha": "4aba30bd7141bd67120bb752c0e0a6b8bc2eeb03",
+        "size": 30758,
         "type": "blob"
       },
       "disposition": "B",
@@ -1568,8 +1597,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "fae5c2489adc8b058d18c9d457a83f0ad653940b",
-        "size": 11430,
+        "object_sha": "df19d201d67b6256ecde6e5b2758a6b545592358",
+        "size": 13427,
         "type": "blob"
       },
       "disposition": "B",
@@ -1591,7 +1620,12 @@
       },
       "disposition": "B",
       "path": "test/cli-output-types.test.mjs",
-      "pinned": null,
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "2676c479005c7f937b1a942284a5bcf701468c9a",
+        "size": 8737,
+        "type": "blob"
+      },
       "rationale": "Upstream regression tests remain outside the bundled runtime; independent PKStack tests exercise output preservation and complete piped receipts through the shipped commands."
     },
     {
@@ -1605,8 +1639,8 @@
       "path": "test/cli.test.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "56d48fb2c4120f70ab958f546b5c0f6d817a9bf1",
-        "size": 36099,
+        "object_sha": "52a8c15c3f3dbb2b8704c3c55695ad0a36da9e6c",
+        "size": 39992,
         "type": "blob"
       },
       "rationale": "Keep upstream tests outside the runtime bundle. Local regressions reproduce unknown render options and excess positional arguments and verify rejection without unintended files."
@@ -1682,8 +1716,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "867a7cb4859c01d3759efcda31481bcb6d29413f",
-        "size": 2786,
+        "object_sha": "076579470290e3b2b721e8607b1d3f0e2b6303f6",
+        "size": 3925,
         "type": "blob"
       },
       "disposition": "B",
@@ -2158,6 +2192,18 @@
     {
       "current": {
         "mode": "100644",
+        "object_sha": "d5beebf10ecf9afb4311cad3829ab189c3daa341",
+        "size": 5252,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "test/helpers/offline-fonts.mjs",
+      "pinned": null,
+      "rationale": "Excluded upstream test tooling; validate the shipped runtime with PKStack tests."
+    },
+    {
+      "current": {
+        "mode": "100644",
         "object_sha": "84c006df5ac46d815d347641b29a2c7bc3c913d8",
         "size": 1273,
         "type": "blob"
@@ -2226,8 +2272,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "1182dc9c8d45cac3a21d2e24789dc0cadcc2527d",
-        "size": 64392,
+        "object_sha": "433f39750a84d124c4e72048745bb206fd8873d0",
+        "size": 64653,
         "type": "blob"
       },
       "disposition": "B",
@@ -2277,6 +2323,30 @@
     {
       "current": {
         "mode": "100644",
+        "object_sha": "717401ef1a1feeb78ed9513c4945f2dc3e4c098e",
+        "size": 12385,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "test/offline-font-browser.test.mjs",
+      "pinned": null,
+      "rationale": "Excluded upstream test tooling; validate the shipped runtime with PKStack tests."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "9175447bce10a16f2628f80c745c8c9048c10a0e",
+        "size": 5488,
+        "type": "blob"
+      },
+      "disposition": "B",
+      "path": "test/offline-self-containment.test.mjs",
+      "pinned": null,
+      "rationale": "Excluded upstream test tooling; validate the shipped runtime with PKStack tests."
+    },
+    {
+      "current": {
+        "mode": "100644",
         "object_sha": "22be2813e2f7a6f3841a7429f3c4e094365481fa",
         "size": 3128,
         "type": "blob"
@@ -2319,8 +2389,8 @@
       "path": "test/output-path.test.mjs",
       "pinned": {
         "mode": "100644",
-        "object_sha": "296be60f9fb4ba8442e8834e1b8d9fa333356fe6",
-        "size": 23947,
+        "object_sha": "51a545181ee622fc8bd23169fcb9f8877dea34dc",
+        "size": 23923,
         "type": "blob"
       },
       "rationale": "Excluded as an upstream test, rendered output, build/gallery helper, or network update capability."
@@ -2600,8 +2670,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "7df16e857f83685d087543a47a911cac028797fe",
-        "size": 9993,
+        "object_sha": "0d548defb1beb95216d5b1fbc486ea88ce6c92bd",
+        "size": 32813,
         "type": "blob"
       },
       "disposition": "B",
@@ -3280,8 +3350,8 @@
     {
       "current": {
         "mode": "100644",
-        "object_sha": "ebf91db6e6683866d869535420656e3414349e23",
-        "size": 4543,
+        "object_sha": "3c15e20a0ac9452d8dac46beb92a672e1973cad4",
+        "size": 5248,
         "type": "blob"
       },
       "disposition": "A",
@@ -3298,23 +3368,23 @@
   "schema_version": 1,
   "source": {
     "current": {
-      "commit": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
-      "subtree_sha": "d28042c2ee940e8dd04c1825c1e2448671c95009"
+      "commit": "10722002bb8777ecb639d93c49586fae4adf3ae4",
+      "subtree_sha": "8aa4cadc3cde102db4009f23f951cb4cf1e28d61"
     },
     "id": "tt-a1i-archify",
     "path": "archify",
     "pinned": {
-      "commit": "d8e4daf2610d512821365f41b139d874b29efe81",
-      "subtree_sha": "a7b9e1634b66a8e13d531cca4d18e8123c21f06a"
+      "commit": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
+      "subtree_sha": "d28042c2ee940e8dd04c1825c1e2448671c95009"
     },
     "repository": "tt-a1i/archify",
-    "retrieved_on": "2026-09-08"
+    "retrieved_on": "2026-09-09"
   },
   "summary": {
-    "A": 71,
-    "B": 121,
+    "A": 73,
+    "B": 124,
     "C": 2,
-    "current_files": 194,
-    "pinned_files": 192
+    "current_files": 199,
+    "pinned_files": 194
   }
 }

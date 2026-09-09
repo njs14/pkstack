@@ -43,3 +43,11 @@ Root legal-file identities at the same commit:
 | `NOTICE.md` | `0468271c904ae334cfaf27da6f8df3d5f419a1f0` | `c60a093c2845fd9fb82f9c6f742ece31f379f8190b535309d32d66c45ccffdcb` | 503 |
 
 <!-- pk-stack-upstream-genesis: {"commit":"dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9","path":"skill","repository":"pbakaus/impeccable","source_id":"pbakaus-impeccable","subtree_sha":"90d9f3c53a7fb64b44d0411bc0858a111c4aac23"} -->
+
+## Local upstream review, 2026-09-09
+
+Adapts native transparent-asset quality checks and preserves incumbent design records during ordinary extensions. Context fallback uses existing project evidence. Forced re-confirmation, automatic DESIGN.md or sidecar writes, upstream agents, binary launchers, and runtime-only visualization commands remain excluded. Existing authorization and native Kiro workflow ownership remain authoritative.
+
+Reviewed transition from `dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9` to `cd12f8660e2dde57b9615c8a6b8ea674101f9cfc`; all 8 changed paths are classified in the acceptance ledger.
+
+<!-- pk-stack-upstream-review: {"inventory_sha256":"5c319d2ad252ae96c9365a9e8472ebb41b09a90d74dad08677d1dffd61cb9b99","new":{"commit":"cd12f8660e2dde57b9615c8a6b8ea674101f9cfc","subtree_sha":"8616bb77f6f9544fc23e26c9e8cf2cc8b0ce7fb6"},"path":"skill","prior":{"commit":"dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9","subtree_sha":"90d9f3c53a7fb64b44d0411bc0858a111c4aac23"},"repository":"pbakaus/impeccable","source_id":"pbakaus-impeccable"} -->

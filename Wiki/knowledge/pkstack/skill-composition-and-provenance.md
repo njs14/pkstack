@@ -107,6 +107,12 @@ local patches. Preserve both the original and adapted byte identities and re-eva
 when upstream changes. The [visual artifact topic](visual-artifacts.md) records the practical
 layout and browser-process lessons.
 
+The September 9 Impeccable adaptation adds native transparent-asset checks: inspect white paint,
+interior holes, and fine edges on light and dark backgrounds, while keeping full-frame imagery
+opaque. Ordinary extensions preserve existing design records and report unrelated drift.
+Upstream mandatory confirmations, automatic design-document writes, agents, and binary
+launchers remain excluded; current authorization and Kiro workflow ownership still govern.
+
 
 ## Reusable loops need a durable transition contract
 

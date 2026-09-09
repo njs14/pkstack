@@ -53,14 +53,14 @@
       "subtree_sha": "21eb933ac68df2d2a81aedad6778970d71e99e8d"
     },
     {
-      "commit": "2ead014aa8ec91f104cd052f1a6ca82de5e26c31",
+      "commit": "10722002bb8777ecb639d93c49586fae4adf3ae4",
       "id": "tt-a1i-archify",
       "parity_path": "powers/pkstack/docs/tt-a1i-archify-source-parity.json",
       "path": "archify",
       "provenance_path": "powers/pkstack/docs/tt-a1i-archify-provenance.md",
       "ref": "main",
       "repository": "tt-a1i/archify",
-      "subtree_sha": "d28042c2ee940e8dd04c1825c1e2448671c95009"
+      "subtree_sha": "8aa4cadc3cde102db4009f23f951cb4cf1e28d61"
     },
     {
       "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
@@ -113,14 +113,14 @@
       "subtree_sha": "8cc1cb9f539f90fd98efa4be3857c6d74fd8d839"
     },
     {
-      "commit": "dbdc470e70dbbda69f9b78ee38bc38ea1d3560b9",
+      "commit": "cd12f8660e2dde57b9615c8a6b8ea674101f9cfc",
       "id": "pbakaus-impeccable",
       "parity_path": "powers/pkstack/docs/pbakaus-impeccable-source-parity.json",
       "path": "skill",
       "provenance_path": "powers/pkstack/docs/pbakaus-impeccable-provenance.md",
       "ref": "main",
       "repository": "pbakaus/impeccable",
-      "subtree_sha": "90d9f3c53a7fb64b44d0411bc0858a111c4aac23"
+      "subtree_sha": "8616bb77f6f9544fc23e26c9e8cf2cc8b0ce7fb6"
     },
     {
       "commit": "9f70e348e0227980de97e361cce830236fb18317",

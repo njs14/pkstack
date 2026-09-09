@@ -37,6 +37,15 @@ cause of the historical Linux startup timeout. The
 
 ## Current naming and historical artwork
 
+The September 9 upstream update embeds licensed JetBrains Mono subsets in the viewer and
+its SVG/raster export source, removing the font stylesheet network dependency. Uncovered
+characters still use system fallback fonts; this does not promise identical rasterization.
+Repository evidence now supports Gitee links and a `local-only` mode for other forges. Both
+modes verify the pinned local Git revision, origin identity, blobs, and line ranges. Local-only
+omits hyperlinks; neither mode proves remote availability or reader access. Origin mismatch
+diagnostics redact credentials. The three local viewport, caption, and browser-transport patches
+remain separately bound to upstream bytes in the provenance record.
+
 Use **PKStack** as product name, `pkstack` as technical handle, and **PKStack & friends** for the
 human-facing theme. Preserve native command names and imported upstream identities. Naming work
 must repair links without rewriting historical source ledgers.
