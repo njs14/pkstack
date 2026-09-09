@@ -91,7 +91,7 @@ def test_pocock_sources_bind_original_git_trees_and_genesis() -> None:
 
 def test_adapted_skill_hash_cannot_replace_an_upstream_inventory_identity() -> None:
     name = "grilling"
-    inventory = json.loads((POWER / f"docs/mattpocock-{name}-source-parity.json").read_text())
+    inventory = json.loads((POWER / f"metadata/mattpocock-{name}-source-parity.json").read_text())
     altered = copy.deepcopy(inventory)
     local = (POWER / f"skills/{name}/SKILL.md").read_bytes()
     local_sha = hashlib.sha1(b"blob " + str(len(local)).encode() + b"\0" + local).hexdigest()
@@ -141,8 +141,8 @@ def test_curated_skill_modification_requires_updated_bundle_identity(
         if entry["name"] == name
     )
     shutil.copytree(POWER / entry["bundle_root"], tmp_path / entry["bundle_root"])
-    (tmp_path / "docs").mkdir()
     for field in ("bundle_manifest", "source_parity", "provenance"):
+        (tmp_path / entry[field]).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(POWER / entry[field], tmp_path / entry[field])
     count = json.loads((POWER / entry["bundle_manifest"]).read_text())["summary"]["file_count"]
     (tmp_path / "metadata/curated-skills.json").write_text(

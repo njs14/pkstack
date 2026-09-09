@@ -98,11 +98,10 @@ def test_committed_maintenance_campaign_matches_recorded_transition_and_manifest
     assert evidence["ledger_path"] == manifest["review_ledger_path"]
     assert evidence["repository"] == ledger_source["repository"]
     assert evidence["path"] == ledger_source["path"]
-    # The frozen campaign predates the local Power directory rename, not a source change.
-    historical_provenance = Path(evidence["provenance_path"])
-    assert (
-        Path("powers/pkstack") / historical_provenance.relative_to("powers/pk-stack")
-    ).as_posix() == ledger_source["provenance_path"]
+    # Keep captured paths fixed across later package and directory reorganizations.
+    assert evidence["provenance_path"] == "powers/pk-stack/docs/provenance.md"
+    assert campaign["parity"]["path"] == "powers/pk-stack/docs/upstream-skill-parity.json"
+    assert ledger_source["provenance_path"] == "powers/pkstack/provenance/provenance.md"
     assert evidence["prior"] == recorded_transition["prior"]
     assert evidence["new"] == recorded_transition["new"]
     assert evidence["inventory_sha256"] == recorded_transition["inventory_sha256"]
@@ -186,7 +185,11 @@ def test_retired_openknowledge_contract_keeps_historical_evidence_outside_active
         ).read_text()
     )
     _assert_openknowledge_contract_scope(
-        archive["manifest_source"], archive["review_ledger_source"], parity, provenance
+        archive["manifest_source"],
+        archive["review_ledger_source"],
+        parity,
+        provenance,
+        historical=True,
     )
     assert {"google-open-knowledge-format", "okf-skills"} <= {
         source["id"] for source in manifest["sources"]
@@ -198,17 +201,23 @@ def _assert_openknowledge_contract_scope(
     ledger_source: dict[str, Any],
     parity: dict[str, Any],
     provenance: str,
+    *,
+    historical: bool = False,
 ) -> None:
     """Check local scope, not remote authenticity (the acceptance verifier proves that)."""
     source_id = "openknowledge-cli-contract"
     active = {key: manifest_source[key] for key in ("commit", "subtree_sha")}
+    parity_directory = "docs" if historical else "metadata"
+    provenance_directory = "docs" if historical else "provenance"
 
     assert manifest_source == {
         **active,
         "id": source_id,
-        "parity_path": "powers/pkstack/metadata/openknowledge-cli-contract-parity.json",
+        "parity_path": f"powers/pkstack/{parity_directory}/openknowledge-cli-contract-parity.json",
         "path": "packages/cli/schemas/v1",
-        "provenance_path": "powers/pkstack/provenance/openknowledge-cli-contract-provenance.md",
+        "provenance_path": (
+            f"powers/pkstack/{provenance_directory}/openknowledge-cli-contract-provenance.md"
+        ),
         "ref": "main",
         "repository": "openknowledge-sh/openknowledge",
     }
@@ -1008,8 +1017,8 @@ def _add_parallel_source(root: Path, *, source_id: str = "alpha-source") -> dict
     source = copy.deepcopy(manifest["sources"][0])
     source.update(
         id=source_id,
-        provenance_path=f"powers/pkstack/docs/{source_id}-provenance.md",
-        parity_path=f"powers/pkstack/docs/{source_id}-parity.json",
+        provenance_path=f"powers/pkstack/provenance/{source_id}-provenance.md",
+        parity_path=f"powers/pkstack/metadata/{source_id}-parity.json",
     )
     manifest["sources"].append(source)
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
