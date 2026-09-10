@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import shutil
 import subprocess
@@ -122,6 +123,101 @@ def git_tree(tmp_path: Path, entries: list[dict[str, Any]]) -> str:
     return subprocess.check_output(
         ["git", "write-tree", "--missing-ok"], cwd=repository, text=True
     ).strip()
+
+
+@pytest.mark.parametrize("change", ["content", "add", "remove"])
+def test_source_revision_can_advance_without_rewriting_catalog(
+    tmp_path: Path, power: Path, change: str
+):
+    parity = power / "metadata/mattpocock-codebase-design-source-parity.json"
+    manifest = power / "metadata/mattpocock-codebase-design-bundle-manifest.json"
+    inventory = json.loads(parity.read_text())
+    bundle = json.loads(manifest.read_text())
+    catalog_bytes = (power / CATALOG_PATH).read_bytes()
+    snapshot_bytes = (power / "metadata/mattpocock-catalog-tree.json").read_bytes()
+    source_path = inventory["source"]["path"]
+    payload = b"An independently reviewed upstream source revision.\n"
+    identity = {
+        "type": "blob",
+        "mode": "100644",
+        "object_sha": hashlib.sha1(
+            b"blob " + str(len(payload)).encode() + b"\0" + payload
+        ).hexdigest(),
+        "size": len(payload),
+    }
+    if change == "content":
+        next(item for item in inventory["files"] if item["path"] == "SKILL.md")["current"] = (
+            identity
+        )
+    elif change == "add":
+        relative = "references/new-guide.md"
+        inventory["files"].append(
+            {
+                "path": relative,
+                "pinned": None,
+                "current": identity,
+                "disposition": "A",
+                "rationale": "Adapt the newly added nested guide through source-bound review.",
+            }
+        )
+        local = power / bundle["bundle_root"] / relative
+        local.parent.mkdir(parents=True, exist_ok=True)
+        local.write_bytes(payload)
+        bundle["files"].append(
+            {
+                "path": relative,
+                "source_path": f"{source_path}/{relative}",
+                "mode": "100644",
+                "size": len(payload),
+                "sha256": hashlib.sha256(payload).hexdigest(),
+                "handling": "adapted-kiro-wrapper",
+            }
+        )
+    else:
+        resource = next(item for item in inventory["files"] if item["path"] == "DEEPENING.md")
+        resource.update(current=None, disposition="C", rationale="Remove the retired resource.")
+        local = next(
+            item for item in bundle["files"] if item["source_path"].endswith("/DEEPENING.md")
+        )
+        (power / bundle["bundle_root"] / local["path"]).unlink()
+        bundle["files"].remove(local)
+    inventory["files"].sort(key=lambda item: item["path"].casefold())
+    current = [item for item in inventory["files"] if item["current"] is not None]
+    tree = git_tree(
+        tmp_path,
+        [
+            {
+                "path": item["path"],
+                "type": item["current"]["type"],
+                "mode": item["current"]["mode"],
+                "sha": item["current"]["object_sha"],
+            }
+            for item in current
+        ],
+    )
+    inventory["source"]["current"] = {"commit": "f" * 40, "subtree_sha": tree}
+    inventory["summary"] = {
+        **{
+            value: sum(item["disposition"] == value for item in inventory["files"])
+            for value in ("A", "B", "C")
+        },
+        "pinned_files": sum(item["pinned"] is not None for item in inventory["files"]),
+        "current_files": len(current),
+    }
+    bundle["files"].sort(key=lambda item: item["path"])
+    bundle["summary"] = {
+        "file_count": len(bundle["files"]),
+        "byte_count": sum(item["size"] for item in bundle["files"]),
+    }
+    parity.write_text(json.dumps(inventory))
+    manifest.write_text(json.dumps(bundle))
+    assert check_catalog(power, offline=True)["ok"]
+    assert (power / CATALOG_PATH).read_bytes() == catalog_bytes
+    assert (power / "metadata/mattpocock-catalog-tree.json").read_bytes() == snapshot_bytes
+    inventory["source"]["current"]["subtree_sha"] = "0" * 40
+    parity.write_text(json.dumps(inventory))
+    with pytest.raises(UpstreamError, match="original Git bytes"):
+        validate_catalog(power)
 
 
 def remote(tmp_path: Path):

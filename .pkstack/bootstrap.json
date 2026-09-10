@@ -214,7 +214,7 @@
     ".pkstack/projectctl/src/pkstack/models.py": "cbea73c95a2a0f28efcc65380286fb7cf936331e1060e6945609621865a41a2e",
     ".pkstack/projectctl/src/pkstack/paths.py": "6a0418e0cdaf961b9247b1f54ac96599b8175631545b9068beda53345d2ff17c",
     ".pkstack/projectctl/src/pkstack/runner.py": "420b6882dc38d75e1d230c357a06f2974f41aeb4ea4e6b21340dfa8a5d96e5e5",
-    ".pkstack/projectctl/src/pkstack/upstream_catalog.py": "126f39de7222f2eed37eef7f27ab77ff42f4f690da6084ee6f7e08f3e3588944",
+    ".pkstack/projectctl/src/pkstack/upstream_catalog.py": "54e7e8f7a217d5ad8bb442f1b2b6e8c8d793b94b1cee2ff6e8afec2643f82c87",
     ".pkstack/projectctl/src/pkstack/upstreams.py": "b96cbc2a6e0c58abd9813f4189fb49b3a99b4ccaeb2b930c9897e588d3ac53bd",
     ".pkstack/projectctl/uv.lock": "3138499db676a78086b14d896bc65cd937511f5684cb7091f43e5dda980107cd",
     "Wiki/features/README.md": "9745441f270d65395ffa685164c18cd8b571888fc8af8cfe3a8dd9d67be4a2b2"

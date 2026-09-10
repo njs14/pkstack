@@ -14,16 +14,24 @@ from typing import Any
 from pkstack.bootstrap import _validate_curated_bundle_manifest
 from pkstack.paths import workspace_path
 from pkstack.upstreams import (
+    _SOURCE_INVENTORY_PARITY_KEYS,
+    _SOURCE_INVENTORY_PARITY_SOURCE_KEYS,
     DEFAULT_TIMEOUT_SECONDS,
     MAX_RESPONSE_BYTES,
+    MAX_TREE_ENTRIES,
     FetchJSON,
     UpstreamError,
     _commit_identity,
     _fetch_json,
     _github_token,
+    _inventory_file_identities,
     _read_json_path,
+    _require_exact_keys,
     _response_sha,
+    _source_parity_identity,
     _tree_files,
+    _validate_retrieved_on,
+    _validate_source_inventory_document,
     _validated_timeout,
 )
 
@@ -180,7 +188,7 @@ def validate_catalog(power_root: Path) -> dict[str, Any]:
         elif not workspace_path(root, Path(destination)).is_file():
             raise UpstreamError("catalog destination is missing")
         if disposition in {"imported", "consolidated"}:
-            _validate_source_bundle(root, entry, files, reconstructed)
+            _validate_source_bundle(root, entry)
         elif entry["source_id"] is not None or entry["bundle_manifest"] is not None:
             raise UpstreamError("unimported catalog entry cannot claim a source bundle")
         paths.append(path)
@@ -192,8 +200,6 @@ def validate_catalog(power_root: Path) -> dict[str, Any]:
 def _validate_source_bundle(
     root: Path,
     entry: dict[str, Any],
-    files: dict[str, tuple[str, str, str, int | None]],
-    trees: dict[str, str],
 ) -> None:
     name = entry["name"]
     source_id = f"mattpocock-{name}"
@@ -206,49 +212,67 @@ def _validate_source_bundle(
     inventory = _json(root, f"metadata/{source_id}-source-parity.json")
     if not isinstance(inventory, dict) or not isinstance(inventory.get("source"), dict):
         raise UpstreamError("catalog source inventory must be an object with a source")
+    _require_exact_keys(inventory, _SOURCE_INVENTORY_PARITY_KEYS, "catalog source inventory")
+    if type(inventory["schema_version"]) is not int or inventory["schema_version"] != 1:
+        raise UpstreamError("catalog source inventory has an unsupported schema")
+    if inventory["artifact_type"] != "source-inventory":
+        raise UpstreamError("catalog source inventory has an unsupported artifact type")
     source = inventory["source"]
-    if not isinstance(source.get("current"), dict):
-        raise UpstreamError("catalog source inventory needs a current identity")
+    _require_exact_keys(source, _SOURCE_INVENTORY_PARITY_SOURCE_KEYS, "catalog source")
+    _validate_retrieved_on(source["retrieved_on"], context="catalog source")
     if (
         source.get("id") != source_id
         or source.get("repository") != REPOSITORY
         or source.get("path") != source_path
-        or source.get("current", {}).get("subtree_sha") != trees.get(source_path)
     ):
-        raise UpstreamError("catalog source inventory does not match the pinned subtree")
+        raise UpstreamError("catalog source inventory does not match its source")
     prefix = source_path + "/"
-    expected = {
-        path[len(prefix) :]: value for path, value in files.items() if path.startswith(prefix)
-    }
     inventory_files = inventory.get("files")
-    if not isinstance(inventory_files, list):
+    if not isinstance(inventory_files, list) or len(inventory_files) > MAX_TREE_ENTRIES:
         raise UpstreamError("catalog source inventory has no files")
     seen = set()
     shipped = set()
+    revisions: dict[str, dict[str, tuple[str, str, str, int | None]]] = {
+        "pinned": {},
+        "current": {},
+    }
     for resource in inventory_files:
         if not isinstance(resource, dict) or not isinstance(resource.get("path"), str):
             raise UpstreamError("catalog source resource must have a path")
         path = resource["path"]
-        identity = resource.get("current")
-        if path in seen or path not in expected or not isinstance(identity, dict):
+        if path in seen:
             raise UpstreamError("catalog source resource is missing or duplicated")
-        if (
-            identity.get("type"),
-            identity.get("mode"),
-            identity.get("object_sha"),
-            identity.get("size"),
-        ) != expected[path]:
-            raise UpstreamError("catalog source resource does not match original Git bytes")
         seen.add(path)
-        if resource.get("disposition") == "A":
-            shipped.add(prefix + path)
-        elif not isinstance(resource.get("disposition"), str) or resource["disposition"] not in {
-            "B",
-            "C",
-        }:
+        for revision, identities in revisions.items():
+            identity = resource.get(revision)
+            if identity is None:
+                continue
+            if not isinstance(identity, dict):
+                raise UpstreamError("catalog source resource needs a Git identity")
+            size = identity.get("size")
+            if size is not None and (type(size) is not int or size < 0):
+                raise UpstreamError("catalog source resource size is invalid")
+            identities[path] = (
+                identity.get("type"),
+                identity.get("mode"),
+                identity.get("object_sha"),
+                size,
+            )
+        disposition = resource.get("disposition")
+        if not isinstance(disposition, str) or disposition not in {"A", "B", "C"}:
             raise UpstreamError("catalog source resource needs a disposition")
-    if seen != set(expected):
-        raise UpstreamError("catalog source inventory omits nested resources")
+        if disposition == "A" and resource.get("current") is not None:
+            shipped.add(prefix + path)
+    # The catalog freezes entrypoint accounting, not each independently maintained
+    # source revision. Source-bound acceptance authenticates transitions separately.
+    for revision, identities in revisions.items():
+        source_identity = _source_parity_identity(source[revision], revision)
+        validated = _inventory_file_identities({f"{revision}_files": identities}, revision=revision)
+        if _tree_identities(validated)[0] != source_identity["subtree_sha"]:
+            raise UpstreamError("catalog source inventory does not reconstruct original Git bytes")
+    _validate_source_inventory_document(
+        inventory, expected_pinned=revisions["pinned"], expected_current=revisions["current"]
+    )
     bundle = _json(root, entry["bundle_manifest"])
     if not isinstance(bundle, dict):
         raise UpstreamError("catalog bundle must be an object")
