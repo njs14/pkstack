@@ -100,6 +100,21 @@ behavior being claimed, rather than repeating the entire diagnostic campaign for
 Routine release work must not dispatch extra maintenance attempts after the two-repair budget is
 exhausted. Daily scheduling and source-bound rejection feedback remain responsible for recovery.
 
+## 0.7.0 guide and compatibility release scope
+
+The [version notes](../../../CHANGELOG.md) combine the project-aware advisor and
+empty primary-profile v3 compatibility marker with the already merged permission,
+Wayfinder, router-renaming, and artwork work. The guide targets
+`poteto-kiro-mode`; the selected workspace agent remains `pkstack`. Reconciliation
+preserves the current upstream catalog and setup-owned generated files.
+
+The release requires exact-candidate local checks, independent review, complete-tree
+merge comparison, reproducible packaging, extracted-consumer checks, and downloaded
+publication-byte verification. GitHub Actions remain manually disabled; this scope
+does not assert a hosted pass or publication before those steps complete. The
+[native guide observations](native-kiro-composition.md#september-10-guide-observations-and-limits)
+retain their behavioral gaps and do not establish release-wide CLI or IDE acceptance.
+
 ## 0.6.0 engineering integration scope
 
 The [version notes](../../../CHANGELOG.md) describe eight newly discoverable engineering skills,

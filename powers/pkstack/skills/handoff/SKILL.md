@@ -10,7 +10,7 @@ search, keep the result conversational, and defer commands, MCP calls, file writ
 and validation until execution is permitted. A skill invocation does not widen authority.
 
 Tailor the document to the stated next-session purpose. Reuse PKStack's
-[Pause and Session pickup](../pkstack/references/workflows.md) checkpoints and existing native
+[Pause and Session pickup](../poteto-kiro-mode/references/workflows.md) checkpoints and existing native
 Spec state. Inspect the actual branch, commit, dirty paths, and active operation when commands
 are permitted. Distinguish observed current state from earlier conversation claims.
 

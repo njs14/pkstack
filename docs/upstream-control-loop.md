@@ -82,7 +82,7 @@ helpers require manual review and integration when their upstream code changes; 
 edits retain the existing Markdown-only boundary.
 
 Source capacity is explicitly bounded at 32
-in both the controller and trusted detector, accommodating 25 registrations while retaining all
+in both the controller and trusted detector, accommodating 26 registrations while retaining all
 network, file, byte, concurrency, and review-context limits. No additional job or schedule is added.
 
 ## Reviewer feedback and credit limits

@@ -2,7 +2,7 @@
 
 Use the section matching the user's uncertainty. These are decision aids, not a mandatory
 sequence. Operational checkpoints belong to the linked skills and to
-[PKStack's workflow reference](../../pkstack/references/workflows.md).
+[PKStack's workflow reference](../../poteto-kiro-mode/references/workflows.md).
 
 ## Starting a project
 
@@ -60,7 +60,7 @@ Choose the smallest method that can settle the open question:
 
 - External facts or guarantees: [research](../../research/SKILL.md), with primary sources.
 - Logic, state, interaction, timing, or appearance that must be observed: the Prototype workflow
-  through `/pkstack prototype ...`; there is no separate installed `/prototype` command.
+  through `/poteto-kiro-mode prototype ...`; there is no separate installed `/prototype` command.
 - A significant API, data model, or system boundary: [architect](../../architect/SKILL.md),
   starting from usage and comparing meaningful alternatives.
 - An already selected artifact that needs competing attempts: [arena](../../arena/SKILL.md),
@@ -75,7 +75,7 @@ experiment; it does not run it.
 
 ## Moving from design to implementation
 
-Read [pkstack](../../pkstack/SKILL.md) for native Plan, Spec, Quick Spec, and Bug Fix selection
+Read [poteto-kiro-mode](../../poteto-kiro-mode/SKILL.md) for native Plan, Spec, Quick Spec, and Bug Fix selection
 and exact client-specific handoffs. Resume an existing native package rather than recreating
 its decisions or tasks. Keep small work small. An explicit plan-only request still belongs to
 native Plan; prototypes wait until execution is permitted.

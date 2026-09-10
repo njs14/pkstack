@@ -53,16 +53,16 @@ For example, a new library needs one useful caller example and a runnable behavi
 a browser harness. An existing service with adequate proof may proceed directly to its requested
 change. A stale verifier calls for maintenance, not replacing it with a fresh system.
 When the user needs to see alternative interactions operate, recommend the Prototype workflow
-through `/pkstack prototype ...`, with an observation that will settle the choice. A read-only
+through `/poteto-kiro-mode prototype ...`, with an observation that will settle the choice. A read-only
 advisory turn does not make the recommended next step a plan-only task: native Plan can analyze
 but cannot run the prototype. Do not substitute a prose comparison for requested empirical proof.
 
 ## Keep advice and execution distinct
 
 [`pkstack-setup`](../pkstack-setup/SKILL.md) owns installation and repair;
-[`pkstack`](../pkstack/SKILL.md) owns task routing and native planning handoffs. An advisory
+[`poteto-kiro-mode`](../poteto-kiro-mode/SKILL.md) owns task routing and native planning handoffs. An advisory
 answer does not invoke either. If the user explicitly requests a plan, prepare the native Plan
-handoff described by `pkstack`, carrying the shared `grilling` method and settled context; do
+handoff described by `poteto-kiro-mode`, carrying the shared `grilling` method and settled context; do
 not conduct a second planning interview or claim to switch modes. An existing Spec stays
 authoritative. Read the router's client-specific command form before composing a native handoff;
 a Spec identifier is not a free-form prompt. Preserve verifier binding before execution rather

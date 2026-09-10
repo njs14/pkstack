@@ -65,7 +65,6 @@ def _frontmatter(path: Path) -> tuple[dict[str, object], str]:
 
 def test_pkstack_routes_are_namespaced_without_renaming_upstream_identities() -> None:
     assert {name for name in EXPECTED_SKILLS if name.startswith("pkstack")} == {
-        "pkstack",
         "pkstack-guide",
         "pkstack-setup",
         "pkstack-maintain",
@@ -73,7 +72,12 @@ def test_pkstack_routes_are_namespaced_without_renaming_upstream_identities() ->
         "pkstack-model-council",
         "pkstack-principles",
     }
-    assert SKILL_ROUTE_ALIASES == {"poteto-mode": "pkstack", "setup-pstack": "pkstack-setup"}
+    assert "poteto-kiro-mode" in EXPECTED_SKILLS
+    assert "pkstack" not in EXPECTED_SKILLS
+    assert SKILL_ROUTE_ALIASES == {
+        "poteto-mode": "poteto-kiro-mode",
+        "setup-pstack": "pkstack-setup",
+    }
     assert {
         "okf",
         "pkstack-guide",
@@ -153,7 +157,7 @@ def test_power_details_metadata_matches_manifest_and_embeds_small_jpg() -> None:
     image = base64.b64decode(icon.removeprefix("data:image/jpeg;base64,"), validate=True)
     assert 0 < len(image) <= 64 * 1024
     assert image == (REPO_ROOT / "docs/assets/pkstack-power.jpg").read_bytes()
-    assert "/pkstack-setup" in body and "/pkstack <task>" in body
+    assert "/pkstack-setup" in body and "/poteto-kiro-mode <task>" in body
     assert not (ROOT / "POWERS.md").exists()
 
 
@@ -190,7 +194,7 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
     assert set(fixture) == {"schema_version", "cases"}
     assert type(fixture["schema_version"]) is int and fixture["schema_version"] == 1
     cases = fixture["cases"]
-    assert isinstance(cases, list) and 1 <= len(cases) <= 72
+    assert isinstance(cases, list) and 1 <= len(cases) <= 74
     ids: set[str] = set()
     primary_routes: set[str] = set()
     for case in cases:
@@ -324,7 +328,7 @@ def test_skill_routing_markdown_pointers_resolve_within_the_power() -> None:
 
 
 def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
-    for relative in ("pkstack/SKILL.md", "pkstack/references/workflows.md"):
+    for relative in ("poteto-kiro-mode/SKILL.md", "poteto-kiro-mode/references/workflows.md"):
         source = SKILLS / relative
         targets = {
             (source.parent / target).resolve()
@@ -357,12 +361,15 @@ def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
         ("recall", {"reflect", "okf"}),
         ("reflect", {"recall", "okf"}),
         ("okf", {"recall", "reflect", "grilling"}),
-        ("grilling", {"pkstack", "okf", "domain-modeling", "grill-with-docs", "interrogate"}),
+        (
+            "grilling",
+            {"poteto-kiro-mode", "okf", "domain-modeling", "grill-with-docs", "interrogate"},
+        ),
         ("grill-me", {"grilling", "grill-with-docs"}),
         ("grill-with-docs", {"grilling", "domain-modeling", "okf"}),
         ("domain-modeling", {"grilling", "okf"}),
         ("create-verification-skill", {"grilling"}),
-        ("pkstack-guide", {"pkstack", "pkstack-setup"}),
+        ("pkstack-guide", {"poteto-kiro-mode", "pkstack-setup"}),
         ("narrow-react-prop-types", {"typescript-best-practices"}),
         ("typescript-best-practices", {"narrow-react-prop-types"}),
     ],
@@ -377,7 +384,7 @@ def test_setup_handoff_and_explicit_invocation_keep_authority_visible() -> None:
     assert "Do not start onboarding" in setup
     for name in ("show-me", "writing-for-agents", "create-verification-skill", "pkstack-guide"):
         assert f"../{name}/SKILL.md" in setup
-    entry = " ".join((SKILLS / "pkstack" / "SKILL.md").read_text().split())
+    entry = " ".join((SKILLS / "poteto-kiro-mode" / "SKILL.md").read_text().split())
     assert "does not broaden the user's authority" in entry
 
 
@@ -521,7 +528,7 @@ def test_load_bearing_upstream_skill_packages_are_routed_by_their_real_names() -
 
     poteto = by_name["poteto-mode"]
     assert poteto["disposition"] == "alias-consolidation"
-    assert poteto["target"] == "skills/pkstack/SKILL.md"
+    assert poteto["target"] == "skills/poteto-kiro-mode/SKILL.md"
     poteto_resources = {
         resource["path"]: resource["handling"] for resource in poteto["current"]["files"]
     }
@@ -579,7 +586,7 @@ def test_evidence_skill_documents_public_commands_and_storage() -> None:
 
 
 def test_primary_router_documents_native_spec_entrypoints() -> None:
-    text = (SKILLS / "pkstack/SKILL.md").read_text(encoding="utf-8")
+    text = (SKILLS / "poteto-kiro-mode/SKILL.md").read_text(encoding="utf-8")
     for command in ("/spec new <name>", "/agent swap pkstack"):
         assert command in text
     for document in ("requirements.md", "bugfix.md", "design.md", "tasks.md"):
@@ -587,7 +594,7 @@ def test_primary_router_documents_native_spec_entrypoints() -> None:
 
 
 def test_planning_interview_belongs_to_the_mode_the_user_selects() -> None:
-    router = " ".join((SKILLS / "pkstack/SKILL.md").read_text(encoding="utf-8").split())
+    router = " ".join((SKILLS / "poteto-kiro-mode/SKILL.md").read_text(encoding="utf-8").split())
     method = " ".join((SKILLS / "grilling/SKILL.md").read_text(encoding="utf-8").split())
     steering = " ".join((STEERING / "pkstack-core.md").read_text(encoding="utf-8").split())
     profile = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))["prompt"]

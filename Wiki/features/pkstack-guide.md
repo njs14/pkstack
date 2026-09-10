@@ -52,7 +52,7 @@ Install or refresh the Power through the reviewed Power-local setup skill.
 
 ### `discovery`
 
-Use pkstack-guide directly or ask pkstack for workflow advice in the selected Kiro agent.
+Use pkstack-guide directly or ask poteto-kiro-mode for workflow advice in the selected Kiro agent.
 
 ## Driving it
 

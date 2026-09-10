@@ -6,15 +6,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "2590a62385482c12f82aa36309227222e53092615924f53afaed908b8ef38320",
-      "size": 2215,
+      "sha256": "8462b40d2157fdcc29b78c2cb100f849eb602c2b9b3abbec419a117cb9766aff",
+      "size": 2224,
       "source_path": "skills/productivity/handoff/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "handoff",
   "summary": {
-    "byte_count": 2215,
+    "byte_count": 2224,
     "file_count": 1
   }
 }

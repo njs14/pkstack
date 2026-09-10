@@ -41,7 +41,7 @@ before starting a task.
 
 ## First success
 
-Use `/pkstack <task>` for your own work, or [try one failing task](first-task.md)
+Use `/poteto-kiro-mode <task>` for your own work, or [try one failing task](first-task.md)
 with either surface. That example supplies a repeatable verifier and explains
 how to inspect the failure, Kiro's repair, and the stored passing result.
 
@@ -100,7 +100,7 @@ and the controller's evidence checks are not an operating-system sandbox. See th
 
 | Command | Use it for |
 | --- | --- |
-| `/pkstack` | Route a task through planning, implementation, verification, and review |
+| `/poteto-kiro-mode` | Route a task through planning, implementation, verification, and review |
 | `/pkstack-guide` | Decide the next useful step for a new or existing project without starting it |
 | `/pkstack-setup` | Preview installation or refresh when the imported Power is discoverable |
 | `/pkstack-maintain` | Review upstream changes to the Power |
@@ -116,7 +116,7 @@ their roles and handoffs. For a runnable example, [try one failing task](first-t
 Use `/pkstack-guide <situation or question>` when you want advice before choosing a workflow.
 It reads relevant project context, recommends one next action with its reason and success
 evidence, and gives you a ready-to-send prompt. It can also answer a simple skill-choice
-question without surveying the project. `/pkstack` routes advisory questions to the same guide.
+question without surveying the project. `/poteto-kiro-mode` routes advisory questions to the same guide.
 
 ```text
 /pkstack-guide I'm starting a new service. Where should I begin?
@@ -458,6 +458,36 @@ Use `/okf` to produce, maintain, or consume durable knowledge. Native Kiro
 The earlier optional `okn` backend and `--require-okn` flag have been removed.
 See the [knowledge runtime decision](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/native-spec-and-okn.md).
 
+## Decision maps with Wayfinder
+
+Use `/wayfinder` for an effort whose uncertainty needs more than one conversation.
+It charts questions and resolves them before native Kiro planning; it does not create
+an implementation backlog alongside a Spec.
+
+```text
+/wayfinder Chart the decisions for our import redesign using local Markdown.
+/wayfinder Resume Wiki/work/import-redesign/map.md and work the next eligible question.
+/wayfinder Resume https://github.com/OWNER/REPO/issues/123 in read-only mode.
+```
+
+Wayfinder follows a supplied map or the repository's established tracker choice.
+Without one, it uses Markdown; merely having a GitHub remote does not select GitHub.
+New local maps live in ignored `Wiki/work/<effort>/`, with a map and one numbered file
+per ticket. Existing supplied Markdown maps resume in place. Only GitHub Cloud and
+local Markdown are supported. There is no synchronization or automatic backend
+switching, and local working maps are not shared between clones or worktrees.
+
+As useful decisions and findings settle, both backends update existing
+`Wiki/knowledge/<topic>/` documents under the shared OKF lifecycle. This retains
+rationale and evidence, not the whole board, raw conversation, or a second task list.
+Durable knowledge must stand alone without links to ignored working files. Capture
+is idempotent and validated locally; unavailable or failing validation leaves capture
+pending separately from an answered ticket. Native Plan and explicit read-only
+requests defer both tracker writes and knowledge capture.
+
+See [Wayfinder](../skills/wayfinder/SKILL.md) for the workflow and
+[the knowledge lifecycle](../skills/okf/references/document-lifecycle.md) for retention.
+
 ## Refresh managed files
 
 Leave the restricted `pkstack` profile before refreshing. CLI v3 2.21.1 names
@@ -475,6 +505,16 @@ to the workspace `pkstack` agent.
 Managed updates replace only files that still match their prior receipt hashes.
 User edits remain conflicts, and retired managed paths are never deleted
 automatically. Do not add a cached setup skill to `.kiro/skills/` to force discovery.
+
+The router skill is now `/poteto-kiro-mode`; the product, Python package, and
+`pkstack` agent keep their names. On an existing installation, preview may report
+the retired `.kiro/skills/pkstack/` files as `stale_managed`. Compare each exact
+file with its SHA-256 in `.pkstack/bootstrap.json`. Preserve a backup outside
+the workspace, then move only those verified unchanged retired files out of
+skill discovery. Keep modified files for deliberate reconciliation; do not
+delete the directory wholesale or edit the receipt to bypass conflicts. Review
+and apply a fresh setup preview, then confirm `/poteto-kiro-mode` and `/wayfinder`
+are discovered in the intended Kiro session.
 
 ### Clean reinstall
 

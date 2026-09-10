@@ -14,15 +14,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "d2c0393660076e926a276764e14177faa1f8b935972362834bc0bbaefc881b9f",
-      "size": 5808,
+      "sha256": "aa51fe3053c28b8b81f5a050ac28b7554fcd454ac465f0055407969f78e011d7",
+      "size": 5817,
       "source_path": ".codex/skills/babysit-pr/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "babysit-pr",
   "summary": {
-    "byte_count": 9296,
+    "byte_count": 9305,
     "file_count": 2
   }
 }

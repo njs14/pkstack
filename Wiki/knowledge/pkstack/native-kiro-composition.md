@@ -44,7 +44,7 @@ records the response contract and budget limits.
 
 The September 10 conversational plan, explicitly approved for implementation, adds
 `pkstack-guide` as a project-aware advisor across new and existing projects. A separate
-entry point makes advice discoverable without changing `pkstack` into another planner or
+entry point makes advice discoverable without changing the primary router into another planner or
 expanding setup into automatic onboarding. The guide recommends a next action, explains
 the evidence and expected proof, and prepares a prompt for the owning workflow. Advice
 alone does not authorize execution or knowledge writes. A subsequent execution request
@@ -58,10 +58,16 @@ design; structural and native behavioral checks must establish its implementatio
 The [guide entry point](../../../powers/pkstack/skills/pkstack-guide/SKILL.md) owns advice;
 its [lifecycle reference](../../../powers/pkstack/skills/pkstack-guide/references/project-lifecycle.md)
 records the decision criteria and source adaptations. Execution remains in the
-[primary router](../../../powers/pkstack/skills/pkstack/SKILL.md), and
+[primary router](../../../powers/pkstack/skills/poteto-kiro-mode/SKILL.md), and
 [setup](../../../powers/pkstack/skills/pkstack-setup/SKILL.md) only offers orientation when useful.
 The [guide installation contract](../../features/pkstack-guide.md) checks registration,
 resource installation, conflict preservation, and declared routes; it is not native behavior proof.
+
+Release 0.7.0 reconciles the guide with the already merged `poteto-kiro-mode` router
+and Wayfinder catalog. The guide's links and ready-to-send prototype route now use
+the renamed owner, while the workspace agent remains `pkstack`. The observations
+below stay bound to their recorded guide bytes; they are not a fresh acceptance
+campaign for the reconciled guide. The primary compatibility profile is unchanged.
 
 Kiro documents native planning workflows as client-selected workflows. It does not document a
 supported Agent Skill or custom-agent tool for changing the active workflow. PKStack therefore

@@ -1217,7 +1217,7 @@
         ]
       },
       "disposition": "alias-consolidation",
-      "target": "skills/pkstack/SKILL.md",
+      "target": "skills/poteto-kiro-mode/SKILL.md",
       "rationale": "A discoverable compatibility router selects PKStack skills and the DO/PROVE/KNOW interfaces without recreating Cursor task orchestration.",
       "consolidates_to": "PKStack skill router and DO/PROVE/KNOW interfaces"
     },

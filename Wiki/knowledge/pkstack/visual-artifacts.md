@@ -63,6 +63,13 @@ images and their creation history, while root
 `docs/artifacts/` holds the unchanged diagram sources and previews. A design selection is not evidence of package behavior or endorsement
 by the depicted projects.
 
+The September 10 refresh retains the Knowledge crest composition while replacing
+the Pocock and HumanLayer companions with abstract teaching and layered-collaboration
+motifs. The built-in image generator produced the new crest and compact scholarly
+ghost icon; no specific backend model version is asserted. The refreshed 512 by
+512 JPEG is 47,978 bytes and must exactly match the decoded `POWER.md` data URI.
+The prompt and asset hashes are retained in the creation history below.
+
 
 ## Keep input facts fixed while repairing presentation
 

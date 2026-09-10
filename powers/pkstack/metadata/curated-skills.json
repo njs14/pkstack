@@ -192,6 +192,15 @@
       "target": "skills/uv/SKILL.md"
     },
     {
+      "bundle_manifest": "metadata/mattpocock-wayfinder-bundle-manifest.json",
+      "bundle_root": "skills/wayfinder",
+      "name": "wayfinder",
+      "provenance": "provenance/mattpocock-wayfinder-provenance.md",
+      "source_id": "mattpocock-wayfinder",
+      "source_parity": "metadata/mattpocock-wayfinder-source-parity.json",
+      "target": "skills/wayfinder/SKILL.md"
+    },
+    {
       "bundle_manifest": "metadata/mattpocock-wizard-bundle-manifest.json",
       "bundle_root": "skills/wizard",
       "name": "wizard",
@@ -211,8 +220,8 @@
     }
   ],
   "summary": {
-    "bundle_file_count": 112,
-    "curated_skill_count": 23,
-    "shipped_skill_directories": 23
+    "bundle_file_count": 115,
+    "curated_skill_count": 24,
+    "shipped_skill_directories": 24
   }
 }

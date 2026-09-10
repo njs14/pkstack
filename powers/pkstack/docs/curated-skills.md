@@ -34,7 +34,7 @@ remain independent active sources; PKStack ships no optional `okn` backend.
 
 ## Choose by the job
 
-Use `/pkstack` for the overall task. A helper should contribute a distinct output:
+Use `/poteto-kiro-mode` for the overall task. A helper should contribute a distinct output:
 
 | Job | Skill and handoff |
 | --- | --- |
@@ -102,7 +102,7 @@ exact bundle manifest. The pins below describe the accepted sources, not a
 claim that every upstream is at its latest release.
 
 These imported skills retain their upstream names. PKStack's seven entry points
-use `/pkstack` or `/pkstack-<workflow>`; `/okf` is the separate knowledge-integration
+use `/poteto-kiro-mode` or `/pkstack-<workflow>`; `/okf` is the separate knowledge-integration
 exception. The [pstack mapping](../provenance/upstream-skill-parity.md) covers Poteto's ports.
 
 | Skill | Source | Runtime boundary |
@@ -142,9 +142,18 @@ PKStack's shipped routes and native Kiro ownership. Its
 include the user-supplied pstack guide exports; it imports no persona, tracker flow, or runtime.
 
 The [complete disposition catalog](../metadata/mattpocock-skill-catalog.json) accounts for all
-37 entrypoints at the pinned source revision. Thirteen are imported, four methods are consolidated,
-six are covered by existing workflows, Wayfinder is deferred by choice, and thirteen are excluded.
+37 entrypoints at the pinned source revision. Fourteen are imported, four methods are consolidated,
+six are covered by existing workflows, and thirteen are excluded.
 Nested resources have their own original source inventories and adapted bundle manifests.
+
+[`wayfinder`](../skills/wayfinder/SKILL.md) charts large uncertain efforts as GitHub Cloud
+or local Markdown decision maps. It honors the supplied or established tracker;
+without one, it defaults to Markdown. GitHub uses native sub-issues and blockers;
+Markdown uses a map and numbered child files under ignored `Wiki/work/<effort>/`.
+Both curate reusable understanding into OKF topics before native Kiro handoff,
+without mirroring the map's operational state. Other trackers and self-hosted issue
+services are unsupported; backend failures never trigger automatic switching. See its
+[provenance](../provenance/mattpocock-wayfinder-provenance.md).
 
 The design method extends `architect`, the separate specification/standards axes extend
 `interrogate`, public-interface guidance extends the existing `tdd`, and logic/state versus visual

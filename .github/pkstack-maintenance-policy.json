@@ -91,7 +91,9 @@
       "powers/pkstack/metadata/mattpocock-triage-bundle-manifest.json",
       "powers/pkstack/metadata/mattpocock-triage-source-parity.json",
       "powers/pkstack/metadata/mattpocock-wizard-bundle-manifest.json",
-      "powers/pkstack/metadata/mattpocock-wizard-source-parity.json"
+      "powers/pkstack/metadata/mattpocock-wizard-source-parity.json",
+      "powers/pkstack/metadata/mattpocock-wayfinder-bundle-manifest.json",
+      "powers/pkstack/metadata/mattpocock-wayfinder-source-parity.json"
     ],
     "deny_patterns": [
       ".github/**",
@@ -225,7 +227,9 @@
     "powers/pkstack/metadata/mattpocock-triage-bundle-manifest.json",
     "powers/pkstack/metadata/mattpocock-triage-source-parity.json",
     "powers/pkstack/metadata/mattpocock-wizard-bundle-manifest.json",
-    "powers/pkstack/metadata/mattpocock-wizard-source-parity.json"
+    "powers/pkstack/metadata/mattpocock-wizard-source-parity.json",
+    "powers/pkstack/metadata/mattpocock-wayfinder-bundle-manifest.json",
+    "powers/pkstack/metadata/mattpocock-wayfinder-source-parity.json"
   ],
   "agent_allowed_prefixes": {
     "powers/pkstack/dev.kiro/": [
@@ -310,7 +314,9 @@
     "powers/pkstack/metadata/mattpocock-triage-bundle-manifest.json",
     "powers/pkstack/metadata/mattpocock-triage-source-parity.json",
     "powers/pkstack/metadata/mattpocock-wizard-bundle-manifest.json",
-    "powers/pkstack/metadata/mattpocock-wizard-source-parity.json"
+    "powers/pkstack/metadata/mattpocock-wizard-source-parity.json",
+    "powers/pkstack/metadata/mattpocock-wayfinder-bundle-manifest.json",
+    "powers/pkstack/metadata/mattpocock-wayfinder-source-parity.json"
   ],
   "final_allowed_prefixes": {
     ".kiro/agents/": [
