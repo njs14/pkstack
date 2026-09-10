@@ -2,8 +2,22 @@
   "schema_version": 1,
   "entries": [
     {
+      "path": ".kiro/skills/wayfinder/references/markdown.md",
+      "sha256": "415ba58a172b37cf66ddfb576766aa6892ebe5049b2f14c90c3e8ea299e3be43",
+      "classification": "excluded",
+      "category": "generated",
+      "reason": "Setup-owned native mirror; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
+    },
+    {
+      "path": "powers/pkstack/skills/wayfinder/references/markdown.md",
+      "sha256": "415ba58a172b37cf66ddfb576766aa6892ebe5049b2f14c90c3e8ea299e3be43",
+      "classification": "excluded",
+      "category": "native",
+      "reason": "Native skill definition or bundled reference; source inventory and composition guidance retain adaptation decisions while Kiro owns execution and discovery."
+    },
+    {
       "path": ".kiro/skills/wayfinder/SKILL.md",
-      "sha256": "5c4a4a136bee327f28e3fbbadffda9ea2cddfbf2b900e8f0095eec2af9358aef",
+      "sha256": "9baf2bbe9c1ff18409943423818b66c74e9375c37b5819c5752de1600637435d",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -17,7 +31,7 @@
     },
     {
       "path": "powers/pkstack/skills/wayfinder/SKILL.md",
-      "sha256": "5c4a4a136bee327f28e3fbbadffda9ea2cddfbf2b900e8f0095eec2af9358aef",
+      "sha256": "9baf2bbe9c1ff18409943423818b66c74e9375c37b5819c5752de1600637435d",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference; source inventory and composition guidance retain adaptation decisions while Kiro owns execution and discovery."
@@ -31,12 +45,12 @@
     },
     {
       "path": "powers/pkstack/provenance/mattpocock-wayfinder-provenance.md",
-      "sha256": "61ab7b146d73fed7ff24864bc158994a4ef2a5f1d734ec612ba6f361a800329f",
+      "sha256": "9f530dd44b37542b796957b5e1b511067361c2bcf4eacc3b39e2b6c526401480",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
       ],
-      "summary": "Wayfinder retains question-driven exploration using native GitHub Cloud relationships, four ticket methods, resumable publication, and native Kiro execution boundaries."
+      "summary": "Wayfinder preserves upstream tracker selection for GitHub Cloud or Markdown, binds its supporting Markdown guide to the pinned catalog, and curates reusable OKF knowledge separately from resumable decision-map state."
     },
     {
       "path": "reviews/overnight-improvements-plan.md",
@@ -504,7 +518,7 @@
     },
     {
       "path": ".kiro/skills/poteto-kiro-mode/SKILL.md",
-      "sha256": "e4e387353a366ef5c4d99079f6c9fd0ad7c041157e589f67b66003c24429d05e",
+      "sha256": "9e043c358d81dd201634823937676166c6c93fb7a5ab0de48a6929ffd93848eb",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/poteto-kiro-mode/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -532,7 +546,7 @@
     },
     {
       "path": ".kiro/skills/poteto-kiro-mode/references/workflows.md",
-      "sha256": "7a176dfe070d5a044f3fc205c460b2bd89987c3c2537d3ed3b8fdfbab877db2b",
+      "sha256": "d999aa0c5ee81abe9971f4fae1ea4d8163f6180ec867877f49f5eff7654625ef",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/poteto-kiro-mode/references/workflows.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -1202,7 +1216,7 @@
     },
     {
       "path": "powers/pkstack/docs/curated-skills.md",
-      "sha256": "bef8a87985230b421c509cee799dd043f0a74ed3b17ab3adceff1e45b79e33d6",
+      "sha256": "8e6d6e165461be9ab5f89f7c6156034830e36a69df9df41dd4e3968bce8a1dd4",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1229,7 +1243,7 @@
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "33fd4acc0f71c6f7cab2fc3ea93e8d0cf21000200115c3b351340c6059dae1e2",
+      "sha256": "91eafa2b0cc6b3c90e44b347fc77215eb014a63136f0feee0f191c871d9cf582",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1952,7 +1966,7 @@
     },
     {
       "path": "powers/pkstack/skills/poteto-kiro-mode/SKILL.md",
-      "sha256": "e4e387353a366ef5c4d99079f6c9fd0ad7c041157e589f67b66003c24429d05e",
+      "sha256": "9e043c358d81dd201634823937676166c6c93fb7a5ab0de48a6929ffd93848eb",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/poteto-kiro-mode/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1980,7 +1994,7 @@
     },
     {
       "path": "powers/pkstack/skills/poteto-kiro-mode/references/workflows.md",
-      "sha256": "7a176dfe070d5a044f3fc205c460b2bd89987c3c2537d3ed3b8fdfbab877db2b",
+      "sha256": "d999aa0c5ee81abe9971f4fae1ea4d8163f6180ec867877f49f5eff7654625ef",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/poteto-kiro-mode/references/workflows.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."

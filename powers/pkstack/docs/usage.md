@@ -431,6 +431,36 @@ Use `/okf` to produce, maintain, or consume durable knowledge. Native Kiro
 The earlier optional `okn` backend and `--require-okn` flag have been removed.
 See the [knowledge runtime decision](https://github.com/njs14/pkstack/blob/main/Wiki/knowledge/pkstack/native-spec-and-okn.md).
 
+## Decision maps with Wayfinder
+
+Use `/wayfinder` for an effort whose uncertainty needs more than one conversation.
+It charts questions and resolves them before native Kiro planning; it does not create
+an implementation backlog alongside a Spec.
+
+```text
+/wayfinder Chart the decisions for our import redesign using local Markdown.
+/wayfinder Resume Wiki/work/import-redesign/map.md and work the next eligible question.
+/wayfinder Resume https://github.com/OWNER/REPO/issues/123 in read-only mode.
+```
+
+Wayfinder follows a supplied map or the repository's established tracker choice.
+Without one, it uses Markdown; merely having a GitHub remote does not select GitHub.
+New local maps live in ignored `Wiki/work/<effort>/`, with a map and one numbered file
+per ticket. Existing supplied Markdown maps resume in place. Only GitHub Cloud and
+local Markdown are supported. There is no synchronization or automatic backend
+switching, and local working maps are not shared between clones or worktrees.
+
+As useful decisions and findings settle, both backends update existing
+`Wiki/knowledge/<topic>/` documents under the shared OKF lifecycle. This retains
+rationale and evidence, not the whole board, raw conversation, or a second task list.
+Durable knowledge must stand alone without links to ignored working files. Capture
+is idempotent and validated locally; unavailable or failing validation leaves capture
+pending separately from an answered ticket. Native Plan and explicit read-only
+requests defer both tracker writes and knowledge capture.
+
+See [Wayfinder](../skills/wayfinder/SKILL.md) for the workflow and
+[the knowledge lifecycle](../skills/okf/references/document-lifecycle.md) for retention.
+
 ## Refresh managed files
 
 Leave the restricted `pkstack` profile before refreshing. CLI v3 2.21.1 names

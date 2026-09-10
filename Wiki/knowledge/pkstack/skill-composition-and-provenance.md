@@ -169,14 +169,42 @@ established.
 
 ## Source-specific retained knowledge
 
-Wayfinder keeps the upstream question-driven exploration map on GitHub Cloud:
-one map issue, native ordered sub-issues and blocking dependencies, a growing
-resolution index, and explicit unknown/out-of-scope sections. Research, prototype,
-grilling, and task tickets retain their distinct methods. Native Kiro planning,
-execution, verification, and permissions remain authoritative; the map does not
-become a second implementation task graph. Other tracker backends are not shipped.
+### Wayfinder tracker and knowledge ownership
+
+Accepted on 2026-09-10: Wayfinder supports GitHub Cloud or local Markdown, following
+the supplied map or the repository's established tracker choice. With no tracker
+provided, upstream Wayfinder defaults to Markdown. A GitHub remote alone does not
+choose a tracker. This supersedes the earlier Cloud-only adaptation, not its native
+Kiro ownership or permission boundaries.
+
+Each map has one operational authority: GitHub Issues with native ordered sub-issues
+and blockers, or a Markdown map with numbered child files. New local maps use ignored
+`Wiki/work/<effort>/`; explicitly supplied existing Markdown maps resume in place.
+Neither backend is a mirror or an automatic fallback for failure of the other.
+Research, prototype, grilling, and task tickets retain their distinct methods.
+The map clears uncertainty; native Kiro planning and Specs own delivery tasks,
+execution, verification, and approvals.
+
+Both backends curate reusable decisions, alternatives, rationale, findings, and
+consequential open questions into existing topic documents as understanding changes.
+Keeping the whole map in OKF was considered and rejected: claims, ticket state,
+and raw discussion are working material, not durable guidance. Update topic knowledge
+idempotently instead of exporting a second board or producing an ADR for every answer.
+Retain necessary evidence with the durable topic and rewrite its links; knowledge
+must not depend on ignored working files. A working ticket can link forward to that
+knowledge, and retained GitHub findings can cite their exact resolution comments.
+Deferred or failed capture remains visible separately from a resolved ticket.
+
+The [shared document lifecycle](knowledge-lifecycle.md) owns metadata, sources,
+supersession, read-only planning, and bounded validation. Acceptance of this design
+does not prove live skill execution or implementation correctness.
+The Markdown mechanics come from a supporting document outside the upstream Wayfinder
+subtree. Explicit catalog supporting-resource accounting binds that document to its
+original pinned tree while preserving the independent primary source inventory and
+complete adapted bundle check. It does not activate the upstream setup skill or make
+the supporting document an independently accepted maintenance source.
 See the [wayfinder provenance](../../../powers/pkstack/provenance/mattpocock-wayfinder-provenance.md)
-and the [overnight integration plan](../../../reviews/overnight-improvements-plan.md).
+and the historical [overnight integration plan](../../../reviews/overnight-improvements-plan.md).
 
 These summaries describe what is retained from each source. Historical observations keep their
 original candidate and scope; they are not fresh verification of this checkout.
@@ -220,7 +248,8 @@ methods extend existing owners: codebase-design into architect, code-review into
 into the existing Poteto-derived tdd, and prototype into PKStack's workflow references. This keeps
 one planning owner and avoids duplicate commands. The separate Pocock teaching workspace
 remains outside this integration. The subsequent Wayfinder adaptation adds GitHub Cloud
-decision maps, then hands resolved direction to native Kiro planning.
+or Markdown decision maps with curated OKF capture, then hands resolved direction to
+native Kiro planning.
 
 The [complete catalog](../../../powers/pkstack/metadata/mattpocock-skill-catalog.json) records every
 upstream entrypoint, including covered, deferred, and excluded methods. Offline validation

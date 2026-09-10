@@ -87,8 +87,9 @@ broaden the user's authority. Read the selected leaf before acting, and compose 
 distinct parts of the outcome. Pass existing evidence forward instead of repeating investigations.
 
 For an explicitly requested `/wayfinder` map, read [Wayfinder](../wayfinder/SKILL.md).
-It resolves uncertainty across sessions with GitHub Cloud decision tickets, then hands
-the cleared direction to native planning. It does not replace a Spec's task graph.
+It resolves uncertainty across sessions with GitHub Cloud or local Markdown decision
+tickets, curates reusable understanding into OKF, then hands the cleared direction
+to native planning. It does not replace a Spec's task graph.
 
 - architecture or alternatives: `architect` or `arena`
 - investigation, explanation, or teaching: `blast-radius`, `how`, `why`, `figure-it-out`, or

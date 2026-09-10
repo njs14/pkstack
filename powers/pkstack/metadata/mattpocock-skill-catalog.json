@@ -157,8 +157,11 @@
       "disposition": "imported",
       "name": "wayfinder",
       "path": "skills/engineering/wayfinder/SKILL.md",
-      "rationale": "Resumable decision maps adapted to the current Kiro session, native planning handoffs, and GitHub Cloud Issues with native child and blocking relationships. Alternate trackers and local board fallbacks are excluded.",
-      "source_id": "mattpocock-wayfinder"
+      "rationale": "Kiro-native GitHub Cloud or Markdown decision maps with curated OKF capture; the separate pinned local-tracker guide supplies supporting conventions without activating upstream setup.",
+      "source_id": "mattpocock-wayfinder",
+      "supporting_resources": [
+        "skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md"
+      ]
     },
     {
       "bundle_manifest": "metadata/mattpocock-wizard-bundle-manifest.json",

@@ -11,18 +11,26 @@
       "source_path": "skills/engineering/wayfinder/SKILL.md"
     },
     {
+      "handling": "adapted-kiro-markdown-operations",
+      "mode": "100644",
+      "path": "references/markdown.md",
+      "sha256": "415ba58a172b37cf66ddfb576766aa6892ebe5049b2f14c90c3e8ea299e3be43",
+      "size": 6199,
+      "source_path": "skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md"
+    },
+    {
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "5c4a4a136bee327f28e3fbbadffda9ea2cddfbf2b900e8f0095eec2af9358aef",
-      "size": 7246,
+      "sha256": "9baf2bbe9c1ff18409943423818b66c74e9375c37b5819c5752de1600637435d",
+      "size": 10863,
       "source_path": "skills/engineering/wayfinder/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "wayfinder",
   "summary": {
-    "byte_count": 12476,
-    "file_count": 2
+    "byte_count": 22292,
+    "file_count": 3
   }
 }

@@ -155,7 +155,11 @@ def validate_catalog(power_root: Path) -> dict[str, Any]:
         raise UpstreamError("invalid Pocock catalog entries")
     paths = []
     for entry in entries:
-        if not isinstance(entry, dict) or set(entry) != ENTRY_KEYS:
+        if (
+            not isinstance(entry, dict)
+            or not set(entry) >= ENTRY_KEYS
+            or set(entry) - ENTRY_KEYS - {"supporting_resources"}
+        ):
             raise UpstreamError("invalid Pocock catalog entry fields")
         path, name = entry["path"], entry["name"]
         if (
@@ -187,8 +191,9 @@ def validate_catalog(power_root: Path) -> dict[str, Any]:
                 raise UpstreamError("catalog native destination is unsupported")
         elif not workspace_path(root, Path(destination)).is_file():
             raise UpstreamError("catalog destination is missing")
+        supporting = _supporting_resources(entry, files)
         if disposition in {"imported", "consolidated"}:
-            _validate_source_bundle(root, entry)
+            _validate_source_bundle(root, entry, supporting)
         elif entry["source_id"] is not None or entry["bundle_manifest"] is not None:
             raise UpstreamError("unimported catalog entry cannot claim a source bundle")
         paths.append(path)
@@ -197,9 +202,49 @@ def validate_catalog(power_root: Path) -> dict[str, Any]:
     return catalog
 
 
+def _supporting_resources(
+    entry: dict[str, Any],
+    catalog_files: dict[str, tuple[str, str, str, int | None]],
+) -> set[str]:
+    """Bind explicitly reused Markdown to the already reconstructed catalog pin.
+
+    These references remain catalog-pinned, independently of the skill's maintained
+    subtree. They cannot substitute for that subtree's complete A/B/C accounting.
+    """
+    if "supporting_resources" not in entry:
+        return set()
+    resources = entry["supporting_resources"]
+    if (
+        entry["disposition"] not in {"imported", "consolidated"}
+        or not isinstance(resources, list)
+        or not resources
+        or len(resources) > MAX_TREE_ENTRIES
+        or any(not isinstance(path, str) for path in resources)
+    ):
+        raise UpstreamError("catalog supporting resources require an imported Markdown reference")
+    if resources != sorted(set(resources), key=str.casefold):
+        raise UpstreamError("catalog supporting resources must be sorted and unique")
+    source_prefix = str(PurePosixPath(entry["path"]).parent) + "/"
+    for path in resources:
+        identity = catalog_files.get(path)
+        if (
+            identity is None
+            or identity[:2] != ("blob", "100644")
+            or PurePosixPath(path).suffix != ".md"
+            or PurePosixPath(path).name == "SKILL.md"
+            or path.startswith(source_prefix)
+        ):
+            raise UpstreamError(
+                "catalog supporting resource must be a pinned regular Markdown reference "
+                "outside the maintained source subtree"
+            )
+    return set(resources)
+
+
 def _validate_source_bundle(
     root: Path,
     entry: dict[str, Any],
+    supporting_resources: set[str],
 ) -> None:
     name = entry["name"]
     source_id = f"mattpocock-{name}"
@@ -283,7 +328,7 @@ def _validate_source_bundle(
         root,
         {"name": name, "bundle_root": bundle_root, "bundle_manifest": entry["bundle_manifest"]},
     )
-    if {item["source_path"] for item in bundle["files"]} != shipped:
+    if {item["source_path"] for item in bundle["files"]} != shipped | supporting_resources:
         raise UpstreamError("catalog bundle must account for every adapted source resource")
 
 

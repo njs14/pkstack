@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Chart or resume a large, uncertain effort as a shared GitHub Cloud map of decision tickets; resolve the frontier before handing the agreed direction to native Kiro planning.
+description: Chart or resume a large, uncertain effort as a GitHub Cloud or Markdown map of decision tickets, retain reusable understanding in OKF, and hand the agreed direction to native Kiro planning.
 ---
 
 # Find the way to a decision
@@ -17,24 +17,38 @@ user's permissions. Carry a resolved map into native Plan, Spec, or Quick Spec
 when the user requests the next phase. Reuse agreed answers and link the decision
 evidence; Kiro owns planning artifacts and approval-to-execution handoffs.
 
-## GitHub Cloud boundary
+## Choose the tracker
 
-Read [GitHub operations](references/github.md) before tracker access. The map and
-its tickets live in one identified repository on `github.com`. Use native Issues,
-sub-issues, assignees, and blocking relationships. A GitHub Projects view is optional;
-it does not replace those relationships or become a second source of truth.
-Other trackers, self-hosted hosts, and local Markdown boards are unsupported.
-If access or a required capability is unavailable, retain a conversational draft
-and report what is missing; do not create a fallback board.
+Follow the supplied map: a `github.com` issue URL or repository-qualified number
+uses GitHub Cloud; a repository-local Markdown path uses Markdown. For a new map,
+use the user's choice or the repository's established tracker guidance, such as an
+existing `docs/agents/issue-tracker.md`. With no tracker provided, default to local
+Markdown, as upstream Wayfinder does. A GitHub remote alone does not select a tracker.
+An explicit choice overrides the repository default, not an existing map's identity.
+Ask if a supplied map conflicts with the explicit request or its repository is ambiguous.
 
-Native Plan is read-only: carry map context and pending publication forward until
-execution is permitted. Creating or editing issues, labels, relationships, claims,
-and Projects requires authority for the selected repository. Reuse authority
-already given; an invocation that only requests a preview permits a draft only.
+- For GitHub Cloud, read [GitHub operations](references/github.md). Native Issues,
+  sub-issues, assignees, and blockers own the map; an optional Projects view is not
+  a second authority.
+- For Markdown, read [Markdown operations](references/markdown.md). The map and its
+  numbered ticket files own the working state; OKF topics retain curated knowledge.
+
+Other trackers and self-hosted issue services are unsupported. A configured
+unsupported tracker needs a supported choice, not an inferred default. Do not run
+upstream setup, create tracker configuration, mirror a map, or migrate it between
+backends automatically. If selected-backend access fails, report what is missing;
+do not create a fallback board or treat unavailable state as empty.
+
+Native Plan is read-only: use available reading and search, keep pending map and
+knowledge capture in the conversation, and defer commands, MCP calls, and all file
+or tracker writes. When execution is permitted, charting or working the map includes
+local knowledge capture within the request's scope. External issue, label, claim,
+relationship, or Projects writes still need authority for the selected repository.
+Reuse authority already given; a preview or explicit no-write request permits no writes.
 
 ## Shared map
 
-Use one `wayfinder:map` issue as a compact index with these sections:
+Use one map as a compact index with these sections:
 
 - **Destination:** the agreed outcome whose uncertainty this map must resolve.
 - **Notes:** domain, preferences, and relevant available skills.
@@ -42,15 +56,16 @@ Use one `wayfinder:map` issue as a compact index with these sections:
 - **Not yet specified:** in-scope uncertainty too vague to phrase as a question.
 - **Out of scope:** excluded work with reasons and links where applicable.
 
-Each child issue holds one precise **Question**, its ticket type, and the evidence
-needed to resolve it. Use `wayfinder:research`, `wayfinder:prototype`,
-`wayfinder:grilling`, or `wayfinder:task`. Answers belong in resolution comments;
-the map links to those answers without copying their full detail. Present names
-as links rather than lists of bare issue numbers. Load the map once and zoom into
-individual ticket bodies only as needed.
+Each child ticket holds one precise **Question**, its type (`research`, `prototype`,
+`grilling`, or `task`), and the evidence needed to resolve it. The backend reference
+defines labels or file markers. Answers belong in the ticket's resolution comment
+or Answer section; the map only gists and links them. Present names as links rather
+than bare issue numbers or file slugs. Load the map once and zoom into ticket bodies
+only as needed.
 
-The frontier consists of open children with no assignee and no open blocker.
-Distinguish a verified empty frontier from incomplete pagination or failed access.
+The frontier consists of open, unclaimed children whose blockers are resolved.
+Retirement is not an answer: reassess dependents explicitly before releasing them.
+Distinguish a verified empty frontier from incomplete enumeration or failed access.
 A blocked or claimed frontier is unfinished work, even if nothing can be taken now.
 
 ## Chart
@@ -61,9 +76,10 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
 2. Survey the decision space breadth first. A question precise enough to state
    becomes a ticket even when blocked; vague uncertainty stays in the fog. If no
    meaningful uncertainty remains, explain that a map adds no value and hand off.
-3. When publication is authorized, check labels, then create the map and precise
-   tickets. Attach children and wire blockers in a second pass after IDs exist.
-   Verify the relationships before claiming the map is usable.
+3. When writes are authorized, create the map and precise tickets using the selected
+   backend reference. Wire blockers in a second pass after ticket identities exist.
+   Verify the relationships before claiming the map is usable. Apply the knowledge
+   capture checkpoint below for reusable understanding settled while charting.
 4. Stop after charting, except for research explicitly included in the request.
    Where authorized and supported, Kiro subagents may investigate independent
    research tickets with bounded questions and return source links and findings.
@@ -71,20 +87,20 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
 
 ## Resume
 
-1. Resolve the supplied map URL or issue number against the selected repository.
-   Read its destination, current children, assignees, and blockers. Before taking
-   new work, reconcile known partial publication from retained ticket/comment
-   identities. A closed child missing from both map indexes needs its existing
+1. Resolve the map URL, issue number, or local path against the selected repository.
+   Read its destination, current children, claims, and blockers. Before taking
+   new work, reconcile known partial publication and pending capture from retained
+   ticket, comment, or file identities. A finished child missing from both map indexes needs its existing
    resolution or retirement evidence checked and linked, not reopening or repeated
    research. Repair only already-authorized effects; incomplete access is not proof
    that an effect is missing. A named work ticket must be a child and frontier-eligible
    or this resumed session's previously verified claim. Do not bypass blockers or
    another worker's claim.
-2. Select the first eligible child in native sub-issue order unless the user selected
-   another eligible ticket. Claim an unassigned ticket for the authenticated developer
+2. Select the first eligible child in native sub-issue or numeric file order unless
+   the user selected another eligible ticket. Claim it using the backend's convention
    and re-read state; reuse a verified resumed-session claim only after rechecking
-   blockers and assignees. Assignment is advisory coordination, not an atomic session
-   lock: sessions sharing a login must serialize ownership explicitly. Stop on a
+   blockers and ownership. A claim is advisory coordination, not an atomic session lock:
+   sessions sharing a developer identity must serialize ownership explicitly. Stop on a
    conflicting claim. Recover a different session's stale claim only with explicit
    owner authorization and confirmation that no active worker still owns it.
 3. Work one decision ticket per session; additional independent research requires
@@ -97,8 +113,9 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
    their subjective decisions remain pending until the human responds. A task may
    perform authorized prerequisite work only when it unblocks a decision. Never
    put credentials or secret locations into public ticket evidence.
-4. Post a resolution comment, verify it, then close the ticket. Record a named link
-   and gist on the map after rereading its latest body. Preserve others' updates.
+4. Record and verify the answer, then resolve the ticket using the backend reference.
+   Record a named link and gist on the map after rereading its latest body. Apply the
+   knowledge capture checkpoint below. Preserve others' updates.
    On a partial failure, inspect existing effects and resume from the missing step;
    do not duplicate comments, issues, or edges by blindly repeating the sequence.
 5. Turn newly precise fog into child tickets, wire dependencies, then remove that
@@ -107,8 +124,43 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
    in Out of scope, not Decisions so far. Reassess dependents when retiring a blocker;
    its closed state is not evidence that the question was answered.
 
+## Retain reusable understanding
+
+Read [OKF](../okf/SKILL.md) and its [document lifecycle](../okf/references/document-lifecycle.md)
+before capture. At charting, resolution, and handoff, compare newly settled understanding
+with existing topic knowledge. Update only what changes future decisions: definitions,
+consequential choices and alternatives, rationale, sourced findings, and useful open
+questions. Keep accepted decisions, observations, hypotheses, and implementation proof
+distinct. Do not manufacture an ADR for every answer.
+
+Both backends use `Wiki/knowledge/<topic>/` for this curated understanding. Reuse the
+existing topic and preserve its metadata and unrelated edits. The map remains the
+operational decision record; OKF is a maintained synthesis, not a second ticket ledger
+or a verbatim export. Raw interviews, claims, scratch reports, and native task lists
+stay out of durable knowledge. Link authoritative native Specs in place.
+
+Retain useful evidence with the topic and rewrite links so the knowledge stands alone.
+Never link durable knowledge to ignored `Wiki/work/` or other disposable map files.
+Cite inspected primary sources and, for GitHub, the exact resolution comment where
+useful. A working ticket may link forward to its retained knowledge. Do not promote
+secrets, private discussion, or a whole scratch report merely to preserve a link.
+
+Reconcile existing entries before writing: retrying a resolution or handing off again
+must not duplicate decisions, index links, or log entries. Identify superseded guidance
+when choices change. Run `.pkstack/bin/projectctl knowledge validate --output json`
+after durable edits when permitted; it checks local metadata and links plus feature
+contracts, not the truth of the decisions or full OKF conformance.
+
+Capture may require no changes; say so. If denied, deferred, or unvalidated, report it
+as pending separately from ticket resolution. When map writes are permitted, retain
+a named pending-capture pointer in Notes so the next session can repair the missing
+capture without reopening a resolved ticket or repeating research. Remove that pointer
+only after the capture is reconciled and any durable edits validate.
+
 The map is ready for handoff only when the destination's decisions are resolved,
 all children are accounted for, and no in-scope fog remains. Verify the live state
-before closing the map. Report the resolved question, evidence, remaining frontier
-or blocker, and the appropriate native Kiro handoff. Clearing the map proves
+before closing the map. Reconcile capture at handoff and report any remaining capture
+separately; map closure never implies capture succeeded. Report the resolved question,
+evidence, retained topics and validation, remaining frontier or blocker, and the appropriate
+native Kiro handoff. Clearing the map proves
 planning readiness, not implementation completion.

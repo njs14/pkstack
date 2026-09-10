@@ -140,9 +140,12 @@ six are covered by existing workflows, and thirteen are excluded.
 Nested resources have their own original source inventories and adapted bundle manifests.
 
 [`wayfinder`](../skills/wayfinder/SKILL.md) charts large uncertain efforts as GitHub Cloud
-decision maps. Native sub-issues and blocking relationships expose the frontier;
-resolutions clear uncertainty before a native Kiro planning handoff. Other trackers,
-self-hosted hosts, and local Markdown boards are unsupported. See its
+or local Markdown decision maps. It honors the supplied or established tracker;
+without one, it defaults to Markdown. GitHub uses native sub-issues and blockers;
+Markdown uses a map and numbered child files under ignored `Wiki/work/<effort>/`.
+Both curate reusable understanding into OKF topics before native Kiro handoff,
+without mirroring the map's operational state. Other trackers and self-hosted issue
+services are unsupported; backend failures never trigger automatic switching. See its
 [provenance](../provenance/mattpocock-wayfinder-provenance.md).
 
 The design method extends `architect`, the separate specification/standards axes extend
