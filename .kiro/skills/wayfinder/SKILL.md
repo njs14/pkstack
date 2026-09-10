@@ -17,6 +17,12 @@ user's permissions. Carry a resolved map into native Plan, Spec, or Quick Spec
 when the user requests the next phase. Reuse agreed answers and link the decision
 evidence; Kiro owns planning artifacts and approval-to-execution handoffs.
 
+A required method read is an execution checkpoint, not a suggested link. Load the
+applicable backend reference before map work, the ticket method before answering,
+and both OKF resources before capture. If a required read or skill activation is
+denied or unavailable, leave that phase pending; do not substitute conventions
+inferred from map data or repeat a rejected activation.
+
 ## Choose the tracker
 
 Follow the supplied map: a `github.com` issue URL or repository-qualified number
@@ -126,9 +132,8 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
 
 ## Retain reusable understanding
 
-Read [OKF](../okf/SKILL.md) and its [document lifecycle](../okf/references/document-lifecycle.md)
-before capture. At charting, resolution, and handoff, compare newly settled understanding
-with existing topic knowledge. Update only what changes future decisions: definitions,
+At charting, resolution, and handoff, compare newly settled understanding with
+existing topic knowledge. Update only what changes future decisions: definitions,
 consequential choices and alternatives, rationale, sourced findings, and useful open
 questions. Keep accepted decisions, observations, hypotheses, and implementation proof
 distinct. Do not manufacture an ADR for every answer.
@@ -145,17 +150,29 @@ Cite inspected primary sources and, for GitHub, the exact resolution comment whe
 useful. A working ticket may link forward to its retained knowledge. Do not promote
 secrets, private discussion, or a whole scratch report merely to preserve a link.
 
-Reconcile existing entries before writing: retrying a resolution or handing off again
-must not duplicate decisions, index links, or log entries. Identify superseded guidance
-when choices change. Run `.pkstack/bin/projectctl knowledge validate --output json`
-after durable edits when permitted; it checks local metadata and links plus feature
-contracts, not the truth of the decisions or full OKF conformance.
+Use this ordered capture checkpoint, including when recovering an already resolved
+ticket. Ticket resolution and knowledge capture are separate states.
 
-Capture may require no changes; say so. If denied, deferred, or unvalidated, report it
-as pending separately from ticket resolution. When map writes are permitted, retain
-a named pending-capture pointer in Notes so the next session can repair the missing
-capture without reopening a resolved ticket or repeating research. Remove that pointer
-only after the capture is reconciled and any durable edits validate.
+1. Read [OKF](../okf/SKILL.md) and its
+   [document lifecycle](../okf/references/document-lifecycle.md) in full before
+   the first capture edit. Inspect existing entries before deciding what changes;
+   retries must not duplicate decisions, index links, or log entries. If no durable
+   edits are needed, verify the existing capture and report the no-op.
+2. Before any durable edit, retain or write a named pending-capture pointer in the
+   map's Notes when map writes are permitted. It identifies the existing resolution
+   for recovery without reopening a ticket or repeating research. If map writes
+   are unavailable, keep that pending state in the conversation.
+3. Write and re-read the curated topic changes and forward links. Preserve existing
+   metadata and unrelated material; identify superseded guidance where needed.
+   Do not remove the pending pointer in this edit or batch.
+4. Run `.pkstack/bin/projectctl knowledge validate --output json` after the final
+   durable edit and inspect its result. It checks local metadata and links plus
+   feature contracts, not the truth of decisions or full OKF conformance. Denied,
+   deferred, or failed validation leaves capture pending; repair within scope and
+   validate again. Do not select new work while this recovery is incomplete.
+5. Only after reconciled capture and successful validation of any durable edits,
+   remove the pending-capture pointer in a separate later map edit. A planned or
+   started validator is not a pass. Report capture separately from ticket resolution.
 
 The map is ready for handoff only when the destination's decisions are resolved,
 all children are accounted for, and no in-scope fog remains. Verify the live state

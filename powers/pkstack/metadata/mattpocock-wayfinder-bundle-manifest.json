@@ -22,15 +22,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "9baf2bbe9c1ff18409943423818b66c74e9375c37b5819c5752de1600637435d",
-      "size": 10863,
+      "sha256": "4eb414ca80d9ee22324b0df2fc3b5729243e81ca267435cd1f7e3973250130a4",
+      "size": 12004,
       "source_path": "skills/engineering/wayfinder/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "wayfinder",
   "summary": {
-    "byte_count": 22292,
+    "byte_count": 23433,
     "file_count": 3
   }
 }
