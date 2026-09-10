@@ -169,6 +169,15 @@ established.
 
 ## Source-specific retained knowledge
 
+Wayfinder keeps the upstream question-driven exploration map on GitHub Cloud:
+one map issue, native ordered sub-issues and blocking dependencies, a growing
+resolution index, and explicit unknown/out-of-scope sections. Research, prototype,
+grilling, and task tickets retain their distinct methods. Native Kiro planning,
+execution, verification, and permissions remain authoritative; the map does not
+become a second implementation task graph. Other tracker backends are not shipped.
+See the [wayfinder provenance](../../../powers/pkstack/provenance/mattpocock-wayfinder-provenance.md)
+and the [overnight integration plan](../../../reviews/overnight-improvements-plan.md).
+
 These summaries describe what is retained from each source. Historical observations keep their
 original candidate and scope; they are not fresh verification of this checkout.
 
@@ -209,8 +218,9 @@ The approved engineering integration adds research, diagnosing-bugs, improve-cod
 handoff, resolving-merge-conflicts, to-questionnaire, triage, and wizard as native skills. Four
 methods extend existing owners: codebase-design into architect, code-review into interrogate, tdd
 into the existing Poteto-derived tdd, and prototype into PKStack's workflow references. This keeps
-one planning owner and avoids duplicate commands. The separate Pocock teaching workspace and
-Wayfinder are outside the selected implementation; Wayfinder remains explicitly deferred.
+one planning owner and avoids duplicate commands. The separate Pocock teaching workspace
+remains outside this integration. The subsequent Wayfinder adaptation adds GitHub Cloud
+decision maps, then hands resolved direction to native Kiro planning.
 
 The [complete catalog](../../../powers/pkstack/metadata/mattpocock-skill-catalog.json) records every
 upstream entrypoint, including covered, deferred, and excluded methods. Offline validation

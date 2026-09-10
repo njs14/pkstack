@@ -69,7 +69,7 @@ The user may stop either kind of interview at any time.
 The mode that runs the plan runs the interview. For a requested plan, continue in an already
 active native Plan or matching Spec and reuse its context. When the requested mode is not active,
 do not interview first: gather facts by reading, then use the same-conversation native handoff
-described by [`pkstack`](../pkstack/SKILL.md), listing each remaining open choice as a question
+described by [`pkstack`](../poteto-kiro-mode/SKILL.md), listing each remaining open choice as a question
 for the native mode to ask. Include this direction in the handoff:
 
 > Read `.kiro/skills/grilling/SKILL.md` and continue its interview method using the settled

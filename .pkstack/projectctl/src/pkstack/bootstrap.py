@@ -47,7 +47,7 @@ ALLOWED_SKILL_DISPOSITIONS = {
 }
 # Upstream names are retained in parity and provenance; route aliases are the
 # explicit Kiro-facing slash-command names.
-SKILL_ROUTE_ALIASES = {"poteto-mode": "pkstack", "setup-pstack": "pkstack-setup"}
+SKILL_ROUTE_ALIASES = {"poteto-mode": "poteto-kiro-mode", "setup-pstack": "pkstack-setup"}
 REQUIRED_SOURCE_MODULES = (
     "__init__.py",
     "__main__.py",

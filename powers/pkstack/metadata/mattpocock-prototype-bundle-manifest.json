@@ -1,6 +1,6 @@
 {
   "artifact_type": "curated-bundle",
-  "bundle_root": "skills/pkstack/references/pocock-prototype",
+  "bundle_root": "skills/poteto-kiro-mode/references/pocock-prototype",
   "files": [
     {
       "handling": "adapted-kiro-wrapper",

@@ -31,18 +31,23 @@ extra text, and watermarks.
 
 ## Compact Power JPG
 
-`pkstack-power.jpg` was generated on September 9, 2026 with the built-in image
-generator, using the Knowledge crest as its reference. The image is a compact
+`pkstack-power.jpg` was refreshed on September 10, 2026 with the built-in image
+generator, using the previous thumbnail and refreshed crest as references. The image is a compact
 512 × 512 JPEG. The standalone file stays in repository assets; its bytes are
 embedded in `POWER.md` for the Kiro IDE 1.0.437 details view, whose image policy
 permits data URIs. `plugin.json` has no icon field. The generated PNG was resized and
-encoded as JPEG with macOS `sips` at quality 82.
+encoded as JPEG with macOS `sips` at quality 82. The generated source was 1254 × 1254,
+so resizing introduced no cropping or aspect-ratio change.
+
+SHA-256: `e0a7def6394369f2035df08032c660b00e48f30362d614e8443155b8fdc1709f`.
 
 Prompt: a compact square PKStack Power icon on midnight navy, with one pale
 lavender scholarly ghost, navy mortarboard, cyan tassel, open purple book, and
 two cyan knowledge-tree branches; preserve the crest palette and illustration
 style, use generous margins and clear thumbnail shapes, omit text and companion
-figures, and use no border, watermark, or transparency.
+figures, and use no border, watermark, or transparency. The refresh requested cleaner
+outlines, restrained highlights, a larger ghost readable at 64 pixels, and fewer,
+broader tree branches matching the new crest.
 
 ## Historical README banner
 

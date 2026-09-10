@@ -36,7 +36,7 @@
     {
       "id": "python-plan-only",
       "prompt": "Plan Python tooling improvements, but run no commands and change no files.",
-      "primary": "pkstack",
+      "primary": "poteto-kiro-mode",
       "helpers": [
         "uv",
         "ruff",

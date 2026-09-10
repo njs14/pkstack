@@ -156,7 +156,7 @@ def test_power_details_metadata_matches_manifest_and_embeds_small_jpg() -> None:
     image = base64.b64decode(icon.removeprefix("data:image/jpeg;base64,"), validate=True)
     assert 0 < len(image) <= 64 * 1024
     assert image == (REPO_ROOT / "docs/assets/pkstack-power.jpg").read_bytes()
-    assert "/pkstack-setup" in body and "/pkstack <task>" in body
+    assert "/pkstack-setup" in body and "/poteto-kiro-mode <task>" in body
     assert not (ROOT / "POWERS.md").exists()
 
 
@@ -325,7 +325,7 @@ def test_skill_routing_markdown_pointers_resolve_within_the_power() -> None:
 
 
 def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
-    for relative in ("pkstack/SKILL.md", "pkstack/references/workflows.md"):
+    for relative in ("poteto-kiro-mode/SKILL.md", "poteto-kiro-mode/references/workflows.md"):
         source = SKILLS / relative
         targets = {
             (source.parent / target).resolve()
@@ -579,7 +579,7 @@ def test_evidence_skill_documents_public_commands_and_storage() -> None:
 
 
 def test_primary_router_documents_native_spec_entrypoints() -> None:
-    text = (SKILLS / "pkstack/SKILL.md").read_text(encoding="utf-8")
+    text = (SKILLS / "poteto-kiro-mode/SKILL.md").read_text(encoding="utf-8")
     for command in ("/spec new <name>", "/agent swap pkstack"):
         assert command in text
     for document in ("requirements.md", "bugfix.md", "design.md", "tasks.md"):
@@ -587,7 +587,7 @@ def test_primary_router_documents_native_spec_entrypoints() -> None:
 
 
 def test_planning_interview_belongs_to_the_mode_the_user_selects() -> None:
-    router = " ".join((SKILLS / "pkstack/SKILL.md").read_text(encoding="utf-8").split())
+    router = " ".join((SKILLS / "poteto-kiro-mode/SKILL.md").read_text(encoding="utf-8").split())
     method = " ".join((SKILLS / "grilling/SKILL.md").read_text(encoding="utf-8").split())
     steering = " ".join((STEERING / "pkstack-core.md").read_text(encoding="utf-8").split())
     profile = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))["prompt"]

@@ -10,7 +10,7 @@ Preserves the engineering method while retaining native Kiro planning, settled d
 The [source inventory](../metadata/mattpocock-prototype-source-parity.json) accounts for every nested resource.
 Original source identities below are independent of the adapted local bytes. The
 [bundle manifest](../metadata/mattpocock-prototype-bundle-manifest.json) binds the shipped method at
-`skills/pkstack/references/pocock-prototype`. Provider metadata is not installed; no upstream hooks, installer, or runtime is activated.
+`skills/poteto-kiro-mode/references/pocock-prototype`. Provider metadata is not installed; no upstream hooks, installer, or runtime is activated.
 
 | Source-relative path | Git blob SHA-1 | SHA-256 | Bytes |
 | --- | --- | --- | --- |

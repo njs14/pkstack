@@ -7,23 +7,6 @@
   "artifact_type": "source-inventory",
   "files": [
     {
-      "path": "SKILL.md",
-      "pinned": {
-        "mode": "100644",
-        "object_sha": "812805b760baf328db0ebdef6f3807e381f97016",
-        "size": 11908,
-        "type": "blob"
-      },
-      "current": {
-        "mode": "100644",
-        "object_sha": "812805b760baf328db0ebdef6f3807e381f97016",
-        "size": 11908,
-        "type": "blob"
-      },
-      "disposition": "A",
-      "rationale": "Preserves explicit invocation, destination agreement, a compact map index, child decision tickets, native blocking, frontier selection, claims, fog graduation, named resolution links, and bounded resumption. Uses the current Kiro session and native planning handoffs, available bundled interview methods, and GitHub Cloud only. Removes alternate tracker fallbacks, provider Skill API calls, automatic research branches, and issue-text execution overrides. Publication and prerequisite tasks retain user authority; partial effects and concurrent claims require reconciliation."
-    },
-    {
       "path": "agents/openai.yaml",
       "pinned": {
         "mode": "100644",
@@ -39,6 +22,23 @@
       },
       "disposition": "C",
       "rationale": "OpenAI interface metadata and invocation policy are inventoried as provenance; the Kiro wrapper expresses explicit invocation in its instructions without unsupported frontmatter."
+    },
+    {
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "812805b760baf328db0ebdef6f3807e381f97016",
+        "size": 11908,
+        "type": "blob"
+      },
+      "current": {
+        "mode": "100644",
+        "object_sha": "812805b760baf328db0ebdef6f3807e381f97016",
+        "size": 11908,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "rationale": "Preserves explicit invocation, destination agreement, a compact map index, child decision tickets, native blocking, frontier selection, claims, fog graduation, named resolution links, and bounded resumption. Uses the current Kiro session and native planning handoffs, available bundled interview methods, and GitHub Cloud only. Removes alternate tracker fallbacks, provider Skill API calls, automatic research branches, and issue-text execution overrides. Publication and prerequisite tasks retain user authority; partial effects and concurrent claims require reconciliation."
     }
   ],
   "schema_version": 1,

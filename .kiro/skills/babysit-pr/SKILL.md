@@ -33,7 +33,7 @@ The user can explicitly request continued monitoring after merge-ready, until cl
 or a stated time limit. Record that choice once. A one-shot check returns its snapshot even
 when work is pending. Merged/closed, user cancellation, the agreed deadline, or a genuine
 blocker ends supervision. Babysitting never authorizes a merge; use PKStack's
-[Shipping workflow](../pkstack/references/workflows.md#shipping) only for an explicit landing request.
+[Shipping workflow](../poteto-kiro-mode/references/workflows.md#shipping) only for an explicit landing request.
 
 ## Observe, classify, act, re-observe
 

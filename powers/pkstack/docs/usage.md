@@ -449,6 +449,16 @@ Managed updates replace only files that still match their prior receipt hashes.
 User edits remain conflicts, and retired managed paths are never deleted
 automatically. Do not add a cached setup skill to `.kiro/skills/` to force discovery.
 
+The router skill is now `/poteto-kiro-mode`; the product, Python package, and
+`pkstack` agent keep their names. On an existing installation, preview may report
+the retired `.kiro/skills/pkstack/` files as `stale_managed`. Compare each exact
+file with its SHA-256 in `.pkstack/bootstrap.json`. Preserve a backup outside
+the workspace, then move only those verified unchanged retired files out of
+skill discovery. Keep modified files for deliberate reconciliation; do not
+delete the directory wholesale or edit the receipt to bypass conflicts. Review
+and apply a fresh setup preview, then confirm `/poteto-kiro-mode` and `/wayfinder`
+are discovered in the intended Kiro session.
+
 ### Clean reinstall
 
 Current setup uses receipt schema 2 and rejects older receipts and legacy managed

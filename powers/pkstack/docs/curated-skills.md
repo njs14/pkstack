@@ -135,9 +135,15 @@ separate Kiro skill behavior from Claude plugin installation and language-server
 ## Pocock accounting
 
 The [complete disposition catalog](../metadata/mattpocock-skill-catalog.json) accounts for all
-37 entrypoints at the pinned source revision. Thirteen are imported, four methods are consolidated,
-six are covered by existing workflows, Wayfinder is deferred by choice, and thirteen are excluded.
+37 entrypoints at the pinned source revision. Fourteen are imported, four methods are consolidated,
+six are covered by existing workflows, and thirteen are excluded.
 Nested resources have their own original source inventories and adapted bundle manifests.
+
+[`wayfinder`](../skills/wayfinder/SKILL.md) charts large uncertain efforts as GitHub Cloud
+decision maps. Native sub-issues and blocking relationships expose the frontier;
+resolutions clear uncertainty before a native Kiro planning handoff. Other trackers,
+self-hosted hosts, and local Markdown boards are unsupported. See its
+[provenance](../provenance/mattpocock-wayfinder-provenance.md).
 
 The design method extends `architect`, the separate specification/standards axes extend
 `interrogate`, public-interface guidance extends the existing `tdd`, and logic/state versus visual

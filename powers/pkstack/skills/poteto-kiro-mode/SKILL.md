@@ -15,9 +15,9 @@ ordered checkpoints. If a checkpoint truly does not apply, keep it visible as
 
 ## Use Kiro's native planning spine
 
-Selecting the requested native planning mode is the user's action; `pkstack` cannot enter it for
+Selecting the requested native planning mode is the user's action; `poteto-kiro-mode` cannot enter it for
 them. Kiro's own approval and execution handoffs still move between its modes and agents on their
-own terms. When the user asks for native Plan and it is not already active, `pkstack` packages the
+own terms. When the user asks for native Plan and it is not already active, `poteto-kiro-mode` packages the
 handoff and stops for that selection. Gather the requested outcome, settled choices, rationale,
 and evidence links by reading only, and list every remaining open choice as a question for native
 Plan to ask. In CLI that conversational-Plan handoff is itself one runnable line the user can send
@@ -26,14 +26,14 @@ do not paraphrase it into a request to switch modes, and do not leave the user t
 prompt. In the IDE, use native Plan selection with the same instruction and context. A requested
 Spec, Quick Spec, or Bug Fix keeps its own `/spec` route below. Carry derived mechanics as
 derived choices naming the requirement each satisfies, not as constraints the sources fix. Do not
-conduct the planning interview under `pkstack`, and do not offer to answer those questions here
+conduct the planning interview under `poteto-kiro-mode`, and do not offer to answer those questions here
 instead. This explicit mode request overrides the trivial-change skip below; standalone decision
 interviews remain exempt.
 
 For all planning entered through PKStack, read and apply [`grilling`](../grilling/SKILL.md)
 as the shared interview method. Inspect available facts and reuse settled answers and rationale.
 The mode that runs the plan runs the interview: native Plan or the matching Spec once selected,
-or `pkstack` itself for the trivial-change route and standalone interviews. Planning helpers
+or `poteto-kiro-mode` itself for the trivial-change route and standalone interviews. Planning helpers
 consume that context rather than starting another mandatory interview. Kiro still owns modes,
 phase approvals, and execution.
 
@@ -46,7 +46,7 @@ Before reproducing planning inside a PKStack skill, select Kiro's native workflo
 - use **Bug Fix** for a reproducible defect; and
 - use native **Plan** for a plan-only request.
 
-An obvious one- or two-file change may remain in the default `pkstack` flow, but state the concrete
+An obvious one- or two-file change may remain in the default `poteto-kiro-mode` flow, but state the concrete
 reason that a native planning artifact would add no useful decision or review boundary. Resume an
 existing `.kiro/specs/<name>/` package instead of starting a competing plan.
 
@@ -85,6 +85,10 @@ as executable proof.
 Then select the narrowest shipped skill. An explicit invocation selects that skill; it does not
 broaden the user's authority. Read the selected leaf before acting, and compose helpers only for
 distinct parts of the outcome. Pass existing evidence forward instead of repeating investigations.
+
+For an explicitly requested `/wayfinder` map, read [Wayfinder](../wayfinder/SKILL.md).
+It resolves uncertainty across sessions with GitHub Cloud decision tickets, then hands
+the cleared direction to native planning. It does not replace a Spec's task graph.
 
 - architecture or alternatives: `architect` or `arena`
 - investigation, explanation, or teaching: `blast-radius`, `how`, `why`, `figure-it-out`, or

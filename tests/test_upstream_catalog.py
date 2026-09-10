@@ -38,16 +38,16 @@ def test_catalog_accounts_for_all_pinned_entrypoints_and_methods_without_network
     assert result["pinned"] == {"commit": PIN, "tree_sha": TREE}
     assert result["pinned_count"] == 37
     assert result["dispositions"] == {
-        "imported": 13,
+        "imported": 14,
         "consolidated": 4,
         "covered": 6,
-        "deferred": 1,
         "excluded": 13,
     }
     assert result["added"] == result["removed"] == result["missing_dispositions"] == []
     catalog = validate_catalog(POWER)
     entries = {entry["name"]: entry for entry in catalog["skills"]}
-    assert entries["wayfinder"]["disposition"] == "deferred"
+    assert entries["wayfinder"]["disposition"] == "imported"
+    assert entries["wayfinder"]["destination"] == "skills/wayfinder/SKILL.md"
     assert entries["teach"]["destination"] == "skills/teach/SKILL.md"
     assert entries["tdd"]["destination"] == "skills/tdd/references/pocock-tdd/README.md"
 
