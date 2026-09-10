@@ -17,6 +17,7 @@ stay in their package locations; only project-specific understanding belongs in 
 
 | Need | Method and boundary |
 | --- | --- |
+| Choose what to do next | Native `pkstack-guide` gives project-aware advice and a ready prompt; it does not start the recommended workflow. |
 | Plan implementation or settle consequential choices | Shared `grilling`, through native Plan/Specs for implementation planning; `grill-me` for focused interviewing. |
 | Define domain language and accepted decisions | `domain-modeling`; `grill-with-docs` composes it with interviewing when capture is authorized. |
 | Explain a system visually | HumanLayer `show-me`, or Archify when a validated explorable artifact is needed. An explanation request does not request a work log. |
@@ -36,6 +37,15 @@ language routing success. The [native composition](native-kiro-composition.md) o
 handoff semantics. Repeated approval reconciles captured knowledge rather than creating copies.
 
 ## Keep source identities separate from shipped bytes
+
+The locally authored [project guide](../../../powers/pkstack/skills/pkstack-guide/SKILL.md)
+uses the supplied pstack Part 1/2 exports as dated editorial inputs and the pinned `ask-matt`
+router as a design reference. Its [lifecycle criteria and adaptations](../../../powers/pkstack/skills/pkstack-guide/references/project-lifecycle.md)
+retain attribution without fabricating omitted examples or importing a persona, tracker flow,
+or Cursor runtime. `ask-matt` remains excluded in the source catalog. `pkstack-guide` belongs
+to local-skill accounting, not an imported bundle or a new automatically maintained source.
+The catalog now has 52 Poteto/local routes plus 24 curated routes: 76 in the Power and 75
+installed in a workspace, with setup remaining Power-local.
 
 The inventories record original Git paths, modes, sizes, object identities, and dispositions.
 Bundle manifests bind locally adapted files. Updating a wrapper does not justify replacing the

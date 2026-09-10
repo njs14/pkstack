@@ -482,6 +482,20 @@
       "reason": "Setup-owned native mirror .kiro/skills/okf/references/document-lifecycle.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
+      "path": ".kiro/skills/pkstack-guide/SKILL.md",
+      "sha256": "0ecc7188dc192cca11f139090f62ff64be76ad9bce942203b5038bc9009461b0",
+      "classification": "excluded",
+      "category": "generated",
+      "reason": "Setup-owned mirror .kiro/skills/pkstack-guide/SKILL.md; canonical Power source and receipt-aware installation own these bytes."
+    },
+    {
+      "path": ".kiro/skills/pkstack-guide/references/project-lifecycle.md",
+      "sha256": "928dff25df39350ce126414162a2c661032ac36f24514d3ad2b45373bd09f22d",
+      "classification": "excluded",
+      "category": "generated",
+      "reason": "Setup-owned mirror .kiro/skills/pkstack-guide/references/project-lifecycle.md; canonical Power source and receipt-aware installation own these bytes."
+    },
+    {
       "path": ".kiro/skills/pkstack-maintain/SKILL.md",
       "sha256": "3088dfa55f8d48e7b55b7329bbfd8950a98db40d37a29802b2ebe50993e4aa3b",
       "classification": "excluded",
@@ -518,7 +532,7 @@
     },
     {
       "path": ".kiro/skills/poteto-kiro-mode/SKILL.md",
-      "sha256": "9e043c358d81dd201634823937676166c6c93fb7a5ab0de48a6929ffd93848eb",
+      "sha256": "3331bee8ff54991ea8a3950bd58bc17f0ce8475cc6609d8b7ea22520c2349f65",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/poteto-kiro-mode/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -959,12 +973,12 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "f5f3debf7dca78db74be04201554a3311970f21725e036dfa0b26fd0983cbef2",
+      "sha256": "0f17b6ce2adee03e94e0668149e8a73a4cece8477680cfadfe6eacb07944dacd",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
       ],
-      "summary": "Unreleased consumer permission inheritance and an optional manual global preset follow 0.6.0's engineering skills and provenance work; version notes remain separate from release evidence."
+      "summary": "Version 0.7.0 combines the project advisor, empty v3 compatibility marker, inherited consumer policy, Wayfinder, renamed router, and artwork; local release and native-behavior limits remain explicit and separate from publication evidence."
     },
     {
       "path": "CLAUDE.md",
@@ -992,12 +1006,12 @@
     },
     {
       "path": "README.md",
-      "sha256": "335da2bffe72a977a672164d10270216944aca25cc053b8e95bc215c28d5df2a",
+      "sha256": "c3af313e1f7feea354564cf320862b858f3bf63a1aba1deaaae2cf3f4d7e58a3",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Product entrypoint uses the canonical GitHub Power-directory URL, explains empty repository-root import recovery, and retains reviewed folder installation and workspace setup."
+      "summary": "Product entrypoint uses the canonical GitHub Power-directory URL, explains empty repository-root import recovery, and retains reviewed folder installation and workspace setup. The native project guide supplies next-step advice separately from setup and execution."
     },
     {
       "path": "SECURITY.md",
@@ -1014,6 +1028,10 @@
     },
     {
       "path": "Wiki/features/pkstack-consumer-permissions.md",
+      "classification": "canonical"
+    },
+    {
+      "path": "Wiki/features/pkstack-guide.md",
       "classification": "canonical"
     },
     {
@@ -1162,19 +1180,19 @@
     },
     {
       "path": "powers/pkstack/POWER.md",
-      "sha256": "98439b5159f30bd0f4b063554c8e4c72275003c074c73c36b69d301a39bac957",
+      "sha256": "aa636aff1c153dd6c455fd341282d7cb69b601e4d4231112c9ef185d8764bb8c",
       "classification": "excluded",
       "category": "native",
       "reason": "IDE 1.0.437 display metadata must remain at the Power root; package tests bind manifest fields and inline JPG bytes, while the installation topic retains the compatibility and remote-path contract."
     },
     {
       "path": "powers/pkstack/README.md",
-      "sha256": "3c76c4af794c5a51808e8ddfad1d02d70a7e43e75a29da52d6d76a7c05609be1",
+      "sha256": "e85f28b60cdc4bfd8c276f02c5d925d4a6635b8510136c062f5e45a1a36506e6",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Power-local entrypoint documents the canonical remote Power URL, empty-import recovery, display metadata compatibility, and package-relative setup and usage guides."
+      "summary": "Power-local entrypoint documents the canonical remote Power URL, empty-import recovery, display metadata compatibility, and package-relative setup and usage guides. The native project guide supplies next-step advice separately from setup and execution."
     },
     {
       "path": "powers/pkstack/THIRD_PARTY_NOTICES.md",
@@ -1220,12 +1238,12 @@
     },
     {
       "path": "powers/pkstack/docs/curated-skills.md",
-      "sha256": "8e6d6e165461be9ab5f89f7c6156034830e36a69df9df41dd4e3968bce8a1dd4",
+      "sha256": "b78c3f2f9a801e8158a61c7ca55a5ae55af2eaaf6d8c72f2fdf37ff9c69a88ec",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
       ],
-      "summary": "Eight native engineering skills compose with architect, interrogate, tdd, and PKStack; research, diagnosis, handoff, triage, and human wizards preserve native planning and authorization."
+      "summary": "Native engineering skills and Wayfinder compose with poteto-kiro-mode while preserving planning and authorization. The local pkstack-guide owns advisory use; ask-matt remains excluded and decision maps remain distinct from Spec task graphs."
     },
     {
       "path": "powers/pkstack/docs/first-task.md",
@@ -1238,30 +1256,30 @@
     },
     {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "083196f9cba19278bd1dc3a9e02a2b7b81b461ee27accfa0f48e89d12d624637",
+      "sha256": "af5b6cfd008461619636c4ca30f21574b435ea97ff3d454f330fb93aa21e6925",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Agent Plugins loading stays authoritative while a POWER.md display compatibility file provides an inline icon; the full Power-directory URL avoids empty IDE imports."
+      "summary": "Agent Plugins loading stays authoritative while POWER.md supplies display metadata and the full Power URL avoids empty imports. The primary profile retains an empty v3 permission marker without adding policy."
     },
     {
       "path": "powers/pkstack/docs/permissions.md",
-      "sha256": "fa3b73671d8fd2ff0e9083ceb3624dedee7772585945a4c7f8f9fc20a4a8ce7f",
+      "sha256": "0f61e7042686e4f2f78086fc180591c9fb807dc7dce3b12f4d4708ef94e7b19b",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md"
       ],
-      "summary": "Manual user-policy adoption allows built-ins with targeted catastrophic-command denies, preserves MCP and CI boundaries, and distinguishes source inspection from native runtime proof."
+      "summary": "Manual user-policy adoption allows built-ins with targeted catastrophic-command denies and preserves MCP and CI boundaries. An empty primary-agent v3 marker adds no policy; source, selection, and runtime results remain separate evidence."
     },
     {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "1191785b4ff4781a5213d4003c6a7aa80c7756e3ff24007f32c56b3c58c76de9",
+      "sha256": "ba900e50eb36fd28b0db42fc881db135953981f3328bdbd434f0967df857addf",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
       ],
-      "summary": "Install through Kiro, initialize the workspace with the installed setup skill, use the project-local controller, and review receipt-aware managed updates."
+      "summary": "Install through Kiro, initialize with reviewed setup, and use the project-local controller. The primary v3 marker adds no permission rules; project-aware guidance returns a contextual prompt without starting work."
     },
     {
       "path": "powers/pkstack/examples/verified-goal-demo/README.md",
@@ -1536,12 +1554,12 @@
     },
     {
       "path": "powers/pkstack/provenance/upstream-skill-parity.md",
-      "sha256": "9ffacea6913019b5b67d7428cb50dda6dee3fb192009790e01c1b9673986c09d",
+      "sha256": "7b0796e3f66ec01ae9128dfbf807a16dd36d18b7a095648aef0baf91f2cb5dd3",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
       ],
-      "summary": "Poteto catalog distinguishes direct ports, native replacements and consolidated aliases; the latest source transition leaves the bounded 122-file skills catalog byte-identical."
+      "summary": "Poteto catalog distinguishes direct ports, native replacements and consolidated aliases; the source transition leaves the bounded 122-file catalog byte-identical. The local advisor and Wayfinder yield 52 catalog routes plus 24 curated routes, with setup Power-local and poteto-kiro-mode as the sole task router."
     },
     {
       "path": "powers/pkstack/skills/archify/SKILL.md",
@@ -1936,6 +1954,20 @@
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/okf/references/document-lifecycle.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
+      "path": "powers/pkstack/skills/pkstack-guide/SKILL.md",
+      "sha256": "0ecc7188dc192cca11f139090f62ff64be76ad9bce942203b5038bc9009461b0",
+      "classification": "excluded",
+      "category": "native",
+      "reason": "Native advisor resource powers/pkstack/skills/pkstack-guide/SKILL.md; composition knowledge retains its advisory boundary and dated source adaptations while Kiro owns skill discovery."
+    },
+    {
+      "path": "powers/pkstack/skills/pkstack-guide/references/project-lifecycle.md",
+      "sha256": "928dff25df39350ce126414162a2c661032ac36f24514d3ad2b45373bd09f22d",
+      "classification": "excluded",
+      "category": "native",
+      "reason": "Native advisor resource powers/pkstack/skills/pkstack-guide/references/project-lifecycle.md; composition knowledge retains its advisory boundary and dated source adaptations while Kiro owns skill discovery."
+    },
+    {
       "path": "powers/pkstack/skills/pkstack-maintain/SKILL.md",
       "sha256": "3088dfa55f8d48e7b55b7329bbfd8950a98db40d37a29802b2ebe50993e4aa3b",
       "classification": "excluded",
@@ -1965,7 +1997,7 @@
     },
     {
       "path": "powers/pkstack/skills/pkstack-setup/SKILL.md",
-      "sha256": "c89ffa828b40749bec719b3a7c6ac31d3604e75a232ed7113d92d036b7512987",
+      "sha256": "3bec85110a6f4b224a4258061ae15948524891fccff86d99ff0a781354b27d57",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack-setup/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
@@ -1979,7 +2011,7 @@
     },
     {
       "path": "powers/pkstack/skills/poteto-kiro-mode/SKILL.md",
-      "sha256": "9e043c358d81dd201634823937676166c6c93fb7a5ab0de48a6929ffd93848eb",
+      "sha256": "3331bee8ff54991ea8a3950bd58bc17f0ce8475cc6609d8b7ea22520c2349f65",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/poteto-kiro-mode/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."

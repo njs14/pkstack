@@ -49,6 +49,26 @@ and verifier retain only `read` and `knowledge`. Subagent availability describes
 PKStack's three helper roles, while trust comes from user policy. CI maintenance
 and review profiles remain separately restricted.
 
+The explicitly approved September 10 compatibility repair adds only
+`"permissions": {"rules": []}` to the primary profile. The CLI 2.21.2 startup
+probe had rejected its subagent-configured, permission-field-free shape as legacy
+and selected `default`. The empty marker preserves the role configuration without
+contributing policy rules. The maintenance guard now requires exactly that shape,
+rejects nonempty or malformed primary policy, and keeps helper and CI restrictions.
+This is separate from the guide's advice quality and native planning ownership.
+
+Two fresh CLI v3 runs then used the canonical repaired profile byte-for-byte
+(SHA-256 `00940e347fce9d6917fbecdd927000bdfda50ec3b9e3b7e086817cb1304acd17`),
+with no fixture-only profile edit. Both selected `pkstack`, completed normally,
+and emitted no legacy fallback warning. The guide was disclosed on request.
+In the permission smoke, reading the benign fixture succeeded; the shell tool
+was unavailable under the temporary global shell-deny policy, so `/usr/bin/true`
+was not attempted. That is capability availability evidence, not an executed
+command-denial result. Both fixture trees stayed unchanged. The isolated policy
+home, native authentication, omitted hooks/controller, and CLI-only limitations
+of the [guide diagnostics](native-kiro-composition.md#september-10-guide-observations-and-limits)
+still apply. Actual user/global policy files and helper profiles were not changed.
+
 The optional [global preset](../../../powers/pkstack/examples/permissions.yaml)
 and [manual setup guide](../../../powers/pkstack/docs/permissions.md) allow
 built-in capabilities with targeted shell denies for recognizable root/home

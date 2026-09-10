@@ -6,11 +6,27 @@ match it.
 
 ## [Unreleased]
 
+## [0.7.0]
+
+- Integrate `/wayfinder` for cross-session decision maps with GitHub Cloud or
+  local Markdown tickets, bounded OKF capture, and native planning handoffs.
+- Rename the task router to `/poteto-kiro-mode`; keep `pkstack` as the workspace
+  agent name. Refresh the Power artwork without changing installation ownership.
+- Keep an empty v3 permission marker in the primary consumer profile so Kiro
+  selects `pkstack` without legacy fallback, while still inheriting user policy.
+- Add `/pkstack-guide` for project-aware next-step advice, from a first runnable
+  slice to verification readiness, design, and upkeep. Reuse native Kiro workflows
+  and existing skills without starting recommended work automatically.
 - Let the four consumer agents inherit Kiro's user/workspace permission policy.
   Expose built-ins in the primary agent and retain read-only helper tool lists.
 - Add an optional, manually installed global permission preset for task-scoped
   autonomy with targeted catastrophic-command denies. Leave MCP, isolated CI
   policy, and the user's actual global settings unchanged.
+
+The guide's structural, setup, and bounded native-profile checks are distinct
+from full native advice-quality acceptance. Prior guide diagnostics retain
+their reference-reading and handoff limitations. Hosted CI remains unavailable
+while the PKStack workflows are manually disabled.
 
 ## [0.6.0]
 

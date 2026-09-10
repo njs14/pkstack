@@ -65,6 +65,7 @@ def _frontmatter(path: Path) -> tuple[dict[str, object], str]:
 
 def test_pkstack_routes_are_namespaced_without_renaming_upstream_identities() -> None:
     assert {name for name in EXPECTED_SKILLS if name.startswith("pkstack")} == {
+        "pkstack-guide",
         "pkstack-setup",
         "pkstack-maintain",
         "pkstack-verified-goal",
@@ -79,6 +80,7 @@ def test_pkstack_routes_are_namespaced_without_renaming_upstream_identities() ->
     }
     assert {
         "okf",
+        "pkstack-guide",
         "pkstack-maintain",
         "pkstack-verified-goal",
         "pkstack-model-council",
@@ -192,7 +194,7 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
     assert set(fixture) == {"schema_version", "cases"}
     assert type(fixture["schema_version"]) is int and fixture["schema_version"] == 1
     cases = fixture["cases"]
-    assert isinstance(cases, list) and 1 <= len(cases) <= 72
+    assert isinstance(cases, list) and 1 <= len(cases) <= 74
     ids: set[str] = set()
     primary_routes: set[str] = set()
     for case in cases:
@@ -228,6 +230,8 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
     assert primary_routes >= CURATED_SKILLS
     # Preserve the review's positive cases, near misses, invocation, and composition coverage.
     assert {
+        "guide-new-project",
+        "guide-existing-project",
         "setup-only",
         "setup-requested-tour",
         "visual-request-flow",
@@ -365,6 +369,7 @@ def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
         ("grill-with-docs", {"grilling", "domain-modeling", "okf"}),
         ("domain-modeling", {"grilling", "okf"}),
         ("create-verification-skill", {"grilling"}),
+        ("pkstack-guide", {"poteto-kiro-mode", "pkstack-setup"}),
         ("narrow-react-prop-types", {"typescript-best-practices"}),
         ("typescript-best-practices", {"narrow-react-prop-types"}),
     ],
@@ -377,7 +382,7 @@ def test_skill_boundary_leaves_link_their_neighbors(skill_name: str, neighbors: 
 def test_setup_handoff_and_explicit_invocation_keep_authority_visible() -> None:
     setup = " ".join((SKILLS / "pkstack-setup" / "SKILL.md").read_text().split())
     assert "Do not start onboarding" in setup
-    for name in ("show-me", "writing-for-agents", "create-verification-skill"):
+    for name in ("show-me", "writing-for-agents", "create-verification-skill", "pkstack-guide"):
         assert f"../{name}/SKILL.md" in setup
     entry = " ".join((SKILLS / "poteto-kiro-mode" / "SKILL.md").read_text().split())
     assert "does not broaden the user's authority" in entry
@@ -889,7 +894,6 @@ def test_consumer_agents_inherit_policy_and_keep_role_tools() -> None:
     for path in paths:
         agent = json.loads(path.read_text(encoding="utf-8"))
         assert agent["name"] == path.stem
-        assert "permissions" not in agent
         assert "allowedTools" not in agent
         assert agent["includeMcpJson"] is False
         assert agent["includePowers"] is False
@@ -897,8 +901,10 @@ def test_consumer_agents_inherit_policy_and_keep_role_tools() -> None:
         assert "skill://.kiro/skills/*/SKILL.md" in agent["resources"]
         assert "file://.kiro/steering/**/*.md" in agent["resources"]
         if path.stem == "pkstack":
+            assert agent["permissions"] == {"rules": []}
             assert agent["tools"] == ["@builtin"]
         else:
+            assert "permissions" not in agent
             assert agent["tools"] == ["read", "knowledge"]
             assert agent["toolsSettings"] == {}
 

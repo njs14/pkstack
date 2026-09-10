@@ -1697,6 +1697,9 @@ def validate_product_envelope(root: Path) -> None:
             ]
             if agent.get("permissions") != {"rules": expected_rules}:
                 raise GuardError("CI reviewer must retain its deny-only policy")
+        elif path.name == "pkstack.json":
+            if agent.get("permissions") != {"rules": []}:
+                raise GuardError("primary agent must retain its empty v3 permission marker")
         elif "permissions" in agent:
             raise GuardError(f"product agent embeds permission policy: {path.name}")
         if "allowedTools" in agent:

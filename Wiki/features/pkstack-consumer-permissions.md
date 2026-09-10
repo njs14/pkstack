@@ -43,7 +43,8 @@ destructive command forms. Test commands are strings, never shell invocations.
 ### `roles`
 
 Consumer profiles contain no inline policy or legacy trust grants. Helpers expose
-only read and knowledge tools, regardless of global allows.
+only read and knowledge tools, regardless of global allows. The primary carries
+exactly an empty `permissions.rules` compatibility marker; it adds no rules.
 
 ## How to get to it (user POV)
 

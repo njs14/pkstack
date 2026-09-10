@@ -14,6 +14,9 @@ Engineering workflows, repeatable checks, and project knowledge for Kiro.
 
 Start with `/pkstack-setup` in the target workspace, then use `/poteto-kiro-mode <task>`.
 Kiro owns native Specs, model choice, effort, permissions, and conversation state.
+
+Use `/pkstack-guide <question>` for project-aware advice about the next useful step.
+It explains the recommendation and prepares a prompt without starting the work.
 PKStack adds reusable development skills and a project-local verification runner.
 
 Read the [usage guide](docs/usage.md), [first-task walkthrough](docs/first-task.md),

@@ -63,7 +63,9 @@ bounded verification loop in the current conversation; it is not Kiro's native
 planning or implementation. Kiro's permission controls remain authoritative.
 
 Consumer profiles omit inline permission policy. The main profile exposes
-`@builtin`; its three helpers retain read-only tools. The optional
+`@builtin` and includes an empty `permissions.rules` compatibility marker so the
+tested v3 CLI selects it without a legacy-profile fallback. Its three helpers
+retain read-only tools. The optional
 [global permission preset](permissions.md) is installed manually and applies
 across local agents. It is separate from project setup and CI-agent authority.
 

@@ -84,6 +84,9 @@ Setup ends with installation, checks, and this report. Offer one relevant next s
 user's context: [`show-me`](../show-me/SKILL.md) for a visual tour,
 [`writing-for-agents`](../writing-for-agents/SKILL.md) for existing agent instructions, or
 [`create-verification-skill`](../create-verification-skill/SKILL.md) for missing live proof.
+When the next step is unclear, offer [`pkstack-guide`](../pkstack-guide/SKILL.md) for project-aware
+orientation; keep a more specific offer when the need is already known. Do not run the advisor
+automatically after installation.
 Do not start onboarding, a diagram, a documentation rewrite, or a verification workflow merely
 because setup succeeded. An explicitly requested follow-up may proceed within its own scope.
 

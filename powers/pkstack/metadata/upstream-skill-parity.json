@@ -23,6 +23,7 @@
   ],
   "pk_only_skills": [
     "okf",
+    "pkstack-guide",
     "pkstack-maintain",
     "pkstack-model-council",
     "pkstack-principles",
@@ -35,7 +36,7 @@
     "excluded": 1,
     "upstream_total": 47,
     "routed_upstream_names": 46,
-    "shipped_skill_directories": 51,
+    "shipped_skill_directories": 52,
     "pinned_package_files": 122,
     "current_package_files": 122,
     "semantic_source_files": 101,
