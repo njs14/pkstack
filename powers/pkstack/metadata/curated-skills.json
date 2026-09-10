@@ -129,6 +129,15 @@
       "target": "skills/uv/SKILL.md"
     },
     {
+      "bundle_manifest": "metadata/mattpocock-wayfinder-bundle-manifest.json",
+      "bundle_root": "skills/wayfinder",
+      "name": "wayfinder",
+      "provenance": "provenance/mattpocock-wayfinder-provenance.md",
+      "source_id": "mattpocock-wayfinder",
+      "source_parity": "metadata/mattpocock-wayfinder-source-parity.json",
+      "target": "skills/wayfinder/SKILL.md"
+    },
+    {
       "bundle_manifest": "metadata/mattpocock-writing-for-agents-bundle-manifest.json",
       "bundle_root": "skills/writing-for-agents",
       "name": "writing-for-agents",
@@ -139,8 +148,8 @@
     }
   ],
   "summary": {
-    "bundle_file_count": 99,
-    "curated_skill_count": 15,
-    "shipped_skill_directories": 15
+    "bundle_file_count": 101,
+    "curated_skill_count": 16,
+    "shipped_skill_directories": 16
   }
 }

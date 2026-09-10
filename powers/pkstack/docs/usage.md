@@ -41,7 +41,7 @@ before starting a task.
 
 ## First success
 
-Use `/pkstack <task>` for your own work, or [try one failing task](first-task.md)
+Use `/poteto-kiro-mode <task>` for your own work, or [try one failing task](first-task.md)
 with either surface. That example supplies a repeatable verifier and explains
 how to inspect the failure, Kiro's repair, and the stored passing result.
 
@@ -97,7 +97,7 @@ become a workspace-wide policy through a handoff. See the
 
 | Command | Use it for |
 | --- | --- |
-| `/pkstack` | Route a task through planning, implementation, verification, and review |
+| `/poteto-kiro-mode` | Route a task through planning, implementation, verification, and review |
 | `/pkstack-setup` | Preview installation or refresh when the imported Power is discoverable |
 | `/pkstack-maintain` | Review upstream changes to the Power |
 | `/pkstack-verified-goal` | Repair against one stored executable check |

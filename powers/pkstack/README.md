@@ -37,7 +37,7 @@ this `powers/pkstack/` folder inside the checkout (containing `plugin.json`), th
 That completes Power installation. Kiro CLI v3 [automatically detects Powers
 installed through the IDE](https://kiro.dev/docs/cli/v3/new-features/#powers-auto-pickup).
 
-After installation, `/pkstack-setup` initializes a workspace and `/pkstack <task>`
+After installation, `/pkstack-setup` initializes a workspace and `/poteto-kiro-mode <task>`
 starts work. For details, see the
 [usage guide](docs/usage.md). Existing projects use the
 [managed refresh guide](docs/usage.md#refresh-managed-files).
@@ -61,7 +61,7 @@ check for a larger change.
 
 | Capability | What you can do |
 | --- | --- |
-| Plan and implement | `/pkstack` applies the shared grilling interview within native Plan, Spec, or Quick Spec, then routes approved work through implementation, verification, and review. Link a Spec to the command that checks the result. |
+| Plan and implement | `/poteto-kiro-mode` applies the shared grilling interview within native Plan, Spec, or Quick Spec, then routes approved work through implementation, verification, and review. Link a Spec to the command that checks the result. |
 | Verify a repair | Work against one stored command with `/pkstack-verified-goal`. Set an attempt limit and inspect the failed and passing output. |
 | Build reusable checks | Give a feature an executable check and a recipe for driving its real CLI, UI, or service with `create-verification-skill`. Audit it later with `maintain-verification-skill`. |
 | Compare designs | Sketch API and module alternatives with `architect`, compare candidates with `arena`, and trace the effects of a change with `blast-radius`. |

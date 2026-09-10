@@ -12,7 +12,7 @@ keywords: ["PKStack", "Poteto Kiro", "pkstack", "verified development", "verifie
 
 Engineering workflows, repeatable checks, and project knowledge for Kiro.
 
-Start with `/pkstack-setup` in the target workspace, then use `/pkstack <task>`.
+Start with `/pkstack-setup` in the target workspace, then use `/poteto-kiro-mode <task>`.
 Kiro owns native Specs, model choice, effort, permissions, and conversation state.
 PKStack adds reusable development skills and a project-local verification runner.
 

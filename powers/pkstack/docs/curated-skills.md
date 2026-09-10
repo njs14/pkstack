@@ -34,7 +34,7 @@ remain independent active sources; PKStack ships no optional `okn` backend.
 
 ## Choose by the job
 
-Use `/pkstack` for the overall task. A helper should contribute a distinct output:
+Use `/poteto-kiro-mode` for the overall task. A helper should contribute a distinct output:
 
 | Job | Skill and handoff |
 | --- | --- |
@@ -93,7 +93,7 @@ exact bundle manifest. The pins below describe the accepted sources, not a
 claim that every upstream is at its latest release.
 
 These imported skills retain their upstream names. PKStack's six entry points
-use `/pkstack` or `/pkstack-<workflow>`; `/okf` is the separate knowledge-integration
+use `/poteto-kiro-mode` or `/pkstack-<workflow>`; `/okf` is the separate knowledge-integration
 exception. The [pstack mapping](../provenance/upstream-skill-parity.md) covers Poteto's ports.
 
 | Skill | Source | Runtime boundary |

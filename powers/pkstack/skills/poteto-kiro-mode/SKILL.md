@@ -1,9 +1,9 @@
 ---
-name: pkstack
+name: poteto-kiro-mode
 description: Route broad Poteto workflow requests into PKStack's Kiro-native skills, project interfaces, and current-session verification loop.
 ---
 
-# Use PKStack mode
+# Use Poteto Kiro mode
 
 Treat the request text that activated this skill as the outcome to route through PKStack.
 

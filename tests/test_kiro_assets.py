@@ -67,14 +67,17 @@ def _frontmatter(path: Path) -> tuple[dict[str, object], str]:
 
 def test_pkstack_routes_are_namespaced_without_renaming_upstream_identities() -> None:
     assert {name for name in EXPECTED_SKILLS if name.startswith("pkstack")} == {
-        "pkstack",
         "pkstack-setup",
         "pkstack-maintain",
         "pkstack-verified-goal",
         "pkstack-model-council",
         "pkstack-principles",
     }
-    assert SKILL_ROUTE_ALIASES == {"poteto-mode": "pkstack", "setup-pstack": "pkstack-setup"}
+    assert "poteto-kiro-mode" in EXPECTED_SKILLS
+    assert "pkstack" not in EXPECTED_SKILLS
+    assert SKILL_ROUTE_ALIASES == {
+        "poteto-mode": "poteto-kiro-mode", "setup-pstack": "pkstack-setup"
+    }
     assert {
         "okf",
         "pkstack-maintain",
@@ -355,7 +358,7 @@ def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
         ("recall", {"reflect", "okf"}),
         ("reflect", {"recall", "okf"}),
         ("okf", {"recall", "reflect", "grilling"}),
-        ("grilling", {"pkstack", "okf", "domain-modeling", "grill-with-docs", "interrogate"}),
+        ("grilling", {"poteto-kiro-mode", "okf", "domain-modeling", "grill-with-docs", "interrogate"}),
         ("grill-me", {"grilling", "grill-with-docs"}),
         ("grill-with-docs", {"grilling", "domain-modeling", "okf"}),
         ("domain-modeling", {"grilling", "okf"}),
@@ -374,7 +377,7 @@ def test_setup_handoff_and_explicit_invocation_keep_authority_visible() -> None:
     assert "Do not start onboarding" in setup
     for name in ("show-me", "writing-for-agents", "create-verification-skill"):
         assert f"../{name}/SKILL.md" in setup
-    entry = " ".join((SKILLS / "pkstack" / "SKILL.md").read_text().split())
+    entry = " ".join((SKILLS / "poteto-kiro-mode" / "SKILL.md").read_text().split())
     assert "does not broaden the user's authority" in entry
 
 
@@ -518,7 +521,7 @@ def test_load_bearing_upstream_skill_packages_are_routed_by_their_real_names() -
 
     poteto = by_name["poteto-mode"]
     assert poteto["disposition"] == "alias-consolidation"
-    assert poteto["target"] == "skills/pkstack/SKILL.md"
+    assert poteto["target"] == "skills/poteto-kiro-mode/SKILL.md"
     poteto_resources = {
         resource["path"]: resource["handling"] for resource in poteto["current"]["files"]
     }

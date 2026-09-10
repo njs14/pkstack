@@ -1,0 +1,28 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/wayfinder",
+  "files": [
+    {
+      "handling": "kiro-owned-github-cloud-operations",
+      "mode": "100644",
+      "path": "references/github.md",
+      "sha256": "5a8803168d9dcdfeedc1770b51551cd3304300a5ac6574d350c18eab668a7934",
+      "size": 4417,
+      "source_path": "skills/engineering/wayfinder/SKILL.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "5c89cdfca0f4be70729867f1a626ed474725fb8012cbb464f772f524550bdfb9",
+      "size": 6287,
+      "source_path": "skills/engineering/wayfinder/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "wayfinder",
+  "summary": {
+    "byte_count": 10704,
+    "file_count": 2
+  }
+}

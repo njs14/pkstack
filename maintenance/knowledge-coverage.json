@@ -401,18 +401,18 @@
       "reason": "Setup-owned native mirror .kiro/skills/pkstack-verified-goal/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
-      "path": ".kiro/skills/pkstack/SKILL.md",
+      "path": ".kiro/skills/poteto-kiro-mode/SKILL.md",
       "sha256": "ed1068602452d2c4bfdda915d43ea9207ce6b88885399712b00031498808b640",
       "classification": "excluded",
       "category": "generated",
-      "reason": "Setup-owned native mirror .kiro/skills/pkstack/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
+      "reason": "Setup-owned native mirror .kiro/skills/poteto-kiro-mode/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
-      "path": ".kiro/skills/pkstack/references/workflows.md",
+      "path": ".kiro/skills/poteto-kiro-mode/references/workflows.md",
       "sha256": "9ac51fff801010a5d46e87a59924b30b024254b110ede7896bf012aa3b49d256",
       "classification": "excluded",
       "category": "generated",
-      "reason": "Setup-owned native mirror .kiro/skills/pkstack/references/workflows.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
+      "reason": "Setup-owned native mirror .kiro/skills/poteto-kiro-mode/references/workflows.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
       "path": ".kiro/skills/principle-attack-the-premise/SKILL.md",
@@ -1594,18 +1594,18 @@
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack-verified-goal/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
-      "path": "powers/pkstack/skills/pkstack/SKILL.md",
+      "path": "powers/pkstack/skills/poteto-kiro-mode/SKILL.md",
       "sha256": "ed1068602452d2c4bfdda915d43ea9207ce6b88885399712b00031498808b640",
       "classification": "excluded",
       "category": "native",
-      "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
+      "reason": "Native skill definition or bundled reference powers/pkstack/skills/poteto-kiro-mode/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
-      "path": "powers/pkstack/skills/pkstack/references/workflows.md",
+      "path": "powers/pkstack/skills/poteto-kiro-mode/references/workflows.md",
       "sha256": "9ac51fff801010a5d46e87a59924b30b024254b110ede7896bf012aa3b49d256",
       "classification": "excluded",
       "category": "native",
-      "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack/references/workflows.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
+      "reason": "Native skill definition or bundled reference powers/pkstack/skills/poteto-kiro-mode/references/workflows.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."
     },
     {
       "path": "powers/pkstack/skills/principle-attack-the-premise/SKILL.md",

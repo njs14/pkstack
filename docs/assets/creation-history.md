@@ -2,12 +2,32 @@
 
 ## Current README logo
 
-`logo.png` is the owner-selected Option 2, “Knowledge crest,” recorded on
-September 6, 2026. It depicts four distinct ghosts with a book and linked knowledge
-tree. The TypeScript figure is an archetype, not a portrait. The repository README uses this
+`logo.png` is the September 10, 2026 refresh of the owner-selected Option 2,
+“Knowledge crest,” originally recorded on September 6. It depicts four distinct
+ghosts with a book and linked knowledge tree. The blue companion now carries an
+abstract branching idea motif instead of glasses and a TypeScript badge; the coral
+companion has a single silhouette and linked arcs suggesting cooperation and
+feedback. These are thematic tributes to teaching and collaborative engineering,
+not portraits or claims of endorsement. The repository README uses this
 logo from `docs/assets/`; the distributed Power carries no README artwork. The
 [visual artifact record](../../Wiki/knowledge/pkstack/visual-artifacts.md#current-naming-and-historical-artwork)
 retains the selection and source attribution.
+
+The built-in image generator produced this edit from the previous crest. The user
+confirmed using the latest available built-in image capability; the tool did not
+disclose a model version. The result is 1254 × 1254 pixels.
+
+SHA-256: `172fd1120cf3c740f82c20fb99946dfe89212b4f343a69c971a64434dc62bcb0`.
+
+Prompt: refresh the square crest with crisp shapes readable at 360 pixels; retain
+four friendly ghosts, the pale lavender scholarly ghost with navy graduation cap
+and cyan tassel, golden potato ghost, purple-and-ivory book, cyan knowledge tree,
+midnight navy background, and exact text “PKStack.” Remove the blue ghost's glasses
+and TS badge and give it simple oval eyes and a branching idea motif. Replace the
+coral ghost's layered silhouettes with one clean silhouette and two linked arcs.
+Improve balance, typography, highlights, line consistency, and negative space.
+Avoid human likenesses, hair, glasses, person names, company logos, extra ghosts,
+extra text, and watermarks.
 
 ## Compact Power JPG
 
