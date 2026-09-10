@@ -4482,3 +4482,13 @@ def test_large_windowed_diff_round_trips_with_bounded_work(change: str) -> None:
 def test_large_unanchored_diff_still_rejects_excessive_work() -> None:
     with pytest.raises(UpstreamError, match="25000000-cell comparison limit"):
         upstreams._complete_unified_patch(b"old\n" * 15_000, b"new\n" * 15_000)
+
+
+def test_manifest_source_capacity_accepts_32_and_rejects_33(tmp_path: Path) -> None:
+    _write_manifest(tmp_path)
+    for index in range(31):
+        _add_parallel_source(tmp_path, source_id=f"capacity-{index}")
+    assert len(load_upstream_manifest(tmp_path).sources) == 32
+    _add_parallel_source(tmp_path, source_id="capacity-overflow")
+    with pytest.raises(UpstreamError, match="32"):
+        load_upstream_manifest(tmp_path)

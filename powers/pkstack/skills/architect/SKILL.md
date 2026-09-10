@@ -139,3 +139,5 @@ When implementation is authorized and the active workflow permits execution:
 Return the usage-first scaffold, rationale and rejected alternatives, changed
 boundaries, recorded deviations, exact verification evidence, and remaining
 risks.
+
+Read [the shared module-design references](references/pocock-codebase-design/README.md) for module depth, dependency seams, and alternative interfaces. They extend this skill's existing arena.

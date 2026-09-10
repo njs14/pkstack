@@ -1,0 +1,36 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/pkstack/references/pocock-prototype",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "LOGIC.md",
+      "sha256": "3148fb50dad389c91b77ffd03153a1f85a2f188953efb8366e8aa80089071122",
+      "size": 1078,
+      "source_path": "skills/engineering/prototype/LOGIC.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "README.md",
+      "sha256": "82742a5e9f6068a25e0c6c25dce0624f27ec36b2822078f8937b4e8736619299",
+      "size": 1352,
+      "source_path": "skills/engineering/prototype/SKILL.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "UI.md",
+      "sha256": "e65779038b4c055d6bb73dc9c1a1745564db8b930d7d59e989f1d0dc50fdcc9b",
+      "size": 1055,
+      "source_path": "skills/engineering/prototype/UI.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "prototype",
+  "summary": {
+    "byte_count": 3485,
+    "file_count": 3
+  }
+}

@@ -41,7 +41,9 @@ Root `pytest.ini` collects `tests/`; root Ruff/ty configurations cover the reloc
 tests, benchmarks, installed source, examples, and setup. The root `pyproject.toml`
 and `uv.lock` install the Power as an editable dependency and own pytest/Ruff/ty.
 The independent Power lock contains runtime dependencies only; static verification
-checks both locks, and the CI configuration digest includes both manifests/locks. `.coveragerc` retains branch measurement and the 85 percent threshold.
+checks both locks, and the CI configuration digest includes both manifests/locks. `.coveragerc` retains branch measurement and the 85 percent threshold. pytest-cov 7 uses
+coverage.py's `patch = subprocess` mechanism; the child-process regression proves code executed
+only in a subprocess reaches the coverage report.
 Pytest and Ruff caches stay at the repository root. The collected test IDs remain
 `tests/...`, preserving the complete collection and the installed-Kiro skip sentinel.
 Trusted-controller snapshots retain their own private `.venv`: each trusted `uv sync`
@@ -193,3 +195,19 @@ original candidate and scope; they are not fresh verification of this checkout.
 | [reviews/astral-python-auto/independent-review.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/astral-python-auto/independent-review.md) | Read-only d36bb88 source review checked provenance, routing and maintained Python coverage; coordinator test results and native observations remain separately identified evidence. |
 | [reviews/evidence-led-improvements/README.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/evidence-led-improvements/README.md) | Content-keyed per-validation heading caching preserves fresh bounded reads and path validation; performance observations and clean-worktree guidance do not justify speculative cleanup. |
 | [reviews/release-030-browser-harness.md](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/release-030-browser-harness.md) | Startup cleanup and process/pipe lifecycle defects were reproduced, while the initiating Linux Target.getTargets timeout remained unexplained; retain that distinction. |
+
+## September 10 dependency refresh
+
+The 0.6.0 candidate selects pytest 9.1.1, pytest-cov 7.1.0, Ruff 0.16.6, ty 0.0.80,
+Cyclopts 4.25.2, actionlint 1.7.12, and CI uv 0.12.12 from verified stable releases.
+Development lower bounds move to these versions with existing major-version limits; Cyclopts
+remains exactly pinned. Development, Power runtime, and consumer-template lockfiles resolve the
+compatible dependency set while preserving Python 3.11 support and the reviewed bootstrap shim.
+Pydantic 2.13.5 requires pydantic-core 2.46.5, so the standalone newer core is not a compatible
+upgrade. Current Action commit pins match their release tags; ShellCheck remains 0.11.0.
+
+pytest-cov 7 delegates subprocess collection to coverage.py. The coverage configuration now uses
+`patch = subprocess`; a disposable child-process test requires the actual child-only module to
+appear in measured lines. Branch measurement and the configured 85 percent threshold remain.
+The execution-evidence tests retain their incomplete, skip, failure, and cancellation boundaries.
+Dependency freshness and local test results do not establish hosted or native Kiro behavior.

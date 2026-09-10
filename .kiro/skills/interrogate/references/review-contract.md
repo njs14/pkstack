@@ -58,3 +58,7 @@ by types or validation.
 Return these sections: Intent, Reviewers, Act on, Consider, Noted, Dismissed,
 and Agreement map. For every classification, preserve the finding's evidence
 and explain the lead decision in one line.
+
+## Specification and standards axes
+
+Apply [the shared two-axis method](pocock-code-review/README.md) to the exact candidate packet. Keep each axis's evidence and verdict visible before synthesis, including missing specification evidence.

@@ -2124,7 +2124,7 @@ def validate_detector(path: Path) -> dict[str, Any]:
         raise GuardError("upstream detector used an unexpected review ledger")
     overall_ok = _boolean(detector["ok"], "upstream detector ok")
     sources = detector.get("sources")
-    if not isinstance(sources, list) or not 1 <= len(sources) <= 16:
+    if not isinstance(sources, list) or not 1 <= len(sources) <= 32:
         raise GuardError("upstream detector output must have a bounded non-empty source list")
     seen_ids: set[str] = set()
     drift_sources: list[dict[str, str]] = []

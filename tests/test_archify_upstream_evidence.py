@@ -22,7 +22,7 @@ def test_archify_verifies_pinned_sources_for_gitee_and_internal_forges(
 ) -> None:
     node = shutil.which("node")
     if node is None:
-        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Archify requires optional Node.js 18+")
     _git(tmp_path, "init")
     _git(tmp_path, "config", "user.name", "PKStack Test")
     _git(tmp_path, "config", "user.email", "pkstack@example.test")
@@ -104,7 +104,7 @@ def test_archify_verifies_pinned_sources_for_gitee_and_internal_forges(
 def test_archify_delivered_font_is_embedded_with_license(tmp_path: Path) -> None:
     node = shutil.which("node")
     if node is None:
-        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Archify requires optional Node.js 18+")
     output = tmp_path / "offline.html"
     subprocess.run(
         [

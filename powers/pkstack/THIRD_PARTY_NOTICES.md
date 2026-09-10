@@ -155,10 +155,12 @@ from `mattpocock/skills` while excluding OpenAI-only UI metadata.
 The Matt Pocock MIT notice in the following section also applies to this source.
 The `LICENSE` bytes at both recorded source revisions are identical.
 
-## Matt Pocock knowledge skills semantic references
+## Matt Pocock knowledge and engineering skill references
 
 The Kiro-native `grilling`, `grill-me`, `domain-modeling`, and `grill-with-docs`
-skills adapt decision-focused interviewing, domain language, and decision capture from
+skills, eight additional engineering skills, and four consolidated methods adapt
+research, diagnosis, architecture, review, TDD, prototypes, handoff, triage, questionnaires,
+merge resolution, human-run setup, interviewing, domain language, and decision capture from
 Matt Pocock's skills. Native Kiro references replace the upstream Skill API; project
 knowledge follows PKStack's Wiki lifecycle. OpenAI UI metadata is provenance-only.
 
@@ -167,7 +169,8 @@ knowledge follows PKStack's Wiki lifecycle. OpenAI UI metadata is provenance-onl
 - Pinned commit: `3cca18b368ae95cdbdebbff572ccafa662551015`
 - Copyright: Copyright (c) 2026 Matt Pocock
 - License: MIT
-- Detailed provenance: the four `docs/mattpocock-{grilling,grill-me,domain-modeling,grill-with-docs}-provenance.md` records
+- Detailed provenance: the `provenance/mattpocock-*-provenance.md` records and
+  `metadata/mattpocock-skill-catalog.json`, including every nested-resource disposition.
 
 The upstream MIT notice follows verbatim.
 

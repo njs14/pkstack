@@ -1,0 +1,345 @@
+{
+  "pinned": {
+    "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+    "tree_sha": "6e84c093fda2026396cea9fad6a924a6da0e1452"
+  },
+  "ref": "main",
+  "repository": "mattpocock/skills",
+  "schema_version": 1,
+  "skills": [
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "ask-matt",
+      "path": "skills/engineering/ask-matt/SKILL.md",
+      "rationale": "Author-personal routing and persona outside the selected engineering methods.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-code-review-bundle-manifest.json",
+      "destination": "skills/interrogate/references/pocock-code-review/README.md",
+      "disposition": "consolidated",
+      "name": "code-review",
+      "path": "skills/engineering/code-review/SKILL.md",
+      "rationale": "The method extends interrogate without a duplicate command or planning owner.",
+      "source_id": "mattpocock-code-review"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-codebase-design-bundle-manifest.json",
+      "destination": "skills/architect/references/pocock-codebase-design/README.md",
+      "disposition": "consolidated",
+      "name": "codebase-design",
+      "path": "skills/engineering/codebase-design/SKILL.md",
+      "rationale": "The method extends architect without a duplicate command or planning owner.",
+      "source_id": "mattpocock-codebase-design"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-diagnosing-bugs-bundle-manifest.json",
+      "destination": "skills/diagnosing-bugs/SKILL.md",
+      "disposition": "imported",
+      "name": "diagnosing-bugs",
+      "path": "skills/engineering/diagnosing-bugs/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-diagnosing-bugs"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-domain-modeling-bundle-manifest.json",
+      "destination": "skills/domain-modeling/SKILL.md",
+      "disposition": "imported",
+      "name": "domain-modeling",
+      "path": "skills/engineering/domain-modeling/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-domain-modeling"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-grill-with-docs-bundle-manifest.json",
+      "destination": "skills/grill-with-docs/SKILL.md",
+      "disposition": "imported",
+      "name": "grill-with-docs",
+      "path": "skills/engineering/grill-with-docs/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-grill-with-docs"
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "native:Specs",
+      "disposition": "covered",
+      "name": "implement",
+      "path": "skills/engineering/implement/SKILL.md",
+      "rationale": "Kiro native Specs own implementation planning and execution; no competing implementation runtime.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-improve-codebase-architecture-bundle-manifest.json",
+      "destination": "skills/improve-codebase-architecture/SKILL.md",
+      "disposition": "imported",
+      "name": "improve-codebase-architecture",
+      "path": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-improve-codebase-architecture"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-prototype-bundle-manifest.json",
+      "destination": "skills/pkstack/references/pocock-prototype/README.md",
+      "disposition": "consolidated",
+      "name": "prototype",
+      "path": "skills/engineering/prototype/SKILL.md",
+      "rationale": "The method extends pkstack without a duplicate command or planning owner.",
+      "source_id": "mattpocock-prototype"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-research-bundle-manifest.json",
+      "destination": "skills/research/SKILL.md",
+      "disposition": "imported",
+      "name": "research",
+      "path": "skills/engineering/research/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-research"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-resolving-merge-conflicts-bundle-manifest.json",
+      "destination": "skills/resolving-merge-conflicts/SKILL.md",
+      "disposition": "imported",
+      "name": "resolving-merge-conflicts",
+      "path": "skills/engineering/resolving-merge-conflicts/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-resolving-merge-conflicts"
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "skills/pkstack-setup/SKILL.md",
+      "disposition": "covered",
+      "name": "setup-matt-pocock-skills",
+      "path": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
+      "rationale": "PKStack setup installs reviewed native bundles; author-specific setup and tracker configuration are not activated.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-tdd-bundle-manifest.json",
+      "destination": "skills/tdd/references/pocock-tdd/README.md",
+      "disposition": "consolidated",
+      "name": "tdd",
+      "path": "skills/engineering/tdd/SKILL.md",
+      "rationale": "The method extends tdd without a duplicate command or planning owner.",
+      "source_id": "mattpocock-tdd"
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "native:Specs",
+      "disposition": "covered",
+      "name": "to-spec",
+      "path": "skills/engineering/to-spec/SKILL.md",
+      "rationale": "Kiro native Specs own requirements and design; shared grilling supplies the interview method.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "native:Specs",
+      "disposition": "covered",
+      "name": "to-tickets",
+      "path": "skills/engineering/to-tickets/SKILL.md",
+      "rationale": "Kiro native Specs own task decomposition and task state; external ticket creation remains explicitly scoped tracker work.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-triage-bundle-manifest.json",
+      "destination": "skills/triage/SKILL.md",
+      "disposition": "imported",
+      "name": "triage",
+      "path": "skills/engineering/triage/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-triage"
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "deferred",
+      "name": "wayfinder",
+      "path": "skills/engineering/wayfinder/SKILL.md",
+      "rationale": "Deferred by explicit user choice; outside this engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-wizard-bundle-manifest.json",
+      "destination": "skills/wizard/SKILL.md",
+      "disposition": "imported",
+      "name": "wizard",
+      "path": "skills/engineering/wizard/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-wizard"
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "claude-handoff",
+      "path": "skills/in-progress/claude-handoff/SKILL.md",
+      "rationale": "Experimental in-progress upstream skill; excluded from this stable engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "implement-spec",
+      "path": "skills/in-progress/implement-spec/SKILL.md",
+      "rationale": "Experimental in-progress upstream skill; excluded from this stable engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "loop-me",
+      "path": "skills/in-progress/loop-me/SKILL.md",
+      "rationale": "Experimental in-progress upstream skill; excluded from this stable engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "retro",
+      "path": "skills/in-progress/retro/SKILL.md",
+      "rationale": "Experimental in-progress upstream skill; excluded from this stable engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "setup-ts-deep-modules",
+      "path": "skills/in-progress/setup-ts-deep-modules/SKILL.md",
+      "rationale": "Experimental in-progress upstream skill; excluded from this stable engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "writing-beats",
+      "path": "skills/in-progress/writing-beats/SKILL.md",
+      "rationale": "Experimental in-progress upstream skill; excluded from this stable engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "writing-fragments",
+      "path": "skills/in-progress/writing-fragments/SKILL.md",
+      "rationale": "Experimental in-progress upstream skill; excluded from this stable engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "writing-shape",
+      "path": "skills/in-progress/writing-shape/SKILL.md",
+      "rationale": "Experimental in-progress upstream skill; excluded from this stable engineering integration.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "git-guardrails-claude-code",
+      "path": "skills/misc/git-guardrails-claude-code/SKILL.md",
+      "rationale": "Claude Code hook and runtime policy; Kiro owns permissions and hooks.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "migrate-to-shoehorn",
+      "path": "skills/misc/migrate-to-shoehorn/SKILL.md",
+      "rationale": "Author-specific project migration unrelated to PKStack engineering workflows.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "scaffold-exercises",
+      "path": "skills/misc/scaffold-exercises/SKILL.md",
+      "rationale": "Separate teaching/exercise workspace excluded by user choice.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "not-installed",
+      "disposition": "excluded",
+      "name": "setup-pre-commit",
+      "path": "skills/misc/setup-pre-commit/SKILL.md",
+      "rationale": "Unrequested hook installation policy; project-prescribed tooling and native Kiro hooks retain ownership.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-grill-me-bundle-manifest.json",
+      "destination": "skills/grill-me/SKILL.md",
+      "disposition": "imported",
+      "name": "grill-me",
+      "path": "skills/productivity/grill-me/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-grill-me"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-grilling-bundle-manifest.json",
+      "destination": "skills/grilling/SKILL.md",
+      "disposition": "imported",
+      "name": "grilling",
+      "path": "skills/productivity/grilling/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-grilling"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-handoff-bundle-manifest.json",
+      "destination": "skills/handoff/SKILL.md",
+      "disposition": "imported",
+      "name": "handoff",
+      "path": "skills/productivity/handoff/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-handoff"
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "skills/teach/SKILL.md",
+      "disposition": "covered",
+      "name": "teach",
+      "path": "skills/productivity/teach/SKILL.md",
+      "rationale": "The existing Poteto-derived teaching owner composes mechanics, rationale, and visuals. The separate Pocock teaching workspace is excluded by user choice.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-to-questionnaire-bundle-manifest.json",
+      "destination": "skills/to-questionnaire/SKILL.md",
+      "disposition": "imported",
+      "name": "to-questionnaire",
+      "path": "skills/productivity/to-questionnaire/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-to-questionnaire"
+    },
+    {
+      "bundle_manifest": null,
+      "destination": "skills/teach/SKILL.md",
+      "disposition": "covered",
+      "name": "wait-what",
+      "path": "skills/productivity/wait-what/SKILL.md",
+      "rationale": "The existing teaching and explanation methods clarify a misunderstood concept from inspected evidence.",
+      "source_id": null
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-writing-for-agents-bundle-manifest.json",
+      "destination": "skills/writing-for-agents/SKILL.md",
+      "disposition": "imported",
+      "name": "writing-for-agents",
+      "path": "skills/productivity/writing-for-agents/SKILL.md",
+      "rationale": "Reviewed native Kiro adaptation with source-bound inventory and bundle identity.",
+      "source_id": "mattpocock-writing-for-agents"
+    }
+  ],
+  "tree_snapshot": "metadata/mattpocock-catalog-tree.json"
+}

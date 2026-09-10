@@ -1,0 +1,36 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/tdd/references/pocock-tdd",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "mocking.md",
+      "sha256": "f1114431e56be20a9b4e2800b7f1d3a1e4f842b6d0ee2e9009bba21fae6c7602",
+      "size": 855,
+      "source_path": "skills/engineering/tdd/mocking.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "README.md",
+      "sha256": "7e106eb441aba07e2b414cded75c91623b10584e16657d3bb5ad33f26d0d11cf",
+      "size": 863,
+      "source_path": "skills/engineering/tdd/SKILL.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "tests.md",
+      "sha256": "a9157569a1698207bf83d7673c0e8fc14f3e6eac4976da51d80d67fc9d72250e",
+      "size": 1027,
+      "source_path": "skills/engineering/tdd/tests.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "tdd",
+  "summary": {
+    "byte_count": 2745,
+    "file_count": 3
+  }
+}

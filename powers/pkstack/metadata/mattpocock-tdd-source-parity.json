@@ -1,0 +1,100 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "651b838a7663e027b1b8884491e867f26bb9a021",
+        "size": 87,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "651b838a7663e027b1b8884491e867f26bb9a021",
+        "size": 87,
+        "type": "blob"
+      },
+      "rationale": "Provider UI metadata is inventoried and excluded from the native Kiro bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "71cbfee674d93244ce81d1830b930ca9a69200bd",
+        "size": 1481,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "mocking.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "71cbfee674d93244ce81d1830b930ca9a69200bd",
+        "size": 1481,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing tdd owner with no duplicate skill command."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "8fc086710806190ee7c4baa32089cb877a75736a",
+        "size": 3549,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "8fc086710806190ee7c4baa32089cb877a75736a",
+        "size": 3549,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing tdd owner with no duplicate skill command."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "7ab86479f925a1f9e8ba680af33cb3b12e015381",
+        "size": 2214,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "tests.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "7ab86479f925a1f9e8ba680af33cb3b12e015381",
+        "size": 2214,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing tdd owner with no duplicate skill command."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "79288be15c67b849f22b6572056601090fd20913"
+    },
+    "id": "mattpocock-tdd",
+    "path": "skills/engineering/tdd",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "79288be15c67b849f22b6572056601090fd20913"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-10"
+  },
+  "summary": {
+    "A": 3,
+    "B": 0,
+    "C": 1,
+    "current_files": 4,
+    "pinned_files": 4
+  }
+}

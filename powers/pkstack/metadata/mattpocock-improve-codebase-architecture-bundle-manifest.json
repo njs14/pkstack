@@ -1,0 +1,28 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/improve-codebase-architecture",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "HTML-REPORT.md",
+      "sha256": "3c3d1129f02180d79ab8362a653cc14e27f550d1998e9a623a0829930df72b81",
+      "size": 1143,
+      "source_path": "skills/engineering/improve-codebase-architecture/HTML-REPORT.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "2573e47672509d4e0c3ffdc3fd6301324561d9c4da32169fb9800e0d7e2f6887",
+      "size": 2464,
+      "source_path": "skills/engineering/improve-codebase-architecture/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "improve-codebase-architecture",
+  "summary": {
+    "byte_count": 3607,
+    "file_count": 2
+  }
+}

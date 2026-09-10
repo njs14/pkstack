@@ -1,0 +1,28 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/wizard",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "fb3ae93ab3db89138d531a8a0a7c3534e3d4b8b5eb6ee2eb8108cc83a3325bbb",
+      "size": 2731,
+      "source_path": "skills/engineering/wizard/SKILL.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "template.sh",
+      "sha256": "efc814aeaa86030873665f07c6932e65847589a052389d36d6ef2d7d605dc21a",
+      "size": 6240,
+      "source_path": "skills/engineering/wizard/template.sh"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "wizard",
+  "summary": {
+    "byte_count": 8971,
+    "file_count": 2
+  }
+}
