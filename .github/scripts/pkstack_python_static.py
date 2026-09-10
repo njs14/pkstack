@@ -155,7 +155,11 @@ def embedded_bodies(root: Path) -> list[EmbeddedBody]:
     """Every maintained embedded Python body, in a deterministic order."""
     root = Path(root)
     bodies: list[EmbeddedBody] = []
-    for path in sorted((root / ".github/scripts").glob("*.sh")):
+    shell_paths = [*(root / ".github/scripts").glob("*.sh")]
+    wizard = root / "powers/pkstack/skills/wizard/template.sh"
+    if wizard.is_file():
+        shell_paths.append(wizard)
+    for path in sorted(shell_paths):
         origin = path.relative_to(root).as_posix()
         bodies += _extract_from_lines(path.read_text(encoding="utf-8").splitlines(), origin, None)
     workflows = root / ".github/workflows"

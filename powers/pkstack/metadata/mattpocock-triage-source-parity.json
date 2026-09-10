@@ -1,0 +1,100 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "1462fcd9e8cc21921158c296149dc05d9be39d20",
+        "size": 7942,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "AGENT-BRIEF.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "1462fcd9e8cc21921158c296149dc05d9be39d20",
+        "size": 7942,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "acb366cf0f2527e8925ff1223b77610ac0b1be4c",
+        "size": 135,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "acb366cf0f2527e8925ff1223b77610ac0b1be4c",
+        "size": 135,
+        "type": "blob"
+      },
+      "rationale": "Provider UI metadata is inventoried and excluded from the native Kiro bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "c9fba2f77ee0619975ec8488c0d4861a0c7e3151",
+        "size": 4667,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "OUT-OF-SCOPE.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "c9fba2f77ee0619975ec8488c0d4861a0c7e3151",
+        "size": 4667,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "37ddea1e3dcf8fb5be5b92e4e45f2c34b8e61d3e",
+        "size": 6557,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "37ddea1e3dcf8fb5be5b92e4e45f2c34b8e61d3e",
+        "size": 6557,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "95fa21bf236993cd9af25bd3670476c17fdb95a4"
+    },
+    "id": "mattpocock-triage",
+    "path": "skills/engineering/triage",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "95fa21bf236993cd9af25bd3670476c17fdb95a4"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-10"
+  },
+  "summary": {
+    "A": 3,
+    "B": 0,
+    "C": 1,
+    "current_files": 4,
+    "pinned_files": 4
+  }
+}

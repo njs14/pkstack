@@ -1,0 +1,36 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/triage",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "AGENT-BRIEF.md",
+      "sha256": "fe519057727895f45c4862607da6a29e109f101db7cf1cdc5d5851c9397f8529",
+      "size": 1241,
+      "source_path": "skills/engineering/triage/AGENT-BRIEF.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "OUT-OF-SCOPE.md",
+      "sha256": "68cc5fe950d15800ced15651f78476427b388e73bd1dc1bd765826dd959c5002",
+      "size": 1110,
+      "source_path": "skills/engineering/triage/OUT-OF-SCOPE.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "db7ece04503057e79a432419a7d3f2d9a79ba2e64975fe15bbfb0dd37d69a76b",
+      "size": 3445,
+      "source_path": "skills/engineering/triage/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "triage",
+  "summary": {
+    "byte_count": 5796,
+    "file_count": 3
+  }
+}

@@ -39,6 +39,15 @@
       "target": "skills/design-control-loop/SKILL.md"
     },
     {
+      "bundle_manifest": "metadata/mattpocock-diagnosing-bugs-bundle-manifest.json",
+      "bundle_root": "skills/diagnosing-bugs",
+      "name": "diagnosing-bugs",
+      "provenance": "provenance/mattpocock-diagnosing-bugs-provenance.md",
+      "source_id": "mattpocock-diagnosing-bugs",
+      "source_parity": "metadata/mattpocock-diagnosing-bugs-source-parity.json",
+      "target": "skills/diagnosing-bugs/SKILL.md"
+    },
+    {
       "bundle_manifest": "metadata/mattpocock-domain-modeling-bundle-manifest.json",
       "bundle_root": "skills/domain-modeling",
       "name": "domain-modeling",
@@ -75,6 +84,15 @@
       "target": "skills/grilling/SKILL.md"
     },
     {
+      "bundle_manifest": "metadata/mattpocock-handoff-bundle-manifest.json",
+      "bundle_root": "skills/handoff",
+      "name": "handoff",
+      "provenance": "provenance/mattpocock-handoff-provenance.md",
+      "source_id": "mattpocock-handoff",
+      "source_parity": "metadata/mattpocock-handoff-source-parity.json",
+      "target": "skills/handoff/SKILL.md"
+    },
+    {
       "bundle_manifest": "metadata/pbakaus-impeccable-bundle-manifest.json",
       "bundle_root": "skills/impeccable",
       "name": "impeccable",
@@ -84,6 +102,15 @@
       "target": "skills/impeccable/SKILL.md"
     },
     {
+      "bundle_manifest": "metadata/mattpocock-improve-codebase-architecture-bundle-manifest.json",
+      "bundle_root": "skills/improve-codebase-architecture",
+      "name": "improve-codebase-architecture",
+      "provenance": "provenance/mattpocock-improve-codebase-architecture-provenance.md",
+      "source_id": "mattpocock-improve-codebase-architecture",
+      "source_parity": "metadata/mattpocock-improve-codebase-architecture-source-parity.json",
+      "target": "skills/improve-codebase-architecture/SKILL.md"
+    },
+    {
       "bundle_manifest": "metadata/humanlayer-narrow-react-prop-types-bundle-manifest.json",
       "bundle_root": "skills/narrow-react-prop-types",
       "name": "narrow-react-prop-types",
@@ -91,6 +118,24 @@
       "source_id": "humanlayer-skills",
       "source_parity": "metadata/humanlayer-skills-source-parity.json",
       "target": "skills/narrow-react-prop-types/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-research-bundle-manifest.json",
+      "bundle_root": "skills/research",
+      "name": "research",
+      "provenance": "provenance/mattpocock-research-provenance.md",
+      "source_id": "mattpocock-research",
+      "source_parity": "metadata/mattpocock-research-source-parity.json",
+      "target": "skills/research/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-resolving-merge-conflicts-bundle-manifest.json",
+      "bundle_root": "skills/resolving-merge-conflicts",
+      "name": "resolving-merge-conflicts",
+      "provenance": "provenance/mattpocock-resolving-merge-conflicts-provenance.md",
+      "source_id": "mattpocock-resolving-merge-conflicts",
+      "source_parity": "metadata/mattpocock-resolving-merge-conflicts-source-parity.json",
+      "target": "skills/resolving-merge-conflicts/SKILL.md"
     },
     {
       "bundle_manifest": "metadata/astral-ruff-bundle-manifest.json",
@@ -109,6 +154,24 @@
       "source_id": "humanlayer-skills",
       "source_parity": "metadata/humanlayer-skills-source-parity.json",
       "target": "skills/show-me/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-to-questionnaire-bundle-manifest.json",
+      "bundle_root": "skills/to-questionnaire",
+      "name": "to-questionnaire",
+      "provenance": "provenance/mattpocock-to-questionnaire-provenance.md",
+      "source_id": "mattpocock-to-questionnaire",
+      "source_parity": "metadata/mattpocock-to-questionnaire-source-parity.json",
+      "target": "skills/to-questionnaire/SKILL.md"
+    },
+    {
+      "bundle_manifest": "metadata/mattpocock-triage-bundle-manifest.json",
+      "bundle_root": "skills/triage",
+      "name": "triage",
+      "provenance": "provenance/mattpocock-triage-provenance.md",
+      "source_id": "mattpocock-triage",
+      "source_parity": "metadata/mattpocock-triage-source-parity.json",
+      "target": "skills/triage/SKILL.md"
     },
     {
       "bundle_manifest": "metadata/astral-ty-bundle-manifest.json",
@@ -138,6 +201,15 @@
       "target": "skills/wayfinder/SKILL.md"
     },
     {
+      "bundle_manifest": "metadata/mattpocock-wizard-bundle-manifest.json",
+      "bundle_root": "skills/wizard",
+      "name": "wizard",
+      "provenance": "provenance/mattpocock-wizard-provenance.md",
+      "source_id": "mattpocock-wizard",
+      "source_parity": "metadata/mattpocock-wizard-source-parity.json",
+      "target": "skills/wizard/SKILL.md"
+    },
+    {
       "bundle_manifest": "metadata/mattpocock-writing-for-agents-bundle-manifest.json",
       "bundle_root": "skills/writing-for-agents",
       "name": "writing-for-agents",
@@ -148,8 +220,8 @@
     }
   ],
   "summary": {
-    "bundle_file_count": 101,
-    "curated_skill_count": 16,
-    "shipped_skill_directories": 16
+    "bundle_file_count": 114,
+    "curated_skill_count": 24,
+    "shipped_skill_directories": 24
   }
 }

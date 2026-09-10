@@ -69,6 +69,7 @@ REQUIRED_SOURCE_MODULES = (
     "paths.py",
     "runner.py",
     "upstreams.py",
+    "upstream_catalog.py",
 )
 REQUIRED_POWER_ASSETS = (
     SKILL_PARITY_ASSET.as_posix(),
@@ -109,7 +110,7 @@ version = "{__version__}"
 description = "Repo-local {DISPLAY_NAME} project control surface"
 requires-python = ">=3.11"
 dependencies = [
-  "cyclopts==4.23.2",
+  "cyclopts==4.25.2",
   "PyYAML>=6.0.2,<7",
   "markdown-it-py>=4,<5",
   "agent-client-protocol==0.12.1",
@@ -771,6 +772,9 @@ def _validate_power_assets(asset_root: Path, source_package: Path) -> None:
         joined = ", ".join(sorted(missing))
         raise ValueError(f"required {DISPLAY_NAME} Power assets are missing: {joined}")
     _validate_skill_catalog(asset_root)
+    from pkstack.upstream_catalog import validate_catalog
+
+    validate_catalog(asset_root)
 
 
 def _validate_skill_catalog(asset_root: Path) -> tuple[str, ...]:

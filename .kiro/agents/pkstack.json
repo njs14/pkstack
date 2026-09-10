@@ -95,7 +95,15 @@
           ".kiro/skills/ruff/**",
           ".kiro/skills/ty/**",
           ".kiro/skills/impeccable/**",
-          ".kiro/skills/babysit-pr/**"
+          ".kiro/skills/babysit-pr/**",
+          ".kiro/skills/research/**",
+          ".kiro/skills/diagnosing-bugs/**",
+          ".kiro/skills/improve-codebase-architecture/**",
+          ".kiro/skills/handoff/**",
+          ".kiro/skills/resolving-merge-conflicts/**",
+          ".kiro/skills/to-questionnaire/**",
+          ".kiro/skills/triage/**",
+          ".kiro/skills/wizard/**"
         ],
         "effect": "deny"
       },

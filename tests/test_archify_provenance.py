@@ -124,7 +124,7 @@ def test_archify_patch_reconstructs_the_recorded_upstream_bytes(tmp_path: Path) 
     _assert_runtime_identity(bundle, inventory, record)
     git = shutil.which("git")
     if git is None:
-        pytest.skip("Git is required to verify the recorded local patch")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Git is required to verify the recorded local patch")
     work = tmp_path / "reconstructed"
     for item in record["patches"]:
         target = work / item["path"]

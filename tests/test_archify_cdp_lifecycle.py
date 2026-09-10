@@ -10,7 +10,7 @@ import pytest
 def test_archify_cdp_lifecycle() -> None:
     node = shutil.which("node")
     if node is None:
-        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Archify requires optional Node.js 18+")
     result = subprocess.run(
         [node, "--test", str(Path(__file__).with_suffix(".mjs"))],
         capture_output=True,

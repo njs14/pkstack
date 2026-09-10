@@ -118,6 +118,14 @@ remain under `create-verification-skill`.
 
 ## Investigation
 
+Use [research](../../research/SKILL.md) for primary-source reading and cited reports. Use
+[improve-codebase-architecture](../../improve-codebase-architecture/SKILL.md) for a scoped visual
+survey of refactoring candidates, then architect for the selected interface decision.
+Issue and external-PR classification uses [triage](../../triage/SKILL.md); a questionnaire for
+another person's missing knowledge uses [to-questionnaire](../../to-questionnaire/SKILL.md).
+Human-only setup guidance uses [wizard](../../wizard/SKILL.md). An in-progress Git conflict uses
+[resolving-merge-conflicts](../../resolving-merge-conflicts/SKILL.md), preserving operation authority.
+
 1. Restate the question and the evidence that would answer it.
 2. Inspect the real project surface and authoritative local sources read-only.
 3. Follow the relevant execution path, data shape, callers, and boundaries; use `how`, `why`, or
@@ -126,6 +134,8 @@ remain under `create-verification-skill`.
 5. Return a cited finding. Do not implement a fix unless the request includes implementation.
 
 ## Bug fix
+
+Use [diagnosing-bugs](../../diagnosing-bugs/SKILL.md) as the shared reproduction and hypothesis method for these checkpoints. Native Bug Fix retains planning ownership.
 
 1. Reproduce the failure on the matching user surface, then route it through Kiro's native Bug Fix
    workflow unless the native-workflow skip rule applies. If it does not reproduce, tighten the trigger
@@ -141,6 +151,8 @@ remain under `create-verification-skill`.
 6. Report the broken behavior, root cause, smallest justified fix, and failing/passing evidence.
 
 ## Performance issue
+
+Use [diagnosing-bugs](../../diagnosing-bugs/SKILL.md) for the measurement loop, competing hypotheses, and cleanup; compare the same workload before and after.
 
 1. Capture a representative baseline trace or measurement before reading a fix into the source.
 2. Use `how` to connect the trace to the architecture. Generate hypotheses from elimination,
@@ -213,11 +225,13 @@ remain under `create-verification-skill`.
 
 ## Prototype
 
+Read [the prototype methods](pocock-prototype/README.md) to distinguish logic/state exploration from visual alternatives. Keep state observable and retain the question, observations, and accepted conclusion through the existing knowledge lifecycle.
+
 1. Name the decision the prototype must settle. A prototype without a decision routes to Feature.
 2. Gather references when the design space is open.
 3. Build the smallest throwaway artifact in an isolated scratch directory, outside production
    source. Do not give it production abstractions or silently promote it.
-4. Put alternatives behind one labeled switcher where possible.
+4. For visual alternatives, use one labeled switcher where possible. For logic/state exploration, provide free-play actions and guided scenarios with visible state after each transition.
 5. Observe the choice on the matching surface: screenshots for visual behavior, direct output or
    timing for functional behavior.
 6. Return evidence, tradeoffs, a recommendation, and the scratch path, then hand the chosen direction
@@ -361,6 +375,8 @@ narration, full commit histories, or long metric tables. For a performance claim
 before-and-after value and its unit, and link the method and remaining results.
 
 ## Pause safely
+
+Use [handoff](../../handoff/SKILL.md) when producing the resume document; it supplies exact-state and evidence-freshness details for these checkpoints.
 
 1. Finish or back out of the current atomic step and start nothing new.
 2. Do not cross an irreversible boundary merely to make the pause tidy.

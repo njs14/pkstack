@@ -47,6 +47,7 @@ from pkstack.knowledge import status as knowledge_status
 from pkstack.knowledge import validate as validate_knowledge
 from pkstack.models import CommandSpec, EvidenceVerdict, FeatureEntrypoint, FeatureSubFeature
 from pkstack.runner import CommandRejected, display_command, parse_command, run_command
+from pkstack.upstream_catalog import check_catalog
 from pkstack.upstreams import (
     DEFAULT_MANIFEST,
     DEFAULT_PROPOSAL,
@@ -774,6 +775,25 @@ def knowledge_search_command(
             f"\nReturned context: {payload['estimatedTokens']}/{payload['budget']} "
             "estimated tokens; internal model consumption is separate."
         )
+    if not payload["ok"]:
+        raise SystemExit(1)
+
+
+@upstream_app.command(name="catalog")
+def upstream_catalog_command(
+    *,
+    power_root: Path = Path("powers/pkstack"),
+    root: Path = Path("."),
+    offline: bool = False,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+    output: Output = "text",
+) -> None:
+    """Report Pocock catalog completeness and additions without accepting or installing."""
+    try:
+        payload = check_catalog(root / power_root, offline=offline, timeout_seconds=timeout_seconds)
+    except (OSError, UpstreamError, ValueError) as exc:
+        _fail(exc, output)
+    _emit(payload, output)
     if not payload["ok"]:
         raise SystemExit(1)
 

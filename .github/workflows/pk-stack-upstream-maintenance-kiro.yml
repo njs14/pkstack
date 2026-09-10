@@ -165,6 +165,8 @@ jobs:
           fetch-depth: 1
       - name: Install uv
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.12"
       - name: Snapshot immutable sensor and controller
         env:
           BASE_SHA: ${{ needs.plan.outputs.base_sha }}
@@ -250,6 +252,25 @@ jobs:
             printf 'selected_source_id=%s\n' "$selected_source_id"
             printf 'retrieved_on=%s\n' "$retrieved_on"
           } >>"$GITHUB_OUTPUT"
+      - name: Report Pocock catalog additions
+        env:
+          TRUSTED_ROOT: ${{ runner.temp }}/pkstack-trusted
+          EVIDENCE_ROOT: ${{ runner.temp }}/pkstack-loop-evidence
+          READONLY_GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          trusted_projectctl="$TRUSTED_ROOT/.pkstack/projectctl"
+          catalog_path="$EVIDENCE_ROOT/upstream-catalog.json"
+          catalog_status=0
+          GITHUB_TOKEN="$READONLY_GITHUB_TOKEN" \
+            PYTHONPATH="$trusted_projectctl/src" \
+            "$trusted_projectctl/.venv/bin/python" -B -m pkstack upstream catalog \
+            --power-root powers/pkstack --output json >"$catalog_path" || catalog_status=$?
+          {
+            printf '### Pocock catalog (advisory; exit %s)\n\n```json\n' "$catalog_status"
+            cat "$catalog_path"
+            printf '\n```\nNew skills require a reviewed disposition; they are not installed automatically.\n'
+          } >>"$GITHUB_STEP_SUMMARY"
       - name: Upload bounded detector evidence
         id: upload
         if: steps.detect.outputs.needs_maintenance == 'true'
@@ -357,6 +378,7 @@ jobs:
       - name: Install uv and materialize protected lockfiles
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
+          version: "0.12.12"
           enable-cache: true
           cache-dependency-glob: uv.lock
       - name: Materialize locked environments and trusted scripts

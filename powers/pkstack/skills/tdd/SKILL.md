@@ -19,3 +19,5 @@ not speculative combinatorics.
 If a failing-first test is impractical because the only surface is destructive, external, or not
 locally reproducible, say why and establish the safest executable characterization available before
 editing. Return red evidence, change, green evidence, and remaining untested risk.
+
+Read [the public-interface testing method](references/pocock-tdd/README.md) for vertical slices, independent expected values, and meaningful boundary substitutes. Reuse settled testing decisions without repeated approval questions.

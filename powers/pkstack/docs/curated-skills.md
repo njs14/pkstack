@@ -13,7 +13,7 @@ supervision workflow. Both are Kiro-native instruction ports with explicit runti
 | --- | --- | --- |
 | [Poteto’s pstack in Cursor plugins](https://github.com/cursor/plugins/tree/main/pstack) | Engineering workflows, verification, reviews, and principles | Preserve the working method; use Kiro’s native planning and subagents in place of Cursor-specific orchestration. [Full mapping](../provenance/upstream-skill-parity.md). |
 | [HumanLayer skills](https://github.com/humanlayer/skills) | `show-me`, `design-control-loop`, `build-iterated-agentic-loop`, `narrow-react-prop-types` | Visual explanations, bounded automation, and live-call-site type narrowing. Replace provider-specific execution and broad permissions with the Kiro boundary. |
-| [Matt Pocock skills](https://github.com/mattpocock/skills) | `writing-for-agents`, `grilling`, `grill-me`, `domain-modeling`, `grill-with-docs` | Clear agent instructions, focused decision interviews, and reusable project definitions and decisions. Native skills remain outside Wiki; only their project knowledge output belongs there. |
+| [Matt Pocock skills](https://github.com/mattpocock/skills) | `writing-for-agents`, `grilling`, `grill-me`, `domain-modeling`, `grill-with-docs`, and eight engineering skills | Clear agent instructions, focused decision interviews, and reusable project definitions and decisions. Native skills remain outside Wiki; only their project knowledge output belongs there. |
 | [Astral](https://github.com/astral-sh/claude-code-plugins) | `uv`, `ruff`, `ty` | Project-aware Python environments, scripting, lint/format, and typing; [reviewed Kiro adaptations](../provenance/astral-python-provenance.md). |
 | [Impeccable](https://github.com/pbakaus/impeccable) | `impeccable` | Frontend design, critique, audit, and refinement methods; excludes binary downloads, detector hooks, font data, and live runtime. [Adaptation](../provenance/pbakaus-impeccable-provenance.md). |
 | [OpenAI Codex](https://github.com/openai/codex) | `babysit-pr` | Shared PR supervision through existing GitHub tooling; preserves PKStack's completion, retry, and authorization rules. [Adaptation](../provenance/openai-babysit-pr-provenance.md). |
@@ -51,6 +51,14 @@ Use `/poteto-kiro-mode` for the overall task. A helper should contribute a disti
 | Understand an existing system | `how` for mechanics, `why` for rationale; `teach` composes those findings |
 | Design an automation | `design-control-loop`, then `build-iterated-agentic-loop` when implementation is requested |
 | Finish the current task | `pkstack-verified-goal`; it does not build a scheduler |
+| Research a bounded question | `research`; primary-source citations and a local report |
+| Diagnose a bug or slowdown | `diagnosing-bugs`; reproduction, competing hypotheses, and original-scenario proof |
+| Survey refactoring opportunities | `improve-codebase-architecture`; visual candidates, then `architect` for a selected design |
+| Pause or transfer work | `handoff`; exact state, reusable evidence, and the next action |
+| Resolve merge or rebase conflicts | `resolving-merge-conflicts`; integrate intent and stage only owned paths |
+| Obtain another person's knowledge | `to-questionnaire`; reuse known answers and write an unsent document |
+| Classify issues and external PRs | `triage`; verify claims, check prior decisions, and prepare a brief |
+| Guide human-only setup | `wizard`; generate and locally test a guide without running account changes |
 | Manage Python environments and scripts | `uv`; preserve project locks and standalone dependency boundaries |
 | Lint, format, and type-check Python | `ruff` and `ty`; keep behavioral verification in the existing task |
 | Tighten React props | `narrow-react-prop-types`, grounded in live call sites |
@@ -123,3 +131,22 @@ The Archify bundle is offline-capable on Node.js 18 or newer. The Node capabilit
 The `uv`, `ruff`, and `ty` skills are ported from [Astral](https://github.com/astral-sh/claude-code-plugins/tree/f3ce88a7ba830f53afd6d944c1d0278ed318e142).
 Their [provenance and adaptations](../provenance/astral-python-provenance.md) retain upstream identities and
 separate Kiro skill behavior from Claude plugin installation and language-server configuration.
+
+## Pocock accounting
+
+The [complete disposition catalog](../metadata/mattpocock-skill-catalog.json) accounts for all
+37 entrypoints at the pinned source revision. Thirteen are imported, four methods are consolidated,
+six are covered by existing workflows, Wayfinder is deferred by choice, and thirteen are excluded.
+Nested resources have their own original source inventories and adapted bundle manifests.
+
+The design method extends `architect`, the separate specification/standards axes extend
+`interrogate`, public-interface guidance extends the existing `tdd`, and logic/state versus visual
+exploration extends PKStack's Prototype workflow. Existing Poteto `tdd` and `teach` identities stay
+intact. Experimental skills, personal/platform-specific routines, and the separate teaching
+workspace are outside this integration.
+
+Maintainers can run `.pkstack/bin/projectctl upstream catalog --output json` in the PKStack
+repository to compare the pinned catalog with current upstream entrypoints. Add `--offline` for
+checked-in completeness and bundle validation. New entries require an explicit reviewed disposition;
+the command never installs or accepts them. A newly discovered skill does not block an unrelated
+source's maintenance candidate. Native Plan keeps all these methods read-only and conversational.

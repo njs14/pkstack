@@ -14,7 +14,7 @@ RUNTIME = TESTS.parent / "powers/pkstack/skills/archify/upstream"
 def _node() -> str:
     node = shutil.which("node")
     if node is None:
-        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Archify requires optional Node.js 18+")
     return node
 
 

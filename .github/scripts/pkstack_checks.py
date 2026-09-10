@@ -283,6 +283,8 @@ def run_policy(root):
             ],
             [
                 "shellcheck",
+                "powers/pkstack/skills/wizard/template.sh",
+                "powers/pkstack/skills/diagnosing-bugs/scripts/hitl-loop.template.sh",
                 *[
                     str(p.relative_to(root))
                     for p in sorted((root / ".github/scripts").glob("*.sh"))
@@ -317,6 +319,22 @@ def run_policy(root):
     ]
     run_commands(
         [
+            [
+                "uv",
+                "run",
+                "--frozen",
+                "--project",
+                ".",
+                "python",
+                "-B",
+                "-m",
+                "pkstack",
+                "upstream",
+                "catalog",
+                "--offline",
+                "--output",
+                "json",
+            ],
             ["./.pkstack/bin/projectctl", "version", "--output", "json"],
             ["./.pkstack/bin/projectctl", "feature", "validate", "--output", "json"],
             knowledge,

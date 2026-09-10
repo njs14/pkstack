@@ -1,0 +1,100 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "3180715edb37f6e96bec42f92f00169faa8886ef",
+        "size": 102,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "3180715edb37f6e96bec42f92f00169faa8886ef",
+        "size": 102,
+        "type": "blob"
+      },
+      "rationale": "Provider UI metadata is inventoried and excluded from the native Kiro bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "cd94075cfd754d147555c5d747a16431ed4c7dd8",
+        "size": 2553,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "DEEPENING.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "cd94075cfd754d147555c5d747a16431ed4c7dd8",
+        "size": 2553,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing architect owner with no duplicate skill command."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "7edc861a31b1b219b933af18079f66b564c5de67",
+        "size": 2664,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "DESIGN-IT-TWICE.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "7edc861a31b1b219b933af18079f66b564c5de67",
+        "size": 2664,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing architect owner with no duplicate skill command."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "3f63c8146dd2604b419c929e9876b90c30d410e9",
+        "size": 6446,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "3f63c8146dd2604b419c929e9876b90c30d410e9",
+        "size": 6446,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing architect owner with no duplicate skill command."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "344e3efc88ee60663b2e989555c2efdb548fbd42"
+    },
+    "id": "mattpocock-codebase-design",
+    "path": "skills/engineering/codebase-design",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "344e3efc88ee60663b2e989555c2efdb548fbd42"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-10"
+  },
+  "summary": {
+    "A": 3,
+    "B": 0,
+    "C": 1,
+    "current_files": 4,
+    "pinned_files": 4
+  }
+}

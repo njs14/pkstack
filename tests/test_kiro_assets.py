@@ -188,12 +188,12 @@ def test_skill_routing_review_fixture_is_strict_and_names_real_skills() -> None:
         return result
 
     raw = ROUTING_FIXTURE_PATH.read_text(encoding="utf-8")
-    assert raw.endswith("\n") and len(raw.encode()) <= 28 * 1024
+    assert raw.endswith("\n") and len(raw.encode()) <= 36 * 1024
     fixture = json.loads(raw, object_pairs_hook=unique_object)
     assert set(fixture) == {"schema_version", "cases"}
     assert type(fixture["schema_version"]) is int and fixture["schema_version"] == 1
     cases = fixture["cases"]
-    assert isinstance(cases, list) and 1 <= len(cases) <= 56
+    assert isinstance(cases, list) and 1 <= len(cases) <= 72
     ids: set[str] = set()
     primary_routes: set[str] = set()
     for case in cases:
@@ -1170,7 +1170,7 @@ def test_installed_kiro_discovers_every_workspace_agent_with_221_sentinel(
 ) -> None:
     kiro = shutil.which("kiro-cli")
     if kiro is None:
-        pytest.skip("kiro-cli is not installed")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("kiro-cli is not installed")
     workspace_agents = tmp_path / ".kiro" / "agents"
     shutil.copytree(AGENTS, workspace_agents)
 

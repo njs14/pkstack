@@ -49,6 +49,17 @@ The [CI rollout record](../pkstack/quality-and-ci.md#hosted-rollout-and-measurem
 elapsed and runner time. All seven workflows remain paused until explicitly authorized to resume;
 the usage-limit block and new hosted lifecycle measurements remain outside local proof.
 
+## Complete skill catalog accounting
+
+The [control-loop guide](../../../docs/upstream-control-loop.md) defines a read-only Pocock catalog
+check alongside source-scoped maintenance. Every pinned skill entrypoint has a disposition and a
+rationale; the offline check reconstructs the recorded Git tree and validates shipped resources.
+The existing detector job attaches live additions, removals, and missing dispositions as an
+advisory report. Catalog drift does not install skills or block an unrelated source transition;
+acceptance of a catalog refresh requires complete reviewed dispositions. The source capacity is
+32 for 25 registered imports, while existing per-source, concurrency, deadline, and review-context
+bounds remain unchanged.
+
 ## Read large updates in batches
 
 The detector validates the whole source transition. Review preparation exports an index and

@@ -202,3 +202,51 @@ The September 8 Archify port adds typed output and receipt-path checks, structur
 argument failures for JSON callers, and complete flushing of piped artifact receipts.
 Its four shipped resources retain exact upstream bytes. The existing viewer, sequence
 layout and CDP lifecycle adaptations remain separately recorded and tested.
+
+## Pocock engineering integration
+
+The approved engineering integration adds research, diagnosing-bugs, improve-codebase-architecture,
+handoff, resolving-merge-conflicts, to-questionnaire, triage, and wizard as native skills. Four
+methods extend existing owners: codebase-design into architect, code-review into interrogate, tdd
+into the existing Poteto-derived tdd, and prototype into PKStack's workflow references. This keeps
+one planning owner and avoids duplicate commands. The separate Pocock teaching workspace and
+Wayfinder are outside the selected implementation; Wayfinder remains explicitly deferred.
+
+The [complete catalog](../../../powers/pkstack/metadata/mattpocock-skill-catalog.json) records every
+upstream entrypoint, including covered, deferred, and excluded methods. Offline validation
+reconstructs the pinned repository tree from original Git identities, checks exhaustive entrypoint
+accounting, and verifies shipped resources. Original source identities never become adapted hashes.
+The read-only catalog command reports current additions/removals; accepting a catalog update still
+requires reviewed dispositions. Its live report is advisory in the existing maintenance job.
+
+The active source inventory grows from 13 to 25. The explicit controller and trusted-detector
+capacity is 32; per-source limits, four-request concurrency, the 30-second network budget, and the
+64 KiB automated review context remain unchanged. A larger manual review must cover the whole
+candidate; the limit is not silently increased to make that candidate pass.
+
+Research findings and triage decisions retain knowledge through the existing OKF lifecycle.
+Handoffs reference authoritative artifacts and mark stale evidence. Questionnaires remain unsent
+without posting authority. Conflict resolution preserves both intents and unrelated dirty/staged
+work. The wizard writes literal POSIX shell assignments atomically with mode 0600; the author must
+verify consumer parser compatibility before choosing an application `.env` path. Its generated
+human procedure, disposable test execution, and real account changes have distinct authority.
+
+The upstream Poteto claim-evidence rule is adapted within native mode boundaries: claims carry
+observed evidence or explicit inference/unknown labels, and agents perform available authorized
+checks. A native Plan or human-only access limitation stays explicit rather than becoming a fake
+pass or a command executed outside the active mode.
+
+| Source record | Retained integration decision |
+| --- | --- |
+| [code-review provenance](../../../powers/pkstack/provenance/mattpocock-code-review-provenance.md) | Separate specification conformance from repository-standard conformance in interrogate, with evidence and independent findings. |
+| [codebase-design provenance](../../../powers/pkstack/provenance/mattpocock-codebase-design-provenance.md) | Architect retains deep-module, interface, testability, and alternative-design methods while native planning owns execution. |
+| [diagnosing-bugs provenance](../../../powers/pkstack/provenance/mattpocock-diagnosing-bugs-provenance.md) | Reproduce and minimize the symptom, test competing hypotheses, verify the original scenario, and remove temporary instrumentation. |
+| [handoff provenance](../../../powers/pkstack/provenance/mattpocock-handoff-provenance.md) | Resume records carry intent, exact working state, decisions, evidence, unresolved work, and next action through existing session semantics. |
+| [improve-codebase-architecture provenance](../../../powers/pkstack/provenance/mattpocock-improve-codebase-architecture-provenance.md) | Bound surveys by user scope or history hotspots, respect settled decisions, and compare visual alternatives before native planning. |
+| [prototype provenance](../../../powers/pkstack/provenance/mattpocock-prototype-provenance.md) | PKStack distinguishes logic/state exploration from visual alternatives and retains observable conclusions without adding another planner. |
+| [research provenance](../../../powers/pkstack/provenance/mattpocock-research-provenance.md) | Bound primary-source research, cite findings, and distinguish temporary work from retained OKF knowledge. |
+| [resolving-merge-conflicts provenance](../../../powers/pkstack/provenance/mattpocock-resolving-merge-conflicts-provenance.md) | Recover both intents, preserve unrelated staged and dirty work, stage only owned resolved paths, and follow existing operation authority. |
+| [tdd provenance](../../../powers/pkstack/provenance/mattpocock-tdd-provenance.md) | Preserve the existing Poteto-derived skill and settled testing choices while adding public-interface tests and boundary-focused mocking guidance. |
+| [to-questionnaire provenance](../../../powers/pkstack/provenance/mattpocock-to-questionnaire-provenance.md) | Use known answers to prepare focused recipient-specific questions as an unsent artifact. |
+| [triage provenance](../../../powers/pkstack/provenance/mattpocock-triage-provenance.md) | Verify issues and external PR claims, duplicates, and previous decisions; default to local briefs without external mutation authority. |
+| [wizard provenance](../../../powers/pkstack/provenance/mattpocock-wizard-provenance.md) | Generate human-run procedures with hidden input and atomic literal 0600 shell assignments; disposable validation does not authorize account changes. |
