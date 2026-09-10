@@ -42,7 +42,10 @@ Preview is read-only and existing user edits survive attempted refresh.
 
 ### `routing`
 
-The advisory entry and two representative scenarios point to real shipped skills.
+The advisory entry and representative scenarios point to real shipped skills. Instruction
+contracts require observed destination reads, separate native Spec commands from subsequent
+context, distinguish task approval from requirements/design approval, and preserve native
+Plan handoff ownership. Text assertions protect those instructions, not model obedience.
 
 ## How to get to it (user POV)
 
@@ -78,7 +81,10 @@ The skill is registered, reference pointers resolve, and advisory scenarios reta
 
 ## Evidence boundary
 
-This verifier covers packaged registration, pointers, setup effects and declared routing cases. Native CLI behavior, IDE discovery, advice quality, and permission-runtime selection require separate observations.
+This verifier covers packaged registration, pointers, setup effects and declared routing cases.
+Native CLI behavior, IDE discovery, advice quality, and permission-runtime selection require
+separate observations. The [0.7.1 native campaign](../../reviews/native-guide-071/README.md)
+records those observations with source hashes, failures, and surface limits.
 
 ## Cleanup boundary
 

@@ -6,6 +6,22 @@ match it.
 
 ## [Unreleased]
 
+## [0.7.1]
+
+- Correct guide handoffs to separate `/spec new <name>` or `/spec <name>` from
+  the following context message. Document the native Spec viewer's Continue
+  action and distinguish task approval from requirements/design approval.
+- Make the advisory reading pass explicit: inspect relevant project artifacts,
+  read complete destination skills, preserve unknown implementation state, and
+  keep native Plan ownership and existing execution authority intact.
+- Record native CLI profile/policy acceptance, interactive Plan and Spec command
+  transitions, and successful downloaded-asset verification of v0.7.0.
+
+Native advice acceptance remains mixed: final runs still skipped some required
+reads, and one requested a shell command that native policy rejected. This patch
+does not claim universal guide compliance, completed Spec implementation, IDE,
+Crew, Web, or hosted CI acceptance. GitHub Actions remain manually disabled.
+
 ## [0.7.0]
 
 - Integrate `/wayfinder` for cross-session decision maps with GitHub Cloud or
