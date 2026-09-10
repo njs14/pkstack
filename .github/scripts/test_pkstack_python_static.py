@@ -12,12 +12,13 @@ import pkstack_python_static as static
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPECTED_BODIES = {
+    ("powers/pkstack/skills/wizard/template.sh", 29),
     (".github/scripts/run_kiro_maintenance_attempt.sh", 15),
     (".github/scripts/verify_pkstack_attempt.sh", 128),
     (".github/scripts/verify_pkstack_attempt.sh", 399),
     (".github/workflows/pk-stack-kiro-permission-smoke.yml", 100),
     (".github/workflows/pk-stack-kiro-permission-smoke.yml", 241),
-    (".github/workflows/pk-stack-upstream-maintenance-kiro.yml", 221),
+    (".github/workflows/pk-stack-upstream-maintenance-kiro.yml", 223),
 }
 
 

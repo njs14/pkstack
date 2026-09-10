@@ -1,0 +1,36 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/architect/references/pocock-codebase-design",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "DEEPENING.md",
+      "sha256": "e8b36453fffb4d22f0ec5e51076d434ee82047f0809b6f21cd454379fa83f995",
+      "size": 1196,
+      "source_path": "skills/engineering/codebase-design/DEEPENING.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "DESIGN-IT-TWICE.md",
+      "sha256": "8e24f7fe6c3acbbb2b881eacdb27e90e577190f6bc2b7f594c9e293d7f22a1e2",
+      "size": 1012,
+      "source_path": "skills/engineering/codebase-design/DESIGN-IT-TWICE.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "README.md",
+      "sha256": "a32b1c52d219d3bf1e7e57954e38cde047305c212a373be986f15db5cc50f8c0",
+      "size": 1215,
+      "source_path": "skills/engineering/codebase-design/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "codebase-design",
+  "summary": {
+    "byte_count": 3423,
+    "file_count": 3
+  }
+}

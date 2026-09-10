@@ -4,6 +4,20 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [0.6.0]
+
+- Add eight Kiro-native engineering skills: research, diagnosis, architecture surveys,
+  handoffs, merge-conflict resolution, questionnaires, triage, and human-run wizards.
+  Integrate Pocock's design, review, TDD, and prototyping methods into existing owners.
+- Account for all 37 Pocock skills at an immutable revision. Add a read-only catalog
+  report, offline completeness and bundle checks, and advisory maintenance reporting.
+  Preserve native planning, permission boundaries, source identity, and review limits.
+- Refresh Python development/runtime locks, pin CI uv, and update actionlint. Migrate
+  subprocess coverage to coverage.py and verify child execution. Incorporate the
+  Poteto claim-evidence update through source-bound acceptance.
+- Validate wizard quoting, hidden input, interruption, repeatable writes, and explicit
+  account targets with disposable fixtures. Preserve unrelated work during skill refresh.
+
 ## [0.5.12]
 
 - Document the full GitHub Power-directory URL and recovery from Kiro's empty

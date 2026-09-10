@@ -1,10 +1,10 @@
 [project]
 name = "pkstack"
-version = "0.5.12"
+version = "0.6.0"
 description = "Repo-local PKStack project control surface"
 requires-python = ">=3.11"
 dependencies = [
-  "cyclopts==4.23.2",
+  "cyclopts==4.25.2",
   "PyYAML>=6.0.2,<7",
   "markdown-it-py>=4,<5",
   "agent-client-protocol==0.12.1",

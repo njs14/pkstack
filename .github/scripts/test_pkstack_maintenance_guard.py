@@ -4064,6 +4064,15 @@ class DetectorTests(unittest.TestCase):
         )
         self.assertEqual(validated["validated_drift_heads"], ["5" * 40, "c" * 40])
 
+    def test_detector_source_capacity_accepts_32_and_rejects_33(self) -> None:
+        payload = detector_fixture()
+        for index in range(31):
+            add_detector_source(payload, source_id=f"capacity-{index}", drift=False)
+        self.assertTrue(self.validate(payload)["ok"])
+        add_detector_source(payload, source_id="capacity-overflow", drift=False)
+        with self.assertRaisesRegex(guard.GuardError, "bounded non-empty source list"):
+            self.validate(payload)
+
     def test_source_ids_match_the_bounded_controller_contract(self) -> None:
         for source_id in ("-alpha", "alpha-", "alpha--okf", "Alpha", "a" * 65):
             with self.subTest(source_id=source_id):

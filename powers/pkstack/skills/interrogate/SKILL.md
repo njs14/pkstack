@@ -72,3 +72,5 @@ Reviewers are advisory. Never auto-apply output, transfer credentials, or treat
 review consensus as verification. The current session owns remediation and
 executable acceptance; obtain authorization before any external or destructive
 action.
+
+Read [standards and specification review](references/pocock-code-review/README.md). Preserve independent results on those axes alongside the correctness and quality lenses; a pass on one cannot erase a finding on the other.

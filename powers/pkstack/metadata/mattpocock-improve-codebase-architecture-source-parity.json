@@ -1,0 +1,83 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "706fdca096da5937fe57875a9154017d50668c42",
+        "size": 166,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "706fdca096da5937fe57875a9154017d50668c42",
+        "size": 166,
+        "type": "blob"
+      },
+      "rationale": "Provider UI metadata is inventoried and excluded from the native Kiro bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "e39e8255b8797cf8257d014fb6658fb533f3a399",
+        "size": 6641,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "HTML-REPORT.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "e39e8255b8797cf8257d014fb6658fb533f3a399",
+        "size": 6641,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a578dd0a34ad0a8886abe7e7642b100106ba86d6",
+        "size": 5993,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a578dd0a34ad0a8886abe7e7642b100106ba86d6",
+        "size": 5993,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "3d35cd438f4067b03c8b3792e038960e4ac11526"
+    },
+    "id": "mattpocock-improve-codebase-architecture",
+    "path": "skills/engineering/improve-codebase-architecture",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "3d35cd438f4067b03c8b3792e038960e4ac11526"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-10"
+  },
+  "summary": {
+    "A": 2,
+    "B": 0,
+    "C": 1,
+    "current_files": 3,
+    "pinned_files": 3
+  }
+}

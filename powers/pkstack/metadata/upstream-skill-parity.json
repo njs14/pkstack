@@ -6,14 +6,14 @@
     "path": "pstack",
     "catalog_path": "skills",
     "pinned": {
-      "commit": "d7cde2b84eadbcd6fd890302c876f4436ccb6d82",
-      "pstack_subtree_sha": "e72ebb36069aef2d95af69504ada1a7253b4ad06"
-    },
-    "current": {
       "commit": "2b8ae2ee306f823d54879d3da7f8496b73c31d5d",
       "pstack_subtree_sha": "cf6f79b65a0608c77ab77ac8d4f22d440e96971a"
     },
-    "retrieved_on": "2026-09-08"
+    "current": {
+      "commit": "7366ac128bdf95f45e6734f412b49a4031800169",
+      "pstack_subtree_sha": "80a12496f72d5b699cb19746f81bc15132380363"
+    },
+    "retrieved_on": "2026-09-10"
   },
   "allowed_dispositions": [
     "direct-port",
@@ -896,7 +896,7 @@
         ]
       },
       "current": {
-        "package_tree_sha": "50f9ac10d4be30ce3b896e669f78876502485e0b",
+        "package_tree_sha": "f570503eae425b70d4f67b6c5936fb5ebde51f33",
         "files": [
           {
             "path": "playbooks/authoring-a-skill.md",
@@ -1208,8 +1208,8 @@
           },
           {
             "path": "SKILL.md",
-            "blob_sha": "22d8b0509c01b3bbbd2de90cae5765f970940726",
-            "size": 18529,
+            "blob_sha": "2de0216e7fbdac6b96b2d792acf1dc7b580f2aee",
+            "size": 18721,
             "handling": "semantic-source",
             "mode": "100644"
           }

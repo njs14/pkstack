@@ -100,6 +100,15 @@ behavior being claimed, rather than repeating the entire diagnostic campaign for
 Routine release work must not dispatch extra maintenance attempts after the two-repair budget is
 exhausted. Daily scheduling and source-bound rejection feedback remain responsible for recovery.
 
+## 0.6.0 engineering integration scope
+
+The [version notes](../../../CHANGELOG.md) describe eight newly discoverable engineering skills,
+four methods consolidated into existing owners, complete Pocock catalog accounting, and the
+repository dependency refresh. Package version 0.6.0 expresses the added consumer capabilities.
+The release still requires the frozen candidate's local checks, independent review, complete-tree
+merge comparison, reproducible archive, extracted-consumer validation, and published-byte receipt.
+These scope notes do not assert that those checks or publication have already completed.
+
 ## September 7 verification review candidate
 
 [PR #69](https://github.com/njs14/pkstack/pull/69) holds a scoped 0.5.3 guidance, repository-control and evidence

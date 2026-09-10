@@ -1,0 +1,100 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "1618b147965bc729b7bf3e8da5f130132067aadc",
+        "size": 100,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "1618b147965bc729b7bf3e8da5f130132067aadc",
+        "size": 100,
+        "type": "blob"
+      },
+      "rationale": "Provider UI metadata is inventoried and excluded from the native Kiro bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "32be86a0a5d9928db84b3988e55f9debe476ab40",
+        "size": 6036,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "LOGIC.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "32be86a0a5d9928db84b3988e55f9debe476ab40",
+        "size": 6036,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing pkstack owner with no duplicate skill command."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a0044501fe0d385b4d8575b610188ede9b236ccf",
+        "size": 2931,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a0044501fe0d385b4d8575b610188ede9b236ccf",
+        "size": 2931,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing pkstack owner with no duplicate skill command."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "3977951663490882c2632b40695d9f59a2fe2408",
+        "size": 6913,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "UI.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "3977951663490882c2632b40695d9f59a2fe2408",
+        "size": 6913,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Consolidated into the existing pkstack owner with no duplicate skill command."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "e41d92e171f074a2b6887d8f6faca4a15c83d1ca"
+    },
+    "id": "mattpocock-prototype",
+    "path": "skills/engineering/prototype",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "e41d92e171f074a2b6887d8f6faca4a15c83d1ca"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-10"
+  },
+  "summary": {
+    "A": 3,
+    "B": 0,
+    "C": 1,
+    "current_files": 4,
+    "pinned_files": 4
+  }
+}

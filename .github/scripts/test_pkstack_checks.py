@@ -484,7 +484,10 @@ class SharedGateTests(unittest.TestCase):
         self.assertEqual(argv[1][0], "shellcheck")
         self.assertIn("unittest", argv[2])
         self.assertEqual(argv[3], ["node", "--test", ".github/scripts/test_pkstack_pr_policy.js"])
-        self.assertEqual([command[1] for command in argv[4:]], ["version", "feature", "knowledge"])
+        self.assertEqual(
+            argv[4][-6:], ["pkstack", "upstream", "catalog", "--offline", "--output", "json"]
+        )
+        self.assertEqual([command[1] for command in argv[5:]], ["version", "feature", "knowledge"])
 
     def test_absent_tools_cannot_silently_skip_policy_coverage(self):
         for missing in ("uv", "bash", "jq", "node", "actionlint", "shellcheck"):

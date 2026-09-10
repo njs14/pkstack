@@ -15,7 +15,7 @@ import pytest
 def test_archify_rejects_a_segment_caption_without_clearance(tmp_path: Path) -> None:
     node = shutil.which("node")
     if node is None:
-        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Archify requires optional Node.js 18+")
     tests = Path(__file__).parent
     fixture = json.loads((tests / "fixtures/archify-account-request.sequence.json").read_text())
     fixture["segments"][0].update(
@@ -55,7 +55,7 @@ def test_archify_keeps_a_native_authored_caption_with_its_band(
 ) -> None:
     node = shutil.which("node")
     if node is None:
-        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Archify requires optional Node.js 18+")
     tests = Path(__file__).parent
     source = tests / "fixtures/archify-native-account-request.sequence.json"
     if previous_band != (150, 300):
@@ -101,7 +101,7 @@ def test_archify_reader_layout_and_exports(tmp_path: Path) -> None:
     assert profile in {"smoke", "full"}, f"Unknown PKSTACK_BROWSER_PROFILE: {profile}"
     node = shutil.which("node")
     if node is None:
-        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Archify requires optional Node.js 18+")
     result = subprocess.run(
         [node, str(Path(__file__).with_suffix(".mjs")), str(tmp_path)],
         text=True,
@@ -110,7 +110,7 @@ def test_archify_reader_layout_and_exports(tmp_path: Path) -> None:
         check=False,
     )
     if result.returncode == 77:
-        pytest.skip(result.stdout.strip())  # ty: ignore[too-many-positional-arguments]
+        pytest.skip(result.stdout.strip())
     assert result.returncode == 0, result.stdout + result.stderr
     receipt = json.loads(result.stdout)
     assert receipt["profile"] == profile
@@ -125,7 +125,7 @@ def test_archify_reader_closes_browser_after_startup_rejection(tmp_path: Path) -
     """A failed CDP attachment must still terminate the child and remove its profile."""
     node = shutil.which("node")
     if node is None:
-        pytest.skip("Archify requires optional Node.js 18+")  # ty: ignore[too-many-positional-arguments]
+        pytest.skip("Archify requires optional Node.js 18+")
     record_path = tmp_path / "browser.json"
     terminated_path = tmp_path / "terminated"
     chrome = tmp_path / "chrome"

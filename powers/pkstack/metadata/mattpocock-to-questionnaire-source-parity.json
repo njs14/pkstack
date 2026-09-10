@@ -1,0 +1,66 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a58d14765beb4acb4c9708b516310558e1308a22",
+        "size": 166,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a58d14765beb4acb4c9708b516310558e1308a22",
+        "size": 166,
+        "type": "blob"
+      },
+      "rationale": "Provider UI metadata is inventoried and excluded from the native Kiro bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "dadd0c00d6a350acaa15bb9ca1b96b20ead684ca",
+        "size": 2904,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "dadd0c00d6a350acaa15bb9ca1b96b20ead684ca",
+        "size": 2904,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "46dfbeeba12a9e52eef446676f42e7551023d9a9"
+    },
+    "id": "mattpocock-to-questionnaire",
+    "path": "skills/productivity/to-questionnaire",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "46dfbeeba12a9e52eef446676f42e7551023d9a9"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-10"
+  },
+  "summary": {
+    "A": 1,
+    "B": 0,
+    "C": 1,
+    "current_files": 2,
+    "pinned_files": 2
+  }
+}

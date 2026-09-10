@@ -357,3 +357,12 @@ runtime or route change. The `0.15.0` value is Cursor package metadata; PKStack 
 Kiro-owned release manifest and does not copy that version.
 
 <!-- pk-stack-upstream-review: {"inventory_sha256":"86878b71b7d2491bad202df83c1eff2164484356b5dd302dc4792b7418a3f0a5","new":{"commit":"2b8ae2ee306f823d54879d3da7f8496b73c31d5d","subtree_sha":"cf6f79b65a0608c77ab77ac8d4f22d440e96971a"},"path":"pstack","prior":{"commit":"d7cde2b84eadbcd6fd890302c876f4436ccb6d82","subtree_sha":"e72ebb36069aef2d95af69504ada1a7253b4ad06"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->
+
+## Claim evidence update at `7366ac1`
+
+The complete source comparison contains the Cursor package version bump to `0.15.1` and one
+Poteto reply rule. PKStack incorporates claim-level evidence or explicit inference/unknown labels
+and completes available authorized checks itself. Native Plan, permission restrictions, and
+human-only account steps retain their boundaries. Cursor registration stays excluded.
+
+<!-- pk-stack-upstream-review: {"inventory_sha256":"0159deb6723b7b4c212678d5e702adee9e679ae930071826429f0cd9a798c3a1","new":{"commit":"7366ac128bdf95f45e6734f412b49a4031800169","subtree_sha":"80a12496f72d5b699cb19746f81bc15132380363"},"path":"pstack","prior":{"commit":"2b8ae2ee306f823d54879d3da7f8496b73c31d5d","subtree_sha":"cf6f79b65a0608c77ab77ac8d4f22d440e96971a"},"repository":"cursor/plugins","source_id":"cursor-pstack"} -->

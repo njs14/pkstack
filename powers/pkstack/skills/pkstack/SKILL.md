@@ -107,6 +107,15 @@ Use the curated skills where their output fits the task:
 - visual explanation: [`show-me`](../show-me/SKILL.md); polished interactive diagrams:
   [`archify`](../archify/SKILL.md)
 - agent instructions: [`writing-for-agents`](../writing-for-agents/SKILL.md)
+- primary-source research and reports: [`research`](../research/SKILL.md)
+- bug or performance diagnosis: [`diagnosing-bugs`](../diagnosing-bugs/SKILL.md)
+- refactoring surveys: [`improve-codebase-architecture`](../improve-codebase-architecture/SKILL.md),
+  then `architect` for the selected interface design
+- pause and resume documents: [`handoff`](../handoff/SKILL.md)
+- in-progress Git conflicts: [`resolving-merge-conflicts`](../resolving-merge-conflicts/SKILL.md)
+- another person's missing knowledge: [`to-questionnaire`](../to-questionnaire/SKILL.md)
+- issue and external-PR classification: [`triage`](../triage/SKILL.md)
+- human-only setup guides: [`wizard`](../wizard/SKILL.md)
 - frontend design and refinement: [`impeccable`](../impeccable/SKILL.md)
 - PR checks and supervision: [`babysit-pr`](../babysit-pr/SKILL.md), also used by the Babysit workflow
 - React props broader than live callers need:
@@ -145,3 +154,8 @@ For Python work, use [uv](../uv/SKILL.md) for dependencies and script environmen
 [ruff](../ruff/SKILL.md) for lint/format, and [ty](../ty/SKILL.md) for typing.
 Read only the helpers relevant to the task and preserve the chosen toolchain unless migration
 is requested. These checks complement the existing behavioral tests and projectctl verification.
+
+Every material claim carries its evidence or an explicit observed, inferred, or unknown label
+where the claim is made. Run checks that are available and authorized instead of assigning them
+to the human. In native Plan or where access/permissions prevent execution, state the limitation
+and carry the proposed check into the permitted next step without claiming a result.

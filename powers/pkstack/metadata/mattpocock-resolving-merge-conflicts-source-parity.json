@@ -1,0 +1,66 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "331ffb9d38937877f51a5f867a66dc61eee259ae",
+        "size": 113,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "331ffb9d38937877f51a5f867a66dc61eee259ae",
+        "size": 113,
+        "type": "blob"
+      },
+      "rationale": "Provider UI metadata is inventoried and excluded from the native Kiro bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "bfb7e5606e231e6808979f623fce76a9aad4b71c",
+        "size": 918,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "bfb7e5606e231e6808979f623fce76a9aad4b71c",
+        "size": 918,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle. Replaces mandatory stage-all, commit, continuation, and no-abort rules with intent-preserving owned-path resolution and user-authorized Git operation control."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "77f0d7de3143abbf03e55a63522d30bff31ae908"
+    },
+    "id": "mattpocock-resolving-merge-conflicts",
+    "path": "skills/engineering/resolving-merge-conflicts",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "77f0d7de3143abbf03e55a63522d30bff31ae908"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-10"
+  },
+  "summary": {
+    "A": 1,
+    "B": 0,
+    "C": 1,
+    "current_files": 2,
+    "pinned_files": 2
+  }
+}

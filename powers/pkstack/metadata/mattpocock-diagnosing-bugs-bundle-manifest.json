@@ -1,0 +1,28 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/diagnosing-bugs",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "scripts/hitl-loop.template.sh",
+      "sha256": "3e692b56ffa31f67300f92c7d2d2357b74b4ff126fc4f6a2867b25c8ab63b8b4",
+      "size": 908,
+      "source_path": "skills/engineering/diagnosing-bugs/scripts/hitl-loop.template.sh"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "6043636f8f6cfdce23cda92398f73e54fa001a631fee1256303e3f871833c57e",
+      "size": 3381,
+      "source_path": "skills/engineering/diagnosing-bugs/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "diagnosing-bugs",
+  "summary": {
+    "byte_count": 4289,
+    "file_count": 2
+  }
+}

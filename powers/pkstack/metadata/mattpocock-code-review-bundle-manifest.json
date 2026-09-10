@@ -1,0 +1,20 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/interrogate/references/pocock-code-review",
+  "files": [
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "README.md",
+      "sha256": "343b7950fc9b015edc9f187d09c20076a79bf2cab7a448759cf159c86693ab5d",
+      "size": 1856,
+      "source_path": "skills/engineering/code-review/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "code-review",
+  "summary": {
+    "byte_count": 1856,
+    "file_count": 1
+  }
+}

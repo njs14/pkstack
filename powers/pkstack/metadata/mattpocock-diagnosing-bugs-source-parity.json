@@ -1,0 +1,83 @@
+{
+  "allowed_dispositions": [
+    "A",
+    "B",
+    "C"
+  ],
+  "artifact_type": "source-inventory",
+  "files": [
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "a13a755a77634ce61a649a3a0d905a66d3865b35",
+        "size": 103,
+        "type": "blob"
+      },
+      "disposition": "C",
+      "path": "agents/openai.yaml",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "a13a755a77634ce61a649a3a0d905a66d3865b35",
+        "size": 103,
+        "type": "blob"
+      },
+      "rationale": "Provider UI metadata is inventoried and excluded from the native Kiro bundle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "243198464a8401a7ba1d63b3708fa43c3d067665",
+        "size": 1316,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "scripts/hitl-loop.template.sh",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "243198464a8401a7ba1d63b3708fa43c3d067665",
+        "size": 1316,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle."
+    },
+    {
+      "current": {
+        "mode": "100644",
+        "object_sha": "061c25a524acaa93d4534e9e08a793c0a5fe45fd",
+        "size": 8529,
+        "type": "blob"
+      },
+      "disposition": "A",
+      "path": "SKILL.md",
+      "pinned": {
+        "mode": "100644",
+        "object_sha": "061c25a524acaa93d4534e9e08a793c0a5fe45fd",
+        "size": 8529,
+        "type": "blob"
+      },
+      "rationale": "Preserves the engineering method while retaining native Kiro planning, settled decisions, existing authorization, and the OKF lifecycle."
+    }
+  ],
+  "schema_version": 1,
+  "source": {
+    "current": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "99bd56983e42bc752c52da67f1112e4121781cd1"
+    },
+    "id": "mattpocock-diagnosing-bugs",
+    "path": "skills/engineering/diagnosing-bugs",
+    "pinned": {
+      "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+      "subtree_sha": "99bd56983e42bc752c52da67f1112e4121781cd1"
+    },
+    "repository": "mattpocock/skills",
+    "retrieved_on": "2026-09-10"
+  },
+  "summary": {
+    "A": 2,
+    "B": 0,
+    "C": 1,
+    "current_files": 3,
+    "pinned_files": 3
+  }
+}
