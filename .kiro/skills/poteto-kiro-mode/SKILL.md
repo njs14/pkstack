@@ -65,7 +65,10 @@ settled choices, rationale, evidence links, and open questions forward, and expl
 native workflow to read `.kiro/skills/grilling/SKILL.md`. Do not assume built-in agents inherit
 this profile's loaded skills. Do not change built-in agents or global configuration to force it.
 In CLI v3, use `/plan <request>` for a conversational plan, or `/spec new <name>` and choose
-Feature, Quick Spec, or Bug, or `/spec <name>` to resume. For Spec-backed execution, return with
+Feature, Quick Spec, or Bug, or `/spec <name>` to resume. If that opens the document viewer,
+choose its **Continue** action (`C` in the audited CLI 2.21.2) to resume the Spec agent before
+sending the carried context. Viewing or continuing a conversation is not task approval.
+For Spec-backed execution, return with
 `/agent swap pkstack` after native approval and when execution is permitted. Conversational Plan
 keeps Kiro's own approval-to-execution handoff, so do not direct a return to `pkstack` after Plan
 approval. In the IDE, use **Build with spec** or the Spec, Quick Spec, or Bug

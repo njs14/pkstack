@@ -115,6 +115,26 @@ does not assert a hosted pass or publication before those steps complete. The
 [native guide observations](native-kiro-composition.md#september-10-guide-observations-and-limits)
 retain their behavioral gaps and do not establish release-wide CLI or IDE acceptance.
 
+### Subsequent asset verification and 0.7.1 patch scope
+
+The owner first waived post-publication downloading for 0.7.0, then explicitly requested
+asset verification and native acceptance. The subsequent read-only check downloaded all
+three assets from [v0.7.0](https://github.com/njs14/pkstack/releases/tag/v0.7.0): the archive,
+checksum, and local release receipt. Their bytes matched the approved local package, with
+release, asset, tag, and main identities checked before and after. Archive SHA-256 was
+`7f4d1ae0218a6a35adbdf1006ce5dda4636bb5084b4c461045a3bad5f52000b9`.
+That publication result is local evidence; no additional receipt was uploaded and no hosted
+CI run is implied.
+
+The [0.7.1 native packet](../../../reviews/native-guide-071/README.md) records the fresh
+CLI acceptance, observed command/reference failures, scoped guidance corrections, and
+remaining limits. A successful runtime exit and unchanged fixture do not alone pass advice
+quality. Preserve intermediate failures and source identities rather than converting a
+structural test or a later isolated success into universal acceptance. The patch keeps the
+primary profile, permission ownership, and upstream inventory unchanged. Final release
+requires its own checks, independent review, and publication verification; this scope record
+does not assert that an unperformed merge or release has completed.
+
 ## 0.6.0 engineering integration scope
 
 The [version notes](../../../CHANGELOG.md) describe eight newly discoverable engineering skills,

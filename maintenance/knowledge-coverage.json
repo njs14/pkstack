@@ -2,6 +2,16 @@
   "schema_version": 1,
   "entries": [
     {
+      "path": "reviews/native-guide-071/README.md",
+      "sha256": "1c53cf2e9795ac6869bdb7ca8f852cc46c820adda9236e47cb77eb93c5e5156b",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/native-kiro-composition.md",
+        "Wiki/knowledge/pkstack/release-and-review.md"
+      ],
+      "summary": "The 0.7.1 campaign distinguishes native profile and policy acceptance, interactive Plan and Spec transitions, and corrected command guidance from remaining reference-reading and rejected-command failures; downloaded 0.7.0 assets match the approved local bytes without asserting hosted or universal native acceptance."
+    },
+    {
       "path": ".kiro/skills/wayfinder/references/markdown.md",
       "sha256": "415ba58a172b37cf66ddfb576766aa6892ebe5049b2f14c90c3e8ea299e3be43",
       "classification": "excluded",
@@ -483,7 +493,7 @@
     },
     {
       "path": ".kiro/skills/pkstack-guide/SKILL.md",
-      "sha256": "0ecc7188dc192cca11f139090f62ff64be76ad9bce942203b5038bc9009461b0",
+      "sha256": "3c4b88e3a4d5bd20f681b58bbbeacdda783d3fbb038c65355ab12b9ec324ad23",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned mirror .kiro/skills/pkstack-guide/SKILL.md; canonical Power source and receipt-aware installation own these bytes."
@@ -532,7 +542,7 @@
     },
     {
       "path": ".kiro/skills/poteto-kiro-mode/SKILL.md",
-      "sha256": "3331bee8ff54991ea8a3950bd58bc17f0ce8475cc6609d8b7ea22520c2349f65",
+      "sha256": "b07e27cb7950ba4bca9a305ce60219f48e8474ab2356e4c0a05d2bf6445fbae4",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/skills/poteto-kiro-mode/SKILL.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -973,12 +983,12 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "0f17b6ce2adee03e94e0668149e8a73a4cece8477680cfadfe6eacb07944dacd",
+      "sha256": "1b4968df018680d45dda7717892731144a1d1a3d9085363e847383f1666d6238",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
       ],
-      "summary": "Version 0.7.0 combines the project advisor, empty v3 compatibility marker, inherited consumer policy, Wayfinder, renamed router, and artwork; local release and native-behavior limits remain explicit and separate from publication evidence."
+      "summary": "Version 0.7.0 integrates the advisor, compatibility profile, policy ownership, Wayfinder, router, and artwork; 0.7.1 corrects native command and reading guidance while retaining mixed advice acceptance and separate local asset-verification evidence."
     },
     {
       "path": "CLAUDE.md",
@@ -1955,7 +1965,7 @@
     },
     {
       "path": "powers/pkstack/skills/pkstack-guide/SKILL.md",
-      "sha256": "0ecc7188dc192cca11f139090f62ff64be76ad9bce942203b5038bc9009461b0",
+      "sha256": "3c4b88e3a4d5bd20f681b58bbbeacdda783d3fbb038c65355ab12b9ec324ad23",
       "classification": "excluded",
       "category": "native",
       "reason": "Native advisor resource powers/pkstack/skills/pkstack-guide/SKILL.md; composition knowledge retains its advisory boundary and dated source adaptations while Kiro owns skill discovery."
@@ -2011,7 +2021,7 @@
     },
     {
       "path": "powers/pkstack/skills/poteto-kiro-mode/SKILL.md",
-      "sha256": "3331bee8ff54991ea8a3950bd58bc17f0ce8475cc6609d8b7ea22520c2349f65",
+      "sha256": "b07e27cb7950ba4bca9a305ce60219f48e8474ab2356e4c0a05d2bf6445fbae4",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/poteto-kiro-mode/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."

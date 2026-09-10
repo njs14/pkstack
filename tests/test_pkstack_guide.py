@@ -18,6 +18,41 @@ def _files(root: Path) -> dict[str, bytes]:
     }
 
 
+def test_guide_requires_observed_reference_reads_before_recommendation() -> None:
+    text = " ".join((POWER / "skills/pkstack-guide/SKILL.md").read_text().split())
+    for contract in (
+        ".kiro/skills/pkstack-guide/references/project-lifecycle.md",
+        ".kiro/skills/<chosen-skill>/SKILL.md",
+        "reference material, not authorization to execute it",
+        "Read the project's README",
+        "continue through the end before treating that skill as read",
+        "Check the actual reading results, not your intended reads",
+        "Do not claim to have read a linked file merely because its parent document was loaded",
+    ):
+        assert contract in text
+
+
+def test_guide_keeps_native_commands_separate_from_description_and_approval() -> None:
+    text = " ".join((POWER / "skills/pkstack-guide/SKILL.md").read_text().split())
+    for command in (
+        "/plan Read .kiro/skills/grilling/SKILL.md;",
+        "/spec new <name>",
+        "/spec <name>",
+        "/spec run <name>",
+    ):
+        assert command in text
+    assert "The command and the subsequent description are separate messages" in text
+    assert "If the document viewer opens, use its **Continue** action" in text
+    assert "Opening the viewer or continuing the conversation is not task approval" in text
+    assert "starts task execution; it is not an advisory resume command" in text
+    assert (
+        "Approved requirements/design do not establish that its task plan or execution is approved"
+        in text
+    )
+    assert "do not tell the user to swap back to `pkstack` after Plan approval" in text
+    assert "do not add a new approval requirement merely because this turn requested advice" in text
+
+
 def test_guide_installs_exact_resources_once_and_preview_is_read_only(tmp_path: Path) -> None:
     before = _files(tmp_path)
     preview = bootstrap_project(tmp_path, power_root=POWER, dry_run=True)

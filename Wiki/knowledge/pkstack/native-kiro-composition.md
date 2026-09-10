@@ -74,12 +74,42 @@ supported Agent Skill or custom-agent tool for changing the active workflow. PKS
 does not invoke or emulate Spec, Quick Spec, or Bug Fix, and it does not use ACP or a nested Kiro
 process to hide the transition.
 
-In CLI v3, the operator enters or resumes Specs with `/spec`, or conversational Plan with
-`/plan <request>`; in the IDE, the operator
+In CLI v3, the operator creates a Spec with `/spec new <name>`, resumes one with
+`/spec <name>`, or enters conversational Plan with `/plan <request>`; in the IDE, the operator
 uses **Build with spec** or the workflow picker. After Kiro produces its native artifacts, the same
 conversation returns to the `pkstack` agent and binds the spec to an executable verifier. Web support
 uses committed workspace assets but remains untested. Crew compatibility is artifact-level through
 its Task Runner and does not imply the local IDE/CLI same-session transition.
+
+## 0.7.1 native acceptance follow-up
+
+The [native acceptance packet](../../../reviews/native-guide-071/README.md) records a new
+CLI 2.21.2 campaign against complete Power-local setup in disposable projects. The selected
+profile is the shipped `pkstack` profile, without diagnostic edits. Native user-policy reads
+permit an allowed file and deny a specifically blocked file; the denial is not retried.
+No global permission or model setting is changed. These observations establish the tested
+profile and policy behavior, not a universal permission-containment claim.
+
+The 0.7.0 guide produced malformed Spec prompts and skipped linked reference reads.
+The patch makes the reading pass explicit, names destination paths, requires full destination
+contents, separates native commands from their next context message, and distinguishes task
+approval from requirements/design approval. Unchecked tasks do not prove implementation is
+missing, and advice alone does not impose an additional approval gate on the next task.
+Instruction tests preserve these contracts; the packet reports model behavior separately.
+
+Interactive terminal checks establish that `/plan Read ...` enters native Plan, reads the
+shared grilling method, and can finish a read-only conversation. `/spec queue` opens the
+document viewer in this version; its **Continue** action (`C`) resumes the Spec agent.
+Neither viewing nor continuing approves task execution. `/spec new acceptance-library`
+opens the native description prompt; the operator cancelled it without creating a Spec.
+These are command-transition and read-only continuation observations, not completed new-Spec
+generation or approval-to-implementation proof. The interactive guide comparison reproduced
+the missing destination read, so noninteractive entry alone does not explain that failure.
+
+The packet retains baseline failures, intermediate revisions, and final source hashes.
+It does not claim IDE, Crew, Web, unattended maintenance, unrestricted-tool obedience, or
+hosted CI acceptance. Only tested unchanged source objects carry evidence into a release;
+version metadata and packaging need their own deterministic checks.
 
 ## September 10 guide observations and limits
 
