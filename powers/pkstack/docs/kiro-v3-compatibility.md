@@ -41,7 +41,7 @@ source path. Verify that the description and skills appear after installation.
 | --- | --- |
 | Kiro CLI v3 | Primary. Use an ordinary v3 chat and the workspace `pkstack` agent. Native Standard and Quick Spec repair campaigns were exercised on September 5, 2026 with CLI 2.21.1. |
 | Kiro IDE | Primary. Folder import, setup, agent discovery, and bounded Standard and Quick Spec repair workflows were exercised with IDE 1.0.437. |
-| Kiro Crew | Optional. Use its supported Kiro CLI path. Crew's direct KAS projection does not preserve inline permission or native subagent parity. |
+| Kiro Crew | Optional. Use its supported Kiro CLI path. Its direct KAS projection is not evidence of local policy or native subagent parity. |
 | Kiro Web | Supported by design, explicitly untested. It needs a repository with the generated workspace assets and Python 3.11+ plus uv in its sandbox. It cannot select a project custom agent as primary. |
 | Mobile and Windows | Outside the exercised PKStack support contract. |
 
@@ -61,6 +61,11 @@ hooks, permissions, and conversation state. `/pkstack-verified-goal` records a
 bounded verification loop in the current conversation; it is not Kiro's native
 `/goal` command. ACP is used only for bounded knowledge retrieval, not ordinary
 planning or implementation. Kiro's permission controls remain authoritative.
+
+Consumer profiles omit inline permission policy. The main profile exposes
+`@builtin`; its three helpers retain read-only tools. The optional
+[global permission preset](permissions.md) is installed manually and applies
+across local agents. It is separate from project setup and CI-agent authority.
 
 After setup or an approved managed refresh, run `.pkstack/bin/projectctl doctor
 --output json`. Setup health does not prove an application repair; use the

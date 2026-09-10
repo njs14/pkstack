@@ -1,9 +1,9 @@
 {
   "files": {
-    ".kiro/agents/pkstack-architect.json": "d076391910b55731e646d154b9c9042f89e8c1bb87d4435afbbec6c6fafe35a1",
-    ".kiro/agents/pkstack-reviewer.json": "a3c51197b25dbcee77056d9f81b19e8fb201f62f60503d4bb728b55fff45b5b6",
-    ".kiro/agents/pkstack-verifier.json": "da27ce127fa6be93497c2fe9d7d3f04cc93eb3cb1359254af6e2916360168776",
-    ".kiro/agents/pkstack.json": "4fb73fb8abdc16f744ddc75fcf171c6a6fdc07b751b4daaf1b78210838e5cd51",
+    ".kiro/agents/pkstack-architect.json": "bc790430d6afbf71477a953470e3685e18609dcea5f8147be7b16630e6f5e05f",
+    ".kiro/agents/pkstack-reviewer.json": "82a19c4934b26f78b009ac698b33966bd4ef23498ced932e6dc8986a80b1ebfe",
+    ".kiro/agents/pkstack-verifier.json": "dc255c21338dd79f738cd4f14797f3f8fb1e21e8eb2bcc338c36d0b7035fbe08",
+    ".kiro/agents/pkstack.json": "9a0ecbaf13b6b529010a78f9d7fba0ca8fac8effb6a58beb786e66b1c9247f82",
     ".kiro/hooks/pkstack-session.json": "5eed2efc431fdf246dd1084268d336f6f57d7ba690f9326145a56dc67630d205",
     ".kiro/hooks/pkstack-tripwire.json": "0d4196bca58bfc15d6420686d303a7368da3b1139bddc2131afdf2177419f663",
     ".kiro/skills/archify/SKILL.md": "ca5934e1a8ca02f1370f76f020bc1a5b71e543ea5eea753028ec8c51482162b6",
@@ -191,7 +191,7 @@
     ".kiro/skills/writing-for-agents/SKILL.md": "e94a223e748ce4c41132a686b475d03693c25415cd04060b1b7678dc10a1ec44",
     ".kiro/steering/pkstack-core.md": "0e1d389dce8bfeeaaaade395b1bbb26c14845db2792a9da691bff55e261da708",
     ".kiro/steering/pkstack-python.md": "70718834ce067b2f8c7570f52dcdaf4330c078e1806a03184aa847df293fb6eb",
-    ".kiro/steering/pkstack-safety.md": "77b03f5dfb1d6bd66297c275eb810827cd994e8bfb683b37aa9e7c1ed776d75c",
+    ".kiro/steering/pkstack-safety.md": "471ab870f5d12d2f07a083c97c10abb6765094b4256d0378a3597db5748aaf2c",
     ".kiro/steering/pkstack-typescript.md": "28e5427dda9bd6f7e66ec90c1853cdd1b8d8b61d64bdd5a1ada57a5d02e9198c",
     ".kiro/steering/pkstack-unslop.md": "f675e2e90f9bd7431b6cf15100dcb9c87933e647f8512440d75b502d1a0e98b8",
     ".pkstack/bin/projectctl": "f28d0f04299185461062ce63b69eef0d6e8bc9869fe945262dccb7a645f17fc9",
@@ -204,7 +204,7 @@
     ".pkstack/projectctl/src/pkstack/branding.py": "65a7a9790b0d70edfd0462a97a7fd7c59022be1474674fbe297b38f14e799a6e",
     ".pkstack/projectctl/src/pkstack/cli.py": "c345c4649d1cebef512bc2e04374c89494123e0a073dde728e28409550adf469",
     ".pkstack/projectctl/src/pkstack/discovery.py": "d7bdf479725c50864029c4a8fa0c8ec0d986aa1fa06869c924437624c9a03a44",
-    ".pkstack/projectctl/src/pkstack/doctor.py": "bb17d7c977a4d34114578e06c3ae18c9477902d1ce4c266d22889d05614abc78",
+    ".pkstack/projectctl/src/pkstack/doctor.py": "a86d4a6a5dc2ceaa14b876f2f7309833d87ece6caecd9dcf9fd7589711d22ce2",
     ".pkstack/projectctl/src/pkstack/evidence.py": "ea50f29fa86d0d1fb6b9f278c745f1ef27b33259cfc8fc39e17718dea9e61c39",
     ".pkstack/projectctl/src/pkstack/features.py": "dbee27a1eedbeec266cf675affe916d81c3cac69962e66865d12caa456bb2b5b",
     ".pkstack/projectctl/src/pkstack/goal.py": "715be6b583f4725d23744b1b04490ac84b6df57f4cc9c1050b55f08d01ac73a6",
@@ -220,7 +220,7 @@
     ".pkstack/projectctl/src/pkstack/upstream_catalog.py": "d991009d743a938164441965c79a83c4b0cf0b59a49234399b4805ddc6fd627e",
     ".pkstack/projectctl/src/pkstack/upstreams.py": "b96cbc2a6e0c58abd9813f4189fb49b3a99b4ccaeb2b930c9897e588d3ac53bd",
     ".pkstack/projectctl/uv.lock": "3138499db676a78086b14d896bc65cd937511f5684cb7091f43e5dda980107cd",
-    "Wiki/features/README.md": "9745441f270d65395ffa685164c18cd8b571888fc8af8cfe3a8dd9d67be4a2b2"
+    "Wiki/features/README.md": "2005f3a6c84bca6c4db68e8692eec8fd99519c89216fa61edb4b20b0b2611d9c"
   },
   "manager": "pkstack",
   "schema_version": 2

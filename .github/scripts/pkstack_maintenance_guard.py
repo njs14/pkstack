@@ -57,7 +57,12 @@ GENERATED_EXACT = {
     "projectctl",
 }
 EXECUTABLE_PATHS = {".pkstack/bin/projectctl", "projectctl"}
-ALLOWED_PRODUCT_TOOLS = {"read", "write", "shell", "subagent", "knowledge"}
+PRODUCT_AGENT_TOOLS = {
+    "pkstack.json": ["@builtin"],
+    "pkstack-architect.json": ["read", "knowledge"],
+    "pkstack-reviewer.json": ["read", "knowledge"],
+    "pkstack-verifier.json": ["read", "knowledge"],
+}
 ALLOWED_HOOKS = {"pkstack-session.json", "pkstack-tripwire.json"}
 TRUSTED_SNAPSHOT_PREFIXES = (
     "Wiki/features/pkstack-upstream-maintenance.md",
@@ -1667,29 +1672,48 @@ def validate_product_envelope(root: Path) -> None:
     agent_root = root / ".kiro" / "agents"
     agents = sorted(agent_root.glob("*.json"))
     product_agents = [path for path in agents if path.name != "pkstack-maintainer.json"]
-    if not product_agents:
-        raise GuardError("generated product agents are missing")
+    if not set(PRODUCT_AGENT_TOOLS) <= {path.name for path in product_agents}:
+        raise GuardError("generated consumer agents are missing")
     for path in product_agents:
         _, agent = _load_json(path, maximum=65_536, label=f"product agent {path.name}")
         tools = agent.get("tools")
-        if not isinstance(tools, list) or not set(tools) <= ALLOWED_PRODUCT_TOOLS:
+        expected_tools = PRODUCT_AGENT_TOOLS.get(path.name)
+        if path.name == "pkstack-ci-reviewer.json":
+            expected_tools = []
+        if expected_tools is None or tools != expected_tools:
             raise GuardError(f"product agent has unsupported tools: {path.name}")
-        if any(
-            tool.startswith("@") or tool in {"web", "web_fetch", "web_search"} for tool in tools
-        ):
-            raise GuardError(f"product agent widens external tool authority: {path.name}")
         if agent.get("includeMcpJson") is not False or agent.get("includePowers") is not False:
             raise GuardError(f"product agent enables ambient integrations: {path.name}")
         if any(key in agent for key in ("hooks", "mcpServers", "model")):
             raise GuardError(f"product agent contains an unsafe embedded authority: {path.name}")
-        rules = agent.get("permissions", {}).get("rules")
-        if not isinstance(rules, list) or not rules:
-            raise GuardError(f"product agent lacks explicit permissions: {path.name}")
-        for rule in rules:
-            if not isinstance(rule, dict):
-                raise GuardError(f"product agent permission is malformed: {path.name}")
-            if rule.get("capability") in {"shell", "fs_write"} and rule.get("effect") == "allow":
-                raise GuardError(f"product agent silently allows execution or writes: {path.name}")
+        if path.name == "pkstack-ci-reviewer.json":
+            expected_rules = [
+                {"capability": capability, "match": patterns, "effect": "deny"}
+                for capability, patterns in (
+                    ("fs_read", ["./**"]),
+                    ("fs_write", ["./**"]),
+                    ("shell", ["*"]),
+                )
+            ]
+            if agent.get("permissions") != {"rules": expected_rules}:
+                raise GuardError("CI reviewer must retain its deny-only policy")
+        elif "permissions" in agent:
+            raise GuardError(f"product agent embeds permission policy: {path.name}")
+        if "allowedTools" in agent:
+            raise GuardError(f"product agent embeds permission policy: {path.name}")
+        expected_settings = (
+            {
+                "subagent": {
+                    "availableAgents": ["pkstack-architect", "pkstack-reviewer", "pkstack-verifier"]
+                }
+            }
+            if path.name == "pkstack.json"
+            else {}
+        )
+        if agent.get("toolsSettings") != expected_settings:
+            raise GuardError(
+                f"product agent embeds tool trust or changes helper roles: {path.name}"
+            )
 
     hook_root = root / ".kiro" / "hooks"
     hooks = sorted(hook_root.glob("*.json"))

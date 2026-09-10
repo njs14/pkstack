@@ -16,6 +16,7 @@ in the broader [KNOW index](../index.md).
 
 | Contract | What it covers |
 | --- | --- |
+| [pkstack-consumer-permissions](pkstack-consumer-permissions.md) | Project-owned executable contract |
 | [pkstack-power-installation](pkstack-power-installation.md) | Project-owned executable contract |
 | [pkstack-upstream-maintenance](pkstack-upstream-maintenance.md) | Project-owned executable contract |
 
