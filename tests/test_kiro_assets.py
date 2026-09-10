@@ -76,7 +76,8 @@ def test_pkstack_routes_are_namespaced_without_renaming_upstream_identities() ->
     assert "poteto-kiro-mode" in EXPECTED_SKILLS
     assert "pkstack" not in EXPECTED_SKILLS
     assert SKILL_ROUTE_ALIASES == {
-        "poteto-mode": "poteto-kiro-mode", "setup-pstack": "pkstack-setup"
+        "poteto-mode": "poteto-kiro-mode",
+        "setup-pstack": "pkstack-setup",
     }
     assert {
         "okf",
@@ -358,7 +359,10 @@ def test_contextual_entrypoints_link_all_curated_leaf_methods() -> None:
         ("recall", {"reflect", "okf"}),
         ("reflect", {"recall", "okf"}),
         ("okf", {"recall", "reflect", "grilling"}),
-        ("grilling", {"poteto-kiro-mode", "okf", "domain-modeling", "grill-with-docs", "interrogate"}),
+        (
+            "grilling",
+            {"poteto-kiro-mode", "okf", "domain-modeling", "grill-with-docs", "interrogate"},
+        ),
         ("grill-me", {"grilling", "grill-with-docs"}),
         ("grill-with-docs", {"grilling", "domain-modeling", "okf"}),
         ("domain-modeling", {"grilling", "okf"}),
