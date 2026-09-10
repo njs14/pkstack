@@ -56,7 +56,11 @@ check alongside source-scoped maintenance. Every pinned skill entrypoint has a d
 rationale; the offline check reconstructs the recorded Git tree and validates shipped resources.
 The existing detector job attaches live additions, removals, and missing dispositions as an
 advisory report. Catalog drift does not install skills or block an unrelated source transition;
-acceptance of a catalog refresh requires complete reviewed dispositions. The source capacity is
+acceptance of a catalog refresh requires complete reviewed dispositions. Source inventories
+advance independently and reconstruct their own pinned/current trees; their existing acceptance
+process authenticates the source transition. Exact parity and bundle metadata permissions cover
+the registered imports. Global catalog changes and executable wizard/diagnosis helper updates
+remain manual review work under the existing automation boundary. The source capacity is
 32 for 25 registered imports, while existing per-source, concurrency, deadline, and review-context
 bounds remain unchanged.
 

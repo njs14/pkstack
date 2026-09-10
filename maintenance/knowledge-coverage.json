@@ -1126,12 +1126,12 @@
     },
     {
       "path": "docs/upstream-control-loop.md",
-      "sha256": "d34bcfba115d0a73de58913ef8b164401840694aed4de16b7c0959d67f5418b6",
+      "sha256": "460839f5c0fc394014b8bd135a6ead4723c88f51f796695aa33ac1e39354d08d",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/upstream-maintenance/operations.md"
       ],
-      "summary": "Source-scoped maintenance now also reports advisory complete-catalog drift; 25 sources fit an explicit 32-source cap while per-source limits and the 64 KiB review boundary remain."
+      "summary": "Source-scoped maintenance reports advisory complete-catalog drift while each inventory advances independently; exact metadata grants preserve manual global-catalog and executable-helper review, the 32-source cap, and 64 KiB context."
     },
     {
       "path": "docs/validation-report.md",

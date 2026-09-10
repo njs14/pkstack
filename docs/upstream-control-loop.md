@@ -71,7 +71,17 @@ new skills need a reviewed disposition and source inventory before acceptance or
 
 The existing detector job attaches an advisory `upstream-catalog.json` report and a job summary.
 Catalog additions and removals do not select an unrelated source for repair or block its candidate.
-Normal local checks validate the offline accounting. Source capacity is explicitly bounded at 32
+Normal local checks validate the offline accounting. The catalog freezes entrypoint dispositions;
+individual source inventories can advance independently through source-bound acceptance. Offline
+validation reconstructs each inventory's own pinned/current trees and checks its complete resource
+dispositions and adapted bundle bytes. It does not require an unrelated global snapshot refresh.
+
+The maintainer has exact parity and bundle-manifest permissions for all registered Pocock sources.
+The global catalog remains outside automated write authority. Executable wizard and diagnosis
+helpers require manual review and integration when their upstream code changes; automated skill
+edits retain the existing Markdown-only boundary.
+
+Source capacity is explicitly bounded at 32
 in both the controller and trusted detector, accommodating 25 registrations while retaining all
 network, file, byte, concurrency, and review-context limits. No additional job or schedule is added.
 

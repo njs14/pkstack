@@ -67,6 +67,44 @@ class SourcePermissionTests(unittest.TestCase):
                 )
             )
 
+    def test_pocock_bundles_have_exact_authority_but_catalogs_and_helpers_stay_manual(self):
+        power = ROOT / "powers/pkstack"
+        catalog = json.loads((power / "metadata/mattpocock-skill-catalog.json").read_text())
+        bundles = {
+            f"powers/pkstack/{entry['bundle_manifest']}"
+            for entry in catalog["skills"]
+            if entry["bundle_manifest"] is not None
+        }
+        forbidden = {
+            "powers/pkstack/metadata/unlisted-bundle-manifest.json",
+            "powers/pkstack/metadata/mattpocock-skill-catalog.json",
+            "powers/pkstack/metadata/mattpocock-catalog-tree.json",
+            "powers/pkstack/skills/wizard/template.sh",
+            "powers/pkstack/skills/diagnosing-bugs/scripts/hitl-loop.template.sh",
+            ".kiro/skills/wizard/template.sh",
+            ".kiro/skills/diagnosing-bugs/scripts/hitl-loop.template.sh",
+        }
+        for scope in ("agent", "final"):
+            exact = set(self.policy[f"{scope}_allowed_exact"])
+            prefixes = self.policy[f"{scope}_allowed_prefixes"]
+            for path in bundles:
+                with self.subTest(scope=scope, path=path):
+                    self.assertIn(path, exact)
+                    self.assertFalse(guard._is_protected(path, self.policy))
+            for path in forbidden:
+                with self.subTest(scope=scope, denied=path):
+                    self.assertFalse(guard._matches(path, exact, prefixes))
+        for profile in self.profiles.values():
+            allowed = {
+                pattern
+                for rule in profile["permissions"]["rules"]
+                if rule["capability"] == "fs_write" and rule["effect"] == "allow"
+                for pattern in rule["match"]
+            }
+            self.assertTrue(bundles <= allowed)
+            self.assertFalse(forbidden & allowed)
+        self.assertTrue(bundles <= set(self.policy["ci_authority"]["write_patterns"]))
+
     def test_knowledge_writes_are_data_only_and_cannot_change_controls(self):
         for scope in ("agent", "final"):
             exact = set(self.policy[f"{scope}_allowed_exact"])

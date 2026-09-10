@@ -225,7 +225,9 @@ decision maps, then hands resolved direction to native Kiro planning.
 The [complete catalog](../../../powers/pkstack/metadata/mattpocock-skill-catalog.json) records every
 upstream entrypoint, including covered, deferred, and excluded methods. Offline validation
 reconstructs the pinned repository tree from original Git identities, checks exhaustive entrypoint
-accounting, and verifies shipped resources. Original source identities never become adapted hashes.
+accounting, and verifies shipped resources. Independently maintained source inventories reconstruct
+their own pinned/current Git trees; source-bound acceptance authenticates their transitions without
+requiring a global catalog refresh. Original source identities never become adapted hashes.
 The read-only catalog command reports current additions/removals; accepting a catalog update still
 requires reviewed dispositions. Its live report is advisory in the existing maintenance job.
 
