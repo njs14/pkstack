@@ -6,7 +6,7 @@
 These standalone files are excluded from the Power package. The compact JPG is
 also embedded in `powers/pkstack/POWER.md` as an `iconUrl` data URI because Kiro
 IDE 1.0.437 reads its details metadata there and blocks arbitrary remote image
-hosts. Its image policy permits data URIs. This adds the 49 KB thumbnail without
+hosts. Its image policy permits data URIs. This adds the roughly 48 KB thumbnail without
 shipping the full README crest. The standard `plugin.json` stays unchanged.
 
 When replacing the JPG, refresh the `POWER.md` data URI. The Power metadata test

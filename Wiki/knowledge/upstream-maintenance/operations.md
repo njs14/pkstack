@@ -61,7 +61,7 @@ advance independently and reconstruct their own pinned/current trees; their exis
 process authenticates the source transition. Exact parity and bundle metadata permissions cover
 the registered imports. Global catalog changes and executable wizard/diagnosis helper updates
 remain manual review work under the existing automation boundary. The source capacity is
-32 for 25 registered imports, while existing per-source, concurrency, deadline, and review-context
+32 for 26 registered imports, while existing per-source, concurrency, deadline, and review-context
 bounds remain unchanged.
 
 ## Read large updates in batches

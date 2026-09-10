@@ -40,7 +40,7 @@
     },
     {
       "path": "reviews/overnight-improvements-plan.md",
-      "sha256": "64b55db9c62316c8c371fb6c81405a5cc1893d721590bf0fe8c0cb2066b6f78d",
+      "sha256": "a979264534d07765b9636140f09aee404a1841aae0ad29c12e2df0e5ee2a1a3f",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"
@@ -1103,7 +1103,7 @@
         "Wiki/knowledge/pkstack/visual-artifacts.md"
       ],
       "summary": "Repository artwork ownership and a compact JPG embedded as a permitted data URI in POWER.md; decoded image bytes and display metadata remain checked against their sources.",
-      "sha256": "0a0599f993bd2da763b85c4a7263b352dde3b4266d6751ddef5c593d1ae88533"
+      "sha256": "e5218f92e7ab47e0ee7dd02e41368b71fb30b165dd9bcc40befd7b9d5b7d2a03"
     },
     {
       "path": "docs/assets/creation-history.md",
@@ -1126,7 +1126,7 @@
     },
     {
       "path": "docs/upstream-control-loop.md",
-      "sha256": "460839f5c0fc394014b8bd135a6ead4723c88f51f796695aa33ac1e39354d08d",
+      "sha256": "0e6078727b106dcd63f96a860a5e4b476b5c549687d580c1b2fa070f93fbbd18",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/upstream-maintenance/operations.md"

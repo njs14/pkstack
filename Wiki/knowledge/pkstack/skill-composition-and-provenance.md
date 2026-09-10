@@ -231,7 +231,7 @@ requiring a global catalog refresh. Original source identities never become adap
 The read-only catalog command reports current additions/removals; accepting a catalog update still
 requires reviewed dispositions. Its live report is advisory in the existing maintenance job.
 
-The active source inventory grows from 13 to 25. The explicit controller and trusted-detector
+The active source inventory grows from 13 to 26, including Wayfinder. The explicit controller and trusted-detector
 capacity is 32; per-source limits, four-request concurrency, the 30-second network budget, and the
 64 KiB automated review context remain unchanged. A larger manual review must cover the whole
 candidate; the limit is not silently increased to make that candidate pass.
