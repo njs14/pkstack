@@ -5,6 +5,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +18,7 @@ from pkstack.upstreams import UpstreamError
 POWER = Path(__file__).resolve().parents[1] / "powers/pkstack"
 PIN = "3cca18b368ae95cdbdebbff572ccafa662551015"
 TREE = "6e84c093fda2026396cea9fad6a924a6da0e1452"
+LOCAL_TRACKER = "skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md"
 
 
 @pytest.fixture
@@ -39,16 +41,17 @@ def test_catalog_accounts_for_all_pinned_entrypoints_and_methods_without_network
     assert result["pinned"] == {"commit": PIN, "tree_sha": TREE}
     assert result["pinned_count"] == 37
     assert result["dispositions"] == {
-        "imported": 13,
+        "imported": 14,
         "consolidated": 4,
         "covered": 6,
-        "deferred": 1,
         "excluded": 13,
     }
     assert result["added"] == result["removed"] == result["missing_dispositions"] == []
     catalog = validate_catalog(POWER)
     entries = {entry["name"]: entry for entry in catalog["skills"]}
-    assert entries["wayfinder"]["disposition"] == "deferred"
+    assert entries["wayfinder"]["disposition"] == "imported"
+    assert entries["wayfinder"]["destination"] == "skills/wayfinder/SKILL.md"
+    assert entries["wayfinder"]["supporting_resources"] == [LOCAL_TRACKER]
     assert entries["teach"]["destination"] == "skills/teach/SKILL.md"
     assert entries["tdd"]["destination"] == "skills/tdd/references/pocock-tdd/README.md"
 
@@ -106,6 +109,82 @@ def test_method_bytes_are_verified_even_without_a_duplicate_curated_skill(power:
     target.write_text(target.read_text() + "\nUnreviewed guidance.\n")
     with pytest.raises(ValueError, match="hash or size mismatch"):
         validate_catalog(power)
+
+
+@pytest.mark.parametrize(
+    "resources",
+    [
+        None,
+        [],
+        LOCAL_TRACKER,
+        [None],
+        [LOCAL_TRACKER, LOCAL_TRACKER],
+        ["../outside.md"],
+        ["skills/engineering/missing/reference.md"],
+        ["skills/engineering/setup-matt-pocock-skills"],
+        ["skills/engineering/setup-matt-pocock-skills/SKILL.md"],
+        ["skills/engineering/wayfinder/SKILL.md"],
+        ["skills/engineering/wayfinder/agents/openai.yaml"],
+    ],
+)
+def test_supporting_resources_require_explicit_pinned_markdown(power: Path, resources):
+    def mutate(data):
+        entry = next(item for item in data["skills"] if item["name"] == "wayfinder")
+        entry["supporting_resources"] = resources
+
+    edit_json(power / CATALOG_PATH, mutate)
+    with pytest.raises(UpstreamError, match="supporting resource"):
+        validate_catalog(power)
+
+
+@pytest.mark.parametrize("mutation", ["undeclared", "unshipped", "covered"])
+def test_supporting_resources_cannot_bypass_complete_bundle_accounting(power: Path, mutation: str):
+    def mutate(data):
+        entry = next(item for item in data["skills"] if item["name"] == "wayfinder")
+        if mutation == "undeclared":
+            entry.pop("supporting_resources")
+        elif mutation == "unshipped":
+            entry["supporting_resources"].insert(
+                0, "skills/engineering/setup-matt-pocock-skills/issue-tracker-github.md"
+            )
+        else:
+            covered = next(
+                item for item in data["skills"] if item["name"] == "setup-matt-pocock-skills"
+            )
+            covered["supporting_resources"] = [LOCAL_TRACKER]
+
+    edit_json(power / CATALOG_PATH, mutate)
+    with pytest.raises(UpstreamError, match=r"supporting resource|every adapted source resource"):
+        validate_catalog(power)
+
+
+def test_supporting_reference_cannot_replace_a_primary_adapted_source(power: Path):
+    def mutate(data):
+        for item in data["files"]:
+            item["source_path"] = LOCAL_TRACKER
+
+    edit_json(power / "metadata/mattpocock-wayfinder-bundle-manifest.json", mutate)
+    with pytest.raises(UpstreamError, match="every adapted source resource"):
+        validate_catalog(power)
+
+
+def test_supporting_resource_guards_remain_active_under_optimized_python():
+    probe = """
+from pkstack.upstream_catalog import _supporting_resources
+from pkstack.upstreams import UpstreamError
+entry = {
+    'path': 'skills/engineering/wayfinder/SKILL.md',
+    'disposition': 'imported',
+    'supporting_resources': ['reference.md'],
+}
+for kind, mode in [('blob', '120000'), ('blob', '100755'), ('commit', '160000')]:
+    try:
+        _supporting_resources(entry, {'reference.md': (kind, mode, 'a' * 40, 1)})
+    except UpstreamError:
+        continue
+    raise SystemExit('unsafe supporting resource accepted')
+"""
+    subprocess.run([sys.executable, "-B", "-O", "-c", probe], check=True)
 
 
 def git_tree(tmp_path: Path, entries: list[dict[str, Any]]) -> str:

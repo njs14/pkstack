@@ -1357,6 +1357,18 @@
       "provenance_path": "powers/pkstack/provenance/mattpocock-prototype-provenance.md",
       "repository": "mattpocock/skills",
       "transitions": []
+    },
+    {
+      "id": "mattpocock-wayfinder",
+      "repository": "mattpocock/skills",
+      "path": "skills/engineering/wayfinder",
+      "parity_path": "powers/pkstack/metadata/mattpocock-wayfinder-source-parity.json",
+      "provenance_path": "powers/pkstack/provenance/mattpocock-wayfinder-provenance.md",
+      "genesis": {
+        "commit": "3cca18b368ae95cdbdebbff572ccafa662551015",
+        "subtree_sha": "8ec0462658381bd1606d3f9db14ffc67df6a2a43"
+      },
+      "transitions": []
     }
   ]
 }

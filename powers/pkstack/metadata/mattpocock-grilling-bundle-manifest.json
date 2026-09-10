@@ -6,15 +6,15 @@
       "handling": "adapted-kiro-wrapper",
       "mode": "100644",
       "path": "SKILL.md",
-      "sha256": "e85001ecabfc5cf894f8f9cdb161f18b02c765524762807152111df6d1dcfda8",
-      "size": 8196,
+      "sha256": "692a8259ab0ed0f69aced967d3f16a81a5019c87ec08aaaba395eda63161bd7b",
+      "size": 8205,
       "source_path": "skills/productivity/grilling/SKILL.md"
     }
   ],
   "schema_version": 1,
   "skill": "grilling",
   "summary": {
-    "byte_count": 8196,
+    "byte_count": 8205,
     "file_count": 1
   }
 }

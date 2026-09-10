@@ -1,0 +1,36 @@
+{
+  "artifact_type": "curated-bundle",
+  "bundle_root": "skills/wayfinder",
+  "files": [
+    {
+      "handling": "kiro-owned-github-cloud-operations",
+      "mode": "100644",
+      "path": "references/github.md",
+      "sha256": "e1911c150f53887b5368a49e85e49792c68276afd1d91001eab408a0735b9dbf",
+      "size": 5230,
+      "source_path": "skills/engineering/wayfinder/SKILL.md"
+    },
+    {
+      "handling": "adapted-kiro-markdown-operations",
+      "mode": "100644",
+      "path": "references/markdown.md",
+      "sha256": "415ba58a172b37cf66ddfb576766aa6892ebe5049b2f14c90c3e8ea299e3be43",
+      "size": 6199,
+      "source_path": "skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md"
+    },
+    {
+      "handling": "adapted-kiro-wrapper",
+      "mode": "100644",
+      "path": "SKILL.md",
+      "sha256": "7cfca22627e559475b6c2ca4dab09c2a9cf55b402ce7b4c6cbb45dfbe12f262d",
+      "size": 12496,
+      "source_path": "skills/engineering/wayfinder/SKILL.md"
+    }
+  ],
+  "schema_version": 1,
+  "skill": "wayfinder",
+  "summary": {
+    "byte_count": 23925,
+    "file_count": 3
+  }
+}

@@ -81,7 +81,7 @@
     },
     {
       "bundle_manifest": "metadata/mattpocock-prototype-bundle-manifest.json",
-      "destination": "skills/pkstack/references/pocock-prototype/README.md",
+      "destination": "skills/poteto-kiro-mode/references/pocock-prototype/README.md",
       "disposition": "consolidated",
       "name": "prototype",
       "path": "skills/engineering/prototype/SKILL.md",
@@ -152,13 +152,16 @@
       "source_id": "mattpocock-triage"
     },
     {
-      "bundle_manifest": null,
-      "destination": "not-installed",
-      "disposition": "deferred",
+      "bundle_manifest": "metadata/mattpocock-wayfinder-bundle-manifest.json",
+      "destination": "skills/wayfinder/SKILL.md",
+      "disposition": "imported",
       "name": "wayfinder",
       "path": "skills/engineering/wayfinder/SKILL.md",
-      "rationale": "Deferred by explicit user choice; outside this engineering integration.",
-      "source_id": null
+      "rationale": "Kiro-native GitHub Cloud or Markdown decision maps with curated OKF capture; the separate pinned local-tracker guide supplies supporting conventions without activating upstream setup.",
+      "source_id": "mattpocock-wayfinder",
+      "supporting_resources": [
+        "skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md"
+      ]
     },
     {
       "bundle_manifest": "metadata/mattpocock-wizard-bundle-manifest.json",

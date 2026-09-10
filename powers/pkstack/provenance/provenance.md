@@ -97,13 +97,13 @@ metadata. The Power manifest identifier and source-repository name are
 the Python import is `pkstack`, and local state lives under `.pkstack/`.
 Selectable Kiro agents use the PKStack name. Old compatibility names and
 automatic state migration are not supported.
-The six PKStack entry points are `/pkstack`, `/pkstack-setup`,
+The six PKStack entry points are `/poteto-kiro-mode`, `/pkstack-setup`,
 `/pkstack-maintain`, `/pkstack-verified-goal`, `/pkstack-model-council`, and
 `/pkstack-principles`. Imported skills retain their names, including
 `/archify`, `/show-me`, and individual `/principle-*` skills. `/okf` is the
 knowledge-integration exception. In source inventories and pinned URLs,
 `poteto-mode` and `setup-pstack` remain the original upstream identities;
-their runnable PKStack routes are `/pkstack` and `/pkstack-setup`.
+their runnable PKStack routes are `/poteto-kiro-mode` and `/pkstack-setup`.
 
 ## Upstream files consulted
 

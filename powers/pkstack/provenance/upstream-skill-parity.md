@@ -18,7 +18,7 @@ adaptation, not copied upstream implementation.
 | **Upstream total** | **47** |
 
 Forty-six upstream workflows have runnable routes. The entry workflow is
-`/pkstack` (upstream `poteto-mode`), and setup is `/pkstack-setup` (upstream
+`/poteto-kiro-mode` (upstream `poteto-mode`), and setup is `/pkstack-setup` (upstream
 `setup-pstack`). The remaining imported skills retain their names.
 
 PKStack also ships `/pkstack-principles`, `/pkstack-maintain`,
@@ -47,7 +47,7 @@ inventory. They remain hash-accounted even though they are not shipped.
 
 The multi-file packages are `architect`, `create-verification-skill`, `how`, `interrogate`,
 `poteto-mode`, `reflect`, `show-me-your-work`, `typescript-best-practices`, and `why`. In
-particular, the adapted [`pkstack/references/workflows.md`](../skills/pkstack/references/workflows.md)
+particular, the adapted [`pkstack/references/workflows.md`](../skills/poteto-kiro-mode/references/workflows.md)
 preserves the package's workflow sequences while replacing Cursor `/goal`, `/loop`, Task/cloud-agent
 metadata, fixed model slugs, Graphite, watcher/orchestrator programs, automatic pull-request actions,
 and destructive cleanup with current-session Kiro skills, native sub-agents, `/pkstack-verified-goal`, and
@@ -83,7 +83,7 @@ accounted for in the pinned packages, so the total file count stays at 122 at ea
 | `maintain-verification-skill` | Direct port | [`maintain-verification-skill`](../skills/maintain-verification-skill/SKILL.md) | The live feature-by-feature audit is portable and updates only verifier assets unless product repair is separately requested. |
 | `make-bot-ui` | Excluded | [Safe manual architecture path](#make-bot-ui-safety-exclusion) | No runnable skill ships: the source is a Cursor/Grok Bot routine coupled to secret-card APIs, a cursor.sh webhook endpoint, and automatic sudo/Tailscale installation. Use architect to design a reviewed, least-privilege manual bot UI for the target environment. |
 | `no-comments` | Direct port | [`no-comments`](../skills/no-comments/SKILL.md) | Portable cleanup distinguishes redundant narration from external contracts, safety rationale, and narrow suppressions. |
-| `poteto-mode` | Alias / consolidation | [`pkstack`](../skills/pkstack/SKILL.md) | Renames the existing entry workflow while preserving Poteto's playbooks, checkpoints, explicit skip decisions, and native Kiro planning handoffs. Its consolidation disposition is unchanged; no old-name alias or second router ships. |
+| `poteto-mode` | Alias / consolidation | [`pkstack`](../skills/poteto-kiro-mode/SKILL.md) | Renames the existing entry workflow while preserving Poteto's playbooks, checkpoints, explicit skip decisions, and native Kiro planning handoffs. Its consolidation disposition is unchanged; no old-name alias or second router ships. |
 | `principle-attack-the-premise` | Alias / consolidation | [`principle-attack-the-premise`](../skills/principle-attack-the-premise/SKILL.md) | Uses a per-actor census to challenge the premise shared by repeated failed fixes, within the existing authority and evidence boundaries. |
 | `principle-boundary-discipline` | Alias / consolidation | [`principle-boundary-discipline`](../skills/principle-boundary-discipline/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
 | `principle-build-the-lever` | Alias / consolidation | [`principle-build-the-lever`](../skills/principle-build-the-lever/SKILL.md) | Individually discoverable alias with a focused action; canonical detailed semantics live in the shared principles catalog. |
