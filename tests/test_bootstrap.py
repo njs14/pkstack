@@ -333,7 +333,7 @@ def test_shipped_workflows_select_only_the_managed_internal_controller() -> None
         payload = json.loads(path.read_text(encoding="utf-8"))
         shell_matches = [
             pattern
-            for rule in payload["permissions"]["rules"]
+            for rule in payload.get("permissions", {}).get("rules", [])
             if rule["capability"] == "shell"
             for pattern in rule["match"]
         ]

@@ -365,6 +365,11 @@ def test_bootstrap_rejects_invalid_receipt_and_dry_run_is_non_mutating(tmp_path:
             {"name": "sample", "tools": ["read"], "permissions": {}},
             "permissions.rules",
         ),
+        (
+            "agents",
+            {"name": "sample", "tools": ["read"], "permissions": None},
+            "permissions.rules",
+        ),
         ("hooks", {"version": "v2", "hooks": [{}]}, "version must be"),
         ("hooks", {"version": "v1", "hooks": []}, "hooks must be"),
         ("hooks", {"version": "v1", "hooks": [{}]}, "requires trigger and action"),
@@ -380,6 +385,16 @@ def test_kiro_json_schema_error_boundaries(
 
     with pytest.raises(ValueError, match=message):
         _validate_kiro_json(path, document)
+
+
+@pytest.mark.parametrize("permission_fields", [{}, {"permissions": {"rules": []}}])
+def test_kiro_json_accepts_inherited_or_explicit_policy(
+    tmp_path: Path, permission_fields: dict
+) -> None:
+    _validate_kiro_json(
+        tmp_path / "agents" / "sample.json",
+        {"name": "sample", "tools": ["read"], **permission_fields},
+    )
 
 
 def test_doctor_handles_hostile_paths_and_feature_discovery_without_disclosure(
@@ -628,8 +643,8 @@ def test_agent_discovery_probe_records_bounded_221_evidence() -> None:
     compatibility = " ".join(
         (POWER_ROOT / "docs" / "kiro-v3-compatibility.md").read_text(encoding="utf-8").split()
     )
-    assert "Crew's direct KAS projection" in compatibility
-    assert "does not preserve inline permission or native subagent parity" in compatibility
+    assert "direct KAS projection" in compatibility
+    assert "not evidence of local policy or native subagent parity" in compatibility
 
 
 def test_parse_workspace_agent_rows_does_not_promote_global_or_builtin_rows() -> None:

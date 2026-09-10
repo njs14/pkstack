@@ -47,8 +47,8 @@ read-only project agent without a top-level `toolsSettings` key can pass
 `agent validate` yet be absent from `agent list`. PKStack therefore includes
 an exact empty `toolsSettings: {}` sentinel on its architect, reviewer, and
 verifier profiles. This is a point-in-time 2.21 compatibility measure, not a
-claim that the key is a general V3 schema requirement; permissions remain
-entirely in `permissions.rules`, and no shell or write authority is placed
+claim that the key is a general V3 schema requirement; consumer permissions
+remain in user/workspace policy, and no shell or write authority is placed
 under the sentinel. The sanitized controlled probe is recorded in
 [`reviews/kiro-v3-agent-discovery-probe.json`](https://github.com/njs14/pkstack/blob/9bb1cbbb52552f95f7ccc61e14c44283e526c80d/reviews/kiro-v3-agent-discovery-probe.json).
 
@@ -262,7 +262,7 @@ The two settings commands returned `true` and
 | Native subagents | Main agent delegates isolated work through the `subagent` tool; custom agents can be allow-listed | Bounded architecture, review, and verification assistance while the primary session owns edits/evidence |
 | `/spawn` | User-driven command for a fresh parallel session | Not used for internal PKStack fanout or verified-goal iteration |
 | Hooks | Standalone `.kiro/hooks/*.json`, `version: "v1"`, PascalCase triggers, command or agent actions | Static SessionStart orientation plus a disabled advisory Stop probe |
-| Permissions | Capability rules with `allow`, `ask`, and `deny`; the most restrictive result wins | Allow workspace reads, leave Git/ordinary writes/projectctl authorization to ambient Kiro policy, and retain protected-file and destructive-command denies |
+| Permissions | Capability rules with `allow`, `ask`, and `deny`; the most restrictive result wins | Consumer agents inherit user/workspace policy; an optional manual preset allows built-ins with targeted destructive-command denies |
 | Steering | `.kiro/steering/*.md` with `always`, `auto`, `fileMatch`, or `manual` inclusion | Three small always-on architecture/safety/prose invariants plus TypeScript guidance selected by `fileMatch` for `**/*.ts` and `**/*.tsx` |
 | Knowledge | `/knowledge` and the `knowledge` tool are experimental; local knowledge is enabled | Keep the source-controlled OKF Wiki authoritative and use the spec-linked feature map first. `projectctl knowledge validate` checks metadata, Markdown links, and feature contracts locally; `knowledge search` retrieves bounded context through an isolated read-only Kiro ACP worker |
 | Goal | Native `/goal` is documented as a self-verifying loop with five iterations by default and configurable `--max` | Keep `/pkstack-verified-goal` separate and projectctl-backed; do not depend on native availability or claim this Mac exposes it without an interactive probe |
@@ -430,55 +430,74 @@ does not claim the profile's primary-agent prompt or permissions there.
 
 ### Permissions
 
-The templates use agent-scoped capability rules instead of broad trust. Kiro's
-current rules combine scopes with `deny > ask > allow`. In the shipped primary
-profile:
+Consumer profiles contain no inline permission rules or legacy trust grants.
+The primary profile exposes all built-in tools through `@builtin`; architect,
+reviewer, and verifier retain only `read` and `knowledge`. The primary lists
+those three helpers as available but leaves their tool approval to global policy.
+The isolated CI maintainer and reviewer retain their separate restrictions.
 
-- workspace reads are allowed;
-- Git, ordinary writes, and canonical `.pkstack/bin/projectctl` invocations add
-  no agent-scoped ask or allow rules, so Kiro's defaults and the user's configured
-  permissions determine authorization;
-- direct writes to bootstrap-managed control-plane paths are denied;
-- destructive shell patterns are denied; and
-- only the three tool-limited PKStack subagents are allowed/trusted.
+Kiro combines scopes with `deny > ask > allow`. Permissions intended to follow
+the user across agents belong in `~/.kiro/settings/permissions.yaml`, with
+per-user workspace overrides outside the repository. The optional
+[global permissions guide and preset](../powers/pkstack/docs/permissions.md)
+allow built-in tools with targeted shell denies. MCP is outside that preset.
+Setup installs neither global nor workspace permission policy. Existing asks
+and denies need explicit review when adopting the preset; an added allow
+cannot override them.
 
-Kiro's documented V3 default allows a small set of common read-only Git and
-system-information commands and asks for unmatched operations. Removing an
-agent-scoped ask does not grant permission. It lets existing user, workspace,
-and session allowances take effect, or leaves the operation to normal approval.
-An explicit ask in any scope overrides an allow in another scope and cannot be
-removed by saving another allow. The profile therefore does not use blanket asks
-as a substitute for first-use consent. Kiro may offer a remembered approval for
-an implicit ask when it can derive a working saved rule; Kiro-owned protected-path
-asks and explicit user/workspace asks still require approval.
+Native Plan and Spec select their own agents and retain their workflow approvals.
+Global policy follows the user, while each agent's available tools still define
+its role. Read-only helpers do not receive shell or write tools. Earlier 2.20.2
+observations found that omitting child shell tools was a more reliable boundary
+than relying on child shell permission patterns; preserve those role limits.
 
-Installed Kiro 2.20.2 testing found that delegated child shell permission
-effects did not reliably constrain a shell tool after parent-authorized spawn,
-while omitting `shell` from the child tool set did. PKStack therefore does not
-give any delegated profile a shell. Review `projectctl` verification commands
-before authorizing them under the user's policy: the runner screens obvious
-hazards but is not a sandbox and cannot prove an arbitrary project script is
-read-only. The profile neither preapproves those scripts nor overrides a user's
-existing shell allowance.
+The optional preset allows routine local and external development commands
+within the user's authorized task. Shell patterns are bounded accident
+prevention, not an OS sandbox or proof of script behavior. Controller integrity,
+verifier checks, setup conflict handling, and native planning approvals remain
+separate from tool access. Kiro's own restrictions remain effective; the guide
+records the distinction between public documentation and the inspected 2.21.2
+v3 policy implementation.
 
-These rules apply only after selecting the `pkstack` profile; plain `--v3` uses
-the ambient default agent and does not inherit them. Native Plan hands approved
-work to Default; native Spec uses its own planning and task agents. Shared skills,
-steering, and explicit acceptance context carry the PKStack workflow through those
-transitions, not inheritance of the primary profile's prompt or permissions.
-An explicit return to `pkstack` activates its profile again. Restrictions intended
-to apply across all agents belong in user/workspace policy, which PKStack does not
-silently edit. The installed help still
-exposes `--trust-all-tools` and `--trust-tools`
-compatibility switches even though V3 documentation emphasizes capability
-permissions. PKStack does not depend on those broad switches.
+These settings apply to local CLI v3 and IDE sessions. Web does not load the
+local permission YAML; Crew's own orchestration and security layers require
+separate evidence. PKStack does not depend on compatibility trust-all flags.
 
-The same permission profile is selectable in Kiro IDE 1.x. Kiro Web does not
-offer the corresponding project permission YAML or interactive-approval
-surface and cannot select `pkstack` as its primary agent, so Web support rests
-on projectctl's deterministic checks rather than a claimed replication of the
-IDE/CLI permission boundary. Crew adds its own orchestration and security
-layers; those do not weaken or replace PKStack verification.
+#### September 10 native policy-module probe
+
+The version-pinned [diagnostic](../.github/scripts/probe_kiro_permissions_2212.mjs)
+loads the installed CLI 2.21.2 policy loader, Cedar evaluator, shell parser, and
+tool filter without starting the ACP server, a model conversation, or hooks.
+It uses a disposable user directory containing the packaged preset. The
+no-custom-profile case represents Default's policy input, not a selected live
+Default session. The other cases supply the four canonical consumer profiles.
+
+| Probe | Observed result in all five policy configurations |
+| --- | --- |
+| Nine shell strings, including compound commands | Expected allow/deny effects; hazardous strings were never executed |
+| Source, lockfile, and controller-state write evaluation | Allowed by user policy |
+| Direct `.kiroignore` write and symlink escape | Denied by Kiro-owned rules |
+| MCP capability without a separate grant | Ask; the built-in allow did not grant MCP |
+| Native read/write/shell tool filtering | Primary retained them; helpers retained read only in the tested inventory |
+
+There were no policy-load errors. The real user permission file remained
+byte-identical. This proves native policy loading, matching, and tool filtering
+for these inputs, not an interactive CLI/IDE tool execution, native Plan/Spec
+handoff, or arbitrary shell containment. No new interactive-client claim is made.
+
+The tested preset SHA-256 was
+`1a2daf7fb8c932932a4c5408bad90e59514e08649f06b98cfefeea2bd4857528`.
+The diagnostic rejects bundles other than the reviewed 2.21.2 bytes; run it
+explicitly from the repository root with the installed bundle path:
+
+```sh
+env -u KIRO_API_KEY node --experimental-vm-modules \
+  .github/scripts/probe_kiro_permissions_2212.mjs \
+  /absolute/path/to/installed/kiro/agent/dist/server/acp-server.js
+```
+
+It prints JSON and retains a receipt in its disposable test directory. It does
+not install the preset or change the normal native Kiro execution path.
 
 ### Hooks
 

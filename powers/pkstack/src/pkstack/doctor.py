@@ -218,7 +218,10 @@ def _validate_kiro_json(path: Path, document: Any) -> None:
             raise ValueError("agent name must match its file name")
         if not isinstance(document.get("tools"), list) or not document["tools"]:
             raise ValueError("agent tools must be a non-empty list")
-        if not isinstance(document.get("permissions", {}).get("rules"), list):
+        if "permissions" in document and (
+            not isinstance(document["permissions"], dict)
+            or not isinstance(document["permissions"].get("rules"), list)
+        ):
             raise ValueError("agent permissions.rules must be a list")
     elif path.parent.name == "hooks":
         if document.get("version") != "v1":

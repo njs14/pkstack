@@ -87,7 +87,7 @@ user's context: [`show-me`](../show-me/SKILL.md) for a visual tour,
 Do not start onboarding, a diagram, a documentation rewrite, or a verification workflow merely
 because setup succeeded. An explicitly requested follow-up may proceed within its own scope.
 
-After setup, select the generated Poteto Kiro (`pkstack`) permission profile;
+After setup, select the generated Poteto Kiro (`pkstack`) workflow profile;
 copying its files does not select it. In Kiro IDE 1.x, use the agent selector in
 the chat panel or Agent Focus and choose the workspace `pkstack` agent before the next workflow
 message. In Kiro CLI v3, inspect the agent picker and stay in the same chat:
@@ -100,8 +100,9 @@ message. In Kiro CLI v3, inspect the agent picker and stay in the same chat:
 
 The bare `/agent` opens the picker; do not substitute `/agent list`, which the
 audited CLI 2.21.1 interpreted as an agent named `list`. `/config skills` shows
-the effective skill inventory under the selected agent. The selected prompt,
-tools, and permissions take effect on the next message. Native agent hot reload
+the effective skill inventory under the selected agent. The selected prompt and
+tools take effect on the next message; permission policy remains in the user's
+Kiro configuration. Native agent hot reload
 was observed for a newly added fixture agent; that does not prove skill hot reload.
 For a later managed refresh, `pkstack` disables automatic Power inclusion with
 `includePowers: false` and explicitly loads reviewed workspace skills. This does
@@ -133,6 +134,6 @@ substitute for bootstrapping and committing the complete PKStack workspace
 assets.
 
 Do not run a nested Kiro process, change the user's global default agent, or
-claim that the ambient setup agent received the generated ask/deny rules. Once
+claim that selecting a consumer profile changes the user's permission policy. Once
 selected and discovered, the entire goal loop stays in the current Kiro agent
 session.
