@@ -130,8 +130,9 @@ and the optional first-task example remain self-contained. The full README crest
 and development tooling are maintained outside this folder; `POWER.md` embeds
 only the compact display thumbnail.
 
-The workspace profile respects your Kiro permissions for Git, ordinary writes,
-and controller commands, while retaining its protected-file and destructive-command denies.
+The workspace profile exposes built-in tools and inherits your Kiro permissions.
+Consumer profiles contain no inline permission policy; the optional
+[global preset](docs/permissions.md) provides permissive defaults through a separate manual setup.
 Setup records the files it manages and reports conflicts during upgrades.
 The command runner limits execution time and captured output; review the
 verification command before approving it because it runs with your local access.

@@ -864,7 +864,7 @@
     },
     {
       "path": ".kiro/steering/pkstack-safety.md",
-      "sha256": "77b03f5dfb1d6bd66297c275eb810827cd994e8bfb683b37aa9e7c1ed776d75c",
+      "sha256": "471ab870f5d12d2f07a083c97c10abb6765094b4256d0378a3597db5748aaf2c",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror .kiro/steering/pkstack-safety.md; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -899,12 +899,12 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "35d0fde6dbbbae2b5a7861636f0707a2ab9b7a969a9569604c829ead7de57af7",
+      "sha256": "f5f3debf7dca78db74be04201554a3311970f21725e036dfa0b26fd0983cbef2",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/release-and-review.md"
       ],
-      "summary": "0.6.0 adds eight engineering skills, consolidates four methods, accounts for all Pocock skills, and refreshes dependencies; version notes remain separate from release evidence."
+      "summary": "Unreleased consumer permission inheritance and an optional manual global preset follow 0.6.0's engineering skills and provenance work; version notes remain separate from release evidence."
     },
     {
       "path": "CLAUDE.md",
@@ -950,6 +950,10 @@
     },
     {
       "path": "Wiki/features/README.md",
+      "classification": "canonical"
+    },
+    {
+      "path": "Wiki/features/pkstack-consumer-permissions.md",
       "classification": "canonical"
     },
     {
@@ -1070,7 +1074,7 @@
     },
     {
       "path": "docs/kiro-v3-compatibility.md",
-      "sha256": "fe6492b311d728549a67c83c340af07283038dc5be6f502b8cebfef4baec9b03",
+      "sha256": "ea62e0b89d70ac7121f963b1025f6a2f4673168275eb50329761915cb87ca551",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/runtime-and-verification.md",
@@ -1105,7 +1109,7 @@
     },
     {
       "path": "powers/pkstack/README.md",
-      "sha256": "35bb207cb36b016709057e3cf49ff285814f1cd041eae361c1a38af4c087e9a0",
+      "sha256": "04fa7f719dffa4403028456ed0cd6058e619080587b2f4b6e434379bd5089a18",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1135,7 +1139,7 @@
     },
     {
       "path": "powers/pkstack/dev.kiro/steering/pkstack-safety.md",
-      "sha256": "77b03f5dfb1d6bd66297c275eb810827cd994e8bfb683b37aa9e7c1ed776d75c",
+      "sha256": "471ab870f5d12d2f07a083c97c10abb6765094b4256d0378a3597db5748aaf2c",
       "classification": "excluded",
       "category": "native",
       "reason": "Canonical native steering powers/pkstack/dev.kiro/steering/pkstack-safety.md; generated mirrors must come from setup. Its workflow/tool ownership is explained by the composition and quality guides."
@@ -1174,7 +1178,7 @@
     },
     {
       "path": "powers/pkstack/docs/kiro-v3-compatibility.md",
-      "sha256": "72b55fe51cdd885e3b6dc1519c9a53bf0d9bc6abfbb4a734b8211480cab2f460",
+      "sha256": "083196f9cba19278bd1dc3a9e02a2b7b81b461ee27accfa0f48e89d12d624637",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1182,8 +1186,17 @@
       "summary": "Agent Plugins loading stays authoritative while a POWER.md display compatibility file provides an inline icon; the full Power-directory URL avoids empty IDE imports."
     },
     {
+      "path": "powers/pkstack/docs/permissions.md",
+      "sha256": "fa3b73671d8fd2ff0e9083ceb3624dedee7772585945a4c7f8f9fc20a4a8ce7f",
+      "classification": "mapped",
+      "topics": [
+        "Wiki/knowledge/pkstack/runtime-and-verification.md"
+      ],
+      "summary": "Manual user-policy adoption allows built-ins with targeted catastrophic-command denies, preserves MCP and CI boundaries, and distinguishes source inspection from native runtime proof."
+    },
+    {
       "path": "powers/pkstack/docs/usage.md",
-      "sha256": "46c4c4458dd7bd1fe22b57fe4f5a9238ee9c78394ca70aed86bd5b1867286f73",
+      "sha256": "0da6c23968b754397e47c07cb3a6d8dea1422d849df32e04425815c29a6f48dc",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/installation-and-upgrades.md"
@@ -1892,7 +1905,7 @@
     },
     {
       "path": "powers/pkstack/skills/pkstack-setup/SKILL.md",
-      "sha256": "5e398df70c310d593620203f49dae18198442495c4fe9a65abfb75d1f913bc0b",
+      "sha256": "c89ffa828b40749bec719b3a7c6ac31d3604e75a232ed7113d92d036b7512987",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference powers/pkstack/skills/pkstack-setup/SKILL.md; source inventories and composition guides retain adaptation decisions, while Kiro owns execution and discovery in place."

@@ -13,23 +13,5 @@
     "file://.kiro/steering/**/*.md",
     "skill://.kiro/skills/*/SKILL.md"
   ],
-  "permissions": {
-    "rules": [
-      {
-        "capability": "fs_read",
-        "match": [
-          "./**"
-        ],
-        "effect": "allow"
-      },
-      {
-        "capability": "fs_write",
-        "match": [
-          "./**"
-        ],
-        "effect": "deny"
-      }
-    ]
-  },
   "welcomeMessage": "Ready to inspect a verification contract and its recorded evidence without executing it."
 }

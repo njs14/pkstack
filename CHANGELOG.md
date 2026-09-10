@@ -4,6 +4,14 @@ Release notes are kept short and tied to the Power manifest version. The
 manifest is the release metadata authority; package and generated mirrors must
 match it.
 
+## [Unreleased]
+
+- Let the four consumer agents inherit Kiro's user/workspace permission policy.
+  Expose built-ins in the primary agent and retain read-only helper tool lists.
+- Add an optional, manually installed global permission preset for task-scoped
+  autonomy with targeted catastrophic-command denies. Leave MCP, isolated CI
+  policy, and the user's actual global settings unchanged.
+
 ## [0.6.0]
 
 - Add eight Kiro-native engineering skills: research, diagnosis, architecture surveys,

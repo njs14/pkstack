@@ -9,7 +9,6 @@ import shutil
 import subprocess
 import sys
 from collections import Counter
-from fnmatch import fnmatchcase
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -41,7 +40,6 @@ EXPECTED_SKILLS = (
 )
 REPO_ROOT = ROOT.parents[1]
 ALLOWED_SKILL_FRONTMATTER = {"name", "description"}
-ALLOWED_TOOLS = {"read", "write", "shell", "subagent", "knowledge"}
 ALLOWED_HOOK_TRIGGERS = {
     "PostFileSave",
     "PostFileCreate",
@@ -873,7 +871,7 @@ def test_model_council_is_optional_advisory_and_not_a_runtime_claim() -> None:
     assert "cannot accept" in lowered
 
 
-def test_agent_templates_are_json_least_privilege_profiles() -> None:
+def test_consumer_agents_inherit_policy_and_keep_role_tools() -> None:
     paths = sorted(AGENTS.glob("*.json"))
     assert {path.name for path in paths} == {
         "pkstack-architect.json",
@@ -881,215 +879,21 @@ def test_agent_templates_are_json_least_privilege_profiles() -> None:
         "pkstack-verifier.json",
         "pkstack.json",
     }
-
     for path in paths:
         agent = json.loads(path.read_text(encoding="utf-8"))
         assert agent["name"] == path.stem
-        assert set(agent["tools"]) <= ALLOWED_TOOLS
-        assert "*" not in agent["tools"]
-        assert "@builtin" not in agent["tools"]
-        assert "@mcp" not in agent["tools"]
+        assert "permissions" not in agent
+        assert "allowedTools" not in agent
         assert agent["includeMcpJson"] is False
         assert agent["includePowers"] is False
         assert "model" not in agent, "templates must inherit the user's current model"
         assert "skill://.kiro/skills/*/SKILL.md" in agent["resources"]
         assert "file://.kiro/steering/**/*.md" in agent["resources"]
-
-        rules = agent["permissions"]["rules"]
-        assert rules
-        for rule in rules:
-            assert rule["capability"] != "all"
-            assert rule["effect"] in {"allow", "ask", "deny"}
-            assert "*" not in rule.get("match", [])
-            assert "**" not in rule.get("match", [])
-            if rule["capability"] == "shell" and rule["effect"] == "allow":
-                matches = "\n".join(rule.get("match", []))
-                assert "projectctl" not in matches
-                assert "uv run" not in matches
-
-    assert "write" in json.loads((AGENTS / "pkstack.json").read_text())["tools"]
-    primary_rules = json.loads((AGENTS / "pkstack.json").read_text())["permissions"]["rules"]
-    assert any(
-        rule["capability"] == "fs_read" and rule["effect"] == "allow" for rule in primary_rules
-    )
-    for read_only in (
-        "pkstack-architect.json",
-        "pkstack-reviewer.json",
-        "pkstack-verifier.json",
-    ):
-        profile = json.loads((AGENTS / read_only).read_text())
-        assert profile["tools"] == ["read", "knowledge"]
-        assert profile["toolsSettings"] == {}
-        assert not {"shell", "write", "fs_write"} & set(profile["toolsSettings"])
-        assert not any(rule["capability"] == "shell" for rule in profile["permissions"]["rules"])
-
-
-def test_primary_profile_leaves_controller_authorization_to_ambient_policy() -> None:
-    primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
-    profile_patterns = [
-        pattern
-        for rule in primary["permissions"]["rules"]
-        if rule["capability"] == "shell"
-        for pattern in rule["match"]
-    ]
-    commands = (
-        ".pkstack/bin/projectctl",
-        ".pkstack/bin/projectctl version --output json",
-        ".pkstack/bin/projectctl setup --power-root /reviewed --update-managed",
-        ".pkstack/bin/projectctl doctor --output json",
-        ".pkstack/bin/projectctl feature list --output json",
-        ".pkstack/bin/projectctl feature show sample --output json",
-        ".pkstack/bin/projectctl feature validate --output json",
-        ".pkstack/bin/projectctl feature generate sample --ready",
-        ".pkstack/bin/projectctl feature verify sample --output json",
-        ".pkstack/bin/projectctl goal start objective --command verifier",
-        ".pkstack/bin/projectctl goal bind-spec sample --feature sample --output json",
-        ".pkstack/bin/projectctl goal status --output json",
-        ".pkstack/bin/projectctl goal verify --output json",
-        ".pkstack/bin/projectctl goal resume --add-attempts 1",
-        ".pkstack/bin/projectctl goal clear --force",
-        ".pkstack/bin/projectctl goal tripwire --output json",
-        ".pkstack/bin/projectctl knowledge status --output json",
-        ".pkstack/bin/projectctl knowledge validate --output json",
-        ".pkstack/bin/projectctl knowledge search sample --output json",
-        ".pkstack/bin/projectctl future-command --future-option",
-    )
-
-    for command in commands:
-        assert not any(fnmatchcase(command, pattern) for pattern in profile_patterns), command
-
-
-def test_primary_profile_leaves_ordinary_writes_to_ambient_policy() -> None:
-    primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
-    write_patterns = [
-        pattern
-        for rule in primary["permissions"]["rules"]
-        if rule["capability"] == "fs_write"
-        for pattern in rule["match"]
-    ]
-    for path in (
-        "./src/app.py",
-        "./tests/test_app.py",
-        "./README.md",
-        "./.kiro/skills/user-verifier/SKILL.md",
-    ):
-        assert not any(fnmatchcase(path, pattern) for pattern in write_patterns), path
-
-
-def test_primary_profile_denies_direct_control_plane_writes_and_common_clobbers() -> None:
-    primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
-    rules = primary["permissions"]["rules"]
-    denied_writes = {
-        pattern
-        for rule in rules
-        if rule["capability"] == "fs_write" and rule["effect"] == "deny"
-        for pattern in rule["match"]
-    }
-    denied_shell = {
-        pattern
-        for rule in rules
-        if rule["capability"] == "shell" and rule["effect"] == "deny"
-        for pattern in rule["match"]
-    }
-
-    assert denied_writes >= {
-        ".pkstack/**",
-        ".kiro/agents/**",
-        ".kiro/hooks/**",
-        ".kiro/steering/**",
-    }
-    assert ".kiro/skills/**" not in denied_writes
-    managed_live_skills = EXPECTED_SKILLS - {"pkstack-setup"}
-    managed_skill_denies = {
-        pattern for pattern in denied_writes if pattern.startswith(".kiro/skills/")
-    }
-    assert managed_skill_denies == {f".kiro/skills/{name}/**" for name in managed_live_skills}
-    foreign_skill = ".kiro/skills/user-verifier/SKILL.md"
-    assert not any(fnmatchcase(foreign_skill, pattern) for pattern in denied_writes)
-    assert denied_shell >= {
-        "rm -r*",
-        "rm -R*",
-        "git checkout *",
-        "git checkout -- *",
-        "git restore *",
-        "git branch -d *",
-        "git branch -D *",
-        "git branch --delete *",
-        "git push --force*",
-        "git push -f*",
-    }
-
-    destructive_commands = (
-        "git checkout src/app.py",
-        "git checkout HEAD -- src/app.py",
-        "git -C nested checkout -- src/app.py",
-        "git branch -d topic",
-        "git branch -D topic",
-        "git branch --delete topic",
-        "git -C nested branch --delete --force topic",
-        "git push origin main --force",
-        "git push origin main --force-with-lease",
-        "git push origin +main",
-        "git push --mirror origin",
-        "git -C nested push origin main --force",
-        "git -C nested push origin +main",
-        "git -C nested push --mirror origin",
-    )
-    for command in destructive_commands:
-        assert any(fnmatchcase(command, pattern) for pattern in denied_shell), command
-
-
-def test_primary_profile_denies_reordered_destructive_switch_flags() -> None:
-    primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
-    shell_rules = [
-        rule for rule in primary["permissions"]["rules"] if rule["capability"] == "shell"
-    ]
-
-    def effect(command: str) -> str | None:
-        matches = {
-            rule["effect"]
-            for rule in shell_rules
-            if any(fnmatchcase(command, pattern) for pattern in rule["match"])
-        }
-        return next((value for value in ("deny", "ask", "allow") if value in matches), None)
-
-    destructive_options = (
-        "-f main",
-        "--force main",
-        "--discard-changes main",
-        "-C topic",
-        "-Ctopic",
-        "--force-create topic",
-        "--force-create=topic",
-        "-qf main",
-        "-dqf main",
-        "-qC topic",
-        "-qCtopic",
-    )
-    for git_prefix in ("git", "git -C nested", "git --no-pager -C nested"):
-        for preceding_options in ("", "--no-guess ", "-t ", "--quiet ", "--progress ", "--detach "):
-            for destructive_option in destructive_options:
-                command = f"{git_prefix} switch {preceding_options}{destructive_option}"
-                assert effect(command) == "deny", command
-        for following_flag in ("-f", "--force", "--discard-changes"):
-            command = f"{git_prefix} switch main {following_flag}"
-            assert effect(command) == "deny", command
-        for benign_options in (
-            "main",
-            "-c topic",
-            "--create topic",
-            "--no-guess feature",
-            "--quiet -c feature",
-            "--track origin/feature",
-            "--detach HEAD",
-            "-q feature",
-            "-dq feature",
-            "--no-guess -q feature",
-            "--no-guess -dq feature",
-            "-q Case-sensitive-topic",
-        ):
-            command = f"{git_prefix} switch {benign_options}"
-            assert effect(command) is None, command
+        if path.stem == "pkstack":
+            assert agent["tools"] == ["@builtin"]
+        else:
+            assert agent["tools"] == ["read", "knowledge"]
+            assert agent["toolsSettings"] == {}
 
 
 def test_skill_authoring_respects_bootstrap_owned_routes() -> None:
@@ -1097,37 +901,6 @@ def test_skill_authoring_respects_bootstrap_owned_routes() -> None:
         text = (SKILLS / name / "SKILL.md").read_text(encoding="utf-8")
         assert ".pkstack/bootstrap.json" in text
         assert "receipt-managed" in text
-
-
-def test_primary_profile_does_not_preapprove_or_force_approval_for_ambient_git() -> None:
-    primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
-    shell_allow = [
-        pattern
-        for rule in primary["permissions"]["rules"]
-        if rule["capability"] == "shell" and rule["effect"] == "allow"
-        for pattern in rule["match"]
-    ]
-    shell_ask = [
-        pattern
-        for rule in primary["permissions"]["rules"]
-        if rule["capability"] == "shell" and rule["effect"] == "ask"
-        for pattern in rule["match"]
-    ]
-    commands = (
-        "git difftool -y --extcmd=sh HEAD~1 HEAD",
-        "git difftool -y -x sh",
-        "git diff --ext-diff",
-        "git diff --output=.kiro/hooks/evil.json",
-        "git log -1 --format=%B --output=.pkstack/state/goal.json",
-        "git show --output=/tmp/escape HEAD",
-        "git log --output=../outside.txt",
-        "git diff --no-index /etc/hosts /dev/null",
-        "git status --short",
-    )
-
-    for command in commands:
-        assert not any(fnmatchcase(command, pattern) for pattern in shell_allow), command
-        assert not any(fnmatchcase(command, pattern) for pattern in shell_ask), command
 
 
 def test_post_swap_setup_refresh_uses_power_local_authority() -> None:
@@ -1150,7 +923,7 @@ def test_verified_goal_surfaces_stored_predicate_before_first_attempt() -> None:
     assert "shell approval UI" in text
 
 
-def test_subagent_trust_is_explicit_and_bounded_to_shipped_profiles() -> None:
+def test_subagent_availability_keeps_roles_and_leaves_trust_to_global_policy() -> None:
     primary = json.loads((AGENTS / "pkstack.json").read_text(encoding="utf-8"))
     settings = primary["toolsSettings"]["subagent"]
 
@@ -1159,7 +932,7 @@ def test_subagent_trust_is_explicit_and_bounded_to_shipped_profiles() -> None:
         "pkstack-reviewer",
         "pkstack-verifier",
     ]
-    assert settings["trustedAgents"] == settings["availableAgents"]
+    assert set(settings) == {"availableAgents"}
 
 
 def test_installed_kiro_discovers_every_workspace_agent_with_221_sentinel(

@@ -41,30 +41,52 @@ metadata while the agent reads `plugin.json`. The corrected Power-directory
 import and bounded display preview establish installation and presentation
 behavior only; they do not refresh native planning or task-verification evidence.
 
-## Permission evidence must use the selected profile
+## Permission ownership and evidence
 
-The primary profile retains protected-file and destructive-command denies while
-leaving Git, ordinary writes, and controller authorization to Kiro's defaults and
-the user's permissions. It does not add blanket asks or allows for those operations.
-An explicit `ask` overrides a saved `allow` under Kiro's `deny > ask > allow`
-policy, so it would force repeated approval even for operations the user already
-trusts. Unmatched operations still prompt. Native Plan and Spec switch to their
-own agents; an agent-scoped rule is not a workspace-wide restriction. Shared
-workflow instructions and executable acceptance evidence must survive that handoff
-without relying on the primary profile remaining active.
+The four consumer profiles inherit Kiro's permission policy and contain no inline
+rules or legacy trust grants. The primary exposes `@builtin`; architect, reviewer,
+and verifier retain only `read` and `knowledge`. Subagent availability describes
+PKStack's three helper roles, while trust comes from user policy. CI maintenance
+and review profiles remain separately restricted.
 
-Generating an agent profile or passing its schema validator does not prove live matching. Record
-which profile was selected, the actual allowed/asked/denied action, runtime version, and fixture
-scope. Read-only delegated profiles must not acquire general shell tools through misleading labels.
-Open-ended Git globs are unsafe shortcuts: apparent read operations can accept output paths,
-external diff commands, or names such as `difftool`. Test argument and spelling variants as well
-as nominal commands. Tool permissions do not constrain everything an approved subprocess may do.
+The optional [global preset](../../../powers/pkstack/examples/permissions.yaml)
+and [manual setup guide](../../../powers/pkstack/docs/permissions.md) allow
+built-in capabilities with targeted shell denies for recognizable root/home
+deletion, filesystem formatting, disk erasure, and block-device overwrites.
+MCP is outside the preset. Routine reads, writes, cleanup, Git, publishing, and
+infrastructure tools proceed within the user's authorized scope. This trades
+per-action prompts for task-scoped autonomy; it does not authorize unrelated
+work or weakening executable proof. Normal setup never changes global policy.
 
-The 0.3 permission campaign found missing `git switch` discard/reset forms and subsequently grouped
-short-option gaps. Its repaired examples include reordered options and grouped forms. That is
-bounded matcher evidence, not a complete shell containment claim. Inspect the current
-[primary profile](../../../powers/pkstack/templates/project/.kiro/agents/pkstack.json) and tests
-when changing these boundaries; old reviews refer to earlier names and schemas.
+The [consumer-permission feature](../../features/pkstack-consumer-permissions.md)
+stores the executable YAML, role, and setup-ownership contract. Its local fixture
+results are separate from native client observations.
+
+Kiro combines rules with `deny > ask > allow`; adding an allow cannot cancel
+an explicit ask or deny. A manual migration must review existing rules and keep
+MCP configuration intact. Native Plan and Spec retain their tool selections and
+workflow approvals while user policy follows the handoff. Built-in Kiro path
+restrictions and malformed-policy handling remain independent of the preset.
+
+The September 10 inspection of CLI 2.21.2 confirmed that `builtin` excludes MCP
+and that the policy engine includes symlink-escape checks and a direct
+`.kiroignore` write deny beyond the simplified public reference. Some other
+configuration-path asks depend on workspace trust or a broad user write allow.
+These are source observations; they do not prove all IDE or CLI runtime paths.
+
+The same-day [native policy-module probe](../../../docs/kiro-v3-compatibility.md#september-10-native-policy-module-probe)
+then exercised the real loader, shell parser, Cedar evaluator, and tool filter
+against disposable global-policy fixtures. It confirmed the tested compound
+command decisions, Kiro-owned path denies, and helper role filtering. No model
+conversation or interactive tool execution occurred; that boundary remains
+separate from these runtime-module results.
+
+Generating a profile or passing schema validation does not prove live matching.
+Record the selected profile, runtime version, effective policy and actual result.
+Test destructive patterns as data, and use harmless fixtures for execution probes.
+Shell globs cannot classify arbitrary scripts, aliases, wrappers or every path
+spelling. Historical Git-switch denial campaigns describe earlier policy choices;
+they remain regression history rather than current consumer restrictions.
 
 ## Reusable regressions from early reviews
 
