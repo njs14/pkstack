@@ -25,18 +25,38 @@ class ConsumerPermissionTests(unittest.TestCase):
     def test_consumer_inheritance_coexists_with_restricted_ci_reviewer(self):
         guard.validate_product_envelope(self.root)
 
+    def test_primary_requires_empty_v3_permission_marker(self):
+        path = self.root / ".kiro/agents/pkstack.json"
+        document = json.loads(path.read_bytes())
+        document.pop("permissions", None)
+        path.write_text(json.dumps(document))
+        with self.assertRaisesRegex(guard.GuardError, "empty v3 permission marker"):
+            guard.validate_product_envelope(self.root)
+
     def test_rejects_inline_grants_denies_legacy_trust_and_helper_writes(self):
         mutations = [
-            ("pkstack", "permissions", {"rules": []}),
+            ("pkstack", "permissions", None),
+            ("pkstack", "permissions", {}),
+            ("pkstack", "permissions", {"rules": {}}),
+            ("pkstack", "permissions", {"rules": [], "extra": True}),
             ("pkstack", "allowedTools", ["@builtin"]),
             ("pkstack", "tools", ["*"]),
             ("pkstack", "includeMcpJson", True),
             ("pkstack", "toolsSettings", {"shell": {"allowedCommands": ["*"]}}),
             ("pkstack-reviewer", "tools", ["read", "write"]),
+            ("pkstack-reviewer", "permissions", {"rules": []}),
             ("pkstack-verifier", "tools", ["@builtin"]),
             ("pkstack-ci-reviewer", "permissions", {"rules": []}),
             ("pkstack-ci-reviewer", "tools", ["shell"]),
         ]
+        mutations.extend(
+            (
+                "pkstack",
+                "permissions",
+                {"rules": [{"capability": "builtin", "effect": effect}]},
+            )
+            for effect in ("allow", "ask", "deny")
+        )
         for name, field, value in mutations:
             with self.subTest(name=name, field=field):
                 path = self.root / f".kiro/agents/{name}.json"

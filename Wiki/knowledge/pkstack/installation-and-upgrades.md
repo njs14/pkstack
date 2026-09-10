@@ -37,6 +37,20 @@ to initialize the application workspace. Review its preview before applying
 changes. Select the workspace `pkstack` agent afterward; Power registration alone
 does not establish that its skills are attached to the active agent.
 
+The primary profile retains an empty `permissions.rules` marker for v3 format
+compatibility. It adds no policy, but prevents the observed legacy-profile fallback
+when the profile still defines subagent availability. Refresh this managed profile
+through setup; do not add global grants or run a broad agent upgrade to repair this
+one field. [Permission ownership](runtime-and-verification.md#permission-ownership-and-evidence)
+records the boundary between structural validation and selected-agent runtime proof.
+
+`/pkstack-guide` is installed by the same reviewed setup and uses the selected profile's normal
+skill discovery. It offers project-aware next-step advice before execution. Setup can suggest
+it when orientation would help, but does not run it or a tour automatically; a known specific
+need still gets the relevant direct next-step offer. A later authorized action uses its existing
+workflow owner and native approval boundary. See the
+[usage examples](../../../powers/pkstack/docs/usage.md#ask-what-to-do-next).
+
 The project-local `.pkstack/bin/projectctl` runs explicit operational commands.
 The public launcher and asset-bearing wheel path have been retired. Setup runs
 from the loaded Power, while the installed controller preserves the caller's

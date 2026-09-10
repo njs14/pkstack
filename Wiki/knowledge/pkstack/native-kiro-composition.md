@@ -40,6 +40,29 @@ records the response contract and budget limits.
 
 ## Native workflow handoff
 
+### Project advice is separate from execution
+
+The September 10 conversational plan, explicitly approved for implementation, adds
+`pkstack-guide` as a project-aware advisor across new and existing projects. A separate
+entry point makes advice discoverable without changing `pkstack` into another planner or
+expanding setup into automatic onboarding. The guide recommends a next action, explains
+the evidence and expected proof, and prepares a prompt for the owning workflow. Advice
+alone does not authorize execution or knowledge writes. A subsequent execution request
+uses the existing owner and native handoff, carrying settled context forward.
+
+Verification readiness is relative to the real user or caller surface: an empty repository
+needs a small runnable slice with a feedback loop, while an existing project may need no
+new harness. The maintainer's pstack guides inform the method, not a requirement for Cursor
+cloud agents, a daily schedule, or every workflow on every task. This records an accepted
+design; structural and native behavioral checks must establish its implementation separately.
+The [guide entry point](../../../powers/pkstack/skills/pkstack-guide/SKILL.md) owns advice;
+its [lifecycle reference](../../../powers/pkstack/skills/pkstack-guide/references/project-lifecycle.md)
+records the decision criteria and source adaptations. Execution remains in the
+[primary router](../../../powers/pkstack/skills/pkstack/SKILL.md), and
+[setup](../../../powers/pkstack/skills/pkstack-setup/SKILL.md) only offers orientation when useful.
+The [guide installation contract](../../features/pkstack-guide.md) checks registration,
+resource installation, conflict preservation, and declared routes; it is not native behavior proof.
+
 Kiro documents native planning workflows as client-selected workflows. It does not document a
 supported Agent Skill or custom-agent tool for changing the active workflow. PKStack therefore
 does not invoke or emulate Spec, Quick Spec, or Bug Fix, and it does not use ACP or a nested Kiro
@@ -51,6 +74,53 @@ uses **Build with spec** or the workflow picker. After Kiro produces its native 
 conversation returns to the `pkstack` agent and binds the spec to an executable verifier. Web support
 uses committed workspace assets but remains untested. Crew compatibility is artifact-level through
 its Task Runner and does not imply the local IDE/CLI same-session transition.
+
+## September 10 guide observations and limits
+
+Native CLI v3 testing used Kiro CLI 2.21.2, embedded KAS 0.58.7, and the session's `auto`
+model selection. These are diagnostic observations, not an unmodified-profile acceptance pass.
+The pre-repair primary profile was rejected at chat startup as needing a legacy-agent upgrade,
+despite structural validation and listing. A disposable fixture adding only
+`"permissions": {"rules": []}` selected `pkstack` in the runtime event stream. No canonical
+agent, global configuration, or permission grant was changed for this guide implementation.
+The subsequent explicitly approved compatibility repair is recorded under
+[permission ownership](runtime-and-verification.md#permission-ownership-and-evidence).
+That repair does not turn these earlier diagnostic runs into unmodified-profile evidence;
+an agent-list result alone cannot establish selected-agent behavior.
+
+The fixture copied reviewed skills, steering, and consumer profiles, but omitted setup, hooks,
+and the project controller. Temporary native policy allowed file reads and skill disclosure;
+it denied shell, writes, subagents, Powers, MCP, and web calls. This isolates advisory behavior;
+it does not prove obedience with unrestricted tools or installed-project integration.
+Kiro still used its native authentication. No IDE, Crew, Web, live app, or hosted-CI result follows.
+
+A ten-case revision covered no repository, an empty library, unfamiliar code, unit tests without
+surface proof, a stale verifier, a healthy harness, an approved Spec, interaction uncertainty,
+an explicit `/how` request, and unavailable Slack context. All ten exited normally with unchanged
+fixture files and no model-requested execution tools. Advice was mixed: the stale verifier was
+read and routed to maintenance, the explicit explanation was not intercepted, and missing Slack
+context was not fabricated. Other answers skipped required references, treated an unverified
+inference as rationale, proposed malformed Spec handoffs, or replaced requested interaction
+proof with a prose plan. No aggregate behavioral pass is claimed.
+
+That campaign tested entry SHA-256
+`2356b2a5a2b2fa630e998f7131fb13b7e6b0c9054554e60fa5153630e3b856a7`.
+After the observed corrections, three fresh runs tested entry
+`4d3a10c2584f180f6bb50053312ef003471a1b40f9cacaffa9b6577317ed072d`.
+Both used lifecycle-reference SHA-256
+`36ee0b724743bb7f509a9e90bb35fbd7fd2fac30cb550cb2edd49ef298aa69e9`.
+
+| Final targeted scenario | Observation and remaining limit |
+| --- | --- |
+| Empty Python library | Preserved uv/pytest, proposed a small public-API slice and a valid Plan prompt; still proposed a return to PKStack after conversational Plan, contrary to its native handoff ownership. |
+| Approved queue Spec | Read requirements, design, tasks, and the router; emitted `/spec queue` and carried retry-once/same-job-ID proof into pre-implementation verifier binding. Did not inspect controller or runner availability. |
+| Interaction uncertainty | Recommended `/pkstack prototype` with both interactions and an observation that settles the choice. Still skipped the lifecycle and destination reference reads. |
+
+The three reruns also left fixture files unchanged. They supersede the specific malformed-resume
+and prose-instead-of-prototype observations, not every earlier case or remaining grounding gap.
+The useful distinction is advice scope versus recommended-work scope: a read-only recommendation
+may point to an executable experiment without conducting it. Structural installation proof stays
+in the [guide feature contract](../../features/pkstack-guide.md); native acceptance remains limited.
 
 ## Shared planning interview decision
 

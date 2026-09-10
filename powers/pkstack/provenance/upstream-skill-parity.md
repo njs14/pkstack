@@ -21,10 +21,10 @@ Forty-six upstream workflows have runnable routes. The entry workflow is
 `/pkstack` (upstream `poteto-mode`), and setup is `/pkstack-setup` (upstream
 `setup-pstack`). The remaining imported skills retain their names.
 
-PKStack also ships `/pkstack-principles`, `/pkstack-maintain`,
-`/pkstack-model-council`, `/pkstack-verified-goal`, and `/okf`, for 51 routes
-in this catalog. The thirteen [curated additions](../docs/curated-skills.md) bring the
-Power total to 64. Setup stays Power-local; the other 63 install into the
+PKStack also ships `/pkstack-guide`, `/pkstack-principles`, `/pkstack-maintain`,
+`/pkstack-model-council`, `/pkstack-verified-goal`, and `/okf`, for 52 routes
+in this catalog. The twenty-three [curated additions](../docs/curated-skills.md) bring the
+Power total to 75. Setup stays Power-local; the other 74 install into the
 workspace. `/okf` is the explicit knowledge-integration naming exception,
 with independently adapted methodology recorded in its separate provenance.
 

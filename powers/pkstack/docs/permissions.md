@@ -5,6 +5,12 @@ exposes all built-in tools; architect, reviewer, and verifier expose only `read`
 and `knowledge`. Tool selection defines their roles. None of these four profiles
 contains permission rules, legacy tool grants, or subagent trust grants.
 
+The primary profile includes `"permissions": {"rules": []}` for v3 compatibility.
+The empty list adds no agent-scoped policy. Without this block, the tested CLI
+2.21.2 treats the profile's remaining subagent configuration as legacy and falls
+back to `default`. Helper profiles remain unchanged. This marker is not a global
+permission preset and does not override existing user or workspace rules.
+
 The optional [permissions preset](../examples/permissions.yaml) allows built-in
 tools and adds targeted shell denies for direct root/home deletion, filesystem
 formatting, disk erasure, and raw-device overwrites. It is intended for a trusted

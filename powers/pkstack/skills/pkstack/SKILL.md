@@ -7,6 +7,13 @@ description: Route broad Poteto workflow requests into PKStack's Kiro-native ski
 
 Treat the request text that activated this skill as the outcome to route through PKStack.
 
+For advice about where to start, verification readiness, or which workflow to use next, read
+[`pkstack-guide`](../pkstack-guide/SKILL.md) before entering execution checkpoints or a planning
+interview. Return its contextual recommendation without starting the recommended work. Direct
+execution requests, explicit leaf-skill invocations, and requests for native planning retain
+their existing routes below. A later authorization of the recommendation proceeds through its
+owner with the settled context; do not route that execution back to the advisor.
+
 This is PKStack's entry point for the broader Poteto workflow. Keep execution in the
 current Kiro agent session. First classify the request against
 [`references/workflows.md`](references/workflows.md), read the matching section, and preserve its

@@ -13,7 +13,7 @@
       "disposition": "excluded",
       "name": "ask-matt",
       "path": "skills/engineering/ask-matt/SKILL.md",
-      "rationale": "Author-personal routing and persona outside the selected engineering methods.",
+      "rationale": "Author-personal routing and persona remain excluded. The locally authored pkstack-guide offers analogous project advice without importing this package or its tracker flow.",
       "source_id": null
     },
     {

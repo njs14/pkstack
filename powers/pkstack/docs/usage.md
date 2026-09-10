@@ -80,6 +80,8 @@ The primary profile exposes all built-in tools and inherits Kiro's defaults and
 your user, workspace, and session permissions. All four consumer profiles omit
 inline permission rules. Delegated architect, reviewer, and verifier profiles
 retain only `read` and `knowledge`; they inspect and report to the primary session.
+The primary retains an empty `permissions.rules` block as a v3 compatibility
+marker; it contributes no rules or grants.
 The [global permissions guide](permissions.md) includes an optional, manually
 installed preset for broad built-in access with targeted destructive-command
 denies. Normal setup never changes your global policy.
@@ -99,6 +101,7 @@ and the controller's evidence checks are not an operating-system sandbox. See th
 | Command | Use it for |
 | --- | --- |
 | `/pkstack` | Route a task through planning, implementation, verification, and review |
+| `/pkstack-guide` | Decide the next useful step for a new or existing project without starting it |
 | `/pkstack-setup` | Preview installation or refresh when the imported Power is discoverable |
 | `/pkstack-maintain` | Review upstream changes to the Power |
 | `/pkstack-verified-goal` | Repair against one stored executable check |
@@ -107,6 +110,29 @@ and the controller's evidence checks are not an operating-system sandbox. See th
 
 Imported skills keep their names. The [sources guide](curated-skills.md) explains
 their roles and handoffs. For a runnable example, [try one failing task](first-task.md).
+
+## Ask what to do next
+
+Use `/pkstack-guide <situation or question>` when you want advice before choosing a workflow.
+It reads relevant project context, recommends one next action with its reason and success
+evidence, and gives you a ready-to-send prompt. It can also answer a simple skill-choice
+question without surveying the project. `/pkstack` routes advisory questions to the same guide.
+
+```text
+/pkstack-guide I'm starting a new service. Where should I begin?
+/pkstack-guide This repo has tests, but agents still need constant supervision.
+/pkstack-guide We have an approved design. What should happen next?
+```
+
+The guide does not run setup, tests, prototypes, or writes merely to give advice. It reuses
+existing tools and Specs, distinguishes old evidence from a current successful run, and names
+missing capabilities. When you authorize the next step, its existing workflow takes over with
+the settled context. Kiro still owns native mode selection and approval. Setup may offer the
+guide after installation, but does not run it automatically.
+
+The [lifecycle reference](../skills/pkstack-guide/references/project-lifecycle.md) explains its
+decision criteria and source adaptations. Guidance is not a new planner or a replacement for
+the actual execution skills.
 
 ## Save a recurring request in Kiro
 

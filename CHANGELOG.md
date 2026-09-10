@@ -6,6 +6,13 @@ match it.
 
 ## [Unreleased]
 
+- Keep an empty v3 permission marker in the primary consumer profile so Kiro
+  selects `pkstack` without legacy fallback, while still inheriting user policy.
+
+- Add `/pkstack-guide` for project-aware next-step advice, from a first runnable
+  slice to verification readiness, design, and upkeep. Reuse native Kiro workflows
+  and existing skills without starting recommended work automatically.
+
 - Let the four consumer agents inherit Kiro's user/workspace permission policy.
   Expose built-ins in the primary agent and retain read-only helper tool lists.
 - Add an optional, manually installed global permission preset for task-scoped

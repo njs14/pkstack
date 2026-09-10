@@ -38,6 +38,7 @@ Use `/pkstack` for the overall task. A helper should contribute a distinct outpu
 
 | Job | Skill and handoff |
 | --- | --- |
+| Choose the next useful step | `pkstack-guide`; contextual advice and a ready prompt, without starting the recommended work |
 | Explain visually | `show-me`; use `archify` when a polished diagram is needed |
 | Record or audit decisions and proof | `show-me-your-work`; keep its log separate from visual explanations |
 | Write for a person | `technical-writing`, followed by `unslop` |
@@ -100,7 +101,7 @@ catalog. Each entry binds its Kiro wrapper, source inventory, provenance, and
 exact bundle manifest. The pins below describe the accepted sources, not a
 claim that every upstream is at its latest release.
 
-These imported skills retain their upstream names. PKStack's six entry points
+These imported skills retain their upstream names. PKStack's seven entry points
 use `/pkstack` or `/pkstack-<workflow>`; `/okf` is the separate knowledge-integration
 exception. The [pstack mapping](../provenance/upstream-skill-parity.md) covers Poteto's ports.
 
@@ -133,6 +134,12 @@ Their [provenance and adaptations](../provenance/astral-python-provenance.md) re
 separate Kiro skill behavior from Claude plugin installation and language-server configuration.
 
 ## Pocock accounting
+
+`ask-matt` remains excluded as an upstream package. The locally authored
+[`pkstack-guide`](../skills/pkstack-guide/SKILL.md) supplies analogous project advice using
+PKStack's shipped routes and native Kiro ownership. Its
+[dated editorial sources](../skills/pkstack-guide/references/project-lifecycle.md#sources-and-kiro-adaptations)
+include the user-supplied pstack guide exports; it imports no persona, tracker flow, or runtime.
 
 The [complete disposition catalog](../metadata/mattpocock-skill-catalog.json) accounts for all
 37 entrypoints at the pinned source revision. Thirteen are imported, four methods are consolidated,
