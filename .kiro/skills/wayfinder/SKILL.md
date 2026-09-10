@@ -101,7 +101,9 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
    research. Repair only already-authorized effects; incomplete access is not proof
    that an effect is missing. A named work ticket must be a child and frontier-eligible
    or this resumed session's previously verified claim. Do not bypass blockers or
-   another worker's claim.
+   another worker's claim. Finish the capture checkpoint through validation and
+   its separate pending-clear edit before step 2; do not batch unfinished recovery
+   with a new ticket's work.
 2. Select the first eligible child in native sub-issue or numeric file order unless
    the user selected another eligible ticket. Claim it using the backend's convention
    and re-read state; reuse a verified resumed-session claim only after rechecking
@@ -111,7 +113,9 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
    owner authorization and confirmation that no active worker still owns it.
 3. Work one decision ticket per session; additional independent research requires
    the request's existing scope and budget. Fetch related decisions on demand.
-   Read [research](../research/SKILL.md) for factual uncertainty and
+   For a research ticket, read [research](../research/SKILL.md) in full now, before
+   writing an Answer, even when the primary source was already inspected. The
+   source provides evidence, not the research method. Read
    [the prototype method](../poteto-kiro-mode/references/pocock-prototype/README.md)
    when concrete evidence is needed. Research records sources and limitations. Grilling uses
    the two bundled methods above and requires the human's actual answers.
@@ -119,7 +123,8 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
    their subjective decisions remain pending until the human responds. A task may
    perform authorized prerequisite work only when it unblocks a decision. Never
    put credentials or secret locations into public ticket evidence.
-4. Record and verify the answer, then resolve the ticket using the backend reference.
+4. Record the answer, read back the saved answer, and only then resolve the ticket
+   using the backend reference. Do not combine answer publication and resolution.
    Record a named link and gist on the map after rereading its latest body. Apply the
    knowledge capture checkpoint below. Preserve others' updates.
    On a partial failure, inspect existing effects and resume from the missing step;
@@ -158,9 +163,11 @@ ticket. Ticket resolution and knowledge capture are separate states.
    the first capture edit. Inspect existing entries before deciding what changes;
    retries must not duplicate decisions, index links, or log entries. If no durable
    edits are needed, verify the existing capture and report the no-op.
-2. Before any durable edit, retain or write a named pending-capture pointer in the
+2. For each resolution separately, before any durable edit, retain or write a named
+   pending-capture pointer in the
    map's Notes when map writes are permitted. It identifies the existing resolution
-   for recovery without reopening a ticket or repeating research. If map writes
+   for recovery without reopening a ticket or repeating research. A pointer for
+   another resolution does not cover this one. If map writes
    are unavailable, keep that pending state in the conversation.
 3. Write and re-read the curated topic changes and forward links. Preserve existing
    metadata and unrelated material; identify superseded guidance where needed.

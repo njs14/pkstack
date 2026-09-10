@@ -17,7 +17,7 @@
     },
     {
       "path": ".kiro/skills/wayfinder/SKILL.md",
-      "sha256": "4eb414ca80d9ee22324b0df2fc3b5729243e81ca267435cd1f7e3973250130a4",
+      "sha256": "7cfca22627e559475b6c2ca4dab09c2a9cf55b402ce7b4c6cbb45dfbe12f262d",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
@@ -31,7 +31,7 @@
     },
     {
       "path": "powers/pkstack/skills/wayfinder/SKILL.md",
-      "sha256": "4eb414ca80d9ee22324b0df2fc3b5729243e81ca267435cd1f7e3973250130a4",
+      "sha256": "7cfca22627e559475b6c2ca4dab09c2a9cf55b402ce7b4c6cbb45dfbe12f262d",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference; source inventory and composition guidance retain adaptation decisions while Kiro owns execution and discovery."
