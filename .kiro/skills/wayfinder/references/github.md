@@ -50,6 +50,9 @@ the agreed destination; do not identify an issue solely by a matching title.
 Keep returned identities as each creation succeeds. Attach all children before
 adding blockers. If a step fails, report exactly which relationships remain to
 be established and do not present a partial graph as the full frontier.
+If a creation response is lost before its identity is known, the result is unknown.
+Reconcile the repository's recent issues against author, body, and the intended map;
+stop for clarification when identity is ambiguous instead of creating a duplicate.
 
 For issue bodies and comments, write the exact Markdown into a reviewed local
 file and pass `--body-file` when commands are permitted. Never interpolate
@@ -63,11 +66,19 @@ blockers, and all assignees immediately before and after assigning. A preexistin
 assignment is not proof this session owns the ticket. Release only this session's
 claim when abandoning work; preserve another worker's assignments. Retain a concise
 handoff comment if authorized, with findings and the unresolved question.
+On a resumed native session, use retained claim evidence and the current assignee
+set together. A stale claim from another session needs explicit owner authorization
+and confirmation that its worker is no longer active; matching login names alone
+do not authorize takeover.
 
 Store the full answer once in a resolution comment and link that exact comment
 from the map. Read existing comments on recovery so a posted answer can be reused.
 Closing after verified resolution and updating the index are separate effects;
 report partial success and repair the remaining effect without rerunning research.
+Reconcile known closed-but-unindexed children before selecting the next frontier
+ticket. Reuse the exact resolution comment URL, or link a retirement explanation
+under Out of scope. Preserve closed state and do not claim an already resolved
+ticket merely to finish its missing map link.
 
 An optional GitHub Projects view must be explicitly requested and resolved to an
 existing authorized project. This skill neither provisions a board automatically

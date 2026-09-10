@@ -23,6 +23,9 @@ guidance based on GitHub's documented Issues, sub-issues, and dependency APIs.
 Alternate trackers, self-hosted hosts, and Markdown board fallbacks are excluded.
 The reference also handles required labels, identity distinctions, pagination,
 partial publication, concurrent claims, and recovery without duplicate effects.
+Known closed-but-unindexed results are reconciled before selecting new work.
+Resumed-session claim evidence is distinct from a matching account assignment;
+another session's stale claim requires explicit owner authorization before takeover.
 
 The [source inventory](../metadata/mattpocock-wayfinder-source-parity.json) binds
 the exact upstream objects and dispositions; the

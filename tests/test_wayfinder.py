@@ -64,13 +64,16 @@ def test_wayfinder_installs_with_new_router_and_unchanged_agent(tmp_path: Path) 
 
 
 def test_wayfinder_retains_cloud_only_relationship_and_authority_contract() -> None:
-    skill = (POWER / "skills/wayfinder/SKILL.md").read_text()
-    operations = (POWER / "skills/wayfinder/references/github.md").read_text()
+    skill = " ".join((POWER / "skills/wayfinder/SKILL.md").read_text().split())
+    operations = " ".join((POWER / "skills/wayfinder/references/github.md").read_text().split())
     for requirement in (
         "Native Plan is read-only",
         "no assignee and no open blocker",
         "one decision ticket per session",
         "not an atomic session lock",
+        "reconcile known partial publication",
+        "previously verified claim",
+        "closed state is not evidence",
         "no in-scope fog remains",
         "do not create a fallback board",
     ):
@@ -82,5 +85,11 @@ def test_wayfinder_retains_cloud_only_relationship_and_authority_contract() -> N
         "Integer `issue_id`",
         "not an empty list",
         "do not reparent",
+        "closed-but-unindexed",
+        "matching login names alone",
+        "creation response is lost",
     ):
         assert requirement.casefold() in operations.casefold()
+    assert skill.index("reconcile known partial publication") < skill.index(
+        "Select the first eligible child"
+    )

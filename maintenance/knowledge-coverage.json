@@ -3,35 +3,35 @@
   "entries": [
     {
       "path": ".kiro/skills/wayfinder/SKILL.md",
-      "sha256": "2208676de577e8669eca78a0f1719800979818992c5aeb2db1bbe803eec24e51",
+      "sha256": "5c4a4a136bee327f28e3fbbadffda9ea2cddfbf2b900e8f0095eec2af9358aef",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
       "path": ".kiro/skills/wayfinder/references/github.md",
-      "sha256": "5a8803168d9dcdfeedc1770b51551cd3304300a5ac6574d350c18eab668a7934",
+      "sha256": "e1911c150f53887b5368a49e85e49792c68276afd1d91001eab408a0735b9dbf",
       "classification": "excluded",
       "category": "generated",
       "reason": "Setup-owned native mirror; reviewed canonical Power source and installation parity own these bytes, not Wiki authoring."
     },
     {
       "path": "powers/pkstack/skills/wayfinder/SKILL.md",
-      "sha256": "2208676de577e8669eca78a0f1719800979818992c5aeb2db1bbe803eec24e51",
+      "sha256": "5c4a4a136bee327f28e3fbbadffda9ea2cddfbf2b900e8f0095eec2af9358aef",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference; source inventory and composition guidance retain adaptation decisions while Kiro owns execution and discovery."
     },
     {
       "path": "powers/pkstack/skills/wayfinder/references/github.md",
-      "sha256": "5a8803168d9dcdfeedc1770b51551cd3304300a5ac6574d350c18eab668a7934",
+      "sha256": "e1911c150f53887b5368a49e85e49792c68276afd1d91001eab408a0735b9dbf",
       "classification": "excluded",
       "category": "native",
       "reason": "Native skill definition or bundled reference; source inventory and composition guidance retain adaptation decisions while Kiro owns execution and discovery."
     },
     {
       "path": "powers/pkstack/provenance/mattpocock-wayfinder-provenance.md",
-      "sha256": "46499ad80b935d70c6f33e3e1e9192367427c2b47ce6218b1df310eff07be95b",
+      "sha256": "61ab7b146d73fed7ff24864bc158994a4ef2a5f1d734ec612ba6f361a800329f",
       "classification": "mapped",
       "topics": [
         "Wiki/knowledge/pkstack/skill-composition-and-provenance.md"

@@ -72,12 +72,21 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
 ## Resume
 
 1. Resolve the supplied map URL or issue number against the selected repository.
-   Read its destination, current children, assignees, and blockers. A named ticket
-   must be a child and eligible; do not bypass blockers or another worker's claim.
+   Read its destination, current children, assignees, and blockers. Before taking
+   new work, reconcile known partial publication from retained ticket/comment
+   identities. A closed child missing from both map indexes needs its existing
+   resolution or retirement evidence checked and linked, not reopening or repeated
+   research. Repair only already-authorized effects; incomplete access is not proof
+   that an effect is missing. A named work ticket must be a child and frontier-eligible
+   or this resumed session's previously verified claim. Do not bypass blockers or
+   another worker's claim.
 2. Select the first eligible child in native sub-issue order unless the user selected
-   another eligible ticket. Claim it for the authenticated developer and re-read
-   state. Assignment is advisory coordination, not an atomic session lock: sessions
-   sharing a login must serialize ownership explicitly. Stop on a conflicting claim.
+   another eligible ticket. Claim an unassigned ticket for the authenticated developer
+   and re-read state; reuse a verified resumed-session claim only after rechecking
+   blockers and assignees. Assignment is advisory coordination, not an atomic session
+   lock: sessions sharing a login must serialize ownership explicitly. Stop on a
+   conflicting claim. Recover a different session's stale claim only with explicit
+   owner authorization and confirmation that no active worker still owns it.
 3. Work one decision ticket per session; additional independent research requires
    the request's existing scope and budget. Fetch related decisions on demand.
    Read [research](../research/SKILL.md) for factual uncertainty and
@@ -95,7 +104,8 @@ A blocked or claimed frontier is unfinished work, even if nothing can be taken n
 5. Turn newly precise fog into child tickets, wire dependencies, then remove that
    fog from the map. Retire mis-scoped or invalidated tickets with explanations;
    preserve their history instead of deleting them. Out-of-scope closures belong
-   in Out of scope, not Decisions so far.
+   in Out of scope, not Decisions so far. Reassess dependents when retiring a blocker;
+   its closed state is not evidence that the question was answered.
 
 The map is ready for handoff only when the destination's decisions are resolved,
 all children are accounted for, and no in-scope fog remains. Verify the live state
